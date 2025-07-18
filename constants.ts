@@ -12,6 +12,25 @@ export const PROJECTS: Project[] = [
     liveUrl: '#',
     imageUrl: '#', // 기본 아이콘 사용
     readme: '' // GitHub API에서 동적으로 가져올 예정
+  },
+  {
+    id: 2,
+    title: 'PYQT5 파일 태거 (File Tagger)',
+    description: 'PyQt5를 사용한 데스크톱 파일 태깅 애플리케이션으로, 파일에 메타데이터 태그를 추가하고 관리할 수 있습니다.',
+    technologies: ['Python', 'PyQt5', 'SQLite', 'File System', 'GUI'],
+    githubUrl: 'https://github.com/Yamang02/PYQT5_FileTagger',
+    liveUrl: '#',
+    imageUrl: '#', // 기본 아이콘 사용
+    readme: '' // GitHub API에서 동적으로 가져올 예정
+  },
+  {
+    id: 3,
+    title: 'AI 포트폴리오 챗봇 (AI Portfolio Chatbot)',
+    description: 'Google Gemini API를 활용한 개발자 포트폴리오 AI 챗봇으로, 프로젝트 정보를 자연어로 소개합니다.',
+    technologies: ['React', 'TypeScript', 'Google Gemini API', 'GitHub API', 'Tailwind CSS'],
+    githubUrl: 'https://github.com/Yamang02/AI_Portfolio',
+    liveUrl: '#',
+    imageUrl: '#', // 기본 아이콘 사용
+    readme: '' // GitHub API에서 동적으로 가져올 예정
   }
-  // 추가 프로젝트는 대기 중...
 ];

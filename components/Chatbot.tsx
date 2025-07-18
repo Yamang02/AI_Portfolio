@@ -42,7 +42,7 @@ const Chatbot: React.FC<ChatbotProps> = () => {
       const initialMessage: ChatMessageType = {
         id: 'initial',
         sender: 'ai',
-        text: `안녕하세요! 👋 저는 AI 포트폴리오 비서입니다.\n\n어떤 프로젝트에 대해 궁금하신가요?\n\n**사용 가능한 프로젝트:**\n• 성균관대학교 순수미술 동아리 갤러리 (SKKU FAC)\n\n💡 직접 질문도 가능합니다! "어떤 기술을 사용했어?" 같은 질문을 해보세요.`
+        text: `안녕하세요! 👋 저는 AI 포트폴리오 비서입니다.\n\n어떤 프로젝트에 대해 궁금하신가요?\n\n**사용 가능한 프로젝트:**\n• 성균관대학교 순수미술 동아리 갤러리 (SKKU FAC)\n• PYQT5 파일 태거 (File Tagger)\n• AI 포트폴리오 챗봇 (AI Portfolio Chatbot)\n\n💡 직접 질문도 가능합니다! "어떤 기술을 사용했어?" 같은 질문을 해보세요.`
       };
       setMessages([initialMessage]);
       setIsInitialized(true);

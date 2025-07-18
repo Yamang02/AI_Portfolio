@@ -40,10 +40,23 @@ const getProjectsFromGitHub = async (): Promise<any[]> => {
     
     // constants.ts의 기본 정보와 병합
     const mergedProjects = PROJECTS.map(localProject => {
-      const githubProject = githubProjects.find(gp => 
-        gp.githubUrl === localProject.githubUrl || 
-        gp.title.toLowerCase().includes(localProject.title.toLowerCase())
-      );
+      const githubProject = githubProjects.find(gp => {
+        // GitHub URL이 정확히 일치하는 경우
+        if (gp.githubUrl === localProject.githubUrl) {
+          return true;
+        }
+        
+        // 프로젝트명에서 키워드 매칭
+        const localTitle = localProject.title.toLowerCase();
+        const githubTitle = gp.name.toLowerCase();
+        
+        // 주요 키워드로 매칭
+        const keywords = localTitle.split(/[\s()]+/).filter(word => word.length > 2);
+        return keywords.some(keyword => 
+          githubTitle.includes(keyword) || 
+          keyword.includes(githubTitle)
+        );
+      });
       
       if (githubProject) {
         return {
