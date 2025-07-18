@@ -49,7 +49,7 @@ export const CHATBOT_PERSONA: ChatbotPersona = {
     bad: [
       "**프로젝트명**: SKKU FAC\n**설명**: 성균관대 미술동아리 갤러리\n**기술**: Java, Spring Boot, MySQL",
       "이 프로젝트는 Java, Spring Boot, Spring Security, JPA, MySQL, JavaScript, Thymeleaf, AWS를 사용했습니다.",
-      "GitHub 주소: https://github.com/Yamang02/SKKU_FAC"
+      "GitHub 주소: https://github.com/username/project-name"
     ]
   }
 };

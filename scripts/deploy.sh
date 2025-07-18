@@ -3,10 +3,10 @@
 # Google Cloud Run 배포 스크립트
 set -e
 
-# 환경 변수 설정
-PROJECT_ID="your-project-id"
-SERVICE_NAME="ai-portfolio-chatbot"
-REGION="asia-northeast3"  # 서울 리전
+# 환경 변수 설정 (환경 변수에서 로드하거나 기본값 사용)
+PROJECT_ID="${VITE_PROJECT_ID:-your-project-id}"
+SERVICE_NAME="${VITE_SERVICE_NAME:-ai-portfolio-chatbot}"
+REGION="${VITE_REGION:-asia-northeast3}"  # 서울 리전
 IMAGE_NAME="gcr.io/$PROJECT_ID/$SERVICE_NAME"
 
 echo "🚀 AI Portfolio Chatbot 배포 시작..."

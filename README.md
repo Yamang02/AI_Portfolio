@@ -52,8 +52,8 @@ services/
    ```
 
 2. 환경 변수 설정:
-   - `.env.local` 파일에 `GEMINI_API_KEY` 설정
-   - GitHub 사용자명 확인 (`services/geminiService.ts`의 `Yamang02` 부분)
+   - `.env.local` 파일에 `VITE_GEMINI_API_KEY` 설정
+   - GitHub 사용자명 설정 (`VITE_GITHUB_USERNAME`)
 
 3. 개발 서버 실행:
    ```bash

@@ -5,17 +5,18 @@ import GitHubService from './githubService';
 import { generateSystemPrompt } from './prompts/chatbotPersona';
 import { generateContextualPrompt } from './prompts/conversationPatterns';
 
-if (!process.env.API_KEY) {
-  // In a real app, you'd want to handle this more gracefully.
-  // For this example, we assume it's set.
-  console.warn("API_KEY environment variable not set. Using a placeholder. AI features will not work.");
-  process.env.API_KEY = "placeholder-key";
+const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+
+if (!apiKey) {
+  console.warn("VITE_GEMINI_API_KEY environment variable not set. Using a placeholder. AI features will not work.");
 }
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+const ai = new GoogleGenAI({ apiKey: apiKey || "placeholder-key" });
 
-// GitHub 서비스 인스턴스 (사용자명을 실제 GitHub 사용자명으로 변경하세요)
-const githubService = new GitHubService('Yamang02'); // 실제 GitHub 사용자명으로 변경
+import { appConfig } from '../config/app.config';
+
+// GitHub 서비스 인스턴스 (설정에서 사용자명 가져오기)
+const githubService = new GitHubService(appConfig.github.username);
 
 // 프로젝트 정보 캐시
 let cachedProjects: any[] = [];
@@ -124,9 +125,9 @@ const extractProjectIdsFromQuestion = (question: string): number[] => {
   return projectIds;
 };
 
-// The function signature is simplified. It no longer needs the 'projects' array passed to it.
-export const getChatbotResponse = async (question: string): Promise<string> => {
-  if (process.env.API_KEY === "placeholder-key") {
+// 선택된 프로젝트의 맥락을 유지하는 함수
+export const getChatbotResponse = async (question: string, selectedProject?: string): Promise<string> => {
+  if (!import.meta.env.VITE_GEMINI_API_KEY) {
     return "I_CANNOT_ANSWER";
   }
 
@@ -138,8 +139,48 @@ export const getChatbotResponse = async (question: string): Promise<string> => {
     return "I_CANNOT_ANSWER";
   }
 
-  // It generates the context from GitHub API with fallback to constants.
-  const projectContext = await generateProjectContext();
+  let projectContext: string;
+
+  // 선택된 프로젝트가 있으면 해당 프로젝트의 상세 정보만 가져오기
+  if (selectedProject) {
+    try {
+      const projectInfo = await githubService.getProjectInfo(selectedProject);
+      if (projectInfo) {
+        const contextParts = [
+          `프로젝트명: ${projectInfo.title}`,
+          `설명: ${projectInfo.description}`,
+          `사용 기술: ${projectInfo.technologies.join(', ')}`,
+          `GitHub 주소: ${projectInfo.githubUrl}`
+        ];
+        
+        if (projectInfo.liveUrl) {
+          contextParts.push(`라이브 데모 주소: ${projectInfo.liveUrl}`);
+        }
+        
+        if (projectInfo.readme) {
+          contextParts.push(`상세 정보:\n${projectInfo.readme}`);
+        }
+        
+        if (projectInfo.portfolioInfo) {
+          contextParts.push(`포트폴리오 정보:\n${projectInfo.portfolioInfo}`);
+        }
+        
+        projectContext = contextParts.join('\n');
+      } else {
+        // GitHub에서 정보를 가져올 수 없으면 기본 정보 사용
+        const defaultProject = PROJECTS.find(p => p.title === selectedProject);
+        projectContext = defaultProject ? 
+          `프로젝트명: ${defaultProject.title}\n설명: ${defaultProject.description}\n사용 기술: ${defaultProject.technologies.join(', ')}\nGitHub 주소: ${defaultProject.githubUrl}` :
+          await generateProjectContext();
+      }
+    } catch (error) {
+      console.error('선택된 프로젝트 정보 가져오기 실패:', error);
+      projectContext = await generateProjectContext();
+    }
+  } else {
+    // 선택된 프로젝트가 없으면 전체 프로젝트 컨텍스트 사용
+    projectContext = await generateProjectContext();
+  }
 
   // 새로운 프롬프트 시스템 사용
   const allowedProjects = PROJECTS.map(p => p.title || '').filter(title => title);

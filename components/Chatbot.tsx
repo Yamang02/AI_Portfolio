@@ -4,6 +4,7 @@ import { ChatMessage as ChatMessageType } from '../types';
 import { getChatbotResponse } from '../services/geminiService';
 import { PROJECTS } from '../constants';
 import ChatMessage from './ChatMessage';
+import { appConfig } from '../config/app.config';
 
 // The 'projects' prop is no longer needed.
 interface ChatbotProps {}
@@ -26,6 +27,7 @@ const Chatbot: React.FC<ChatbotProps> = () => {
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [selectedProject, setSelectedProject] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -49,8 +51,19 @@ const Chatbot: React.FC<ChatbotProps> = () => {
     }
   };
 
+  // 챗봇 완전 초기화 (프로젝트 선택 상태 포함)
+  const resetChatbot = () => {
+    setSelectedProject(null);
+    setMessages([]);
+    setIsInitialized(false);
+    initializeChatbot();
+  };
+
   // 프로젝트 선택 처리
   const handleProjectSelect = async (project: any) => {
+    // 선택된 프로젝트 설정
+    setSelectedProject(project.title);
+    
     const userMessage: ChatMessageType = {
       id: Date.now().toString(),
       sender: 'user',
@@ -68,7 +81,7 @@ const Chatbot: React.FC<ChatbotProps> = () => {
     try {
       // 더 자연스러운 질문 생성
       const question = `${project.title}에 대해 간단히 소개해줄 수 있어?`;
-      const responseText = await getChatbotResponse(question);
+      const responseText = await getChatbotResponse(question, project.title);
       
       let aiResponseText: React.ReactNode;
       if (responseText.trim() === 'I_CANNOT_ANSWER') {
@@ -111,15 +124,15 @@ const Chatbot: React.FC<ChatbotProps> = () => {
     setIsLoading(true);
 
     try {
-      // The call to the service is now simpler, without passing props.
-      const responseText = await getChatbotResponse(inputValue);
+      // 선택된 프로젝트가 있으면 해당 프로젝트의 맥락을 유지
+      const responseText = await getChatbotResponse(inputValue, selectedProject || undefined);
       
       let aiResponseText: React.ReactNode;
       if (responseText.trim() === 'I_CANNOT_ANSWER') {
         aiResponseText = (
           <span>
             그 질문에는 답변하기 어렵네요. 더 궁금한 점이 있다면 아래 버튼으로 개발자에게 직접 연락해주세요.
-            <a href="mailto:contact@example.com" className="block text-center mt-3 bg-primary-600 hover:bg-primary-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300">
+            <a href={`mailto:${appConfig.app.contactEmail}`} className="block text-center mt-3 bg-primary-600 hover:bg-primary-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300">
               개발자에게 메일 보내기
             </a>
           </span>
@@ -165,19 +178,41 @@ const Chatbot: React.FC<ChatbotProps> = () => {
       <div className={`fixed inset-4 sm:inset-8 transition-all duration-300 ease-in-out ${isOpen ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-90 invisible'}`}>
         <div className="bg-white rounded-xl shadow-2xl h-full flex flex-col border border-gray-200">
           <header className="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-primary-600 to-primary-700 text-white">
-            <h3 className="text-2xl font-bold">🤖 AI 포트폴리오 비서</h3>
-            <button 
-              onClick={() => {
-                setIsOpen(false);
-                // 챗봇을 닫을 때 초기화 상태 리셋 (선택사항)
-                // setIsInitialized(false);
-                // setMessages([]);
-              }} 
-              className="text-white hover:text-gray-200" 
-              aria-label="채팅 닫기"
-            >
-              <CloseIcon />
-            </button>
+            <div>
+              <h3 className="text-2xl font-bold">🤖 AI 포트폴리오 비서</h3>
+              {selectedProject && (
+                <p className="text-sm text-primary-100 mt-1">
+                  현재 프로젝트: {selectedProject}
+                </p>
+              )}
+            </div>
+            <div className="flex items-center space-x-2">
+              {selectedProject && (
+                <button 
+                  onClick={() => setSelectedProject(null)}
+                  className="text-white hover:text-gray-200 text-sm px-3 py-1 rounded border border-white/30 hover:bg-white/10 transition-colors"
+                  title="프로젝트 선택 해제"
+                >
+                  프로젝트 변경
+                </button>
+              )}
+              <button 
+                onClick={resetChatbot}
+                className="text-white hover:text-gray-200 text-sm px-3 py-1 rounded border border-white/30 hover:bg-white/10 transition-colors"
+                title="챗봇 초기화"
+              >
+                초기화
+              </button>
+              <button 
+                onClick={() => {
+                  setIsOpen(false);
+                }} 
+                className="text-white hover:text-gray-200" 
+                aria-label="채팅 닫기"
+              >
+                <CloseIcon />
+              </button>
+            </div>
           </header>
           
           <div className="flex-1 p-6 overflow-y-auto">
@@ -187,7 +222,7 @@ const Chatbot: React.FC<ChatbotProps> = () => {
             </div>
             
             {/* 프로젝트 선택 버튼들 */}
-            {messages.length === 1 && messages[0].id === 'initial' && (
+            {(messages.length === 1 && messages[0].id === 'initial') || selectedProject === null ? (
               <div className="mt-6 space-y-3">
                 <p className="text-sm text-gray-600 font-medium">프로젝트를 선택하세요:</p>
                 <div className="grid grid-cols-1 gap-2">
@@ -202,7 +237,7 @@ const Chatbot: React.FC<ChatbotProps> = () => {
                   ))}
                 </div>
               </div>
-            )}
+            ) : null}
             
             <div ref={messagesEndRef} />
           </div>

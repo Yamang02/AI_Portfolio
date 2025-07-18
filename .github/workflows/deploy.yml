@@ -8,8 +8,8 @@ on:
 
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-  SERVICE_NAME: ai-portfolio-chatbot
-  REGION: asia-northeast3
+  SERVICE_NAME: ${{ secrets.SERVICE_NAME || 'ai-portfolio-chatbot' }}
+  REGION: ${{ secrets.REGION || 'asia-northeast3' }}
 
 jobs:
   test:
