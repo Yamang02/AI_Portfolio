@@ -42,40 +42,7 @@ const Chatbot: React.FC<ChatbotProps> = () => {
       const initialMessage: ChatMessageType = {
         id: 'initial',
         sender: 'ai',
-        text: (
-          <div className="space-y-4">
-            <div>
-              <p className="text-gray-800 mb-3">
-                안녕하세요! 👋 저는 AI 비서입니다. 
-                어떤 프로젝트에 대해 궁금하신가요?
-              </p>
-            </div>
-            <div className="space-y-2">
-              <p className="text-sm text-gray-600 font-medium">프로젝트를 선택하거나 직접 질문해보세요:</p>
-              <div className="grid grid-cols-1 gap-2">
-                {PROJECTS.map(project => (
-                  <button
-                    key={project.id}
-                    onClick={() => handleProjectSelect(project)}
-                    className="text-left p-3 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors duration-200"
-                  >
-                    <div className="font-medium text-gray-900">{project.title}</div>
-                    <div className="text-sm text-gray-600 mt-1">{project.description}</div>
-                    <div className="text-xs text-gray-500 mt-1">
-                      기술: {project.technologies.slice(0, 3).join(', ')}
-                      {project.technologies.length > 3 && '...'}
-                    </div>
-                  </button>
-                ))}
-              </div>
-              <div className="pt-2">
-                <p className="text-xs text-gray-500">
-                  💡 직접 질문도 가능합니다! "어떤 기술을 사용했어?" 같은 질문을 해보세요.
-                </p>
-              </div>
-            </div>
-          </div>
-        )
+        text: `안녕하세요! 👋 저는 AI 포트폴리오 비서입니다.\n\n어떤 프로젝트에 대해 궁금하신가요?\n\n**사용 가능한 프로젝트:**\n• 성균관대학교 순수미술 동아리 갤러리 (SKKU FAC)\n\n💡 직접 질문도 가능합니다! "어떤 기술을 사용했어?" 같은 질문을 해보세요.`
       };
       setMessages([initialMessage]);
       setIsInitialized(true);
@@ -98,29 +65,40 @@ const Chatbot: React.FC<ChatbotProps> = () => {
   const handleProjectQuestion = async (project: any) => {
     setIsLoading(true);
     
-    // 더 자연스러운 질문 생성
-    const question = `${project.title}에 대해 간단히 소개해줄 수 있어?`;
-    const responseText = await getChatbotResponse(question);
-    
-    let aiResponseText: React.ReactNode;
-    if (responseText.trim() === 'I_CANNOT_ANSWER') {
-      aiResponseText = (
-        <span>
-          해당 프로젝트에 대한 정보를 찾을 수 없습니다. 다른 프로젝트를 선택하거나 직접 질문해보세요.
-        </span>
-      );
-    } else {
-      aiResponseText = responseText;
-    }
+    try {
+      // 더 자연스러운 질문 생성
+      const question = `${project.title}에 대해 간단히 소개해줄 수 있어?`;
+      const responseText = await getChatbotResponse(question);
+      
+      let aiResponseText: React.ReactNode;
+      if (responseText.trim() === 'I_CANNOT_ANSWER') {
+        aiResponseText = (
+          <span>
+            해당 프로젝트에 대한 정보를 찾을 수 없습니다. 다른 프로젝트를 선택하거나 직접 질문해보세요.
+          </span>
+        );
+      } else {
+        aiResponseText = responseText;
+      }
 
-    const aiMessage: ChatMessageType = { 
-      id: (Date.now() + 1).toString(), 
-      sender: 'ai', 
-      text: aiResponseText 
-    };
-    
-    setMessages(prev => [...prev, aiMessage]);
-    setIsLoading(false);
+      const aiMessage: ChatMessageType = { 
+        id: (Date.now() + 1).toString(), 
+        sender: 'ai', 
+        text: aiResponseText 
+      };
+      
+      setMessages(prev => [...prev, aiMessage]);
+    } catch (error) {
+      console.error('프로젝트 질문 처리 중 오류:', error);
+      const errorMessage: ChatMessageType = { 
+        id: (Date.now() + 1).toString(), 
+        sender: 'ai', 
+        text: '죄송합니다. 프로젝트 정보를 가져오는 중에 오류가 발생했습니다. 잠시 후 다시 시도해주세요.' 
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleSendMessage = async (e: React.FormEvent) => {
@@ -132,26 +110,37 @@ const Chatbot: React.FC<ChatbotProps> = () => {
     setInputValue('');
     setIsLoading(true);
 
-    // The call to the service is now simpler, without passing props.
-    const responseText = await getChatbotResponse(inputValue);
-    
-    let aiResponseText: React.ReactNode;
-    if (responseText.trim() === 'I_CANNOT_ANSWER') {
-      aiResponseText = (
-        <span>
-          그 질문에는 답변하기 어렵네요. 더 궁금한 점이 있다면 아래 버튼으로 개발자에게 직접 연락해주세요.
-          <a href="mailto:contact@example.com" className="block text-center mt-3 bg-primary-600 hover:bg-primary-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300">
-            개발자에게 메일 보내기
-          </a>
-        </span>
-      );
-    } else {
-      aiResponseText = responseText;
-    }
+    try {
+      // The call to the service is now simpler, without passing props.
+      const responseText = await getChatbotResponse(inputValue);
+      
+      let aiResponseText: React.ReactNode;
+      if (responseText.trim() === 'I_CANNOT_ANSWER') {
+        aiResponseText = (
+          <span>
+            그 질문에는 답변하기 어렵네요. 더 궁금한 점이 있다면 아래 버튼으로 개발자에게 직접 연락해주세요.
+            <a href="mailto:contact@example.com" className="block text-center mt-3 bg-primary-600 hover:bg-primary-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300">
+              개발자에게 메일 보내기
+            </a>
+          </span>
+        );
+      } else {
+        aiResponseText = responseText;
+      }
 
-    const aiMessage: ChatMessageType = { id: (Date.now() + 1).toString(), sender: 'ai', text: aiResponseText };
-    setMessages(prev => [...prev, aiMessage]);
-    setIsLoading(false);
+      const aiMessage: ChatMessageType = { id: (Date.now() + 1).toString(), sender: 'ai', text: aiResponseText };
+      setMessages(prev => [...prev, aiMessage]);
+    } catch (error) {
+      console.error('챗봇 응답 처리 중 오류:', error);
+      const errorMessage: ChatMessageType = { 
+        id: (Date.now() + 1).toString(), 
+        sender: 'ai', 
+        text: '죄송합니다. 응답을 생성하는 중에 오류가 발생했습니다. 잠시 후 다시 시도해주세요.' 
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // 챗봇이 열릴 때 초기화
@@ -173,10 +162,10 @@ const Chatbot: React.FC<ChatbotProps> = () => {
         </button>
       </div>
 
-      <div className={`fixed bottom-0 right-0 m-4 sm:m-8 w-[calc(100%-2rem)] sm:w-96 h-[70vh] max-h-[700px] transition-all duration-300 ease-in-out ${isOpen ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-90 invisible'}`}>
+      <div className={`fixed inset-4 sm:inset-8 transition-all duration-300 ease-in-out ${isOpen ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-90 invisible'}`}>
         <div className="bg-white rounded-xl shadow-2xl h-full flex flex-col border border-gray-200">
-          <header className="flex items-center justify-between p-4 border-b border-gray-200">
-            <h3 className="text-lg font-bold text-gray-900">AI 비서</h3>
+          <header className="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-primary-600 to-primary-700 text-white">
+            <h3 className="text-2xl font-bold">🤖 AI 포트폴리오 비서</h3>
             <button 
               onClick={() => {
                 setIsOpen(false);
@@ -184,29 +173,48 @@ const Chatbot: React.FC<ChatbotProps> = () => {
                 // setIsInitialized(false);
                 // setMessages([]);
               }} 
-              className="text-gray-400 hover:text-gray-700" 
+              className="text-white hover:text-gray-200" 
               aria-label="채팅 닫기"
             >
               <CloseIcon />
             </button>
           </header>
           
-          <div className="flex-1 p-4 overflow-y-auto">
+          <div className="flex-1 p-6 overflow-y-auto">
             <div className="space-y-4">
               {messages.map(msg => <ChatMessage key={msg.id} message={msg} />)}
               {isLoading && <ChatMessage key="loading" message={{ id: 'loading', sender: 'ai', text: '...' }} />}
             </div>
+            
+            {/* 프로젝트 선택 버튼들 */}
+            {messages.length === 1 && messages[0].id === 'initial' && (
+              <div className="mt-6 space-y-3">
+                <p className="text-sm text-gray-600 font-medium">프로젝트를 선택하세요:</p>
+                <div className="grid grid-cols-1 gap-2">
+                  {PROJECTS.map(project => (
+                    <button
+                      key={project.id}
+                      onClick={() => handleProjectSelect(project)}
+                      className="text-center p-3 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors duration-200 font-medium text-gray-900"
+                    >
+                      {project.title}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+            
             <div ref={messagesEndRef} />
           </div>
 
-          <form onSubmit={handleSendMessage} className="p-4 border-t border-gray-200">
+          <form onSubmit={handleSendMessage} className="p-6 border-t border-gray-200">
             <div className="relative">
               <input
                 type="text"
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 placeholder="프로젝트에 대해 질문해보세요..."
-                className="w-full bg-gray-100 border border-gray-300 rounded-lg py-2 pl-4 pr-12 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className="w-full bg-gray-100 border border-gray-300 rounded-lg py-4 pl-6 pr-16 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 text-lg"
                 disabled={isLoading}
               />
               <button type="submit" className="absolute inset-y-0 right-0 flex items-center justify-center px-4 text-primary-500 hover:text-primary-600 disabled:text-gray-400" disabled={isLoading || !inputValue.trim()}>

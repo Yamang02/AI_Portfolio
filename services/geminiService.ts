@@ -136,7 +136,12 @@ export const getChatbotResponse = async (question: string): Promise<string> => {
   const prompt = `${contextualPrompt}\n\n사용자 질문: "${question}"`;
 
   try {
-    const response = await ai.models.generateContent({
+    // 타임아웃 설정 (30초)
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('API 요청 타임아웃')), 30000);
+    });
+
+    const apiPromise = ai.models.generateContent({
         model: "gemini-2.5-flash",
         contents: prompt,
         config: {
@@ -144,10 +149,24 @@ export const getChatbotResponse = async (question: string): Promise<string> => {
         },
     });
 
+    const response = await Promise.race([apiPromise, timeoutPromise]) as any;
     const text = response.text || '';
+    
+    // 응답이 너무 짧으면 에러로 처리
+    if (text.trim().length < 10) {
+      console.error("API 응답이 너무 짧습니다:", text);
+      return "I_CANNOT_ANSWER";
+    }
+    
     return text;
   } catch (error) {
     console.error("Error fetching response from Gemini API:", error);
+    
+    // 구체적인 에러 메시지 로깅
+    if (error instanceof Error) {
+      console.error("Error details:", error.message);
+    }
+    
     return "I_CANNOT_ANSWER";
   }
 };
