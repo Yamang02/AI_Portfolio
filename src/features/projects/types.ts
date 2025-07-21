@@ -31,7 +31,7 @@ export interface Experience extends BaseItem {
   organization: string;
   role?: string;
   location?: string;
-  type: 'work' | 'education';
+  // type 필드 제거
 }
 
 // 자격증 인터페이스
