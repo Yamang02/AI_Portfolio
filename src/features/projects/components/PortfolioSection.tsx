@@ -10,23 +10,22 @@ interface PortfolioSectionProps {
   projects: Project[];
   experiences: Experience[];
   certifications: Certification[];
+  isHistoryPanelOpen: boolean;
+  onHistoryPanelToggle: () => void;
+  isChatbotOpen: boolean;
+  onChatbotToggle: () => void;
 }
 
 const PortfolioSection: React.FC<PortfolioSectionProps> = ({ 
   projects, 
   experiences,
-  certifications
+  certifications,
+  isHistoryPanelOpen,
+  onHistoryPanelToggle,
+  isChatbotOpen,
+  onChatbotToggle
 }) => {
-  const [isHistoryPanelOpen, setIsHistoryPanelOpen] = React.useState(false);
   const [highlightedItemId, setHighlightedItemId] = React.useState<string | undefined>();
-
-  // 히스토리 패널 토글
-  const toggleHistoryPanel = () => {
-    setIsHistoryPanelOpen(!isHistoryPanelOpen);
-    if (isHistoryPanelOpen) {
-      setHighlightedItemId(undefined);
-    }
-  };
 
   // 아이템 하이라이트 처리
   const handleItemHover = (itemId?: string) => {
@@ -58,6 +57,7 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
                 project={project}
                 onMouseEnter={() => handleItemHover(project.id)}
                 onMouseLeave={() => handleItemHover(undefined)}
+                isHighlighted={highlightedItemId === project.id}
               />
             ))}
           </div>
@@ -80,6 +80,7 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
                 experience={experience}
                 onMouseEnter={() => handleItemHover(experience.id)}
                 onMouseLeave={() => handleItemHover(undefined)}
+                isHighlighted={highlightedItemId === experience.id}
               />
             ))}
           </div>
@@ -114,14 +115,14 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
         projects={projects}
         experiences={experiences}
         highlightedItemId={highlightedItemId}
-        onToggle={toggleHistoryPanel}
+        onToggle={onHistoryPanelToggle}
         onItemHover={handleItemHover}
       />
       
       {/* 패널 토글 버튼 */}
       <PanelToggle 
         isOpen={isHistoryPanelOpen} 
-        onToggle={toggleHistoryPanel} 
+        onToggle={onHistoryPanelToggle} 
       />
     </section>
   );

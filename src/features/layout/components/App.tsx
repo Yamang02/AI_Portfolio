@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Header from './Header';
 import HeroSection from './HeroSection';
 import { PortfolioSection } from '../../projects';
@@ -12,6 +12,20 @@ const App: React.FC = () => {
     validateConfig();
   }, []);
 
+  // 패널 상태 독립적으로 관리
+  const [isChatbotOpen, setChatbotOpen] = useState(false);
+  const [isHistoryPanelOpen, setHistoryPanelOpen] = useState(true);
+
+  // 챗봇 토글
+  const handleChatbotToggle = () => {
+    setChatbotOpen((prev) => !prev);
+  };
+
+  // 히스토리 패널 토글
+  const handleHistoryPanelToggle = () => {
+    setHistoryPanelOpen((prev) => !prev);
+  };
+
   return (
     <div className="min-h-screen bg-white text-gray-700 font-sans">
       <Header />
@@ -21,9 +35,13 @@ const App: React.FC = () => {
           projects={ALL_PROJECTS} 
           experiences={ALL_EXPERIENCES}
           certifications={ALL_CERTIFICATIONS}
+          isHistoryPanelOpen={isHistoryPanelOpen}
+          onHistoryPanelToggle={handleHistoryPanelToggle}
+          isChatbotOpen={isChatbotOpen}
+          onChatbotToggle={handleChatbotToggle}
         />
       </main>
-      <Chatbot />
+      <Chatbot isOpen={isChatbotOpen} onToggle={handleChatbotToggle} />
     </div>
   );
 };

@@ -6,7 +6,10 @@ import ChatMessage from './ChatMessage';
 import { appConfig } from '../../../shared';
 
 // The 'projects' prop is no longer needed.
-interface ChatbotProps {}
+interface ChatbotProps {
+  isOpen: boolean;
+  onToggle: () => void;
+}
 
 const ChatIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
@@ -20,8 +23,7 @@ const SendIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
 );
 
-const Chatbot: React.FC<ChatbotProps> = () => {
-  const [isOpen, setIsOpen] = useState(false);
+const Chatbot: React.FC<ChatbotProps> = ({ isOpen, onToggle }) => {
   const [messages, setMessages] = useState<ChatMessageType[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -169,21 +171,19 @@ const Chatbot: React.FC<ChatbotProps> = () => {
     }
   };
 
-  // 챗봇 열기/닫기
-  const toggleChatbot = () => {
-    if (!isOpen) {
-      setIsOpen(true);
+  // 챗봇 열기/닫기 버튼 클릭 시
+  const handleToggle = () => {
+    if (!isOpen && !isInitialized) {
       initializeChatbot();
-    } else {
-      setIsOpen(false);
     }
+    onToggle();
   };
 
   return (
     <>
       {/* 챗봇 토글 버튼 */}
       <button
-        onClick={toggleChatbot}
+        onClick={handleToggle}
         className="fixed bottom-6 right-6 bg-primary-600 text-white p-4 rounded-full shadow-lg hover:bg-primary-700 transition-colors duration-200 z-50"
         aria-label="챗봇 열기"
       >
@@ -198,10 +198,10 @@ const Chatbot: React.FC<ChatbotProps> = () => {
         >
           {/* 헤더 */}
           <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-white">
-            <h3 className="text-lg font-semibold text-gray-900">AI 포트폴리오 비서</h3>
+            <h3 className="text-lg font-semibold text-gray-900 text-center w-full">AI 포트폴리오 비서</h3>
             <button
-              onClick={toggleChatbot}
-              className="text-gray-500 hover:text-gray-700 transition-colors"
+              onClick={handleToggle}
+              className="text-gray-500 hover:text-gray-700 transition-colors absolute right-4"
               aria-label="챗봇 닫기"
             >
               <CloseIcon />

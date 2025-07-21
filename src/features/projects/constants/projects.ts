@@ -13,8 +13,8 @@ export const GITHUB_PROJECTS: Project[] = [
     readme: '', // GitHub API에서 동적으로 가져올 예정
     type: 'project',
     source: 'github',
-    startDate: '2024-01',
-    endDate: '2024-06'
+    startDate: '2025-01',
+    endDate: '2025-05'
   },
   {
     id: 2,
@@ -27,8 +27,8 @@ export const GITHUB_PROJECTS: Project[] = [
     readme: '', // GitHub API에서 동적으로 가져올 예정
     type: 'project',
     source: 'github',
-    startDate: '2024-03',
-    endDate: '2024-05'
+    startDate: '2025-07',
+    endDate: '2025-08'
   },
   {
     id: 3,
@@ -41,7 +41,7 @@ export const GITHUB_PROJECTS: Project[] = [
     readme: '', // GitHub API에서 동적으로 가져올 예정
     type: 'project',
     source: 'github',
-    startDate: '2024-07',
+    startDate: '2025-07',
     endDate: undefined // 현재 진행 중
   }
 ]; 

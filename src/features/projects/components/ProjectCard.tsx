@@ -18,12 +18,14 @@ interface ProjectCardProps {
   project: Project;
   onMouseEnter?: () => void;
   onMouseLeave?: () => void;
+  isHighlighted?: boolean;
 }
 
 const ProjectCard: React.FC<ProjectCardProps> = ({ 
   project, 
   onMouseEnter, 
-  onMouseLeave 
+  onMouseLeave, 
+  isHighlighted
 }) => {
   // 프로젝트 타입에 따른 아이콘 선택
   const getProjectIcon = () => {
@@ -98,7 +100,8 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
 
   return (
     <div 
-      className="bg-white rounded-lg shadow-md overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-xl flex flex-col border border-gray-100"
+      id={`project-${project.id}`}
+      className={`bg-white rounded-lg shadow-md overflow-hidden transform transition-all duration-300 hover:scale-105 flex flex-col border border-gray-100 ${isHighlighted ? 'ring-4 ring-blue-200 shadow-blue-200' : ''}`}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >

@@ -5,9 +5,10 @@ interface ExperienceCardProps {
   experience: Experience;
   onMouseEnter?: () => void;
   onMouseLeave?: () => void;
+  isHighlighted?: boolean;
 }
 
-const ExperienceCard: React.FC<ExperienceCardProps> = ({ experience, onMouseEnter, onMouseLeave }) => {
+const ExperienceCard: React.FC<ExperienceCardProps> = ({ experience, onMouseEnter, onMouseLeave, isHighlighted }) => {
   // 기술스택 축약 로직
   const renderTechStack = () => {
     const max = 3;
@@ -32,7 +33,8 @@ const ExperienceCard: React.FC<ExperienceCardProps> = ({ experience, onMouseEnte
 
   return (
     <div
-      className="bg-white rounded-lg shadow-md overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-xl flex flex-col border border-gray-100"
+      id={`experience-${experience.id}`}
+      className={`bg-white rounded-lg shadow-md overflow-hidden transform transition-all duration-300 hover:scale-105 flex flex-col border border-gray-100 ${isHighlighted ? 'ring-4 ring-orange-200 shadow-orange-200' : ''}`}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
