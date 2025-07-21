@@ -16,9 +16,15 @@ import {
 
 interface ProjectCardProps {
   project: Project;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
 }
 
-const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
+const ProjectCard: React.FC<ProjectCardProps> = ({ 
+  project, 
+  onMouseEnter, 
+  onMouseLeave 
+}) => {
   // 프로젝트 타입에 따른 아이콘 선택
   const getProjectIcon = () => {
     // 경험인 경우 특별한 아이콘 사용
@@ -88,7 +94,11 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-xl flex flex-col border border-gray-100">
+    <div 
+      className="bg-white rounded-lg shadow-md overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-xl flex flex-col border border-gray-100"
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+    >
       {/* 이미지 영역 */}
       <div className="h-48 w-full bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center relative overflow-hidden">
         {/* 프로젝트 타입 배지 */}

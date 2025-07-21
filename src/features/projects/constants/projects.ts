@@ -12,7 +12,9 @@ export const GITHUB_PROJECTS: Project[] = [
     imageUrl: '#', // 기본 아이콘 사용
     readme: '', // GitHub API에서 동적으로 가져올 예정
     type: 'project',
-    source: 'github'
+    source: 'github',
+    startDate: '2024-01',
+    endDate: '2024-06'
   },
   {
     id: 2,
@@ -24,7 +26,9 @@ export const GITHUB_PROJECTS: Project[] = [
     imageUrl: '#', // 기본 아이콘 사용
     readme: '', // GitHub API에서 동적으로 가져올 예정
     type: 'project',
-    source: 'github'
+    source: 'github',
+    startDate: '2024-03',
+    endDate: '2024-05'
   },
   {
     id: 3,
@@ -36,6 +40,8 @@ export const GITHUB_PROJECTS: Project[] = [
     imageUrl: '#', // 기본 아이콘 사용
     readme: '', // GitHub API에서 동적으로 가져올 예정
     type: 'project',
-    source: 'github'
+    source: 'github',
+    startDate: '2024-07',
+    endDate: undefined // 현재 진행 중
   }
 ]; 

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Project } from '../types';
 import ProjectCard from './ProjectCard';
+import HistoryPanel from './HistoryPanel';
+import PanelToggle from './PanelToggle';
 
 interface PortfolioSectionProps {
   projects: Project[];
@@ -8,6 +10,8 @@ interface PortfolioSectionProps {
 
 const PortfolioSection: React.FC<PortfolioSectionProps> = ({ projects }) => {
   const [filter, setFilter] = useState<'all' | 'project' | 'experience'>('all');
+  const [isHistoryPanelOpen, setIsHistoryPanelOpen] = useState(false);
+  const [highlightedItemId, setHighlightedItemId] = useState<number | undefined>();
 
   // 필터링된 프로젝트 목록
   const filteredProjects = projects.filter(project => {
@@ -18,6 +22,19 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({ projects }) => {
   // 프로젝트 타입별 개수 계산
   const projectCount = projects.filter(p => p.type === 'project').length;
   const experienceCount = projects.filter(p => p.type === 'experience').length;
+
+  // 히스토리 패널 토글
+  const toggleHistoryPanel = () => {
+    setIsHistoryPanelOpen(!isHistoryPanelOpen);
+    if (isHistoryPanelOpen) {
+      setHighlightedItemId(undefined);
+    }
+  };
+
+  // 아이템 하이라이트 처리
+  const handleItemHover = (itemId?: number) => {
+    setHighlightedItemId(itemId);
+  };
 
   return (
     <section id="portfolio">
@@ -74,10 +91,30 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({ projects }) => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredProjects.map(project => (
-            <ProjectCard key={project.id} project={project} />
+            <ProjectCard 
+              key={project.id} 
+              project={project}
+              onMouseEnter={() => handleItemHover(project.id)}
+              onMouseLeave={() => handleItemHover(undefined)}
+            />
           ))}
         </div>
       )}
+
+      {/* 히스토리 패널 토글 버튼 */}
+      <PanelToggle 
+        isOpen={isHistoryPanelOpen} 
+        onToggle={toggleHistoryPanel} 
+      />
+
+      {/* 히스토리 패널 */}
+      <HistoryPanel
+        projects={projects}
+        isOpen={isHistoryPanelOpen}
+        onToggle={toggleHistoryPanel}
+        highlightedItemId={highlightedItemId}
+        onItemHover={handleItemHover}
+      />
     </section>
   );
 };

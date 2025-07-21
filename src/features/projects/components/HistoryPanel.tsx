@@ -5,34 +5,135 @@ interface HistoryPanelProps {
   projects: Project[];
   isOpen: boolean;
   onToggle: () => void;
+  highlightedItemId?: number;
+  onItemHover: (itemId?: number) => void;
 }
 
-const HistoryPanel: React.FC<HistoryPanelProps> = ({ projects, isOpen, onToggle }) => {
-  // 프로젝트를 히스토리 아이템으로 변환
-  const historyItems: HistoryItem[] = projects.map(project => ({
-    id: project.id,
-    title: project.title,
-    type: project.type,
-    date: project.metadata?.date || '2024', // 기본값 설정
-    description: project.description,
-    technologies: project.technologies
-  }));
+const HistoryPanel: React.FC<HistoryPanelProps> = ({
+  projects,
+  isOpen,
+  onToggle,
+  highlightedItemId,
+  onItemHover
+}) => {
+  // 프로젝트와 경험을 분리
+  const projectItems = projects.filter(p => p.type === 'project');
+  const experienceItems = projects.filter(p => p.type === 'experience');
 
-  // 연도별로 그룹화
-  const groupedByYear = historyItems.reduce((acc, item) => {
-    const year = item.date;
-    if (!acc[year]) {
-      acc[year] = [];
+  // 날짜를 Date 객체로 변환하는 헬퍼 함수
+  const parseDate = (dateStr: string): Date => {
+    if (dateStr.includes('-')) {
+      const [year, month] = dateStr.split('-');
+      return new Date(parseInt(year), parseInt(month) - 1, 1);
     }
-    acc[year].push(item);
-    return acc;
-  }, {} as Record<string, HistoryItem[]>);
+    return new Date(dateStr);
+  };
 
-  // 연도별 정렬 (최신순)
-  const sortedYears = Object.keys(groupedByYear).sort((a, b) => parseInt(b) - parseInt(a));
+  // 모든 날짜를 수집하여 범위 계산
+  const allDates = projects
+    .flatMap(p => [p.startDate, p.endDate])
+    .filter(Boolean)
+    .map(parseDate);
+
+  const minDate = new Date(Math.min(...allDates.map(d => d.getTime())));
+  const maxDate = new Date(Math.max(...allDates.map(d => d.getTime())));
+  
+  // 현재 진행 중인 프로젝트가 있으면 현재 날짜까지 포함
+  const hasOngoingProject = projects.some(p => !p.endDate);
+  const timelineEnd = hasOngoingProject ? new Date() : maxDate;
+
+  // 타임라인 시작점: 가장 최초 프로젝트보다 1달 전
+  const timelineStart = new Date(minDate);
+  timelineStart.setMonth(timelineStart.getMonth() - 1);
+  timelineStart.setDate(1);
+  timelineStart.setHours(0, 0, 0, 0);
+
+  // 타임라인 종료점: 오늘 기준 1달 후
+  const timelineEndExtended = new Date(timelineEnd);
+  timelineEndExtended.setMonth(timelineEndExtended.getMonth() + 1);
+  timelineEndExtended.setDate(1);
+  timelineEndExtended.setHours(0, 0, 0, 0);
+
+  // 날짜를 YYYY.MM 형식으로 포맷
+  const formatDate = (date: Date): string => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    return `${year}.${month}`;
+  };
+
+  // 타임라인 위치 계산 (상단이 최신)
+  const getPosition = (date: Date): number => {
+    const totalDuration = timelineEndExtended.getTime() - timelineStart.getTime();
+    const position = date.getTime() - timelineStart.getTime();
+    // 상단이 최신이 되도록 역순으로 계산
+    return 100 - (position / totalDuration) * 100;
+  };
+
+  // 타임라인에 표시할 날짜들 생성 (3개월 간격)
+  const generateTimelineDates = (): Date[] => {
+    const dates: Date[] = [];
+    const start = new Date(timelineStart);
+    const current = new Date(start);
+    
+    while (current <= timelineEndExtended) {
+      dates.push(new Date(current));
+      current.setMonth(current.getMonth() + 3);
+    }
+    
+    // 최신순으로 정렬 (상단이 최신)
+    return dates.reverse();
+  };
+
+  const timelineDates = generateTimelineDates();
+
+  // 바 아이템 렌더링
+  const renderBarItem = (item: Project, isProject: boolean) => {
+    const startDate = parseDate(item.startDate);
+    const endDate = item.endDate ? parseDate(item.endDate) : timelineEnd;
+    
+    const startPos = getPosition(startDate);
+    const endPos = getPosition(endDate);
+    
+    // 시작 위치가 종료 위치보다 클 수 있으므로 절댓값으로 계산
+    const barHeight = Math.max(Math.abs(endPos - startPos), 20);
+    
+    const isHighlighted = highlightedItemId === item.id;
+    
+    return (
+      <div
+        key={item.id}
+        className={`absolute transition-all duration-300 ease-in-out ${
+          isHighlighted ? 'z-20' : 'z-10'
+        }`}
+        style={{
+          top: `${Math.min(startPos, endPos)}%`, // 더 작은 값(위쪽)을 top으로 사용
+          left: isProject ? '35%' : '65%',
+          transform: 'translateX(-50%)'
+        }}
+        onMouseEnter={() => onItemHover(item.id)}
+        onMouseLeave={() => onItemHover(undefined)}
+      >
+        <div
+          className={`w-8 mx-auto rounded transition-all duration-300 cursor-pointer ${
+            isProject
+              ? isHighlighted
+                ? 'bg-blue-600 shadow-lg scale-105'
+                : 'bg-blue-400 hover:bg-blue-500'
+              : isHighlighted
+              ? 'bg-orange-600 shadow-lg scale-105'
+              : 'bg-orange-400 hover:bg-orange-500'
+          }`}
+          style={{ 
+            height: `${barHeight}px`,
+            minHeight: '20px' // 최소 높이 보장
+          }}
+        />
+      </div>
+    );
+  };
 
   return (
-    <div className={`fixed right-0 top-0 h-full w-80 bg-white shadow-lg transform transition-transform duration-300 ease-in-out z-50 ${
+    <div className={`fixed right-0 top-0 h-[calc(100vh-120px)] w-[480px] bg-white shadow-lg transform transition-transform duration-300 ease-in-out z-50 ${
       isOpen ? 'translate-x-0' : 'translate-x-full'
     }`}>
       {/* 패널 헤더 */}
@@ -50,60 +151,65 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({ projects, isOpen, onToggle 
 
       {/* 패널 내용 */}
       <div className="p-4 overflow-y-auto h-full">
-        {sortedYears.map(year => (
-          <div key={year} className="mb-6">
-            <h3 className="text-sm font-medium text-gray-500 mb-3">{year}</h3>
-            <div className="space-y-3">
-              {groupedByYear[year].map(item => (
+        {/* 통합 타임라인 */}
+        <div className="mb-8">
+          <h3 className="text-sm font-medium text-gray-700 mb-4 flex items-center justify-center">
+            <div className="w-4 h-4 bg-blue-500 rounded-full mr-2"></div>
+            <span className="mr-4">프로젝트</span>
+            <div className="w-4 h-4 bg-orange-500 rounded-full mr-2"></div>
+            <span>경험</span>
+          </h3>
+          <div className="relative h-[600px] bg-gray-100 rounded-lg p-2 overflow-y-auto">
+            {/* 중앙 타임라인 라인 */}
+            <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-gray-300 transform -translate-x-1/2"></div>
+            
+            {/* 타임라인 날짜 표시 */}
+            {timelineDates.map((date, index) => {
+              const datePos = getPosition(date);
+              return (
                 <div
-                  key={item.id}
-                  className={`p-3 rounded-lg border ${
-                    item.type === 'project'
-                      ? 'border-blue-200 bg-blue-50'
-                      : 'border-orange-200 bg-orange-50'
-                  }`}
+                  key={index}
+                  className="absolute left-1/2 transform -translate-x-1/2 bg-white px-2 py-1 rounded text-xs text-gray-600 font-medium border border-gray-200"
+                  style={{ top: `${datePos}%` }}
                 >
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <h4 className="font-medium text-sm text-gray-900 mb-1">
-                        {item.title}
-                      </h4>
-                      <p className="text-xs text-gray-600 mb-2 line-clamp-2">
-                        {item.description}
-                      </p>
-                      <div className="flex flex-wrap gap-1">
-                        {item.technologies.slice(0, 3).map(tech => (
-                          <span
-                            key={tech}
-                            className={`text-xs px-2 py-1 rounded ${
-                              item.type === 'project'
-                                ? 'bg-blue-100 text-blue-700'
-                                : 'bg-orange-100 text-orange-700'
-                            }`}
-                          >
-                            {tech}
-                          </span>
-                        ))}
-                        {item.technologies.length > 3 && (
-                          <span className="text-xs px-2 py-1 rounded bg-gray-100 text-gray-600">
-                            +{item.technologies.length - 3}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    <div className={`ml-2 px-2 py-1 rounded text-xs font-medium ${
-                      item.type === 'project'
-                        ? 'bg-blue-200 text-blue-800'
-                        : 'bg-orange-200 text-orange-800'
-                    }`}>
-                      {item.type === 'project' ? '프로젝트' : '경험'}
-                    </div>
-                  </div>
+                  {formatDate(date)}
                 </div>
-              ))}
+              );
+            })}
+            
+            {/* 프로젝트 바들 (왼쪽) */}
+            {projectItems.map(project => renderBarItem(project, true))}
+            
+            {/* 경험 바들 (오른쪽) */}
+            {experienceItems.map(experience => renderBarItem(experience, false))}
+          </div>
+        </div>
+
+        {/* 범례 */}
+        <div className="mt-8 p-4 bg-gray-50 rounded-lg">
+          <h4 className="font-semibold mb-2 text-sm">범례</h4>
+          <div className="space-y-2 text-xs">
+            <div className="flex items-center">
+              <div className="w-3 h-3 bg-blue-500 rounded mr-2"></div>
+              <span>프로젝트 (왼쪽)</span>
+            </div>
+            <div className="flex items-center">
+              <div className="w-3 h-3 bg-orange-500 rounded mr-2"></div>
+              <span>경험 (오른쪽)</span>
+            </div>
+            <div className="flex items-center">
+              <div className="w-3 h-3 bg-gray-400 rounded mr-2"></div>
+              <span>진행 중</span>
             </div>
           </div>
-        ))}
+        </div>
+
+        {/* 사용법 안내 */}
+        <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+          <p className="text-xs text-blue-700">
+            💡 바를 클릭하거나 마우스 오버하면 해당 프로젝트 카드가 하이라이트됩니다.
+          </p>
+        </div>
       </div>
     </div>
   );

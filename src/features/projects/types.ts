@@ -9,6 +9,8 @@ export interface Project {
   imageUrl: string;
   type: 'project' | 'experience';
   source: 'github' | 'local' | 'experience';
+  startDate: string; // YYYY-MM 형식
+  endDate?: string; // YYYY-MM 형식, 현재 진행 중이면 undefined
   metadata?: {
     [key: string]: any;
   };
@@ -22,12 +24,15 @@ export interface HistoryItem {
   id: number;
   title: string;
   type: ProjectType;
-  date: string;
+  startDate: string;
+  endDate?: string;
   description: string;
   technologies: string[];
+  isHighlighted?: boolean;
 }
 
 export interface HistoryPanelState {
   isOpen: boolean;
   selectedYear?: string;
+  highlightedItemId?: number;
 } 

@@ -34,11 +34,13 @@ Python, Django, PostgreSQL, Docker
 - 데이터베이스 설계
 - Docker 배포 환경 구축`,
     type: 'project',
-    source: 'local'
+    source: 'local',
+    startDate: '2023-09',
+    endDate: '2024-02'
   },
   {
     id: 6,
-    title: '회사 내부 프로젝트 B',
+    title: '노루그룹 차세대ERP 전환 프로젝트',
     description: '회사 내부에서 개발한 프로젝트로, 소스코드가 비공개입니다.',
     technologies: ['Java', 'Spring Boot', 'MySQL', 'Redis', 'AWS'],
     githubUrl: '#',
@@ -75,6 +77,8 @@ Java, Spring Boot, MySQL, Redis, AWS
 - 마이크로서비스 간 통신
 - AWS 비용 최적화`,
     type: 'project',
-    source: 'local'
+    source: 'local',
+    startDate: '2023-03',
+    endDate: '2023-08'
   }
 ]; 

@@ -4,7 +4,7 @@ import { Project } from '../types';
 export const EXPERIENCES: Project[] = [
   {
     id: 4,
-    title: 'Sesac',
+    title: '디아이티',
     description: 'Sesac 교육 수강',
     technologies: ['Python', 'SQLite', 'Tkinter', 'Markdown', 'Local Storage'],
     githubUrl: '#',
@@ -12,6 +12,8 @@ export const EXPERIENCES: Project[] = [
     imageUrl: '#', // 기본 아이콘 사용
     readme: '커리큘럼 참고',
     type: 'experience',
-    source: 'experience'
+    source: 'experience',
+    startDate: '2023-07',
+    endDate: '2025-01'
   }
 ]; 
