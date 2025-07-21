@@ -12,7 +12,8 @@ export const PROJECTS: Project[] = [
     githubUrl: `https://github.com/${appConfig.github.username}/SKKU_FAC`,
     liveUrl: '#',
     imageUrl: '#', // 기본 아이콘 사용
-    readme: '' // GitHub API에서 동적으로 가져올 예정
+    readme: '', // GitHub API에서 동적으로 가져올 예정
+    type: 'project'
   },
   {
     id: 2,
@@ -22,7 +23,8 @@ export const PROJECTS: Project[] = [
     githubUrl: `https://github.com/${appConfig.github.username}/PYQT5_FileTagger`,
     liveUrl: '#',
     imageUrl: '#', // 기본 아이콘 사용
-    readme: '' // GitHub API에서 동적으로 가져올 예정
+    readme: '', // GitHub API에서 동적으로 가져올 예정
+    type: 'project'
   },
   {
     id: 3,
@@ -32,6 +34,29 @@ export const PROJECTS: Project[] = [
     githubUrl: `https://github.com/${appConfig.github.username}/AI_Portfolio`,
     liveUrl: '#',
     imageUrl: '#', // 기본 아이콘 사용
-    readme: '' // GitHub API에서 동적으로 가져올 예정
+    readme: '', // GitHub API에서 동적으로 가져올 예정
+    type: 'project'
+  },
+  {
+    id: 4,
+    title: '개인 학습 노트 (Personal Study Notes)',
+    description: '개인적으로 학습한 내용을 정리하고 관리하는 로컬 애플리케이션입니다. 다양한 주제의 학습 자료를 체계적으로 정리할 수 있습니다.',
+    technologies: ['Python', 'SQLite', 'Tkinter', 'Markdown', 'Local Storage'],
+    githubUrl: '#',
+    liveUrl: '#',
+    imageUrl: '#', // 기본 아이콘 사용
+    readme: '로컬에서 개발 중인 개인 학습 노트 애플리케이션입니다.',
+    type: 'experience'
+  },
+  {
+    id: 5,
+    title: '데이터 분석 대시보드 (Data Analysis Dashboard)',
+    description: '회사 내부 데이터를 분석하고 시각화하는 로컬 대시보드 애플리케이션입니다. Excel 파일과 CSV 데이터를 처리할 수 있습니다.',
+    technologies: ['Python', 'Pandas', 'Matplotlib', 'Streamlit', 'Excel'],
+    githubUrl: '#',
+    liveUrl: '#',
+    imageUrl: '#', // 기본 아이콘 사용
+    readme: '회사 내부용 데이터 분석 도구로, 민감한 데이터를 다루므로 로컬에서만 실행됩니다.',
+    type: 'experience'
   }
 ];

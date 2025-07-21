@@ -10,6 +10,7 @@ export interface Project {
   liveUrl?: string;
   readme: string;
   imageUrl: string;
+  type: 'project' | 'experience'; // 실제 개발 프로젝트와 업무/학습 경험을 구분
 }
 
 export interface ChatMessage {
