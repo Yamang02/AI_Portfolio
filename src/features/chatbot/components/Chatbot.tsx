@@ -191,17 +191,18 @@ const Chatbot: React.FC<ChatbotProps> = () => {
       </button>
 
       {/* 챗봇 패널 */}
-      {isOpen && (
-        <div className="fixed bottom-20 right-6 w-96 h-[500px] bg-white rounded-lg shadow-xl border border-gray-200 flex flex-col z-50">
+      {(
+        <div
+          className={`fixed right-0 top-0 h-[calc(100vh-120px)] w-96 max-w-full bg-white shadow-lg border-l border-gray-200 flex flex-col z-50 transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}
+          style={{ pointerEvents: isOpen ? 'auto' : 'none' }}
+        >
           {/* 헤더 */}
-          <div className="bg-primary-600 text-white p-4 rounded-t-lg flex justify-between items-center">
-            <div>
-              <h3 className="font-semibold">AI 포트폴리오 비서</h3>
-              <p className="text-sm text-primary-200">프로젝트에 대해 무엇이든 물어보세요!</p>
-            </div>
+          <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-white">
+            <h3 className="text-lg font-semibold text-gray-900">AI 포트폴리오 비서</h3>
             <button
               onClick={toggleChatbot}
-              className="text-white hover:text-primary-200 transition-colors"
+              className="text-gray-500 hover:text-gray-700 transition-colors"
+              aria-label="챗봇 닫기"
             >
               <CloseIcon />
             </button>
@@ -252,13 +253,13 @@ const Chatbot: React.FC<ChatbotProps> = () => {
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 placeholder="메시지를 입력하세요..."
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent"
                 disabled={isLoading}
               />
               <button
                 type="submit"
                 disabled={!inputValue.trim() || isLoading}
-                className="bg-primary-600 text-white p-2 rounded-lg hover:bg-primary-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                className="bg-gray-800 text-white p-2 rounded-lg hover:bg-black disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
               >
                 <SendIcon />
               </button>

@@ -1,24 +1,28 @@
 import React from 'react';
-import { Project, HistoryItem } from '../types';
+import { Project, Experience, HistoryItem } from '../types';
 
 interface HistoryPanelProps {
   projects: Project[];
+  experiences: Experience[];
   isOpen: boolean;
   onToggle: () => void;
-  highlightedItemId?: number;
-  onItemHover: (itemId?: number) => void;
+  highlightedItemId?: string;
+  onItemHover: (itemId?: string) => void;
 }
 
 const HistoryPanel: React.FC<HistoryPanelProps> = ({
   projects,
+  experiences,
   isOpen,
   onToggle,
   highlightedItemId,
   onItemHover
 }) => {
-  // 프로젝트와 경험을 분리
-  const projectItems = projects.filter(p => p.type === 'project');
-  const experienceItems = projects.filter(p => p.type === 'experience');
+  // 모든 아이템을 통합하여 타임라인 생성
+  const allItems = [
+    ...projects.map(p => ({ ...p, type: 'project' as const })),
+    ...experiences.map(e => ({ ...e, type: 'experience' as const }))
+  ];
 
   // 날짜를 Date 객체로 변환하는 헬퍼 함수
   const parseDate = (dateStr: string): Date => {
@@ -30,19 +34,19 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
   };
 
   // 모든 날짜를 수집하여 범위 계산
-  const allDates = projects
-    .flatMap(p => [p.startDate, p.endDate])
+  const allDates = allItems
+    .flatMap(item => [item.startDate, item.endDate])
     .filter(Boolean)
     .map(parseDate);
 
   const minDate = new Date(Math.min(...allDates.map(d => d.getTime())));
   const maxDate = new Date(Math.max(...allDates.map(d => d.getTime())));
   
-  // 현재 진행 중인 프로젝트가 있으면 현재 날짜까지 포함
-  const hasOngoingProject = projects.some(p => !p.endDate);
-  const timelineEnd = hasOngoingProject ? new Date() : maxDate;
+  // 현재 진행 중인 아이템이 있으면 현재 날짜까지 포함
+  const hasOngoingItem = allItems.some(item => !item.endDate);
+  const timelineEnd = hasOngoingItem ? new Date() : maxDate;
 
-  // 타임라인 시작점: 가장 최초 프로젝트보다 1달 전
+  // 타임라인 시작점: 가장 최초 아이템보다 1달 전
   const timelineStart = new Date(minDate);
   timelineStart.setMonth(timelineStart.getMonth() - 1);
   timelineStart.setDate(1);
@@ -87,7 +91,7 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
   const timelineDates = generateTimelineDates();
 
   // 바 아이템 렌더링
-  const renderBarItem = (item: Project, isProject: boolean) => {
+  const renderBarItem = (item: any, isProject: boolean) => {
     const startDate = parseDate(item.startDate);
     const endDate = item.endDate ? parseDate(item.endDate) : timelineEnd;
     
@@ -133,7 +137,7 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
   };
 
   return (
-    <div className={`fixed right-0 top-0 h-[calc(100vh-120px)] w-[480px] bg-white shadow-lg transform transition-transform duration-300 ease-in-out z-50 ${
+    <div className={`fixed right-0 top-0 h-[calc(100vh-120px)] w-96 max-w-full bg-white shadow-lg transform transition-transform duration-300 ease-in-out z-50 ${
       isOpen ? 'translate-x-0' : 'translate-x-full'
     }`}>
       {/* 패널 헤더 */}
@@ -178,10 +182,10 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
             })}
             
             {/* 프로젝트 바들 (왼쪽) */}
-            {projectItems.map(project => renderBarItem(project, true))}
+            {projects.map(project => renderBarItem(project, true))}
             
             {/* 경험 바들 (오른쪽) */}
-            {experienceItems.map(experience => renderBarItem(experience, false))}
+            {experiences.map(experience => renderBarItem(experience, false))}
           </div>
         </div>
 

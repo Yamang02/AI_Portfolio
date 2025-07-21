@@ -3,11 +3,17 @@ import { appConfig } from '../../../shared';
 
 const Header: React.FC = () => {
   return (
-    <header className="py-6 border-b border-gray-200 bg-white">
-      <div className="container mx-auto px-4 text-center">
-        <h1 className="text-4xl md:text-5xl font-bold text-gray-900 tracking-tight">{appConfig.app.developerName}</h1>
-        <p className="mt-2 text-lg text-gray-500">{appConfig.app.developerTitle}</p>
-      </div>
+    <header className="w-full sticky top-0 z-50 bg-white border-b border-gray-200">
+      <nav className="container mx-auto flex items-center justify-between px-4 py-4">
+        {/* 좌측: 포트폴리오 이름 */}
+        <div className="font-bold text-lg text-black">{appConfig.app.developerName}'s portfolio</div>
+        {/* 우측: 네비게이션 + Resume 버튼 */}
+        <div className="flex items-center gap-6">
+          <a href="#project" className="text-sm text-black hover:text-gray-700 transition-colors">Project</a>
+          <a href="#experience" className="text-sm text-black hover:text-gray-700 transition-colors">Experience</a>
+          <a href="#certification" className="text-sm text-black hover:text-gray-700 transition-colors">Certification</a>
+        </div>
+      </nav>
     </header>
   );
 };

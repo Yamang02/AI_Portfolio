@@ -1,8 +1,9 @@
 import React, { useEffect } from 'react';
 import Header from './Header';
+import HeroSection from './HeroSection';
 import { PortfolioSection } from '../../projects';
 import { Chatbot } from '../../chatbot';
-import { ALL_PROJECTS } from '../../projects';
+import { ALL_PROJECTS, ALL_EXPERIENCES, ALL_CERTIFICATIONS } from '../../projects';
 import { validateConfig } from '../../../shared';
 
 const App: React.FC = () => {
@@ -12,10 +13,15 @@ const App: React.FC = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-700 font-sans">
+    <div className="min-h-screen bg-white text-gray-700 font-sans">
       <Header />
+      <HeroSection />
       <main className="container mx-auto px-4 py-8 md:py-12">
-        <PortfolioSection projects={ALL_PROJECTS} />
+        <PortfolioSection 
+          projects={ALL_PROJECTS} 
+          experiences={ALL_EXPERIENCES}
+          certifications={ALL_CERTIFICATIONS}
+        />
       </main>
       <Chatbot />
     </div>

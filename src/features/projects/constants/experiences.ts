@@ -1,18 +1,14 @@
-import { Project } from '../types';
+import { Experience } from '../types';
 
 // 경험 항목들 (GitHub 소스가 없는 학습/업무 경험)
-export const EXPERIENCES: Project[] = [
+export const EXPERIENCES: Experience[] = [
   {
-    id: 4,
+    id: 'E001',
     title: '디아이티',
     description: 'Sesac 교육 수강',
     technologies: ['Python', 'SQLite', 'Tkinter', 'Markdown', 'Local Storage'],
-    githubUrl: '#',
-    liveUrl: '#',
-    imageUrl: '#', // 기본 아이콘 사용
-    readme: '커리큘럼 참고',
-    type: 'experience',
-    source: 'experience',
+    organization: '디아이티',
+    type: 'education',
     startDate: '2023-07',
     endDate: '2025-01'
   }
