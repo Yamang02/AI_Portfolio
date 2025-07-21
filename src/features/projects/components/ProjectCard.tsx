@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Project } from '../types';
 import {
@@ -13,7 +12,7 @@ import {
   ProjectBadge,
   ExperienceBadge,
   ExperienceSmallIcon
-} from './icons/ProjectIcons';
+} from '../../../shared/components/icons/ProjectIcons';
 
 interface ProjectCardProps {
   project: Project;
@@ -170,4 +169,4 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
   );
 };
 
-export default ProjectCard;
+export default ProjectCard; 

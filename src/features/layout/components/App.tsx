@@ -1,10 +1,9 @@
-
 import React, { useEffect } from 'react';
-import Header from './components/Header';
-import PortfolioSection from './components/PortfolioSection';
-import Chatbot from './components/Chatbot';
-import { PROJECTS } from './constants';
-import { validateConfig } from './config/app.config';
+import Header from './Header';
+import { PortfolioSection } from '../../projects';
+import { Chatbot } from '../../chatbot';
+import { ALL_PROJECTS } from '../../projects';
+import { validateConfig } from '../../../shared';
 
 const App: React.FC = () => {
   useEffect(() => {
@@ -16,11 +15,11 @@ const App: React.FC = () => {
     <div className="min-h-screen bg-gray-50 text-gray-700 font-sans">
       <Header />
       <main className="container mx-auto px-4 py-8 md:py-12">
-        <PortfolioSection projects={PROJECTS} />
+        <PortfolioSection projects={ALL_PROJECTS} />
       </main>
       <Chatbot />
     </div>
   );
 };
 
-export default App;
+export default App; 

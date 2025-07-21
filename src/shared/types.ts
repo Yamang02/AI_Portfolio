@@ -1,6 +1,3 @@
-
-import type { ReactNode } from 'react';
-
 export interface Project {
   id: number;
   title: string;
@@ -11,10 +8,4 @@ export interface Project {
   readme: string;
   imageUrl: string;
   type: 'project' | 'experience'; // 실제 개발 프로젝트와 업무/학습 경험을 구분
-}
-
-export interface ChatMessage {
-  id: string;
-  sender: 'user' | 'ai';
-  text: ReactNode;
-}
+} 

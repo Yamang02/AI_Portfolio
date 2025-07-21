@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { appConfig } from '../config/app.config';
+import { appConfig } from '../../../shared';
 
 const Header: React.FC = () => {
   return (
@@ -13,4 +12,4 @@ const Header: React.FC = () => {
   );
 };
 
-export default Header;
+export default Header; 

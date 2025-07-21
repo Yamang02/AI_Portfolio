@@ -1,6 +1,5 @@
-
 import { GoogleGenAI } from "@google/genai";
-import { PROJECTS } from '../constants';
+import { ALL_PROJECTS } from '../../features/projects';
 import GitHubService from './githubService';
 import { generateSystemPrompt } from './prompts/chatbotPersona';
 import { generateContextualPrompt } from './prompts/conversationPatterns';
@@ -24,7 +23,7 @@ let cacheTimestamp = 0;
 const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24시간
 
 // 허용된 프로젝트 ID 목록 (보안 강화)
-const ALLOWED_PROJECT_IDS = PROJECTS.map(p => p.id);
+const ALLOWED_PROJECT_IDS = ALL_PROJECTS.map(p => p.id);
 
 // GitHub에서 프로젝트 정보를 가져오는 함수
 const getProjectsFromGitHub = async (): Promise<any[]> => {
@@ -40,7 +39,7 @@ const getProjectsFromGitHub = async (): Promise<any[]> => {
     const githubProjects = await githubService.getPortfolioProjects();
     
     // constants.ts의 기본 정보와 병합
-    const mergedProjects = PROJECTS.map(localProject => {
+    const mergedProjects = ALL_PROJECTS.map(localProject => {
       const githubProject = githubProjects.find(gp => {
         // GitHub URL이 정확히 일치하는 경우
         if (gp.githubUrl === localProject.githubUrl) {
@@ -82,7 +81,7 @@ const getProjectsFromGitHub = async (): Promise<any[]> => {
   } catch (error) {
     console.error('GitHub 프로젝트 정보 가져오기 실패:', error);
     // 실패 시 기본 프로젝트 정보 반환
-    return PROJECTS;
+    return ALL_PROJECTS;
   }
 };
 
@@ -116,7 +115,7 @@ const extractProjectIdsFromQuestion = (question: string): number[] => {
   const projectIds: number[] = [];
   
   // 프로젝트 제목에서 ID 매칭
-  PROJECTS.forEach(project => {
+  ALL_PROJECTS.forEach(project => {
     if (question.toLowerCase().includes(project.title.toLowerCase())) {
       projectIds.push(project.id);
     }
@@ -168,7 +167,7 @@ export const getChatbotResponse = async (question: string, selectedProject?: str
         projectContext = contextParts.join('\n');
       } else {
         // GitHub에서 정보를 가져올 수 없으면 기본 정보 사용
-        const defaultProject = PROJECTS.find(p => p.title === selectedProject);
+        const defaultProject = ALL_PROJECTS.find(p => p.title === selectedProject);
         projectContext = defaultProject ? 
           `프로젝트명: ${defaultProject.title}\n설명: ${defaultProject.description}\n사용 기술: ${defaultProject.technologies.join(', ')}\nGitHub 주소: ${defaultProject.githubUrl}` :
           await generateProjectContext();
@@ -183,7 +182,7 @@ export const getChatbotResponse = async (question: string, selectedProject?: str
   }
 
   // 새로운 프롬프트 시스템 사용
-  const allowedProjects = PROJECTS.map(p => p.title || '').filter(title => title);
+  const allowedProjects = ALL_PROJECTS.map(p => p.title || '').filter(title => title);
   const systemInstruction = generateSystemPrompt(allowedProjects, projectContext);
   const contextualPrompt = generateContextualPrompt(question, projectContext);
 
@@ -223,4 +222,4 @@ export const getChatbotResponse = async (question: string, selectedProject?: str
     
     return "I_CANNOT_ANSWER";
   }
-};
+}; 

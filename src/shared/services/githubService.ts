@@ -103,14 +103,13 @@ class GitHubService {
   }
 
   /**
-   * 레포지토리의 특정 파일 내용을 가져옵니다 (README, portfolio.md 등)
+   * 레포지토리의 특정 파일 내용을 가져옵니다
    */
   async getRepoFile(repoName: string, filePath: string): Promise<string | null> {
     try {
       const response = await fetch(`${this.baseUrl}/repos/${this.username}/${repoName}/contents/${filePath}`);
       
       if (!response.ok) {
-        // 404 에러는 조용히 처리 (파일이 없는 경우)
         return null;
       }
 
@@ -118,118 +117,98 @@ class GitHubService {
       // Base64로 인코딩된 내용을 디코딩
       return atob(data.content);
     } catch (error) {
-      // 네트워크 에러 등만 로그 출력
-      if (error instanceof Error && !error.message?.includes('404')) {
-        console.error(`파일 가져오기 실패 (${repoName}/${filePath}):`, error);
-      }
+      console.error(`파일 가져오기 실패 (${repoName}/${filePath}):`, error);
       return null;
     }
   }
 
   /**
-   * 레포지토리에서 포트폴리오 정보 파일을 가져옵니다 (docs/portfolio.md로 고정)
+   * 포트폴리오 관련 파일을 찾습니다
    */
   async findPortfolioFile(repoName: string): Promise<string | null> {
-    try {
-      const content = await this.getRepoFile(repoName, 'docs/portfolio.md');
+    const portfolioFiles = ['portfolio.md', 'PORTFOLIO.md', 'README.md'];
+    
+    for (const file of portfolioFiles) {
+      const content = await this.getRepoFile(repoName, file);
       if (content) {
-        console.log(`포트폴리오 파일 발견: ${repoName}/docs/portfolio.md`);
         return content;
       }
-    } catch (error) {
-      // 파일이 없으면 null 반환 (404 에러 로그 출력 안함)
-      return null;
     }
-
+    
     return null;
   }
 
   /**
-   * 특정 프로젝트의 GitHub 정보를 가져옵니다
+   * 프로젝트 정보를 가져옵니다
    */
   async getProjectInfo(projectTitle: string): Promise<any | null> {
-    // 프로젝트 제목에서 레포지토리명 추출
-    const repoNameMap: { [key: string]: string } = {
-      'PYQT5 파일 태거 (File Tagger)': 'PYQT5_FileTagger',
-      'AI 포트폴리오 챗봇 (AI Portfolio Chatbot)': 'AI_Portfolio',
-      '성균관대학교 순수미술 동아리 갤러리 (SKKU FAC)': 'SKKU_FAC'
-    };
-
-    const repoName = repoNameMap[projectTitle];
-    if (!repoName) {
-      console.warn(`프로젝트에 대한 레포지토리 매핑을 찾을 수 없습니다: ${projectTitle}`);
-      return null;
-    }
-
     try {
-      // 레포지토리 정보 가져오기
-      const response = await fetch(`${this.baseUrl}/repos/${this.username}/${repoName}`);
+      // 1. 먼저 사용자의 모든 레포지토리를 가져옵니다
+      const repos = await this.getUserRepos();
       
-      if (!response.ok) {
-        console.warn(`레포지토리를 찾을 수 없습니다: ${repoName}`);
+      // 2. 프로젝트 제목과 매칭되는 레포지토리를 찾습니다
+      const matchingRepo = repos.find(repo => {
+        const repoName = repo.name.toLowerCase();
+        const projectName = projectTitle.toLowerCase();
+        
+        // 정확한 매칭 또는 부분 매칭
+        return repoName === projectName || 
+               repoName.includes(projectName) || 
+               projectName.includes(repoName);
+      });
+      
+      if (!matchingRepo) {
         return null;
       }
-
-      const repo: GitHubRepo = await response.json();
       
-      // README와 포트폴리오용 MD 파일 가져오기
-      const [readme, portfolioInfo] = await Promise.all([
-        this.getRepoReadme(repoName),
-        this.findPortfolioFile(repoName)
-      ]);
+      // 3. README와 포트폴리오 정보를 가져옵니다
+      const readme = await this.getRepoReadme(matchingRepo.name);
+      const portfolioInfo = await this.findPortfolioFile(matchingRepo.name);
+      
+      // 4. 기술 스택을 추출합니다
+      const technologies = [
+        matchingRepo.language,
+        ...(matchingRepo.topics || [])
+      ].filter(Boolean);
       
       return {
-        id: repo.id,
-        title: projectTitle,
-        description: repo.description || '설명이 없습니다.',
-        technologies: [repo.language, ...repo.topics].filter(Boolean),
-        githubUrl: repo.html_url,
-        liveUrl: repo.homepage || null,
-        imageUrl: `https://images.unsplash.com/photo-1614728263952-84ea256ec346?q=80&w=800&h=600&auto=format&fit=crop`,
-        readme: readme || `# ${repo.name}\n\n${repo.description || '설명이 없습니다.'}`,
-        portfolioInfo: portfolioInfo || null,
-        stars: repo.stargazers_count,
-        forks: repo.forks_count,
-        updatedAt: repo.updated_at
+        title: matchingRepo.name,
+        description: matchingRepo.description || '',
+        technologies,
+        githubUrl: matchingRepo.html_url,
+        liveUrl: matchingRepo.homepage || null,
+        readme: readme || '',
+        portfolioInfo: portfolioInfo || '',
+        stars: matchingRepo.stargazers_count,
+        forks: matchingRepo.forks_count,
+        updatedAt: matchingRepo.updated_at
       };
     } catch (error) {
-      console.error(`프로젝트 정보 가져오기 실패 (${projectTitle}):`, error);
+      console.error('프로젝트 정보 가져오기 실패:', error);
       return null;
     }
   }
 
   /**
-   * 레포지토리를 포트폴리오 프로젝트 형식으로 변환합니다
+   * 포트폴리오 프로젝트 목록을 가져옵니다
    */
   async getPortfolioProjects(): Promise<any[]> {
-    const repos = await this.getUserRepos();
-    
-    const projects = await Promise.all(
-      repos.slice(0, 10).map(async (repo) => {
-        // README와 포트폴리오용 MD 파일 가져오기
-        const [readme, portfolioInfo] = await Promise.all([
-          this.getRepoReadme(repo.name),
-          this.findPortfolioFile(repo.name) // 여러 위치에서 포트폴리오 파일 찾기
-        ]);
-        
-        return {
-          id: repo.id,
-          title: repo.name.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
-          description: repo.description || '설명이 없습니다.',
-          technologies: [repo.language, ...repo.topics].filter(Boolean),
-          githubUrl: repo.html_url,
-          liveUrl: repo.homepage || null,
-          imageUrl: `https://images.unsplash.com/photo-1614728263952-84ea256ec346?q=80&w=800&h=600&auto=format&fit=crop`,
-          readme: readme || `# ${repo.name}\n\n${repo.description || '설명이 없습니다.'}`,
-          portfolioInfo: portfolioInfo || null, // 포트폴리오용 추가 정보
-          stars: repo.stargazers_count,
-          forks: repo.forks_count,
-          updatedAt: repo.updated_at
-        };
-      })
-    );
-
-    return projects.sort((a, b) => b.stars - a.stars);
+    try {
+      const repos = await this.getUserRepos();
+      const projects = [];
+      
+      for (const repo of repos) {
+        const projectInfo = await this.getProjectInfo(repo.name);
+        if (projectInfo) {
+          projects.push(projectInfo);
+        }
+      }
+      
+      return projects;
+    } catch (error) {
+      console.error('포트폴리오 프로젝트 가져오기 실패:', error);
+      return [];
+    }
   }
 }
 

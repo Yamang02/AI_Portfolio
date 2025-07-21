@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Project } from '../types';
 import ProjectCard from './ProjectCard';
@@ -83,4 +82,4 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({ projects }) => {
   );
 };
 
-export default PortfolioSection;
+export default PortfolioSection; 
