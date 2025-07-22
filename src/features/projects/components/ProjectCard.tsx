@@ -19,14 +19,30 @@ interface ProjectCardProps {
   onMouseEnter?: () => void;
   onMouseLeave?: () => void;
   isHighlighted?: boolean;
+  onLongHover?: (id: string) => void;
 }
 
 const ProjectCard: React.FC<ProjectCardProps> = ({ 
   project, 
   onMouseEnter, 
   onMouseLeave, 
-  isHighlighted
+  isHighlighted,
+  onLongHover
 }) => {
+  const timerRef = React.useRef<NodeJS.Timeout | null>(null);
+
+                const handleMouseEnter = () => {
+                onMouseEnter?.();
+                timerRef.current = setTimeout(() => {
+                  onLongHover?.(project.id);
+                }, 500);
+              };
+
+  const handleMouseLeave = () => {
+    onMouseLeave?.();
+    if (timerRef.current) clearTimeout(timerRef.current);
+  };
+
   // 프로젝트 타입에 따른 아이콘 선택
   const getProjectIcon = () => {
     const title = project.title.toLowerCase();
@@ -101,9 +117,9 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
   return (
     <div 
       id={`project-${project.id}`}
-      className={`bg-white rounded-lg shadow-md overflow-hidden transform transition-all duration-300 hover:scale-105 flex flex-col border border-gray-100 ${isHighlighted ? 'ring-4 ring-blue-200 shadow-blue-200' : ''}`}
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
+      className={`bg-white rounded-lg shadow-md overflow-hidden transform transition-all duration-300 hover:scale-105 flex flex-col border border-gray-100 hover:shadow-blue-200 ${isHighlighted ? 'ring-4 ring-blue-200 shadow-blue-200' : ''}`}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       {/* 상단 아이콘 영역 (ProjectCard와 동일 높이) */}
       <div className="h-48 w-full bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center relative overflow-hidden">

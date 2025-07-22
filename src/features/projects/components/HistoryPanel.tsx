@@ -9,6 +9,7 @@ interface HistoryPanelProps {
   onToggle: () => void;
   highlightedItemId?: string;
   onItemHover: (itemId?: string) => void;
+  scrollToItemId?: string;
 }
 
 const HistoryPanel: React.FC<HistoryPanelProps> = ({
@@ -18,7 +19,8 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
   isOpen,
   onToggle,
   highlightedItemId,
-  onItemHover
+  onItemHover,
+  scrollToItemId
 }) => {
   // 모든 아이템을 통합하여 타임라인 생성
   const allItems = [
@@ -125,6 +127,62 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
     }
   };
 
+  // 스마트 title 위치 조정
+  const getSmartTitleOffset = (itemId: string, centerY: number, type: 'project' | 'experience' | 'education') => {
+    // 모든 title 위치를 수집
+    const allTitlePositions: Array<{id: string, y: number, type: string}> = [];
+    
+    // 각 타입별로 title 위치 계산
+    [...educations, ...experiences, ...projects].forEach(item => {
+      const startPx = getPxPosition(parseDate(item.startDate));
+      const endPx = item.endDate ? getPxPosition(parseDate(item.endDate)) : timelineHeight;
+      const isOngoing = !item.endDate;
+      const itemCenterY = isOngoing ? startPx / 2 : (startPx + endPx) / 2;
+      
+      let itemType = '';
+      if (educations.some(edu => edu.id === item.id)) itemType = 'education';
+      else if (experiences.some(exp => exp.id === item.id)) itemType = 'experience';
+      else if (projects.some(proj => proj.id === item.id)) itemType = 'project';
+      
+      allTitlePositions.push({id: item.id, y: itemCenterY, type: itemType});
+    });
+    
+    // 현재 아이템의 원래 위치
+    const currentItem = allTitlePositions.find(pos => pos.id === itemId);
+    if (!currentItem) return 0;
+    
+    // 겹치는 아이템들 찾기 (Y 위치가 비슷한 것들)
+    const overlappingItems = allTitlePositions.filter(pos => 
+      pos.id !== itemId && 
+      Math.abs(pos.y - currentItem.y) < 30 // 30px 이내면 겹침으로 간주
+    );
+    
+    if (overlappingItems.length === 0) return 0;
+    
+    // 겹치는 아이템들과의 거리를 고려하여 위치 조정
+    let offset = 0;
+    const baseOffset = 25; // 기본 조정 간격
+    
+    overlappingItems.forEach((overlapping, index) => {
+      if (Math.abs(currentItem.y + offset - overlapping.y) < 30) {
+        // 겹치는 경우 위아래로 번갈아가며 이동
+        const direction = index % 2 === 0 ? 1 : -1;
+        offset += direction * baseOffset;
+      }
+    });
+    
+    return offset;
+  };
+
+  React.useEffect(() => {
+    if (scrollToItemId) {
+      const el = document.getElementById(`history-bar-${scrollToItemId}`);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+  }, [scrollToItemId]);
+
   // 바 아이템 렌더링 (px 단위)
   const renderBarItem = (item: any, type: 'project' | 'experience' | 'education', index: number) => {
     const startDate = parseDate(item.startDate);
@@ -144,7 +202,7 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
     };
     
     const barLeft = getBarLeft(type);
-    const titleOffset = 0; // 같은 타입 내에서 순서에 따라 약간씩 위아래로 이동
+    const titleOffset = getSmartTitleOffset(item.id, isOngoing ? startPx / 2 : (startPx + endPx) / 2, type);
 
     if (isOngoing) {
       // 진행 중: 바 대신 색이 있는 선 (top: 0, height: startPx)
@@ -170,11 +228,11 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
             <div
               className={`w-1 h-full transition-all duration-200 ${
                 isHighlighted ? (
-                  type === 'project' ? 'bg-blue-400 ring-2 ring-blue-300' : 
-                  type === 'experience' ? 'bg-orange-400 ring-2 ring-orange-300' : 'bg-green-400 ring-2 ring-green-300'
+                  type === 'project' ? 'bg-blue-400' : 
+                  type === 'experience' ? 'bg-orange-400' : 'bg-green-400'
                 ) : 'bg-gray-300 hover:bg-gray-500'
               }`}
-              title="진행 중"
+              title={`${item.title} (진행 중)`}
             />
           </div>
           {/* title label for ongoing bar */}
@@ -184,13 +242,13 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
               top: `${startPx / 2 + titleOffset}px`,
               left: barLeft,
               transform: 'translate(-50%, -50%)',
-              zIndex: 30,
+              zIndex: isHighlighted ? 40 : 30,
               maxWidth: '140px',
               pointerEvents: 'none',
             }}
           >
             <span className={`inline-block text-xs rounded-lg shadow-sm px-3 py-1 whitespace-nowrap overflow-hidden text-ellipsis max-w-[140px] text-center transition-all duration-200 ${getTitleColor(type)} ${
-              isHighlighted ? 'max-w-none overflow-visible z-40' : ''
+              isHighlighted ? 'max-w-none overflow-visible' : ''
             }`}
               title={item.title}
             >
@@ -217,6 +275,7 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
           onClick={handleBarClick}
         >
           <div
+            id={`history-bar-${item.id}`}
             className={`w-8 mx-auto transition-all duration-300 cursor-pointer ${
               isHighlighted ? (
                 type === 'project'
@@ -236,13 +295,13 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
             top: `${(startPx + endPx) / 2 + titleOffset}px`,
             left: barLeft,
             transform: 'translate(-50%, -50%)',
-            zIndex: 30,
+            zIndex: isHighlighted ? 40 : 30,
             maxWidth: '140px',
             pointerEvents: 'none',
           }}
         >
           <span className={`inline-block text-xs rounded-lg shadow-sm px-3 py-1 whitespace-nowrap overflow-hidden text-ellipsis max-w-[140px] text-center transition-all duration-200 ${getTitleColor(type)} ${
-            isHighlighted ? 'max-w-none overflow-visible z-40' : ''
+            isHighlighted ? 'max-w-none overflow-visible' : ''
           }`}
             title={item.title}
           >
@@ -322,8 +381,7 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
         {/* 사용법 안내 */}
         <div className="mt-2 mb-4 mx-4 p-3 bg-blue-50 rounded-lg">
           <p className="text-xs text-blue-700">
-            💡 <b>바를 클릭하면 해당 프로젝트/경력 카드로 이동합니다.</b><br/>
-            바를 클릭하거나 마우스 오버하면 해당 프로젝트 카드가 하이라이트됩니다.
+            💡 <b>바 클릭: 카드로 이동</b> | <b>마우스 오버: 하이라이트</b>
           </p>
         </div>
       </div>

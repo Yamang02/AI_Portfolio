@@ -1,5 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
-import { ALL_PROJECTS } from '../../features/projects';
+import { ALL_PROJECTS, GITHUB_PROJECTS } from '../../features/projects';
 import GitHubService from './githubService';
 import { generateSystemPrompt } from './prompts/chatbotPersona';
 import { generateContextualPrompt } from './prompts/conversationPatterns';
@@ -38,8 +38,13 @@ const getProjectsFromGitHub = async (): Promise<any[]> => {
     // GitHub API에서 프로젝트 정보 가져오기
     const githubProjects = await githubService.getPortfolioProjects();
     
-    // constants.ts의 기본 정보와 병합
+    // GitHub 프로젝트만 API 정보와 병합
     const mergedProjects = ALL_PROJECTS.map(localProject => {
+      // GitHub 소스가 아닌 프로젝트는 그대로 반환
+      if (localProject.source !== 'github') {
+        return localProject;
+      }
+      
       const githubProject = githubProjects.find(gp => {
         // GitHub URL이 정확히 일치하는 경우
         if (gp.githubUrl === localProject.githubUrl) {
@@ -111,8 +116,8 @@ const generateProjectContext = async (): Promise<string> => {
 };
 
 // 질문에서 프로젝트 ID를 추출하는 함수 (보안 강화)
-const extractProjectIdsFromQuestion = (question: string): number[] => {
-  const projectIds: number[] = [];
+const extractProjectIdsFromQuestion = (question: string): string[] => {
+  const projectIds: string[] = [];
   
   // 프로젝트 제목에서 ID 매칭
   ALL_PROJECTS.forEach(project => {

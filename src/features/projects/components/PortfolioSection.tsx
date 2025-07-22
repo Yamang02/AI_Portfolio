@@ -29,10 +29,16 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
   onChatbotToggle
 }) => {
   const [highlightedItemId, setHighlightedItemId] = React.useState<string | undefined>();
+  const [longHoveredItemId, setLongHoveredItemId] = React.useState<string | undefined>();
 
   // 아이템 하이라이트 처리
   const handleItemHover = (itemId?: string) => {
     setHighlightedItemId(itemId);
+  };
+
+  // 카드에서 1초 이상 hover 시 호출
+  const handleLongHover = (itemId: string) => {
+    setLongHoveredItemId(itemId);
   };
 
   return (
@@ -61,6 +67,7 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
                 onMouseEnter={() => handleItemHover(project.id)}
                 onMouseLeave={() => handleItemHover(undefined)}
                 isHighlighted={highlightedItemId === project.id}
+                onLongHover={handleLongHover}
               />
             ))}
           </div>
@@ -84,6 +91,7 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
                 onMouseEnter={() => handleItemHover(experience.id)}
                 onMouseLeave={() => handleItemHover(undefined)}
                 isHighlighted={highlightedItemId === experience.id}
+                onLongHover={handleLongHover}
               />
             ))}
           </div>
@@ -107,6 +115,7 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
                 onMouseEnter={() => handleItemHover(education.id)}
                 onMouseLeave={() => handleItemHover(undefined)}
                 isHighlighted={highlightedItemId === education.id}
+                onLongHover={handleLongHover}
               />
             ))}
           </div>
@@ -144,6 +153,7 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
         highlightedItemId={highlightedItemId}
         onToggle={onHistoryPanelToggle}
         onItemHover={handleItemHover}
+        scrollToItemId={longHoveredItemId}
       />
       
       {/* 패널 토글 버튼 */}

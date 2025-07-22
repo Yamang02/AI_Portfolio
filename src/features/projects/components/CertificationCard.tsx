@@ -13,10 +13,8 @@ const CertificationCard: React.FC<CertificationCardProps> = ({ certification, on
     return `${year}.${month}`;
   };
 
-  const formatDateRange = () => {
-    const startDate = formatDate(certification.startDate);
-    const endDate = certification.endDate ? formatDate(certification.endDate) : '현재';
-    return `${startDate} - ${endDate}`;
+  const formatAcquisitionDate = () => {
+    return formatDate(certification.startDate);
   };
 
   return (
@@ -37,15 +35,10 @@ const CertificationCard: React.FC<CertificationCardProps> = ({ certification, on
           <p className="text-sm text-gray-600 mb-1">
             {certification.issuer}
           </p>
-          {certification.credentialId && (
-            <p className="text-sm text-gray-500 mb-2">
-              자격번호: {certification.credentialId}
-            </p>
-          )}
         </div>
         <div className="flex flex-col items-end">
           <span className="text-xs text-gray-500">
-            {formatDateRange()}
+            취득일: {formatAcquisitionDate()}
           </span>
         </div>
       </div>
@@ -69,33 +62,7 @@ const CertificationCard: React.FC<CertificationCardProps> = ({ certification, on
         </div>
       )}
 
-      {/* 추가 정보 */}
-      <div className="space-y-1">
-        {certification.validUntil && (
-          <div className="flex items-center text-xs text-gray-500">
-            <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
-            </svg>
-            유효기간: ~ {certification.validUntil}
-          </div>
-        )}
-        {certification.credentialUrl && (
-          <div className="flex items-center text-xs">
-            <a
-              href={certification.credentialUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-gray-600 hover:text-gray-800 hover:underline flex items-center"
-            >
-              <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
-                <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
-              </svg>
-              인증서 확인
-            </a>
-          </div>
-        )}
-      </div>
+
     </div>
   );
 };

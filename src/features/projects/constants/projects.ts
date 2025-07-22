@@ -43,5 +43,19 @@ export const GITHUB_PROJECTS: Project[] = [
     source: 'github',
     startDate: '2025-07',
     endDate: undefined // 현재 진행 중
+  },
+  {
+    id: 'github-004',
+    title: 'Jooongo - 중고거래 크롤링 프로그램',
+    description: '키워드를 입력하면 중고나라, 번개장터, 당근마켓 페이지에서 해당 키워드로 검색된 내용들을 크롤링해오는 파이썬 프로그램입니다.',
+    technologies: ['Python', 'Selenium', 'ChromeDriver', 'Web Scraping', 'BeautifulSoup', 'Requests'],
+    githubUrl: `https://github.com/Yamang02/Jooongo`,
+    liveUrl: '#',
+    imageUrl: '#', // 기본 아이콘 사용
+    readme: '', // GitHub API에서 동적으로 가져올 예정
+    type: 'project',
+    source: 'github',
+    startDate: '2022-09',
+    endDate: '2022-11'
   }
 ]; 

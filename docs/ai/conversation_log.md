@@ -686,3 +686,171 @@ const getTitleColor = (type: 'project' | 'experience' | 'education') => {
 - 사용자 피드백 수집 및 추가 개선
 - 반응형 디자인 최적화
 - 접근성 개선 (키보드 네비게이션 등)
+
+---
+
+## 포트폴리오 데이터 구조 개선 작업 (2025-07-22)
+
+### 개요
+실제 이력서 내용에 맞게 포트폴리오 데이터를 정리하고, 프로젝트와 경험을 명확히 구분하여 더욱 정확하고 체계적인 포트폴리오를 구성했습니다.
+
+### 주요 변경사항
+
+#### 1. KH정보교육원 프로젝트 문서화
+**목적**: 교육 과정에서 진행한 프로젝트들을 상세한 마크다운 문서로 정리
+
+**구현 내용**:
+- `docs/projects/2_CloseToU.md`: 중고거래 게시판 세미 프로젝트
+- `docs/projects/3_OnTheTrain.md`: 여행 계획 스케줄러 팀 프로젝트
+- 각 프로젝트별 DB 설계, 구현 기능, 기술 스택 상세 기록
+
+**기술적 특징**:
+- 마크다운 형식으로 가독성 확보
+- 프로젝트별 고유 파일명으로 관리
+- README 필드에 파일 경로 연결
+
+#### 2. 프로젝트 데이터 구조 개선
+**목적**: GitHub 프로젝트와 로컬 프로젝트를 명확히 구분하고 ID 체계 통일
+
+**구현 내용**:
+- **GitHub 프로젝트** (`projects.ts`): 외부 저장소 연결 가능한 프로젝트
+- **로컬 프로젝트** (`localProjects.ts`): 회사 내부 또는 교육 과정 프로젝트
+- **ID 체계 통일**: `github-XXX`, `local-XXX` 형태로 접두사 구분
+
+**데이터 분류**:
+```typescript
+// GitHub 프로젝트 (4개)
+- proj-001: SKKU FAC (성균관대 갤러리)
+- proj-002: PYQT5 File Tagger
+- proj-003: AI Portfolio Chatbot
+- github-004: Jooongo (중고거래 크롤링)
+
+// 로컬 프로젝트 (4개)
+- local-001: 노루화학 BG 차세대 ERP (SAP) 전환 프로젝트
+- local-002: (주)디아이티 VMS(버전관리시스템) 통합 프로젝트
+- local-003: CloseToU (KH정보교육원)
+- local-004: OnTheTrain (KH정보교육원)
+```
+
+#### 3. 경력 정보 상세화
+**목적**: 운영 업무와 개발 프로젝트를 명확히 구분하여 경력 정보 정확성 향상
+
+**구현 내용**:
+- **Experience 인터페이스 확장**:
+  - `mainResponsibilities`: 주요 담당 업무 목록
+  - `achievements`: 주요 성과/업적 목록
+  - `projects`: 담당했던 주요 프로젝트명들
+
+- **디아이티 경력 상세화**:
+  - 주요 업무: 영업/물류 ERP 시스템 유지보수, Legacy 프로그램 개발
+  - 주요 성과: SAP EAI 인터페이스 개발, 30% 저장공간 절약, Git 전환
+  - 담당 프로젝트: SAP 전환, VMS 통합, TMS/DTS 시스템 개발
+
+#### 4. 교육 정보 프로젝트 연결
+**목적**: 교육 과정에서 진행한 프로젝트들을 교육 정보와 연결
+
+**구현 내용**:
+- **Education 인터페이스 확장**: `projects` 필드 추가
+- **Sesac**: AI 관련 프로젝트들 연결
+- **KH정보교육원**: 웹 개발 프로젝트들 연결
+
+#### 5. 자격증 정보 간소화
+**목적**: 불필요한 필드 제거로 간결하고 명확한 자격증 정보 제공
+
+**구현 내용**:
+- **제거된 필드**: `credentialId`, `validUntil`, `credentialUrl`
+- **유지된 필드**: `title`, `description`, `technologies`, `issuer`, `startDate`
+- **실제 자격증 정보**:
+  - SAP Certified Associate - Back-End Developer - ABAP (2024.10)
+  - 정보처리기사 (2024.06)
+
+**UI 개선**:
+- 취득일자만 표시 ("취득일: 2024.10" 형태)
+- 불필요한 정보 제거로 깔끔한 카드 디자인
+- 자격증 번호, 유효기간, 인증서 링크 제거
+
+#### 6. UI/UX 개선 - Long Hover 기능
+**목적**: 프로젝트 카드와 히스토리 패널 간의 향상된 상호작용
+
+**구현 내용**:
+- **Long Hover 시스템**: 1초간 마우스 오버 시 히스토리 패널 스크롤
+- **타입별 색상 구분**: 
+  - 프로젝트: 파란색 테마 (`hover:shadow-blue-200`)
+  - 경력: 회색 테마 (`hover:shadow-gray-400`)
+  - 교육: 주황색 테마 (`hover:shadow-orange-200`)
+- **양방향 연동**: 카드 ↔ 히스토리 패널 간 상호 하이라이트
+
+**기술적 구현**:
+```typescript
+// 타이머 기반 Long Hover
+const timerRef = React.useRef<NodeJS.Timeout | null>(null);
+
+const handleMouseEnter = () => {
+  onMouseEnter?.();
+  timerRef.current = setTimeout(() => {
+    onLongHover?.(project.id);
+  }, 1000);
+};
+
+const handleMouseLeave = () => {
+  onMouseLeave?.();
+  if (timerRef.current) clearTimeout(timerRef.current);
+};
+```
+
+### 데이터 구조 개선 효과
+
+#### 1. 명확한 구분
+- **GitHub 프로젝트**: 외부 저장소 연결, README 동적 로딩
+- **로컬 프로젝트**: 회사/교육 내부 프로젝트, 상세 문서 연결
+- **경력**: 운영 업무와 개발 프로젝트 명확히 구분
+- **교육**: 교육 과정과 연계된 프로젝트들 연결
+
+#### 2. 확장성 확보
+- 새로운 프로젝트 추가 시 적절한 카테고리 선택 가능
+- ID 체계로 중복 방지 및 일관성 유지
+- 타입 시스템으로 컴파일 타임 오류 방지
+
+#### 3. 사용자 경험 향상
+- 시각적 구분으로 프로젝트 유형 즉시 파악
+- 상세한 경력 정보로 전문성 어필
+- 인터랙티브한 히스토리 패널로 경력 발전 과정 시각화
+
+### 기술적 특징
+
+#### 1. 타입 안전성
+- TypeScript 인터페이스로 데이터 구조 정의
+- 컴파일 타임에 타입 오류 검출
+- IDE 자동완성 및 리팩토링 지원
+
+#### 2. 모듈화
+- 기능별 파일 분리로 유지보수성 향상
+- Barrel exports로 깔끔한 import 구조
+- 재사용 가능한 컴포넌트 설계
+
+#### 3. 성능 최적화
+- 타이머 기반 Long Hover로 불필요한 이벤트 방지
+- 조건부 렌더링으로 불필요한 DOM 요소 제거
+- 메모이제이션으로 리렌더링 최적화
+
+### 변경된 파일 목록
+1. `docs/projects/2_CloseToU.md` (신규)
+2. `docs/projects/3_OnTheTrain.md` (신규)
+3. `src/features/projects/constants/projects.ts`
+4. `src/features/projects/constants/localProjects.ts`
+5. `src/features/projects/constants/experiences.ts`
+6. `src/features/projects/constants/certifications.ts`
+7. `src/features/projects/types.ts`
+8. `src/features/projects/components/ProjectCard.tsx`
+9. `src/features/projects/components/ExperienceCard.tsx`
+10. `src/features/projects/components/EducationCard.tsx`
+11. `src/features/projects/components/PortfolioSection.tsx`
+12. `src/features/projects/components/HistoryPanel.tsx`
+13. `src/features/projects/components/CertificationCard.tsx`
+14. `src/shared/services/geminiService.ts`
+
+### 다음 단계
+- 사용자 피드백 수집 및 추가 개선
+- 프로젝트 상세 모달 기능 구현
+- 타임라인 뷰 기능 확장
+- 성능 최적화 및 접근성 개선

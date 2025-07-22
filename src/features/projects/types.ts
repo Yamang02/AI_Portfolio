@@ -21,9 +21,6 @@ export interface Project extends BaseItem {
   type: 'project' | 'certification';
   // 자격증 전용 필드들
   issuer?: string;
-  credentialId?: string;
-  validUntil?: string;
-  credentialUrl?: string;
 }
 
 // 경력 인터페이스
@@ -32,6 +29,9 @@ export interface Experience extends BaseItem {
   role?: string;
   location?: string;
   type: 'career';
+  mainResponsibilities?: string[]; // 주요 담당 업무 목록
+  achievements?: string[]; // 주요 성과/업적 목록
+  projects?: string[]; // 담당했던 주요 프로젝트명들
 }
 
 // 교육 인터페이스
@@ -40,6 +40,7 @@ export interface Education extends BaseItem {
   degree?: string;
   location?: string;
   type: 'education';
+  projects?: string[]; // 교육 중 진행한 프로젝트들
 }
 
 // 자격증 인터페이스
@@ -49,11 +50,7 @@ export interface Certification {
   description: string;
   technologies: string[];
   issuer: string;
-  credentialId?: string;
-  validUntil?: string;
-  credentialUrl?: string;
   startDate: string;
-  endDate?: string;
 }
 
 // 기존 호환성을 위한 타입들

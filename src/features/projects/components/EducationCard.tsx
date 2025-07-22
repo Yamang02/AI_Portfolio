@@ -6,14 +6,30 @@ interface EducationCardProps {
   onMouseEnter?: () => void;
   onMouseLeave?: () => void;
   isHighlighted?: boolean;
+  onLongHover?: (id: string) => void;
 }
 
 const EducationCard: React.FC<EducationCardProps> = ({ 
   education, 
   onMouseEnter, 
   onMouseLeave,
-  isHighlighted = false 
+  isHighlighted = false,
+  onLongHover
 }) => {
+  const timerRef = React.useRef<NodeJS.Timeout | null>(null);
+
+                const handleMouseEnter = () => {
+                onMouseEnter?.();
+                timerRef.current = setTimeout(() => {
+                  onLongHover?.(education.id);
+                }, 500);
+              };
+
+  const handleMouseLeave = () => {
+    onMouseLeave?.();
+    if (timerRef.current) clearTimeout(timerRef.current);
+  };
+
   const formatDate = (date: string) => {
     const [year, month] = date.split('-');
     return `${year}.${month}`;
@@ -29,11 +45,11 @@ const EducationCard: React.FC<EducationCardProps> = ({
     <div 
       className={`
         bg-white rounded-lg shadow-md p-6 border border-gray-200 
-        transition-all duration-200 hover:shadow-lg hover:scale-105
-        ${isHighlighted ? 'ring-2 ring-orange-400 shadow-lg scale-105' : ''}
+        transition-all duration-200 hover:shadow-lg hover:scale-105 hover:shadow-green-200
+        ${isHighlighted ? 'ring-2 ring-green-400 shadow-lg scale-105' : ''}
       `}
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       {/* 헤더 */}
       <div className="flex items-start justify-between mb-4">
