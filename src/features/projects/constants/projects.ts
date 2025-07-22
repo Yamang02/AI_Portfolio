@@ -38,7 +38,7 @@ export const GITHUB_PROJECTS: Project[] = [
     id: 'proj-003',
     title: 'AI 포트폴리오 챗봇 (AI Portfolio Chatbot)',
     description: 'Google Gemini API를 활용한 개발자 포트폴리오 AI 챗봇으로, 프로젝트 정보를 자연어로 소개합니다.',
-    technologies: ['React', 'Google Gemini API', 'GitHub API', 'Cursor', 'Gemini CLI'],
+    technologies: ['React', 'Google Gemini API', 'GitHub API', 'Cursor', 'Gemini CLI', 'GCP', 'Cloud Run', 'Docker', 'GitHub Actions'],
     githubUrl: `https://github.com/Yamang02/AI_Portfolio`,
     liveUrl: '#',
     imageUrl: '#', // 기본 아이콘 사용

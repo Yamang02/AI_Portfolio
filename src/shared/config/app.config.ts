@@ -41,7 +41,7 @@ export interface AppConfig {
 const loadConfig = (): AppConfig => {
   return {
     github: {
-      username: import.meta.env.VITE_GITHUB_USERNAME || 'Yamang02',
+      username: 'Yamang02',
       apiBaseUrl: 'https://api.github.com',
     },
     
@@ -52,18 +52,18 @@ const loadConfig = (): AppConfig => {
     },
     
     app: {
-      name: import.meta.env.VITE_APP_NAME || 'AI Portfolio Chatbot',
-      description: import.meta.env.VITE_APP_DESCRIPTION || '개발자 포트폴리오 AI 챗봇',
-      contactEmail: import.meta.env.VITE_CONTACT_EMAIL || 'ljj0210@gmail.com',
-      version: import.meta.env.VITE_APP_VERSION || '1.0.0',
-      developerName: import.meta.env.VITE_DEVELOPER_NAME || '이정준',
-      developerTitle: import.meta.env.VITE_DEVELOPER_TITLE || '시니어 프론트엔드 엔지니어 & AI 애호가',
+      name: 'AI Portfolio Chatbot',
+      description: '개발자 포트폴리오 AI 챗봇',
+      contactEmail: 'ljj0210@gmail.com',
+      version: '1.0.0',
+      developerName: '이정준',
+      developerTitle: 'Here Comes New Challenger!!',
     },
     
     deployment: {
-      projectId: import.meta.env.VITE_PROJECT_ID || 'your-project-id',
-      region: import.meta.env.VITE_REGION || 'asia-northeast3',
-      serviceName: import.meta.env.VITE_SERVICE_NAME || 'ai-portfolio-chatbot',
+      projectId: 'yamang02-ai-portfolio',
+      region: 'asia-northeast3',
+      serviceName: 'ai-portfolio-chatbot',
     },
     
     cache: {
