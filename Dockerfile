@@ -14,6 +14,13 @@ RUN npm ci
 # 소스 코드 복사
 COPY . .
 
+# --- 환경 변수 선언 추가 시작 ---
+ARG VITE_GEMINI_API_KEY
+ARG VITE_EMAILJS_PUBLIC_KEY
+ENV VITE_GEMINI_API_KEY=$VITE_GEMINI_API_KEY
+ENV VITE_EMAILJS_PUBLIC_KEY=$VITE_EMAILJS_PUBLIC_KEY
+# --- 환경 변수 선언 추가 끝 ---
+
 # 프로덕션 빌드
 RUN npm run build
 
