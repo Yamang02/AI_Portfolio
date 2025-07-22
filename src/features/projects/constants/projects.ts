@@ -14,7 +14,8 @@ export const GITHUB_PROJECTS: Project[] = [
     type: 'project',
     source: 'github',
     startDate: '2025-02',
-    endDate: '2025-05'
+    endDate: '2025-05',
+    isTeam: false
   },
   {
     id: 'proj-002',
@@ -28,7 +29,8 @@ export const GITHUB_PROJECTS: Project[] = [
     type: 'project',
     source: 'github',
     startDate: '2025-07',
-    endDate: '2025-08'
+    endDate: '2025-08',
+    isTeam: false
   },
   {
     id: 'proj-003',
@@ -42,7 +44,8 @@ export const GITHUB_PROJECTS: Project[] = [
     type: 'project',
     source: 'github',
     startDate: '2025-07',
-    endDate: undefined // 현재 진행 중
+    endDate: undefined, // 현재 진행 중
+    isTeam: false
   },
   {
     id: 'github-004',
@@ -56,6 +59,7 @@ export const GITHUB_PROJECTS: Project[] = [
     type: 'project',
     source: 'github',
     startDate: '2022-09',
-    endDate: '2022-11'
+    endDate: '2022-11',
+    isTeam: false
   }
 ]; 

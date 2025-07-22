@@ -66,7 +66,14 @@ export const LOCAL_PROJECTS: Project[] = [
     type: 'project',
     source: 'local',
     startDate: '2023-11',
-    endDate: '2025-01'
+    endDate: '2025-01',
+    isTeam: true,
+    myContributions: [
+      'SAP EAI와의 인터페이스 개발 (REST API 전환)',
+      'Oracle Forms 바이너리 파일 txt화 및 Git 관리',
+      '물류(Logistics Execution) 모듈 담당',
+      '데이터 정리 및 저장공간 최적화'
+    ]
   },
   {
     id: 'local-002',
@@ -124,7 +131,13 @@ export const LOCAL_PROJECTS: Project[] = [
     type: 'project',
     source: 'local',
     startDate: '2023-09',
-    endDate: '2024-02'
+    endDate: '2024-02',
+    isTeam: true,
+    myContributions: [
+      'GitLab 기반 버전 관리 시스템 도입 및 교육',
+      'Oracle Forms 바이너리 파일 txt화 및 코드 추적',
+      '팀 내 Git 브랜치 전략 설계 및 적용'
+    ]
   },
   {
     id: 'local-003',
@@ -138,11 +151,13 @@ export const LOCAL_PROJECTS: Project[] = [
     type: 'project',
     source: 'local',
     startDate: '2022-12',
-    endDate: '2023-01'
+    endDate: '2023-01',
+    isTeam: true,
+    myContributions : ['팀장', '상품 목록 페이지 및 상세 페이지 개발', '팀원 코드 리뷰 및 방향성 제시']
   },
   {
     id: 'local-004',
-    title: 'OnTheTrain - 여행 계획 스케줄러',
+    title: 'OnTheTrain - 기차 여행 통합 사이트',
     description: 'KH정보교육원 팀 프로젝트로 개발된 여행 계획 스케줄러입니다. 일정, 숙소, 승차권을 통합 관리하며 캘린더 인터페이스와 드래그 앤 드롭 기능을 제공합니다.',
     technologies: ['Java', 'Spring Boot', 'Oracle', 'JSP', 'Servlet', 'HTML', 'CSS', 'JavaScript', 'DayPilot', 'jQuery'],
     githubUrl: '#',
@@ -152,6 +167,8 @@ export const LOCAL_PROJECTS: Project[] = [
     type: 'project',
     source: 'local',
     startDate: '2023-02',
-    endDate: '2023-04'
-  }
+    endDate: '2023-04',
+    isTeam: true,
+    myContributions : [ '일정 관리 페이지 담당', '전국 행사 API 연결', '팀원 코드 리뷰 및 방향성 제시']
+    }
 ]; 

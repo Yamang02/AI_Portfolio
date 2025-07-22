@@ -4,6 +4,7 @@ export interface ChatMessage {
   isUser: boolean;
   timestamp: Date;
   projectContext?: string;
+  showEmailButton?: boolean;
 }
 
 export interface ChatbotState {

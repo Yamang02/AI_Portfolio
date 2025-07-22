@@ -4,6 +4,7 @@ import { getChatbotResponse } from '../../../shared';
 import { ALL_PROJECTS } from '../../projects';
 import ChatMessage from './ChatMessage';
 import { appConfig } from '../../../shared';
+import { ContactModal } from '../../../shared/components/Modal';
 
 // The 'projects' prop is no longer needed.
 interface ChatbotProps {
@@ -29,6 +30,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ isOpen, onToggle }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -39,12 +41,32 @@ const Chatbot: React.FC<ChatbotProps> = ({ isOpen, onToggle }) => {
     scrollToBottom();
   }, [messages]);
 
+  // 모달 열기 이벤트 리스너
+  useEffect(() => {
+    const handleOpenModal = () => {
+      setIsContactModalOpen(true);
+    };
+
+    window.addEventListener('openContactModal', handleOpenModal);
+
+    // resetChatbot 이벤트 리스너 추가
+    const handleResetChatbot = () => {
+      resetChatbot();
+    };
+    window.addEventListener('resetChatbot', handleResetChatbot);
+
+    return () => {
+      window.removeEventListener('openContactModal', handleOpenModal);
+      window.removeEventListener('resetChatbot', handleResetChatbot);
+    };
+  }, []);
+
   // 챗봇 초기화
   const initializeChatbot = () => {
     if (!isInitialized) {
       const initialMessage: ChatMessageType = {
         id: 'initial',
-        content: `안녕하세요! 👋 저는 AI 포트폴리오 비서입니다.\n\n어떤 프로젝트에 대해 궁금하신가요?\n\n**사용 가능한 프로젝트:**\n• 성균관대학교 순수미술 동아리 갤러리 (SKKU FAC)\n• PYQT5 파일 태거 (File Tagger)\n• AI 포트폴리오 챗봇 (AI Portfolio Chatbot)\n\n💡 직접 질문도 가능합니다! "어떤 기술을 사용했어?" 같은 질문을 해보세요.`,
+        content: `안녕하세요! 👋 저는 AI 포트폴리오 비서입니다.\n\n궁금한 점이나 알고 싶은 내용을 자유롭게 질문해 주세요.\n\n예시:\n"A프로젝트 기획의도를 알려줘."\n"B프로젝트 기술스택 알려줘"\n\n💡 AI 답변은 실제 정보와 다를 수 있으니 참고용으로만 활용해 주세요.`,
         isUser: false,
         timestamp: new Date()
       };
@@ -58,8 +80,15 @@ const Chatbot: React.FC<ChatbotProps> = ({ isOpen, onToggle }) => {
     setSelectedProject(null);
     setMessages([]);
     setIsInitialized(false);
-    initializeChatbot();
   };
+
+  // isInitialized가 false가 될 때 초기화 메시지 세팅
+  useEffect(() => {
+    if (!isInitialized) {
+      initializeChatbot();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isInitialized]);
 
   // 프로젝트 선택 처리
   const handleProjectSelect = async (project: any) => {
@@ -87,6 +116,8 @@ const Chatbot: React.FC<ChatbotProps> = ({ isOpen, onToggle }) => {
       const responseText = await getChatbotResponse(question, project.title);
       
       let aiResponseText: React.ReactNode;
+      let showEmailButton = false;
+      
       if (responseText.trim() === 'I_CANNOT_ANSWER') {
         aiResponseText = (
           <span>
@@ -94,14 +125,30 @@ const Chatbot: React.FC<ChatbotProps> = ({ isOpen, onToggle }) => {
           </span>
         );
       } else {
+        // 개인정보나 민감한 정보 요청 감지 (프로젝트 질문의 경우)
+        const personalInfoKeywords = [
+          '이메일', '메일', '연락처', '전화번호', '휴대폰', '개인정보', '개발자 연락', '개발자에게 연락',
+          'email', 'contact', 'phone', 'personal', 'developer contact', 'reach developer'
+        ];
+        
+        const question = `${project.title}에 대해 간단히 소개해줄 수 있어?`;
+        const isPersonalInfoRequest = personalInfoKeywords.some(keyword => 
+          question.toLowerCase().includes(keyword.toLowerCase())
+        );
+        
+        if (isPersonalInfoRequest) {
+          showEmailButton = true;
+        }
+        
         aiResponseText = responseText;
       }
 
-      const aiMessage: ChatMessageType = { 
-        id: (Date.now() + 1).toString(), 
+            const aiMessage: ChatMessageType = { 
+        id: (Date.now() + 1).toString(),
         content: aiResponseText as string,
         isUser: false,
-        timestamp: new Date()
+        timestamp: new Date(),
+        showEmailButton: showEmailButton
       };
       
       setMessages(prev => [...prev, aiMessage]);
@@ -139,6 +186,8 @@ const Chatbot: React.FC<ChatbotProps> = ({ isOpen, onToggle }) => {
       const responseText = await getChatbotResponse(inputValue, selectedProject || undefined);
       
       let aiResponseText: React.ReactNode;
+      let showEmailButton = false;
+      
       if (responseText.trim() === 'I_CANNOT_ANSWER') {
         aiResponseText = (
           <span>
@@ -146,6 +195,20 @@ const Chatbot: React.FC<ChatbotProps> = ({ isOpen, onToggle }) => {
           </span>
         );
       } else {
+        // 개인정보나 민감한 정보 요청 감지
+        const personalInfoKeywords = [
+          '이메일', '메일', '연락처', '전화번호', '휴대폰', '개인정보', '개발자 연락', '개발자에게 연락',
+          'email', 'contact', 'phone', 'personal', 'developer contact', 'reach developer'
+        ];
+        
+        const isPersonalInfoRequest = personalInfoKeywords.some(keyword => 
+          inputValue.toLowerCase().includes(keyword.toLowerCase())
+        );
+        
+        if (isPersonalInfoRequest) {
+          showEmailButton = true;
+        }
+        
         aiResponseText = responseText;
       }
 
@@ -153,7 +216,8 @@ const Chatbot: React.FC<ChatbotProps> = ({ isOpen, onToggle }) => {
         id: (Date.now() + 1).toString(),
         content: aiResponseText as string,
         isUser: false,
-        timestamp: new Date()
+        timestamp: new Date(),
+        showEmailButton: showEmailButton
       };
 
       setMessages(prev => [...prev, aiMessage]);
@@ -197,15 +261,28 @@ const Chatbot: React.FC<ChatbotProps> = ({ isOpen, onToggle }) => {
           style={{ pointerEvents: isOpen ? 'auto' : 'none' }}
         >
           {/* 헤더 */}
-          <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-white">
+          <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-white relative">
             <h3 className="text-lg font-semibold text-gray-900 text-center w-full">AI 포트폴리오 비서</h3>
-            <button
-              onClick={handleToggle}
-              className="text-gray-500 hover:text-gray-700 transition-colors absolute right-4"
-              aria-label="챗봇 닫기"
-            >
-              <CloseIcon />
-            </button>
+            <div className="absolute right-4 flex items-center gap-2">
+              <button
+                onClick={resetChatbot}
+                className="text-gray-500 hover:text-gray-700 transition-colors"
+                aria-label="채팅 초기화"
+                title="채팅 초기화"
+              >
+                {/* 리셋(새로고침) 아이콘 */}
+                <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582M20 20v-5h-.581M19.418 15A7.978 7.978 0 0 1 12 20a8 8 0 1 1 8-8" />
+                </svg>
+              </button>
+              <button
+                onClick={handleToggle}
+                className="text-gray-500 hover:text-gray-700 transition-colors"
+                aria-label="챗봇 닫기"
+              >
+                <CloseIcon />
+              </button>
+            </div>
           </div>
 
           {/* 메시지 영역 */}
@@ -267,8 +344,15 @@ const Chatbot: React.FC<ChatbotProps> = ({ isOpen, onToggle }) => {
           </form>
         </div>
       )}
+
+      {/* 문의 모달 */}
+      <ContactModal 
+        isOpen={isContactModalOpen}
+        onClose={() => setIsContactModalOpen(false)}
+      />
     </>
   );
 };
 
-export default Chatbot; 
+export default Chatbot;
+export type { ChatbotProps }; 

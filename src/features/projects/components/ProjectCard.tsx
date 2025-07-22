@@ -123,6 +123,13 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
     >
       {/* 상단 아이콘 영역 (ProjectCard와 동일 높이) */}
       <div className="h-48 w-full bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center relative overflow-hidden">
+        {/* 팀/개인 배지 */}
+        <span
+          className={`absolute top-3 right-3 px-3 py-1 text-sm font-bold rounded-md shadow ${project.isTeam ? 'bg-blue-600 text-white' : 'bg-indigo-500 text-white'}`}
+          title={project.isTeam ? '팀 프로젝트' : '개인 프로젝트'}
+        >
+          {project.isTeam ? '팀' : '개인'}
+        </span>
         {/* 프로젝트 아이콘 */}
         <span className="inline-block w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center text-gray-600 text-3xl font-bold shadow">
           {getProjectIcon()}

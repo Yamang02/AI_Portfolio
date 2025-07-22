@@ -93,11 +93,16 @@ const getProjectsFromGitHub = async (): Promise<any[]> => {
 // This function now gets its data from GitHub API with fallback to constants
 const generateProjectContext = async (): Promise<string> => {
   const projects = await getProjectsFromGitHub();
-  
   return projects.map(p => {
     const contextParts = [
       `프로젝트명: ${p.title}`,
       `설명: ${p.description}`,
+      `팀 프로젝트: ${p.isTeam ? '예' : '아니오'}`,
+      p.isTeam
+        ? (p.myContributions && p.myContributions.length > 0
+            ? `내 기여:\n- ${p.myContributions.join('\n- ')}`
+            : '내 기여: (기여 내용 미입력)')
+        : '내 기여: 전체 기획/개발',
       `사용 기술: ${p.technologies.join(', ')}`
     ];
     if (p.githubUrl) {
@@ -106,7 +111,6 @@ const generateProjectContext = async (): Promise<string> => {
     if (p.liveUrl) {
       contextParts.push(`라이브 데모 주소: ${p.liveUrl}`);
     }
-    // README 내용을 더 자연스럽게 처리
     const readmeContent = p.readme.trim();
     if (readmeContent) {
       contextParts.push(`상세 정보:\n${readmeContent}`);
@@ -153,22 +157,26 @@ export const getChatbotResponse = async (question: string, selectedProject?: str
         const contextParts = [
           `프로젝트명: ${projectInfo.title}`,
           `설명: ${projectInfo.description}`,
-          `사용 기술: ${projectInfo.technologies.join(', ')}`,
-          `GitHub 주소: ${projectInfo.githubUrl}`
+          `팀 프로젝트: ${projectInfo.isTeam ? '예' : '아니오'}`,
+          projectInfo.isTeam
+            ? (projectInfo.myContributions && projectInfo.myContributions.length > 0
+                ? `내 기여:\n- ${projectInfo.myContributions.join('\n- ')}`
+                : '내 기여: (기여 내용 미입력)')
+            : '내 기여: 전체 기획/개발',
+          `사용 기술: ${projectInfo.technologies.join(', ')}`
         ];
-        
+        if (projectInfo.githubUrl) {
+          contextParts.push(`GitHub 주소: ${projectInfo.githubUrl}`);
+        }
         if (projectInfo.liveUrl) {
           contextParts.push(`라이브 데모 주소: ${projectInfo.liveUrl}`);
         }
-        
         if (projectInfo.readme) {
           contextParts.push(`상세 정보:\n${projectInfo.readme}`);
         }
-        
         if (projectInfo.portfolioInfo) {
           contextParts.push(`포트폴리오 정보:\n${projectInfo.portfolioInfo}`);
         }
-        
         projectContext = contextParts.join('\n');
       } else {
         // GitHub에서 정보를 가져올 수 없으면 기본 정보 사용

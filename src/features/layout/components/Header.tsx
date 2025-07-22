@@ -16,11 +16,60 @@ const Header: React.FC = () => {
         >
           {appConfig.app.developerName}'s portfolio
         </a>
-        {/* 우측: 네비게이션 + Resume 버튼 */}
+        {/* 우측: 네비게이션 */}
         <div className="flex items-center gap-6">
-          <a href="#project" className="text-sm text-black hover:text-gray-700 transition-colors">Project</a>
-          <a href="#experience" className="text-sm text-black hover:text-gray-700 transition-colors">Experience</a>
-          <a href="#certification" className="text-sm text-black hover:text-gray-700 transition-colors">Certification</a>
+          <a 
+            href="#project" 
+            className="text-sm text-black hover:text-gray-700 transition-colors cursor-pointer"
+            onClick={(e) => {
+              e.preventDefault();
+              const projectSection = document.getElementById('project');
+              if (projectSection) {
+                projectSection.scrollIntoView({ behavior: 'smooth' });
+              }
+            }}
+          >
+            Project
+          </a>
+          <a 
+            href="#experience" 
+            className="text-sm text-black hover:text-gray-700 transition-colors cursor-pointer"
+            onClick={(e) => {
+              e.preventDefault();
+              const experienceSection = document.getElementById('experience');
+              if (experienceSection) {
+                experienceSection.scrollIntoView({ behavior: 'smooth' });
+              }
+            }}
+          >
+            Career
+          </a>
+          <a 
+            href="#education" 
+            className="text-sm text-black hover:text-gray-700 transition-colors cursor-pointer"
+            onClick={(e) => {
+              e.preventDefault();
+              const educationSection = document.getElementById('education');
+              if (educationSection) {
+                educationSection.scrollIntoView({ behavior: 'smooth' });
+              }
+            }}
+          >
+            Education
+          </a>
+          <a 
+            href="#certification" 
+            className="text-sm text-black hover:text-gray-700 transition-colors cursor-pointer"
+            onClick={(e) => {
+              e.preventDefault();
+              const certificationSection = document.getElementById('certification');
+              if (certificationSection) {
+                certificationSection.scrollIntoView({ behavior: 'smooth' });
+              }
+            }}
+          >
+            Certification
+          </a>
         </div>
       </nav>
     </header>
