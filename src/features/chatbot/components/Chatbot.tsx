@@ -10,6 +10,7 @@ import { ContactModal } from '../../../shared/components/Modal';
 interface ChatbotProps {
   isOpen: boolean;
   onToggle: () => void;
+  showProjectButtons?: boolean;
 }
 
 const ChatIcon = () => (
@@ -24,7 +25,7 @@ const SendIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
 );
 
-const Chatbot: React.FC<ChatbotProps> = ({ isOpen, onToggle }) => {
+const Chatbot: React.FC<ChatbotProps> = ({ isOpen, onToggle, showProjectButtons }) => {
   const [messages, setMessages] = useState<ChatMessageType[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -305,7 +306,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ isOpen, onToggle }) => {
           </div>
 
           {/* 프로젝트 선택 영역 */}
-          {messages.length === 1 && (
+          {showProjectButtons !== false && messages.length === 1 && (
             <div className="p-4 border-t border-gray-200">
               <p className="text-sm text-gray-600 font-medium">프로젝트를 선택하세요:</p>
               <div className="grid grid-cols-1 gap-2">

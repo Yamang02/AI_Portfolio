@@ -14,7 +14,27 @@ const App: React.FC = () => {
 
   // 패널 상태 독립적으로 관리
   const [isChatbotOpen, setChatbotOpen] = useState(false);
-  const [isHistoryPanelOpen, setHistoryPanelOpen] = useState(true);
+  const [isHistoryPanelOpen, setHistoryPanelOpen] = useState(() => {
+    if (typeof window !== 'undefined') {
+      // 전체 창 너비가 2400px 이하에서는 닫힌 상태로 시작
+      return window.innerWidth > 2400;
+    }
+    return true;
+  });
+  const [isWideScreen, setIsWideScreen] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth > 2400;
+    }
+    return true;
+  });
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsWideScreen(window.innerWidth > 2400);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // 챗봇 토글
   const handleChatbotToggle = () => {
@@ -42,7 +62,7 @@ const App: React.FC = () => {
           onChatbotToggle={handleChatbotToggle}
         />
       </main>
-      <Chatbot isOpen={isChatbotOpen} onToggle={handleChatbotToggle} />
+      <Chatbot isOpen={isChatbotOpen} onToggle={handleChatbotToggle} showProjectButtons={isWideScreen} />
     </div>
   );
 };

@@ -43,6 +43,7 @@ const EducationCard: React.FC<EducationCardProps> = ({
 
   return (
     <div 
+      id={`education-${education.id}`}
       className={`
         bg-white rounded-lg shadow-md p-6 border border-gray-200 
         transition-all duration-200 hover:shadow-lg hover:scale-105 hover:shadow-green-200
