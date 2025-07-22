@@ -8,10 +8,12 @@ export { default as PanelToggle } from './components/PanelToggle';
 export { 
   ALL_PROJECTS, 
   ALL_EXPERIENCES,
+  ALL_EDUCATIONS,
   ALL_CERTIFICATIONS,
   GITHUB_PROJECTS, 
   LOCAL_PROJECTS, 
   EXPERIENCES,
+  EDUCATIONS,
   CERTIFICATIONS
 } from './constants';
 
@@ -19,6 +21,7 @@ export {
 export type { 
   Project, 
   Experience,
+  Education,
   Certification,
   HistoryItem, 
   HistoryPanelState 

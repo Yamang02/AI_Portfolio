@@ -1,7 +1,8 @@
 import React from 'react';
-import { Project, Experience, Certification } from '../types';
+import { Project, Experience, Education, Certification } from '../types';
 import ProjectCard from './ProjectCard';
 import ExperienceCard from './ExperienceCard';
+import EducationCard from './EducationCard';
 import CertificationCard from './CertificationCard';
 import HistoryPanel from './HistoryPanel';
 import PanelToggle from './PanelToggle';
@@ -9,6 +10,7 @@ import PanelToggle from './PanelToggle';
 interface PortfolioSectionProps {
   projects: Project[];
   experiences: Experience[];
+  educations: Education[];
   certifications: Certification[];
   isHistoryPanelOpen: boolean;
   onHistoryPanelToggle: () => void;
@@ -19,6 +21,7 @@ interface PortfolioSectionProps {
 const PortfolioSection: React.FC<PortfolioSectionProps> = ({ 
   projects, 
   experiences,
+  educations,
   certifications,
   isHistoryPanelOpen,
   onHistoryPanelToggle,
@@ -64,13 +67,13 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
         )}
       </div>
 
-      {/* 경력/교육 영역 */}
+      {/* 경력 영역 */}
       <div id="experience" className="mt-6 mb-12 scroll-mt-20">
-        <h3 className="text-[1.95rem] font-semibold text-black mb-[2.25rem]">경력/교육</h3>
+        <h3 className="text-[1.95rem] font-semibold text-black mb-[2.25rem]">경력</h3>
         {experiences.length === 0 ? (
           <div className="text-center py-12">
-            <div className="text-gray-400 text-6xl mb-4">🎓</div>
-            <p className="text-gray-500 text-lg">경력/교육 정보가 없습니다.</p>
+            <div className="text-gray-400 text-6xl mb-4">💼</div>
+            <p className="text-gray-500 text-lg">경력 정보가 없습니다.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -81,6 +84,29 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
                 onMouseEnter={() => handleItemHover(experience.id)}
                 onMouseLeave={() => handleItemHover(undefined)}
                 isHighlighted={highlightedItemId === experience.id}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* 교육 영역 */}
+      <div id="education" className="mt-6 mb-12 scroll-mt-20">
+        <h3 className="text-[1.95rem] font-semibold text-black mb-[2.25rem]">교육</h3>
+        {educations.length === 0 ? (
+          <div className="text-center py-12">
+            <div className="text-gray-400 text-6xl mb-4">🎓</div>
+            <p className="text-gray-500 text-lg">교육 정보가 없습니다.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {educations.map(education => (
+              <EducationCard
+                key={education.id}
+                education={education}
+                onMouseEnter={() => handleItemHover(education.id)}
+                onMouseLeave={() => handleItemHover(undefined)}
+                isHighlighted={highlightedItemId === education.id}
               />
             ))}
           </div>
@@ -114,6 +140,7 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
         isOpen={isHistoryPanelOpen}
         projects={projects}
         experiences={experiences}
+        educations={educations}
         highlightedItemId={highlightedItemId}
         onToggle={onHistoryPanelToggle}
         onItemHover={handleItemHover}

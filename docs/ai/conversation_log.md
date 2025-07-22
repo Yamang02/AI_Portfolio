@@ -193,7 +193,7 @@
 - `env.example`: 환경 변수 예시
 - `docs/deployment-guide.md`: 상세 배포 가이드
 
-## 🆕 최신 업데이트 (2024년 12월)
+## 🆕 최신 업데이트 
 
 ### 프로젝트 맥락 유지 시스템 구현 ✅
 **문제**: 사용자가 특정 프로젝트를 선택했는데, 챗봇이 다른 프로젝트의 GitHub 레포지토리를 참조하여 404 에러 발생
@@ -464,3 +464,225 @@ src/
 - 사용자 피드백 반영
 - 성능 최적화
 - 추가 기능 구현 (필터링, 검색 등)
+
+---
+
+## 아이디 체계 통일 작업 (2025-07-22)
+
+### 문제점 분석
+기존 constants 폴더의 아이디 체계가 일관성이 없는 상태였습니다:
+- **프로젝트**: 숫자 ID (1, 2, 3, 5, 6)
+- **경력/교육**: 문자열 ID (`exp-001`, `edu-001`, `edu-002`)
+- **자격증**: 문자열 ID (`C001`, `C002`)
+
+### 영향도 분석
+변경 전 영향도를 파악한 결과:
+- **챗봇 기능**: 영향 없음 (title 기반)
+- **GitHub API 연동**: 영향 없음 (title 기반)
+- **하이라이트 기능**: ID 변경 시 상태 초기화
+- **DOM ID**: 자동으로 새로운 ID 적용
+- **타입 시스템**: 이미 string으로 정의되어 있어 타입 오류 없음
+
+### 변경 작업
+
+#### 1. 프로젝트 ID 변경
+**파일**: `src/features/projects/constants/projects.ts`
+```typescript
+// Before
+{ id: 1, title: 'SKKU FAC' }
+{ id: 2, title: 'PYQT5 File Tagger' }
+{ id: 3, title: 'AI Portfolio Chatbot' }
+
+// After
+{ id: 'proj-001', title: 'SKKU FAC' }
+{ id: 'proj-002', title: 'PYQT5 File Tagger' }
+{ id: 'proj-003', title: 'AI Portfolio Chatbot' }
+```
+
+**파일**: `src/features/projects/constants/localProjects.ts`
+```typescript
+// Before
+{ id: 5, title: '로컬 프로젝트 A' }
+{ id: 6, title: '노루그룹 ERP' }
+
+// After
+{ id: 'proj-004', title: '로컬 프로젝트 A' }
+{ id: 'proj-005', title: '노루그룹 ERP' }
+```
+
+#### 2. 자격증 ID 변경
+**파일**: `src/features/projects/constants/certifications.ts`
+```typescript
+// Before
+{ id: 'C001', title: 'AWS Certified' }
+{ id: 'C002', title: 'Azure Developer' }
+
+// After
+{ id: 'cert-001', title: 'AWS Certified' }
+{ id: 'cert-002', title: 'Azure Developer' }
+```
+
+#### 3. 경력/교육 ID 유지
+**파일**: `src/features/projects/constants/experiences.ts`
+```typescript
+// 이미 통일된 형태 유지
+{ id: 'exp-001', title: '디아이티' }
+{ id: 'edu-001', title: 'Sesac' }
+{ id: 'edu-002', title: 'KH정보교육원' }
+```
+
+### 최종 통일된 ID 체계
+
+| 카테고리 | 패턴 | 예시 |
+|---------|------|------|
+| **프로젝트** | `proj-XXX` | `proj-001`, `proj-002`, `proj-003`, `proj-004`, `proj-005` |
+| **경력** | `exp-XXX` | `exp-001` |
+| **교육** | `edu-XXX` | `edu-001`, `edu-002` |
+| **자격증** | `cert-XXX` | `cert-001`, `cert-002` |
+
+### 개선 효과
+
+#### 1. 일관성 향상
+- 모든 ID가 문자열 형태로 통일
+- 카테고리별 명확한 접두사 구분
+- 확장성 보장 (순서대로 번호 부여)
+
+#### 2. 가독성 개선
+- ID만 보고도 카테고리 파악 가능
+- 개발자 경험 향상
+- 디버깅 시 식별 용이
+
+#### 3. 유지보수성 향상
+- 새로운 항목 추가 시 일관된 패턴 적용
+- 코드 리뷰 시 ID 체계 이해 용이
+- 문서화 효과
+
+### 기술적 특징
+- **타입 안전성**: BaseItem 인터페이스에서 이미 `id: string` 정의
+- **자동 적용**: 컴포넌트에서 key, highlightedItemId 등 자동 반영
+- **호환성**: 기존 기능에 영향 없음
+- **확장성**: 새로운 카테고리 추가 시 일관된 패턴 적용 가능
+
+### 변경된 파일 목록
+1. `src/features/projects/constants/projects.ts`
+2. `src/features/projects/constants/localProjects.ts`
+3. `src/features/projects/constants/certifications.ts`
+
+### 다음 단계
+- 프로젝트 실행하여 변경사항 확인
+- 추가 카테고리 필요 시 일관된 패턴 적용
+- ID 체계 문서화
+
+## 히스토리 패널 디자인 개선 작업 (2025-07-22)
+
+### 개요
+프로젝트 히스토리 패널의 시각적 디자인과 사용성을 개선하여 더욱 직관적이고 현대적인 타임라인 인터페이스로 발전시켰습니다.
+
+### 주요 개선사항
+
+#### 1. 바 디자인 현대화
+- **기존**: 하얀색 배경에 회색 테두리
+- **개선**: 어두운 회색 배경(`bg-gray-300`)으로 가시성 향상
+- **테두리 제거**: hover 상태가 아닐 때 불필요한 테두리 제거
+- **둥근 모서리 제거**: `rounded-lg` 제거로 더 현대적인 직선형 디자인
+
+#### 2. 진행 상태 구분 개선
+- **진행 중인 바**: 얇은 선(`w-1`, 4px)으로 표시
+- **완료된 바**: 넓은 바(`w-8`, 32px)로 표시
+- **시각적 구분**: 선 vs 바로 진행 상태를 명확하게 구분
+
+#### 3. Title 라벨 시스템 개선
+- **색상 구분**: 각 타입별로 다른 색상의 title 라벨
+  - 프로젝트: 파란색 배경 (`bg-blue-50 border-blue-200 text-blue-700`)
+  - 경력: 주황색 배경 (`bg-orange-50 border-orange-200 text-orange-700`)
+  - 교육: 초록색 배경 (`bg-green-50 border-green-200 text-green-700`)
+- **위치 최적화**: 바의 정확한 중앙에 title 배치
+- **Hover 효과**: 하이라이트 시 전체 title 표시 (`max-w-none overflow-visible`)
+
+#### 4. 바 위치 및 크기 조정
+- **위치 조정**: 바들을 더 가깝게 배치
+  - 교육: 20% (기존 15%)
+  - 경력: 40% (기존 35%)
+  - 프로젝트: 60% (기존 65%)
+- **크기 조정**: 바 너비 증가로 가시성 향상
+  - 진행 중인 바: `w-2` → `w-1` (더 얇은 선)
+  - 일반 바: `w-6` → `w-8` (더 넓은 바)
+
+#### 5. 상호작용 개선
+- **Hover 색상 통일**: 모든 바가 `hover:bg-gray-500`으로 동일한 반응
+- **크기 애니메이션 제거**: `scale-105` 제거로 정확한 기간 표시 유지
+- **부드러운 전환**: `transition-all duration-200`으로 자연스러운 변화
+
+#### 6. 범례 단순화
+- **불필요한 항목 제거**: "진행 중" 항목 제거
+- **색상 구분만 표시**: 프로젝트, 경력, 교육 3가지 타입만 범례에 표시
+- **시각적 일관성**: 모양(선/바)으로 진행 상태 구분, 색상으로 타입 구분
+
+### 기술적 구현
+
+#### 바 렌더링 로직 개선
+```typescript
+// 진행 중인 바 (선)
+<div className={`w-1 h-full transition-all duration-200 ${
+  isHighlighted ? 'bg-green-400 ring-2 ring-green-300' : 'bg-gray-300 hover:bg-gray-500'
+}`} />
+
+// 일반 바
+<div className={`w-8 mx-auto transition-all duration-300 cursor-pointer ${
+  isHighlighted ? 'bg-green-600 shadow-lg' : 'bg-gray-300 hover:bg-gray-500'
+}`} />
+```
+
+#### Title 색상 시스템
+```typescript
+const getTitleColor = (type: 'project' | 'experience' | 'education') => {
+  switch (type) {
+    case 'project': return 'bg-blue-50 border-blue-200 text-blue-700';
+    case 'experience': return 'bg-orange-50 border-orange-200 text-orange-700';
+    case 'education': return 'bg-green-50 border-green-200 text-green-700';
+    default: return 'bg-gray-50 border-gray-200 text-gray-700';
+  }
+};
+```
+
+### 사용자 경험 개선
+
+#### 1. 시각적 명확성
+- 바의 어두운 회색으로 배경과 명확한 대비
+- Title 색상으로 각 타입을 즉시 구분 가능
+- 선/바 모양으로 진행 상태를 직관적으로 파악
+
+#### 2. 상호작용 개선
+- Hover 시 색상 변화로 반응성 제공
+- Title 전체 표시로 상세 정보 확인 가능
+- 크기 변화 없이 정확한 기간 표시 유지
+
+#### 3. 공간 효율성
+- 바들을 더 가깝게 배치하여 공간 활용도 향상
+- 범례 단순화로 불필요한 정보 제거
+- 깔끔하고 현대적인 레이아웃
+
+### 개선 효과
+
+#### 1. 가독성 향상
+- 어두운 회색 바로 배경과 명확한 대비
+- Title 색상으로 타입 구분 명확화
+- 진행 상태를 모양으로 직관적 구분
+
+#### 2. 사용성 개선
+- 일관된 hover 효과로 예측 가능한 상호작용
+- Title 전체 표시로 정보 접근성 향상
+- 정확한 기간 표시로 신뢰성 확보
+
+#### 3. 디자인 현대화
+- 불필요한 테두리와 둥근 모서리 제거
+- 미니멀하고 깔끔한 디자인
+- 색상과 모양의 조화로운 조합
+
+### 변경된 파일
+- `src/features/projects/components/HistoryPanel.tsx`
+
+### 다음 단계
+- 사용자 피드백 수집 및 추가 개선
+- 반응형 디자인 최적화
+- 접근성 개선 (키보드 네비게이션 등)

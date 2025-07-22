@@ -1,20 +1,21 @@
-import { Experience } from '../types';
+import { Experience, Education } from '../types';
 
 // 경력 항목들
 export const EXPERIENCES: Experience[] = [
   {
     id: 'exp-001',
-    title: '디아이티',
+    title: '(주)디아이티',
     description: '노루 그룹 전산 계열사',
     technologies: ['Python', 'SQLite', 'Tkinter', 'Markdown', 'Local Storage'],
     organization: '디아이티',
     startDate: '2023-07',
-    endDate: '2025-01'
+    endDate: '2025-01',
+    type: 'career'
   }
 ];
 
 // 교육 항목들
-export const EDUCATIONS: Experience[] = [
+export const EDUCATIONS: Education[] = [
   {
     id: 'edu-001',
     title: 'Sesac',
@@ -22,7 +23,8 @@ export const EDUCATIONS: Experience[] = [
     technologies: ['Python', 'SQLite', 'Tkinter', 'Markdown', 'Local Storage'],
     organization: 'Sesac 강동지점',
     startDate: '2025-06',
-    endDate: undefined
+    endDate: undefined,
+    type: 'education'
   },
   {
     id: 'edu-002',
@@ -31,6 +33,7 @@ export const EDUCATIONS: Experience[] = [
     technologies: ['Python', 'SQLite', 'Tkinter', 'Markdown', 'Local Storage'],
     organization: 'KH정보교육원 강남지사',
     startDate: '2022-11',
-    endDate: '2023-04'
+    endDate: '2023-04',
+    type: 'education'
   }
 ]; 

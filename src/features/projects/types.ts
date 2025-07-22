@@ -26,12 +26,20 @@ export interface Project extends BaseItem {
   credentialUrl?: string;
 }
 
-// 경력/교육 인터페이스
+// 경력 인터페이스
 export interface Experience extends BaseItem {
   organization: string;
   role?: string;
   location?: string;
-  // type 필드 제거
+  type: 'career';
+}
+
+// 교육 인터페이스
+export interface Education extends BaseItem {
+  organization: string;
+  degree?: string;
+  location?: string;
+  type: 'education';
 }
 
 // 자격증 인터페이스

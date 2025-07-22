@@ -1,33 +1,36 @@
 import React from 'react';
-import { Experience } from '../types';
+import { Education } from '../types';
 
-interface ExperienceCardProps {
-  experience: Experience;
+interface EducationCardProps {
+  education: Education;
   onMouseEnter?: () => void;
   onMouseLeave?: () => void;
   isHighlighted?: boolean;
 }
 
-const ExperienceCard: React.FC<ExperienceCardProps> = ({ experience, onMouseEnter, onMouseLeave, isHighlighted }) => {
-
+const EducationCard: React.FC<EducationCardProps> = ({ 
+  education, 
+  onMouseEnter, 
+  onMouseLeave,
+  isHighlighted = false 
+}) => {
   const formatDate = (date: string) => {
     const [year, month] = date.split('-');
     return `${year}.${month}`;
   };
 
   const formatDateRange = () => {
-    const startDate = formatDate(experience.startDate);
-    const endDate = experience.endDate ? formatDate(experience.endDate) : '현재';
+    const startDate = formatDate(education.startDate);
+    const endDate = education.endDate ? formatDate(education.endDate) : '현재';
     return `${startDate} - ${endDate}`;
   };
 
   return (
     <div 
-      id={`experience-${experience.id}`}
       className={`
         bg-white rounded-lg shadow-md p-6 border border-gray-200 
         transition-all duration-200 hover:shadow-lg hover:scale-105
-        ${isHighlighted ? 'ring-2 ring-gray-400 shadow-lg scale-105' : ''}
+        ${isHighlighted ? 'ring-2 ring-orange-400 shadow-lg scale-105' : ''}
       `}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
@@ -36,14 +39,14 @@ const ExperienceCard: React.FC<ExperienceCardProps> = ({ experience, onMouseEnte
       <div className="flex items-start justify-between mb-4">
         <div className="flex-1">
           <h3 className="text-lg font-semibold text-gray-800 mb-1">
-            {experience.title}
+            {education.title}
           </h3>
           <p className="text-sm text-gray-600 mb-1">
-            {experience.organization}
+            {education.organization}
           </p>
-          {experience.role && (
+          {education.degree && (
             <p className="text-sm text-gray-500 mb-2">
-              {experience.role}
+              {education.degree}
             </p>
           )}
         </div>
@@ -56,13 +59,13 @@ const ExperienceCard: React.FC<ExperienceCardProps> = ({ experience, onMouseEnte
 
       {/* 설명 */}
       <p className="text-gray-700 text-sm mb-4 line-clamp-3">
-        {experience.description}
+        {education.description}
       </p>
 
       {/* 기술 스택 */}
-      {experience.technologies && experience.technologies.length > 0 && (
+      {education.technologies && education.technologies.length > 0 && (
         <div className="flex flex-wrap gap-1 mb-4">
-          {experience.technologies.map((tech, index) => (
+          {education.technologies.map((tech, index) => (
             <span 
               key={index}
               className="inline-block bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded border border-gray-200"
@@ -74,16 +77,16 @@ const ExperienceCard: React.FC<ExperienceCardProps> = ({ experience, onMouseEnte
       )}
 
       {/* 위치 정보 */}
-      {experience.location && (
+      {education.location && (
         <div className="flex items-center text-xs text-gray-500">
           <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
           </svg>
-          {experience.location}
+          {education.location}
         </div>
       )}
     </div>
   );
 };
 
-export default ExperienceCard; 
+export default EducationCard; 

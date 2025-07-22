@@ -3,7 +3,7 @@ import Header from './Header';
 import HeroSection from './HeroSection';
 import { PortfolioSection } from '../../projects';
 import { Chatbot } from '../../chatbot';
-import { ALL_PROJECTS, ALL_EXPERIENCES, ALL_CERTIFICATIONS } from '../../projects';
+import { ALL_PROJECTS, ALL_EXPERIENCES, ALL_EDUCATIONS, ALL_CERTIFICATIONS } from '../../projects';
 import { validateConfig } from '../../../shared';
 
 const App: React.FC = () => {
@@ -34,6 +34,7 @@ const App: React.FC = () => {
         <PortfolioSection 
           projects={ALL_PROJECTS} 
           experiences={ALL_EXPERIENCES}
+          educations={ALL_EDUCATIONS}
           certifications={ALL_CERTIFICATIONS}
           isHistoryPanelOpen={isHistoryPanelOpen}
           onHistoryPanelToggle={handleHistoryPanelToggle}
