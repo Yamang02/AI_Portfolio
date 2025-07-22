@@ -8,14 +8,15 @@ export const GITHUB_PROJECTS: Project[] = [
     description: '성균관대 미술동아리 전시회의 예술 작품들을 온라인으로 전시하고 관리하는 웹 플랫폼입니다.',
     technologies: ['Node.js', 'Express.js', 'MySQL', 'EJS', 'JavaScript', 'Cloudinary', 'Redis', 'Cursor'],
     githubUrl: `https://github.com/Yamang02/SKKU_FAC`,
-    liveUrl: '#',
+    liveUrl: 'https://www.skkuartclub.kr/',
     imageUrl: '#', // 기본 아이콘 사용
     readme: '', // GitHub API에서 동적으로 가져올 예정
     type: 'project',
     source: 'github',
     startDate: '2025-02',
     endDate: '2025-05',
-    isTeam: false
+    isTeam: false,
+    externalUrl: 'https://enchanting-caravan-a18.notion.site/SKKU-1dc50f33f34c80b7a08fc7afce8be9ab'
   },
   {
     id: 'proj-002',
@@ -30,7 +31,8 @@ export const GITHUB_PROJECTS: Project[] = [
     source: 'github',
     startDate: '2025-07',
     endDate: '2025-08',
-    isTeam: false
+    isTeam: false,
+    externalUrl: 'https://enchanting-caravan-a18.notion.site/FileTagger-23750f33f34c8005b895e92f6a66b6e9?pvs=74'
   },
   {
     id: 'proj-003',
@@ -45,7 +47,8 @@ export const GITHUB_PROJECTS: Project[] = [
     source: 'github',
     startDate: '2025-07',
     endDate: undefined, // 현재 진행 중
-    isTeam: false
+    isTeam: false,
+    externalUrl: 'https://enchanting-caravan-a18.notion.site/AI-23750f33f34c80b8ade2d33e80698d5f'
   },
   {
     id: 'github-004',

@@ -6,6 +6,7 @@ import EducationCard from './EducationCard';
 import CertificationCard from './CertificationCard';
 import HistoryPanel from './HistoryPanel';
 import PanelToggle from './PanelToggle';
+import { ProjectModal } from '../../../shared/components/Modal';
 
 interface PortfolioSectionProps {
   projects: Project[];
@@ -30,6 +31,8 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
 }) => {
   const [highlightedItemId, setHighlightedItemId] = React.useState<string | undefined>();
   const [longHoveredItemId, setLongHoveredItemId] = React.useState<string | undefined>();
+  const [selectedProject, setSelectedProject] = React.useState<Project | null>(null);
+  const [isProjectModalOpen, setIsProjectModalOpen] = React.useState(false);
 
   // 아이템 하이라이트 처리
   const handleItemHover = (itemId?: string) => {
@@ -39,6 +42,18 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
   // 카드에서 1초 이상 hover 시 호출
   const handleLongHover = (itemId: string) => {
     setLongHoveredItemId(itemId);
+  };
+
+  // 프로젝트 카드 클릭 시
+  const handleProjectCardClick = (project: Project) => {
+    setSelectedProject(project);
+    setIsProjectModalOpen(true);
+  };
+
+  // 모달 닫기
+  const handleProjectModalClose = () => {
+    setIsProjectModalOpen(false);
+    setSelectedProject(null);
   };
 
   return (
@@ -68,6 +83,7 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
                 onMouseLeave={() => handleItemHover(undefined)}
                 isHighlighted={highlightedItemId === project.id}
                 onLongHover={handleLongHover}
+                onClick={handleProjectCardClick}
               />
             ))}
           </div>
@@ -160,6 +176,11 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
       <PanelToggle 
         isOpen={isHistoryPanelOpen} 
         onToggle={onHistoryPanelToggle} 
+      />
+      <ProjectModal
+        isOpen={isProjectModalOpen}
+        onClose={handleProjectModalClose}
+        project={selectedProject}
       />
     </section>
   );

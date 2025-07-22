@@ -21,6 +21,7 @@ export interface Project extends BaseItem {
   type: 'project' | 'certification';
   // 자격증 전용 필드들
   issuer?: string;
+  externalUrl?: string;
   // === [추가] 팀/기여 관련 필드 ===
   isTeam: boolean; // 팀 프로젝트 여부
   myContributions?: string[]; // 내가 맡은 역할/기여

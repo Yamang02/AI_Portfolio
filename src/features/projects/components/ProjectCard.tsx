@@ -20,6 +20,7 @@ interface ProjectCardProps {
   onMouseLeave?: () => void;
   isHighlighted?: boolean;
   onLongHover?: (id: string) => void;
+  onClick?: (project: Project) => void;
 }
 
 const ProjectCard: React.FC<ProjectCardProps> = ({ 
@@ -27,7 +28,8 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
   onMouseEnter, 
   onMouseLeave, 
   isHighlighted,
-  onLongHover
+  onLongHover,
+  onClick
 }) => {
   const timerRef = React.useRef<NodeJS.Timeout | null>(null);
 
@@ -120,12 +122,14 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
       className={`bg-white rounded-lg shadow-md overflow-hidden transform transition-all duration-300 hover:scale-105 flex flex-col border border-gray-100 hover:shadow-blue-200 ${isHighlighted ? 'ring-4 ring-blue-200 shadow-blue-200' : ''}`}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
+      onClick={() => onClick?.(project)}
+      style={{ cursor: onClick ? 'pointer' : undefined }}
     >
       {/* 상단 아이콘 영역 (ProjectCard와 동일 높이) */}
       <div className="h-48 w-full bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center relative overflow-hidden">
         {/* 팀/개인 배지 */}
         <span
-          className={`absolute top-3 right-3 px-3 py-1 text-sm font-bold rounded-md shadow ${project.isTeam ? 'bg-blue-600 text-white' : 'bg-indigo-500 text-white'}`}
+          className={`absolute top-3 right-3 px-3 py-1 text-sm font-bold rounded-md shadow ${project.isTeam ? 'bg-blue-600 text-white' : 'bg-primary-600 text-white'}`}
           title={project.isTeam ? '팀 프로젝트' : '개인 프로젝트'}
         >
           {project.isTeam ? '팀' : '개인'}
