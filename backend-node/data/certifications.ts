@@ -1,4 +1,4 @@
-import { Certification } from '../types';
+import { Certification } from '../types/index.js';
 
 export const CERTIFICATIONS: Certification[] = [
   {

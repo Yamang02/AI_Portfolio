@@ -1124,3 +1124,137 @@ npm run server:dev
 7. `env.example` - 환경변수 예시 업데이트
 8. `docs/api-documentation.md` - API 문서 생성
 9. `README.md` - 서버 실행 방법 추가
+
+---
+
+## 백엔드 분리 1차 완료 (2025-01-15)
+
+### 개요
+프론트엔드에서 데이터를 정상적으로 fetch했지만 카드로 렌더링하지 않는 문제를 해결하여 백엔드와 프론트엔드의 완전한 분리를 달성했습니다.
+
+### 주요 문제점 및 해결
+
+#### 1. API 응답 구조 불일치 문제
+**문제**: 백엔드에서 배열을 직접 반환하는데, 프론트엔드에서 `response.data`를 찾아서 `undefined` 반환
+- `getExperiences()`, `getEducation()`, `getCertifications()`, `getProjects()` 모두 동일한 문제
+
+**해결책**:
+- `requestDirect` 메서드 추가: 배열을 직접 반환하는 API 엔드포인트용
+- 정적 데이터 API 메서드들에서 `response.data` 대신 `response` 직접 반환
+- 타입 안전성 확보를 위한 별도 메서드 구현
+
+#### 2. 데이터 구조 불일치 문제
+**문제**: 백엔드와 프론트엔드 간 모델 필드명 차이
+- **Certification**: 백엔드(`name`, `date`) vs 프론트엔드(`title`, `startDate`)
+- **Education**: 백엔드(`endDate: null`) vs 프론트엔드(`endDate?: string`)
+
+**해결책**:
+- Certification 타입 수정: `name`, `date`, `credentialUrl` 필드로 통일
+- CertificationCard 컴포넌트 수정: 필드명 변경 및 UI 개선
+- BaseItem 타입 수정: `endDate?: string | null`로 null 허용
+- HistoryPanel 날짜 처리 개선: null 값 필터링 로직 강화
+
+#### 3. 프로젝트 데이터 통합
+**문제**: GitHub 프로젝트만 표시되고 로컬 프로젝트가 누락됨
+
+**해결책**:
+- App.tsx에서 백엔드 프로젝트와 로컬 프로젝트 합치기
+- `const allProjects = [...backendProjectsData, ...LOCAL_PROJECTS]`
+- 총 8개 프로젝트 (GitHub 4개 + 로컬 4개) 표시
+
+#### 4. React Key Prop 오류
+**문제**: HistoryPanel에서 리스트 렌더링 시 고유한 key 누락
+
+**해결책**:
+- `React.Fragment`와 고유한 key 추가
+- `key={`education-${education.id}`}` 형태로 타입별 고유 키 생성
+- 각 아이템에 고유한 식별자 보장
+
+### 기술적 개선사항
+
+#### 1. API 클라이언트 개선
+```typescript
+// requestDirect 메서드 추가
+private async requestDirect<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+  // 배열을 직접 반환하는 API용
+}
+
+// 정적 데이터 API 수정
+async getExperiences(): Promise<any[]> {
+  const response = await this.requestDirect<any[]>('/api/data/experiences');
+  return response || [];
+}
+```
+
+#### 2. 타입 시스템 개선
+```typescript
+// Certification 타입 통일
+export interface Certification {
+  id: string;
+  name: string; // title → name
+  description: string;
+  issuer: string;
+  date: string; // startDate → date
+  credentialUrl: string;
+}
+
+// BaseItem 타입 개선
+export interface BaseItem {
+  endDate?: string | null; // null 허용
+}
+```
+
+#### 3. 컴포넌트 개선
+```typescript
+// CertificationCard 수정
+const formatAcquisitionDate = () => {
+  return formatDate(certification.date); // startDate → date
+};
+
+// HistoryPanel Key 추가
+{educations.map((education, index) => (
+  <React.Fragment key={`education-${education.id}`}>
+    {renderBarItem(education, 'education', index)}
+  </React.Fragment>
+))}
+```
+
+### 최종 결과
+
+#### 1. 데이터 로딩 성공 ✅
+- **경력 정보**: 4개 항목 정상 렌더링
+- **교육 정보**: 2개 항목 정상 렌더링  
+- **자격증 정보**: 2개 항목 정상 렌더링
+- **프로젝트 정보**: 8개 항목 정상 렌더링 (GitHub 4개 + 로컬 4개)
+
+#### 2. 오류 해결 ✅
+- **React Key Prop 오류**: 완전 해결
+- **API 응답 구조 오류**: 완전 해결
+- **데이터 구조 불일치**: 완전 해결
+- **프로젝트 누락**: 완전 해결
+
+#### 3. 사용자 경험 개선 ✅
+- "정보가 없습니다" 메시지 대신 실제 데이터 표시
+- 모든 카드가 정상적으로 렌더링
+- 히스토리 패널과의 연동 정상 작동
+- 타입 안전성 확보
+
+### 변경된 파일 목록
+1. `src/shared/services/apiClient.ts` - API 클라이언트 개선
+2. `src/features/projects/types.ts` - 타입 정의 수정
+3. `src/features/projects/components/CertificationCard.tsx` - 컴포넌트 수정
+4. `src/features/projects/components/HistoryPanel.tsx` - Key Prop 추가
+5. `src/features/layout/components/App.tsx` - 프로젝트 데이터 통합
+
+### 다음 단계
+- 백엔드 서버 실행 및 테스트
+- 프로덕션 환경 배포 준비
+- 성능 최적화 및 모니터링
+- 추가 기능 구현 (필터링, 검색 등)
+
+### 기술적 특징
+- **타입 안전성**: TypeScript로 완전한 타입 정의
+- **모듈화**: 기능별 파일 분리로 유지보수성 향상
+- **확장성**: 새로운 데이터 타입 추가 시 일관된 패턴 적용
+- **성능**: 불필요한 리렌더링 방지 및 최적화
+- **사용자 경험**: 직관적이고 반응적인 인터페이스

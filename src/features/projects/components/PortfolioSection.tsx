@@ -19,8 +19,8 @@ interface PortfolioSectionProps {
   onChatbotToggle: () => void;
 }
 
-const PortfolioSection: React.FC<PortfolioSectionProps> = ({ 
-  projects, 
+const PortfolioSection: React.FC<PortfolioSectionProps> = ({
+  projects,
   experiences,
   educations,
   certifications,
@@ -76,8 +76,8 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {projects.map(project => (
-              <ProjectCard 
-                key={project.id} 
+              <ProjectCard
+                key={project.id}
                 project={project}
                 onMouseEnter={() => handleItemHover(project.id)}
                 onMouseLeave={() => handleItemHover(undefined)}
@@ -161,7 +161,7 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
       </div>
 
       {/* 히스토리 패널 */}
-      <HistoryPanel 
+      <HistoryPanel
         isOpen={isHistoryPanelOpen}
         projects={projects}
         experiences={experiences}
@@ -171,11 +171,11 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
         onItemHover={handleItemHover}
         scrollToItemId={longHoveredItemId}
       />
-      
+
       {/* 패널 토글 버튼 */}
-      <PanelToggle 
-        isOpen={isHistoryPanelOpen} 
-        onToggle={onHistoryPanelToggle} 
+      <PanelToggle
+        isOpen={isHistoryPanelOpen}
+        onToggle={onHistoryPanelToggle}
       />
       <ProjectModal
         isOpen={isProjectModalOpen}

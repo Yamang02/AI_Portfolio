@@ -3,15 +3,10 @@ import Header from './Header';
 import HeroSection from './HeroSection';
 import { PortfolioSection } from '../../projects';
 import { Chatbot } from '../../chatbot';
-import { ALL_PROJECTS, ALL_EXPERIENCES, ALL_EDUCATIONS, ALL_CERTIFICATIONS } from '../../projects';
-import { validateConfig } from '../../../shared';
+import { apiClient } from '../../../shared/services/apiClient';
+import { LOCAL_PROJECTS } from '../../projects/constants';
 
 const App: React.FC = () => {
-  useEffect(() => {
-    // 애플리케이션 시작 시 설정 검증
-    validateConfig();
-  }, []);
-
   // 패널 상태 독립적으로 관리
   const [isChatbotOpen, setChatbotOpen] = useState(false);
   const [isHistoryPanelOpen, setHistoryPanelOpen] = useState(() => {
@@ -27,6 +22,41 @@ const App: React.FC = () => {
     }
     return true;
   });
+
+  // 데이터 상태
+  const [projects, setProjects] = useState<any[]>([]);
+  const [experiences, setExperiences] = useState<any[]>([]);
+  const [educations, setEducations] = useState<any[]>([]);
+  const [certifications, setCertifications] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // 데이터 로드
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const [backendProjectsData, experiencesData, educationsData, certificationsData] = await Promise.all([
+          apiClient.getProjects(),
+          apiClient.getExperiences(),
+          apiClient.getEducation(),
+          apiClient.getCertifications()
+        ]);
+
+        // 백엔드 프로젝트와 로컬 프로젝트 합치기
+        const allProjects = [...backendProjectsData, ...LOCAL_PROJECTS];
+
+        setProjects(allProjects);
+        setExperiences(experiencesData);
+        setEducations(educationsData);
+        setCertifications(certificationsData);
+      } catch (error) {
+        console.error('데이터 로드 오류:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
 
   useEffect(() => {
     const handleResize = () => {
@@ -46,16 +76,27 @@ const App: React.FC = () => {
     setHistoryPanelOpen((prev) => !prev);
   };
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-white text-gray-700 font-sans flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
+          <p className="text-gray-600">데이터를 불러오는 중...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-white text-gray-700 font-sans">
       <Header />
       <HeroSection />
       <main className="container mx-auto px-4 py-8 md:py-12">
         <PortfolioSection 
-          projects={ALL_PROJECTS} 
-          experiences={ALL_EXPERIENCES}
-          educations={ALL_EDUCATIONS}
-          certifications={ALL_CERTIFICATIONS}
+          projects={projects} 
+          experiences={experiences}
+          educations={educations}
+          certifications={certifications}
           isHistoryPanelOpen={isHistoryPanelOpen}
           onHistoryPanelToggle={handleHistoryPanelToggle}
           isChatbotOpen={isChatbotOpen}

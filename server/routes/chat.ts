@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getChatbotResponse } from '../../backend/services/geminiService';
+import { getChatbotResponse } from '../../backend/services/geminiService.js';
 
 const router = Router();
 

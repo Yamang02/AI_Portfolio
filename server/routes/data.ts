@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
-import { EXPERIENCES, EDUCATIONS } from '../../backend/data/experiences';
-import { CERTIFICATIONS } from '../../backend/data/certifications';
+import { EXPERIENCES, EDUCATIONS } from '../../backend/data/experiences.js';
+import { CERTIFICATIONS } from '../../backend/data/certifications.js';
 
 const router = Router();
 

@@ -1,9 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChatMessage as ChatMessageType } from '../types';
-import { getChatbotResponse } from '../../../shared';
-import { ALL_PROJECTS } from '../../projects';
+import { apiClient } from '../../../shared/services/apiClient';
 import ChatMessage from './ChatMessage';
-import { appConfig } from '../../../shared';
 import { ContactModal } from '../../../shared/components/Modal';
 
 // The 'projects' prop is no longer needed.
@@ -32,6 +30,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ isOpen, onToggle, showProjectButtons 
   const [isInitialized, setIsInitialized] = useState(false);
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+  const [projects, setProjects] = useState<any[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -41,6 +40,19 @@ const Chatbot: React.FC<ChatbotProps> = ({ isOpen, onToggle, showProjectButtons 
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // 프로젝트 데이터 로드
+  useEffect(() => {
+    const loadProjects = async () => {
+      try {
+        const projectsData = await apiClient.getProjects();
+        setProjects(projectsData);
+      } catch (error) {
+        console.error('프로젝트 데이터 로드 오류:', error);
+      }
+    };
+    loadProjects();
+  }, []);
 
   // 모달 열기 이벤트 리스너
   useEffect(() => {
@@ -114,7 +126,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ isOpen, onToggle, showProjectButtons 
     try {
       // 더 자연스러운 질문 생성
       const question = `${project.title}에 대해 간단히 소개해줄 수 있어?`;
-      const responseText = await getChatbotResponse(question, project.title);
+      const responseText = await apiClient.getChatbotResponse(question, project.title);
       
       let aiResponseText: React.ReactNode;
       let showEmailButton = false;
@@ -184,7 +196,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ isOpen, onToggle, showProjectButtons 
     setIsLoading(true);
 
     try {
-      const responseText = await getChatbotResponse(inputValue, selectedProject || undefined);
+      const responseText = await apiClient.getChatbotResponse(inputValue, selectedProject || undefined);
       
       let aiResponseText: React.ReactNode;
       let showEmailButton = false;
@@ -310,7 +322,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ isOpen, onToggle, showProjectButtons 
             <div className="p-4 border-t border-gray-200">
               <p className="text-sm text-gray-600 font-medium">프로젝트를 선택하세요:</p>
               <div className="grid grid-cols-1 gap-2">
-                {ALL_PROJECTS.map(project => (
+                {projects.map((project: any) => (
                   <button
                     key={project.id}
                     onClick={() => handleProjectSelect(project)}

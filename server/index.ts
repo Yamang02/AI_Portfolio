@@ -12,10 +12,10 @@ import swaggerUi from 'swagger-ui-express';
 dotenv.config();
 
 // 라우터 임포트
-import chatRoutes from './routes/chat';
-import projectRoutes from './routes/projects';
-import githubRoutes from './routes/github';
-import dataRoutes from './routes/data';
+import chatRoutes from './routes/chat.js';
+import projectRoutes from './routes/projects.js';
+import githubRoutes from './routes/github.js';
+import dataRoutes from './routes/data.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;

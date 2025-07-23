@@ -5,7 +5,7 @@ export interface BaseItem {
   description: string;
   technologies: string[];
   startDate: string; // YYYY-MM 형식
-  endDate?: string; // YYYY-MM 형식, 현재 진행 중이면 undefined
+  endDate?: string | null; // YYYY-MM 형식, 현재 진행 중이면 null
   metadata?: {
     [key: string]: any;
   };
@@ -52,11 +52,11 @@ export interface Education extends BaseItem {
 // 자격증 인터페이스
 export interface Certification {
   id: string;
-  title: string;
+  name: string; // title 대신 name 사용
   description: string;
-  technologies: string[];
   issuer: string;
-  startDate: string;
+  date: string; // startDate 대신 date 사용
+  credentialUrl: string;
 }
 
 // 기존 호환성을 위한 타입들

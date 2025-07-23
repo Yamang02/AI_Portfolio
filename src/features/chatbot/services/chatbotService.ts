@@ -1,9 +1,9 @@
-import { getChatbotResponse } from '../../../shared';
+import { apiClient } from '../../../shared/services/apiClient';
 
 export class ChatbotService {
   static async sendMessage(message: string, selectedProject?: string): Promise<string> {
     try {
-      const response = await getChatbotResponse(message, selectedProject);
+      const response = await apiClient.getChatbotResponse(message, selectedProject);
       return response;
     } catch (error) {
       console.error('챗봇 응답 오류:', error);

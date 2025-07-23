@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
-import GitHubService from '../../backend/services/githubService';
-import { appConfig } from '../../backend/config/app.config';
+import GitHubService from '../../backend/services/githubService.js';
+import { appConfig } from '../../backend/config/app.config.js';
 
 const router = Router();
 const githubService = new GitHubService(appConfig.github.username);

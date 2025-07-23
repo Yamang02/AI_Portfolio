@@ -1,5 +1,4 @@
 import React from 'react';
-import { appConfig } from '../../../shared';
 
 const Header: React.FC = () => {
   return (
@@ -14,7 +13,7 @@ const Header: React.FC = () => {
             window.scrollTo({ top: 0, behavior: 'smooth' });
           }}
         >
-          {appConfig.app.developerName}'s portfolio
+          이정준's portfolio
         </a>
         {/* 우측: 네비게이션 */}
         <div className="flex items-center gap-6">

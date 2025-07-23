@@ -1,9 +1,9 @@
 import { GoogleGenAI } from "@google/genai";
-import { ALL_PROJECTS } from '../data/projects';
-import GitHubService from './githubService';
-import { generateSystemPrompt } from './prompts/chatbotPersona';
-import { generateContextualPrompt } from './prompts/conversationPatterns';
-import { appConfig } from '../config/app.config';
+import { ALL_PROJECTS } from '../data/projects.js';
+import GitHubService from './githubService.js';
+import { generateSystemPrompt } from './prompts/chatbotPersona.js';
+import { generateContextualPrompt } from './prompts/conversationPatterns.js';
+import { appConfig } from '../config/app.config.js';
 
 // 환경변수에서 API 키 가져오기 (서버 환경변수)
 const apiKey = process.env.GEMINI_API_KEY;

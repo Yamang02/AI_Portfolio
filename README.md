@@ -55,7 +55,7 @@ services/
    `.env.local` 파일에 다음 내용 추가:
    ```env
    # Frontend Environment Variables
-   VITE_GEMINI_API_KEY=your_gemini_api_key_here
+   VITE_API_BASE_URL=http://localhost:3001
    VITE_EMAILJS_PUBLIC_KEY=your_emailjs_public_key_here
 
    # Backend Environment Variables

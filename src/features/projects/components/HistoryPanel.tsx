@@ -41,7 +41,7 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
   // 모든 날짜를 수집하여 범위 계산
   const allDates = allItems
     .flatMap(item => [item.startDate, item.endDate])
-    .filter(Boolean)
+    .filter((date): date is string => Boolean(date))
     .map(parseDate);
 
   const minDate = new Date(Math.min(...allDates.map(d => d.getTime())));
@@ -99,7 +99,7 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
   const getMonthDiff = (d1: Date, d2: Date) => (d2.getFullYear() - d1.getFullYear()) * 12 + (d2.getMonth() - d1.getMonth());
   const totalMonths = Math.max(getMonthDiff(timelineStart, timelineEndExtended), 1);
   const pxPerMonth = 40; // 1개월당 40px
-  const timelineHeight = totalMonths * pxPerMonth;
+  const timelineHeight = isNaN(totalMonths) ? 400 : totalMonths * pxPerMonth; // NaN 방지
 
   // px 단위 위치 계산 (내림차순: top=0이 최신)
   const getPxPosition = (date: Date) => {
@@ -352,9 +352,21 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
                 );
               })}
               {/* 바 렌더링 순서: 교육 → 경력 → 프로젝트 */}
-              {educations.map((education, index) => renderBarItem(education, 'education', index))}
-              {experiences.map((experience, index) => renderBarItem(experience, 'experience', index))}
-              {projects.map((project, index) => renderBarItem(project, 'project', index))}
+              {educations.map((education, index) => (
+                <React.Fragment key={`education-${education.id}`}>
+                  {renderBarItem(education, 'education', index)}
+                </React.Fragment>
+              ))}
+              {experiences.map((experience, index) => (
+                <React.Fragment key={`experience-${experience.id}`}>
+                  {renderBarItem(experience, 'experience', index)}
+                </React.Fragment>
+              ))}
+              {projects.map((project, index) => (
+                <React.Fragment key={`project-${project.id}`}>
+                  {renderBarItem(project, 'project', index)}
+                </React.Fragment>
+              ))}
             </div>
           </div>
         </div>

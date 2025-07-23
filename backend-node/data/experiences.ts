@@ -1,4 +1,4 @@
-import { Experience, Education } from '../types';
+import { Experience, Education } from '../types/index.js';
 
 // 경력 항목들
 export const EXPERIENCES: Experience[] = [

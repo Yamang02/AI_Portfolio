@@ -14,7 +14,7 @@ const CertificationCard: React.FC<CertificationCardProps> = ({ certification, on
   };
 
   const formatAcquisitionDate = () => {
-    return formatDate(certification.startDate);
+    return formatDate(certification.date);
   };
 
   return (
@@ -30,7 +30,7 @@ const CertificationCard: React.FC<CertificationCardProps> = ({ certification, on
       <div className="flex items-start justify-between mb-4">
         <div className="flex-1">
           <h3 className="text-lg font-semibold text-gray-800 mb-1">
-            {certification.title}
+            {certification.name}
           </h3>
           <p className="text-sm text-gray-600 mb-1">
             {certification.issuer}
@@ -48,21 +48,19 @@ const CertificationCard: React.FC<CertificationCardProps> = ({ certification, on
         {certification.description}
       </p>
 
-      {/* 기술 스택 */}
-      {certification.technologies && certification.technologies.length > 0 && (
-        <div className="flex flex-wrap gap-1 mb-4">
-          {certification.technologies.map((tech, index) => (
-            <span 
-              key={index}
-              className="inline-block bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded border border-gray-200"
-            >
-              {tech}
-            </span>
-          ))}
+      {/* 자격증 URL */}
+      {certification.credentialUrl && (
+        <div className="mt-4">
+          <a 
+            href={certification.credentialUrl} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-blue-600 hover:text-blue-800 text-sm underline"
+          >
+            자격증 확인하기
+          </a>
         </div>
       )}
-
-
     </div>
   );
 };

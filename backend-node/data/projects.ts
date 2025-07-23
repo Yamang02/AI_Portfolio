@@ -1,4 +1,4 @@
-import { Project } from '../types';
+import { Project } from '../types/index.js';
 
 // GitHub 소스 연결이 가능한 프로젝트들
 export const GITHUB_PROJECTS: Project[] = [

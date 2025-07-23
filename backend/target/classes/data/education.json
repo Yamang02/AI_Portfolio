@@ -1,0 +1,30 @@
+[
+  {
+    "id": "edu-001",
+    "title": "Sesac",
+    "description": "Cloud 기반 Multi Modal AI 개발자 양성 과정 with Google Cloud",
+    "technologies": ["Python", "PyQt5", "Cursor", "Gemini", "Gemini CLI", "Numpy", "Matplotlib"],
+    "organization": "Sesac 강동지점",
+    "startDate": "2025-06",
+    "endDate": null,
+    "type": "education",
+    "projects": [
+      "PYQT5 파일 태거 (File Tagger)",
+      "AI 포트폴리오 챗봇 (AI Portfolio Chatbot)"
+    ]
+  },
+  {
+    "id": "edu-002",
+    "title": "KH정보교육원",
+    "description": "(디지털컨버전스)자바(JAVA)기반 클라우드 융합 개발자 양성과정A9",
+    "technologies": ["Java", "Spring Framework", "Oracle", "JSP", "Servlet", "HTML", "CSS", "JavaScript"],
+    "organization": "KH정보교육원 강남지사",
+    "startDate": "2022-11",
+    "endDate": "2023-04",
+    "type": "education",
+    "projects": [
+      "CloseToU - 중고거래 게시판",
+      "OnTheTrain - 여행 계획 스케줄러"
+    ]
+  }
+] 
