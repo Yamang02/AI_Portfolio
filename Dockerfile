@@ -32,7 +32,7 @@ COPY backend/ ./
 RUN mvn clean package -DskipTests
 
 # Stage 3: 프로덕션 단계
-FROM openjdk:17-jre-alpine
+FROM eclipse-temurin:17-jre-alpine
 
 # 작업 디렉토리 설정
 WORKDIR /app
