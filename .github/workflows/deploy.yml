@@ -23,17 +23,25 @@ jobs:
         node-version: '18'
         cache: 'npm'
     
-    
-
-    
-    - name: Install dependencies
+    - name: Install frontend dependencies
+      working-directory: frontend
       run: npm ci
     
-    - name: Run tests
+    - name: Run frontend tests
+      working-directory: frontend
       run: npm test --if-present
     
-    - name: Build application
+    - name: Build frontend
+      working-directory: frontend
       run: npm run build
+    
+    - name: Install backend dependencies
+      working-directory: backend
+      run: mvn dependency:resolve
+    
+    - name: Build backend
+      working-directory: backend
+      run: mvn clean package -DskipTests
 
   deploy:
     needs: test
@@ -49,11 +57,21 @@ jobs:
         node-version: '18'
         cache: 'npm'
     
-    - name: Install dependencies
+    - name: Install frontend dependencies
+      working-directory: frontend
       run: npm ci
     
-    - name: Build application
+    - name: Build frontend
+      working-directory: frontend
       run: npm run build
+    
+    - name: Install backend dependencies
+      working-directory: backend
+      run: mvn dependency:resolve
+    
+    - name: Build backend
+      working-directory: backend
+      run: mvn clean package -DskipTests
     
     - name: Google Auth
       uses: google-github-actions/auth@v2
