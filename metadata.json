@@ -1,6 +1,0 @@
-{
-  "name": "AI Portfolio Chatbot",
-  "description": "An interactive portfolio website where a Gemini-powered AI chatbot answers questions about the developer's projects based on provided context like README files.",
-  "requestFramePermissions": [],
-  "prompt": ""
-}
