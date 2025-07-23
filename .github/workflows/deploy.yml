@@ -63,19 +63,12 @@ jobs:
     - name: Set up Cloud SDK
       uses: google-github-actions/setup-gcloud@v2
     
-    - name: Load secrets from Google Secret Manager
-      run: |
-        for key in VITE_GEMINI_API_KEY VITE_EMAILJS_PUBLIC_KEY; do
-          value=$(gcloud secrets versions access latest --secret="$key")
-          echo "$key=$value" >> $GITHUB_ENV
-        done
-
     - name: Configure Docker
       run: gcloud auth configure-docker
     
     - name: Build and push Docker image
       run: |
-        docker build --build-arg VITE_GEMINI_API_KEY="$VITE_GEMINI_API_KEY" --build-arg VITE_EMAILJS_PUBLIC_KEY="$VITE_EMAILJS_PUBLIC_KEY" -t gcr.io/$PROJECT_ID/$SERVICE_NAME:${{ github.sha }} .
+        docker build --build-arg VITE_EMAILJS_PUBLIC_KEY="${{ vars.VITE_EMAILJS_PUBLIC_KEY }}" -t gcr.io/$PROJECT_ID/$SERVICE_NAME:${{ github.sha }} .
         docker push gcr.io/$PROJECT_ID/$SERVICE_NAME:${{ github.sha }}
     
     - name: Deploy to Cloud Run
@@ -89,7 +82,7 @@ jobs:
           --memory 512Mi \
           --cpu 1 \
           --max-instances 10 \
-          --update-secrets "VITE_GEMINI_API_KEY=VITE_GEMINI_API_KEY:latest,VITE_EMAILJS_PUBLIC_KEY=VITE_EMAILJS_PUBLIC_KEY:latest"
+          --set-env-vars GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
     
     - name: Get service URL
       run: |
