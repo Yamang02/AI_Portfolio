@@ -42,23 +42,71 @@ services/
 - 답변 가이드라인
 - 자연스러운 대화 흐름
 
-## 로컬 실행
+## 🚀 로컬 실행
 
-**필수 조건:** Node.js
+**필수 조건:** Node.js 18.0.0 이상
 
-1. 의존성 설치:
+1. **의존성 설치**
    ```bash
    npm install
    ```
 
-2. 환경 변수 설정:
-   - `.env.local` 파일에 `VITE_GEMINI_API_KEY` 설정
-   - GitHub 사용자명 설정 (`VITE_GITHUB_USERNAME`)
+2. **환경 변수 설정**
+   `.env.local` 파일에 다음 내용 추가:
+   ```env
+   # Frontend Environment Variables
+   VITE_GEMINI_API_KEY=your_gemini_api_key_here
+   VITE_EMAILJS_PUBLIC_KEY=your_emailjs_public_key_here
 
-3. 개발 서버 실행:
+   # Backend Environment Variables
+   GEMINI_API_KEY=your_gemini_api_key_here
+   GITHUB_USERNAME=Yamang02
+   CONTACT_EMAIL=ljj0210@gmail.com
+
+   # Server Configuration
+   PORT=3001
+   NODE_ENV=development
+
+   # CORS Configuration
+   ALLOWED_ORIGINS=http://localhost:5173
+   ```
+
+3. **개발 서버 실행**
+
+   **프론트엔드 (Vite)**
    ```bash
    npm run dev
    ```
+
+   **백엔드 (Express API)**
+   ```bash
+   npm run server:dev
+   ```
+
+4. **브라우저에서 확인**
+   - **프론트엔드**: http://localhost:5173
+   - **API 문서**: http://localhost:3001/api-docs
+   - **헬스 체크**: http://localhost:3001/health
+
+## 📚 API 서버
+
+이 프로젝트는 Express.js 기반의 API 서버를 포함하고 있습니다.
+
+### 주요 기능
+- **AI 챗봇 API**: Gemini API를 통한 AI 응답 생성
+- **프로젝트 API**: 포트폴리오 프로젝트 정보 제공
+- **GitHub API**: GitHub 레포지토리 정보 연동
+- **정적 데이터 API**: 경력, 교육, 자격증 정보 제공
+
+### API 문서
+- **Swagger UI**: http://localhost:3001/api-docs
+- **상세 문서**: [docs/api-documentation.md](docs/api-documentation.md)
+
+### 보안 기능
+- **Rate Limiting**: API 호출 제한
+- **CORS**: 허용된 도메인만 접근 가능
+- **Helmet**: 보안 헤더 설정
+- **API 키 보안**: 서버 사이드에서만 API 키 관리
 
 ## 배포
 

@@ -937,3 +937,190 @@ const handleMouseLeave = () => {
 - 긴 타이틀/설명/기술스택도 넉넉한 레이아웃에서 자연스럽게 표시
 
 ---
+
+## 2024-06 GCP Cloud Run 배포 세션 요약
+
+### 주요 진행 상황
+- GCP Cloud Run + GitHub Actions 기반 자동 배포 환경 구축
+- 환경변수/시크릿 최소화 및 보안 점검
+- Dockerfile, deploy.yml, app.config.ts 등 코드/설정 정리
+- 배포 자동화 성공
+
+### 주요 결정 및 시행착오
+- 민감 정보만 환경변수/시크릿으로 관리, 나머지는 소스코드에 직접 명시
+- 서비스 계정 권한, Secret Manager, Artifact Registry, API 활성화 등 GCP 권한 이슈 다수 경험
+- 배포 실패 시 상세 에러 로그 확인 및 단계별 원인 분석
+- IAM 권한, Secret Manager 권한, Artifact Registry 권한, Service Account User 권한 등 세밀하게 부여 필요
+- 최종적으로 모든 권한/시크릿/설정이 정상화되어 배포 성공
+
+### 최종 성공
+- Cloud Run에 서비스 정상 배포 및 동작 확인
+- GitHub Actions에서 main 브랜치 push 시 자동 배포 동작
+
+---
+
+## Express API 서버 구현 및 보안 강화 (2025-01-15)
+
+### 개요
+프론트엔드 번들에서 API 키가 노출되는 보안 취약점을 해결하기 위해 Express.js 기반의 백엔드 API 서버를 구현했습니다.
+
+### 주요 구현 내용
+
+#### 1. Express 서버 아키텍처
+- **포트 분리**: 프론트엔드(5173)와 백엔드(3001) 분리
+- **보안 미들웨어**: Helmet, CORS, Rate Limiting, Compression
+- **로깅**: Morgan을 통한 요청 로깅
+- **환경변수 관리**: 서버 사이드에서만 API 키 접근
+
+#### 2. API 엔드포인트 구현
+**AI 챗봇 API**
+- `POST /api/chat`: Gemini API를 통한 AI 응답 생성
+- 입력 검증: 질문 길이 제한(1000자), 필수 필드 검증
+- 응답 검증: API 키 없을 때 'I_CANNOT_ANSWER' 반환
+
+**프로젝트 API**
+- `GET /api/projects`: 모든 프로젝트 목록 (필터링 지원)
+- `GET /api/projects/{id}`: 특정 프로젝트 상세 정보
+- 쿼리 파라미터: type, source, isTeam 필터링
+
+**GitHub API**
+- `GET /api/github/repos`: GitHub 레포지토리 목록
+- `GET /api/github/repos/{name}`: 특정 레포지토리 상세
+- `GET /api/github/user`: GitHub 사용자 정보
+
+**정적 데이터 API**
+- `GET /api/data/experiences`: 경력 정보
+- `GET /api/data/education`: 교육 정보
+- `GET /api/data/certifications`: 자격증 정보
+- `GET /api/data/all`: 모든 정적 데이터
+
+#### 3. Swagger API 문서화
+- **Swagger UI**: `http://localhost:3001/api-docs`
+- **완전한 API 명세**: 요청/응답 스키마, 예시, 에러 코드
+- **실시간 테스트**: 브라우저에서 직접 API 테스트 가능
+- **상세 문서**: `docs/api-documentation.md`
+
+#### 4. 보안 강화
+**API 키 보안**
+- ✅ **문제 해결**: 프론트엔드 번들에서 API 키 노출 방지
+- ✅ **서버 환경변수**: `process.env.GEMINI_API_KEY` 사용
+- ✅ **클라이언트 분리**: API 키를 클라이언트에 전송하지 않음
+
+**Rate Limiting**
+- 15분당 100회 요청 제한
+- API 남용 방지
+- 설정 가능한 제한 값
+
+**CORS 설정**
+- 허용된 도메인만 접근 가능
+- 개발: `http://localhost:5173`
+- 프로덕션: 설정 가능한 도메인
+
+**입력 검증**
+- 모든 API 요청 데이터 검증
+- 질문 길이 제한 (1000자)
+- 필수 필드 검증
+
+#### 5. 프로젝트 구조 개선
+**백엔드 로직 분리**
+- `backend/` 폴더: 기존 서비스 로직
+- `server/` 폴더: Express API 서버
+- 환경변수 분리: 프론트엔드/백엔드 구분
+
+**의존성 관리**
+- Express.js 및 관련 패키지 추가
+- Swagger 문서화 도구 추가
+- TypeScript 설정 유지
+
+#### 6. 환경변수 설정
+**프론트엔드 환경변수**
+```env
+VITE_GEMINI_API_KEY=your_gemini_api_key_here
+VITE_EMAILJS_PUBLIC_KEY=your_emailjs_public_key_here
+```
+
+**백엔드 환경변수**
+```env
+GEMINI_API_KEY=your_gemini_api_key_here
+GITHUB_USERNAME=Yamang02
+CONTACT_EMAIL=ljj0210@gmail.com
+PORT=3001
+NODE_ENV=development
+ALLOWED_ORIGINS=http://localhost:5173
+```
+
+### 기술적 특징
+
+#### 1. 아키텍처 개선
+- **서버-클라이언트 분리**: API 키 보안 강화
+- **모듈화**: 라우터별 파일 분리
+- **타입 안전성**: TypeScript 완전 지원
+- **확장성**: 새로운 API 엔드포인트 쉽게 추가
+
+#### 2. 개발자 경험
+- **Hot Reload**: `tsx watch`로 개발 편의성
+- **API 문서**: Swagger UI로 실시간 테스트
+- **에러 처리**: 명확한 에러 메시지와 상태 코드
+- **로깅**: 요청/응답 로그로 디버깅 지원
+
+#### 3. 프로덕션 준비
+- **보안**: API 키 노출 방지, Rate Limiting
+- **성능**: 응답 압축, 캐싱 가능
+- **모니터링**: 헬스 체크, 로깅
+- **확장성**: 마이크로서비스 아키텍처 준비
+
+### 실행 방법
+
+#### 개발 환경
+```bash
+# 의존성 설치
+npm install
+
+# 환경변수 설정
+cp env.example .env.local
+
+# 프론트엔드 실행
+npm run dev
+
+# 백엔드 실행
+npm run server:dev
+```
+
+#### API 문서 확인
+- **Swagger UI**: http://localhost:3001/api-docs
+- **헬스 체크**: http://localhost:3001/health
+- **API 문서**: docs/api-documentation.md
+
+### 보안 개선 효과
+
+#### 1. API 키 보안 ✅
+- **이전**: 프론트엔드 번들에 API 키 노출
+- **현재**: 서버 환경변수로 안전하게 관리
+- **결과**: 클라이언트에서 API 키 접근 불가
+
+#### 2. 요청 제한 ✅
+- **Rate Limiting**: API 남용 방지
+- **입력 검증**: 악의적 요청 차단
+- **CORS**: 허용된 도메인만 접근
+
+#### 3. 모니터링 ✅
+- **요청 로깅**: 모든 API 호출 기록
+- **에러 추적**: 상세한 에러 정보
+- **헬스 체크**: 서버 상태 모니터링
+
+### 다음 단계
+- 프론트엔드에서 API 서버 호출하도록 수정
+- 프로덕션 환경 배포 설정
+- 추가 보안 기능 구현 (JWT, API 키 등)
+- 성능 최적화 및 캐싱 전략
+
+### 변경된 파일 목록
+1. `package.json` - Express.js 의존성 및 스크립트 추가
+2. `server/index.ts` - Express 서버 메인 파일
+3. `server/routes/chat.ts` - AI 챗봇 API
+4. `server/routes/projects.ts` - 프로젝트 API
+5. `server/routes/github.ts` - GitHub API
+6. `server/routes/data.ts` - 정적 데이터 API
+7. `env.example` - 환경변수 예시 업데이트
+8. `docs/api-documentation.md` - API 문서 생성
+9. `README.md` - 서버 실행 방법 추가
