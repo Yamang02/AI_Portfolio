@@ -3,10 +3,7 @@
   "version": "1.0.0",
   "description": "AI Portfolio Chatbot - Full Stack Project",
   "private": true,
-  "workspaces": [
-    "frontend",
-    "backend"
-  ],
+
   "scripts": {
     "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
     "dev:frontend": "cd frontend && npm run dev",

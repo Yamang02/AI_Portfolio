@@ -107,3 +107,9 @@ jobs:
     - name: Get service URL
       run: |
         echo "Service URL: $(gcloud run services describe $SERVICE_NAME --region=$REGION --format='value(status.url)')" 
+    - name: Check lock files
+      run: |
+        ls -l
+        ls -l frontend
+        cat package-lock.json || echo "no root lock"
+        cat frontend/package-lock.json || echo "no frontend lock" 
