@@ -1,5 +1,5 @@
 // API 클라이언트 - 백엔드 서버와 통신
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 interface ApiResponse<T> {
   success: boolean;
