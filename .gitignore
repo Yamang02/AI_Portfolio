@@ -145,3 +145,6 @@ dependency-reduced-pom.xml
 buildNumber.properties
 .mvn/timing.properties
 .vite/
+
+# 환경설정 파일 무시
+backend/src/main/resources/application.properties

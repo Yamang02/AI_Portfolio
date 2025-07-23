@@ -35,7 +35,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
                 blockquote: ({ children }) => <blockquote className="border-l-4 border-gray-300 pl-2 italic mb-2">{children}</blockquote>,
               }}
             >
-              {message.content}
+              {typeof message.content === 'string' ? message.content : '서버 오류가 발생했습니다.'}
             </ReactMarkdown>
             
             {/* 메일 보내기 버튼 */}

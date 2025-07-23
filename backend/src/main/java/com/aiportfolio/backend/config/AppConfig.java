@@ -33,6 +33,7 @@ public class AppConfig {
     @Data
     public static class Gemini {
         private String apiKey;
+        private String modelName;
     }
 
     @Data

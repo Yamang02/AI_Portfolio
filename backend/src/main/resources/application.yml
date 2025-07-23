@@ -41,10 +41,11 @@ logging:
 app:
   gemini:
     api-key: ${GEMINI_API_KEY:}
+    model-name: gemini-2.5-flash
   github:
-    username: ${GITHUB_USERNAME:}
+    username: Yamang02
   contact:
-    email: ${CONTACT_EMAIL:}
+    email: ljj0210@gmail.com
   security:
     allowed-origins: ${ALLOWED_ORIGINS:http://localhost:3000,http://localhost:5173}
     rate-limit:

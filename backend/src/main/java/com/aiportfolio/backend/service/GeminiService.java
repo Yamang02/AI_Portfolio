@@ -5,11 +5,11 @@ import com.aiportfolio.backend.model.Project;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
+import dev.langchain4j.model.googleai.GoogleAiGeminiChatModel;
+import org.springframework.beans.factory.annotation.Value;
+import jakarta.annotation.PostConstruct;
 
 import java.util.List;
-import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -19,9 +19,20 @@ public class GeminiService {
     
     private final AppConfig appConfig;
     private final ProjectService projectService;
-    private final WebClient.Builder webClientBuilder;
+    @Value("${app.gemini.api-key}")
+    private String apiKey;
+    private GoogleAiGeminiChatModel geminiModel;
+
+    @PostConstruct
+    public void init() {
+
+        log.info("Gemini Model Name: {}", appConfig.getGemini().getModelName());
+        this.geminiModel = GoogleAiGeminiChatModel.builder()
+            .apiKey(apiKey)
+            .modelName(appConfig.getGemini().getModelName())
+            .build();
+    }
     
-    private static final String GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent";
     
     public String getChatbotResponse(String question, String selectedProject) {
         if (appConfig.getGemini().getApiKey() == null || appConfig.getGemini().getApiKey().isEmpty()) {
@@ -36,16 +47,9 @@ public class GeminiService {
             
             String fullPrompt = contextualPrompt + "\n\n사용자 질문: \"" + question + "\"";
             
-            GeminiRequest request = GeminiRequest.builder()
-                    .contents(List.of(GeminiRequest.Content.builder()
-                            .parts(List.of(GeminiRequest.Part.builder()
-                                    .text(fullPrompt)
-                                    .build()))
-                            .build()))
-                    .systemInstruction(systemPrompt + "\n\n--- 프로젝트 컨텍스트 시작 ---\n\n" + projectContext + "\n\n--- 프로젝트 컨텍스트 끝 ---")
-                    .build();
-            
-            return callGeminiAPI(request);
+            String prompt = systemPrompt + "\n\n--- 프로젝트 컨텍스트 시작 ---\n\n" + projectContext + "\n\n--- 프로젝트 컨텍스트 끝 ---\n\n" + fullPrompt;
+            String answer = geminiModel.chat(prompt);
+            return (answer != null && !answer.trim().isEmpty()) ? answer : "I_CANNOT_ANSWER";
             
         } catch (Exception e) {
             log.error("Error in getChatbotResponse", e);
@@ -228,70 +232,6 @@ public class GeminiService {
                "- 추가 질문을 유도하는 친근한 톤";
     }
     
-    private String callGeminiAPI(GeminiRequest request) {
-        try {
-            GeminiResponse response = webClientBuilder.build()
-                    .post()
-                    .uri(GEMINI_API_URL + "?key=" + appConfig.getGemini().getApiKey())
-                    .bodyValue(request)
-                    .retrieve()
-                    .bodyToMono(GeminiResponse.class)
-                    .timeout(java.time.Duration.ofSeconds(30))
-                    .block();
-            
-            if (response != null && response.getCandidates() != null && !response.getCandidates().isEmpty()) {
-                String text = response.getCandidates().get(0).getContent().getParts().get(0).getText();
-                if (text != null && text.trim().length() >= 10) {
-                    return text;
-                }
-            }
-            
-            log.error("Invalid response from Gemini API");
-            return "I_CANNOT_ANSWER";
-            
-        } catch (Exception e) {
-            log.error("Error calling Gemini API", e);
-            return "I_CANNOT_ANSWER";
-        }
-    }
-    
     // Request/Response DTOs
-    @lombok.Data
-    @lombok.Builder
-    public static class GeminiRequest {
-        private List<Content> contents;
-        private String systemInstruction;
-        
-        @lombok.Data
-        @lombok.Builder
-        public static class Content {
-            private List<Part> parts;
-        }
-        
-        @lombok.Data
-        @lombok.Builder
-        public static class Part {
-            private String text;
-        }
-    }
-    
-    @lombok.Data
-    public static class GeminiResponse {
-        private List<Candidate> candidates;
-        
-        @lombok.Data
-        public static class Candidate {
-            private Content content;
-        }
-        
-        @lombok.Data
-        public static class Content {
-            private List<Part> parts;
-        }
-        
-        @lombok.Data
-        public static class Part {
-            private String text;
-        }
-    }
+    // WebClient, GeminiRequest, GeminiResponse 관련 코드 및 필드 제거
 } 

@@ -1297,3 +1297,34 @@ const formatAcquisitionDate = () => {
 - `frontend/src/features/projects/constants/projects.ts` (삭제)
 - `frontend/src/features/projects/constants/localProjects.ts` (삭제)
 - `frontend/src/features/projects/index.ts` (constants 관련 코드 제거)
+
+## 2025-07-23 LangChain4j Gemini 연동 및 오류 해결 내역
+
+### 1. LangChain4j 최신 버전(Gemini) 연동
+- langchain4j-google-ai-gemini 1.1.0-rc1 의존성 추가
+- 최신 패키지 구조에 맞춰 GoogleAiGeminiChatModel 사용
+- generate() → chat() 메서드로 변경 (자동완성 기반)
+
+### 2. 모델명 및 API Key 설정 개선
+- application.yml에 model-name, api-key 분리 관리
+- AppConfig에 modelName 필드 추가, 서비스에서 설정값 읽어 사용
+- 최신 모델명(gemini-2.5-flash)로 통일, 추후 yml만 수정하면 모델 교체 가능
+
+### 3. 주요 오류 및 해결 과정
+- generate() 메서드 없음 → chat(String)으로 변경
+- models/null 에러 → model-name 미설정/오타, yml 매핑 오류, 접두어 문제 등 점검
+- ListModels API로 실제 사용 가능한 모델명 확인 후 적용
+- application.yml, AppConfig, Service 간 값 전달 로그로 검증
+
+
+### 4. 기타 개선
+- Spring DI 통일성: 생성자/필드 주입 혼용 → 필드 @Value 주입 + @PostConstruct 초기화로 통일
+- 프론트엔드에서 문자열 타입 체크 및 오류 안내 처리
+
+### 5. 최종 결과
+- Gemini 2.5 Flash 모델로 챗봇 정상 작동 확인
+- 설정/코드 구조 개선 및 보안 강화
+
+---
+
+</rewritten_file>
