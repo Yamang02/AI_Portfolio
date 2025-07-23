@@ -1258,3 +1258,42 @@ const formatAcquisitionDate = () => {
 - **확장성**: 새로운 데이터 타입 추가 시 일관된 패턴 적용
 - **성능**: 불필요한 리렌더링 방지 및 최적화
 - **사용자 경험**: 직관적이고 반응적인 인터페이스
+
+### 2025-07-24 백엔드/프론트엔드 데이터 구조 및 상수 제거 작업 ✅
+
+#### 주요 변경사항
+
+1. **프로젝트 데이터 소스 완전 API 일원화**
+   - 프론트엔드의 constants/localProjects.ts, constants/projects.ts 등 상수 기반 데이터 완전 제거
+   - 모든 프로젝트 데이터는 백엔드 API(`/api/data/projects`)에서 받아오도록 통일
+
+2. **로컬 프로젝트 백엔드 통합**
+   - `backend/src/main/resources/data/localProjects.json`에 모든 로컬 프로젝트(local-001 ~ local-004) 추가
+   - `ProjectService`에서 `projects.json`과 `localProjects.json`을 모두 읽어 합쳐서 반환하도록 수정
+
+3. **Project 모델 확장**
+   - `myContributions` 필드를 Project 모델에 추가하여 로컬 프로젝트의 상세 기여 정보도 API로 제공
+
+4. **프론트엔드 상수 import 완전 제거**
+   - 프로젝트, 경력, 교육, 자격증 등 모든 데이터는 API에서 받아온 데이터만 사용
+   - `constants/index.ts`, `constants/experiences.ts`, `constants/certifications.ts`, `constants/projects.ts`, `constants/localProjects.ts` 등 불필요한 파일 모두 삭제
+   - 관련 import/export 구문 및 참조 코드 완전 제거
+
+5. **데이터 일관성 및 유지보수성 향상**
+   - 데이터 소스가 백엔드로 일원화되어, 데이터 추가/수정/삭제 시 한 곳만 관리하면 됨
+   - 프론트엔드 코드가 단순해지고, 데이터 중복/불일치 문제 완전 해소
+
+6. **기타**
+   - API 응답에 모든 프로젝트(local + github)가 포함되는지 console.log로 확인
+   - ProjectService의 캐시 및 JSON 파싱 오류 등도 점검하여 모든 프로젝트가 누락 없이 제공되도록 개선
+
+#### 변경된 파일 목록
+- `backend/src/main/resources/data/localProjects.json`
+- `backend/src/main/java/com/aiportfolio/backend/service/ProjectService.java`
+- `backend/src/main/java/com/aiportfolio/backend/model/Project.java`
+- `frontend/src/features/projects/constants/index.ts` (삭제)
+- `frontend/src/features/projects/constants/experiences.ts` (삭제)
+- `frontend/src/features/projects/constants/certifications.ts` (삭제)
+- `frontend/src/features/projects/constants/projects.ts` (삭제)
+- `frontend/src/features/projects/constants/localProjects.ts` (삭제)
+- `frontend/src/features/projects/index.ts` (constants 관련 코드 제거)

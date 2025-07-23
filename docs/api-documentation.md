@@ -6,15 +6,39 @@ AI Portfolio API는 개발자 포트폴리오 챗봇을 위한 RESTful API 서�
 
 ## 🚀 서버 정보
 
-- **Base URL**: `http://localhost:3001`
-- **API Documentation**: `http://localhost:3001/api-docs`
-- **Health Check**: `http://localhost:3001/health`
+- **Base URL**: `http://localhost:8080`
+- **API Documentation**: `http://localhost:8080/swagger-ui.html`
+- **Health Check**: `http://localhost:8080/api/chat/health`
+
+## 📊 표준 응답 형식
+
+모든 API 응답은 다음과 같은 표준 형식을 따릅니다:
+
+### 성공 응답
+```json
+{
+  "success": true,
+  "message": "요청이 성공적으로 처리되었습니다.",
+  "data": {
+    // 실제 데이터
+  }
+}
+```
+
+### 에러 응답
+```json
+{
+  "success": false,
+  "message": "요청 처리 중 오류가 발생했습니다.",
+  "error": "상세 에러 메시지"
+}
+```
 
 ## 📚 API 엔드포인트
 
 ### 1. AI 챗봇 API
 
-#### POST `/api/chat`
+#### POST `/api/chat/message`
 AI 챗봇 응답을 생성합니다.
 
 **Request Body:**
@@ -29,8 +53,23 @@ AI 챗봇 응답을 생성합니다.
 ```json
 {
   "success": true,
-  "response": "AI 포트폴리오 챗봇은 Google Gemini API를 활용한 개발자 포트폴리오 AI 챗봇입니다...",
-  "timestamp": "2024-01-15T10:30:00.000Z"
+  "message": "챗봇 응답 성공",
+  "data": {
+    "response": "AI 포트폴리오 챗봇은 Google Gemini API를 활용한 개발자 포트폴리오 AI 챗봇입니다...",
+    "success": true
+  }
+}
+```
+
+#### GET `/api/chat/health`
+챗봇 서비스 상태를 확인합니다.
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "챗봇 서비스 정상 작동",
+  "data": "Chat service is running"
 }
 ```
 
@@ -48,6 +87,7 @@ AI 챗봇 응답을 생성합니다.
 ```json
 {
   "success": true,
+  "message": "프로젝트 목록 조회 성공",
   "data": [
     {
       "id": "proj-001",
@@ -62,8 +102,7 @@ AI 챗봇 응답을 생성합니다.
       "endDate": null,
       "isTeam": false
     }
-  ],
-  "count": 4
+  ]
 }
 ```
 
@@ -74,6 +113,7 @@ AI 챗봇 응답을 생성합니다.
 ```json
 {
   "success": true,
+  "message": "프로젝트 조회 성공",
   "data": {
     "id": "proj-001",
     "title": "AI 포트폴리오 챗봇",
@@ -93,17 +133,14 @@ AI 챗봇 응답을 생성합니다.
 
 ### 3. GitHub API
 
-#### GET `/api/github/repos`
-GitHub 레포지토리 목록을 조회합니다.
-
-**Query Parameters:**
-- `sort`: 정렬 기준 (`updated`, `created`, `pushed`, `full_name`)
-- `per_page`: 페이지당 레포지토리 수 (1-100)
+#### GET `/api/github/projects`
+GitHub 프로젝트 목록을 조회합니다.
 
 **Response:**
 ```json
 {
   "success": true,
+  "message": "GitHub 프로젝트 목록 조회 성공",
   "data": [
     {
       "id": 123456789,
@@ -119,18 +156,18 @@ GitHub 레포지토리 목록을 조회합니다.
       "created_at": "2024-01-01T00:00:00Z",
       "visibility": "public"
     }
-  ],
-  "count": 10
+  ]
 }
 ```
 
-#### GET `/api/github/repos/{name}`
-특정 GitHub 레포지토리의 상세 정보를 조회합니다.
+#### GET `/api/github/project/{repoName}`
+특정 GitHub 프로젝트의 상세 정보를 조회합니다.
 
 **Response:**
 ```json
 {
   "success": true,
+  "message": "GitHub 프로젝트 조회 성공",
   "data": {
     "title": "AI_Portfolio",
     "description": "AI 포트폴리오 챗봇 프로젝트",
@@ -146,26 +183,6 @@ GitHub 레포지토리 목록을 조회합니다.
 }
 ```
 
-#### GET `/api/github/user`
-GitHub 사용자 정보를 조회합니다.
-
-**Response:**
-```json
-{
-  "success": true,
-  "data": {
-    "login": "Yamang02",
-    "name": "이정준",
-    "bio": "개발자 포트폴리오",
-    "avatar_url": "https://avatars.githubusercontent.com/u/12345678",
-    "public_repos": 15,
-    "followers": 10,
-    "following": 20,
-    "html_url": "https://github.com/Yamang02"
-  }
-}
-```
-
 ### 4. 정적 데이터 API
 
 #### GET `/api/data/experiences`
@@ -175,6 +192,7 @@ GitHub 사용자 정보를 조회합니다.
 ```json
 {
   "success": true,
+  "message": "경험 목록 조회 성공",
   "data": [
     {
       "id": "exp-001",
@@ -199,8 +217,7 @@ GitHub 사용자 정보를 조회합니다.
         "노루 로지넷 운임비 정산 시스템 TMS 개발"
       ]
     }
-  ],
-  "count": 3
+  ]
 }
 ```
 
@@ -211,6 +228,7 @@ GitHub 사용자 정보를 조회합니다.
 ```json
 {
   "success": true,
+  "message": "교육 목록 조회 성공",
   "data": [
     {
       "id": "edu-001",
@@ -226,8 +244,7 @@ GitHub 사용자 정보를 조회합니다.
         "AI 포트폴리오 챗봇 (AI Portfolio Chatbot)"
       ]
     }
-  ],
-  "count": 2
+  ]
 }
 ```
 
@@ -238,6 +255,7 @@ GitHub 사용자 정보를 조회합니다.
 ```json
 {
   "success": true,
+  "message": "자격증 목록 조회 성공",
   "data": [
     {
       "id": "cert-001",
@@ -247,8 +265,7 @@ GitHub 사용자 정보를 조회합니다.
       "issuer": "SAP",
       "startDate": "2024-10"
     }
-  ],
-  "count": 2
+  ]
 }
 ```
 
@@ -259,15 +276,11 @@ GitHub 사용자 정보를 조회합니다.
 ```json
 {
   "success": true,
+  "message": "포트폴리오 데이터 조회 성공",
   "data": {
     "experiences": [...],
     "education": [...],
     "certifications": [...]
-  },
-  "counts": {
-    "experiences": 3,
-    "education": 2,
-    "certifications": 2
   }
 }
 ```
@@ -292,24 +305,27 @@ GitHub 사용자 정보를 조회합니다.
 ### 400 Bad Request
 ```json
 {
-  "error": "Bad Request",
-  "message": "Question is required and must be a string"
+  "success": false,
+  "message": "잘못된 요청입니다",
+  "error": "Question is required and must be a string"
 }
 ```
 
 ### 404 Not Found
 ```json
 {
-  "error": "Not Found",
-  "message": "Project not found"
+  "success": false,
+  "message": "프로젝트를 찾을 수 없습니다",
+  "error": "Project not found with id: proj-001"
 }
 ```
 
 ### 500 Internal Server Error
 ```json
 {
-  "error": "Internal Server Error",
-  "message": "Failed to generate response"
+  "success": false,
+  "message": "프로젝트 목록 조회 실패",
+  "error": "Failed to generate response"
 }
 ```
 
@@ -350,7 +366,7 @@ npm run server
 
 ### 헬스 체크
 ```bash
-curl http://localhost:3001/health
+curl http://localhost:8080/api/chat/health
 ```
 
 ### 로그 확인

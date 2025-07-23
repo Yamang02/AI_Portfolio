@@ -1,113 +1,159 @@
-# AI 포트폴리오 챗봇
+# AI Portfolio Chatbot
 
-개발자 포트폴리오를 위한 AI 챗봇 애플리케이션입니다. Google Gemini API를 사용하여 프로젝트 정보를 자연스럽게 소개합니다.
+AI 포트폴리오 챗봇은 Google Gemini API를 활용한 개발자 포트폴리오 AI 챗봇입니다. React + TypeScript 프론트엔드와 Spring Boot 백엔드로 구성된 풀스택 프로젝트입니다.
 
-## 주요 기능
-
-- 🤖 **AI 챗봇**: Google Gemini API 기반 자연어 대화
-- 📊 **GitHub 연동**: 실제 GitHub 레포지토리 정보 동적 가져오기
-- 🎯 **프로젝트 선택**: 인터랙티브 프로젝트 선택 버튼
-- 💬 **자연스러운 대화**: 구조화된 프롬프트 시스템으로 자연스러운 응답
-- ⚡ **캐시 시스템**: 24시간 캐시로 성능 최적화
-
-## 기술 스택
-
-- **Frontend**: React, TypeScript, Tailwind CSS
-- **AI**: Google Gemini API
-- **데이터**: GitHub API
-- **배포**: Google Cloud Run
-
-## 프로젝트 구조
+## 🚀 프로젝트 구조
 
 ```
-services/
-├── prompts/           # AI 챗봇 프롬프트 관리
-│   ├── chatbotPersona.ts      # 챗봇 페르소나 정의
-│   ├── conversationPatterns.ts # 대화 패턴 관리
-│   └── index.ts               # 프롬프트 시스템 통합
-├── geminiService.ts   # Gemini API 연동
-├── githubService.ts   # GitHub API 연동
-└── projectService.ts  # 프로젝트 데이터 관리
+AI_Portfolio/
+├── frontend/          # React + TypeScript 프론트엔드
+├── backend/           # Spring Boot 백엔드
+├── docs/             # 프로젝트 문서
+├── scripts/          # 배포 및 유틸리티 스크립트
+└── README.md         # 프로젝트 개요
 ```
 
-## 프롬프트 시스템
+## 🛠️ 기술 스택
 
-### 챗봇 페르소나 (`chatbotPersona.ts`)
-- 챗봇의 역할과 성격 정의
-- 답변 스타일 가이드라인
-- 좋은/나쁜 답변 예시
+### Frontend
+- **React 18** - UI 라이브러리
+- **TypeScript** - 타입 안전성
+- **Vite** - 빌드 도구
+- **Tailwind CSS** - 스타일링
+- **React Router** - 라우팅
 
-### 대화 패턴 (`conversationPatterns.ts`)
-- 질문 유형별 분류
-- 답변 가이드라인
-- 자연스러운 대화 흐름
+### Backend
+- **Spring Boot 3** - Java 웹 프레임워크
+- **Spring Web** - REST API
+- **Spring Security** - 보안
+- **Maven** - 빌드 도구
+- **Swagger** - API 문서화
 
-## 🚀 로컬 실행
+### AI & External APIs
+- **Google Gemini API** - AI 챗봇
+- **GitHub API** - 프로젝트 정보
 
-**필수 조건:** Node.js 18.0.0 이상
+## 📦 설치 및 실행
 
-1. **의존성 설치**
-   ```bash
-   npm install
-   ```
+### 1. 전체 프로젝트 설치
 
-2. **환경 변수 설정**
-   `.env.local` 파일에 다음 내용 추가:
-   ```env
-   # Frontend Environment Variables
-   VITE_API_BASE_URL=http://localhost:3001
-   VITE_EMAILJS_PUBLIC_KEY=your_emailjs_public_key_here
+```bash
+# 모든 의존성 설치
+npm run install:all
+```
 
-   # Backend Environment Variables
-   GEMINI_API_KEY=your_gemini_api_key_here
-   GITHUB_USERNAME=Yamang02
-   CONTACT_EMAIL=ljj0210@gmail.com
+### 2. 개발 모드 실행
 
-   # Server Configuration
-   PORT=3001
-   NODE_ENV=development
+```bash
+# 프론트엔드와 백엔드 동시 실행
+npm run dev
 
-   # CORS Configuration
-   ALLOWED_ORIGINS=http://localhost:5173
-   ```
+# 또는 개별 실행
+npm run dev:frontend  # 프론트엔드만
+npm run dev:backend   # 백엔드만
+```
 
-3. **개발 서버 실행**
+### 3. 프로덕션 빌드
 
-   **프론트엔드 (Vite)**
-   ```bash
-   npm run dev
-   ```
+```bash
+# 전체 프로젝트 빌드
+npm run build
 
-   **백엔드 (Express API)**
-   ```bash
-   npm run server:dev
-   ```
+# 또는 개별 빌드
+npm run build:frontend
+npm run build:backend
+```
 
-4. **브라우저에서 확인**
-   - **프론트엔드**: http://localhost:5173
-   - **API 문서**: http://localhost:3001/api-docs
-   - **헬스 체크**: http://localhost:3001/health
+## 🔧 환경 설정
 
-## 📚 API 서버
+### Frontend 환경변수
+`frontend/.env.local` 파일을 생성하고 다음 내용을 추가:
 
-이 프로젝트는 Express.js 기반의 API 서버를 포함하고 있습니다.
+```env
+VITE_API_BASE_URL=http://localhost:8080
+```
 
-### 주요 기능
-- **AI 챗봇 API**: Gemini API를 통한 AI 응답 생성
-- **프로젝트 API**: 포트폴리오 프로젝트 정보 제공
-- **GitHub API**: GitHub 레포지토리 정보 연동
-- **정적 데이터 API**: 경력, 교육, 자격증 정보 제공
+### Backend 환경변수
+`backend/src/main/resources/application.yml` 파일을 수정:
 
-### API 문서
-- **Swagger UI**: http://localhost:3001/api-docs
-- **상세 문서**: [docs/api-documentation.md](docs/api-documentation.md)
+```yaml
+gemini:
+  api-key: your_gemini_api_key_here
 
-### 보안 기능
-- **Rate Limiting**: API 호출 제한
-- **CORS**: 허용된 도메인만 접근 가능
-- **Helmet**: 보안 헤더 설정
-- **API 키 보안**: 서버 사이드에서만 API 키 관리
+github:
+  username: your_github_username
+```
 
-## 배포
+## 📚 API 문서
 
-Google Cloud Run을 통한 자동 배포가 설정되어 있습니다.
+- **Swagger UI**: http://localhost:8080/swagger-ui.html
+- **API 문서**: [docs/api-documentation.md](docs/api-documentation.md)
+
+## 🚀 배포
+
+### Docker 배포
+```bash
+# Docker 이미지 빌드
+docker build -t ai-portfolio .
+
+# 컨테이너 실행
+docker run -p 80:80 ai-portfolio
+```
+
+### 수동 배포
+```bash
+# 스크립트 실행
+./scripts/deploy.sh
+```
+
+## 🧪 테스트
+
+```bash
+# 전체 테스트 실행
+npm run test
+
+# 개별 테스트
+npm run test:frontend
+npm run test:backend
+```
+
+## 📁 주요 디렉토리
+
+### Frontend (`frontend/`)
+- `src/` - 소스 코드
+- `public/` - 정적 파일
+- `dist/` - 빌드 결과물
+
+### Backend (`backend/`)
+- `src/main/java/` - Java 소스 코드
+- `src/main/resources/` - 설정 파일
+- `target/` - 빌드 결과물
+
+### Documentation (`docs/`)
+- `api-documentation.md` - API 명세
+- `deployment-guide.md` - 배포 가이드
+- `portfolio.md` - 포트폴리오 정보
+
+## 🤝 기여하기
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 📄 라이선스
+
+이 프로젝트는 MIT 라이선스 하에 배포됩니다. 자세한 내용은 [LICENSE](LICENSE) 파일을 참조하세요.
+
+## 📞 연락처
+
+- **이메일**: ljj0210@gmail.com
+- **GitHub**: https://github.com/Yamang02
+- **포트폴리오**: https://ai-portfolio-chatbot.vercel.app
+
+## 🙏 감사의 말
+
+- Google Gemini API 팀
+- React 및 Spring Boot 커뮤니티
+- 모든 기여자들

@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.ArrayList;
 
 @Slf4j
 @Service
@@ -40,8 +41,16 @@ public class ProjectService {
     
     private List<Project> loadProjectsFromJson() {
         try {
-            ClassPathResource resource = new ClassPathResource("data/projects.json");
-            return objectMapper.readValue(resource.getInputStream(), new TypeReference<List<Project>>() {});
+            List<Project> all = new ArrayList<>();
+            // projects.json
+            ClassPathResource resource1 = new ClassPathResource("data/projects.json");
+            List<Project> githubProjects = objectMapper.readValue(resource1.getInputStream(), new TypeReference<List<Project>>() {});
+            all.addAll(githubProjects);
+            // localProjects.json
+            ClassPathResource resource2 = new ClassPathResource("data/localProjects.json");
+            List<Project> localProjects = objectMapper.readValue(resource2.getInputStream(), new TypeReference<List<Project>>() {});
+            all.addAll(localProjects);
+            return all;
         } catch (IOException e) {
             log.error("Failed to load projects from JSON", e);
             return List.of(); // 빈 리스트 반환

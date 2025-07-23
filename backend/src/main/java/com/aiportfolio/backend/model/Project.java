@@ -30,4 +30,5 @@ public class Project {
     private boolean isTeam;
     
     private String externalUrl;
+    private List<String> myContributions;
 } 
