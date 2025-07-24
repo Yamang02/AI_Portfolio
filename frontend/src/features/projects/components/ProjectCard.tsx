@@ -33,12 +33,12 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
 }) => {
   const timerRef = React.useRef<NodeJS.Timeout | null>(null);
 
-                const handleMouseEnter = () => {
-                onMouseEnter?.();
-                timerRef.current = setTimeout(() => {
-                  onLongHover?.(project.id);
-                }, 500);
-              };
+  const handleMouseEnter = () => {
+    onMouseEnter?.();
+    timerRef.current = setTimeout(() => {
+      onLongHover?.(project.id);
+    }, 500);
+  };
 
   const handleMouseLeave = () => {
     onMouseLeave?.();
@@ -116,6 +116,9 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
     );
   };
 
+  // 이미지 URL이 유효한지 확인
+  const hasValidImage = project.imageUrl && project.imageUrl !== '#' && project.imageUrl !== '';
+
   return (
     <div 
       id={`project-${project.id}`}
@@ -125,20 +128,42 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
       onClick={() => onClick?.(project)}
       style={{ cursor: onClick ? 'pointer' : undefined }}
     >
-      {/* 상단 아이콘 영역 (ProjectCard와 동일 높이) */}
+      {/* 상단 이미지/아이콘 영역 */}
       <div className="h-48 w-full bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center relative overflow-hidden">
         {/* 팀/개인 배지 */}
         <span
-          className={`absolute top-3 right-3 px-3 py-1 text-sm font-bold rounded-md shadow ${project.isTeam ? 'bg-blue-600 text-white' : 'bg-primary-600 text-white'}`}
+          className={`absolute top-3 right-3 px-3 py-1 text-sm font-bold rounded-md shadow z-10 ${project.isTeam ? 'bg-blue-600 text-white' : 'bg-primary-600 text-white'}`}
           title={project.isTeam ? '팀 프로젝트' : '개인 프로젝트'}
         >
           {project.isTeam ? '팀' : '개인'}
         </span>
-        {/* 프로젝트 아이콘 */}
-        <span className="inline-block w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center text-gray-600 text-3xl font-bold shadow">
-          {getProjectIcon()}
-        </span>
+        
+        {/* 이미지가 있으면 이미지 표시, 없으면 아이콘 표시 */}
+        {hasValidImage ? (
+          <img
+            src={project.imageUrl}
+            alt={project.title}
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              // 이미지 로드 실패 시 아이콘으로 대체
+              const target = e.target as HTMLImageElement;
+              target.style.display = 'none';
+              const iconContainer = target.parentElement?.querySelector('.fallback-icon');
+              if (iconContainer) {
+                iconContainer.classList.remove('hidden');
+              }
+            }}
+          />
+        ) : null}
+        
+        {/* 아이콘 (이미지가 없거나 로드 실패 시 표시) */}
+        <div className={`fallback-icon ${hasValidImage ? 'hidden' : ''} absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100`}>
+          <span className="inline-block w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center text-gray-600 text-3xl font-bold shadow">
+            {getProjectIcon()}
+          </span>
+        </div>
       </div>
+      
       {/* 본문 */}
       <div className="p-6 flex-grow flex flex-col">
         <h3 className="text-2xl font-extrabold text-gray-900 mb-4 leading-tight truncate" title={project.title}>
