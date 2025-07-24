@@ -1327,4 +1327,87 @@ const formatAcquisitionDate = () => {
 
 ---
 
+## 2025-01-15 배포 과정 문제점 및 해결 내역
+
+### 1. Docker 이미지 오류 해결
+**문제**: `ERROR: docker.io/library/openjdk:17-jre-alpine: not found`
+- **원인**: `openjdk:17-jre-alpine` 이미지가 더 이상 공식적으로 제공되지 않음
+- **해결**: Dockerfile에서 `FROM openjdk:17-jre-alpine`을 `FROM eclipse-temurin:17-jre-alpine`으로 변경
+- **결과**: Docker 빌드 성공
+
+### 2. npm workspaces 관련 빌드 오류 해결
+**문제**: 
+```
+Error: Dependencies lock file is not found in /home/runner/work/AI_Portfolio/AI_Portfolio
+Error: Cannot find module @rollup/rollup-linux-x64-gnu
+```
+- **원인**: 루트 `package.json`의 `workspaces` 설정이 CI 환경에서 `package-lock.json` 생성/사용을 방해
+- **해결**: 루트 `package.json`에서 `workspaces` 속성 제거
+- **결과**: GitHub Actions에서 npm 빌드 성공
+
+### 3. 환경 변수 관리 최적화
+**문제**: Secret Manager와 GitHub Secrets 간의 복잡한 연동
+- **해결책**:
+  - `GEMINI_API_KEY`: GitHub Secrets에서 직접 Cloud Run 환경 변수로 주입
+  - `VITE_EMAILJS_PUBLIC_KEY`: GitHub Variables에서 빌드 시 전달 (퍼블릭 키이므로 안전)
+  - `VITE_API_BASE_URL`: 프론트엔드 코드에서 기본값을 상대 경로(`''`)로 변경
+- **결과**: Secret Manager 의존성 제거, 배포 프로세스 단순화
+
+### 4. GitHub Actions 워크플로우 개선
+**문제**: 프론트엔드와 백엔드 빌드 환경 분리 필요
+- **해결책**:
+  - npm 명령어에 `working-directory: frontend` 추가
+  - Maven 명령어에 `working-directory: backend` 추가
+  - `cache-dependency-path: frontend/package-lock.json` 설정
+- **결과**: 각각의 빌드 환경에서 올바른 디렉토리에서 빌드 실행
+
+### 5. API 엔드포인트 설정 개선
+**문제**: 프로덕션에서 `localhost:8080` 참조로 인한 오류
+- **해결책**:
+  - `frontend/src/shared/services/apiClient.ts`: 기본값을 `''`로 변경
+  - `frontend/src/shared/config/app.config.ts`: 기본값을 `''`로 변경
+  - `frontend/vite-env.d.ts`: 불필요한 `VITE_GEMINI_API_KEY` 타입 제거
+- **결과**: 프로덕션에서 상대 경로로 API 호출, CORS 문제 해결
+
+### 6. 통합 배포 전략 채택
+**결정**: 프론트엔드와 백엔드를 하나의 컨테이너로 통합 배포
+- **장점**: 
+  - 단일 서비스 관리
+  - CORS 문제 해결
+  - 비용 효율성
+- **구현**: Dockerfile 멀티스테이지 빌드로 프론트엔드와 백엔드를 하나의 이미지로 통합
+
+### 7. 포트 설정 통일
+**문제**: 개발 환경과 프로덕션 환경의 포트 불일치
+- **해결책**:
+  - 개발: 프론트엔드(5173), 백엔드(8080)
+  - 프로덕션: 통합 컨테이너에서 백엔드(8080)만 사용
+  - 프론트엔드는 정적 파일로 서빙
+- **결과**: 일관된 포트 사용으로 배포 안정성 향상
+
+### 8. 빌드 최적화
+**문제**: 불필요한 빌드 단계와 설정
+- **해결책**:
+  - `frontend/vite.config.ts`에서 빈 `define: {}` 블록 제거
+  - 불필요한 Secret Manager 로딩 단계 제거
+  - 빌드 인자 최소화
+- **결과**: 빌드 시간 단축 및 오류 가능성 감소
+
+### 최종 배포 성공 요인
+1. **Docker 이미지 업데이트**: `eclipse-temurin` 사용으로 이미지 호환성 확보
+2. **npm workspaces 제거**: CI 환경에서의 빌드 안정성 확보
+3. **환경 변수 단순화**: Secret Manager 의존성 제거로 배포 프로세스 간소화
+4. **워크플로우 최적화**: 각 빌드 단계의 작업 디렉토리 명시
+5. **API 설정 개선**: 상대 경로 사용으로 프로덕션 환경 호환성 확보
+
+### 배포 아키텍처 최종 구조
+- **플랫폼**: Google Cloud Run
+- **컨테이너**: 단일 컨테이너 (프론트엔드 + 백엔드 통합)
+- **CI/CD**: GitHub Actions
+- **환경 변수**: GitHub Secrets/Variables
+- **API**: 상대 경로 기반 통신
+- **포트**: 8080 (통합 서비스)
+
+---
+
 </rewritten_file>
