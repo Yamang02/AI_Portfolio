@@ -54,9 +54,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ isOpen, onToggle, showProjectButtons 
   useEffect(() => {
     const loadProjects = async () => {
       try {
-        // 이 부분에서 실제로 어떤 프로젝트가 API에서 오는지 콘솔로 확인
         const projectsData = await apiClient.getProjects();
-        console.log('챗봇 프로젝트 목록:', projectsData); // <-- 실제 데이터 확인용
         setProjects(projectsData);
       } catch (error) {
         console.error('프로젝트 데이터 로드 오류:', error);
@@ -404,7 +402,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ isOpen, onToggle, showProjectButtons 
             <div className="px-4 py-2 bg-gray-50 border-b border-gray-200">
               <div className="flex justify-between items-center text-xs text-gray-600">
                 <span>시간당: {usageStatus.hourlyCount}/15</span>
-                <span>일일: {usageStatus.dailyCount}/50</span>
+                <span>일일: {usageStatus.dailyCount}/45</span>
                 {usageStatus.isBlocked && (
                   <span className="text-red-600 font-medium">
                     ⚠️ 차단됨 ({Math.ceil(usageStatus.timeUntilReset / (1000 * 60 * 60))}시간 후 해제)

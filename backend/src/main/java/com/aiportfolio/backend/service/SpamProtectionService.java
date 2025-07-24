@@ -3,7 +3,7 @@ package com.aiportfolio.backend.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -13,9 +13,8 @@ public class SpamProtectionService {
     
     private final Map<String, SubmissionRecord> submissionRecords = new ConcurrentHashMap<>();
     
-    private static final int MAX_SUBMISSIONS_PER_DAY = 50;
+    private static final int MAX_SUBMISSIONS_PER_DAY = 45;
     private static final int MAX_SUBMISSIONS_PER_HOUR = 15;
-    private static final long MIN_TIME_BETWEEN_SUBMISSIONS = 60000; // 1분
     private static final long BLOCK_DURATION = 24 * 60 * 60 * 1000; // 24시간
     
     public SpamProtectionResult checkSpamProtection(String clientId) {
@@ -54,7 +53,7 @@ public class SpamProtectionService {
                 record.setBlockedUntil(now + BLOCK_DURATION);
                 submissionRecords.put(clientId, record);
                 return new SpamProtectionResult(false, 
-                    "일일 최대 50회를 초과하여 24시간 동안 차단되었습니다.");
+                    "일일 최대 45회를 초과하여 24시간 동안 차단되었습니다.");
             }
             
             return new SpamProtectionResult(true, null);
