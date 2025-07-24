@@ -3,6 +3,7 @@ import { ChatMessage as ChatMessageType } from '../types';
 import { apiClient } from '../../../shared/services/apiClient';
 import ChatMessage from './ChatMessage';
 import { ContactModal } from '../../../shared/components/Modal';
+import { processQuestion } from '../utils/questionValidator';
 
 // The 'projects' prop is no longer needed.
 interface ChatbotProps {
@@ -32,6 +33,12 @@ const Chatbot: React.FC<ChatbotProps> = ({ isOpen, onToggle, showProjectButtons 
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [projects, setProjects] = useState<any[]>([]);
   const [showAllProjects, setShowAllProjects] = useState(false);
+  const [usageStatus, setUsageStatus] = useState<{
+    dailyCount: number;
+    hourlyCount: number;
+    timeUntilReset: number;
+    isBlocked: boolean;
+  } | null>(null);
   const MAX_VISIBLE_PROJECTS = 4;
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -57,6 +64,23 @@ const Chatbot: React.FC<ChatbotProps> = ({ isOpen, onToggle, showProjectButtons 
     };
     loadProjects();
   }, []);
+
+  // 사용량 제한 상태 로드
+  const loadUsageStatus = async () => {
+    try {
+      const status = await apiClient.getChatUsageStatus();
+      setUsageStatus(status);
+    } catch (error) {
+      console.error('사용량 제한 상태 로드 오류:', error);
+    }
+  };
+
+  // 챗봇이 열릴 때 사용량 제한 상태 로드
+  useEffect(() => {
+    if (isOpen) {
+      loadUsageStatus();
+    }
+  }, [isOpen]);
 
   // 모달 열기 이벤트 리스너
   useEffect(() => {
@@ -130,37 +154,57 @@ const Chatbot: React.FC<ChatbotProps> = ({ isOpen, onToggle, showProjectButtons 
     try {
       // 더 자연스러운 질문 생성
       const question = `${project.title}에 대해 간단히 소개해줄 수 있어?`;
-      const responseText = await apiClient.getChatbotResponse(question, project.title);
+      const response = await apiClient.getChatbotResponse(question, project.title);
       
       let aiResponseText: React.ReactNode;
       let showEmailButton = false;
       
-      if (responseText.trim() === 'I_CANNOT_ANSWER') {
+      // 백엔드 응답 처리 (ResponseType 기반) - handleSendMessage와 동일한 로직
+      const responseType = response.responseType;
+      
+      // 에러 타입별 처리
+      if (responseType === 'RATE_LIMITED' || response.isRateLimited) {
         aiResponseText = (
-          <span>
-            해당 프로젝트에 대한 정보를 찾을 수 없습니다. 다른 프로젝트를 선택하거나 직접 질문해보세요.
+          <span className="text-red-600 font-medium">
+            ⚠️ {response.response}
           </span>
         );
-      } else {
-        // 개인정보나 민감한 정보 요청 감지 (프로젝트 질문의 경우)
-        const personalInfoKeywords = [
-          '이메일', '메일', '연락처', '전화번호', '휴대폰', '개인정보', '개발자 연락', '개발자에게 연락',
-          'email', 'contact', 'phone', 'personal', 'developer contact', 'reach developer'
-        ];
-        
-        const question = `${project.title}에 대해 간단히 소개해줄 수 있어?`;
-        const isPersonalInfoRequest = personalInfoKeywords.some(keyword => 
-          question.toLowerCase().includes(keyword.toLowerCase())
+        showEmailButton = true;
+      } else if (responseType === 'CANNOT_ANSWER') {
+        aiResponseText = (
+          <span>
+            {response.response}
+          </span>
         );
-        
-        if (isPersonalInfoRequest) {
-          showEmailButton = true;
-        }
-        
-        aiResponseText = responseText;
+        showEmailButton = true;
+      } else if (responseType === 'PERSONAL_INFO') {
+        aiResponseText = (
+          <span>
+            {response.response}
+          </span>
+        );
+        showEmailButton = true;
+      } else if (responseType === 'INVALID_INPUT' || responseType === 'SPAM_DETECTED') {
+        aiResponseText = (
+          <span className="text-red-600 font-medium">
+            ⚠️ {response.response}
+          </span>
+        );
+        showEmailButton = response.showEmailButton || false;
+      } else if (responseType === 'SYSTEM_ERROR') {
+        aiResponseText = (
+          <span className="text-red-600 font-medium">
+            ⚠️ {response.response}
+          </span>
+        );
+        showEmailButton = true;
+      } else {
+        // SUCCESS 또는 기타 정상 응답
+        aiResponseText = response.response;
+        showEmailButton = response.showEmailButton || false;
       }
 
-            const aiMessage: ChatMessageType = { 
+      const aiMessage: ChatMessageType = { 
         id: (Date.now() + 1).toString(),
         content: aiResponseText as string,
         isUser: false,
@@ -169,13 +213,19 @@ const Chatbot: React.FC<ChatbotProps> = ({ isOpen, onToggle, showProjectButtons 
       };
       
       setMessages(prev => [...prev, aiMessage]);
+      
+      // 사용량 제한 상태 업데이트 (성공적인 요청 후)
+      if (!response.isRateLimited) {
+        loadUsageStatus();
+      }
     } catch (error) {
       console.error('프로젝트 질문 처리 오류:', error);
       const errorMessage: ChatMessageType = {
         id: (Date.now() + 1).toString(),
         content: '죄송합니다. 응답을 생성하는 중에 오류가 발생했습니다.',
         isUser: false,
-        timestamp: new Date()
+        timestamp: new Date(),
+        showEmailButton: true
       };
       setMessages(prev => [...prev, errorMessage]);
     } finally {
@@ -200,33 +250,78 @@ const Chatbot: React.FC<ChatbotProps> = ({ isOpen, onToggle, showProjectButtons 
     setIsLoading(true);
 
     try {
-      const responseText = await apiClient.getChatbotResponse(inputValue, selectedProject || undefined);
+      // 1단계: 프론트엔드 사전 검증 및 분석
+      const questionProcessing = processQuestion(inputValue);
       
       let aiResponseText: React.ReactNode;
       let showEmailButton = false;
       
-      if (responseText.trim() === 'I_CANNOT_ANSWER') {
+      // 검증 오류가 있는 경우
+      if (questionProcessing.validationError) {
         aiResponseText = (
-          <span>
-            죄송합니다. 해당 질문에 대한 답변을 제공할 수 없습니다. 다른 질문을 해보시거나 프로젝트를 선택해보세요.
+          <span className="text-red-600 font-medium">
+            ⚠️ {questionProcessing.validationError}
           </span>
         );
-      } else {
-        // 개인정보나 민감한 정보 요청 감지
-        const personalInfoKeywords = [
-          '이메일', '메일', '연락처', '전화번호', '휴대폰', '개인정보', '개발자 연락', '개발자에게 연락',
-          'email', 'contact', 'phone', 'personal', 'developer contact', 'reach developer'
-        ];
+      }
+      // 즉시 응답이 있는 경우
+      else if (questionProcessing.immediateResponse) {
+        aiResponseText = questionProcessing.immediateResponse;
+        showEmailButton = questionProcessing.showEmailButton;
+      }
+      // 백엔드로 전송이 필요한 경우
+      else if (questionProcessing.shouldSendToBackend) {
+        const response = await apiClient.getChatbotResponse(inputValue, selectedProject || undefined);
         
-        const isPersonalInfoRequest = personalInfoKeywords.some(keyword => 
-          inputValue.toLowerCase().includes(keyword.toLowerCase())
-        );
+        // 백엔드 응답 처리 (ResponseType 기반)
+        const responseType = response.responseType;
         
-        if (isPersonalInfoRequest) {
+        // 에러 타입별 처리
+        if (responseType === 'RATE_LIMITED' || response.isRateLimited) {
+          aiResponseText = (
+            <span className="text-red-600 font-medium">
+              ⚠️ {response.response}
+            </span>
+          );
           showEmailButton = true;
+        } else if (responseType === 'CANNOT_ANSWER') {
+          aiResponseText = (
+            <span>
+              {response.response}
+            </span>
+          );
+          showEmailButton = true;
+        } else if (responseType === 'PERSONAL_INFO') {
+          aiResponseText = (
+            <span>
+              {response.response}
+            </span>
+          );
+          showEmailButton = true;
+        } else if (responseType === 'INVALID_INPUT' || responseType === 'SPAM_DETECTED') {
+          aiResponseText = (
+            <span className="text-red-600 font-medium">
+              ⚠️ {response.response}
+            </span>
+          );
+          showEmailButton = response.showEmailButton || false;
+        } else if (responseType === 'SYSTEM_ERROR') {
+          aiResponseText = (
+            <span className="text-red-600 font-medium">
+              ⚠️ {response.response}
+            </span>
+          );
+          showEmailButton = true;
+        } else {
+          // SUCCESS 또는 기타 정상 응답
+          aiResponseText = response.response;
+          showEmailButton = response.showEmailButton || false;
         }
         
-        aiResponseText = responseText;
+        // 사용량 제한 상태 업데이트 (성공적인 요청 후)
+        if (!response.isRateLimited) {
+          loadUsageStatus();
+        }
       }
 
       const aiMessage: ChatMessageType = {
@@ -238,13 +333,15 @@ const Chatbot: React.FC<ChatbotProps> = ({ isOpen, onToggle, showProjectButtons 
       };
 
       setMessages(prev => [...prev, aiMessage]);
+      
     } catch (error) {
       console.error('메시지 전송 오류:', error);
       const errorMessage: ChatMessageType = {
         id: (Date.now() + 1).toString(),
         content: '죄송합니다. 응답을 생성하는 중에 오류가 발생했습니다.',
         isUser: false,
-        timestamp: new Date()
+        timestamp: new Date(),
+        showEmailButton: true
       };
       setMessages(prev => [...prev, errorMessage]);
     } finally {
@@ -301,6 +398,21 @@ const Chatbot: React.FC<ChatbotProps> = ({ isOpen, onToggle, showProjectButtons 
               </button>
             </div>
           </div>
+
+          {/* 사용량 제한 상태 표시 */}
+          {usageStatus && (
+            <div className="px-4 py-2 bg-gray-50 border-b border-gray-200">
+              <div className="flex justify-between items-center text-xs text-gray-600">
+                <span>시간당: {usageStatus.hourlyCount}/15</span>
+                <span>일일: {usageStatus.dailyCount}/50</span>
+                {usageStatus.isBlocked && (
+                  <span className="text-red-600 font-medium">
+                    ⚠️ 차단됨 ({Math.ceil(usageStatus.timeUntilReset / (1000 * 60 * 60))}시간 후 해제)
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* 메시지 영역 */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4">

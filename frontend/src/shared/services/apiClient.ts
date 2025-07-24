@@ -8,6 +8,26 @@ interface ApiResponse<T> {
   error?: string;
 }
 
+// 백엔드 ResponseType과 일치하는 타입 정의
+type ResponseType = 
+  | 'SUCCESS'
+  | 'RATE_LIMITED'
+  | 'CANNOT_ANSWER'
+  | 'PERSONAL_INFO'
+  | 'INVALID_INPUT'
+  | 'SYSTEM_ERROR'
+  | 'SPAM_DETECTED';
+
+// API 응답 타입
+interface ChatbotResponse {
+  response: string;
+  isRateLimited?: boolean;
+  rateLimitMessage?: string;
+  showEmailButton?: boolean;
+  responseType?: ResponseType;
+  reason?: string;
+}
+
 class ApiClient {
   private baseURL: string;
 
@@ -33,7 +53,10 @@ class ApiClient {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || `HTTP error! status: ${response.status}`);
+        const error = new Error(data.message || `HTTP error! status: ${response.status}`);
+        (error as any).status = response.status;
+        (error as any).response = { data };
+        throw error;
       }
 
       return data;
@@ -46,13 +69,51 @@ class ApiClient {
 
 
   // AI 챗봇 API
-  async getChatbotResponse(question: string, selectedProject?: string): Promise<string> {
-    const response = await this.request<{ response: string }>('/api/chat/message', {
-      method: 'POST',
-      body: JSON.stringify({ question, selectedProject }),
-    });
+  async getChatbotResponse(question: string, selectedProject?: string): Promise<ChatbotResponse> {
+    try {
+      const response = await this.request<{ 
+        response: string;
+        showEmailButton?: boolean;
+        responseType?: string;
+        reason?: string;
+      }>('/api/chat/message', {
+        method: 'POST',
+        body: JSON.stringify({ question, selectedProject }),
+      });
 
-    return response.data?.response || 'I_CANNOT_ANSWER';
+      return { 
+        response: response.data?.response || 'I_CANNOT_ANSWER',
+        showEmailButton: response.data?.showEmailButton || false,
+        responseType: response.data?.responseType as ResponseType,
+        reason: response.data?.reason
+      };
+    } catch (error: any) {
+      // 400 상태 코드 (Bad Request) - 입력 검증 실패
+      if (error.status === 400) {
+        const errorData = error.response?.data || {};
+        return {
+          response: errorData.data?.response || '입력 검증에 실패했습니다.',
+          showEmailButton: errorData.data?.showEmailButton || false,
+          responseType: errorData.data?.responseType as ResponseType,
+          reason: errorData.data?.reason
+        };
+      }
+      
+      // 429 상태 코드 (Too Many Requests) 처리
+      if (error.status === 429) {
+        const errorData = error.response?.data || {};
+        return {
+          response: errorData.data?.response || '요청이 너무 많습니다. 잠시 후 다시 시도해주세요.',
+          isRateLimited: true,
+          rateLimitMessage: errorData.data?.reason || '요청이 너무 많습니다.',
+          showEmailButton: errorData.data?.showEmailButton || true,
+          responseType: errorData.data?.responseType as ResponseType,
+          reason: errorData.data?.reason
+        };
+      }
+      
+      throw error;
+    }
   }
 
   // 프로젝트 API
@@ -120,6 +181,22 @@ class ApiClient {
   async healthCheck(): Promise<string> {
     const response = await this.request<string>('/api/chat/health');
     return response.data || 'unknown';
+  }
+
+  // 사용량 제한 상태 확인
+  async getChatUsageStatus(): Promise<{
+    dailyCount: number;
+    hourlyCount: number;
+    timeUntilReset: number;
+    isBlocked: boolean;
+  }> {
+    const response = await this.request<{
+      dailyCount: number;
+      hourlyCount: number;
+      timeUntilReset: number;
+      isBlocked: boolean;
+    }>('/api/chat/status');
+    return response.data || { dailyCount: 0, hourlyCount: 0, timeUntilReset: 0, isBlocked: false };
   }
 }
 

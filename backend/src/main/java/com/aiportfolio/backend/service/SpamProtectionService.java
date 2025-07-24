@@ -13,8 +13,8 @@ public class SpamProtectionService {
     
     private final Map<String, SubmissionRecord> submissionRecords = new ConcurrentHashMap<>();
     
-    private static final int MAX_SUBMISSIONS_PER_DAY = 5;
-    private static final int MAX_SUBMISSIONS_PER_HOUR = 3;
+    private static final int MAX_SUBMISSIONS_PER_DAY = 50;
+    private static final int MAX_SUBMISSIONS_PER_HOUR = 15;
     private static final long MIN_TIME_BETWEEN_SUBMISSIONS = 60000; // 1분
     private static final long BLOCK_DURATION = 24 * 60 * 60 * 1000; // 24시간
     
@@ -44,7 +44,7 @@ public class SpamProtectionService {
             if (now - record.getLastSubmission() < 60 * 60 * 1000) { // 1시간 내
                 if (record.getCount() >= MAX_SUBMISSIONS_PER_HOUR) {
                     return new SpamProtectionResult(false, 
-                        "시간당 최대 3회까지만 문의할 수 있습니다. 1시간 후에 다시 시도해주세요.");
+                        "시간당 최대 15회까지만 문의할 수 있습니다. 1시간 후에 다시 시도해주세요.");
                 }
             }
             
@@ -54,7 +54,7 @@ public class SpamProtectionService {
                 record.setBlockedUntil(now + BLOCK_DURATION);
                 submissionRecords.put(clientId, record);
                 return new SpamProtectionResult(false, 
-                    "일일 최대 5회를 초과하여 24시간 동안 차단되었습니다.");
+                    "일일 최대 50회를 초과하여 24시간 동안 차단되었습니다.");
             }
             
             return new SpamProtectionResult(true, null);
