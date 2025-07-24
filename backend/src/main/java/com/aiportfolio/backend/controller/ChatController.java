@@ -45,12 +45,12 @@ public class ChatController {
                         .showEmailButton(validation.getResponseType() == ChatResponse.ResponseType.SPAM_DETECTED)
                         .build();
                 
-                return ResponseEntity.badRequest()
-                        .body(ApiResponse.<ChatResponse>builder()
-                                .success(false)
-                                .message("입력 검증 실패")
-                                .data(invalidResponse)
-                                .build());
+                // 비즈니스 로직 오류는 200 OK로 반환
+                return ResponseEntity.ok(ApiResponse.<ChatResponse>builder()
+                        .success(false)
+                        .message("입력 검증 실패")
+                        .data(invalidResponse)
+                        .build());
             }
             
             // 2. 스팸 방지 검사
@@ -66,12 +66,12 @@ public class ChatController {
                         .showEmailButton(true)
                         .build();
                 
-                return ResponseEntity.status(429)
-                        .body(ApiResponse.<ChatResponse>builder()
-                                .success(false)
-                                .message("요청 제한")
-                                .data(rateLimitResponse)
-                                .build());
+                // 비즈니스 로직 오류는 200 OK로 반환
+                return ResponseEntity.ok(ApiResponse.<ChatResponse>builder()
+                        .success(false)
+                        .message("요청 제한")
+                        .data(rateLimitResponse)
+                        .build());
             }
             
             // 3. 질문 분석
@@ -131,6 +131,7 @@ public class ChatController {
                     .showEmailButton(true)
                     .build();
             
+            // 시스템 오류는 500 Internal Server Error로 반환
             return ResponseEntity.internalServerError()
                     .body(ApiResponse.<ChatResponse>builder()
                             .success(false)

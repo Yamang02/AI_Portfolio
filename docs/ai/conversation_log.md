@@ -394,17 +394,25 @@ AI 챗봇의 사용량 제한 완화, 프롬프트 외부화, 하이브리드 �
 - **질문 분석**: 백엔드에서 통합 처리 (개인정보, 기술질문, 프로젝트질문 등)
 - **일관된 응답**: ResponseType enum으로 구조화된 통신
 
-#### 4. 백엔드 구조 정리
+#### 4. 하이브리드 오류 처리 방식 도입
+**목적**: 비즈니스 로직과 시스템 오류의 명확한 구분
+- **비즈니스 로직 오류**: 200 OK + ResponseType (INVALID_INPUT, SPAM_DETECTED, RATE_LIMITED, PERSONAL_INFO, CANNOT_ANSWER)
+- **시스템 오류**: 적절한 HTTP 상태 코드 (500 Internal Server Error 등)
+- **명확한 구분**: 비즈니스 로직 vs 시스템 오류
+- **일관된 처리**: 프론트엔드에서 ResponseType 기반 처리
+
+#### 5. 백엔드 구조 정리
 **목적**: 코드 중복 제거 및 책임 분리
 - **중복 로직 제거**: `GeminiService`의 질문 분석 로직을 `QuestionAnalysisService`로 통합
 - **매직 스트링 제거**: `"I_CANNOT_ANSWER"` → `null` 체크로 대체
 - **타입 안전성**: ResponseType enum으로 명확한 통신
 - **서비스 책임 명확화**: 각 서비스의 단일 책임 원칙 준수
 
-#### 5. 프론트엔드 구조 개선
+#### 6. 프론트엔드 구조 개선
 **목적**: 새로운 백엔드 구조와의 완벽한 호환
 - **ResponseType 기반 처리**: 모든 응답 타입에 대한 일관된 처리
-- **타입 안전성**: ChatbotResponse 인터페이스로 타입 보장
+- **타입 안전성**: ChatbotResponse, ApiResponse, BackendChatResponse 인터페이스로 타입 보장
+- **하이브리드 오류 처리**: 비즈니스 로직 오류와 시스템 오류 구분 처리
 - **중복 제거**: `emailButtonType` 제거, 단순화된 메일 버튼 로직
 - **일관된 UX**: 모든 상황에서 일관된 사용자 경험
 
@@ -610,6 +618,52 @@ src/
 - 사용자 피드백 반영
 - 성능 최적화
 - 추가 기능 구현 (필터링, 검색 등)
+
+---
+
+## 하이브리드 오류 처리 방식 완성 (2025-01-15)
+
+### 문제 상황
+- "개인정보" 요청 시 "서버 오류가 발생했습니다" 표시
+- 백엔드에서는 `PERSONAL_INFO` 응답을 정상적으로 보내지만 프론트엔드에서 처리 실패
+- `apiClient.ts`에서 응답 구조 파싱 오류
+- `ChatMessage.tsx`에서 `React.ReactNode` 처리 미흡
+
+### 해결 과정
+
+#### 1. API 응답 구조 파싱 수정
+**문제**: `response.data?.data`로 중첩된 구조에 접근
+**해결**: `response.data`로 직접 접근하도록 수정
+```typescript
+// 수정 전
+const chatData = response.data?.data;
+
+// 수정 후  
+const chatData = response.data;
+```
+
+#### 2. ChatMessage 컴포넌트 개선
+**문제**: `React.ReactNode` 타입의 `message.content`를 문자열로만 처리
+**해결**: 타입에 따른 조건부 렌더링 구현
+```typescript
+{typeof message.content === 'string' ? (
+  <ReactMarkdown>{message.content}</ReactMarkdown>
+) : (
+  message.content
+)}
+```
+
+### 최종 결과
+- ✅ "개인정보" 요청 시 적절한 메시지 표시
+- ✅ `PERSONAL_INFO` ResponseType 정상 처리
+- ✅ 메일 버튼 정상 표시
+- ✅ 하이브리드 오류 처리 방식 완전 구현
+
+### 기술적 개선사항
+- **타입 안전성**: TypeScript 타입 시스템 완전 활용
+- **응답 구조 일관성**: 백엔드-프론트엔드 간 응답 구조 통일
+- **사용자 경험**: 명확하고 일관된 오류 메시지 제공
+- **개발자 경험**: 디버깅 로그 제거로 코드 정리
 
 ---
 

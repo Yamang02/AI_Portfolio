@@ -1,31 +1,42 @@
-// API 클라이언트 - 백엔드 서버와 통신
+// API 클라이언트 - 백엔드 서버와 통신 (하이브리드 방식)
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
+// 백엔드 API 응답 구조
 interface ApiResponse<T> {
-  success: boolean;
-  message: string;
-  data?: T;
-  error?: string;
+  success: boolean;                    // API 호출 성공 여부
+  message: string;                     // API 응답 메시지
+  data?: T;                           // 실제 데이터
+  error?: string;                     // 시스템 오류 메시지
 }
 
 // 백엔드 ResponseType과 일치하는 타입 정의
 type ResponseType = 
-  | 'SUCCESS'
-  | 'RATE_LIMITED'
-  | 'CANNOT_ANSWER'
-  | 'PERSONAL_INFO'
-  | 'INVALID_INPUT'
-  | 'SYSTEM_ERROR'
-  | 'SPAM_DETECTED';
+  | 'SUCCESS'           // 정상적인 AI 응답
+  | 'RATE_LIMITED'      // 사용량 제한 초과
+  | 'CANNOT_ANSWER'     // AI가 답변할 수 없는 질문
+  | 'PERSONAL_INFO'     // 개인정보 요청 감지
+  | 'INVALID_INPUT'     // 입력 검증 실패
+  | 'SYSTEM_ERROR'      // 실제 시스템 오류
+  | 'SPAM_DETECTED';    // 스팸 패턴 감지
 
-// API 응답 타입
+// 백엔드 ChatResponse 구조
+interface BackendChatResponse {
+  response: string;                    // 응답 메시지
+  success: boolean;                    // 비즈니스 로직 성공 여부
+  error?: string;                     // 오류 메시지
+  showEmailButton: boolean;           // 메일 버튼 표시 여부
+  responseType: ResponseType;         // 응답 타입
+  reason?: string;                    // 상세 이유
+}
+
+// 프론트엔드 API 응답 타입 (하이브리드 방식)
 interface ChatbotResponse {
-  response: string;
-  isRateLimited?: boolean;
-  rateLimitMessage?: string;
-  showEmailButton?: boolean;
-  responseType?: ResponseType;
-  reason?: string;
+  response: string;                    // 응답 메시지
+  isRateLimited?: boolean;             // 사용량 제한 여부 (레거시 호환성)
+  rateLimitMessage?: string;           // 사용량 제한 메시지 (레거시 호환성)
+  showEmailButton?: boolean;           // 메일 버튼 표시 여부
+  responseType?: ResponseType;         // 응답 타입 (새로운 방식)
+  reason?: string;                     // 상세 이유
 }
 
 class ApiClient {
@@ -52,14 +63,16 @@ class ApiClient {
       const response = await fetch(url, { ...defaultOptions, ...options });
       const data = await response.json();
 
-      if (!response.ok) {
-        const error = new Error(data.message || `HTTP error! status: ${response.status}`);
-        (error as any).status = response.status;
-        (error as any).response = { data };
-        throw error;
+      // 비즈니스 로직 오류는 200 OK로 반환되므로 정상 처리
+      if (response.ok) {
+        return data;
       }
 
-      return data;
+      // 시스템 오류만 예외로 던짐
+      const error = new Error(data.message || `HTTP error! status: ${response.status}`);
+      (error as any).status = response.status;
+      (error as any).response = { data };
+      throw error;
     } catch (error) {
       console.error('API request failed:', error);
       throw error;
@@ -68,52 +81,24 @@ class ApiClient {
 
 
 
-  // AI 챗봇 API
+  // AI 챗봇 API (하이브리드 방식)
   async getChatbotResponse(question: string, selectedProject?: string): Promise<ChatbotResponse> {
-    try {
-      const response = await this.request<{ 
-        response: string;
-        showEmailButton?: boolean;
-        responseType?: string;
-        reason?: string;
-      }>('/api/chat/message', {
-        method: 'POST',
-        body: JSON.stringify({ question, selectedProject }),
-      });
+    const response = await this.request<BackendChatResponse>('/api/chat/message', {
+      method: 'POST',
+      body: JSON.stringify({ question, selectedProject }),
+    });
 
-      return { 
-        response: response.data?.response || 'I_CANNOT_ANSWER',
-        showEmailButton: response.data?.showEmailButton || false,
-        responseType: response.data?.responseType as ResponseType,
-        reason: response.data?.reason
-      };
-    } catch (error: any) {
-      // 400 상태 코드 (Bad Request) - 입력 검증 실패
-      if (error.status === 400) {
-        const errorData = error.response?.data || {};
-        return {
-          response: errorData.data?.response || '입력 검증에 실패했습니다.',
-          showEmailButton: errorData.data?.showEmailButton || false,
-          responseType: errorData.data?.responseType as ResponseType,
-          reason: errorData.data?.reason
-        };
-      }
-      
-      // 429 상태 코드 (Too Many Requests) 처리
-      if (error.status === 429) {
-        const errorData = error.response?.data || {};
-        return {
-          response: errorData.data?.response || '요청이 너무 많습니다. 잠시 후 다시 시도해주세요.',
-          isRateLimited: true,
-          rateLimitMessage: errorData.data?.reason || '요청이 너무 많습니다.',
-          showEmailButton: errorData.data?.showEmailButton || true,
-          responseType: errorData.data?.responseType as ResponseType,
-          reason: errorData.data?.reason
-        };
-      }
-      
-      throw error;
-    }
+    const chatData = response.data;
+    
+    return { 
+      response: chatData?.response || 'I_CANNOT_ANSWER',
+      showEmailButton: chatData?.showEmailButton || false,
+      responseType: chatData?.responseType,
+      reason: chatData?.reason,
+      // 레거시 호환성을 위한 필드들
+      isRateLimited: chatData?.responseType === 'RATE_LIMITED',
+      rateLimitMessage: chatData?.responseType === 'RATE_LIMITED' ? chatData?.reason : undefined
+    };
   }
 
   // 프로젝트 API
