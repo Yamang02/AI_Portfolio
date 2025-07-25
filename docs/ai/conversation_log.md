@@ -1527,7 +1527,7 @@ const formatAcquisitionDate = () => {
 
 ---
 
-## 2025-01-15 배포 과정 문제점 및 해결 내역
+## 2025-07-23 배포 과정 문제점 및 해결 내역
 
 ### 1. Docker 이미지 오류 해결
 **문제**: `ERROR: docker.io/library/openjdk:17-jre-alpine: not found`

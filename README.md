@@ -12,11 +12,20 @@ AI_Portfolio/
 ├── frontend/         # 프론트엔드 (React + TypeScript + Vite)
 │   ├── src/          # 프론트엔드 소스코드 및 컴포넌트
 │   │   ├── features/         # 주요 도메인별 기능(챗봇, 프로젝트 등)
+│   │   │   ├── chatbot/      # 챗봇 관련 컴포넌트 및 서비스
+│   │   │   ├── layout/       # 레이아웃 컴포넌트
+│   │   │   └── projects/     # 프로젝트 관련 컴포넌트
 │   │   ├── shared/           # 공통 컴포넌트, 서비스, 유틸
-│   │   └── ...
-│   ├── public/       # 정적 파일
-│   ├── package.json  # 프론트엔드 패키지 관리
-│   └── ...           # 기타 프론트엔드 설정/빌드 파일
+│   │   │   ├── components/   # 공통 UI 컴포넌트
+│   │   │   ├── services/     # API 클라이언트 등 공통 서비스
+│   │   │   └── utils/        # 유틸리티 함수
+│   │   ├── index.css         # 전역 스타일
+│   │   └── main.tsx          # 앱 진입점
+│   ├── index.html            # HTML 템플릿 (Vite)
+│   ├── package.json          # 프론트엔드 패키지 관리
+│   ├── vite.config.ts        # Vite 설정
+│   ├── tsconfig.json         # TypeScript 설정
+│   └── dist/                 # 빌드 결과물
 │
 ├── backend/          # 백엔드 (Spring Boot + LangChain4j)
 │   ├── src/
@@ -25,22 +34,24 @@ AI_Portfolio/
 │   │       │   ├── controller/   # API 컨트롤러
 │   │       │   ├── service/      # 비즈니스 로직, Gemini 연동
 │   │       │   ├── model/        # 데이터 모델
-│   │       │   └── ...
+│   │       │   ├── config/       # 설정 클래스
+│   │       │   └── util/         # 유틸리티 클래스
 │   │       └── resources/
 │   │           ├── application.yml  # 백엔드 환경설정 (API Key, 모델명 등)
-│   │           └── data/            # 포트폴리오/프로젝트 데이터
+│   │           ├── data/            # 포트폴리오/프로젝트 데이터
+│   │           └── prompts/         # 챗봇 프롬프트 템플릿
 │   ├── pom.xml       # 백엔드 패키지 관리(Maven)
-│   └── ...           # 기타 백엔드 설정/빌드 파일
+│   └── target/       # 빌드 결과물
 │
 ├── docs/             # 프로젝트 문서
 │   ├── ai/           # AI/챗봇 관련 문서
+│   ├── projects/     # 프로젝트별 상세 문서
 │   ├── api-documentation.md
 │   ├── portfolio.md
 │   └── ...
 │
-├── scripts/          # 배포 및 유틸리티 스크립트
-│   └── deploy.sh
-│
+├── Dockerfile        # Docker 설정
+├── package.json      # 루트 패키지 관리
 ├── README.md         # 프로젝트 개요 및 안내
 └── ...               # 기타 공통 파일
 ```
@@ -51,24 +62,26 @@ AI_Portfolio/
 - API 통신(REST)으로 프론트-백엔드 연동
 - 각 영역별 환경변수 및 설정 분리 관리
 - 최신 LangChain4j + Google Gemini 모델 연동
+- Vite 기반의 빠른 개발 환경
 
 ---
 
 ## 🛠️ 기술 스택
 
 ### Frontend
-- **React 18** - UI 라이브러리
+- **React 19** - UI 라이브러리
 - **TypeScript** - 타입 안전성
-- **Vite** - 빌드 도구
-- **Tailwind CSS** - 스타일링
-- **React Router** - 라우팅
+- **Vite** - 빠른 빌드 도구
+- **CSS Modules** - 스타일링
+- **Express** - 개발 서버
 
 ### Backend
 - **Spring Boot 3** - Java 웹 프레임워크
 - **Spring Web** - REST API
-- **Spring Security** - 보안
+- **Spring Validation** - 입력 검증
 - **Maven** - 빌드 도구
-- **Swagger** - API 문서화
+- **SpringDoc OpenAPI** - API 문서화
+- **LangChain4j** - AI 모델 연동
 
 ### AI & External APIs
 - **Google Gemini API** - AI 챗봇
@@ -127,7 +140,7 @@ github:
 
 ## 📚 API 문서
 
-- **Swagger UI**: http://localhost:8080/swagger-ui.html
+- **Swagger UI**: http://localhost:8080/swagger-ui/index.html
 - **API 문서**: [docs/api-documentation.md](docs/api-documentation.md)
 
 ## 🚀 배포
@@ -143,8 +156,12 @@ docker run -p 80:80 ai-portfolio
 
 ### 수동 배포
 ```bash
-# 스크립트 실행
-./scripts/deploy.sh
+# 백엔드 빌드 및 실행
+cd backend && mvn clean package
+java -jar target/ai-portfolio-backend-1.0.0.jar
+
+# 프론트엔드 빌드 및 배포
+cd frontend && npm run build
 ```
 
 ## 🧪 테스트
@@ -162,18 +179,21 @@ npm run test:backend
 
 ### Frontend (`frontend/`)
 - `src/` - 소스 코드
-- `public/` - 정적 파일
+  - `features/` - 도메인별 기능 모듈
+  - `shared/` - 공통 컴포넌트 및 서비스
+- `index.html` - HTML 템플릿 (Vite)
 - `dist/` - 빌드 결과물
 
 ### Backend (`backend/`)
 - `src/main/java/` - Java 소스 코드
-- `src/main/resources/` - 설정 파일
+- `src/main/resources/` - 설정 파일 및 데이터
 - `target/` - 빌드 결과물
 
 ### Documentation (`docs/`)
 - `api-documentation.md` - API 명세
 - `deployment-guide.md` - 배포 가이드
 - `portfolio.md` - 포트폴리오 정보
+- `projects/` - 프로젝트별 상세 문서
 
 ## 🤝 기여하기
 
@@ -191,10 +211,4 @@ npm run test:backend
 
 - **이메일**: ljj0210@gmail.com
 - **GitHub**: https://github.com/Yamang02
-- **포트폴리오**: https://ai-portfolio-chatbot.vercel.app
-
-## 🙏 감사의 말
-
-- Google Gemini API 팀
-- React 및 Spring Boot 커뮤니티
-- 모든 기여자들
+- **포트폴리오**: https://ai-portfolio-chatbot-493721639129.asia-northeast3.run.app/
