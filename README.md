@@ -191,10 +191,5 @@ npm run test:backend
 
 - **이메일**: ljj0210@gmail.com
 - **GitHub**: https://github.com/Yamang02
-- **포트폴리오**: https://ai-portfolio-chatbot.vercel.app
+- **포트폴리오**: https://ai-portfolio-chatbot-493721639129.asia-northeast3.run.app/
 
-## 🙏 감사의 말
-
-- Google Gemini API 팀
-- React 및 Spring Boot 커뮤니티
-- 모든 기여자들
