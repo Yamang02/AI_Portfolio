@@ -1,6 +1,6 @@
 package com.aiportfolio.backend.controller;
 
-import com.aiportfolio.backend.model.ApiResponse;
+import com.aiportfolio.backend.shared.model.ApiResponse;
 import com.aiportfolio.backend.model.Certification;
 import com.aiportfolio.backend.model.Education;
 import com.aiportfolio.backend.model.Experience;

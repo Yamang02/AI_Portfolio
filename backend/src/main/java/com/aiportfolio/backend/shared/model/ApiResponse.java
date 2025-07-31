@@ -1,4 +1,4 @@
-package com.aiportfolio.backend.model;
+package com.aiportfolio.backend.shared.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;

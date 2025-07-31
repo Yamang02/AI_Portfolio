@@ -61,5 +61,37 @@
     "startDate": "2022-09",
     "endDate": "2022-11",
     "isTeam": false
-  }
+  },
+  {
+    "id": "proj-005",
+    "title": "CineFeel Pipeline - 영화 데이터 수집 및 분석 파이프라인",
+    "description": "영화 예고편을 수집하고 MediaPipe를 활용한 얼굴 탐지 및 Deepface 분석을 위한 데이터를 준비하는 파이프라인입니다. YouTube 영상 다운로드, 객체 탐지, 얼굴 품질 평가 및 Deepface 분석 준비까지 전체 워크플로우를 자동화합니다.",
+    "technologies": ["Python", "MediaPipe", "OpenCV", "yt-dlp", "NumPy", "Deepface", "YouTube API", "JSON", "CLI", "Cursor"],
+    "githubUrl": "https://github.com/Yamang02/CineFeel_practice",
+    "liveUrl": "#",
+    "imageUrl": "#",
+    "readme": "",
+    "type": "project",
+    "source": "github",
+    "startDate": "2025-07",
+    "endDate": "",
+    "isTeam": false,
+    "externalUrl": "#"
+  },
+  {
+    "id": "proj-006",
+    "title": "My Little Planet - 2D Phaser.js 게임",
+    "description": "소설 어린왕자를 모티브로 한 미니게임 모음 프로젝트입니다. 생성형AI들을 활용한 게임의 에셋들로 완성하는 것이 목표입니다",
+    "technologies": ["JavaScript", "Phaser.js", "HTML5", "CSS3", "Node.js", "Express.js", "GitHub Pages", "Cursor"],
+    "githubUrl": "https://github.com/Yamang02/MyLittlePlanet",
+    "liveUrl": "#",
+    "imageUrl": "https://res.cloudinary.com/dw57ytzhg/image/upload/v1753921840/img4_jw4dmu.jpg",
+    "readme": "",
+    "type": "project",
+    "source": "github",
+    "startDate": "2025-08",
+    "endDate": "",
+    "isTeam": false,
+    "externalUrl": "https://enchanting-caravan-a18.notion.site/Kings-Planet-23750f33f34c80b9bde3e44f91709e6f"
+  } 
 ] 

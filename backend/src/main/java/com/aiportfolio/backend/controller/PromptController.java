@@ -1,6 +1,6 @@
 package com.aiportfolio.backend.controller;
 
-import com.aiportfolio.backend.model.ApiResponse;
+import com.aiportfolio.backend.shared.model.ApiResponse;
 import com.aiportfolio.backend.service.PromptService;
 import com.aiportfolio.backend.util.PromptConverter;
 import io.swagger.v3.oas.annotations.Operation;
