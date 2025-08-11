@@ -46,9 +46,9 @@ AI_Portfolio/
 ├── docs/             # 프로젝트 문서
 │   ├── ai/           # AI/챗봇 관련 문서
 │   ├── projects/     # 프로젝트별 상세 문서
-│   ├── api-documentation.md
-│   ├── portfolio.md
-│   └── ...
+│   ├── mermaid/      # Mermaid 다이어그램 소스
+│   ├── portfolio.md  # 프로젝트 개요 및 학습 성과
+│   └── DEVELOPMENT.md # 개발 및 배포 가이드
 │
 ├── Dockerfile        # Docker 설정
 ├── package.json      # 루트 패키지 관리
@@ -138,10 +138,11 @@ github:
   username: your_github_username
 ```
 
-## 📚 API 문서
+## 📚 문서
 
+- **프로젝트 개요**: [docs/portfolio.md](docs/portfolio.md) - 프로젝트 개요, 기술 스택, 학습 성과
+- **개발 가이드**: [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) - API 명세, 배포 아키텍처, 개발 환경 설정
 - **Swagger UI**: http://localhost:8080/swagger-ui/index.html
-- **API 문서**: [docs/api-documentation.md](docs/api-documentation.md)
 
 ## 🚀 배포
 
@@ -190,9 +191,8 @@ npm run test:backend
 - `target/` - 빌드 결과물
 
 ### Documentation (`docs/`)
-- `api-documentation.md` - API 명세
-- `deployment-guide.md` - 배포 가이드
-- `portfolio.md` - 포트폴리오 정보
+- `portfolio.md` - 프로젝트 개요, 기술 스택, 학습 성과
+- `DEVELOPMENT.md` - API 명세, 배포 아키텍처, 개발 환경 설정
 - `projects/` - 프로젝트별 상세 문서
 
 ## 🤝 기여하기

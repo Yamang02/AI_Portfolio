@@ -1,0 +1,72 @@
+graph TB
+    %% 개발자 영역
+    subgraph "개발 환경"
+        DEV[개발자]
+        GITHUB[GitHub Repository]
+    end
+
+    %% CI/CD 파이프라인
+    subgraph "GitHub Actions CI/CD"
+        TRIGGER[Push to main branch]
+        TEST[테스트 & 빌드]
+        AUTH[Google Cloud 인증]
+        BUILD[Docker 이미지 빌드]
+        PUSH[Container Registry 푸시]
+        DEPLOY[Cloud Run 배포]
+    end
+
+    %% Google Cloud 서비스
+    subgraph "Google Cloud Platform"
+        GCR[Google Container Registry]
+        CLOUDRUN[Cloud Run Service]
+        IAM[IAM & Service Account]
+    end
+
+    %% 외부 서비스
+    subgraph "외부 서비스"
+        GEMINI[Google Gemini AI]
+        CLOUDINARY[Cloudinary]
+        EMAILJS[EmailJS]
+    end
+
+    %% 사용자
+    subgraph "사용자"
+        USER[웹 사용자]
+    end
+
+    %% 연결 관계
+    DEV -->|코드 푸시| GITHUB
+    GITHUB -->|트리거| TRIGGER
+    TRIGGER --> TEST
+    TEST --> AUTH
+    AUTH --> BUILD
+    BUILD --> PUSH
+    PUSH --> GCR
+    GCR --> DEPLOY
+    DEPLOY --> CLOUDRUN
+    
+    %% 인증 및 권한
+    IAM --> AUTH
+    IAM --> BUILD
+    IAM --> DEPLOY
+    
+    %% 외부 서비스 연결
+    CLOUDRUN --> GEMINI
+    CLOUDRUN --> CLOUDINARY
+    CLOUDRUN --> EMAILJS
+    
+    %% 사용자 접근
+    USER --> CLOUDRUN
+
+    %% 스타일링
+    classDef devClass fill:#e1f5fe
+    classDef githubClass fill:#f3e5f5
+    classDef gcpClass fill:#e8f5e8
+    classDef externalClass fill:#fff3e0
+    classDef userClass fill:#fce4ec
+
+    class DEV,GITHUB devClass
+    class TRIGGER,TEST,AUTH,BUILD,PUSH,DEPLOY githubClass
+    class GCR,CLOUDRUN,IAM gcpClass
+    class GEMINI,CLOUDINARY,EMAILJS externalClass
+    class USER userClass 

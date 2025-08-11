@@ -1,0 +1,37 @@
+sequenceDiagram
+    participant Dev as 개발자
+    participant GH as GitHub
+    participant GA as GitHub Actions
+    participant GCR as Container Registry
+    participant CR as Cloud Run
+    participant AI as Gemini AI
+
+    Dev->>GH: 코드 푸시 (main branch)
+    GH->>GA: 워크플로우 트리거
+    
+    Note over GA: 테스트 단계
+    GA->>GA: Node.js 설정
+    GA->>GA: Frontend 의존성 설치
+    GA->>GA: Frontend 테스트 실행
+    GA->>GA: Frontend 빌드
+    GA->>GA: Backend 의존성 설치
+    GA->>GA: Backend 빌드
+    
+    Note over GA: 배포 단계 (main branch만)
+    GA->>GA: Google Cloud 인증
+    GA->>GA: Cloud SDK 설정
+    GA->>GA: Docker 설정
+    
+    GA->>GCR: Docker 이미지 빌드 & 푸시
+    GCR-->>GA: 이미지 업로드 완료
+    
+    GA->>CR: Cloud Run 서비스 배포
+    Note over CR: 설정: 512Mi 메모리, 1 CPU, 최대 10 인스턴스
+    CR-->>GA: 배포 완료
+    
+    GA->>CR: 서비스 URL 조회
+    CR-->>GA: 서비스 URL 반환
+    
+    Note over CR: 서비스 실행 중
+    CR->>AI: Gemini API 호출
+    AI-->>CR: AI 응답 반환 
