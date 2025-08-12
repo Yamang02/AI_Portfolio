@@ -1610,4 +1610,61 @@ Error: Cannot find module @rollup/rollup-linux-x64-gnu
 
 ---
 
-</rewritten_file>
+</rewritten_file>## 2025-08-12: FSD 아키텍처 리팩토링
+
+### 📊 기존 구조의 문제점
+1. **계층 구조 위반**
+   - `features/layout/` - FSD에서 layout은 app 레이어에 속해야 함
+   - Layout이 다른 features와 동일한 레벨에 위치해 아키텍처 원칙 위반
+
+2. **단일 책임 원칙 위반**
+   - App 컴포넌트에 UI 레이아웃 + 전역 상태 관리 + 데이터 페칭이 집중
+   - 하나의 컴포넌트가 너무 많은 책임을 담당
+
+3. **타입 정의 중복**
+   - `shared/types.ts`와 `features/projects/types.ts`에 동일한 `Project` 인터페이스 중복 정의
+   - 서로 다른 구조로 정의되어 타입 불일치 발생
+
+4. **의존성 방향 혼재**
+   - layout 컴포넌트가 features를 직접 import
+   - FSD 계층 구조 원칙에 맞지 않는 의존성 관계
+
+### 🚀 새로운 FSD 구조의 장점
+
+#### 1. 명확한 계층 분리
+```
+src/
+├── app/          # 애플리케이션 레이어 - 전역 설정 및 Provider
+├── entities/     # 엔티티 레이어 - 비즈니스 도메인 모델
+├── features/     # 기능 레이어 - 독립적인 기능 단위
+└── shared/       # 공유 레이어 - 공통 유틸리티
+```
+
+#### 2. 상태 관리 분리
+- **AppProvider**: 전역 상태 및 데이터 페칭 관리
+- **App 컴포넌트**: 순수 UI 레이아웃만 담당
+- Context API로 컴포넌트 간 상태 공유 최적화
+
+#### 3. 타입 시스템 통합
+- **entities 레이어**에서 모든 비즈니스 엔티티 통합 관리
+- Project, Experience, Education, Certification 등 도메인 모델 중앙화
+- 타입 재사용과 일관성 보장
+
+#### 4. 단방향 의존성 구조
+- 상위 레이어가 하위 레이어만 의존
+- 각 레이어의 책임이 명확히 분리
+- 유지보수성과 테스트 용이성 향상
+
+#### 5. 확장성 개선
+- 새로운 feature 추가 시 독립적 개발 가능
+- 비즈니스 로직과 UI 로직의 명확한 분리
+- 컴포넌트 재사용성 증대
+
+### ✅ 구체적 개선사항
+1. `features/layout` → `app/layout` 이동
+2. AppProvider를 통한 전역 상태 관리 도입
+3. entities 레이어 추가로 도메인 모델 통합
+4. 중복 타입 정의 제거 및 통합
+5. main.tsx import 경로 정리
+
+이 리팩토링으로 코드 품질, 유지보수성, 확장성이 크게 향상되었습니다.
