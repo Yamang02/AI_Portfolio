@@ -34,11 +34,12 @@
 - **Vite** - 빠른 개발 서버 및 빌드 도구
 
 ### Backend & API
-- **Spring Boot 3.x** - Java 기반 백엔드 프레임워크
+- **Spring Boot 3.x** - Java 기반 백엔드 프레임워크 (헥사고날 아키텍처)
 - **LangChain4j** - AI 모델 연동 및 프롬프트 관리
 - **Google Gemini API** - AI 자연어 처리 (Gemini 2.5 Flash)
 - **GitHub REST API** - 프로젝트 정보 수집
 - **Maven** - Java 프로젝트 빌드 및 의존성 관리
+- **포트 & 어댑터 패턴** - 확장 가능한 아키텍처 설계
 
 ### Infrastructure & Deployment
 - **Google Cloud Run** - 서버리스 컨테이너 플랫폼
@@ -83,11 +84,33 @@
 
 ## 🔧 아키텍처 설계
 
+### 프론트엔드: FSD (Feature-Sliced Design)
+```
+src/
+├── app/          # 애플리케이션 레이어 - 전역 설정, Provider
+├── entities/     # 엔티티 레이어 - 비즈니스 도메인 모델  
+├── features/     # 기능 레이어 - 독립적 기능 단위
+└── shared/       # 공유 레이어 - 공통 유틸리티
+```
+
+### 백엔드: 헥사고날 아키텍처 (포트 & 어댑터)
+```
+backend/
+├── domain/          # 비즈니스 로직 (포트 정의)
+│   ├── portfolio/   # 포트폴리오 도메인
+│   └── chat/        # 채팅 도메인
+└── infrastructure/  # 기술 구현 (어댑터)
+    ├── persistence/ # 데이터 저장소 어댑터  
+    └── ai/          # AI 서비스 어댑터
+```
+
 ### 데이터 플로우
 ```
-사용자 질문 → Frontend → Backend API → AI 챗봇 → 프로젝트 컨텍스트 → Gemini API → 응답 생성
+사용자 질문 → Frontend → Backend API → ChatService (도메인) → LLMPort (포트) 
+                ↓                                      ↓
+        GeminiLLMAdapter (어댑터) → Gemini API → 응답 생성
                 ↓
-GitHub API → Backend Service → 프로젝트 정보 → 캐싱 시스템 → 동적 데이터 제공
+GitHub API → ProjectRepository (포트) → JsonProjectRepository (어댑터) → 캐싱
 ```
 
 ### 멀티스테이지 빌드 아키텍처
@@ -122,7 +145,9 @@ Stage 3: Production Image (Eclipse Temurin 17)
 - **번들 최적화**: Vite를 통한 빠른 빌드
 
 ### 백엔드
-- **캐싱 전략**: 24시간 유효기간의 하이브리드 캐싱
+- **헥사고날 아키텍처**: 포트-어댑터 패턴으로 확장성 확보
+- **의존성 역전**: 도메인 로직과 인프라 분리로 테스트 용이성 향상
+- **캐싱 전략**: Repository 레벨 캐싱으로 성능 최적화
 - **API 최적화**: 필요한 데이터만 요청
 - **에러 복구**: 폴백 메커니즘으로 안정성 확보
 - **Spring Boot 최적화**: JAR 파일 최소화 및 시작 시간 단축
@@ -142,6 +167,8 @@ Stage 3: Production Image (Eclipse Temurin 17)
 - [ ] **프로젝트 추천**: AI 기반 프로젝트 추천 시스템
 
 ### 기술 개선
+- [ ] **RAG 시스템**: 벡터DB를 활용한 문서 기반 AI 응답 개선
+- [ ] **벡터 검색**: ChromaDB/Pinecone 연동으로 더 정확한 프로젝트 정보 검색
 - [ ] **성능 모니터링**: Google Cloud Monitoring 연동
 - [ ] **A/B 테스트**: 사용자 경험 최적화
 - [ ] **마이크로서비스**: 기능별 서비스 분리
@@ -151,6 +178,8 @@ Stage 3: Production Image (Eclipse Temurin 17)
 
 이 프로젝트를 통해 **AI Agent API**, **GitHub API 연동**, **Cloud Run 배포** 등 현대적인 웹 개발 기술을 종합적으로 학습하고 구현했습니다. 
 
-특히 **Spring Boot 백엔드 분리**, **멀티스테이지 Docker 빌드**, **GitHub Actions CI/CD**를 통해 확장 가능하고 사용자 친화적인 포트폴리오 시스템을 구축했으며, 이는 향후 더 복잡한 AI 기반 애플리케이션 개발의 기반이 될 것입니다.
+특히 **프론트엔드 FSD 아키텍처**, **백엔드 헥사고날 아키텍처**, **멀티스테이지 Docker 빌드**, **GitHub Actions CI/CD**를 통해 확장 가능하고 유지보수하기 쉬운 포트폴리오 시스템을 구축했습니다. 
+
+**헥사고날 아키텍처 도입**으로 향후 **벡터DB 및 RAG 시스템** 연동이 수월해졌으며, 이는 더 복잡한 AI 기반 애플리케이션 개발의 견고한 기반이 될 것입니다.
 
 ---

@@ -1,59 +1,52 @@
 package com.aiportfolio.backend.service;
 
+import com.aiportfolio.backend.domain.portfolio.ProjectRepository;
 import com.aiportfolio.backend.model.Project;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.io.IOException;
 import java.util.List;
-import java.util.ArrayList;
 
+/**
+ * 프로젝트 관련 비즈니스 로직을 처리하는 서비스
+ * Repository 패턴을 통해 데이터 접근 계층과 분리
+ */
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class ProjectService {
     
-    private final ObjectMapper objectMapper = new ObjectMapper();
-    private List<Project> cachedProjects;
+    private final ProjectRepository projectRepository;
     
+    /**
+     * 모든 프로젝트를 조회합니다
+     */
     public List<Project> getAllProjects() {
-        if (cachedProjects == null) {
-            cachedProjects = loadProjectsFromJson();
-        }
-        return cachedProjects;
+        return projectRepository.findAllProjects();
     }
     
+    /**
+     * ID로 프로젝트를 조회합니다
+     */
     public Project getProjectById(String id) {
-        return getAllProjects().stream()
-                .filter(p -> p.getId().equals(id))
-                .findFirst()
+        return projectRepository.findProjectById(id)
                 .orElse(null);
     }
     
+    /**
+     * 제목으로 프로젝트를 조회합니다
+     */
     public Project getProjectByTitle(String title) {
-        return getAllProjects().stream()
-                .filter(p -> p.getTitle().equals(title))
-                .findFirst()
+        return projectRepository.findProjectByTitle(title)
                 .orElse(null);
     }
     
-    private List<Project> loadProjectsFromJson() {
-        try {
-            List<Project> all = new ArrayList<>();
-            // projects.json
-            ClassPathResource resource1 = new ClassPathResource("data/projects.json");
-            List<Project> githubProjects = objectMapper.readValue(resource1.getInputStream(), new TypeReference<List<Project>>() {});
-            all.addAll(githubProjects);
-            // localProjects.json
-            ClassPathResource resource2 = new ClassPathResource("data/localProjects.json");
-            List<Project> localProjects = objectMapper.readValue(resource2.getInputStream(), new TypeReference<List<Project>>() {});
-            all.addAll(localProjects);
-            return all;
-        } catch (IOException e) {
-            log.error("Failed to load projects from JSON", e);
-            return List.of(); // 빈 리스트 반환
-        }
+    /**
+     * 캐시를 무효화합니다 (관리자 기능)
+     */
+    public void refreshCache() {
+        projectRepository.invalidateCache();
+        log.info("프로젝트 캐시가 무효화되었습니다");
     }
 } 

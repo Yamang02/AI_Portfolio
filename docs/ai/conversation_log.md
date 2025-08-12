@@ -67,7 +67,7 @@
   - 경험은 외부 링크가 없어도 명확한 표시
   - 회사 보안 정책 등으로 인한 업무 경험도 포트폴리오에 포함 가능
 
-### 7. Feature-Based Architecture 재구성 ✅ (2024-07-21)
+### 7. Feature-Based Architecture 재구성 ✅ (2025-07-21)
 - **목적**: 모듈화되고 확장 가능한 프로젝트 구조로 변경
 - **구현 내용**:
   - ✅ `src/features/` 디렉토리 구조로 변경
@@ -92,7 +92,7 @@
   - 재사용성: shared 폴더를 통한 공통 코드 관리
   - 명확한 구조: Feature-Based Architecture 적용
 
-### 8. 히스토리 패널 기능 구현 ✅ (2024-12-19)
+### 8. 히스토리 패널 기능 구현 ✅ (2025-07-19)
 - **목적**: 프로젝트와 경험들을 시간순으로 시각화하여 경력 발전 과정을 한눈에 파악
 - **구현 내용**:
   - ✅ Project 인터페이스에 `startDate`, `endDate` 필드 추가 (YYYY-MM 형식)
@@ -258,7 +258,7 @@
 - 코드 구조 개선으로 유지보수성 향상
 - 향후 경험 추가 시 일관된 디자인 적용 가능
 
-### 히스토리 패널 기능 구현 ✅ (2024-12-19)
+### 히스토리 패널 기능 구현 ✅ (2024-07-19)
 **목적**: 프로젝트와 경험들을 시간순으로 시각화하여 경력 발전 과정을 한눈에 파악
 
 **구현 내용**:
@@ -367,7 +367,7 @@
 
 # AI Conversation Log
 
-## 챗봇 고도화 및 백엔드 구조 개선 (2025-01-15)
+## 챗봇 고도화 및 백엔드 구조 개선 (2025-07-18)
 
 ### 개요
 AI 챗봇의 사용량 제한 완화, 프롬프트 외부화, 하이브리드 아키텍처 구현, 그리고 백엔드 구조 정리를 통해 더욱 안정적이고 확장 가능한 시스템으로 발전시켰습니다.
@@ -621,7 +621,7 @@ src/
 
 ---
 
-## 하이브리드 오류 처리 방식 완성 (2025-01-15)
+## 하이브리드 오류 처리 방식 완성 (2025-07-15)
 
 ### 문제 상황
 - "개인정보" 요청 시 "서버 오류가 발생했습니다" 표시
@@ -1159,7 +1159,7 @@ const handleMouseLeave = () => {
 
 ---
 
-## Express API 서버 구현 및 보안 강화 (2025-01-15)
+## Express API 서버 구현 및 보안 강화 (2025-07-23)
 
 ### 개요
 프론트엔드 번들에서 API 키가 노출되는 보안 취약점을 해결하기 위해 Express.js 기반의 백엔드 API 서버를 구현했습니다.
@@ -1327,7 +1327,7 @@ npm run server:dev
 
 ---
 
-## 백엔드 분리 1차 완료 (2025-01-15)
+## 백엔드 분리 1차 완료 (2025-07-23)
 
 ### 개요
 프론트엔드에서 데이터를 정상적으로 fetch했지만 카드로 렌더링하지 않는 문제를 해결하여 백엔드와 프론트엔드의 완전한 분리를 달성했습니다.
@@ -1459,45 +1459,6 @@ const formatAcquisitionDate = () => {
 - **성능**: 불필요한 리렌더링 방지 및 최적화
 - **사용자 경험**: 직관적이고 반응적인 인터페이스
 
-### 2025-07-24 백엔드/프론트엔드 데이터 구조 및 상수 제거 작업 ✅
-
-#### 주요 변경사항
-
-1. **프로젝트 데이터 소스 완전 API 일원화**
-   - 프론트엔드의 constants/localProjects.ts, constants/projects.ts 등 상수 기반 데이터 완전 제거
-   - 모든 프로젝트 데이터는 백엔드 API(`/api/data/projects`)에서 받아오도록 통일
-
-2. **로컬 프로젝트 백엔드 통합**
-   - `backend/src/main/resources/data/localProjects.json`에 모든 로컬 프로젝트(local-001 ~ local-004) 추가
-   - `ProjectService`에서 `projects.json`과 `localProjects.json`을 모두 읽어 합쳐서 반환하도록 수정
-
-3. **Project 모델 확장**
-   - `myContributions` 필드를 Project 모델에 추가하여 로컬 프로젝트의 상세 기여 정보도 API로 제공
-
-4. **프론트엔드 상수 import 완전 제거**
-   - 프로젝트, 경력, 교육, 자격증 등 모든 데이터는 API에서 받아온 데이터만 사용
-   - `constants/index.ts`, `constants/experiences.ts`, `constants/certifications.ts`, `constants/projects.ts`, `constants/localProjects.ts` 등 불필요한 파일 모두 삭제
-   - 관련 import/export 구문 및 참조 코드 완전 제거
-
-5. **데이터 일관성 및 유지보수성 향상**
-   - 데이터 소스가 백엔드로 일원화되어, 데이터 추가/수정/삭제 시 한 곳만 관리하면 됨
-   - 프론트엔드 코드가 단순해지고, 데이터 중복/불일치 문제 완전 해소
-
-6. **기타**
-   - API 응답에 모든 프로젝트(local + github)가 포함되는지 console.log로 확인
-   - ProjectService의 캐시 및 JSON 파싱 오류 등도 점검하여 모든 프로젝트가 누락 없이 제공되도록 개선
-
-#### 변경된 파일 목록
-- `backend/src/main/resources/data/localProjects.json`
-- `backend/src/main/java/com/aiportfolio/backend/service/ProjectService.java`
-- `backend/src/main/java/com/aiportfolio/backend/model/Project.java`
-- `frontend/src/features/projects/constants/index.ts` (삭제)
-- `frontend/src/features/projects/constants/experiences.ts` (삭제)
-- `frontend/src/features/projects/constants/certifications.ts` (삭제)
-- `frontend/src/features/projects/constants/projects.ts` (삭제)
-- `frontend/src/features/projects/constants/localProjects.ts` (삭제)
-- `frontend/src/features/projects/index.ts` (constants 관련 코드 제거)
-
 ## 2025-07-23 LangChain4j Gemini 연동 및 오류 해결 내역
 
 ### 1. LangChain4j 최신 버전(Gemini) 연동
@@ -1610,7 +1571,48 @@ Error: Cannot find module @rollup/rollup-linux-x64-gnu
 
 ---
 
-</rewritten_file>## 2025-08-12: FSD 아키텍처 리팩토링
+## 2025-07-24 백엔드/프론트엔드 데이터 구조 및 상수 제거 작업 ✅
+
+### 주요 변경사항
+
+1. **프로젝트 데이터 소스 완전 API 일원화**
+   - 프론트엔드의 constants/localProjects.ts, constants/projects.ts 등 상수 기반 데이터 완전 제거
+   - 모든 프로젝트 데이터는 백엔드 API(`/api/data/projects`)에서 받아오도록 통일
+
+2. **로컬 프로젝트 백엔드 통합**
+   - `backend/src/main/resources/data/localProjects.json`에 모든 로컬 프로젝트(local-001 ~ local-004) 추가
+   - `ProjectService`에서 `projects.json`과 `localProjects.json`을 모두 읽어 합쳐서 반환하도록 수정
+
+3. **Project 모델 확장**
+   - `myContributions` 필드를 Project 모델에 추가하여 로컬 프로젝트의 상세 기여 정보도 API로 제공
+
+4. **프론트엔드 상수 import 완전 제거**
+   - 프로젝트, 경력, 교육, 자격증 등 모든 데이터는 API에서 받아온 데이터만 사용
+   - `constants/index.ts`, `constants/experiences.ts`, `constants/certifications.ts`, `constants/projects.ts`, `constants/localProjects.ts` 등 불필요한 파일 모두 삭제
+   - 관련 import/export 구문 및 참조 코드 완전 제거
+
+5. **데이터 일관성 및 유지보수성 향상**
+   - 데이터 소스가 백엔드로 일원화되어, 데이터 추가/수정/삭제 시 한 곳만 관리하면 됨
+   - 프론트엔드 코드가 단순해지고, 데이터 중복/불일치 문제 완전 해소
+
+6. **기타**
+   - API 응답에 모든 프로젝트(local + github)가 포함되는지 console.log로 확인
+   - ProjectService의 캐시 및 JSON 파싱 오류 등도 점검하여 모든 프로젝트가 누락 없이 제공되도록 개선
+
+### 변경된 파일 목록
+- `backend/src/main/resources/data/localProjects.json`
+- `backend/src/main/java/com/aiportfolio/backend/service/ProjectService.java`
+- `backend/src/main/java/com/aiportfolio/backend/model/Project.java`
+- `frontend/src/features/projects/constants/index.ts` (삭제)
+- `frontend/src/features/projects/constants/experiences.ts` (삭제)
+- `frontend/src/features/projects/constants/certifications.ts` (삭제)
+- `frontend/src/features/projects/constants/projects.ts` (삭제)
+- `frontend/src/features/projects/constants/localProjects.ts` (삭제)
+- `frontend/src/features/projects/index.ts` (constants 관련 코드 제거)
+
+---
+
+## 2025-08-12: FSD 아키텍처 리팩토링
 
 ### 📊 기존 구조의 문제점
 1. **계층 구조 위반**
@@ -1668,3 +1670,172 @@ src/
 5. main.tsx import 경로 정리
 
 이 리팩토링으로 코드 품질, 유지보수성, 확장성이 크게 향상되었습니다.
+
+---
+
+## 백엔드 아키텍처 현황 분석
+
+### 📊 현재 상태 (하이브리드 레이어드 아키텍처)
+
+```
+backend/src/main/java/com/aiportfolio/backend/
+├── controller/           # API 레이어
+│   ├── ChatController, DataController, ProjectController
+├── service/             # 비즈니스 로직 레이어
+│   ├── GeminiService, ProjectService, QuestionAnalysisService
+├── model/               # 데이터 모델
+│   ├── Project, ChatRequest/Response
+├── shared/              # 공유 컴포넌트
+│   ├── config/, exception/, model/ApiResponse
+├── features/            # 피처 모듈 (부분 도입, 현재 빈 폴더)
+│   └── chat/
+└── config/, util/       # 설정 및 유틸리티
+```
+
+### ⚖️ 현재 아키텍처 장단점
+
+**✅ 장점:**
+- Spring Boot 표준 구조로 이해하기 쉬움
+- 빠른 MVP 개발 가능
+- 레이어별 단위 테스트 용이
+- 공유 모델 중앙 관리
+
+**❌ 단점 (벡터DB/RAG 관점):**
+- AI 관련 로직이 여러 서비스에 분산 (GeminiService, QuestionAnalysisService, PromptService)
+- 데이터 레이어 부재 (현재 JSON 파일 기반)
+- 문서 처리 파이프라인 구조 없음
+- features/ 폴더가 비어있어 일관성 부족
+- 벡터DB 연동 시 기존 구조와 충돌 가능성
+
+### 🔍 벡터DB/RAG 적용 시 주요 과제
+1. **데이터 레이어**: Repository/DAO 패턴 도입 필요
+2. **AI 서비스 통합**: 분산된 AI 로직의 통합 관리
+3. **문서 파이프라인**: 임베딩 생성, 벡터 저장, 검색 로직 위치
+4. **확장성**: 새로운 AI 기능 추가 시 구조적 한계
+
+---
+
+## 백엔드 헥사고날 아키텍처 리팩토링 (Phase 1-2) (2025-08-12)
+
+### 📋 리팩토링 목표
+벡터DB와 RAG 시스템 도입을 대비하여 기존 레이어드 아키텍처를 헥사고날 아키텍처로 점진적 전환
+
+### 🚀 Phase 1: Repository 패턴 도입 ✅
+
+#### 1. 도메인 레이어 구성
+- **`domain/portfolio/ProjectRepository.java`**: 포트폴리오 데이터 접근을 위한 포트 인터페이스
+  - `findAllProjects()`, `findProjectByTitle()` 등 비즈니스 의도가 명확한 메서드 정의
+  - `findAllExperiences()`, `findAllEducation()`, `findAllCertifications()` 등 전체 포트폴리오 데이터 지원
+
+#### 2. 인프라스트럭처 레이어 구성
+- **`infrastructure/persistence/JsonProjectRepository.java`**: JSON 파일 기반 어댑터 구현
+  - 1시간 캐시(`@Cacheable`)로 성능 최적화
+  - ObjectMapper를 통한 안전한 JSON 파싱
+  - 파일별 개별 로드 메서드 (`loadProjects()`, `loadExperiences()` 등)
+  - 예외 처리 및 로깅으로 안정성 확보
+
+#### 3. 서비스 레이어 개선
+- **ProjectService**: Repository 인터페이스를 통한 데이터 접근으로 변경
+- **DataService**: Repository 패턴 적용으로 일관성 있는 데이터 접근
+- 기존 JSON 직접 접근 코드 제거로 관심사 분리
+
+### 🚀 Phase 2: 도메인 서비스 분리 ✅
+
+#### 1. Chat 도메인 포트 인터페이스 정의
+- **`domain/chat/LLMPort.java`**: LLM 서비스 추상화
+  - `chat(String systemPrompt, String userMessage)`: 채팅 기본 메서드
+  - `isAvailable()`: 서비스 가용성 체크
+  - `getModelName()`: 모델 정보 조회
+  - `LLMException`: 도메인별 예외 정의
+
+- **`domain/chat/PromptPort.java`**: 프롬프트 관리 추상화
+  - `getSystemPrompt()`: 시스템 프롬프트 조회
+  - `getPromptTemplate(String key)`: 템플릿 조회
+  - `renderPrompt()`: 변수 치환 렌더링
+  - `reloadPrompts()`: 프롬프트 재로딩
+
+- **`domain/chat/QuestionAnalysisPort.java`**: 질문 분석 추상화
+  - `analyzeQuestion()`: 질문 타입 및 응답 방식 분석
+  - `isPersonalInfoRequest()`: 개인정보 요청 감지
+  - `requiresAIResponse()`: AI 응답 필요 여부 판단
+  - 중첩 클래스로 `AnalysisResult`, `QuestionType` 정의
+
+#### 2. Chat 도메인 서비스
+- **`domain/chat/ChatService.java`**: 핵심 비즈니스 로직
+  - 의존성 역전을 통한 포트 인터페이스만 의존
+  - `getChatbotResponse()`: 질문 분석 → 컨텍스트 생성 → LLM 호출 → 응답 생성
+  - 프로젝트 컨텍스트 생성 로직 (전체 vs 특정 프로젝트)
+  - 체계적인 예외 처리 및 폴백 응답
+
+#### 3. 인프라스트럭처 어댑터 구현
+- **`infrastructure/ai/GeminiLLMAdapter.java`**:
+  - GoogleAiGeminiChatModel을 통한 LangChain4j 연동
+  - `@PostConstruct`를 통한 모델 초기화
+  - API 키 검증 및 가용성 체크
+
+- **`infrastructure/ai/JsonPromptAdapter.java`**:
+  - `chatbot-prompts.json` 파일 기반 프롬프트 관리
+  - 템플릿 변수 치환 ({{variable}} 형식)
+  - 동적 프롬프트 재로딩 지원
+
+- **`infrastructure/ai/RuleBasedQuestionAnalysisAdapter.java`**:
+  - 정규식 기반 개인정보 감지 패턴
+  - 키워드 매칭을 통한 질문 타입 분류
+  - 신뢰도 점수 계산 알고리즘
+
+#### 4. 기존 서비스 리팩토링
+- **`service/GeminiService.java`**: Facade 패턴으로 전환
+  - `@Deprecated` 마킹으로 레거시 호환성 유지
+  - ChatService로 모든 로직 위임
+  - 점진적 마이그레이션 지원
+
+### ✅ 리팩토링 성과
+
+#### 1. 아키텍처 개선
+- **의존성 역전**: 도메인이 인프라에 의존하지 않는 구조
+- **관심사 분리**: 비즈니스 로직과 기술 구현의 명확한 분리
+- **테스트 용이성**: 포트를 통한 Mock 객체 주입 가능
+- **확장성**: 새로운 어댑터 쉽게 추가 (Vector DB 어댑터 등)
+
+#### 2. 코드 품질 향상
+- **단일 책임 원칙**: 각 클래스가 하나의 명확한 책임
+- **개방/폐쇄 원칙**: 기존 코드 수정 없이 기능 확장 가능
+- **인터페이스 분리**: 클라이언트가 사용하지 않는 메서드에 의존하지 않음
+
+#### 3. 벡터DB/RAG 준비
+- **Repository 패턴**: Vector DB Repository 쉽게 추가 가능
+- **LLM 추상화**: 다양한 LLM 제공자 지원 가능
+- **도메인 중심**: AI 기능의 비즈니스 로직과 기술 구현 분리
+
+#### 4. 유지보수성 향상
+- **포트-어댑터 패턴**: 외부 의존성 변경 시 어댑터만 수정
+- **캐싱 전략**: Repository 레벨에서 데이터 캐싱으로 성능 최적화
+- **예외 처리**: 도메인별 예외로 명확한 오류 처리
+
+### 📂 새로 생성된 파일 구조
+```
+backend/src/main/java/com/aiportfolio/backend/
+├── domain/
+│   ├── portfolio/
+│   │   └── ProjectRepository.java
+│   └── chat/
+│       ├── ChatService.java
+│       ├── LLMPort.java
+│       ├── PromptPort.java
+│       └── QuestionAnalysisPort.java
+└── infrastructure/
+    ├── persistence/
+    │   └── JsonProjectRepository.java
+    └── ai/
+        ├── GeminiLLMAdapter.java
+        ├── JsonPromptAdapter.java
+        └── RuleBasedQuestionAnalysisAdapter.java
+```
+
+### 🔄 다음 단계 (Phase 3 예정)
+1. **Application 레이어 도입**: UseCase 패턴으로 애플리케이션 서비스 분리
+2. **Vector DB 연동**: ChromaDB/Pinecone Repository 어댑터 추가
+3. **문서 처리 파이프라인**: RAG를 위한 문서 임베딩 및 검색 로직
+4. **이벤트 기반 아키텍처**: 도메인 이벤트를 통한 느슨한 결합
+
+이번 리팩토링으로 백엔드가 확장 가능하고 유지보수하기 쉬운 구조로 발전했으며, 향후 벡터DB와 RAG 시스템 도입을 위한 견고한 기반을 마련했습니다.

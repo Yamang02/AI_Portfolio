@@ -1,72 +1,60 @@
 package com.aiportfolio.backend.service;
 
+import com.aiportfolio.backend.domain.portfolio.ProjectRepository;
 import com.aiportfolio.backend.model.Certification;
 import com.aiportfolio.backend.model.Education;
 import com.aiportfolio.backend.model.Experience;
 import com.aiportfolio.backend.model.Project;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.io.IOException;
 import java.util.List;
 
+/**
+ * 포트폴리오 관련 모든 데이터를 제공하는 통합 서비스
+ * Repository 패턴을 통해 데이터 접근 계층과 분리
+ */
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class DataService {
     
-    private final ObjectMapper objectMapper = new ObjectMapper();
-    private final ProjectService projectService;
+    private final ProjectRepository projectRepository;
     
-    public DataService(ProjectService projectService) {
-        this.projectService = projectService;
-    }
-    
+    /**
+     * 모든 프로젝트를 조회합니다
+     */
     public List<Project> getAllProjects() {
-        return projectService.getAllProjects();
+        return projectRepository.findAllProjects();
     }
     
+    /**
+     * 모든 경력 정보를 조회합니다
+     */
     public List<Experience> getAllExperiences() {
-        return loadExperiencesFromJson();
+        return projectRepository.findAllExperiences();
     }
     
+    /**
+     * 모든 자격증 정보를 조회합니다
+     */
     public List<Certification> getAllCertifications() {
-        return loadCertificationsFromJson();
+        return projectRepository.findAllCertifications();
     }
     
+    /**
+     * 모든 교육 정보를 조회합니다
+     */
     public List<Education> getAllEducation() {
-        return loadEducationFromJson();
+        return projectRepository.findAllEducations();
     }
     
-    private List<Experience> loadExperiencesFromJson() {
-        try {
-            ClassPathResource resource = new ClassPathResource("data/experiences.json");
-            return objectMapper.readValue(resource.getInputStream(), new TypeReference<List<Experience>>() {});
-        } catch (IOException e) {
-            log.error("Failed to load experiences from JSON", e);
-            return List.of();
-        }
-    }
-    
-    private List<Certification> loadCertificationsFromJson() {
-        try {
-            ClassPathResource resource = new ClassPathResource("data/certifications.json");
-            return objectMapper.readValue(resource.getInputStream(), new TypeReference<List<Certification>>() {});
-        } catch (IOException e) {
-            log.error("Failed to load certifications from JSON", e);
-            return List.of();
-        }
-    }
-    
-    private List<Education> loadEducationFromJson() {
-        try {
-            ClassPathResource resource = new ClassPathResource("data/education.json");
-            return objectMapper.readValue(resource.getInputStream(), new TypeReference<List<Education>>() {});
-        } catch (IOException e) {
-            log.error("Failed to load education from JSON", e);
-            return List.of();
-        }
+    /**
+     * 모든 캐시를 무효화합니다 (관리자 기능)
+     */
+    public void refreshAllCache() {
+        projectRepository.invalidateCache();
+        log.info("모든 포트폴리오 데이터 캐시가 무효화되었습니다");
     }
 } 

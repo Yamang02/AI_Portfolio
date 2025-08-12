@@ -35,15 +35,21 @@ AI_Portfolio/
 │   ├── tsconfig.json         # TypeScript 설정
 │   └── dist/                 # 빌드 결과물
 │
-├── backend/          # 백엔드 (Spring Boot + LangChain4j)
+├── backend/          # 백엔드 (Spring Boot + LangChain4j) - 헥사고날 아키텍처
 │   ├── src/
 │   │   └── main/
 │   │       ├── java/com/aiportfolio/backend/
-│   │       │   ├── controller/   # API 컨트롤러
-│   │       │   ├── service/      # 비즈니스 로직, Gemini 연동
-│   │       │   ├── model/        # 데이터 모델
-│   │       │   ├── config/       # 설정 클래스
-│   │       │   └── util/         # 유틸리티 클래스
+│   │       │   ├── controller/          # API 컨트롤러
+│   │       │   ├── domain/              # 도메인 레이어 (비즈니스 로직)
+│   │       │   │   ├── portfolio/       # 포트폴리오 도메인 (Repository 포트)
+│   │       │   │   └── chat/            # 채팅 도메인 (LLM, Prompt, QuestionAnalysis 포트)
+│   │       │   ├── infrastructure/      # 인프라 레이어 (어댑터)
+│   │       │   │   ├── persistence/     # 데이터 저장소 어댑터
+│   │       │   │   └── ai/              # AI 서비스 어댑터 (Gemini, Prompt, QuestionAnalysis)
+│   │       │   ├── service/             # 애플리케이션 서비스 (레거시 호환)
+│   │       │   ├── model/               # 데이터 모델
+│   │       │   ├── config/              # 설정 클래스
+│   │       │   └── util/                # 유틸리티 클래스
 │   │       └── resources/
 │   │           ├── application.yml  # 백엔드 환경설정 (API Key, 모델명 등)
 │   │           ├── data/            # 포트폴리오/프로젝트 데이터
@@ -66,7 +72,9 @@ AI_Portfolio/
 
 ---
 
-- 프론트엔드와 백엔드는 완전히 분리되어 독립적으로 개발/배포/테스트가 가능합니다.
+- **프론트엔드**: FSD (Feature-Sliced Design) 아키텍처로 확장 가능한 구조
+- **백엔드**: 헥사고날 아키텍처 (포트 & 어댑터)로 벡터DB/RAG 도입 준비 완료
+- 프론트엔드와 백엔드는 완전히 분리되어 독립적으로 개발/배포/테스트가 가능
 - API 통신(REST)으로 프론트-백엔드 연동
 - 각 영역별 환경변수 및 설정 분리 관리
 - 최신 LangChain4j + Google Gemini 모델 연동
