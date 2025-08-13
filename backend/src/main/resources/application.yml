@@ -5,6 +5,23 @@ spring:
   application:
     name: ai-portfolio-backend
   
+  # Database Configuration (개발환경 기본값)
+  datasource:
+    url: jdbc:postgresql://localhost:5432/ai_portfolio
+    username: dev_user
+    password: dev_password
+    driver-class-name: org.postgresql.Driver
+  
+  # JPA Configuration
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: create-drop  # 개발환경에서 자동 스키마 생성
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  
   # CORS 설정
   web:
     cors:

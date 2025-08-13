@@ -11,12 +11,9 @@ target/
 */target/
 
 # Environment variables
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-*/env.example
+.env*
+*.env*
+!.env.example
 
 # Logs
 logs
@@ -101,18 +98,22 @@ temp/
 ehthumbs.db
 Thumbs.db
 
-# Docker
+# Docker (개발용)
 .dockerignore
+docker-compose.yml
+docker-compose.*.yml
+backend/Dockerfile.dev
+frontend/Dockerfile.dev
+
+# Database (개발용)
+database/
+*.sql
 
 # Spring Boot
 *.jar
 *.war
 *.ear
 
-# Maven
-.mvn/
-mvnw
-mvnw.cmd
 
 # IDE
 *.iml
@@ -126,16 +127,12 @@ mvnw.cmd
 uploads/
 logs/
 
+# Development scripts (Windows)
+scripts/
+*.bat
 
-# Java
-*.class
-*.jar
-*.war
-*.ear
 
-# Maven
-target/
-.mvn/
+# Java & Maven (중복 제거됨 - 위에서 이미 설정)
 pom.xml.tag
 pom.xml.releaseBackup
 pom.xml.versionsBackup
@@ -148,3 +145,4 @@ buildNumber.properties
 
 # 환경설정 파일 무시
 backend/src/main/resources/application.properties
+.claude/

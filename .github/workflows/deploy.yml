@@ -102,7 +102,9 @@ jobs:
           --memory 512Mi \
           --cpu 1 \
           --max-instances 10 \
-          --set-env-vars GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
+          --set-env-vars SPRING_PROFILES_ACTIVE=production \
+          --set-env-vars GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }} \
+          --set-env-vars DATABASE_URL=${{ secrets.DATABASE_URL }}
     
     - name: Get service URL
       run: |
