@@ -1,11 +1,12 @@
-package com.aiportfolio.backend.controller;
+package com.aiportfolio.backend.infrastructure.web;
 
 import com.aiportfolio.backend.shared.model.ApiResponse;
-import com.aiportfolio.backend.model.Certification;
-import com.aiportfolio.backend.model.Education;
-import com.aiportfolio.backend.model.Experience;
-import com.aiportfolio.backend.model.Project;
-import com.aiportfolio.backend.service.DataService;
+import com.aiportfolio.backend.domain.model.Certification;
+import com.aiportfolio.backend.domain.model.Education;
+import com.aiportfolio.backend.domain.model.Experience;
+import com.aiportfolio.backend.domain.model.Project;
+import com.aiportfolio.backend.domain.port.in.GetProjectsUseCase;
+import com.aiportfolio.backend.domain.port.out.ProjectRepositoryPort;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 데이터 웹 컨트롤러 (헥사고날 아키텍처 Infrastructure/Web Layer)
+ * Use Case와 Repository Port를 직접 사용하는 헥사고날 아키텍처 컨트롤러
+ */
 @Slf4j
 @RestController
 @RequestMapping("/api/data")
@@ -23,15 +28,16 @@ import java.util.Map;
 @Tag(name = "Data", description = "포트폴리오 데이터 API")
 public class DataController {
     
-    private final DataService dataService;
+    private final GetProjectsUseCase getProjectsUseCase;
+    private final ProjectRepositoryPort projectRepositoryPort;
     
     @GetMapping("/all")
     @Operation(summary = "모든 포트폴리오 데이터 조회", description = "프로젝트, 경험, 자격증 등 모든 포트폴리오 데이터를 조회합니다.")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getAllData() {
         try {
-            List<Project> projects = dataService.getAllProjects();
-            List<Experience> experiences = dataService.getAllExperiences();
-            List<Certification> certifications = dataService.getAllCertifications();
+            List<Project> projects = getProjectsUseCase.getAllProjects();
+            List<Experience> experiences = projectRepositoryPort.findAllExperiences();
+            List<Certification> certifications = projectRepositoryPort.findAllCertifications();
             
             Map<String, Object> allData = Map.of(
                 "projects", projects,
@@ -51,7 +57,7 @@ public class DataController {
     @Operation(summary = "프로젝트 데이터 조회", description = "모든 프로젝트 정보를 조회합니다.")
     public ResponseEntity<ApiResponse<List<Project>>> getProjects() {
         try {
-            List<Project> projects = dataService.getAllProjects();
+            List<Project> projects = getProjectsUseCase.getAllProjects();
             return ResponseEntity.ok(ApiResponse.success(projects, "프로젝트 목록 조회 성공"));
         } catch (Exception e) {
             log.error("Error fetching projects", e);
@@ -64,7 +70,7 @@ public class DataController {
     @Operation(summary = "경험 데이터 조회", description = "모든 경험 정보를 조회합니다.")
     public ResponseEntity<ApiResponse<List<Experience>>> getExperiences() {
         try {
-            List<Experience> experiences = dataService.getAllExperiences();
+            List<Experience> experiences = projectRepositoryPort.findAllExperiences();
             return ResponseEntity.ok(ApiResponse.success(experiences, "경험 목록 조회 성공"));
         } catch (Exception e) {
             log.error("Error fetching experiences", e);
@@ -77,7 +83,7 @@ public class DataController {
     @Operation(summary = "자격증 데이터 조회", description = "모든 자격증 정보를 조회합니다.")
     public ResponseEntity<ApiResponse<List<Certification>>> getCertifications() {
         try {
-            List<Certification> certifications = dataService.getAllCertifications();
+            List<Certification> certifications = projectRepositoryPort.findAllCertifications();
             return ResponseEntity.ok(ApiResponse.success(certifications, "자격증 목록 조회 성공"));
         } catch (Exception e) {
             log.error("Error fetching certifications", e);
@@ -90,7 +96,7 @@ public class DataController {
     @Operation(summary = "교육 데이터 조회", description = "모든 교육 정보를 조회합니다.")
     public ResponseEntity<ApiResponse<List<Education>>> getEducation() {
         try {
-            List<Education> education = dataService.getAllEducation();
+            List<Education> education = projectRepositoryPort.findAllEducations();
             return ResponseEntity.ok(ApiResponse.success(education, "교육 목록 조회 성공"));
         } catch (Exception e) {
             log.error("Error fetching education", e);
@@ -98,4 +104,4 @@ public class DataController {
                     .body(ApiResponse.error("교육 목록 조회 실패", e.getMessage()));
         }
     }
-} 
+}

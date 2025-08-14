@@ -39,17 +39,22 @@ AI_Portfolio/
 │   ├── src/
 │   │   └── main/
 │   │       ├── java/com/aiportfolio/backend/
-│   │       │   ├── controller/          # API 컨트롤러
-│   │       │   ├── domain/              # 도메인 레이어 (비즈니스 로직)
-│   │       │   │   ├── portfolio/       # 포트폴리오 도메인 (Repository 포트)
-│   │       │   │   └── chat/            # 채팅 도메인 (LLM, Prompt, QuestionAnalysis 포트)
-│   │       │   ├── infrastructure/      # 인프라 레이어 (어댑터)
-│   │       │   │   ├── persistence/     # 데이터 저장소 어댑터
-│   │       │   │   └── ai/              # AI 서비스 어댑터 (Gemini, Prompt, QuestionAnalysis)
-│   │       │   ├── service/             # 애플리케이션 서비스 (레거시 호환)
-│   │       │   ├── model/               # 데이터 모델
-│   │       │   ├── config/              # 설정 클래스
-│   │       │   └── util/                # 유틸리티 클래스
+│   │       │   ├── domain/              # 도메인 레이어 (의존성 없는 핵심 비즈니스 로직)
+│   │       │   │   ├── model/           # 도메인 엔티티 (Project, Education, Experience, Certification)
+│   │       │   │   ├── port/            # 인터페이스 정의 (포트)
+│   │       │   │   │   ├── in/          # Primary Port (Use Cases)
+│   │       │   │   │   └── out/         # Secondary Port (Repository, External Services)
+│   │       │   │   └── service/         # 도메인 서비스 (채팅, LLM, 분석 등)
+│   │       │   ├── application/         # 어플리케이션 레이어 (Use Case 구현체)
+│   │       │   │   └── service/         # 어플리케이션 서비스
+│   │       │   ├── infrastructure/      # 인프라 레이어 (외부 어댑터 구현)
+│   │       │   │   ├── persistence/     # 데이터베이스 어댑터 (JSON, PostgreSQL)
+│   │       │   │   ├── web/             # HTTP 어댑터 (Controllers, DTOs)
+│   │       │   │   └── external/        # 외부 서비스 어댑터 (Gemini AI, GitHub 등)
+│   │       │   └── shared/              # 공통 유틸리티
+│   │       │       ├── config/          # 설정 클래스 (Spring Configuration)
+│   │       │       ├── exception/       # 예외 처리
+│   │       │       └── common/          # 공통 모델 및 유틸리티
 │   │       └── resources/
 │   │           ├── application.yml  # 백엔드 환경설정 (API Key, 모델명 등)
 │   │           ├── data/            # 포트폴리오/프로젝트 데이터
@@ -73,7 +78,7 @@ AI_Portfolio/
 ---
 
 - **프론트엔드**: FSD (Feature-Sliced Design) 아키텍처로 확장 가능한 구조
-- **백엔드**: 헥사고날 아키텍처 (포트 & 어댑터)로 벡터DB/RAG 도입 준비 완료
+- **백엔드**: 헥사고날 아키텍처 (Domain-Application-Infrastructure)로 확장성 확보
 - 프론트엔드와 백엔드는 완전히 분리되어 독립적으로 개발/배포/테스트가 가능
 - API 통신(REST)으로 프론트-백엔드 연동
 - 각 영역별 환경변수 및 설정 분리 관리
@@ -202,7 +207,11 @@ npm run test:backend
 - `dist/` - 빌드 결과물
 
 ### Backend (`backend/`)
-- `src/main/java/` - Java 소스 코드
+- `src/main/java/` - Java 소스 코드 (헥사고날 아키텍처)
+  - `domain/` - 핵심 비즈니스 로직 (의존성 없음)
+  - `application/` - Use Case 구현체
+  - `infrastructure/` - 외부 어댑터 (DB, Web, AI)
+  - `shared/` - 공통 설정 및 유틸리티
 - `src/main/resources/` - 설정 파일 및 데이터
 - `target/` - 빌드 결과물
 

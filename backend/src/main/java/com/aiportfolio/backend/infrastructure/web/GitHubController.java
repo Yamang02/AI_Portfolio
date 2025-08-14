@@ -1,4 +1,4 @@
-package com.aiportfolio.backend.controller;
+package com.aiportfolio.backend.infrastructure.web;
 
 import com.aiportfolio.backend.shared.model.ApiResponse;
 import com.aiportfolio.backend.model.Project;
@@ -12,6 +12,14 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * GitHub 웹 컨트롤러 (헥사고날 아키텍처 Infrastructure/Web Layer)
+ * GitHub 서비스를 통한 외부 데이터 연동 컨트롤러
+ * 
+ * 참고: GitHubService는 외부 GitHub API와의 통신을 담당하는 
+ * Infrastructure 계층 서비스로, 이 컨트롤러에서 직접 사용해도 됨
+ * GitHub API에서 반환되는 Project는 기존 model.Project 타입임
+ */
 @Slf4j
 @RestController
 @RequestMapping("/api/github")
@@ -50,4 +58,4 @@ public class GitHubController {
                     .body(ApiResponse.error("GitHub 프로젝트 조회 실패", e.getMessage()));
         }
     }
-} 
+}

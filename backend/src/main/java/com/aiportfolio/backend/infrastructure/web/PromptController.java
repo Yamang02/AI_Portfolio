@@ -1,4 +1,4 @@
-package com.aiportfolio.backend.controller;
+package com.aiportfolio.backend.infrastructure.web;
 
 import com.aiportfolio.backend.shared.model.ApiResponse;
 import com.aiportfolio.backend.service.PromptService;
@@ -12,6 +12,13 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
+/**
+ * 프롬프트 관리 웹 컨트롤러 (헥사고날 아키텍처 Infrastructure/Web Layer)
+ * 프롬프트 관리 및 변환 기능을 제공하는 컨트롤러
+ * 
+ * 참고: PromptService는 프롬프트 관리를 담당하는 
+ * Infrastructure 계층 서비스로, 이 컨트롤러에서 직접 사용해도 됨
+ */
 @Slf4j
 @RestController
 @RequestMapping("/api/prompts")
@@ -76,4 +83,4 @@ public class PromptController {
                     .body(ApiResponse.error("패턴 조회 실패", e.getMessage()));
         }
     }
-} 
+}

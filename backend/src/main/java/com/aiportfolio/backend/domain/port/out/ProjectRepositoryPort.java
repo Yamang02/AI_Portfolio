@@ -1,18 +1,19 @@
-package com.aiportfolio.backend.domain.portfolio;
+package com.aiportfolio.backend.domain.port.out;
 
-import com.aiportfolio.backend.model.Project;
-import com.aiportfolio.backend.model.Experience;
-import com.aiportfolio.backend.model.Education;
-import com.aiportfolio.backend.model.Certification;
+import com.aiportfolio.backend.domain.model.Project;
+import com.aiportfolio.backend.domain.model.Experience;
+import com.aiportfolio.backend.domain.model.Education;
+import com.aiportfolio.backend.domain.model.Certification;
 
 import java.util.List;
 import java.util.Optional;
 
 /**
- * 포트폴리오 데이터 접근을 위한 Repository 인터페이스
+ * 포트폴리오 데이터 접근을 위한 Repository Port
+ * Secondary Port (아웃바운드 포트)
  * 헥사고날 아키텍처의 포트(Port) 역할
  */
-public interface ProjectRepository {
+public interface ProjectRepositoryPort {
     
     // === 프로젝트 관련 ===
     /**
@@ -29,6 +30,21 @@ public interface ProjectRepository {
      * 프로젝트 제목으로 검색합니다
      */
     Optional<Project> findProjectByTitle(String title);
+    
+    /**
+     * 타입별로 프로젝트를 필터링하여 조회합니다
+     */
+    List<Project> findProjectsByType(String type);
+    
+    /**
+     * 소스별로 프로젝트를 필터링하여 조회합니다
+     */
+    List<Project> findProjectsBySource(String source);
+    
+    /**
+     * 팀 프로젝트 여부로 필터링하여 조회합니다
+     */
+    List<Project> findProjectsByTeamStatus(boolean isTeam);
     
     // === 경력 관련 ===
     /**

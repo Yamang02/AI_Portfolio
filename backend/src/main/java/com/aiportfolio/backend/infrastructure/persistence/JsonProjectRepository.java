@@ -1,10 +1,10 @@
 package com.aiportfolio.backend.infrastructure.persistence;
 
-import com.aiportfolio.backend.domain.portfolio.ProjectRepository;
-import com.aiportfolio.backend.model.Project;
-import com.aiportfolio.backend.model.Experience;
-import com.aiportfolio.backend.model.Education;
-import com.aiportfolio.backend.model.Certification;
+import com.aiportfolio.backend.domain.port.out.ProjectRepositoryPort;
+import com.aiportfolio.backend.domain.model.Project;
+import com.aiportfolio.backend.domain.model.Experience;
+import com.aiportfolio.backend.domain.model.Education;
+import com.aiportfolio.backend.domain.model.Certification;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 /**
  * JSON 파일 기반 ProjectRepository 구현체
@@ -24,7 +25,7 @@ import java.util.ArrayList;
  */
 @Slf4j
 @Repository
-public class JsonProjectRepository implements ProjectRepository {
+public class JsonProjectRepository implements ProjectRepositoryPort {
     
     private final ObjectMapper objectMapper = new ObjectMapper();
     
@@ -59,6 +60,27 @@ public class JsonProjectRepository implements ProjectRepository {
         return findAllProjects().stream()
                 .filter(p -> p.getTitle().equals(title))
                 .findFirst();
+    }
+    
+    @Override
+    public List<Project> findProjectsByType(String type) {
+        return findAllProjects().stream()
+                .filter(p -> type == null || type.equals(p.getType()))
+                .collect(Collectors.toList());
+    }
+    
+    @Override
+    public List<Project> findProjectsBySource(String source) {
+        return findAllProjects().stream()
+                .filter(p -> source == null || source.equals(p.getSource()))
+                .collect(Collectors.toList());
+    }
+    
+    @Override
+    public List<Project> findProjectsByTeamStatus(boolean isTeam) {
+        return findAllProjects().stream()
+                .filter(p -> p.isTeam() == isTeam)
+                .collect(Collectors.toList());
     }
     
     // === 경력 관련 구현 ===

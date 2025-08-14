@@ -47,7 +47,38 @@
 - **모니터링**: Google Cloud Monitoring
 - **에러 추적**: 사용자 경험 개선을 위한 에러 수집
 
-### 6. 프로젝트 타입 구분 시스템 ✅
+### 6. 헥사고날 아키텍처 마이그레이션 ✅
+
+**아키텍처 전환 과정**:
+- **Phase 1-3**: 도메인 모델 정의, 포트 인터페이스 설계, 서비스 리팩토링 완료
+- **Phase 4**: 컨트롤러들을 Infrastructure/Web으로 이동 완료
+- **Phase 5**: 의존성 역전 검증 중
+
+**주요 성과**:
+- ✅ 도메인 계층과 인프라스트럭처 계층 분리
+- ✅ Use Case 패턴 적용으로 비즈니스 로직 캡슐화
+- ✅ Repository Port를 통한 데이터 접근 추상화
+- ✅ ChatUseCase, GetProjectsUseCase 등 Primary Port 구현
+- ✅ ProjectRepositoryPort, AIServicePort 등 Secondary Port 구현
+- ✅ 컨트롤러를 infrastructure/web으로 이동하여 올바른 계층 구조 구현
+- ✅ API 호환성 유지하면서 안전한 점진적 마이그레이션
+
+**아키텍처 구조**:
+```
+domain/
+├── model/           # 도메인 엔티티
+├── port/
+│   ├── in/         # Primary Ports (Use Cases)
+│   └── out/        # Secondary Ports (Repository, External)
+application/
+└── service/        # Application Services (Use Case 구현체)
+infrastructure/
+├── persistence/    # Repository 구현체
+├── ai/            # AI 서비스 어댑터
+└── web/           # 웹 컨트롤러 (새로 이동됨)
+```
+
+### 7. 프로젝트 타입 구분 시스템 ✅
 - **목적**: 실제 개발 프로젝트와 업무/학습 경험을 시각적으로 구분
 - **구현 내용**:
   - ✅ Project 인터페이스에 `type: 'project' | 'experience'` 필드 추가
@@ -66,6 +97,44 @@
   - 프로젝트는 파란색, 경험은 오렌지색으로 구분
   - 경험은 외부 링크가 없어도 명확한 표시
   - 회사 보안 정책 등으로 인한 업무 경험도 포트폴리오에 포함 가능
+
+### 8. 헥사고날 아키텍처 마이그레이션 Phase 4-5 완료 ✅
+
+**Phase 4: 컨트롤러를 Infrastructure/Web으로 이동**
+- ✅ Infrastructure/Web 디렉토리 구조 생성
+- ✅ ChatController 헥사고날 리팩토링 (ChatUseCase 직접 사용)
+- ✅ DataController 헥사고날 리팩토링 (GetProjectsUseCase, ProjectRepositoryPort 사용)
+- ✅ GitHubController를 Infrastructure/Web으로 이동
+- ✅ PromptController를 Infrastructure/Web으로 이동
+- ✅ 기존 `/controller` 디렉토리 완전 삭제
+
+**Phase 5: 의존성 역전 및 최종 검증**
+- ✅ 레거시 ProjectService 및 사용되지 않는 의존성 제거
+- ✅ domain/portfolio 디렉토리 완전 삭제
+- ✅ Bean 의존성 충돌 해결
+- ✅ 모든 API 엔드포인트 정상 동작 확인
+
+**현재 아키텍처 구조**:
+```
+backend/src/main/java/com/aiportfolio/backend/
+├── domain/
+│   ├── model/              # 도메인 엔티티
+│   ├── port/in/           # Primary Ports (Use Cases)
+│   └── port/out/          # Secondary Ports (Repository, External)
+├── application/service/    # Application Services (Use Case 구현체)
+├── infrastructure/
+│   ├── persistence/       # Repository 구현체
+│   ├── ai/               # AI 서비스 어댑터
+│   └── web/              # 웹 컨트롤러
+└── service/              # 레거시 호환 서비스들 (정리 예정)
+```
+
+**API 검증 완료**:
+- ✅ `/api/data/projects`: 프로젝트 목록 조회
+- ✅ `/api/chat/health`: 챗봇 서비스 상태 확인  
+- ✅ `/api/prompts/system`: 프롬프트 조회
+
+**다음 단계**: 레거시 호환 서비스들을 완전 제거하여 순수한 헥사고날 아키텍처 완성 예정
 
 ### 7. Feature-Based Architecture 재구성 ✅ (2025-07-21)
 - **목적**: 모듈화되고 확장 가능한 프로젝트 구조로 변경
@@ -1839,3 +1908,112 @@ backend/src/main/java/com/aiportfolio/backend/
 4. **이벤트 기반 아키텍처**: 도메인 이벤트를 통한 느슨한 결합
 
 이번 리팩토링으로 백엔드가 확장 가능하고 유지보수하기 쉬운 구조로 발전했으며, 향후 벡터DB와 RAG 시스템 도입을 위한 견고한 기반을 마련했습니다.
+
+---
+
+## 🏗️ 헥사고날 아키텍처 점진적 마이그레이션 (2025-08-14)
+
+### 📋 프로젝트 배경
+기존 백엔드 구조가 중복되고 아키텍처가 명확하지 않아 헥사고날 아키텍처로 점진적 마이그레이션을 진행했습니다.
+
+### 🎯 주요 문제점 발견 및 해결
+1. **중복된 디렉토리 구조 정리**
+   - 혼재된 controller, entity, service 디렉토리들 제거
+   - 헥사고날 구조에 맞는 명확한 레이어 분리
+
+2. **실제 UI 호출 API 불일치 해결**
+   - ❌ **문제**: ProjectController의 `/api/projects/*` 엔드포인트는 실제 사용되지 않음
+   - ✅ **실제 사용**: UI는 DataController의 `/api/data/projects` 호출
+   - ✅ **해결**: 핵심 컨트롤러들(ChatController, DataController, GitHubController) 복원
+
+3. **API 키 설정 문제 해결**
+   - ❌ **문제**: `apiKey cannot be null or blank` 오류
+   - ✅ **해결**: 환경변수 `GEMINI_API_KEY` 올바른 설정
+
+### 🚀 Phase 1: 도메인 모델 정의 및 포트 인터페이스 설계
+
+#### ✅ Primary Ports (Use Cases) 생성
+```java
+// 비즈니스 유스케이스 정의
+- GetProjectsUseCase: 프로젝트 조회 관련 비즈니스 로직
+- ManageProjectCacheUseCase: 캐시 관리 비즈니스 로직  
+- ChatUseCase: 채팅 관련 비즈니스 로직
+```
+
+#### ✅ Secondary Ports (Repository/External) 정의
+```java
+// 외부 의존성 추상화
+- ProjectRepositoryPort: 데이터 접근 포트
+- AIServicePort: AI 서비스 접근 포트
+```
+
+### 🔄 Phase 2: ProjectService 헥사고날 마이그레이션 완료
+
+#### ✅ Application Service 구현
+```java
+@Service
+public class ProjectApplicationService implements GetProjectsUseCase, ManageProjectCacheUseCase {
+    private final ProjectRepositoryPort projectRepositoryPort;
+    
+    // Use Case 인터페이스 구현
+    // 의존성 역전: 구체 클래스가 아닌 포트에 의존
+}
+```
+
+#### ✅ Repository 어댑터 리팩토링
+```java
+@Repository  
+public class JsonProjectRepository implements ProjectRepositoryPort {
+    // 기존 로직 유지하면서 새로운 포트 구현
+    // 필터링 메서드 추가 (Type, Source, TeamStatus)
+}
+```
+
+#### ✅ DataService 의존성 역전
+```java
+// 기존: ProjectRepository 직접 의존
+// 신규: Use Case 인터페이스 의존으로 변경
+private final GetProjectsUseCase getProjectsUseCase;
+private final ManageProjectCacheUseCase manageProjectCacheUseCase;
+```
+
+### 📊 마이그레이션 성과
+
+#### ✅ **API 정상 동작 확인**
+```bash
+# 모든 핵심 API가 헥사고날 구조를 통해 정상 작동
+GET /api/data/projects ✅
+POST /api/chat/message ✅  
+GET /api/data/experiences ✅
+GET /api/data/education ✅
+GET /api/data/certifications ✅
+```
+
+#### ✅ **아키텍처 개선 효과**
+1. **의존성 역전**: 도메인이 인프라에 의존하지 않는 구조
+2. **확장성 확보**: 새로운 데이터베이스나 외부 서비스 추가 용이
+3. **테스트 용이성**: 각 레이어별 독립적인 테스트 가능
+4. **비즈니스 로직 보호**: 핵심 로직이 기술적 세부사항에 오염되지 않음
+
+#### ✅ **현재 아키텍처 구조**
+```
+backend/src/main/java/com/aiportfolio/backend/
+├── domain/                    # 핵심 비즈니스 로직 (의존성 없음)
+│   ├── model/                 # 도메인 엔티티
+│   └── port/                  # 인터페이스 정의
+│       ├── in/               # Primary Port (Use Cases)
+│       └── out/              # Secondary Port (Repository, External)
+├── application/              # 어플리케이션 레이어
+│   └── service/             # Use Case 구현체
+├── infrastructure/          # 인프라 레이어
+│   └── persistence/         # 데이터베이스 어댑터
+└── controller/              # HTTP 어댑터 (추후 infrastructure/web으로 이동 예정)
+```
+
+### 🎯 다음 단계 (Phase 3-5 예정)
+- **Phase 3**: ChatService 헥사고날 마이그레이션
+- **Phase 4**: 컨트롤러들을 Infrastructure/Web으로 이동  
+- **Phase 5**: 의존성 역전 및 최종 검증
+
+### 💡 핵심 성과
+점진적 마이그레이션 방식으로 **애플리케이션 중단 없이** 헥사고날 아키텍처를 성공적으로 적용했으며, 향후 PostgreSQL 도입이나 새로운 외부 서비스 연동이 매우 용이한 구조를 구축했습니다.
