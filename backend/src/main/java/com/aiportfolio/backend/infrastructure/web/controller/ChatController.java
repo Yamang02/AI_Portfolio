@@ -1,8 +1,8 @@
 package com.aiportfolio.backend.infrastructure.web.controller;
 
 import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;
-import com.aiportfolio.backend.domain.model.ChatRequest;
-import com.aiportfolio.backend.domain.model.ChatResponse;
+import com.aiportfolio.backend.infrastructure.web.dto.chat.ChatRequestDto;
+import com.aiportfolio.backend.infrastructure.web.dto.chat.ChatResponseDto;
 import com.aiportfolio.backend.domain.port.in.ChatUseCase;
 import com.aiportfolio.backend.infrastructure.security.SpamProtectionService;
 import com.aiportfolio.backend.application.service.QuestionAnalysisService;
@@ -34,7 +34,7 @@ public class ChatController {
 
     @PostMapping("/message")
     @Operation(summary = "챗봇 메시지 전송", description = "AI 챗봇에게 메시지를 보내고 응답을 받습니다.")
-    public ResponseEntity<ApiResponse<ChatResponse>> sendMessage(@RequestBody ChatRequest request,
+    public ResponseEntity<ApiResponse<ChatResponseDto>> sendMessage(@RequestBody ChatRequestDto request,
             HttpServletRequest httpRequest) {
         try {
             log.info("Received chat request: {}", request.getQuestion());
@@ -43,16 +43,16 @@ public class ChatController {
             InputValidationService.ValidationResult validation = inputValidationService
                     .validateInput(request.getQuestion());
             if (!validation.isValid()) {
-                ChatResponse invalidResponse = ChatResponse.builder()
+                ChatResponseDto invalidResponse = ChatResponseDto.builder()
                         .response(validation.getReason())
                         .success(false)
                         .responseType(validation.getResponseType())
                         .reason(validation.getReason())
-                        .showEmailButton(validation.getResponseType() == ChatResponse.ResponseType.SPAM_DETECTED)
+                        .showEmailButton(validation.getResponseType() == ChatResponseDto.ResponseType.SPAM_DETECTED)
                         .build();
 
                 // 비즈니스 로직 오류는 200 OK로 반환
-                return ResponseEntity.ok(ApiResponse.<ChatResponse>builder()
+                return ResponseEntity.ok(ApiResponse.<ChatResponseDto>builder()
                         .success(false)
                         .message("입력 검증 실패")
                         .data(invalidResponse)
@@ -64,16 +64,16 @@ public class ChatController {
             SpamProtectionService.SpamProtectionResult spamResult = spamProtectionService.checkSpamProtection(clientId);
 
             if (!spamResult.isAllowed()) {
-                ChatResponse rateLimitResponse = ChatResponse.builder()
+                ChatResponseDto rateLimitResponse = ChatResponseDto.builder()
                         .response("⚠️ " + spamResult.getMessage())
                         .success(false)
-                        .responseType(ChatResponse.ResponseType.RATE_LIMITED)
+                        .responseType(ChatResponseDto.ResponseType.RATE_LIMITED)
                         .reason(spamResult.getMessage())
                         .showEmailButton(true)
                         .build();
 
                 // 비즈니스 로직 오류는 200 OK로 반환
-                return ResponseEntity.ok(ApiResponse.<ChatResponse>builder()
+                return ResponseEntity.ok(ApiResponse.<ChatResponseDto>builder()
                         .success(false)
                         .message("요청 제한")
                         .data(rateLimitResponse)
@@ -81,7 +81,7 @@ public class ChatController {
             }
 
             // 3. ChatUseCase를 통한 비즈니스 로직 처리 (헥사고날 아키텍처)
-            ChatResponse chatResponse = chatUseCase.processQuestion(request);
+            ChatResponseDto chatResponse = chatUseCase.processQuestion(request);
 
             // 4. 성공적인 요청 기록
             spamProtectionService.recordSubmission(clientId);
@@ -91,17 +91,17 @@ public class ChatController {
         } catch (Exception e) {
             log.error("Error processing chat request", e);
 
-            ChatResponse errorResponse = ChatResponse.builder()
+            ChatResponseDto errorResponse = ChatResponseDto.builder()
                     .response("죄송합니다. 응답을 생성하는 중에 오류가 발생했습니다.")
                     .success(false)
-                    .responseType(ChatResponse.ResponseType.SYSTEM_ERROR)
+                    .responseType(ChatResponseDto.ResponseType.SYSTEM_ERROR)
                     .error("Internal server error")
                     .showEmailButton(true)
                     .build();
 
             // 시스템 오류는 500 Internal Server Error로 반환
             return ResponseEntity.internalServerError()
-                    .body(ApiResponse.<ChatResponse>builder()
+                    .body(ApiResponse.<ChatResponseDto>builder()
                             .success(false)
                             .message("챗봇 응답 실패")
                             .data(errorResponse)

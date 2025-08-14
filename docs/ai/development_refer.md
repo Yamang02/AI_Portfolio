@@ -3,6 +3,8 @@
 > **목적**: AI Agent가 개발 시 참고할 핵심 원칙, 패턴, 의사결정 맥락을 정리한 문서입니다.
 > 
 > **업데이트 규칙**: conversation_log에 새로운 개발 내용 추가 시, 이 문서에 반영할 핵심 정보가 있는지 검토 필요
+> 
+> **마지막 업데이트**: 2025-08-14 - 도메인 모델 리팩토링 및 PostgreSQL 마이그레이션 준비
 
 ## 📋 AI Agent 행동강령
 
@@ -84,20 +86,83 @@ src/
 1. ✅ Repository 패턴 도입 - ProjectRepository 포트 및 JsonProjectRepository 어댑터
 2. ✅ 도메인 서비스 분리 - ChatService, LLMPort, PromptPort, QuestionAnalysisPort
 3. ✅ 포트/어댑터 구조 적용 - GeminiLLMAdapter, JsonPromptAdapter, RuleBasedQuestionAnalysisAdapter
-4. 🔄 DDD 원칙 적용 (진행 중)
+4. ✅ DDD 원칙 적용 - 도메인 모델 리팩토링 및 PostgreSQL 마이그레이션 준비
+5. ✅ 도메인 모델과 인프라스트럭처 레이어 명확한 분리
 
 **핵심 구조**:
 ```
 domain/          # 비즈니스 로직 (포트 정의)
-├── portfolio/   # 포트폴리오 도메인
-└── chat/        # 채팅 도메인
+├── model/       # 도메인 엔티티 (Project, Experience, Education, Certification)
+├── enums/       # 비즈니스 타입 정의 (ProjectType, ExperienceType, EducationType)
+└── port/        # 포트 인터페이스 정의
 
 infrastructure/  # 기술 구현 (어댑터)
-├── persistence/ # 데이터 저장소 어댑터  
-└── ai/          # AI 서비스 어댑터
+├── persistence/ # 데이터 저장소 어댑터
+│   └── Postgres/entity/  # PostgreSQL 엔티티
+└── web/         # 웹 어댑터
+    └── dto/     # API 입출력 객체
 ```
 
+**새로운 아키텍처 원칙**:
+- **도메인 모델 순수성**: 프레임워크나 외부 의존성 없이 순수한 비즈니스 로직만 포함
+- **이중 ID 체계**: `dbId` (Long, DB 내부용) + `businessId` (String, 비즈니스용)
+- **레이어 분리**: 도메인, 인프라스트럭처, 웹 레이어 명확한 구분
+- **프론트엔드 호환성**: 기존 API 응답 구조 유지로 프론트엔드 변경 불필요
+
 ## 📋 개발 패턴 & 규칙
+
+### 🆕 **도메인 모델 설계 원칙** (2025-08-14 추가)
+**목적**: 타입 안전성과 비즈니스 로직 집중을 위한 도메인 모델 설계
+
+**핵심 원칙**:
+1. **Enum 타입 시스템**: String 대신 의미있는 Enum 사용
+   ```java
+   // ❌ 기존: String type = "personal"
+   // ✅ 신규: ProjectType type = ProjectType.PERSONAL
+   ```
+
+2. **날짜 타입 강화**: String → LocalDate로 변경
+   ```java
+   // ❌ 기존: String startDate = "2025-01-01"
+   // ✅ 신규: LocalDate startDate = LocalDate.of(2025, 1, 1)
+   ```
+
+3. **Bean Validation**: 데이터 무결성 보장
+   ```java
+   @NotBlank(message = "프로젝트 제목은 필수입니다")
+   @Size(max = 200, message = "프로젝트 제목은 200자를 초과할 수 없습니다")
+   private String title;
+   ```
+
+4. **비즈니스 메서드**: 도메인 모델에 핵심 로직 집중
+   ```java
+   public boolean isOngoing() { return endDate == null; }
+   public long getDurationInMonths() { /* 기간 계산 로직 */ }
+   ```
+
+### 🆕 **ID 체계 설계 원칙** (2025-08-14 추가)
+**목적**: 데이터베이스 성능과 비즈니스 요구사항을 모두 만족하는 ID 체계
+
+**이중 ID 체계**:
+```java
+// 엔티티 레벨
+public class ProjectEntity {
+    private Long dbId;        // DB 내부 ID (SERIAL, 1, 2, 3...)
+    private String businessId; // 비즈니스 ID (PJT001, PJT002...)
+}
+
+// 도메인 모델 레벨 (프론트엔드와 통신)
+public class Project {
+    private String id;        // 비즈니스 ID (PJT001, PJT002...)
+}
+```
+
+**ID 네이밍 규칙**:
+- **PJT**: Project (PJT001, PJT002, ...)
+- **EXP**: Experience (EXP001, EXP002, ...)
+- **EDU**: Education (EDU001, EDU002, ...)
+- **CRT**: Certification (CRT001, CRT002, ...)
+
 
 ### API 설계 패턴
 **ApiResponse 표준화**:
@@ -233,8 +298,3 @@ import type { Project } from '../../entities';
 - API 호출 최적화 (중복 호출 방지)
 - 번들 크기 최적화 (Tree shaking, Code splitting)
 
----
-
-**마지막 업데이트**: 2025-08-12
-**주요 업데이트**: 백엔드 헥사고날 아키텍처 리팩토링 완료 반영
-**다음 업데이트 예상 시점**: RAG/벡터DB 도입 시

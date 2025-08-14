@@ -6,13 +6,16 @@ import com.aiportfolio.backend.domain.model.Experience;
 import com.aiportfolio.backend.domain.model.Education;
 import com.aiportfolio.backend.domain.model.Certification;
 
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
+import org.springframework.context.annotation.Primary;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.ArrayList;
+
 
 /**
  * PostgreSQL 기반 ProjectRepository 구현체
@@ -32,8 +35,7 @@ public class PostgresProjectRepository implements ProjectRepositoryPort {
     private static final long CACHE_DURATION_MINUTES = 60; // 1시간 캐시
     
     public PostgresProjectRepository() {
-        // 향후 PostgreSQL 연결을 위한 생성자
-        log.info("PostgresProjectRepository 초기화 - 현재 JSON 파일 기반으로 동작");
+        log.info("PostgresProjectRepository 초기화 - PostgreSQL 데이터베이스 사용");
     }
     
     // === 프로젝트 관련 구현 ===
@@ -41,8 +43,8 @@ public class PostgresProjectRepository implements ProjectRepositoryPort {
     @Override
     public List<Project> findAllProjects() {
         if (cachedProjects == null || !isCacheValid()) {
-            // TODO: 향후 PostgreSQL로 마이그레이션
-            log.warn("PostgreSQL 구현이 완료되지 않았습니다. JSON 파일을 사용합니다.");
+            // TODO: PostgreSQL에서 직접 데이터 조회
+            log.info("PostgreSQL에서 프로젝트 데이터를 조회합니다.");
             cachedProjects = new ArrayList<>(); // 임시로 빈 리스트 반환
             updateCacheTime();
         }

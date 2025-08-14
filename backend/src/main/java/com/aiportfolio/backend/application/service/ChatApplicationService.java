@@ -6,8 +6,8 @@ import com.aiportfolio.backend.domain.port.out.AIServicePort;
 import com.aiportfolio.backend.domain.port.out.LLMPort;
 import com.aiportfolio.backend.domain.port.out.PromptPort;
 import com.aiportfolio.backend.domain.port.out.QuestionAnalysisPort;
-import com.aiportfolio.backend.domain.model.ChatRequest;
-import com.aiportfolio.backend.domain.model.ChatResponse;
+import com.aiportfolio.backend.infrastructure.web.dto.chat.ChatRequestDto;
+import com.aiportfolio.backend.infrastructure.web.dto.chat.ChatResponseDto;
 import com.aiportfolio.backend.domain.model.Project;
 
 import lombok.RequiredArgsConstructor;
@@ -33,7 +33,7 @@ public class ChatApplicationService implements ChatUseCase {
     private final ProjectRepositoryPort projectRepositoryPort;
     
     @Override
-    public ChatResponse processQuestion(ChatRequest request) {
+    public ChatResponseDto processQuestion(ChatRequestDto request) {
         String question = request.getQuestion();
         String selectedProject = request.getSelectedProject();
         
@@ -137,30 +137,30 @@ public class ChatApplicationService implements ChatUseCase {
                 .collect(Collectors.joining("\n---\n"));
     }
     
-    private ChatResponse createUnavailableResponse() {
-        return ChatResponse.builder()
+    private ChatResponseDto createUnavailableResponse() {
+        return ChatResponseDto.builder()
                 .response("죄송합니다. 현재 AI 서비스를 이용할 수 없습니다. 잠시 후 다시 시도해주세요.")
                 .success(true)
                 .showEmailButton(false)
-                .responseType(ChatResponse.ResponseType.SUCCESS)
+                .responseType(ChatResponseDto.ResponseType.SUCCESS)
                 .build();
     }
     
-    private ChatResponse createSuccessResponse(String message) {
-        return ChatResponse.builder()
+    private ChatResponseDto createSuccessResponse(String message) {
+        return ChatResponseDto.builder()
                 .response(message)
                 .success(true)
                 .showEmailButton(false)
-                .responseType(ChatResponse.ResponseType.SUCCESS)
+                .responseType(ChatResponseDto.ResponseType.SUCCESS)
                 .build();
     }
     
-    private ChatResponse createErrorResponse(String message) {
-        return ChatResponse.builder()
+    private ChatResponseDto createErrorResponse(String message) {
+        return ChatResponseDto.builder()
                 .response(message)
                 .success(false)
                 .showEmailButton(false)
-                .responseType(ChatResponse.ResponseType.SYSTEM_ERROR)
+                .responseType(ChatResponseDto.ResponseType.SYSTEM_ERROR)
                 .build();
     }
 }

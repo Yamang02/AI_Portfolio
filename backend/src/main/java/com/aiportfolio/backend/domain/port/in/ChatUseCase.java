@@ -1,7 +1,7 @@
 package com.aiportfolio.backend.domain.port.in;
 
-import com.aiportfolio.backend.domain.model.ChatRequest;
-import com.aiportfolio.backend.domain.model.ChatResponse;
+import com.aiportfolio.backend.infrastructure.web.dto.chat.ChatRequestDto;
+import com.aiportfolio.backend.infrastructure.web.dto.chat.ChatResponseDto;
 
 /**
  * 채팅 관련 Use Case
@@ -12,7 +12,7 @@ public interface ChatUseCase {
     /**
      * 사용자의 질문에 대한 AI 응답을 생성합니다
      */
-    ChatResponse processQuestion(ChatRequest request);
+    ChatResponseDto processQuestion(ChatRequestDto request);
     
     /**
      * 채팅 사용량 상태를 확인합니다

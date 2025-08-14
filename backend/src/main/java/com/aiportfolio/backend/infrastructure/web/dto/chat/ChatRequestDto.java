@@ -1,4 +1,4 @@
-package com.aiportfolio.backend.domain.model;
+package com.aiportfolio.backend.infrastructure.web.dto.chat;
 
 import lombok.Data;
 import lombok.Builder;
@@ -9,7 +9,7 @@ import lombok.AllArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChatRequest {
+public class ChatRequestDto {
     private String question;
     private String selectedProject;
-} 
+}

@@ -1,4 +1,4 @@
-package com.aiportfolio.backend.domain.model;
+package com.aiportfolio.backend.infrastructure.web.dto.chat;
 
 import lombok.Data;
 import lombok.Builder;
@@ -9,7 +9,7 @@ import lombok.AllArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChatResponse {
+public class ChatResponseDto {
     private String response;
     private boolean success;
     private String error;
@@ -26,4 +26,4 @@ public class ChatResponse {
         SYSTEM_ERROR,      // 시스템 오류
         SPAM_DETECTED      // 스팸 감지
     }
-} 
+}

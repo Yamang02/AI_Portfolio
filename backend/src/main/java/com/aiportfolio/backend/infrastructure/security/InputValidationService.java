@@ -1,6 +1,6 @@
 package com.aiportfolio.backend.infrastructure.security;
 
-import com.aiportfolio.backend.domain.model.ChatResponse;
+import com.aiportfolio.backend.infrastructure.web.dto.chat.ChatResponseDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -15,9 +15,9 @@ public class InputValidationService {
     public static class ValidationResult {
         private final boolean valid;
         private final String reason;
-        private final ChatResponse.ResponseType responseType;
+        private final ChatResponseDto.ResponseType responseType;
         
-        public ValidationResult(boolean valid, String reason, ChatResponse.ResponseType responseType) {
+        public ValidationResult(boolean valid, String reason, ChatResponseDto.ResponseType responseType) {
             this.valid = valid;
             this.reason = reason;
             this.responseType = responseType;
@@ -25,7 +25,7 @@ public class InputValidationService {
         
         public boolean isValid() { return valid; }
         public String getReason() { return reason; }
-        public ChatResponse.ResponseType getResponseType() { return responseType; }
+        public ChatResponseDto.ResponseType getResponseType() { return responseType; }
     }
     
     /**
@@ -33,36 +33,36 @@ public class InputValidationService {
      */
     public ValidationResult validateInput(String input) {
         if (input == null || input.trim().isEmpty()) {
-            return new ValidationResult(false, "질문을 입력해주세요.", ChatResponse.ResponseType.INVALID_INPUT);
+            return new ValidationResult(false, "질문을 입력해주세요.", ChatResponseDto.ResponseType.INVALID_INPUT);
         }
         
         String trimmedInput = input.trim();
         
         // 1. 길이 검증
         if (trimmedInput.length() < 2) {
-            return new ValidationResult(false, "질문을 2자 이상 입력해주세요.", ChatResponse.ResponseType.INVALID_INPUT);
+            return new ValidationResult(false, "질문을 2자 이상 입력해주세요.", ChatResponseDto.ResponseType.INVALID_INPUT);
         }
         
         if (trimmedInput.length() > 500) {
-            return new ValidationResult(false, "질문은 500자 이하로 입력해주세요.", ChatResponse.ResponseType.INVALID_INPUT);
+            return new ValidationResult(false, "질문은 500자 이하로 입력해주세요.", ChatResponseDto.ResponseType.INVALID_INPUT);
         }
         
         // 2. 스팸 패턴 검증
         if (isSpamPattern(trimmedInput)) {
-            return new ValidationResult(false, "적절한 질문을 입력해주세요. 포트폴리오나 프로젝트에 대한 질문을 해주시면 도움을 드릴 수 있습니다.", ChatResponse.ResponseType.SPAM_DETECTED);
+            return new ValidationResult(false, "적절한 질문을 입력해주세요. 포트폴리오나 프로젝트에 대한 질문을 해주시면 도움을 드릴 수 있습니다.", ChatResponseDto.ResponseType.SPAM_DETECTED);
         }
         
         // 3. 의미 없는 반복 문자 검증
         if (isMeaninglessRepetition(trimmedInput)) {
-            return new ValidationResult(false, "의미 있는 질문을 입력해주세요.", ChatResponse.ResponseType.SPAM_DETECTED);
+            return new ValidationResult(false, "의미 있는 질문을 입력해주세요.", ChatResponseDto.ResponseType.SPAM_DETECTED);
         }
         
         // 4. 한글/영문/숫자/특수문자 비율 검증
         if (!hasReasonableCharacterRatio(trimmedInput)) {
-            return new ValidationResult(false, "적절한 질문을 입력해주세요.", ChatResponse.ResponseType.SPAM_DETECTED);
+            return new ValidationResult(false, "적절한 질문을 입력해주세요.", ChatResponseDto.ResponseType.SPAM_DETECTED);
         }
         
-        return new ValidationResult(true, null, ChatResponse.ResponseType.SUCCESS);
+        return new ValidationResult(true, null, ChatResponseDto.ResponseType.SUCCESS);
     }
     
     /**

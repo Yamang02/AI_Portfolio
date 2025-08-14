@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
 import java.util.List;
+import com.aiportfolio.backend.domain.model.enums.EducationType;
+import java.time.LocalDate;
 
 @Data
 @Builder
@@ -17,9 +19,9 @@ public class Education {
     private String description;
     private List<String> technologies;
     private String organization;
-    private String startDate;
-    private String endDate;
-    private String type;
+    private LocalDate startDate;
+    private LocalDate endDate;
+    private EducationType type;
     private List<String> projects;
 }
 
