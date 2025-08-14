@@ -3,11 +3,11 @@ package com.aiportfolio.backend.application.service;
 import com.aiportfolio.backend.domain.port.in.ChatUseCase;
 import com.aiportfolio.backend.domain.port.out.ProjectRepositoryPort;
 import com.aiportfolio.backend.domain.port.out.AIServicePort;
-import com.aiportfolio.backend.domain.chat.LLMPort;
-import com.aiportfolio.backend.domain.chat.PromptPort;
-import com.aiportfolio.backend.domain.chat.QuestionAnalysisPort;
-import com.aiportfolio.backend.model.ChatRequest;
-import com.aiportfolio.backend.model.ChatResponse;
+import com.aiportfolio.backend.domain.port.out.LLMPort;
+import com.aiportfolio.backend.domain.port.out.PromptPort;
+import com.aiportfolio.backend.domain.port.out.QuestionAnalysisPort;
+import com.aiportfolio.backend.domain.model.ChatRequest;
+import com.aiportfolio.backend.domain.model.ChatResponse;
 import com.aiportfolio.backend.domain.model.Project;
 
 import lombok.RequiredArgsConstructor;
@@ -29,8 +29,6 @@ import java.util.stream.Collectors;
 public class ChatApplicationService implements ChatUseCase {
     
     private final AIServicePort aiServicePort;
-    private final LLMPort llmPort;  // 호환성을 위해 유지
-    private final PromptPort promptPort;
     private final QuestionAnalysisPort questionAnalysisPort;
     private final ProjectRepositoryPort projectRepositoryPort;
     

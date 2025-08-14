@@ -1,7 +1,7 @@
 package com.aiportfolio.backend.domain.port.in;
 
-import com.aiportfolio.backend.model.ChatRequest;
-import com.aiportfolio.backend.model.ChatResponse;
+import com.aiportfolio.backend.domain.model.ChatRequest;
+import com.aiportfolio.backend.domain.model.ChatResponse;
 
 /**
  * 채팅 관련 Use Case
