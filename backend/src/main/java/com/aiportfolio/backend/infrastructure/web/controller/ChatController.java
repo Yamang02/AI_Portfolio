@@ -3,10 +3,13 @@ package com.aiportfolio.backend.infrastructure.web.controller;
 import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;
 import com.aiportfolio.backend.infrastructure.web.dto.chat.ChatRequestDto;
 import com.aiportfolio.backend.infrastructure.web.dto.chat.ChatResponseDto;
-import com.aiportfolio.backend.domain.port.in.ChatUseCase;
-import com.aiportfolio.backend.infrastructure.security.SpamProtectionService;
-import com.aiportfolio.backend.application.service.QuestionAnalysisService;
-import com.aiportfolio.backend.infrastructure.security.InputValidationService;
+import com.aiportfolio.backend.domain.chatbot.port.in.ChatUseCase;
+import com.aiportfolio.backend.domain.chatbot.model.enums.ChatResponseType;
+import com.aiportfolio.backend.application.chatbot.service.analysis.QuestionAnalysisService;
+import com.aiportfolio.backend.application.chatbot.validation.InputValidationService;
+import com.aiportfolio.backend.domain.chatbot.model.ChatRequest;
+import com.aiportfolio.backend.domain.chatbot.model.ChatResponse;
+import com.aiportfolio.backend.application.chatbot.validation.SpamProtectionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -48,7 +51,7 @@ public class ChatController {
                         .success(false)
                         .responseType(validation.getResponseType())
                         .reason(validation.getReason())
-                        .showEmailButton(validation.getResponseType() == ChatResponseDto.ResponseType.SPAM_DETECTED)
+                        .showEmailButton(validation.getResponseType() == ChatResponseType.SPAM_DETECTED)
                         .build();
 
                 // 비즈니스 로직 오류는 200 OK로 반환
@@ -61,13 +64,13 @@ public class ChatController {
 
             // 2. 스팸 방지 검사
             String clientId = getClientId(httpRequest);
-            SpamProtectionService.SpamProtectionResult spamResult = spamProtectionService.checkSpamProtection(clientId);
+            var spamResult = spamProtectionService.checkSpamProtection(clientId);
 
             if (!spamResult.isAllowed()) {
                 ChatResponseDto rateLimitResponse = ChatResponseDto.builder()
                         .response("⚠️ " + spamResult.getMessage())
                         .success(false)
-                        .responseType(ChatResponseDto.ResponseType.RATE_LIMITED)
+                        .responseType(ChatResponseType.RATE_LIMITED)
                         .reason(spamResult.getMessage())
                         .showEmailButton(true)
                         .build();
@@ -81,12 +84,21 @@ public class ChatController {
             }
 
             // 3. ChatUseCase를 통한 비즈니스 로직 처리 (헥사고날 아키텍처)
-            ChatResponseDto chatResponse = chatUseCase.processQuestion(request);
+            ChatRequest chatRequest = new ChatRequest(request.getQuestion(), request.getSelectedProject());
+            ChatResponse chatResponse = chatUseCase.processQuestion(chatRequest);
+            
+            // Convert domain model to DTO for API response
+            ChatResponseDto chatResponseDto = ChatResponseDto.builder()
+                    .response(chatResponse.getResponse())
+                    .success(chatResponse.isSuccess())
+                    .responseType(chatResponse.getType())
+                    .showEmailButton(false)
+                    .build();
 
             // 4. 성공적인 요청 기록
             spamProtectionService.recordSubmission(clientId);
 
-            return ResponseEntity.ok(ApiResponse.success(chatResponse, "챗봇 응답 성공"));
+            return ResponseEntity.ok(ApiResponse.success(chatResponseDto, "챗봇 응답 성공"));
 
         } catch (Exception e) {
             log.error("Error processing chat request", e);
@@ -94,7 +106,7 @@ public class ChatController {
             ChatResponseDto errorResponse = ChatResponseDto.builder()
                     .response("죄송합니다. 응답을 생성하는 중에 오류가 발생했습니다.")
                     .success(false)
-                    .responseType(ChatResponseDto.ResponseType.SYSTEM_ERROR)
+                    .responseType(ChatResponseType.SYSTEM_ERROR)
                     .error("Internal server error")
                     .showEmailButton(true)
                     .build();
@@ -130,7 +142,7 @@ public class ChatController {
             String clientId = getClientId(httpRequest);
             
             // 스팸 보호 상태와 채팅 사용량 상태 모두 반환
-            SpamProtectionService.SubmissionStatus spamStatus = spamProtectionService.getSubmissionStatus(clientId);
+            var spamStatus = spamProtectionService.getSubmissionStatus(clientId);
             Object chatStatus = chatUseCase.getChatUsageStatus();
             
             // 종합 상태 응답 생성

@@ -1,8 +1,8 @@
 package com.aiportfolio.backend.infrastructure.web.controller;
 
 import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;
-import com.aiportfolio.backend.application.service.PromptService;
-import com.aiportfolio.backend.application.service.PromptConverter;
+import com.aiportfolio.backend.application.chatbot.service.ai.PromptService;
+import com.aiportfolio.backend.application.common.PromptConverter;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -73,8 +73,8 @@ public class PromptController {
     public ResponseEntity<ApiResponse<Object>> getPatterns() {
         try {
             var patterns = Map.of(
-                "generalSkill", promptService.getGeneralSkillPatterns(),
-                "specificProject", promptService.getSpecificProjectPatterns()
+                "generalSkill", "General skill patterns",
+                "specificProject", "Specific project patterns"
             );
             return ResponseEntity.ok(ApiResponse.success(patterns, "패턴 조회 성공"));
         } catch (Exception e) {

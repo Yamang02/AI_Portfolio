@@ -1,10 +1,10 @@
-package com.aiportfolio.backend.infrastructure.persistence.Postgres.entity;
+package com.aiportfolio.backend.infrastructure.persistence.postgres.entity;
 
 import lombok.Data;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-import com.aiportfolio.backend.domain.model.enums.ProjectType;
+import com.aiportfolio.backend.domain.portfolio.model.enums.ProjectType;
 
 import java.time.LocalDate;
 import java.util.List;

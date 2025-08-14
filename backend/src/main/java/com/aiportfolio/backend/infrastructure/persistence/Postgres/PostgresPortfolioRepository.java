@@ -6,7 +6,6 @@ import com.aiportfolio.backend.domain.portfolio.model.Experience;
 import com.aiportfolio.backend.domain.portfolio.model.Education;
 import com.aiportfolio.backend.domain.portfolio.model.Certification;
 
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import org.springframework.context.annotation.Primary;
@@ -16,7 +15,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.ArrayList;
 
-
 /**
  * PostgreSQL 기반 PortfolioRepository 구현체
  * 헥사고날 아키텍처의 어댑터(Adapter) 역할
@@ -24,6 +22,7 @@ import java.util.ArrayList;
  */
 @Slf4j
 @Repository
+@Primary
 public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
     
     // 캐시 관련 필드

@@ -4,7 +4,7 @@
 > 
 > **업데이트 규칙**: conversation_log에 새로운 개발 내용 추가 시, 이 문서에 반영할 핵심 정보가 있는지 검토 필요
 > 
-> **마지막 업데이트**: 2025-08-14 - 도메인 모델 리팩토링 및 PostgreSQL 마이그레이션 준비
+> **마지막 업데이트**: 2025-08-14 - 헥사고날 아키텍처 완성 및 Application Layer 도메인별 분리
 
 ## 📋 AI Agent 행동강령
 
@@ -73,7 +73,7 @@ src/
 - 각 레이어의 단일 책임 원칙 준수
 
 ### Backend: 헥사고날 아키텍처 (완료)
-**현재 상태**: 헥사고날 아키텍처 (포트 & 어댑터) ✅
+**현재 상태**: 헥사고날 아키텍처 (포트 & 어댑터) + 도메인별 Application Layer 분리 ✅
 **이전 상태**: 레이어드 아키텍처
 
 **전환 이유**:
@@ -88,28 +88,95 @@ src/
 3. ✅ 포트/어댑터 구조 적용 - GeminiLLMAdapter, JsonPromptAdapter, RuleBasedQuestionAnalysisAdapter
 4. ✅ DDD 원칙 적용 - 도메인 모델 리팩토링 및 PostgreSQL 마이그레이션 준비
 5. ✅ 도메인 모델과 인프라스트럭처 레이어 명확한 분리
+6. ✅ **도메인 격리 및 Application Layer 분리** - Portfolio ↔ Chatbot 도메인 완전 분리
 
-**핵심 구조**:
+**현재 아키텍처 구조**:
 ```
-domain/          # 비즈니스 로직 (포트 정의)
-├── model/       # 도메인 엔티티 (Project, Experience, Education, Certification)
-├── enums/       # 비즈니스 타입 정의 (ProjectType, ExperienceType, EducationType)
-└── port/        # 포트 인터페이스 정의
+domain/
+├── portfolio/               # Portfolio 도메인
+│   ├── model/              # 도메인 엔티티 (Project, Experience, Education, Certification)
+│   ├── port/
+│   │   ├── in/            # Primary Ports (GetProjectsUseCase, GetAllDataUseCase)
+│   │   └── out/           # Secondary Ports (ProjectRepositoryPort)
+└── chatbot/               # Chatbot 도메인
+    ├── model/             # 채팅 관련 모델 (ChatRequest, ChatResponse, enums)
+    └── port/
+        ├── in/            # Primary Ports (ChatUseCase)
+        └── out/           # Secondary Ports (AIServicePort, ContextBuilderPort, LLMPort)
 
-infrastructure/  # 기술 구현 (어댑터)
-├── persistence/ # 데이터 저장소 어댑터
-│   └── Postgres/entity/  # PostgreSQL 엔티티
-└── web/         # 웹 어댑터
-    └── dto/     # API 입출력 객체
+application/
+├── portfolio/             # Portfolio 도메인 Application Layer
+│   ├── PortfolioApplicationService.java
+│   ├── ProjectApplicationService.java  
+│   └── GitHubIntegrationService.java
+├── chatbot/              # Chatbot 도메인 Application Layer
+│   ├── ChatApplicationService.java
+│   ├── service/
+│   │   ├── ContextBuilderService.java    # 도메인 격리 핵심 서비스
+│   │   ├── ai/ (AIService, PromptService)
+│   │   └── analysis/ (QuestionAnalysisService)
+│   └── validation/ (InputValidationService, SpamProtectionService)
+└── common/               # 공통 유틸리티
+    └── PromptConverter.java
+
+infrastructure/           # 기술 구현 (어댑터)
+├── persistence/         # 데이터 저장소 어댑터
+│   └── postgres/entity/ # PostgreSQL 엔티티
+├── external/           # 외부 API 어댑터 (Gemini, GitHub)
+└── web/               # 웹 어댑터
+    └── dto/           # API 입출력 객체
+```
+
+**🔥 도메인 격리 핵심 원칙 (2025-08-14 완성)**:
+- **도메인 간 직접 의존성 금지**: Chatbot 도메인이 Portfolio 도메인 모델을 직접 사용 불가
+- **ContextBuilderPort를 통한 격리**: Portfolio 데이터를 문자열 컨텍스트로 변환하여 Chatbot에 전달
+- **포트를 통한 느슨한 결합**: 각 도메인이 포트 인터페이스를 통해서만 상호작용
+- **Application Layer 도메인별 분리**: 각 도메인의 Application 서비스들을 별도 패키지로 구성
+
+**데이터 흐름**:
+```
+Portfolio 도메인: Infrastructure (Web) → Application → Domain → Infrastructure (DB/GitHub)
+Chatbot 도메인:   Infrastructure (Web) → Application → ContextBuilderPort → Portfolio 도메인
+                                                   → AIServicePort → Gemini API
 ```
 
 **새로운 아키텍처 원칙**:
 - **도메인 모델 순수성**: 프레임워크나 외부 의존성 없이 순수한 비즈니스 로직만 포함
+- **도메인 격리**: 도메인 간 직접 결합 제거, 포트를 통한 추상화된 상호작용
+- **단일 책임 원칙**: 각 Application 서비스가 명확한 책임 영역 보유
+- **의존성 역전**: 모든 의존성이 Domain → Application → Infrastructure 방향 준수
 - **이중 ID 체계**: `dbId` (Long, DB 내부용) + `businessId` (String, 비즈니스용)
-- **레이어 분리**: 도메인, 인프라스트럭처, 웹 레이어 명확한 구분
 - **프론트엔드 호환성**: 기존 API 응답 구조 유지로 프론트엔드 변경 불필요
 
 ## 📋 개발 패턴 & 규칙
+
+### 🆕 **도메인 격리 설계 원칙** (2025-08-14 추가)
+**목적**: 도메인 간 강결합을 방지하고 각 도메인의 독립성을 보장
+
+**핵심 패턴**:
+1. **ContextBuilderPort 패턴**: 도메인 간 데이터 교환을 문자열 컨텍스트로 추상화
+   ```java
+   // ❌ 직접 의존: ChatService → ProjectRepositoryPort
+   // ✅ 포트를 통한 격리: ChatService → ContextBuilderPort → ContextBuilderService
+   ```
+
+2. **도메인별 Application 패키지 분리**:
+   ```
+   application/
+   ├── portfolio/     # Portfolio 도메인 전용 Application 서비스
+   ├── chatbot/       # Chatbot 도메인 전용 Application 서비스  
+   └── common/        # 도메인 무관한 공통 유틸리티
+   ```
+
+3. **포트 인터페이스 설계 규칙**:
+   - Primary Port (in): Use Case 인터페이스, 비즈니스 기능 정의
+   - Secondary Port (out): 외부 의존성 추상화, 기술적 관심사 분리
+   - 도메인 모델 대신 원시 타입이나 DTO 사용으로 격리 보장
+
+4. **서비스 네이밍 규칙**:
+   - `*ApplicationService`: 도메인의 메인 Application 서비스 (Use Case 구현)
+   - `*IntegrationService`: 외부 시스템 통합 서비스 (GitHubIntegrationService)
+   - `*ValidationService`: 검증 관련 서비스
 
 ### 🆕 **도메인 모델 설계 원칙** (2025-08-14 추가)
 **목적**: 타입 안전성과 비즈니스 로직 집중을 위한 도메인 모델 설계
@@ -274,6 +341,28 @@ import type { Project } from '../../entities';
 - 단계별 작업 디렉토리 명시
 
 ## ⚠️ 주요 함정과 해결책
+
+### 도메인 간 결합 방지
+**문제**: Application Service가 다른 도메인의 Repository나 Model을 직접 의존
+**해결**: 
+- ContextBuilderPort와 같은 추상화 포트 생성
+- 도메인 모델 대신 문자열이나 원시 타입으로 데이터 교환
+- 각 도메인의 Application 서비스를 별도 패키지로 분리
+
+**실제 사례**:
+```java
+// ❌ 문제: ChatApplicationService가 Portfolio 도메인에 직접 의존
+class ChatApplicationService {
+    private final ProjectRepositoryPort projectRepositoryPort; // 직접 의존
+    private final List<Project> projects = projectRepositoryPort.findAll(); // 도메인 모델 직접 사용
+}
+
+// ✅ 해결: 포트를 통한 격리
+class ChatApplicationService {
+    private final ContextBuilderPort contextBuilderPort; // 추상화된 포트
+    private final String context = contextBuilderPort.buildFullPortfolioContext(); // 문자열로 격리
+}
+```
 
 ### 순환 참조 방지
 **문제**: FSD 구조에서 레이어 간 순환 참조

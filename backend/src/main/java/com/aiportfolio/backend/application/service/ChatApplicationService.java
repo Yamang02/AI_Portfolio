@@ -1,14 +1,15 @@
 package com.aiportfolio.backend.application.service;
 
-import com.aiportfolio.backend.domain.port.in.ChatUseCase;
-import com.aiportfolio.backend.domain.port.out.ProjectRepositoryPort;
-import com.aiportfolio.backend.domain.port.out.AIServicePort;
-import com.aiportfolio.backend.domain.port.out.LLMPort;
-import com.aiportfolio.backend.domain.port.out.PromptPort;
-import com.aiportfolio.backend.domain.port.out.QuestionAnalysisPort;
 import com.aiportfolio.backend.infrastructure.web.dto.chat.ChatRequestDto;
 import com.aiportfolio.backend.infrastructure.web.dto.chat.ChatResponseDto;
+import com.aiportfolio.backend.domain.chatbot.model.enums.ChatResponseType;
+import com.aiportfolio.backend.domain.chatbot.port.in.ChatUseCase;
+import com.aiportfolio.backend.domain.chatbot.port.out.AIServicePort;
+import com.aiportfolio.backend.domain.chatbot.port.out.LLMPort;
+import com.aiportfolio.backend.domain.chatbot.port.out.PromptPort;
+import com.aiportfolio.backend.domain.chatbot.port.out.QuestionAnalysisPort;
 import com.aiportfolio.backend.domain.model.Project;
+import com.aiportfolio.backend.domain.portfolio.port.out.ProjectRepositoryPort;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -142,7 +143,7 @@ public class ChatApplicationService implements ChatUseCase {
                 .response("죄송합니다. 현재 AI 서비스를 이용할 수 없습니다. 잠시 후 다시 시도해주세요.")
                 .success(true)
                 .showEmailButton(false)
-                .responseType(ChatResponseDto.ResponseType.SUCCESS)
+                .responseType(ChatResponseType.SUCCESS)
                 .build();
     }
     
@@ -151,7 +152,7 @@ public class ChatApplicationService implements ChatUseCase {
                 .response(message)
                 .success(true)
                 .showEmailButton(false)
-                .responseType(ChatResponseDto.ResponseType.SUCCESS)
+                .responseType(ChatResponseType.SUCCESS)
                 .build();
     }
     
@@ -160,7 +161,7 @@ public class ChatApplicationService implements ChatUseCase {
                 .response(message)
                 .success(false)
                 .showEmailButton(false)
-                .responseType(ChatResponseDto.ResponseType.SYSTEM_ERROR)
+                .responseType(ChatResponseType.SYSTEM_ERROR)
                 .build();
     }
 }

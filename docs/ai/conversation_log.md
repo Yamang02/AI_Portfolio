@@ -48,6 +48,77 @@
 - **에러 추적**: 사용자 경험 개선을 위한 에러 수집
 
 ### 6. 프로젝트 타입 구분 시스템 ✅
+
+## 🏗️ 백엔드 아키텍처 리팩토링 (헥사고날 아키텍처)
+
+### 헥사고날 아키텍처 완전 적용 ✅
+- **2024년 8월**: 백엔드를 헥사고날 아키텍처로 완전 리팩토링
+- **도메인 분리**: 
+  - `portfolio` 도메인: persistence → application → web 흐름
+  - `chatbot` 도메인: web → application → external AI/GitHub API 흐름
+- **레이어 분리**:
+  - Domain Layer: 순수 비즈니스 로직, 포트 정의
+  - Application Layer: 유스케이스 구현, 비즈니스 서비스
+  - Infrastructure Layer: 외부 시스템 어댑터 (DB, Web, API)
+
+### 주요 아키텍처 위반 수정 ✅
+1. **Service 클래스 위치 수정**: Infrastructure → Application Layer로 이동
+2. **Infrastructure 간 의존성 제거**: 순수 어댑터로 변경
+3. **ChatUseCase 의존성 위반 수정**: Infrastructure DTO → Domain Model 사용
+4. **도메인 모델 생성**: ChatRequest, ChatResponse 도메인 객체 생성
+5. **예외 클래스 분리**: LLMException을 도메인으로 분리
+
+### 패키지 구조 재정리 ✅
+```
+domain/
+├── portfolio/
+│   ├── model/ (Project, Experience, Education, Certification)
+│   └── port/ (in: UseCases, out: Repository)
+└── chatbot/
+    ├── model/ (ChatRequest, ChatResponse, enums, exceptions)
+    └── port/ (in: ChatUseCase, out: AIService, LLM)
+```
+
+### 어플리케이션 레이어 도메인별 정리 필요 🔄
+현재 상황:
+- **Portfolio 도메인**: persistence → 데이터 조회 → web 표현
+- **Chatbot 도메인**: web 프롬프트 → GitHub API + Gemini AI → 응답 생성
+
+### Application Layer 도메인별 분리 완료 ✅
+**2024년 8월**: 헥사고날 아키텍처 기반 Application Layer 완전 재구성
+
+#### 도메인 격리 (Domain Isolation) 구현 ✅
+1. **ContextBuilderPort 생성**: Chatbot 도메인의 아웃바운드 포트로 Portfolio 데이터 접근 추상화
+2. **ContextBuilderService 구현**: Portfolio 데이터를 컨텍스트 문자열로 변환하는 전용 서비스
+3. **ChatApplicationService 리팩토링**: 
+   - `ProjectRepositoryPort` 직접 의존성 제거
+   - `ContextBuilderPort`를 통한 느슨한 결합 구현
+   - Portfolio 도메인 모델 직접 사용 제거
+
+#### 도메인별 Application 패키지 분리 ✅
+```
+application/
+├── portfolio/                   # Portfolio 도메인
+│   ├── PortfolioApplicationService.java
+│   ├── ProjectApplicationService.java  
+│   └── GitHubIntegrationService.java   # GitHubService → 명확한 이름으로 변경
+├── chatbot/                     # Chatbot 도메인  
+│   ├── ChatApplicationService.java
+│   ├── service/
+│   │   ├── ContextBuilderService.java
+│   │   ├── ai/ (AIService, PromptService)
+│   │   └── analysis/ (QuestionAnalysisService)
+│   └── validation/ (InputValidationService, SpamProtectionService)
+└── common/ (PromptConverter)    # 공통 유틸리티
+```
+
+#### 핵심 아키텍처 개선사항 ✅
+- **명확한 도메인 경계**: Portfolio(데이터 관리) ↔ Chatbot(AI 서비스) 완전 분리
+- **포트를 통한 격리**: 도메인 간 직접 의존성 제거, 추상화된 인터페이스 사용
+- **단일 책임 원칙**: 각 서비스의 역할과 책임 명확화
+- **의존성 역전**: 모든 의존성이 Domain → Application → Infrastructure 방향 준수
+
+다음 단계: PostgreSQL 연결 및 실제 데이터베이스 구성 예정
 - **목적**: 실제 개발 프로젝트와 업무/학습 경험을 시각적으로 구분
 - **구현 내용**:
   - ✅ Project 인터페이스에 `type: 'project' | 'experience'` 필드 추가
@@ -2007,6 +2078,215 @@ Infrastructure Layer
 - **검증 강화**: Bean Validation으로 데이터 무결성 보장
 - **비즈니스 로직**: 도메인 모델에 핵심 로직 집중
 - **데이터베이스**: PostgreSQL의 고급 기능 활용 가능
+
+## 🔧 Infrastructure Security 패키지 구조 리팩토링 [2025-01-14]
+
+### 📁 **변경 내용**
+**Before**:
+```
+infrastructure/security/
+├── InputValidationService.java
+├── RateLimitingService.java  
+└── SpamProtectionService.java
+```
+
+**After**:
+```
+infrastructure/web/validation/
+├── InputValidationService.java
+├── RateLimitingService.java
+└── SpamProtectionService.java
+```
+
+### 🎯 **변경 이유**
+1. **헥사고날 아키텍처 원칙 준수**
+   - Web Controller에서 직접 사용하는 검증 로직들로 Web 계층에 속함
+   - Infrastructure 내부 순환 참조 문제 해결
+
+2. **관심사 분리 개선**
+   - HTTP 요청 검증은 Web 어댑터의 책임
+   - 실제 보안 관심사(인증/인가)와 입력 검증 분리
+
+3. **의존성 방향 정리**
+   - Before: Web Controller → Infrastructure Security (위반)
+   - After: Web Controller → Web Validation (적절)
+
+### 📝 **영향받은 파일**
+- `ChatController.java`: import 경로 수정
+- 3개 서비스 파일: package 선언 업데이트
+
+## 🏗️ 헥사고날 아키텍처 Service/Adapter 분리 리팩토링 [2025-01-14]
+
+### 📂 **구조 변경**
+**Before (잘못된 구조)**:
+```
+infrastructure/
+├── web/validation/           # @Service 클래스들 (위반!)
+│   ├── InputValidationService.java
+│   ├── RateLimitingService.java
+│   └── SpamProtectionService.java
+└── external/github/          # @Service 클래스 (위반!)
+    └── GitHubService.java
+```
+
+**After (올바른 헥사고날 구조)**:
+```
+application/service/          # @Service는 Application Layer!
+├── validation/
+│   ├── InputValidationService.java
+│   ├── RateLimitingService.java
+│   └── SpamProtectionService.java
+└── GitHubService.java
+
+infrastructure/               # 순수 Adapter만
+├── web/adapter/controller/   # Web Adapter
+└── external/adapter/ai/      # External Adapter
+```
+
+### 🎯 **변경 이유**
+1. **헥사고날 아키텍처 원칙 위반 수정**
+   - Infrastructure = 기술적 구현체(Adapter)만
+   - @Service = Application Layer 소속
+
+2. **올바른 의존성 방향 구성**
+   - Web Adapter → Application Service → Infrastructure Adapter
+   - 레이어 간 명확한 책임 분리
+
+3. **명명 규칙 정리**
+   - Infrastructure의 클래스들을 Adapter로 명명
+   - Service는 Application Layer에서만 사용
+
+### 📝 **변경된 파일들**
+- **이동된 Service 클래스**: 4개 파일
+- **패키지 구조 변경**: controller → adapter/controller
+- **Import 경로 수정**: ChatController, GitHubController
+- **의존성 참조 업데이트**: 모든 관련 파일
+
+## 📁 Infrastructure 디렉토리 구조 단순화 [2025-01-14]
+
+### 🎯 **구조 단순화**
+**Before (복잡한 구조)**:
+```
+infrastructure/
+├── external/adapter/ai/     # adapter 중복!
+├── persistence/Postgres/    # 대소문자 혼용
+└── web/adapter/controller/  # adapter 중복!
+```
+
+**After (단순한 표준 구조)**:
+```
+infrastructure/
+├── web/                    # Web 기술 구현
+│   ├── controller/
+│   └── dto/
+├── persistence/           # 데이터 저장 기술 구현  
+│   ├── postgres/
+│   └── entity/
+└── external/             # 외부 시스템 연동 기술 구현
+    └── ai/
+```
+
+### 🔧 **변경 사항**
+1. **불필요한 `adapter` 디렉토리 제거**
+   - `web/adapter/controller/` → `web/controller/`
+   - `external/adapter/ai/` → `external/ai/`
+
+2. **일관된 네이밍**
+   - `persistence/Postgres/` → `persistence/postgres/`
+
+3. **패키지 선언 업데이트**
+   - 모든 관련 Java 파일의 package 경로 수정
+
+### 💡 **장점**
+- **단순성**: 헥사고날의 핵심만 유지
+- **일관성**: 모든 디렉토리명이 소문자로 통일
+- **명확성**: 기술별로 명확하게 분리된 구조
+
+## 🤖 AI 관련 구조 순수 Infrastructure로 리팩토링 [2025-01-14]
+
+### 🎯 **구조 개선**
+**Before (문제가 있던 구조)**:
+```
+infrastructure/external/ai/
+├── GeminiLLMAdapter.java        # 2개 포트 구현 (위반!)
+├── JsonPromptAdapter.java       # 비즈니스 로직 포함 (위반!)
+└── RuleBasedQuestionAnalysisAdapter.java  # 복잡한 로직 (위반!)
+```
+
+**After (순수 Infrastructure 구조)**:
+```
+infrastructure/external/
+├── gemini/
+│   └── GeminiApiClient.java     # 순수 API 호출만
+└── file/                        # 추후 파일 읽기용
+
+application/service/
+├── ai/
+│   ├── AIService.java           # AI 비즈니스 로직
+│   └── PromptService.java       # 프롬프트 관리
+└── analysis/
+    └── QuestionAnalysisService.java  # 질문 분석 로직
+```
+
+### 🔧 **주요 변경사항**
+1. **책임 분리**
+   - `GeminiLLMAdapter` → `GeminiApiClient` (LLMPort만 구현)
+   - AIServicePort 구현을 별도 AIService로 분리
+
+2. **비즈니스 로직 이동**
+   - 질문 분석 로직 → Application Service
+   - 프롬프트 관리 로직 → Application Service
+
+3. **단일 책임 원칙 준수**
+   - Infrastructure: 순수 기술적 구현만
+   - Application: 비즈니스 로직 집중
+
+### 💡 **장점**
+- **확장성**: LangChain 도입 시 쉬운 확장
+- **테스트**: 비즈니스 로직과 기술 구현 분리로 테스트 용이
+- **유지보수**: 각 레이어의 명확한 책임
+
+## 🌐 Web Layer 헥사고날 아키텍처 위반사항 수정 [2025-01-14]
+
+### 🔍 **발견된 문제점**
+1. **DataController의 포트 직접 의존** (심각한 위반)
+   ```java
+   // Before (위반)
+   private final ProjectRepositoryPort projectRepositoryPort;
+   ```
+
+2. **비즈니스 규칙이 DTO에 위치**
+   ```java
+   // Before (위반)
+   public enum ResponseType {  // DTO 내부!
+       SUCCESS, RATE_LIMITED, SPAM_DETECTED...
+   }
+   ```
+
+3. **잘못된 import 경로**
+   - 존재하지 않는 서비스 경로 참조
+
+### 🔧 **수정 내용**
+1. **Domain Layer로 비즈니스 규칙 이동**
+   ```
+   domain/model/enums/
+   └── ChatResponseType.java  # 비즈니스 규칙
+   ```
+
+2. **Use Case 패턴 도입**
+   ```java
+   // After (올바름)
+   private final GetAllDataUseCase getAllDataUseCase;
+   ```
+
+3. **새로운 Use Case 및 Service 생성**
+   - `GetAllDataUseCase.java`: 인바운드 포트
+   - `PortfolioApplicationService.java`: Application Service
+
+### 💡 **헥사고날 원칙 준수**
+- **Web Controller**: 오직 Use Case만 의존
+- **Domain**: 비즈니스 규칙 집중
+- **Application**: Use Case 구현과 orchestration
 
 ### 🚀 **다음 단계 계획**
 - **PostgreSQL 연결 및 테스트**

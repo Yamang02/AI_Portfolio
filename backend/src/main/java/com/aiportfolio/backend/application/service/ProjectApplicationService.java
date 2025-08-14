@@ -1,8 +1,8 @@
 package com.aiportfolio.backend.application.service;
 
-import com.aiportfolio.backend.domain.port.in.GetProjectsUseCase;
-import com.aiportfolio.backend.domain.port.in.ManageProjectCacheUseCase;
-import com.aiportfolio.backend.domain.port.out.ProjectRepositoryPort;
+import com.aiportfolio.backend.domain.portfolio.port.in.GetProjectsUseCase;
+import com.aiportfolio.backend.domain.portfolio.port.in.ManageProjectCacheUseCase;
+import com.aiportfolio.backend.domain.portfolio.port.out.ProjectRepositoryPort;
 import com.aiportfolio.backend.domain.model.Project;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

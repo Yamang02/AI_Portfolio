@@ -1,12 +1,12 @@
 package com.aiportfolio.backend.infrastructure.web.controller;
 
 import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;
-import com.aiportfolio.backend.domain.model.Certification;
-import com.aiportfolio.backend.domain.model.Education;
-import com.aiportfolio.backend.domain.model.Experience;
-import com.aiportfolio.backend.domain.model.Project;
-import com.aiportfolio.backend.domain.port.in.GetProjectsUseCase;
-import com.aiportfolio.backend.domain.port.out.ProjectRepositoryPort;
+import com.aiportfolio.backend.domain.portfolio.model.Certification;
+import com.aiportfolio.backend.domain.portfolio.model.Education;
+import com.aiportfolio.backend.domain.portfolio.model.Experience;
+import com.aiportfolio.backend.domain.portfolio.model.Project;
+import com.aiportfolio.backend.domain.portfolio.port.in.GetProjectsUseCase;
+import com.aiportfolio.backend.domain.portfolio.port.in.GetAllDataUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -29,21 +29,13 @@ import java.util.Map;
 public class DataController {
     
     private final GetProjectsUseCase getProjectsUseCase;
-    private final ProjectRepositoryPort projectRepositoryPort;
+    private final GetAllDataUseCase getAllDataUseCase;
     
     @GetMapping("/all")
     @Operation(summary = "모든 포트폴리오 데이터 조회", description = "프로젝트, 경험, 자격증 등 모든 포트폴리오 데이터를 조회합니다.")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getAllData() {
         try {
-            List<Project> projects = getProjectsUseCase.getAllProjects();
-            List<Experience> experiences = projectRepositoryPort.findAllExperiences();
-            List<Certification> certifications = projectRepositoryPort.findAllCertifications();
-            
-            Map<String, Object> allData = Map.of(
-                "projects", projects,
-                "experiences", experiences,
-                "certifications", certifications
-            );
+            Map<String, Object> allData = getAllDataUseCase.getAllPortfolioData();
             
             return ResponseEntity.ok(ApiResponse.success(allData, "포트폴리오 데이터 조회 성공"));
         } catch (Exception e) {
@@ -70,7 +62,7 @@ public class DataController {
     @Operation(summary = "경험 데이터 조회", description = "모든 경험 정보를 조회합니다.")
     public ResponseEntity<ApiResponse<List<Experience>>> getExperiences() {
         try {
-            List<Experience> experiences = projectRepositoryPort.findAllExperiences();
+            List<Experience> experiences = getAllDataUseCase.getAllExperiences();
             return ResponseEntity.ok(ApiResponse.success(experiences, "경험 목록 조회 성공"));
         } catch (Exception e) {
             log.error("Error fetching experiences", e);
@@ -83,7 +75,7 @@ public class DataController {
     @Operation(summary = "자격증 데이터 조회", description = "모든 자격증 정보를 조회합니다.")
     public ResponseEntity<ApiResponse<List<Certification>>> getCertifications() {
         try {
-            List<Certification> certifications = projectRepositoryPort.findAllCertifications();
+            List<Certification> certifications = getAllDataUseCase.getAllCertifications();
             return ResponseEntity.ok(ApiResponse.success(certifications, "자격증 목록 조회 성공"));
         } catch (Exception e) {
             log.error("Error fetching certifications", e);
@@ -96,7 +88,7 @@ public class DataController {
     @Operation(summary = "교육 데이터 조회", description = "모든 교육 정보를 조회합니다.")
     public ResponseEntity<ApiResponse<List<Education>>> getEducation() {
         try {
-            List<Education> education = projectRepositoryPort.findAllEducations();
+            List<Education> education = getAllDataUseCase.getAllEducations();
             return ResponseEntity.ok(ApiResponse.success(education, "교육 목록 조회 성공"));
         } catch (Exception e) {
             log.error("Error fetching education", e);

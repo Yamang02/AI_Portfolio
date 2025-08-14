@@ -1,4 +1,4 @@
-package com.aiportfolio.backend.infrastructure.persistence.Postgres.entity;
+package com.aiportfolio.backend.infrastructure.persistence.postgres.entity;
 
 import lombok.Data;
 import lombok.Builder;
