@@ -22,7 +22,7 @@ import java.util.Optional;
  * 모든 Portfolio 관련 Use Case들을 구현하는 헥사고날 아키텍처의 Application Layer
  */
 @Slf4j
-@Service
+@Service("portfolioService")
 @RequiredArgsConstructor
 public class PortfolioService implements GetAllDataUseCase, GetProjectsUseCase, ManageProjectCacheUseCase {
     

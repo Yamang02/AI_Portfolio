@@ -387,3 +387,253 @@ class ChatApplicationService {
 - API 호출 최적화 (중복 호출 방지)
 - 번들 크기 최적화 (Tree shaking, Code splitting)
 
+
+## 🆕 PostgreSQL 마이그레이션 결정사항 (2025-08-19)
+
+### 현재 상황 분석
+**PostgreSQL 구현 상태**:
+- ✅ **설정 완료**: application.yml에 PostgreSQL 설정 존재
+- ✅ **구조 준비**: 헥사고날 아키텍처로 Repository 인터페이스 분리
+- ✅ **스키마 완성**: database/schema.sql로 테이블 구조 정의
+- ✅ **데이터 준비**: database/insert-data.sql로 실제 데이터 준비
+- ❌ **실제 구현 미완료**: PostgresPortfolioRepository가 빈 껍데기 상태
+
+### 아키텍처 결정사항
+
+#### 1. 엔티티 분리 전략: 매퍼 패턴 채택
+**결정**: 도메인 모델과 JPA 엔티티 완전 분리
+```java
+// 도메인 모델 (순수 비즈니스 로직)
+public class Project {
+    private String id;  // 비즈니스 ID (PJT001)
+    // JPA 어노테이션 없음
+}
+
+// JPA 엔티티 (데이터베이스 매핑)
+@Entity
+@Table(name = "projects")
+public class ProjectJpaEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;  // DB 내부 ID
+    
+    @Column(name = "business_id", unique = true)
+    private String businessId;  // 비즈니스 ID
+}
+
+// 매퍼 (변환 로직)
+@Component
+public class ProjectMapper {
+    public Project toDomain(ProjectJpaEntity jpaEntity) { ... }
+    public ProjectJpaEntity toJpaEntity(Project domainModel) { ... }
+}
+```
+
+**이유**:
+- 도메인 모델이 JPA에 오염되지 않음
+- 데이터베이스 스키마 변경이 도메인에 영향 없음
+- 테스트 시 순수 객체 사용 가능
+- 향후 다른 데이터베이스로 전환 용이
+
+#### 2. 네이밍 컨벤션 통일
+**결정**: 기존 프로젝트 패턴 유지 + 명확한 구분
+- **도메인 모델**: `Project`, `Experience` (기존 그대로)
+- **JPA 엔티티**: `ProjectJpaEntity`, `ExperienceJpaEntity` (새로 추가)
+- **매퍼**: `ProjectMapper`, `ExperienceMapper` (새로 추가)
+
+**이유**: 기존 코드와의 호환성 유지하면서 새로운 레이어 명확히 구분
+
+#### 3. Repository 통합 관리 전략
+**결정**: Portfolio Repository가 모든 엔티티 통합 관리
+```java
+public interface PortfolioRepositoryPort {
+    // Project 관련
+    List<Project> findAllProjects();
+    Optional<Project> findProjectById(String id);
+    
+    // Experience 관련
+    List<Experience> findAllExperiences();
+    
+    // Education 관련
+    List<Education> findAllEducations();
+    
+    // Certification 관련
+    List<Certification> findAllCertifications();
+}
+```
+
+**이유**:
+- 도메인 응집성: Portfolio 관련 모든 데이터가 하나의 Repository로 관리
+- 트랜잭션 일관성: 하나의 서비스에서 여러 엔티티 동시 처리 가능
+- 캐시 통합 관리: 전체 Portfolio 데이터의 캐시를 일괄 관리
+
+#### 4. 이중 ID 체계 확정
+**결정**: DB 내부 ID와 비즈니스 ID 분리
+- **DB 내부 ID**: `id SERIAL PRIMARY KEY` (성능 최적화)
+- **비즈니스 ID**: `business_id VARCHAR(20)` (비즈니스 로직)
+- **매핑**: 도메인 모델의 `id` ↔ JPA 엔티티의 `businessId`
+
+**이유**:
+- 데이터베이스 성능: 숫자 ID로 조인 성능 최적화
+- 비즈니스 요구사항: 의미있는 ID로 사용자 친화적
+- 프론트엔드 호환성: 기존 API 응답 구조 유지
+
+### 데이터 마이그레이션 전략
+
+#### 1. SQL 파일 기반 접근 채택
+**결정**: 별도 마이그레이션 코드 없이 SQL 파일 활용
+- **스키마**: database/schema.sql (Docker 초기화 시 자동 실행)
+- **데이터**: database/insert-data.sql (Docker 초기화 시 자동 실행)
+- **환경**: Docker Compose로 로컬 개발 환경 구성
+
+**이유**:
+- 단순성: 복잡한 마이그레이션 로직 불필요
+- 신뢰성: SQL 파일로 데이터 일관성 보장
+- 재현성: Docker 이미지로 동일한 환경 구성 가능
+
+#### 2. 개발 환경 우선 완성
+**결정**: 로컬 개발 환경에서 완전 동작을 목표
+- **포함**: JPA 엔티티, Repository 구현, Docker 통합, API 호환성
+- **제외**: 프로덕션 배포, 고급 성능 튜닝, 운영 환경 설정
+
+**이유**:
+- 빠른 검증: 3-4일 내 완성 가능
+- 안정적 기반: AI 서비스 개발을 위한 견고한 데이터 레이어
+- 점진적 개선: 기본 동작 확인 후 최적화 진행
+
+### AI 서비스 분리 준비
+
+#### 1. 기술 스택 확정
+**결정**: Qdrant Cloud + LangSmith 조합
+- **벡터 DB**: Qdrant Cloud Free Tier (1GB, 100만 요청/월)
+- **모니터링**: LangSmith Free Tier (5K 트레이스/월)
+- **웹 프레임워크**: FastAPI (Python 표준)
+- **AI 프레임워크**: LangChain (Python)
+
+**이유**:
+- 비용 최적화: 두 서비스 모두 Free Tier로 시작 가능
+- 완성도: LangSmith는 LangChain과 완벽 통합
+- 확장성: 필요시 유료 플랜으로 쉽게 확장
+
+#### 2. 서비스 분리 전략
+**결정**: 백엔드 중심 오케스트레이션 유지
+- **프론트엔드**: 기존 API 엔드포인트 그대로 사용
+- **Spring Boot**: 모든 요청의 단일 진입점 유지
+- **AI 서비스**: 백엔드에서 호출하는 내부 서비스
+- **데이터 계층**: PostgreSQL(기본) + 벡터 DB(AI 강화)
+
+**이유**:
+- 프론트엔드 호환성: 기존 코드 변경 없음
+- 운영 단순성: 하나의 API 게이트웨이
+- 장애 대응: AI 서비스 장애 시 PostgreSQL 기반 대체 응답
+
+### 개발 우선순위 조정
+
+#### Phase 1: PostgreSQL 완성 (현재)
+**목표**: 안정적인 데이터 레이어 구축
+**기간**: 3-4일
+**범위**: 로컬 개발 환경에서 완전 동작
+
+#### Phase 2: AI 서비스 분리 (다음)
+**목표**: Python AI 서비스 구축 및 연동
+**기간**: 2-3주
+**범위**: RAG 시스템, 벡터 검색, LangSmith 통합
+
+#### Phase 3: 고도화 (향후)
+**목표**: LangGraph 확장 및 성능 최적화
+**기간**: 1-2주
+**범위**: 워크플로우 기반 AI, 고급 모니터링
+
+### 중요한 제약사항 및 원칙
+
+#### 1. 기존 호환성 절대 유지
+- 프론트엔드 API 엔드포인트 변경 금지
+- 응답 JSON 구조 유지
+- ID 체계 (비즈니스 ID) 유지
+
+#### 2. 데이터 신뢰성 우선
+- PostgreSQL이 항상 신뢰할 수 있는 소스
+- AI 서비스 장애 시 PostgreSQL 기반 대체 응답
+- 데이터 일관성 보장 (PostgreSQL ↔ 벡터 DB)
+
+#### 3. 점진적 마이그레이션
+- 기존 시스템 중단 없이 새 기능 추가
+- 단계별 검증 및 롤백 가능한 구조
+- 사용자 경험 최우선
+
+### 다음 개발 세션 준비사항
+1. **PostgreSQL Docker 환경 확인**: `docker-compose up postgres`
+2. **데이터베이스 연결 테스트**: pgAdmin 또는 CLI로 접속 확인
+3. **기존 스키마 검토**: database/schema.sql과 도메인 모델 매핑 확인
+4. **첫 번째 작업 시작**: ProjectJpaEntity 구현부터 시작
+
+---
+
+*업데이트: 2025-08-19 - PostgreSQL 마이그레이션 결정사항 및 AI 서비스 분리 전략 확정*
+
+## Import 컨벤션 가이드라인
+
+### Java Import 정리 규칙
+
+**그룹별 정리 순서:**
+1. **도메인 모델 imports** - 비즈니스 로직 관련
+2. **인프라 레이어 imports** - 기술 구현 관련  
+3. **외부 라이브러리 imports** - Spring, Lombok 등
+4. **Java 표준 라이브러리 imports** - java.util, java.time 등
+
+**예시:**
+```java
+package com.aiportfolio.backend.infrastructure.persistence.postgres;
+
+// 도메인 모델 imports
+import com.aiportfolio.backend.domain.portfolio.port.out.PortfolioRepositoryPort;
+import com.aiportfolio.backend.domain.portfolio.model.*;
+
+// 인프라 레이어 imports (와일드카드 사용)
+import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.*;
+import com.aiportfolio.backend.infrastructure.persistence.postgres.mapper.*;
+import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.*;
+
+// 외부 라이브러리 imports
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Repository;
+
+// Java 표준 라이브러리 imports
+import java.time.LocalDateTime;
+import java.util.*;
+```
+
+### 와일드카드 사용 규칙
+
+**사용하는 경우:**
+- 같은 패키지에서 3개 이상 import할 때
+- 관련된 클래스들이 함께 사용될 때
+
+**사용하지 않는 경우:**
+- 1-2개만 import할 때
+- 클래스명이 겹칠 가능성이 있을 때
+
+### 주석 활용
+
+각 import 그룹별로 주석을 추가하여 가독성 향상:
+```java
+// 도메인 모델 imports
+// 인프라 레이어 imports  
+// 외부 라이브러리 imports
+// Java 표준 라이브러리 imports
+```
+
+### IDE 설정 권장사항
+
+**IntelliJ IDEA:**
+- `Ctrl+Alt+O`: Import 최적화
+- 와일드카드 임계값: 3개 이상
+- 정적 import 임계값: 2개 이상
+
+**Eclipse:**
+- `Ctrl+Shift+O`: Import 정리
+- Organize Imports 설정에서 임계값 조정
+
+이 컨벤션을 따르면 코드 가독성이 크게 향상되고 팀 내 일관성을 유지할 수 있습니다.

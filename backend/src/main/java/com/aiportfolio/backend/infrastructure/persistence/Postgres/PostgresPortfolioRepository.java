@@ -1,19 +1,23 @@
 package com.aiportfolio.backend.infrastructure.persistence.postgres;
 
+// 도메인 모델 imports
 import com.aiportfolio.backend.domain.portfolio.port.out.PortfolioRepositoryPort;
-import com.aiportfolio.backend.domain.portfolio.model.Project;
-import com.aiportfolio.backend.domain.portfolio.model.Experience;
-import com.aiportfolio.backend.domain.portfolio.model.Education;
-import com.aiportfolio.backend.domain.portfolio.model.Certification;
+import com.aiportfolio.backend.domain.portfolio.model.*;
 
+// 인프라 레이어 imports (와일드카드 사용)
+import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.*;
+import com.aiportfolio.backend.infrastructure.persistence.postgres.mapper.*;
+import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.*;
+
+// 외부 라이브러리 imports
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Repository;
 import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Repository;
 
+// Java 표준 라이브러리 imports
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.ArrayList;
+import java.util.*;
 
 /**
  * PostgreSQL 기반 PortfolioRepository 구현체
@@ -23,8 +27,21 @@ import java.util.ArrayList;
 @Slf4j
 @Repository
 @Primary
+@RequiredArgsConstructor
 public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
-    
+
+    // JPA Repository들 (Spring Data JPA 인터페이스)
+    private final ProjectJpaRepository projectJpaRepository;
+    private final ExperienceJpaRepository experienceJpaRepository;
+    private final EducationJpaRepository educationJpaRepository;
+    private final CertificationJpaRepository certificationJpaRepository;
+
+    // 매퍼들 (도메인 ↔ JPA 엔티티 변환)
+    private final ProjectMapper projectMapper;
+    private final ExperienceMapper experienceMapper;
+    private final EducationMapper educationMapper;
+    private final CertificationMapper certificationMapper;
+
     // 캐시 관련 필드
     private List<Project> cachedProjects;
     private List<Experience> cachedExperiences;
@@ -32,121 +49,180 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
     private List<Certification> cachedCertifications;
     private LocalDateTime lastCacheTime;
     private static final long CACHE_DURATION_MINUTES = 60; // 1시간 캐시
-    
-    public PostgresPortfolioRepository() {
-        log.info("PostgresPortfolioRepository 초기화 - PostgreSQL 데이터베이스 사용");
-    }
-    
+
     // === 프로젝트 관련 구현 ===
-    
+
     @Override
     public List<Project> findAllProjects() {
         if (cachedProjects == null || !isCacheValid()) {
-            // TODO: PostgreSQL에서 직접 데이터 조회
             log.info("PostgreSQL에서 프로젝트 데이터를 조회합니다.");
-            cachedProjects = new ArrayList<>(); // 임시로 빈 리스트 반환
-            updateCacheTime();
+            try {
+                List<ProjectJpaEntity> jpaEntities = projectJpaRepository.findAllOrderedBySortOrderAndStartDate();
+                cachedProjects = projectMapper.toDomainList(jpaEntities);
+                updateCacheTime();
+                log.info("프로젝트 {} 개를 성공적으로 조회했습니다.", cachedProjects.size());
+            } catch (Exception e) {
+                log.error("프로젝트 조회 중 오류 발생", e);
+                cachedProjects = new ArrayList<>();
+            }
         }
         return cachedProjects;
     }
-    
+
     @Override
     public Optional<Project> findProjectById(String id) {
-        return findAllProjects().stream()
-                .filter(p -> p.getId().equals(id))
-                .findFirst();
+        try {
+            Optional<ProjectJpaEntity> jpaEntity = projectJpaRepository.findByBusinessId(id);
+            return jpaEntity.map(projectMapper::toDomain);
+        } catch (Exception e) {
+            log.error("프로젝트 ID로 조회 중 오류 발생: {}", id, e);
+            return Optional.empty();
+        }
     }
-    
+
     @Override
     public Optional<Project> findProjectByTitle(String title) {
-        return findAllProjects().stream()
-                .filter(p -> p.getTitle().equals(title))
-                .findFirst();
+        try {
+            Optional<ProjectJpaEntity> jpaEntity = projectJpaRepository.findByTitle(title);
+            return jpaEntity.map(projectMapper::toDomain);
+        } catch (Exception e) {
+            log.error("프로젝트 제목으로 조회 중 오류 발생: {}", title, e);
+            return Optional.empty();
+        }
     }
-    
+
     @Override
     public List<Project> findProjectsByType(String type) {
-        return findAllProjects().stream()
-                .filter(p -> type == null || type.equals(p.getType()))
-                .collect(java.util.stream.Collectors.toList());
+        try {
+            if (type == null) {
+                return findAllProjects();
+            }
+            List<ProjectJpaEntity> jpaEntities = projectJpaRepository.findByType(type);
+            return projectMapper.toDomainList(jpaEntities);
+        } catch (Exception e) {
+            log.error("프로젝트 타입으로 조회 중 오류 발생: {}", type, e);
+            return new ArrayList<>();
+        }
     }
-    
+
     @Override
     public List<Project> findProjectsBySource(String source) {
-        return findAllProjects().stream()
-                .filter(p -> source == null || source.equals(p.getSource()))
-                .collect(java.util.stream.Collectors.toList());
+        try {
+            if (source == null) {
+                return findAllProjects();
+            }
+            List<ProjectJpaEntity> jpaEntities = projectJpaRepository.findBySource(source);
+            return projectMapper.toDomainList(jpaEntities);
+        } catch (Exception e) {
+            log.error("프로젝트 소스로 조회 중 오류 발생: {}", source, e);
+            return new ArrayList<>();
+        }
     }
-    
+
     @Override
     public List<Project> findProjectsByTeamStatus(boolean isTeam) {
-        return findAllProjects().stream()
-                .filter(p -> p.isTeam() == isTeam)
-                .collect(java.util.stream.Collectors.toList());
+        try {
+            List<ProjectJpaEntity> jpaEntities = projectJpaRepository.findByIsTeam(isTeam);
+            return projectMapper.toDomainList(jpaEntities);
+        } catch (Exception e) {
+            log.error("프로젝트 팀 상태로 조회 중 오류 발생: {}", isTeam, e);
+            return new ArrayList<>();
+        }
     }
-    
+
     // === 경력 관련 구현 ===
-    
+
     @Override
     public List<Experience> findAllExperiences() {
         if (cachedExperiences == null || !isCacheValid()) {
-            // TODO: 향후 PostgreSQL로 마이그레이션
-            log.warn("PostgreSQL 구현이 완료되지 않았습니다. JSON 파일을 사용합니다.");
-            cachedExperiences = new ArrayList<>(); // 임시로 빈 리스트 반환
-            updateCacheTime();
+            log.info("PostgreSQL에서 경력 데이터를 조회합니다.");
+            try {
+                List<ExperienceJpaEntity> jpaEntities = experienceJpaRepository.findAllOrderedBySortOrderAndStartDate();
+                cachedExperiences = experienceMapper.toDomainList(jpaEntities);
+                updateCacheTime();
+                log.info("경력 {} 개를 성공적으로 조회했습니다.", cachedExperiences.size());
+            } catch (Exception e) {
+                log.error("경력 조회 중 오류 발생", e);
+                cachedExperiences = new ArrayList<>();
+            }
         }
         return cachedExperiences;
     }
-    
+
     @Override
     public Optional<Experience> findExperienceById(String id) {
-        return findAllExperiences().stream()
-                .filter(e -> e.getId().equals(id))
-                .findFirst();
+        try {
+            Optional<ExperienceJpaEntity> jpaEntity = experienceJpaRepository.findByBusinessId(id);
+            return jpaEntity.map(experienceMapper::toDomain);
+        } catch (Exception e) {
+            log.error("경력 ID로 조회 중 오류 발생: {}", id, e);
+            return Optional.empty();
+        }
     }
-    
+
     // === 교육 관련 구현 ===
-    
+
     @Override
     public List<Education> findAllEducations() {
         if (cachedEducations == null || !isCacheValid()) {
-            // TODO: 향후 PostgreSQL로 마이그레이션
-            log.warn("PostgreSQL 구현이 완료되지 않았습니다. JSON 파일을 사용합니다.");
-            cachedEducations = new ArrayList<>(); // 임시로 빈 리스트 반환
-            updateCacheTime();
+            log.info("PostgreSQL에서 교육 데이터를 조회합니다.");
+            try {
+                List<EducationJpaEntity> jpaEntities = educationJpaRepository.findAllOrderedBySortOrderAndStartDate();
+                cachedEducations = educationMapper.toDomainList(jpaEntities);
+                updateCacheTime();
+                log.info("교육 {} 개를 성공적으로 조회했습니다.", cachedEducations.size());
+            } catch (Exception e) {
+                log.error("교육 조회 중 오류 발생", e);
+                cachedEducations = new ArrayList<>();
+            }
         }
         return cachedEducations;
     }
-    
+
     @Override
     public Optional<Education> findEducationById(String id) {
-        return findAllEducations().stream()
-                .filter(e -> e.getId().equals(id))
-                .findFirst();
+        try {
+            Optional<EducationJpaEntity> jpaEntity = educationJpaRepository.findByBusinessId(id);
+            return jpaEntity.map(educationMapper::toDomain);
+        } catch (Exception e) {
+            log.error("교육 ID로 조회 중 오류 발생: {}", id, e);
+            return Optional.empty();
+        }
     }
-    
+
     // === 자격증 관련 구현 ===
-    
+
     @Override
     public List<Certification> findAllCertifications() {
         if (cachedCertifications == null || !isCacheValid()) {
-            // TODO: 향후 PostgreSQL로 마이그레이션
-            log.warn("PostgreSQL 구현이 완료되지 않았습니다. JSON 파일을 사용합니다.");
-            cachedCertifications = new ArrayList<>(); // 임시로 빈 리스트 반환
-            updateCacheTime();
+            log.info("PostgreSQL에서 자격증 데이터를 조회합니다.");
+            try {
+                List<CertificationJpaEntity> jpaEntities = certificationJpaRepository
+                        .findAllOrderedBySortOrderAndDate();
+                cachedCertifications = certificationMapper.toDomainList(jpaEntities);
+                updateCacheTime();
+                log.info("자격증 {} 개를 성공적으로 조회했습니다.", cachedCertifications.size());
+            } catch (Exception e) {
+                log.error("자격증 조회 중 오류 발생", e);
+                cachedCertifications = new ArrayList<>();
+            }
         }
         return cachedCertifications;
     }
-    
+
     @Override
     public Optional<Certification> findCertificationById(String id) {
-        return findAllCertifications().stream()
-                .filter(c -> c.getId().equals(id))
-                .findFirst();
+        try {
+            Optional<CertificationJpaEntity> jpaEntity = certificationJpaRepository.findByBusinessId(id);
+            return jpaEntity.map(certificationMapper::toDomain);
+        } catch (Exception e) {
+            log.error("자격증 ID로 조회 중 오류 발생: {}", id, e);
+            return Optional.empty();
+        }
     }
-    
+
     // === 캐시 관리 ===
-    
+
     @Override
     public void invalidateCache() {
         cachedProjects = null;
@@ -156,7 +232,7 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
         lastCacheTime = null;
         log.info("캐시가 무효화되었습니다.");
     }
-    
+
     @Override
     public boolean isCacheValid() {
         if (lastCacheTime == null) {
@@ -164,7 +240,7 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
         }
         return LocalDateTime.now().minusMinutes(CACHE_DURATION_MINUTES).isBefore(lastCacheTime);
     }
-    
+
     private void updateCacheTime() {
         lastCacheTime = LocalDateTime.now();
     }

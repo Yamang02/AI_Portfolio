@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,12 +25,18 @@ import java.util.Map;
 @Slf4j
 @RestController
 @RequestMapping("/api/data")
-@RequiredArgsConstructor
 @Tag(name = "Data", description = "포트폴리오 데이터 API")
 public class DataController {
     
     private final GetProjectsUseCase getProjectsUseCase;
     private final GetAllDataUseCase getAllDataUseCase;
+    
+    public DataController(
+            @Qualifier("portfolioService") GetProjectsUseCase getProjectsUseCase,
+            @Qualifier("portfolioApplicationService") GetAllDataUseCase getAllDataUseCase) {
+        this.getProjectsUseCase = getProjectsUseCase;
+        this.getAllDataUseCase = getAllDataUseCase;
+    }
     
     @GetMapping("/all")
     @Operation(summary = "모든 포트폴리오 데이터 조회", description = "프로젝트, 경험, 자격증 등 모든 포트폴리오 데이터를 조회합니다.")

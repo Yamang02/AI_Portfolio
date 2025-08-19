@@ -1209,7 +1209,7 @@ const handleMouseLeave = () => {
 
 ---
 
-## 2024-06 GCP Cloud Run 배포 세션 요약
+## 2024-07 GCP Cloud Run 배포 세션 요약
 
 ### 주요 진행 상황
 - GCP Cloud Run + GitHub Actions 기반 자동 배포 환경 구축
@@ -2295,3 +2295,112 @@ application/service/
 - **성능 테스트 및 최적화**
 
 
+
+
+## 🐘 PostgreSQL 연결 및 JPA 배열 처리 완료 [2025-08-19]
+
+### 🔍 **발견된 문제점**
+
+#### 1. JPA 쿼리 메서드 생성 실패
+```bash
+Error: Could not create query for public abstract java.util.List 
+com.aiportfolio.backend.infrastructure.persistence.postgres.repository.ProjectJpaRepository.findByTechnology(java.lang.String)
+```
+
+**원인**: PostgreSQL의 `text[]` 배열 타입을 JPA가 제대로 매핑하지 못함
+
+#### 2. Spring Bean 의존성 주입 충돌
+```bash
+Error: No qualifying bean of type 'GetProjectsUseCase' available: 
+expected single matching bean but found 2: portfolioService, projectApplicationService
+```
+
+**원인**: 동일한 인터페이스를 구현하는 여러 Bean이 존재하여 의존성 주입 시 충돌
+
+### 🔧 **해결 방안**
+
+#### 1. PostgreSQL 배열 타입 JPA 매핑 수정
+
+**문제가 있던 코드**:
+```java
+@Column(name = "technologies")
+private List<String> technologies;
+
+@Query("SELECT p FROM ProjectJpaEntity p WHERE :technology MEMBER OF p.technologies")
+List<ProjectJpaEntity> findByTechnology(@Param("technology") String technology);
+```
+
+**수정된 코드**:
+```java
+@Column(name = "technologies", columnDefinition = "text[]")
+@JdbcTypeCode(SqlTypes.ARRAY)
+private List<String> technologies;
+
+@Query(value = "SELECT * FROM projects WHERE :technology = ANY(technologies)", nativeQuery = true)
+List<ProjectJpaEntity> findByTechnology(@Param("technology") String technology);
+```
+
+**적용된 엔티티**:
+- `ProjectJpaEntity.java`: technologies, myContributions
+- `ExperienceJpaEntity.java`: technologies, mainResponsibilities, achievements, projects  
+- `EducationJpaEntity.java`: technologies, projects
+
+#### 2. Spring Bean 의존성 주입 충돌 해결
+
+**문제가 있던 코드**:
+```java
+@RequiredArgsConstructor
+public class PortfolioApplicationService {
+    private final GetProjectsUseCase getProjectsUseCase; // 충돌!
+}
+```
+
+**수정된 코드**:
+```java
+public class PortfolioApplicationService {
+    private final GetProjectsUseCase getProjectsUseCase;
+    
+    public PortfolioApplicationService(
+            @Qualifier("portfolioService") GetProjectsUseCase getProjectsUseCase,
+            PortfolioRepositoryPort portfolioRepositoryPort) {
+        this.getProjectsUseCase = getProjectsUseCase;
+        this.portfolioRepositoryPort = portfolioRepositoryPort;
+    }
+}
+```
+
+**수정된 파일들**:
+- `PortfolioApplicationService.java`
+- `DataController.java`
+
+### ✅ **최종 결과**
+
+#### 성공적인 애플리케이션 시작
+```bash
+2025-08-19 18:42:49 - Tomcat started on port 8080 (http) with context path ''
+2025-08-19 18:42:49 - Started BackendApplication in 4.342 seconds
+```
+
+#### 해결된 기능들
+1. **PostgreSQL 연결 성공** ✅
+2. **JPA Repository 정상 작동** ✅  
+3. **배열 필드 매핑 완료** ✅
+4. **Spring Bean 의존성 주입 정상화** ✅
+
+### 🎯 **주요 학습 사항**
+
+#### PostgreSQL 배열 처리 시 주의사항
+1. `@JdbcTypeCode(SqlTypes.ARRAY)` 필수 적용
+2. `columnDefinition = "text[]"` 명시적 지정
+3. JPQL `MEMBER OF` 대신 네이티브 쿼리 `ANY()` 사용
+
+#### Spring 의존성 주입 베스트 프랙티스
+1. 동일 인터페이스 구현체 여러 개 시 `@Qualifier` 필수
+2. `@RequiredArgsConstructor` 보다 명시적 생성자 권장
+3. Bean 네이밍 컨벤션 일관성 유지
+
+### 🚀 **다음 단계 계획**
+- **데이터 마이그레이션 스크립트 작성**
+- **실제 데이터 삽입 테스트**
+- **API 엔드포인트 기능 테스트**
+- **성능 최적화 및 모니터링 설정**
