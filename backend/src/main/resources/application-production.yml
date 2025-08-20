@@ -1,11 +1,15 @@
 # Production environment (Railway + Cloud Run)
 spring:
-  # Railway PostgreSQL Configuration
+  # Railway PostgreSQL Configuration (URL 변환 처리)
   datasource:
-    url: ${DATABASE_URL}  # Railway에서 제공하는 전체 연결 문자열
+    # DatabaseConfig에서 Railway URL을 자동으로 JDBC 형식으로 변환
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 5  # Cloud Run 메모리 제한 고려
+      minimum-idle: 1
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
   
   # JPA Configuration for Production  
   jpa:

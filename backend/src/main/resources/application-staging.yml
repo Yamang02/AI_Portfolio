@@ -5,10 +5,17 @@ spring:
   application:
     name: ai-portfolio-backend-staging
   
-  # Railway PostgreSQL 설정
+  # Railway PostgreSQL 설정 (URL 변환 처리)
   datasource:
-    url: ${DATABASE_URL}
+    # DatabaseConfig에서 Railway URL을 자동으로 JDBC 형식으로 변환
+    # DATABASE_URL이 있으면 DatabaseConfig의 railwayDataSource Bean 사용
     driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
   
   jpa:
     hibernate:
