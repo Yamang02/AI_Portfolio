@@ -34,6 +34,9 @@ RUN mvn clean package -DskipTests
 # Stage 3: 프로덕션 단계
 FROM eclipse-temurin:17-jre-alpine
 
+# 필수 패키지 설치 (curl for health checks)
+RUN apk add --no-cache curl
+
 # 작업 디렉토리 설정
 WORKDIR /app
 
@@ -43,8 +46,12 @@ COPY --from=backend-builder /app/backend/target/*.jar app.jar
 # Frontend 빌드 결과를 정적 파일로 서빙하기 위한 설정
 COPY --from=frontend-builder /app/frontend/dist /app/static
 
-# 포트 8080 노출
+# 포트 8080 노출 (Cloud Run에서는 동적 PORT 사용)
 EXPOSE 8080
 
-# Spring Boot 애플리케이션 실행
-CMD ["java", "-jar", "app.jar"] 
+# Health check (로컬 테스트용)
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+  CMD curl -f http://localhost:${PORT:-8080}/actuator/health || exit 1
+
+# JVM 최적화 설정으로 Spring Boot 애플리케이션 실행
+CMD ["java", "-XX:+UseContainerSupport", "-XX:MaxRAMPercentage=75.0", "-Djava.security.egd=file:/dev/./urandom", "-jar", "app.jar"] 
