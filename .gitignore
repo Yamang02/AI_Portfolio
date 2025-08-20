@@ -164,4 +164,7 @@ database/
 # Railway environment (actual config)
 .env.railway
 
+# Kiro project management files
+.kiro/
+
 

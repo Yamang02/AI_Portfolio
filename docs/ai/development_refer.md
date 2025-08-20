@@ -4,7 +4,7 @@
 > 
 > **업데이트 규칙**: conversation_log에 새로운 개발 내용 추가 시, 이 문서에 반영할 핵심 정보가 있는지 검토 필요
 > 
-> **마지막 업데이트**: 2025-08-14 - 헥사고날 아키텍처 완성 및 Application Layer 도메인별 분리
+> **마지막 업데이트**: 2025-08-20 - 브랜치별 CI/CD 전략 및 데이터베이스 보안 설정 결정
 
 ## 📋 AI Agent 행동강령
 
@@ -310,6 +310,57 @@ import type { Project } from '../../entities';
 - 검색 최적화: 하이브리드 검색 (키워드 + 벡터)
 
 ## 🚀 배포 & 운영
+
+### 🆕 브랜치별 CI/CD 전략 (2025-08-20)
+**목적**: 개발 편의성과 프로덕션 보안을 모두 확보하는 차별화된 배포 전략
+
+#### Staging 환경 (자동화 우선)
+**전략**: 완전 자동화 + 높은 권한
+- **데이터베이스 권한**: postgres 사용자 (DDL 권한 포함)
+- **마이그레이션**: CI/CD에서 자동 실행
+- **배포 트리거**: staging 브랜치 push 시 자동
+- **목적**: 빠른 피드백과 개발 편의성
+
+**환경변수 설정**:
+```yaml
+staging:
+  DATABASE_URL: postgresql://postgres:password@staging-host/db
+  GEMINI_API_KEY: ${STAGING_GEMINI_API_KEY}
+```
+
+#### Production 환경 (보안 우선)
+**전략**: 수동 배포 + 권한 분리
+- **마이그레이션**: postgres 사용자로 수동 실행 (관리자가 직접)
+- **애플리케이션**: ai_portfolio_app 사용자 (DML만 허용)
+- **배포 트리거**: workflow_dispatch (수동 트리거)
+- **목적**: 보안 모범 사례와 안정성 확보
+
+**권한 설정**:
+```sql
+-- 애플리케이션 전용 사용자 생성
+CREATE USER ai_portfolio_app WITH PASSWORD 'secure_password';
+GRANT CONNECT ON DATABASE ai_portfolio TO ai_portfolio_app;
+GRANT USAGE ON SCHEMA public TO ai_portfolio_app;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO ai_portfolio_app;
+```
+
+**환경변수 설정**:
+```yaml
+production:
+  MIGRATION_URL: postgresql://postgres:password@prod-host/db      # 마이그레이션용
+  APP_DATABASE_URL: postgresql://ai_portfolio_app:pwd@prod-host/db # 앱 실행용
+```
+
+#### 핵심 장점
+1. **개발 속도**: Staging에서 자동화된 빠른 피드백
+2. **프로덕션 안정성**: 수동 검토와 권한 분리로 안전성 확보
+3. **보안 학습**: 실무 모범 사례 경험
+4. **운영 유연성**: 환경별 맞춤 전략
+
+#### 구현 방향
+- `.kiro/` 폴더: .gitignore 처리로 개발 도구 파일 제외
+- GitHub Actions: 브랜치별 다른 워크플로우 구성
+- Railway 환경: Staging과 Production 별도 인스턴스
 
 ### Docker 멀티스테이지 패턴
 **통합 배포 구조**:

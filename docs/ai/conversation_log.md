@@ -47,9 +47,43 @@
 - **모니터링**: Google Cloud Monitoring
 - **에러 추적**: 사용자 경험 개선을 위한 에러 수집
 
-### 6. 프로젝트 타입 구분 시스템 ✅
+### 6. 브랜치별 CI/CD 전략 및 데이터베이스 보안 설정 ✅
+**결정일**: 2025-08-20
 
-### 7. 백엔드 아키텍처 정리 ✅ (2025-08-20)
+#### 배경
+- PostgreSQL 브랜치와 staging 브랜치 병합 완료
+- 배포 환경에서 데이터베이스 보안 및 CI/CD 자동화 전략 논의
+- 스키마 마이그레이션과 애플리케이션 권한 분리 필요성 검토
+
+#### 최종 결정사항
+1. **브랜치별 차별화된 CI/CD 전략 채택**
+   - **Staging 브랜치**: 완전 자동화 + 높은 권한 (postgres 사용자)
+   - **Production 브랜치**: 수동 배포 + 제한된 권한 (별도 앱 사용자)
+
+2. **Staging 환경 설정**
+   - CI/CD에서 자동 마이그레이션 실행
+   - postgres 사용자 사용 (CREATE, ALTER 등 DDL 권한 필요)
+   - 빠른 개발 및 테스트 피드백 우선
+
+3. **Production 환경 설정**
+   - 수동 배포 프로세스 (workflow_dispatch)
+   - 마이그레이션: postgres 사용자로 수동 실행
+   - 애플리케이션: 제한된 권한의 ai_portfolio_app 사용자 사용
+   - DML 권한만 (SELECT, INSERT, UPDATE, DELETE)
+
+4. **보안 고려사항**
+   - 최소 권한 원칙 적용 (Production만)
+   - 실무 모범 사례 학습 기회 제공
+   - CI/CD 복잡도와 보안 이득의 균형점 확보
+
+#### 구현 방향
+- .kiro/ 폴더는 .gitignore 처리 완료
+- Staging 환경: DATABASE_URL 환경변수로 단일 연결
+- Production 환경: MIGRATION_URL과 APP_DATABASE_URL 분리 예정
+
+### 7. 프로젝트 타입 구분 시스템 ✅
+
+### 8. 백엔드 아키텍처 정리 ✅ (2025-08-20)
 - **헥사고날 아키텍처 층 구조 단순화**:
   - **기존**: Domain Model ↔ DB Schema Entity ↔ JPA Entity (3층)
   - **개선**: Domain Model ↔ JPA Entity (2층)
