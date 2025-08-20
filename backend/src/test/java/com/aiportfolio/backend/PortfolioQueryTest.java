@@ -5,21 +5,27 @@ import com.aiportfolio.backend.domain.portfolio.model.Project;
 import com.aiportfolio.backend.domain.portfolio.model.Experience;
 import com.aiportfolio.backend.domain.portfolio.model.Education;
 import com.aiportfolio.backend.domain.portfolio.model.Certification;
-import com.aiportfolio.backend.infrastructure.persistence.postgres.PostgresPortfolioRepository;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
 /**
  * 포트폴리오 데이터 쿼리 테스트
  */
+@SpringBootTest
 public class PortfolioQueryTest {
     
-    public static void main(String[] args) {
+    @Autowired
+    private PortfolioRepositoryPort repository;
+    
+    @Test
+    public void testPortfolioQueries() {
         System.out.println("=== 포트폴리오 데이터 쿼리 테스트 시작 ===");
         
         try {
-            // Repository 인스턴스 생성
-            PortfolioRepositoryPort repository = new PostgresPortfolioRepository();
             
             // 프로젝트 데이터 조회
             System.out.println("\n--- 프로젝트 데이터 조회 ---");

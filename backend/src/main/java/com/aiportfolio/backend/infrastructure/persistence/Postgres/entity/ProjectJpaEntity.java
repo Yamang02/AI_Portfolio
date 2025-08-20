@@ -83,12 +83,15 @@ public class ProjectJpaEntity {
     private String source;
     
     @Column(name = "is_team")
+    @Builder.Default
     private Boolean isTeam = false;
     
     @Column(name = "status", length = 50)
+    @Builder.Default
     private String status = "completed";
     
     @Column(name = "sort_order")
+    @Builder.Default
     private Integer sortOrder = 0;
     
     @Column(name = "external_url", length = 500)

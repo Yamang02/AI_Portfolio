@@ -18,7 +18,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EducationEntity {
-    
+
     private Long dbId; // DB 내부 ID (SERIAL)
     private String businessId; // 비즈니스 ID (EDU001, EDU002 등)
     private String title;

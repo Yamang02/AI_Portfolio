@@ -147,6 +147,7 @@ Chatbot 도메인:   Infrastructure (Web) → Application → ContextBuilderPort
 - **의존성 역전**: 모든 의존성이 Domain → Application → Infrastructure 방향 준수
 - **이중 ID 체계**: `dbId` (Long, DB 내부용) + `businessId` (String, 비즈니스용)
 - **프론트엔드 호환성**: 기존 API 응답 구조 유지로 프론트엔드 변경 불필요
+- **🔄 엔티티 레이어 단순화 (2025-08-20)**: Domain Model ↔ JPA Entity 2층 구조로 불필요한 복잡성 제거
 
 ## 📋 개발 패턴 & 규칙
 

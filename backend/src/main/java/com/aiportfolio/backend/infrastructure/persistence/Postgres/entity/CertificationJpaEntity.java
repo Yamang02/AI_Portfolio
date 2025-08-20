@@ -61,6 +61,7 @@ public class CertificationJpaEntity {
     private String category; // IT, Language, Project Management 등
     
     @Column(name = "sort_order")
+    @Builder.Default
     private Integer sortOrder = 0;
     
     @Column(name = "created_at")

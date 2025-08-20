@@ -82,6 +82,7 @@ public class ExperienceJpaEntity {
     private List<String> projects; // PostgreSQL TEXT[] 배열
     
     @Column(name = "sort_order")
+    @Builder.Default
     private Integer sortOrder = 0;
     
     @Column(name = "created_at")

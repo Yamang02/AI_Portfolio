@@ -49,6 +49,17 @@
 
 ### 6. 프로젝트 타입 구분 시스템 ✅
 
+### 7. 백엔드 아키텍처 정리 ✅ (2025-08-20)
+- **헥사고날 아키텍처 층 구조 단순화**:
+  - **기존**: Domain Model ↔ DB Schema Entity ↔ JPA Entity (3층)
+  - **개선**: Domain Model ↔ JPA Entity (2층)
+  - **이유**: 불필요한 복잡성 제거, 실용적 접근
+- **삭제된 파일들**:
+  - ProjectEntity.java, ExperienceEntity.java, EducationEntity.java, CertificationEntity.java
+- **유지**: Domain Model (POJO) + JPA Entity
+- **캐시 전략**: Redis는 Repository 내부에서 투명하게 처리
+- **AI 레이어**: Qdrant Cloud는 완전히 별개 도메인으로 분리 유지
+
 ## 🏗️ 백엔드 아키텍처 리팩토링 (헥사고날 아키텍처)
 
 ### 헥사고날 아키텍처 완전 적용 ✅
