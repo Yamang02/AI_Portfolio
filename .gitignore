@@ -148,3 +148,20 @@ buildNumber.properties
 
 # 환경설정 파일 무시
 backend/src/main/resources/application.properties
+
+# 테스트파일 모두 무시
+backend/src/test/*
+
+# 빌드 결과물 모두 무시
+backend/target/*
+
+# Claude Code
+.claude/
+
+# Database files
+database/
+
+# Railway environment (actual config)
+.env.railway
+
+

@@ -1,0 +1,133 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [ main ]  # main 브랜치에 푸시시 실행
+  pull_request:
+    branches: [ main ]
+
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  SERVICE_NAME: ai-portfolio-backend
+  REGION: asia-northeast3
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+    
+    - name: Cache Maven dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2
+    
+    - name: Run tests
+      run: |
+        cd backend
+        mvn clean test
+  
+  deploy-backend:
+    needs: test
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+    
+    - name: Build application
+      run: |
+        cd backend
+        mvn clean package -DskipTests
+    
+    - name: Authenticate to Google Cloud
+      uses: google-github-actions/auth@v2
+      with:
+        credentials_json: ${{ secrets.GCP_SA_KEY }}
+    
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v2
+    
+    - name: Configure Docker to use gcloud as a credential helper
+      run: gcloud auth configure-docker
+    
+    - name: Build and push Docker image
+      run: |
+        cd backend
+        docker build -t gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA .
+        docker push gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA
+    
+    - name: Deploy to Cloud Run
+      run: |
+        gcloud run deploy $SERVICE_NAME \
+          --image gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA \
+          --platform managed \
+          --region $REGION \
+          --allow-unauthenticated \
+          --set-env-vars="SPRING_PROFILES_ACTIVE=prod" \
+          --set-env-vars="DATABASE_URL=${{ secrets.RAILWAY_DATABASE_URL_PRODUCTION }}" \
+          --set-env-vars="GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" \
+          --memory 1Gi \
+          --cpu 1 \
+          --max-instances 20
+
+  deploy-frontend:
+    needs: deploy-backend
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+    
+    - name: Install dependencies
+      run: |
+        cd frontend
+        npm ci
+    
+    - name: Build frontend
+      run: |
+        cd frontend
+        npm run build
+      env:
+        VITE_API_BASE_URL: https://${{ env.SERVICE_NAME }}-493721639129.asia-northeast3.run.app
+    
+    - name: Authenticate to Google Cloud
+      uses: google-github-actions/auth@v2
+      with:
+        credentials_json: ${{ secrets.GCP_SA_KEY }}
+    
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v2
+    
+    - name: Deploy frontend to Cloud Run
+      run: |
+        cd frontend
+        gcloud run deploy ai-portfolio-frontend \
+          --source . \
+          --platform managed \
+          --region $REGION \
+          --allow-unauthenticated \
+          --memory 512Mi \
+          --cpu 1 \
+          --max-instances 10

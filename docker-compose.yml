@@ -1,0 +1,42 @@
+version: '3.8'
+
+# 개발용 로컬 PostgreSQL
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: ai-portfolio-postgres
+    environment:
+      POSTGRES_DB: ai_portfolio
+      POSTGRES_USER: dev_user
+      POSTGRES_PASSWORD: dev_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./database/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql
+      - ./database/insert-data.sql:/docker-entrypoint-initdb.d/03-insert-data.sql
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dev_user -d ai_portfolio"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # pgAdmin (선택사항)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: ai-portfolio-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@localhost.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:
+  pgadmin_data:
