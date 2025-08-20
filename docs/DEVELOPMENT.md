@@ -12,11 +12,16 @@ AI Portfolio 프로젝트의 개발 환경 설정, API 명세, 배포 아키텍�
 - **Tailwind CSS** - 유틸리티 퍼스트 CSS 프레임워크
 - **Vite** - 빠른 개발 서버 및 빌드 도구
 
-### Backend & API
+### Backend & API (헥사고날 아키텍처)
 - **Spring Boot 3.x** - Java 기반 백엔드 프레임워크
+- **헥사고날 아키텍처** - Domain-Application-Infrastructure 레이어 분리
+  - **Domain Layer**: 핵심 비즈니스 로직 (의존성 없음)
+  - **Application Layer**: Use Case 구현체
+  - **Infrastructure Layer**: 외부 어댑터 (DB, Web, AI)
 - **LangChain4j** - AI 모델 연동 및 프롬프트 관리
 - **Google Gemini API** - AI 자연어 처리 (Gemini 2.5 Flash)
 - **GitHub REST API** - 프로젝트 정보 수집
+- **PostgreSQL** - 메인 데이터베이스 (헥사고날 구조로 확장 준비)
 - **Maven** - Java 프로젝트 빌드 및 의존성 관리
 
 ### Infrastructure & Deployment
@@ -24,6 +29,64 @@ AI Portfolio 프로젝트의 개발 환경 설정, API 명세, 배포 아키텍�
 - **Docker** - 멀티스테이지 빌드 컨테이너화
 - **GitHub Actions** - CI/CD 자동화
 - **Eclipse Temurin** - Java 런타임 환경
+
+## 🏗️ 백엔드 아키텍처
+
+### 헥사고날 아키텍처 구조
+
+```
+backend/src/main/java/com/aiportfolio/backend/
+├── domain/                     # 도메인 레이어 (의존성 없는 핵심 비즈니스 로직)
+│   ├── model/                  # 도메인 엔티티
+│   │   ├── Project.java        # 프로젝트 도메인 모델
+│   │   ├── Education.java      # 교육 도메인 모델
+│   │   ├── Experience.java     # 경력 도메인 모델
+│   │   └── Certification.java  # 자격증 도메인 모델
+│   ├── port/                   # 인터페이스 정의 (포트)
+│   │   ├── in/                 # Primary Port (Use Cases)
+│   │   │   └── ProjectUseCase.java
+│   │   └── out/                # Secondary Port (Repository, External Services)
+│   │       └── ProjectRepository.java
+│   └── service/                # 도메인 서비스
+│       └── chat/               # 채팅 관련 도메인 서비스
+│           ├── ChatService.java
+│           ├── LLMPort.java
+│           ├── PromptPort.java
+│           └── QuestionAnalysisPort.java
+│
+├── application/                # 어플리케이션 레이어 (Use Case 구현체)
+│   └── service/
+│       └── ProjectApplicationService.java
+│
+├── infrastructure/             # 인프라 레이어 (외부 어댑터 구현)
+│   ├── persistence/            # 데이터베이스 어댑터
+│   │   ├── JsonProjectRepository.java    # JSON 파일 기반 구현체
+│   │   └── PostgresProjectRepository.java # PostgreSQL 구현체
+│   ├── web/                    # HTTP 어댑터 (Controllers, DTOs)
+│   │   ├── ProjectController.java
+│   │   ├── ChatRequest.java
+│   │   └── ChatResponse.java
+│   └── external/               # 외부 서비스 어댑터
+│       ├── GeminiLLMAdapter.java         # Gemini AI 어댑터
+│       ├── JsonPromptAdapter.java        # 프롬프트 어댑터
+│       └── RuleBasedQuestionAnalysisAdapter.java
+│
+└── shared/                     # 공통 유틸리티
+    ├── config/                 # 설정 클래스
+    │   ├── AppConfig.java
+    │   └── WebConfig.java
+    ├── exception/              # 예외 처리
+    └── common/                 # 공통 모델 및 유틸리티
+        └── ApiResponse.java
+```
+
+### 아키텍처 특징
+
+1. **의존성 역전**: 도메인 레이어는 어떤 외부 의존성도 갖지 않음
+2. **포트와 어댑터**: 인터페이스를 통한 느슨한 결합
+3. **확장성**: 새로운 데이터베이스나 외부 서비스 추가가 용이
+4. **테스트 용이성**: 각 레이어별 독립적인 테스트 가능
+5. **비즈니스 로직 보호**: 핵심 로직이 기술적 세부사항에 오염되지 않음
 
 ## 🔌 API 명세
 

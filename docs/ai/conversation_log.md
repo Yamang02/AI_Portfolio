@@ -48,6 +48,88 @@
 - **에러 추적**: 사용자 경험 개선을 위한 에러 수집
 
 ### 6. 프로젝트 타입 구분 시스템 ✅
+
+### 7. 백엔드 아키텍처 정리 ✅ (2025-08-20)
+- **헥사고날 아키텍처 층 구조 단순화**:
+  - **기존**: Domain Model ↔ DB Schema Entity ↔ JPA Entity (3층)
+  - **개선**: Domain Model ↔ JPA Entity (2층)
+  - **이유**: 불필요한 복잡성 제거, 실용적 접근
+- **삭제된 파일들**:
+  - ProjectEntity.java, ExperienceEntity.java, EducationEntity.java, CertificationEntity.java
+- **유지**: Domain Model (POJO) + JPA Entity
+- **캐시 전략**: Redis는 Repository 내부에서 투명하게 처리
+- **AI 레이어**: Qdrant Cloud는 완전히 별개 도메인으로 분리 유지
+
+## 🏗️ 백엔드 아키텍처 리팩토링 (헥사고날 아키텍처)
+
+### 헥사고날 아키텍처 완전 적용 ✅
+- **2024년 8월**: 백엔드를 헥사고날 아키텍처로 완전 리팩토링
+- **도메인 분리**: 
+  - `portfolio` 도메인: persistence → application → web 흐름
+  - `chatbot` 도메인: web → application → external AI/GitHub API 흐름
+- **레이어 분리**:
+  - Domain Layer: 순수 비즈니스 로직, 포트 정의
+  - Application Layer: 유스케이스 구현, 비즈니스 서비스
+  - Infrastructure Layer: 외부 시스템 어댑터 (DB, Web, API)
+
+### 주요 아키텍처 위반 수정 ✅
+1. **Service 클래스 위치 수정**: Infrastructure → Application Layer로 이동
+2. **Infrastructure 간 의존성 제거**: 순수 어댑터로 변경
+3. **ChatUseCase 의존성 위반 수정**: Infrastructure DTO → Domain Model 사용
+4. **도메인 모델 생성**: ChatRequest, ChatResponse 도메인 객체 생성
+5. **예외 클래스 분리**: LLMException을 도메인으로 분리
+
+### 패키지 구조 재정리 ✅
+```
+domain/
+├── portfolio/
+│   ├── model/ (Project, Experience, Education, Certification)
+│   └── port/ (in: UseCases, out: Repository)
+└── chatbot/
+    ├── model/ (ChatRequest, ChatResponse, enums, exceptions)
+    └── port/ (in: ChatUseCase, out: AIService, LLM)
+```
+
+### 어플리케이션 레이어 도메인별 정리 필요 🔄
+현재 상황:
+- **Portfolio 도메인**: persistence → 데이터 조회 → web 표현
+- **Chatbot 도메인**: web 프롬프트 → GitHub API + Gemini AI → 응답 생성
+
+### Application Layer 도메인별 분리 완료 ✅
+**2024년 8월**: 헥사고날 아키텍처 기반 Application Layer 완전 재구성
+
+#### 도메인 격리 (Domain Isolation) 구현 ✅
+1. **ContextBuilderPort 생성**: Chatbot 도메인의 아웃바운드 포트로 Portfolio 데이터 접근 추상화
+2. **ContextBuilderService 구현**: Portfolio 데이터를 컨텍스트 문자열로 변환하는 전용 서비스
+3. **ChatApplicationService 리팩토링**: 
+   - `ProjectRepositoryPort` 직접 의존성 제거
+   - `ContextBuilderPort`를 통한 느슨한 결합 구현
+   - Portfolio 도메인 모델 직접 사용 제거
+
+#### 도메인별 Application 패키지 분리 ✅
+```
+application/
+├── portfolio/                   # Portfolio 도메인
+│   ├── PortfolioApplicationService.java
+│   ├── ProjectApplicationService.java  
+│   └── GitHubIntegrationService.java   # GitHubService → 명확한 이름으로 변경
+├── chatbot/                     # Chatbot 도메인  
+│   ├── ChatApplicationService.java
+│   ├── service/
+│   │   ├── ContextBuilderService.java
+│   │   ├── ai/ (AIService, PromptService)
+│   │   └── analysis/ (QuestionAnalysisService)
+│   └── validation/ (InputValidationService, SpamProtectionService)
+└── common/ (PromptConverter)    # 공통 유틸리티
+```
+
+#### 핵심 아키텍처 개선사항 ✅
+- **명확한 도메인 경계**: Portfolio(데이터 관리) ↔ Chatbot(AI 서비스) 완전 분리
+- **포트를 통한 격리**: 도메인 간 직접 의존성 제거, 추상화된 인터페이스 사용
+- **단일 책임 원칙**: 각 서비스의 역할과 책임 명확화
+- **의존성 역전**: 모든 의존성이 Domain → Application → Infrastructure 방향 준수
+
+다음 단계: PostgreSQL 연결 및 실제 데이터베이스 구성 예정
 - **목적**: 실제 개발 프로젝트와 업무/학습 경험을 시각적으로 구분
 - **구현 내용**:
   - ✅ Project 인터페이스에 `type: 'project' | 'experience'` 필드 추가
@@ -1138,7 +1220,7 @@ const handleMouseLeave = () => {
 
 ---
 
-## 2024-06 GCP Cloud Run 배포 세션 요약
+## 2024-07 GCP Cloud Run 배포 세션 요약
 
 ### 주요 진행 상황
 - GCP Cloud Run + GitHub Actions 기반 자동 배포 환경 구축
@@ -1839,3 +1921,497 @@ backend/src/main/java/com/aiportfolio/backend/
 4. **이벤트 기반 아키텍처**: 도메인 이벤트를 통한 느슨한 결합
 
 이번 리팩토링으로 백엔드가 확장 가능하고 유지보수하기 쉬운 구조로 발전했으며, 향후 벡터DB와 RAG 시스템 도입을 위한 견고한 기반을 마련했습니다.
+
+---
+
+## 🏗️ 헥사고날 아키텍처 점진적 마이그레이션 (2025-08-14)
+
+### 📋 프로젝트 배경
+기존 백엔드 구조가 중복되고 아키텍처가 명확하지 않아 헥사고날 아키텍처로 점진적 마이그레이션을 진행했습니다.
+
+### 🎯 주요 문제점 발견 및 해결
+1. **중복된 디렉토리 구조 정리**
+   - 혼재된 controller, entity, service 디렉토리들 제거
+   - 헥사고날 구조에 맞는 명확한 레이어 분리
+
+2. **실제 UI 호출 API 불일치 해결**
+   - ❌ **문제**: ProjectController의 `/api/projects/*` 엔드포인트는 실제 사용되지 않음
+   - ✅ **실제 사용**: UI는 DataController의 `/api/data/projects` 호출
+   - ✅ **해결**: 핵심 컨트롤러들(ChatController, DataController, GitHubController) 복원
+
+3. **API 키 설정 문제 해결**
+   - ❌ **문제**: `apiKey cannot be null or blank` 오류
+   - ✅ **해결**: 환경변수 `GEMINI_API_KEY` 올바른 설정
+
+### 🚀 Phase 1: 도메인 모델 정의 및 포트 인터페이스 설계
+
+#### ✅ Primary Ports (Use Cases) 생성
+```java
+// 비즈니스 유스케이스 정의
+- GetProjectsUseCase: 프로젝트 조회 관련 비즈니스 로직
+- ManageProjectCacheUseCase: 캐시 관리 비즈니스 로직  
+- ChatUseCase: 채팅 관련 비즈니스 로직
+```
+
+#### ✅ Secondary Ports (Repository/External) 정의
+```java
+// 외부 의존성 추상화
+- ProjectRepositoryPort: 데이터 접근 포트
+- AIServicePort: AI 서비스 접근 포트
+```
+
+### 🔄 Phase 2: ProjectService 헥사고날 마이그레이션 완료
+
+#### ✅ Application Service 구현
+```java
+@Service
+public class ProjectApplicationService implements GetProjectsUseCase, ManageProjectCacheUseCase {
+    private final ProjectRepositoryPort projectRepositoryPort;
+    
+    // Use Case 인터페이스 구현
+    // 의존성 역전: 구체 클래스가 아닌 포트에 의존
+}
+```
+
+#### ✅ Repository 어댑터 리팩토링
+```java
+@Repository  
+public class JsonProjectRepository implements ProjectRepositoryPort {
+    // 기존 로직 유지하면서 새로운 포트 구현
+    // 필터링 메서드 추가 (Type, Source, TeamStatus)
+}
+```
+
+#### ✅ DataService 의존성 역전
+```java
+// 기존: ProjectRepository 직접 의존
+// 신규: Use Case 인터페이스 의존으로 변경
+private final GetProjectsUseCase getProjectsUseCase;
+private final ManageProjectCacheUseCase manageProjectCacheUseCase;
+```
+
+### 📊 마이그레이션 성과
+
+#### ✅ **API 정상 동작 확인**
+```bash
+# 모든 핵심 API가 헥사고날 구조를 통해 정상 작동
+GET /api/data/projects ✅
+POST /api/chat/message ✅  
+GET /api/data/experiences ✅
+GET /api/data/education ✅
+GET /api/data/certifications ✅
+```
+
+#### ✅ **아키텍처 개선 효과**
+1. **의존성 역전**: 도메인이 인프라에 의존하지 않는 구조
+2. **확장성 확보**: 새로운 데이터베이스나 외부 서비스 추가 용이
+3. **테스트 용이성**: 각 레이어별 독립적인 테스트 가능
+4. **비즈니스 로직 보호**: 핵심 로직이 기술적 세부사항에 오염되지 않음
+
+#### ✅ **현재 아키텍처 구조**
+```
+backend/src/main/java/com/aiportfolio/backend/
+├── domain/                    # 핵심 비즈니스 로직 (의존성 없음)
+│   ├── model/                 # 도메인 엔티티
+│   └── port/                  # 인터페이스 정의
+│       ├── in/               # Primary Port (Use Cases)
+│       └── out/              # Secondary Port (Repository, External)
+├── application/              # 어플리케이션 레이어
+│   └── service/             # Use Case 구현체
+├── infrastructure/          # 인프라 레이어
+│   └── persistence/         # 데이터베이스 어댑터
+└── controller/              # HTTP 어댑터 (추후 infrastructure/web으로 이동 예정)
+```
+
+### 🎯 다음 단계 (Phase 3-5 예정)
+- **Phase 3**: ChatService 헥사고날 마이그레이션
+- **Phase 4**: 컨트롤러들을 Infrastructure/Web으로 이동  
+- **Phase 5**: 의존성 역전 및 최종 검증
+
+### 🏗️ Phase 6: 도메인 모델 리팩토링 및 PostgreSQL 마이그레이션 준비 ✅ (2025-08-14)
+
+#### ✅ **DTO 분리 및 아키텍처 정리**
+1. **ChatRequest/ChatResponse를 DTO로 이동**
+   - `domain/model/` → `infrastructure/web/dto/chat/`
+   - 도메인 모델에는 순수한 비즈니스 엔티티만 유지
+   - 모든 import 참조를 ChatRequestDto, ChatResponseDto로 수정
+
+2. **아키텍처 레이어 분리**
+   - **도메인**: 순수한 비즈니스 로직 (Project, Experience, Education, Certification)
+   - **인프라스트럭처**: PostgreSQL 엔티티, DTO, 컨트롤러
+
+#### ✅ **Enum 타입 시스템 구축**
+1. **ProjectType**: PERSONAL(개인 프로젝트), TEAM(팀 프로젝트)
+2. **ExperienceType**: FULL_TIME(정규직), CONTRACT(계약직)
+3. **EducationType**: ACADEMY(학원)
+
+#### ✅ **도메인 모델 타입 안전성 강화**
+1. **날짜 필드**: `String` → `LocalDate`로 변경
+2. **타입 필드**: `String` → `Enum`으로 변경
+3. **Bean Validation**: `@NotBlank`, `@NotNull`, `@Size` 등 추가
+4. **비즈니스 메서드**: `isOngoing()`, `getDurationInMonths()` 등 추가
+
+#### ✅ **PostgreSQL 엔티티 설계**
+1. **이중 ID 체계**: `dbId` (Long) + `businessId` (String)
+   - **dbId**: DB 내부 SERIAL ID (1, 2, 3...)
+   - **businessId**: 비즈니스 ID (PJT001, EXP001, EDU001, CRT001)
+2. **엔티티 위치**: `infrastructure/persistence/Postgres/entity/`
+3. **프론트엔드 호환성**: 기존 String ID 체계 유지
+
+#### ✅ **데이터베이스 스키마 설계**
+1. **새로운 테이블 구조**: `business_id` 컬럼 추가
+2. **인덱스 최적화**: `business_id`에 대한 인덱스 생성
+3. **JSONB 지원**: List<String> 필드들을 PostgreSQL array로 저장
+4. **트리거**: `updated_at` 자동 업데이트
+
+### 🎯 **아키텍처 개선 효과**
+
+#### ✅ **레이어 분리 명확화**
+```
+Domain Layer (의존성 없음)
+├── model/                    # 순수 비즈니스 엔티티
+└── enums/                   # 비즈니스 타입 정의
+
+Infrastructure Layer
+├── persistence/Postgres/     # 데이터베이스 어댑터
+│   └── entity/             # PostgreSQL 엔티티
+└── web/                     # 웹 어댑터
+    └── dto/                # API 입출력 객체
+```
+
+#### ✅ **프론트엔드 호환성 보장**
+- **변경 없음**: 프론트엔드 코드 수정 불필요
+- **ID 체계**: 기존 String ID (PJT001, EXP001 등) 유지
+- **API 응답**: 동일한 데이터 구조 유지
+
+#### ✅ **확장성 및 유지보수성**
+- **타입 안전성**: Enum과 LocalDate로 런타임 오류 방지
+- **검증 강화**: Bean Validation으로 데이터 무결성 보장
+- **비즈니스 로직**: 도메인 모델에 핵심 로직 집중
+- **데이터베이스**: PostgreSQL의 고급 기능 활용 가능
+
+## 🔧 Infrastructure Security 패키지 구조 리팩토링 [2025-01-14]
+
+### 📁 **변경 내용**
+**Before**:
+```
+infrastructure/security/
+├── InputValidationService.java
+├── RateLimitingService.java  
+└── SpamProtectionService.java
+```
+
+**After**:
+```
+infrastructure/web/validation/
+├── InputValidationService.java
+├── RateLimitingService.java
+└── SpamProtectionService.java
+```
+
+### 🎯 **변경 이유**
+1. **헥사고날 아키텍처 원칙 준수**
+   - Web Controller에서 직접 사용하는 검증 로직들로 Web 계층에 속함
+   - Infrastructure 내부 순환 참조 문제 해결
+
+2. **관심사 분리 개선**
+   - HTTP 요청 검증은 Web 어댑터의 책임
+   - 실제 보안 관심사(인증/인가)와 입력 검증 분리
+
+3. **의존성 방향 정리**
+   - Before: Web Controller → Infrastructure Security (위반)
+   - After: Web Controller → Web Validation (적절)
+
+### 📝 **영향받은 파일**
+- `ChatController.java`: import 경로 수정
+- 3개 서비스 파일: package 선언 업데이트
+
+## 🏗️ 헥사고날 아키텍처 Service/Adapter 분리 리팩토링 [2025-01-14]
+
+### 📂 **구조 변경**
+**Before (잘못된 구조)**:
+```
+infrastructure/
+├── web/validation/           # @Service 클래스들 (위반!)
+│   ├── InputValidationService.java
+│   ├── RateLimitingService.java
+│   └── SpamProtectionService.java
+└── external/github/          # @Service 클래스 (위반!)
+    └── GitHubService.java
+```
+
+**After (올바른 헥사고날 구조)**:
+```
+application/service/          # @Service는 Application Layer!
+├── validation/
+│   ├── InputValidationService.java
+│   ├── RateLimitingService.java
+│   └── SpamProtectionService.java
+└── GitHubService.java
+
+infrastructure/               # 순수 Adapter만
+├── web/adapter/controller/   # Web Adapter
+└── external/adapter/ai/      # External Adapter
+```
+
+### 🎯 **변경 이유**
+1. **헥사고날 아키텍처 원칙 위반 수정**
+   - Infrastructure = 기술적 구현체(Adapter)만
+   - @Service = Application Layer 소속
+
+2. **올바른 의존성 방향 구성**
+   - Web Adapter → Application Service → Infrastructure Adapter
+   - 레이어 간 명확한 책임 분리
+
+3. **명명 규칙 정리**
+   - Infrastructure의 클래스들을 Adapter로 명명
+   - Service는 Application Layer에서만 사용
+
+### 📝 **변경된 파일들**
+- **이동된 Service 클래스**: 4개 파일
+- **패키지 구조 변경**: controller → adapter/controller
+- **Import 경로 수정**: ChatController, GitHubController
+- **의존성 참조 업데이트**: 모든 관련 파일
+
+## 📁 Infrastructure 디렉토리 구조 단순화 [2025-01-14]
+
+### 🎯 **구조 단순화**
+**Before (복잡한 구조)**:
+```
+infrastructure/
+├── external/adapter/ai/     # adapter 중복!
+├── persistence/Postgres/    # 대소문자 혼용
+└── web/adapter/controller/  # adapter 중복!
+```
+
+**After (단순한 표준 구조)**:
+```
+infrastructure/
+├── web/                    # Web 기술 구현
+│   ├── controller/
+│   └── dto/
+├── persistence/           # 데이터 저장 기술 구현  
+│   ├── postgres/
+│   └── entity/
+└── external/             # 외부 시스템 연동 기술 구현
+    └── ai/
+```
+
+### 🔧 **변경 사항**
+1. **불필요한 `adapter` 디렉토리 제거**
+   - `web/adapter/controller/` → `web/controller/`
+   - `external/adapter/ai/` → `external/ai/`
+
+2. **일관된 네이밍**
+   - `persistence/Postgres/` → `persistence/postgres/`
+
+3. **패키지 선언 업데이트**
+   - 모든 관련 Java 파일의 package 경로 수정
+
+### 💡 **장점**
+- **단순성**: 헥사고날의 핵심만 유지
+- **일관성**: 모든 디렉토리명이 소문자로 통일
+- **명확성**: 기술별로 명확하게 분리된 구조
+
+## 🤖 AI 관련 구조 순수 Infrastructure로 리팩토링 [2025-01-14]
+
+### 🎯 **구조 개선**
+**Before (문제가 있던 구조)**:
+```
+infrastructure/external/ai/
+├── GeminiLLMAdapter.java        # 2개 포트 구현 (위반!)
+├── JsonPromptAdapter.java       # 비즈니스 로직 포함 (위반!)
+└── RuleBasedQuestionAnalysisAdapter.java  # 복잡한 로직 (위반!)
+```
+
+**After (순수 Infrastructure 구조)**:
+```
+infrastructure/external/
+├── gemini/
+│   └── GeminiApiClient.java     # 순수 API 호출만
+└── file/                        # 추후 파일 읽기용
+
+application/service/
+├── ai/
+│   ├── AIService.java           # AI 비즈니스 로직
+│   └── PromptService.java       # 프롬프트 관리
+└── analysis/
+    └── QuestionAnalysisService.java  # 질문 분석 로직
+```
+
+### 🔧 **주요 변경사항**
+1. **책임 분리**
+   - `GeminiLLMAdapter` → `GeminiApiClient` (LLMPort만 구현)
+   - AIServicePort 구현을 별도 AIService로 분리
+
+2. **비즈니스 로직 이동**
+   - 질문 분석 로직 → Application Service
+   - 프롬프트 관리 로직 → Application Service
+
+3. **단일 책임 원칙 준수**
+   - Infrastructure: 순수 기술적 구현만
+   - Application: 비즈니스 로직 집중
+
+### 💡 **장점**
+- **확장성**: LangChain 도입 시 쉬운 확장
+- **테스트**: 비즈니스 로직과 기술 구현 분리로 테스트 용이
+- **유지보수**: 각 레이어의 명확한 책임
+
+## 🌐 Web Layer 헥사고날 아키텍처 위반사항 수정 [2025-01-14]
+
+### 🔍 **발견된 문제점**
+1. **DataController의 포트 직접 의존** (심각한 위반)
+   ```java
+   // Before (위반)
+   private final ProjectRepositoryPort projectRepositoryPort;
+   ```
+
+2. **비즈니스 규칙이 DTO에 위치**
+   ```java
+   // Before (위반)
+   public enum ResponseType {  // DTO 내부!
+       SUCCESS, RATE_LIMITED, SPAM_DETECTED...
+   }
+   ```
+
+3. **잘못된 import 경로**
+   - 존재하지 않는 서비스 경로 참조
+
+### 🔧 **수정 내용**
+1. **Domain Layer로 비즈니스 규칙 이동**
+   ```
+   domain/model/enums/
+   └── ChatResponseType.java  # 비즈니스 규칙
+   ```
+
+2. **Use Case 패턴 도입**
+   ```java
+   // After (올바름)
+   private final GetAllDataUseCase getAllDataUseCase;
+   ```
+
+3. **새로운 Use Case 및 Service 생성**
+   - `GetAllDataUseCase.java`: 인바운드 포트
+   - `PortfolioApplicationService.java`: Application Service
+
+### 💡 **헥사고날 원칙 준수**
+- **Web Controller**: 오직 Use Case만 의존
+- **Domain**: 비즈니스 규칙 집중
+- **Application**: Use Case 구현과 orchestration
+
+### 🚀 **다음 단계 계획**
+- **PostgreSQL 연결 및 테스트**
+- **데이터 마이그레이션 스크립트 작성**
+- **PostgresProjectRepository 구현**
+- **성능 테스트 및 최적화**
+
+
+
+
+## 🐘 PostgreSQL 연결 및 JPA 배열 처리 완료 [2025-08-19]
+
+### 🔍 **발견된 문제점**
+
+#### 1. JPA 쿼리 메서드 생성 실패
+```bash
+Error: Could not create query for public abstract java.util.List 
+com.aiportfolio.backend.infrastructure.persistence.postgres.repository.ProjectJpaRepository.findByTechnology(java.lang.String)
+```
+
+**원인**: PostgreSQL의 `text[]` 배열 타입을 JPA가 제대로 매핑하지 못함
+
+#### 2. Spring Bean 의존성 주입 충돌
+```bash
+Error: No qualifying bean of type 'GetProjectsUseCase' available: 
+expected single matching bean but found 2: portfolioService, projectApplicationService
+```
+
+**원인**: 동일한 인터페이스를 구현하는 여러 Bean이 존재하여 의존성 주입 시 충돌
+
+### 🔧 **해결 방안**
+
+#### 1. PostgreSQL 배열 타입 JPA 매핑 수정
+
+**문제가 있던 코드**:
+```java
+@Column(name = "technologies")
+private List<String> technologies;
+
+@Query("SELECT p FROM ProjectJpaEntity p WHERE :technology MEMBER OF p.technologies")
+List<ProjectJpaEntity> findByTechnology(@Param("technology") String technology);
+```
+
+**수정된 코드**:
+```java
+@Column(name = "technologies", columnDefinition = "text[]")
+@JdbcTypeCode(SqlTypes.ARRAY)
+private List<String> technologies;
+
+@Query(value = "SELECT * FROM projects WHERE :technology = ANY(technologies)", nativeQuery = true)
+List<ProjectJpaEntity> findByTechnology(@Param("technology") String technology);
+```
+
+**적용된 엔티티**:
+- `ProjectJpaEntity.java`: technologies, myContributions
+- `ExperienceJpaEntity.java`: technologies, mainResponsibilities, achievements, projects  
+- `EducationJpaEntity.java`: technologies, projects
+
+#### 2. Spring Bean 의존성 주입 충돌 해결
+
+**문제가 있던 코드**:
+```java
+@RequiredArgsConstructor
+public class PortfolioApplicationService {
+    private final GetProjectsUseCase getProjectsUseCase; // 충돌!
+}
+```
+
+**수정된 코드**:
+```java
+public class PortfolioApplicationService {
+    private final GetProjectsUseCase getProjectsUseCase;
+    
+    public PortfolioApplicationService(
+            @Qualifier("portfolioService") GetProjectsUseCase getProjectsUseCase,
+            PortfolioRepositoryPort portfolioRepositoryPort) {
+        this.getProjectsUseCase = getProjectsUseCase;
+        this.portfolioRepositoryPort = portfolioRepositoryPort;
+    }
+}
+```
+
+**수정된 파일들**:
+- `PortfolioApplicationService.java`
+- `DataController.java`
+
+### ✅ **최종 결과**
+
+#### 성공적인 애플리케이션 시작
+```bash
+2025-08-19 18:42:49 - Tomcat started on port 8080 (http) with context path ''
+2025-08-19 18:42:49 - Started BackendApplication in 4.342 seconds
+```
+
+#### 해결된 기능들
+1. **PostgreSQL 연결 성공** ✅
+2. **JPA Repository 정상 작동** ✅  
+3. **배열 필드 매핑 완료** ✅
+4. **Spring Bean 의존성 주입 정상화** ✅
+
+### 🎯 **주요 학습 사항**
+
+#### PostgreSQL 배열 처리 시 주의사항
+1. `@JdbcTypeCode(SqlTypes.ARRAY)` 필수 적용
+2. `columnDefinition = "text[]"` 명시적 지정
+3. JPQL `MEMBER OF` 대신 네이티브 쿼리 `ANY()` 사용
+
+#### Spring 의존성 주입 베스트 프랙티스
+1. 동일 인터페이스 구현체 여러 개 시 `@Qualifier` 필수
+2. `@RequiredArgsConstructor` 보다 명시적 생성자 권장
+3. Bean 네이밍 컨벤션 일관성 유지
+
+### 🚀 **다음 단계 계획**
+- **데이터 마이그레이션 스크립트 작성**
+- **실제 데이터 삽입 테스트**
+- **API 엔드포인트 기능 테스트**
+- **성능 최적화 및 모니터링 설정**
