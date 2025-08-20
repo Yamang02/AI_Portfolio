@@ -83,12 +83,9 @@ jobs:
           --memory 1Gi \
           --cpu 1 \
           --max-instances 10 \
-          --timeout 300 \
-          --cpu-startup-probe-initial-delay=30s \
-          --cpu-startup-probe-period=10s \
-          --cpu-startup-probe-timeout=5s \
-          --cpu-startup-probe-failure-threshold=6 \
-          --cpu-startup-probe-path="/actuator/health"
+          --timeout 600 \
+          --cpu-startup-boost \
+          --startup-probe="path=/actuator/health,initial-delay-seconds=30,period-seconds=10,timeout-seconds=5,failure-threshold=6"
 
   deploy-frontend:
     needs: deploy-backend
