@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: ${PORT:8080}  # Cloud Run이 제공하는 동적 포트 사용
 
 spring:
   application:
@@ -42,6 +42,16 @@ springdoc:
     enabled: false
   swagger-ui:
     enabled: false
+
+# Actuator 설정 (Health Check용)
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: when-authorized
 
 # 로깅 설정 (프로덕션 레벨)
 logging:
