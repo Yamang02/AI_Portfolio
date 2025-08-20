@@ -55,10 +55,18 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: health,info,readiness,liveness
+      base-path: /actuator
   endpoint:
     health:
-      show-details: when-authorized
+      show-details: always
+      probes:
+        enabled: true
+  health:
+    readiness-state:
+      enabled: true
+    liveness-state:
+      enabled: true
 
 # 로깅 설정 (프로덕션 레벨)
 logging:
