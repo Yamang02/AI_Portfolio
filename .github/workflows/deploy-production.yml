@@ -86,7 +86,7 @@ jobs:
           --max-instances 20 \
           --timeout 600 \
           --cpu-startup-boost \
-          --startup-probe="path=/actuator/health,initial-delay-seconds=30,period-seconds=10,timeout-seconds=5,failure-threshold=6"
+          --startup-probe="httpGet.path=/actuator/health,initialDelaySeconds=30,periodSeconds=10,timeoutSeconds=5,failureThreshold=6"
 
   deploy-frontend:
     needs: deploy-backend
