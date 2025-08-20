@@ -7,8 +7,6 @@ spring:
   
   # Railway PostgreSQL 설정 (URL 변환 처리)
   datasource:
-    # DatabaseConfig에서 Railway URL을 자동으로 JDBC 형식으로 변환
-    # DATABASE_URL이 있으면 DatabaseConfig의 railwayDataSource Bean 사용
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 10
@@ -19,12 +17,12 @@ spring:
   
   jpa:
     hibernate:
-      ddl-auto: validate  # 프로덕션에서는 validate 사용
-    show-sql: false      # 프로덕션에서는 false
+      ddl-auto: update  # 임시로 테이블 자동 생성 허용
+    show-sql: true      # 디버깅을 위해 SQL 로그 활성화
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-        format_sql: false
+        format_sql: true
   
   # CORS 설정 (스테이징 도메인 추가)
   web:
