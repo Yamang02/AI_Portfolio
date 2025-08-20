@@ -17,8 +17,8 @@ spring:
   
   jpa:
     hibernate:
-      ddl-auto: update  # 임시로 테이블 자동 생성 허용
-    show-sql: true      # 디버깅을 위해 SQL 로그 활성화
+      ddl-auto: validate  # 프로덕션 준비: 스키마 검증만 수행
+    show-sql: false     # 프로덕션 준비: SQL 로그 비활성화
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect

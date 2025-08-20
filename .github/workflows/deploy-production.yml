@@ -9,7 +9,7 @@ on:
 
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-  SERVICE_NAME: ai-portfolio-backend
+  SERVICE_NAME: ai-portfolio
   REGION: asia-northeast3
 
 jobs:
@@ -37,7 +37,7 @@ jobs:
         cd backend
         mvn clean package -DskipTests
   
-  deploy-backend:
+  deploy:
     needs: test
     runs-on: ubuntu-latest
     
