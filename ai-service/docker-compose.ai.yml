@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  # AI 서비스
+  ai-service:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONPATH=/app
+      # API 키
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      # Qdrant 설정
+      - QDRANT_HOST=qdrant
+      - QDRANT_PORT=6333
+      # LLM 설정
+      - GEMINI_MODEL=${GEMINI_MODEL:-gemini-1.5-flash}
+      - LLM_TEMPERATURE=${LLM_TEMPERATURE:-0.7}
+      - LLM_MAX_OUTPUT_TOKENS=${LLM_MAX_OUTPUT_TOKENS:-2048}
+      # 로깅
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      # 서버 설정
+      - SERVER_HOST=0.0.0.0
+      - SERVER_PORT=8000
+      - DEBUG_MODE=${DEBUG_MODE:-false}
+    volumes:
+      - .:/app
+      - ai-service-data:/app/data
+    depends_on:
+      - qdrant
+    networks:
+      - ai-network
+    restart: unless-stopped
+
+  # Qdrant 벡터 데이터베이스
+  qdrant:
+    image: qdrant/qdrant:latest
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant-data:/qdrant/storage
+    networks:
+      - ai-network
+    restart: unless-stopped
+    environment:
+      - QDRANT__SERVICE__HTTP_PORT=6333
+      - QDRANT__SERVICE__GRPC_PORT=6334
+
+# Redis는 나중에 성능 최적화용으로 추가 예정
+
+# PostgreSQL은 기존 백엔드에서 관리하므로 제거
+
+volumes:
+  ai-service-data:
+  qdrant-data:
+
+networks:
+  ai-network:
+    driver: bridge

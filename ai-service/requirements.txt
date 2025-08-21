@@ -1,0 +1,32 @@
+# AI 서비스 핵심 의존성
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+pydantic==2.5.0
+pydantic-settings==2.1.0
+
+# LangChain 및 LLM
+langchain==0.1.0
+langchain-google-genai==0.0.6
+google-generativeai==0.3.2
+
+# 벡터 데이터베이스
+qdrant-client==1.7.0
+
+# 임베딩 모델
+sentence-transformers==2.2.2
+torch==2.1.1
+transformers==4.36.2
+huggingface-hub==0.19.4
+
+# 유틸리티
+numpy==1.24.3
+python-multipart==0.0.6
+python-dotenv==1.0.0
+
+# 개발 도구
+pytest==7.4.3
+pytest-asyncio==0.21.1
+httpx==0.25.2
+
+# 로깅 및 모니터링
+structlog==23.2.0

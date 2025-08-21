@@ -167,4 +167,71 @@ database/
 # Kiro project management files
 .kiro/
 
+# Python AI Service
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Python distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Python virtual environments
+venv/
+env/
+.venv/
+.env/
+
+# Python testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+
+# Python AI models and data
+*.bin
+*.safetensors
+*.onnx
+*.pb
+*.pkl
+*.joblib
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Python logs
+*.log
+logs/
+
+# AI Service specific
+ai-service/.env
+ai-service/logs/
+ai-service/data/
+ai-service/models/
+ai-service/.cache/
+ai-service/cache/
+
 

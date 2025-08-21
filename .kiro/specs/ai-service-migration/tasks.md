@@ -2,10 +2,15 @@
 
 ## 1. 개발 환경 및 인프라 설정
 
-- [ ] 1.1 Python AI 서비스 프로젝트 구조 생성
-  - FastAPI 기반 프로젝트 스캐폴딩 생성
-  - Poetry 또는 pip-tools를 사용한 의존성 관리 설정
-  - Docker 컨테이너 설정 (개발/프로덕션 환경)
+- [x] 1.1 Python AI 서비스 프로젝트 구조 생성
+  - ai-service/ 디렉토리 생성 및 기본 구조 설정
+  - app/main.py - FastAPI 서버 엔트리포인트 구현
+  - models/ 디렉토리 - embeddings.py, rag.py 모델 클래스 생성
+  - services/ 디렉토리 - vector_store.py (Qdrant), chat.py (챗봇 로직) 구현
+  - api/ 디렉토리 - routes.py API 엔드포인트 정의
+  - requirements.txt - 필수 의존성 패키지 목록 작성
+  - Dockerfile - 컨테이너 이미지 빌드 설정
+  - docker-compose.ai.yml - AI 서비스 개발 환경 구성
   - _요구사항: 7.1, 7.2_
 
 - [ ] 1.2 벡터 데이터베이스 환경 구성
