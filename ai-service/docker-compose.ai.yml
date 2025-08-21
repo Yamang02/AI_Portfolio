@@ -1,18 +1,26 @@
 version: '3.8'
 
 services:
-  # AI 서비스
+  # AI 서비스 (개발용)
   ai-service:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
     ports:
       - "8000:8000"
+    volumes:
+      - .:/app
+      - /app/__pycache__
+      - ai-service-data:/app/data
     environment:
       - PYTHONPATH=/app
       # API 키
       - GEMINI_API_KEY=${GEMINI_API_KEY:-}
       # Qdrant 설정
-      - QDRANT_HOST=qdrant
-      - QDRANT_PORT=6333
+      - QDRANT_HOST=${QDRANT_HOST:-qdrant}
+      - QDRANT_PORT=${QDRANT_PORT:-6333}
+      - QDRANT_API_KEY=${QDRANT_API_KEY:-}
+      - QDRANT_URL=${QDRANT_URL:-}
       # LLM 설정
       - GEMINI_MODEL=${GEMINI_MODEL:-gemini-1.5-flash}
       - LLM_TEMPERATURE=${LLM_TEMPERATURE:-0.7}
@@ -23,9 +31,6 @@ services:
       - SERVER_HOST=0.0.0.0
       - SERVER_PORT=8000
       - DEBUG_MODE=${DEBUG_MODE:-false}
-    volumes:
-      - .:/app
-      - ai-service-data:/app/data
     depends_on:
       - qdrant
     networks:

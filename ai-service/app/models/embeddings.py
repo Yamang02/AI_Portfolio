@@ -9,6 +9,7 @@ import numpy as np
 from sentence_transformers import SentenceTransformer
 import torch
 from pydantic import BaseModel, Field
+from app.config import get_settings
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +37,17 @@ class EmbeddingModel:
     """임베딩 모델 클래스"""
     
     def __init__(self, config: Optional[EmbeddingConfig] = None):
-        self.config = config or EmbeddingConfig()
+        if config is None:
+            # 설정에서 임베딩 설정 가져오기
+            settings = get_settings()
+            config = EmbeddingConfig(
+                model_name=settings.embedding.model_name,
+                device=settings.embedding.device,
+                batch_size=settings.embedding.batch_size,
+                max_seq_length=settings.embedding.max_seq_length
+            )
+        
+        self.config = config
         self.model: Optional[SentenceTransformer] = None
         self.device = self._get_device()
         

@@ -185,6 +185,22 @@ async def get_collection_stats(
         logger.error(f"컬렉션 통계 조회 실패: {e}")
         raise HTTPException(status_code=500, detail="컬렉션 통계 조회 실패")
 
+@router.get("/vector/collections/stats")
+async def get_all_collections_stats(
+    vector_svc: VectorStoreService = Depends(get_vector_store_service)
+):
+    """모든 컬렉션 통계 조회"""
+    try:
+        stats = await vector_svc.get_all_collection_stats()
+        return {
+            "collections": stats,
+            "total_collections": len(stats)
+        }
+        
+    except Exception as e:
+        logger.error(f"전체 컬렉션 통계 조회 실패: {e}")
+        raise HTTPException(status_code=500, detail="전체 컬렉션 통계 조회 실패")
+
 @router.get("/info")
 async def get_service_info():
     """서비스 정보 조회"""

@@ -21,8 +21,14 @@ class QdrantConfig(BaseModel):
     """Qdrant 설정"""
     host: str = Field(default="localhost", description="Qdrant 호스트")
     port: int = Field(default=6333, ge=1, le=65535, description="Qdrant 포트")
+    url: Optional[str] = Field(default=None, description="Qdrant 전체 URL (Cloud용)")
     api_key: Optional[str] = Field(default=None, description="Qdrant API 키 (Cloud용)")
     timeout: int = Field(default=60, description="연결 타임아웃 (초)")
+    
+    @property
+    def is_cloud(self) -> bool:
+        """Qdrant Cloud 사용 여부"""
+        return bool(self.url and self.api_key)
 
 
 class EmbeddingConfig(BaseModel):
@@ -100,86 +106,13 @@ class Settings(BaseSettings):
         "case_sensitive": False,  # 대소문자 구분 안함
         "env_file": ".env",  # .env 파일 자동 로드
         "env_file_encoding": "utf-8",
+        "extra": "ignore",  # 추가 필드 무시
     }
 
     @classmethod
     def create_from_env(cls) -> "Settings":
-        """환경변수에서 설정 생성"""
-        # 환경변수 매핑
-        env_mapping = {
-            # API 키
-            "GEMINI_API_KEY": "gemini_api_key",
-            
-            # LLM 설정
-            "GEMINI_MODEL": "llm__model_name",
-            "LLM_TEMPERATURE": "llm__temperature",
-            "LLM_MAX_OUTPUT_TOKENS": "llm__max_output_tokens",
-            "LLM_TOP_P": "llm__top_p",
-            "LLM_TOP_K": "llm__top_k",
-            
-            # Qdrant 설정
-            "QDRANT_HOST": "qdrant__host",
-            "QDRANT_PORT": "qdrant__port",
-            "QDRANT_API_KEY": "qdrant__api_key",
-            
-            # 임베딩 설정
-            "EMBEDDING_MODEL": "embedding__model_name",
-            "EMBEDDING_DEVICE": "embedding__device",
-            "EMBEDDING_BATCH_SIZE": "embedding__batch_size",
-            "EMBEDDING_MAX_SEQ_LENGTH": "embedding__max_seq_length",
-            
-            # RAG 설정
-            "RAG_MAX_SEARCH_RESULTS": "rag__max_search_results",
-            "RAG_MIN_SIMILARITY_SCORE": "rag__min_similarity_score",
-            "RAG_MAX_CONTEXT_LENGTH": "rag__max_context_length",
-            "RAG_CONTEXT_OVERLAP": "rag__context_overlap",
-            
-            # Redis 설정
-            "REDIS_HOST": "redis__host",
-            "REDIS_PORT": "redis__port",
-            "REDIS_PASSWORD": "redis__password",
-            "CACHE_TTL": "redis__ttl",
-            
-            # 서버 설정
-            "SERVER_HOST": "server__host",
-            "SERVER_PORT": "server__port",
-            "DEBUG_MODE": "server__debug_mode",
-            "CORS_ORIGINS": "server__cors_origins",
-            
-            # 로깅 설정
-            "LOG_LEVEL": "logging__level",
-            "LOG_FORMAT": "logging__format",
-        }
-        
-        # 환경변수를 중첩된 형태로 변환
-        env_data = {}
-        for env_key, nested_key in env_mapping.items():
-            env_value = os.environ.get(env_key)
-            if env_value is not None:
-                # 중첩된 키를 딕셔너리 구조로 변환
-                keys = nested_key.split("__")
-                current = env_data
-                for key in keys[:-1]:
-                    if key not in current:
-                        current[key] = {}
-                    current = current[key]
-                
-                # 특별한 처리가 필요한 값들
-                if env_key == "CORS_ORIGINS":
-                    env_value = env_value.split(",")
-                elif env_key == "DEBUG_MODE":
-                    env_value = env_value.lower() in ("true", "1", "yes", "on")
-                elif env_key in ["LLM_TEMPERATURE", "LLM_TOP_P", "RAG_MIN_SIMILARITY_SCORE"]:
-                    env_value = float(env_value)
-                elif env_key in ["LLM_MAX_OUTPUT_TOKENS", "LLM_TOP_K", "QDRANT_PORT", 
-                               "EMBEDDING_BATCH_SIZE", "EMBEDDING_MAX_SEQ_LENGTH",
-                               "RAG_MAX_SEARCH_RESULTS", "RAG_MAX_CONTEXT_LENGTH", "RAG_CONTEXT_OVERLAP",
-                               "REDIS_PORT", "CACHE_TTL", "SERVER_PORT"]:
-                    env_value = int(env_value)
-                
-                current[keys[-1]] = env_value
-        
-        return cls(**env_data)
+        """환경변수에서 설정 생성 (Pydantic이 자동으로 처리)"""
+        return cls()
 
     def validate_api_keys(self) -> bool:
         """필수 API 키 검증"""
@@ -189,14 +122,20 @@ class Settings(BaseSettings):
 
     def get_qdrant_client_kwargs(self) -> dict:
         """Qdrant 클라이언트 생성용 kwargs 반환"""
-        kwargs = {
-            "host": self.qdrant.host,
-            "port": self.qdrant.port,
-            "timeout": self.qdrant.timeout
-        }
-        
-        if self.qdrant.api_key:
-            kwargs["api_key"] = self.qdrant.api_key
+        if self.qdrant.is_cloud:
+            # Qdrant Cloud 사용
+            kwargs = {
+                "url": self.qdrant.url,
+                "api_key": self.qdrant.api_key,
+                "timeout": self.qdrant.timeout
+            }
+        else:
+            # 로컬 Qdrant 사용
+            kwargs = {
+                "host": self.qdrant.host,
+                "port": self.qdrant.port,
+                "timeout": self.qdrant.timeout
+            }
             
         return kwargs
 

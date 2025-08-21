@@ -1,5 +1,7 @@
 # AI Portfolio Chatbot - 대화 로그 및 주요 결정사항
 
+
+
 ## 📋 프로젝트 개요
 - **프로젝트명**: AI Portfolio Chatbot
 - **목적**: 개발자 포트폴리오 사이트에 AI 챗봇 통합
@@ -2449,3 +2451,56 @@ public class PortfolioApplicationService {
 - **실제 데이터 삽입 테스트**
 - **API 엔드포인트 기능 테스트**
 - **성능 최적화 및 모니터링 설정**
+
+
+## 2025-08-21: Task 1.2 벡터 데이터베이스 환경 구성 완료
+
+### HNSW 인덱스 설정 및 페이로드 스키마 정의
+
+#### 1. HNSW 인덱스 설정
+**구현 파일:** `ai-service/app/services/collection_manager.py:46-52`
+
+```python
+if self.hnsw_config is None:
+    self.hnsw_config = {
+        "m": 16,              # 노드당 연결 수 (16-64 권장)
+        "ef_construct": 200,  # 인덱스 구축 시 탐색 범위 (100-500 권장)
+        "full_scan_threshold": 10000,  # 전체 스캔 임계값
+        "max_indexing_threads": 0,     # 0 = CPU 코어 수만큼 자동
+        "on_disk": False      # 메모리에 인덱스 저장
+    }
+```
+
+**HNSW(Hierarchical Navigable Small Worlds) 알고리즘:**
+- **목적:** 고차원 벡터 공간에서 빠른 근사 최근접 이웃 탐색
+- **m (연결도):** 각 벡터가 연결할 다른 벡터의 수. 높을수록 정확도↑, 메모리 사용량↑
+- **ef_construct:** 인덱스 구축 시 탐색할 후보 수. 높을수록 인덱스 품질↑, 구축 시간↑
+- **full_scan_threshold:** 벡터 수가 이 값보다 적으면 전체 스캔 사용
+- **on_disk:** 메모리 대신 디스크에 인덱스 저장 여부
+
+#### 2. 4개 컬렉션 페이로드 스키마
+**구현 파일:** `ai-service/app/services/collection_manager.py:67-159`
+
+1. **Portfolio 컬렉션** (`portfolio_embeddings`): 포트폴리오 전체 정보
+2. **Projects 컬렉션** (`project_embeddings`): 프로젝트별 상세 정보  
+3. **Skills 컬렉션** (`skill_embeddings`): 기술 스택 및 역량
+4. **Experience 컬렉션** (`experience_embeddings`): 업무 경험 및 경력
+
+#### 3. 자동 페이로드 인덱스 생성
+**구현 파일:** `ai-service/app/services/collection_manager.py:274-304`
+
+필터링에 자주 사용될 중요 필드만 선별적으로 인덱싱:
+- `keyword` 타입: category, status, tech_stack, project_type 등
+- `integer` 타입: priority, project_id, proficiency_level 등  
+- `bool` 타입: is_featured, is_core_skill, is_current 등
+- `datetime` 타입: timestamp 정수로 저장하여 인덱싱
+
+#### 4. 벡터 설정
+- **벡터 차원:** 384차원 (sentence-transformers 모델)
+- **거리 메트릭:** COSINE 거리
+- **임베딩 모델:** `sentence-transformers/all-MiniLM-L6-v2`
+
+#### 5. 테스트 결과
+✅ 4개 컬렉션 생성 성공, HNSW 인덱스 설정 완료, Qdrant 연결 검증
+
+---

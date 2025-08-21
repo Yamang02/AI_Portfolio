@@ -12,6 +12,7 @@ from qdrant_client.models import (
     Filter, FieldCondition, MatchValue
 )
 from app.config import get_settings
+from app.services.collection_manager import CollectionManager, CollectionType
 
 logger = logging.getLogger(__name__)
 
@@ -21,23 +22,28 @@ class VectorStoreService:
     
     def __init__(self, host: str = None, port: int = None):
         settings = get_settings()
+        self.settings = settings
+        # 하위 호환성을 위해 개별 속성 유지
         self.host = host or settings.qdrant.host
         self.port = port or settings.qdrant.port
         self.api_key = settings.qdrant.api_key
         self.client: Optional[QdrantClient] = None
+        self.collection_manager: Optional[CollectionManager] = None
+        
+        # 컬렉션 매핑 (하위 호환성 유지)
         self.collections = {
             "portfolio": "portfolio_embeddings",
             "projects": "project_embeddings", 
-            "skills": "skill_embeddings"
+            "skills": "skill_embeddings",
+            "experience": "experience_embeddings"
         }
         
     async def initialize(self) -> None:
         """서비스 초기화"""
         try:
-            # Qdrant 클라이언트 연결
-            client_kwargs = {"host": self.host, "port": self.port}
-            if self.api_key:
-                client_kwargs["api_key"] = self.api_key
+            # 설정에서 Qdrant 클라이언트 인자 가져오기
+            client_kwargs = self.settings.get_qdrant_client_kwargs()
+            logger.info(f"Qdrant 연결 모드: {'Cloud' if self.settings.qdrant.is_cloud else 'Local'}")
             
             self.client = QdrantClient(**client_kwargs)
             
@@ -45,8 +51,9 @@ class VectorStoreService:
             collections = self.client.get_collections()
             logger.info(f"✅ Qdrant 연결 성공: {len(collections.collections)}개 컬렉션")
             
-            # 기본 컬렉션 생성
-            await self._ensure_collections()
+            # 컬렉션 매니저 초기화
+            self.collection_manager = CollectionManager(self.client)
+            await self.collection_manager.initialize_all_collections()
             
         except Exception as e:
             logger.error(f"❌ Qdrant 연결 실패: {e}")
@@ -206,6 +213,13 @@ class VectorStoreService:
         except Exception as e:
             logger.error(f"❌ 컬렉션 통계 조회 실패: {e}")
             return {}
+    
+    async def get_all_collection_stats(self) -> Dict[str, Any]:
+        """모든 컬렉션 통계 반환"""
+        if not self.collection_manager:
+            raise RuntimeError("컬렉션 매니저가 초기화되지 않았습니다")
+            
+        return await self.collection_manager.get_collection_stats()
     
     async def cleanup(self) -> None:
         """리소스 정리"""
