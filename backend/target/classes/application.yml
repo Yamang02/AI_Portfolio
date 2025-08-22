@@ -5,6 +5,7 @@ spring:
   application:
     name: ai-portfolio-backend
   
+  
   # PostgreSQL 데이터베이스 설정
   datasource:
     url: jdbc:postgresql://localhost:5432/ai_portfolio
@@ -39,8 +40,10 @@ spring:
           max-wait: -1ms
         shutdown-timeout: 100ms
 
-  # CORS 설정
+  # 웹 설정 (CORS + 정적 파일)
   web:
+    resources:
+      static-locations: file:/app/static/
     cors:
       allowed-origins: 
         - "http://localhost:3000"
@@ -54,6 +57,8 @@ spring:
         - OPTIONS
       allowed-headers: "*"
       allow-credentials: true
+  mvc:
+    static-path-pattern: /**
 
 # Swagger 설정
 springdoc:
