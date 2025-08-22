@@ -76,7 +76,7 @@ public class RedisConfig {
                 redisConfig.setPassword(redisPassword);
             }
 
-            // 연결 풀 설정
+            // 연결 풀 설정 (Redis Cloud 최적화)
             GenericObjectPoolConfig<?> poolConfig = new GenericObjectPoolConfig<>();
             poolConfig.setMaxTotal(maxActive);
             poolConfig.setMaxIdle(maxIdle);
@@ -84,6 +84,8 @@ public class RedisConfig {
             poolConfig.setTestOnBorrow(true);
             poolConfig.setTestOnReturn(true);
             poolConfig.setTestWhileIdle(true);
+            poolConfig.setMaxWaitMillis(5000);  // 최대 대기 시간 5초
+            poolConfig.setTimeBetweenEvictionRunsMillis(30000);  // 연결 검증 주기
 
             // Lettuce 클라이언트 설정
             var clientConfigBuilder = 
@@ -94,7 +96,9 @@ public class RedisConfig {
 
             // SSL 설정
             if (redisSslEnabled) {
-                clientConfigBuilder.useSsl();
+                clientConfigBuilder
+                    .useSsl()
+                    .disablePeerVerification();  // SSL 인증서 검증 비활성화
             }
 
             LettuceConnectionFactory factory = new LettuceConnectionFactory(
@@ -105,8 +109,8 @@ public class RedisConfig {
             factory.setValidateConnection(true);
             factory.afterPropertiesSet();
 
-            log.info("✅ Redis 연결 팩토리 초기화 완료 - {}:{} (DB: {}, SSL: {})", 
-                redisHost, redisPort, redisDatabase, redisSslEnabled);
+            log.info("✅ Redis 연결 팩토리 초기화 완료 - {}:{} (DB: {}, SSL: {}, Timeout: {})", 
+                redisHost, redisPort, redisDatabase, redisSslEnabled, redisTimeout);
             
             return factory;
 
