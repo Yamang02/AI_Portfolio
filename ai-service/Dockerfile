@@ -40,11 +40,15 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
 # Cloud Run PORT 환경변수 지원
 ENV PORT=8000
 
-# 프로덕션용 Gunicorn 실행 (성능 최적화)
+# 프로덕션용 Gunicorn 실행 (안정성 우선)
 CMD gunicorn app.main:app \
-    -w 4 \
+    -w 2 \
     -k uvicorn.workers.UvicornWorker \
     --bind 0.0.0.0:$PORT \
-    --timeout 600 \
+    --timeout 300 \
+    --max-requests 1000 \
+    --max-requests-jitter 50 \
+    --preload \
     --access-logfile - \
-    --error-logfile -
+    --error-logfile - \
+    --log-level info

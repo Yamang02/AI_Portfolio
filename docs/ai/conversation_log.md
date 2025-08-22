@@ -2823,4 +2823,60 @@ LOGGING__LEVEL: DEBUG(staging)/INFO(production)
 
 **배포 준비 완료:** GitHub에서 환경변수 설정 후 즉시 AI 서비스 독립 배포 가능
 
+### 6. AI 서비스 배포 안정성 개선 (임시 방편)
+
+**Gunicorn 초기화 오류 해결:**
+```
+Traceback: gunicorn/arbiter.py spawn_worker -> UvicornWorker init_process 실패
+```
+
+**원인 분석:**
+- 환경변수 부족으로 인한 애플리케이션 초기화 실패
+- 외부 서비스(Qdrant, Redis) 연결 실패 시 전체 서비스 중단
+- 메모리 사용량 과다로 인한 Cloud Run 제한
+
+**임시 해결책 적용:**
+
+#### Docker 설정 최적화
+```dockerfile
+# Gunicorn 안정성 우선 설정
+CMD gunicorn app.main:app \
+    -w 2 \                    # Worker 감소 (4→2)
+    -k uvicorn.workers.UvicornWorker \
+    --preload \               # 앱 사전 로드로 안정성 향상
+    --max-requests 1000 \     # 메모리 누수 방지
+    --max-requests-jitter 50 \
+    --timeout 300 \           # 타임아웃 단축 (600→300)
+    --log-level info
+```
+
+#### 환경변수 기본값 제공
+```python
+# config.py - 빌드 실패 방지
+gemini_api_key: str = Field(default="dummy_key_for_build")
+```
+
+#### 부분 초기화 허용 패턴
+```python
+# main.py - 외부 서비스 실패해도 최소 서비스 유지
+try:
+    vector_store_service = VectorStoreService()
+    await vector_store_service.initialize()
+except Exception as e:
+    logger.error(f"벡터 스토어 초기화 실패: {e}")
+    vector_store_service = None  # None으로 설정하고 계속 진행
+
+set_services(chat_service, vector_store_service)  # 부분 서비스로 시작
+```
+
+**TODO: 향후 개선사항**
+- [ ] **헬스체크 단계별 구현**: `/health/liveness`, `/health/readiness` 분리
+- [ ] **Circuit Breaker 패턴**: 외부 서비스 장애 시 자동 복구
+- [ ] **Graceful Degradation**: 기능별 단계적 서비스 제공
+- [ ] **설정 검증 미들웨어**: 런타임에 필수 환경변수 체크
+- [ ] **모니터링 및 알림**: Prometheus metrics + 장애 알림
+- [ ] **리소스 제한**: 메모리/CPU 사용량 프로파일링 후 최적화
+
+**현재 상태:** 임시 방편으로 배포 가능하나, 프로덕션 품질을 위해서는 위 개선사항 필요
+
 ---

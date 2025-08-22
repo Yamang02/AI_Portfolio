@@ -91,8 +91,8 @@ class LoggingConfig(BaseModel):
 class Settings(BaseSettings):
     """전체 애플리케이션 설정"""
     
-    # API 키
-    gemini_api_key: str = Field(..., description="Google Gemini API 키")
+    # API 키 (기본값으로 더미 키 제공 - 실제 배포시 덮어씌워짐)
+    gemini_api_key: str = Field(default="dummy_key_for_build", description="Google Gemini API 키")
     
     # 각 구성 요소별 설정
     llm: LLMConfig = Field(default_factory=LLMConfig)

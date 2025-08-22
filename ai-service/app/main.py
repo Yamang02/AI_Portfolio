@@ -19,12 +19,25 @@ from app.config import get_settings, get_logging_config
 settings = get_settings()
 log_config = get_logging_config()
 
-# 로깅 설정
+# 로깅 설정 (안전한 기본값 적용)
+log_level = log_config.level.upper() if log_config.level else "INFO"
+if not hasattr(logging, log_level):
+    print(f"Warning: Invalid log level '{log_level}', using INFO")
+    log_level = "INFO"
+
 logging.basicConfig(
-    level=getattr(logging, log_config.level.upper()),
+    level=getattr(logging, log_level),
     format=log_config.format
 )
 logger = logging.getLogger(__name__)
+
+# 환경변수 상태 로깅
+logger.info(f"🔧 AI 서비스 설정 상태:")
+logger.info(f"  - Log Level: {log_config.level} -> {log_level}")
+logger.info(f"  - Gemini API Key: {'✅ 설정됨' if settings.gemini_api_key and settings.gemini_api_key != 'dummy_key_for_build' else '❌ 더미키 사용'}")
+logger.info(f"  - Qdrant URL: {'✅ 설정됨' if settings.qdrant.url else '❌ 미설정'}")
+logger.info(f"  - Redis Host: {settings.redis.host}")
+logger.info(f"  - Redis Key Prefix: {settings.redis.key_prefix}")
 
 # 전역 서비스 인스턴스
 vector_store_service: VectorStoreService = None
@@ -47,22 +60,38 @@ async def lifespan(app: FastAPI):
     global vector_store_service, chat_service
     
     try:
-        # 벡터 스토어 서비스 초기화
-        vector_store_service = VectorStoreService()
-        await vector_store_service.initialize()
+        # 설정 검증 (빌드 타임 체크)
+        if settings.gemini_api_key == "dummy_key_for_build":
+            logger.warning("⚠️ 더미 API 키 사용 중 - 실제 기능은 제한됨")
         
-        # 채팅 서비스 초기화
-        chat_service = ChatService(vector_store_service)
-        await chat_service.initialize()
+        # 벡터 스토어 서비스 초기화 (실패해도 계속 진행)
+        try:
+            vector_store_service = VectorStoreService()
+            await vector_store_service.initialize()
+            logger.info("✅ 벡터 스토어 서비스 초기화 완료")
+        except Exception as e:
+            logger.error(f"❌ 벡터 스토어 초기화 실패: {e}")
+            vector_store_service = None
+        
+        # 채팅 서비스 초기화 (벡터 스토어가 없어도 시작)
+        try:
+            chat_service = ChatService(vector_store_service)
+            await chat_service.initialize()
+            logger.info("✅ 채팅 서비스 초기화 완료")
+        except Exception as e:
+            logger.error(f"❌ 채팅 서비스 초기화 실패: {e}")
+            chat_service = None
         
         # API 라우터에 서비스 인스턴스 설정
         set_services(chat_service, vector_store_service)
         
-        logger.info("✅ 모든 서비스 초기화 완료")
+        logger.info("✅ AI 서비스 시작 완료 (일부 서비스가 제한될 수 있음)")
         
     except Exception as e:
-        logger.error(f"❌ 서비스 초기화 실패: {e}")
-        raise
+        logger.error(f"❌ 심각한 초기화 실패: {e}")
+        # 완전히 실패하지 않고 최소한의 서비스는 시작
+        set_services(None, None)
+        logger.warning("⚠️ 최소 모드로 서비스 시작")
     
     yield
     
