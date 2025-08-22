@@ -44,8 +44,8 @@ public class RedisConfig {
     @Value("${spring.data.redis.database:1}")
     private int redisDatabase;
 
-    @Value("${spring.data.redis.timeout:2000}")
-    private int redisTimeout;
+    @Value("${spring.data.redis.timeout:2000ms}")
+    private Duration redisTimeout;
 
     @Value("${spring.data.redis.ssl.enabled:false}")
     private boolean redisSslEnabled;
@@ -89,7 +89,7 @@ public class RedisConfig {
             var clientConfigBuilder = 
                 LettucePoolingClientConfiguration.builder()
                     .poolConfig(poolConfig)
-                    .commandTimeout(Duration.ofMillis(redisTimeout))
+                    .commandTimeout(redisTimeout)
                     .shutdownTimeout(Duration.ofMillis(100));
 
             // SSL 설정
