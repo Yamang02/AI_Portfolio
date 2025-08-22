@@ -16,12 +16,12 @@ import java.net.URISyntaxException;
 @Configuration
 public class DatabaseConfig {
 
-    @Value("${DATABASE_URL:}")
+    @Value("${POSTGRE_URL:}")
     private String databaseUrl;
 
     @Bean
     @Primary
-    @ConditionalOnProperty(name = "DATABASE_URL")
+    @ConditionalOnProperty(name = "POSTGRE_URL")
     public DataSource railwayDataSource() {
         log.info("Configuring Railway PostgreSQL DataSource");
         
@@ -49,14 +49,14 @@ public class DatabaseConfig {
                     .build();
                     
         } catch (URISyntaxException e) {
-            log.error("Invalid DATABASE_URL format: {}", databaseUrl, e);
-            throw new RuntimeException("Failed to parse DATABASE_URL", e);
+            log.error("Invalid POSTGRE_URL format: {}", databaseUrl, e);
+            throw new RuntimeException("Failed to parse POSTGRE_URL", e);
         }
     }
     
     private String convertRailwayUrlToJdbc(String railwayUrl) throws URISyntaxException {
         if (railwayUrl == null || railwayUrl.isEmpty()) {
-            throw new IllegalArgumentException("DATABASE_URL is empty");
+            throw new IllegalArgumentException("POSTGRE_URL is empty");
         }
         
         // postgresql://user:pass@host:port/db -> jdbc:postgresql://host:port/db
