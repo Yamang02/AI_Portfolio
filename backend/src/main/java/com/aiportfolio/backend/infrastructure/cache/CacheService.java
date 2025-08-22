@@ -3,6 +3,7 @@ package com.aiportfolio.backend.infrastructure.cache;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.cache.CacheManager;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -18,7 +19,8 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@ConditionalOnProperty(name = "spring.data.redis.host")
+@ConditionalOnProperty(name = "spring.data.redis.host", matchIfMissing = false)
+@ConditionalOnBean(RedisTemplate.class)
 public class CacheService {
 
     private final RedisTemplate<String, Object> redisTemplate;

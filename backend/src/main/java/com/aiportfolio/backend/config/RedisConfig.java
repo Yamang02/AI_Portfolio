@@ -29,7 +29,7 @@ import java.time.Duration;
 @Slf4j
 @Configuration
 @EnableCaching
-@ConditionalOnProperty(name = "spring.data.redis.host")
+@ConditionalOnProperty(name = "spring.data.redis.host", matchIfMissing = false)
 public class RedisConfig {
 
     @Value("${spring.data.redis.host:localhost}")
@@ -94,11 +94,12 @@ public class RedisConfig {
                     .commandTimeout(redisTimeout)
                     .shutdownTimeout(Duration.ofMillis(100));
 
-            // SSL 설정
+            // SSL 설정 (보안 강화)
             if (redisSslEnabled) {
                 clientConfigBuilder
-                    .useSsl()
-                    .disablePeerVerification();  // SSL 인증서 검증 비활성화
+                    .useSsl();
+                    // Redis Cloud는 유효한 인증서를 사용하므로 검증 활성화
+                    // hostname 검증은 도메인 차이로 인해 비활성화 가능
             }
 
             LettuceConnectionFactory factory = new LettuceConnectionFactory(
@@ -106,7 +107,8 @@ public class RedisConfig {
                 clientConfigBuilder.build()
             );
 
-            factory.setValidateConnection(true);
+            factory.setValidateConnection(true);  // 연결 검증 활성화
+            factory.setEagerInitialization(false);  // Lazy 초기화 유지
             factory.afterPropertiesSet();
 
             log.info("✅ Redis 연결 팩토리 초기화 완료 - {}:{} (DB: {}, SSL: {}, Timeout: {})", 
