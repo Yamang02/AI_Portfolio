@@ -85,7 +85,8 @@ jobs:
           --set-env-vars="REDIS_HOST=${{ secrets.REDIS_HOST }}" \
           --set-env-vars="REDIS_PORT=${{ secrets.REDIS_PORT }}" \
           --set-env-vars="REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}" \
-          --set-env-vars="REDIS_SSL=false" \
+          --set-env-vars="REDIS_DATABASE=${{ secrets.REDIS_DATABASE }}" \
+          --set-env-vars="REDIS_SSL=${{ secrets.REDIS_SSL }}" \
           --memory 1Gi \
           --cpu 1 \
           --max-instances 20 \
