@@ -19,8 +19,8 @@ from app.config import get_settings, get_logging_config
 settings = get_settings()
 log_config = get_logging_config()
 
-# 로깅 설정 (안전한 기본값 적용)
-log_level = log_config.level.upper() if log_config.level else "INFO"
+# 로깅 설정 (단순화된 환경변수 사용)
+log_level = settings.log_level.upper() if settings.log_level else "INFO"
 if not hasattr(logging, log_level):
     print(f"Warning: Invalid log level '{log_level}', using INFO")
     log_level = "INFO"
@@ -33,7 +33,7 @@ logger = logging.getLogger(__name__)
 
 # 환경변수 상태 로깅
 logger.info(f"🔧 AI 서비스 설정 상태:")
-logger.info(f"  - Log Level: {log_config.level} -> {log_level}")
+logger.info(f"  - Log Level: {settings.log_level} -> {log_level}")
 logger.info(f"  - Gemini API Key: {'✅ 설정됨' if settings.gemini_api_key and settings.gemini_api_key != 'dummy_key_for_build' else '❌ 더미키 사용'}")
 logger.info(f"  - Qdrant URL: {'✅ 설정됨' if settings.qdrant.url else '❌ 미설정'}")
 logger.info(f"  - Redis Host: {settings.redis.host}")

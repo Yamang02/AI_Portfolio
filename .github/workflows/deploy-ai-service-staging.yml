@@ -86,7 +86,7 @@ jobs:
           --set-env-vars="REDIS__DB=0" \
           --set-env-vars="REDIS__KEY_PREFIX=ai-staging:" \
           --set-env-vars="REDIS_SSL=${{ vars.REDIS_SSL }}" \
-          --set-env-vars="LOGGING__LEVEL=${{ vars.LOGGING__LEVEL }}" \
+          --set-env-vars="LOG_LEVEL=${{ vars.LOG_LEVEL }}" \
           --memory 2Gi \
           --cpu 1 \
           --max-instances 5 \

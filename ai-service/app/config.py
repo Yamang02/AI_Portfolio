@@ -94,6 +94,9 @@ class Settings(BaseSettings):
     # API 키 (기본값으로 더미 키 제공 - 실제 배포시 덮어씌워짐)
     gemini_api_key: str = Field(default="dummy_key_for_build", description="Google Gemini API 키")
     
+    # 직접 로그 레벨 설정 (중첩 구조 대신 단순화)
+    log_level: str = Field(default="INFO", description="로그 레벨")
+    
     # 각 구성 요소별 설정
     llm: LLMConfig = Field(default_factory=LLMConfig)
     qdrant: QdrantConfig = Field(default_factory=QdrantConfig)
