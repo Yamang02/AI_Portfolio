@@ -235,3 +235,4 @@ ai-service/.cache/
 ai-service/cache/
 
 
+.env.*
