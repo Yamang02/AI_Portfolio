@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 env:
-  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
   SERVICE_NAME: ai-portfolio-staging
   REGION: asia-northeast3
 
@@ -81,11 +81,11 @@ jobs:
           --set-env-vars="SPRING_PROFILES_ACTIVE=staging" \
           --set-env-vars="DATABASE_URL=${{ secrets.DATABASE_URL }}" \
           --set-env-vars="GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" \
-          --set-env-vars="REDIS_HOST=${{ secrets.REDIS_HOST }}" \
-          --set-env-vars="REDIS_PORT=${{ secrets.REDIS_PORT }}" \
+          --set-env-vars="REDIS_HOST=${{ vars.REDIS_HOST }}" \
+          --set-env-vars="REDIS_PORT=${{ vars.REDIS_PORT }}" \
           --set-env-vars="REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}" \
-          --set-env-vars="REDIS_DATABASE=${{ secrets.REDIS_DATABASE }}" \
-          --set-env-vars="REDIS_SSL=${{ secrets.REDIS_SSL }}" \
+          --set-env-vars="REDIS_DATABASE=${{ vars.REDIS_DATABASE }}" \
+          --set-env-vars="REDIS_SSL=${{ vars.REDIS_SSL }}" \
           --memory 1Gi \
           --cpu 1 \
           --max-instances 10 \
