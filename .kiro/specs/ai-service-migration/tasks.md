@@ -13,7 +13,7 @@
   - docker-compose.ai.yml - AI 서비스 개발 환경 구성
   - _요구사항: 7.1, 7.2_
 
-- [ ] 1.2 벡터 데이터베이스 환경 구성
+- [x] 1.2 벡터 데이터베이스 환경 구성
   - Qdrant Cloud 계정 생성 및 클러스터 설정
   - API 키 발급 및 환경변수 설정
   - 벡터 컬렉션 스키마 정의 및 초기화 (HNSW 인덱스 설정)
@@ -21,10 +21,11 @@
   - Qdrant 클라이언트 연결 및 기본 CRUD 테스트
   - _요구사항: 2.1, 5.1, 5.2_
 
-- [ ] 1.3 Redis 캐시 시스템 설정
-  - Redis 서버 Docker 컨테이너 설정
-  - Spring Boot Redis 연동 설정
-  - 캐시 키 네이밍 규칙 및 TTL 정책 정의
+- [x] 1.3 Redis 캐시 시스템 설정
+  - Redis 서버 Docker 컨테이너 설정 (docker-compose.ai.yml)
+  - Spring Boot Redis 연동 설정 (RedisConfig.java, CacheService.java)
+  - 캐시 키 네이밍 규칙 및 TTL 정책 정의 (application.yml)
+  - GitHub Environment 기반 환경변수 통일 및 배포 워크플로우 개선
   - _요구사항: 14.1, 14.2, 14.4_
 
 - [ ] 1.4 개발 환경 통합 및 테스트

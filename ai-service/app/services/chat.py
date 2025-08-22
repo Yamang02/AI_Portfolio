@@ -17,6 +17,7 @@ import google.generativeai as genai
 from app.models.rag import RAGService, QueryType
 from app.models.embeddings import EmbeddingModel
 from app.config import get_settings
+from app.services.cache import CacheManager
 
 logger = logging.getLogger(__name__)
 
@@ -30,6 +31,7 @@ class ChatService:
         self.rag_service: Optional[RAGService] = None
         self.embedding_model: Optional[EmbeddingModel] = None
         self.memory: Optional[ConversationBufferMemory] = None
+        self.cache_manager = CacheManager()
         
     async def initialize(self) -> None:
         """서비스 초기화"""
@@ -89,10 +91,17 @@ class ChatService:
         try:
             start_time = asyncio.get_event_loop().time()
             
-            # 1. 질문 유형 분석
+            # 1. 캐시에서 응답 조회 시도
+            if self.cache_manager.is_available():
+                cached_response = self.cache_manager.get_chat_response(user_message, user_id)
+                if cached_response:
+                    logger.info("캐시에서 응답 반환")
+                    return cached_response
+            
+            # 2. 질문 유형 분석
             query_type = await self._analyze_query_type(user_message)
             
-            # 2. RAG 검색 및 응답 생성
+            # 3. RAG 검색 및 응답 생성
             if query_type in [QueryType.PROJECT, QueryType.EXPERIENCE, QueryType.SKILL]:
                 # RAG 기반 응답
                 response = await self._generate_rag_response(user_message, query_type)
@@ -100,15 +109,15 @@ class ChatService:
                 # 일반 대화 응답
                 response = await self._generate_general_response(user_message)
             
-            # 3. 응답 시간 계산
+            # 4. 응답 시간 계산
             response_time = asyncio.get_event_loop().time() - start_time
             
-            # 4. 대화 메모리 업데이트
+            # 5. 대화 메모리 업데이트
             if self.memory:
                 self.memory.chat_memory.add_user_message(user_message)
                 self.memory.chat_memory.add_ai_message(response["answer"])
             
-            # 5. 응답 구성
+            # 6. 응답 구성
             result = {
                 "answer": response["answer"],
                 "query_type": query_type.value if hasattr(query_type, 'value') else str(query_type),
@@ -117,6 +126,17 @@ class ChatService:
                 "confidence": response.get("confidence", 0.8),
                 "conversation_id": conversation_id
             }
+            
+            # 7. 응답을 캐시에 저장
+            if self.cache_manager.is_available():
+                # 개인화 여부 판단 (향후 더 정교한 로직으로 개선 가능)
+                is_personalized = user_id is not None and query_type in [QueryType.PERSONAL]
+                self.cache_manager.set_chat_response(
+                    user_message, 
+                    result, 
+                    user_id, 
+                    is_personalized
+                )
             
             logger.info(f"챗봇 응답 생성 완료 (시간: {response_time:.2f}초)")
             return result
@@ -255,6 +275,28 @@ class ChatService:
             logger.error(f"대화 기록 초기화 실패: {e}")
             return False
     
+    async def invalidate_user_cache(self, user_id: str) -> bool:
+        """특정 사용자의 캐시 무효화"""
+        try:
+            if self.cache_manager.is_available():
+                deleted_count = self.cache_manager.invalidate_user_cache(user_id)
+                logger.info(f"사용자 {user_id}의 캐시 {deleted_count}개 무효화 완료")
+                return deleted_count > 0
+            return False
+        except Exception as e:
+            logger.error(f"사용자 캐시 무효화 실패: {e}")
+            return False
+    
+    async def get_cache_stats(self) -> Dict[str, Any]:
+        """캐시 통계 조회"""
+        try:
+            if self.cache_manager.is_available():
+                return self.cache_manager.get_cache_stats()
+            return {"cache_available": False}
+        except Exception as e:
+            logger.error(f"캐시 통계 조회 실패: {e}")
+            return {"cache_available": False, "error": str(e)}
+    
     async def cleanup(self) -> None:
         """리소스 정리"""
         try:
@@ -264,6 +306,10 @@ class ChatService:
             if self.embedding_model:
                 # 임베딩 모델 정리 로직이 있다면 호출
                 pass
+            
+            # 캐시 매니저 정리
+            if self.cache_manager:
+                self.cache_manager.close()
             
             logger.info("챗봇 서비스 리소스 정리 완료")
             

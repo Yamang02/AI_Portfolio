@@ -39,6 +39,7 @@ jobs:
   deploy:
     needs: test
     runs-on: ubuntu-latest
+    environment: staging  # GitHub Environment 사용
     
     steps:
     - uses: actions/checkout@v4
@@ -78,8 +79,12 @@ jobs:
           --region $REGION \
           --allow-unauthenticated \
           --set-env-vars="SPRING_PROFILES_ACTIVE=staging" \
-          --set-env-vars="DATABASE_URL=${{ secrets.RAILWAY_DATABASE_URL_STAGING }}" \
+          --set-env-vars="DATABASE_URL=${{ secrets.DATABASE_URL }}" \
           --set-env-vars="GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" \
+          --set-env-vars="REDIS_HOST=${{ secrets.REDIS_HOST }}" \
+          --set-env-vars="REDIS_PORT=${{ secrets.REDIS_PORT }}" \
+          --set-env-vars="REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}" \
+          --set-env-vars="REDIS_SSL=true" \
           --memory 1Gi \
           --cpu 1 \
           --max-instances 10 \

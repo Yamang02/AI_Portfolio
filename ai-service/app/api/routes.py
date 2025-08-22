@@ -201,24 +201,96 @@ async def get_all_collections_stats(
         logger.error(f"전체 컬렉션 통계 조회 실패: {e}")
         raise HTTPException(status_code=500, detail="전체 컬렉션 통계 조회 실패")
 
+# === 캐시 관리 엔드포인트 ===
+
+@router.get("/cache/stats")
+async def get_cache_stats(
+    chat_svc: ChatService = Depends(get_chat_service)
+):
+    """캐시 통계 조회"""
+    try:
+        stats = await chat_svc.get_cache_stats()
+        return {"cache_stats": stats}
+        
+    except Exception as e:
+        logger.error(f"캐시 통계 조회 실패: {e}")
+        raise HTTPException(status_code=500, detail="캐시 통계 조회 실패")
+
+@router.delete("/cache/user/{user_id}")
+async def invalidate_user_cache(
+    user_id: str,
+    chat_svc: ChatService = Depends(get_chat_service)
+):
+    """특정 사용자 캐시 무효화"""
+    try:
+        success = await chat_svc.invalidate_user_cache(user_id)
+        if success:
+            return {"message": f"사용자 {user_id}의 캐시가 무효화되었습니다"}
+        else:
+            return {"message": "무효화할 캐시가 없습니다"}
+            
+    except Exception as e:
+        logger.error(f"사용자 캐시 무효화 실패: {e}")
+        raise HTTPException(status_code=500, detail="사용자 캐시 무효화 실패")
+
+@router.delete("/cache/chat")
+async def invalidate_chat_cache(
+    chat_svc: ChatService = Depends(get_chat_service)
+):
+    """모든 채팅 캐시 무효화"""
+    try:
+        if hasattr(chat_svc, 'cache_manager') and chat_svc.cache_manager.is_available():
+            deleted_count = chat_svc.cache_manager.invalidate_chat_cache()
+            return {"message": f"채팅 캐시 {deleted_count}개가 무효화되었습니다"}
+        else:
+            return {"message": "캐시 시스템을 사용할 수 없습니다"}
+            
+    except Exception as e:
+        logger.error(f"채팅 캐시 무효화 실패: {e}")
+        raise HTTPException(status_code=500, detail="채팅 캐시 무효화 실패")
+
+@router.delete("/cache/all")
+async def invalidate_all_cache(
+    chat_svc: ChatService = Depends(get_chat_service)
+):
+    """모든 캐시 무효화 (주의: 개발용)"""
+    try:
+        if hasattr(chat_svc, 'cache_manager') and chat_svc.cache_manager.is_available():
+            success = chat_svc.cache_manager.invalidate_all_cache()
+            if success:
+                return {"message": "모든 캐시가 무효화되었습니다"}
+            else:
+                return {"message": "캐시 무효화에 실패했습니다"}
+        else:
+            return {"message": "캐시 시스템을 사용할 수 없습니다"}
+            
+    except Exception as e:
+        logger.error(f"전체 캐시 무효화 실패: {e}")
+        raise HTTPException(status_code=500, detail="전체 캐시 무효화 실패")
+
 @router.get("/info")
 async def get_service_info():
     """서비스 정보 조회"""
     return {
         "service": "AI Portfolio Chatbot Service",
         "version": "1.0.0",
-        "description": "LangChain + Qdrant 기반 포트폴리오 챗봇 AI 서비스",
+        "description": "LangChain + Qdrant + Redis 기반 포트폴리오 챗봇 AI 서비스",
         "features": [
             "AI 챗봇 채팅",
             "RAG 기반 응답 생성",
             "벡터 검색",
-            "대화 기록 관리"
+            "대화 기록 관리",
+            "Redis 기반 캐시 시스템"
         ],
         "endpoints": [
             "POST /api/v1/chat - 채팅",
             "GET /api/v1/chat/history - 대화 기록",
             "DELETE /api/v1/chat/history - 대화 기록 초기화",
             "POST /api/v1/vector/search - 벡터 검색",
+            "GET /api/v1/cache/stats - 캐시 통계",
+            "DELETE /api/v1/cache/user/{user_id} - 사용자 캐시 무효화",
+            "DELETE /api/v1/cache/chat - 채팅 캐시 무효화",
+            "DELETE /api/v1/cache/all - 전체 캐시 무효화",
             "GET /api/v1/health - 헬스체크"
         ]
     }

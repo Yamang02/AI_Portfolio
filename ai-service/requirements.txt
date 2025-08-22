@@ -13,6 +13,9 @@ google-generativeai==0.3.2
 # 벡터 데이터베이스
 qdrant-client==1.7.0
 
+# 캐시 시스템
+redis==5.0.1
+
 # 임베딩 모델
 sentence-transformers==2.2.2
 torch==2.1.1

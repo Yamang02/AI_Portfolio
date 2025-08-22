@@ -56,7 +56,15 @@ class RedisConfig(BaseModel):
     port: int = Field(default=6379, ge=1, le=65535, description="Redis 포트")
     password: Optional[str] = Field(default=None, description="Redis 비밀번호")
     db: int = Field(default=0, ge=0, le=15, description="Redis 데이터베이스 번호")
+    ssl: bool = Field(default=False, description="SSL 사용 여부")
     ttl: int = Field(default=3600, ge=60, description="캐시 TTL (초)")
+    max_connections: int = Field(default=20, ge=1, le=100, description="최대 연결 수")
+    timeout: int = Field(default=5, ge=1, le=30, description="연결 타임아웃 (초)")
+    
+    @property
+    def is_cloud(self) -> bool:
+        """Redis Cloud 사용 여부 (SSL과 비밀번호로 판단)"""
+        return bool(self.ssl and self.password)
 
 
 class ServerConfig(BaseModel):

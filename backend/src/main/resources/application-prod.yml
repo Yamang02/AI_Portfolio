@@ -18,6 +18,24 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: false
+
+  # Redis Cloud 설정 (프로덕션)
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      database: ${REDIS_DATABASE:1}
+      timeout: ${REDIS_TIMEOUT:2000}ms
+      ssl:
+        enabled: ${REDIS_SSL:true}
+      lettuce:
+        pool:
+          max-active: ${REDIS_MAX_ACTIVE:8}
+          max-idle: ${REDIS_MAX_IDLE:8}
+          min-idle: 0
+          max-wait: -1ms
+        shutdown-timeout: 100ms
   
   # CORS 설정 (프로덕션 도메인)
   web:

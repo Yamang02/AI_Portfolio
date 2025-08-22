@@ -96,6 +96,86 @@
 - **캐시 전략**: Redis는 Repository 내부에서 투명하게 처리
 - **AI 레이어**: Qdrant Cloud는 완전히 별개 도메인으로 분리 유지
 
+### 9. Redis Cloud 캐시 시스템 설정 ✅ (2025-08-22)
+**결정일**: 2025-08-22
+
+#### 배경
+- AI 서비스 마이그레이션 Task 1.3 진행
+- Stage와 Production 환경에서 Redis Cloud 사용 예정
+- 무료 플랜 사양에 맞춘 설정 필요
+
+#### 최종 결정사항
+1. **Redis Cloud 무료 플랜 사양**
+   - **데이터베이스**: 1개 (30MB)
+   - **연결 수**: 최대 30개
+   - **지역**: 가장 가까운 지역 선택 (아시아 태평양)
+   - **백업**: 1일 1회 자동 백업
+
+2. **Spring Boot Redis 설정**
+   - **클라이언트**: Spring Data Redis (기본)
+   - **SSL**: 필수 활성화 (Redis Cloud 보안 요구사항)
+   - **타임아웃**: 2초 (2000ms)
+
+3. **캐시 전략**
+   - **캐시 대상**: 채팅 응답 (사용자별 + 공통)
+   - **TTL 정책**: 
+     - 채팅 응답: 1시간 (기본)
+     - 자주 묻는 질문: 24시간 (공통 캐싱)
+     - 사용자별 응답: 1시간 (개인화)
+   - **캐시 키 구조**: 
+     ```
+     chat:response:{question_hash}           # 공통 응답
+     chat:response:{user_id}:{question_hash} # 사용자별 응답
+     portfolio:data:{data_type}:{last_updated} # 포트폴리오 데이터
+     ```
+
+4. **캐시 무효화 전략**
+   - **백엔드 API 호출**: `/api/cache/clear` 엔드포인트
+   - **트리거 조건**: 포트폴리오 데이터 업데이트 시
+   - **부분 무효화**: 특정 사용자, 특정 데이터 타입별 삭제
+   - **전체 무효화**: AI 서비스 재시작 시
+
+5. **환경별 설정**
+   - **Stage 환경**: Redis Cloud 무료 플랜, 자동 배포
+   - **Production 환경**: Redis Cloud 무료 플랜, 수동 배포
+   - **환경변수**: REDIS_HOST, REDIS_PORT, REDIS_PASSWORD, REDIS_SSL
+
+#### CI/CD 환경변수 설정
+**GitHub Secrets (민감 정보)**:
+```bash
+# Redis Cloud Stage 환경
+REDIS_STAGE_HOST=your-stage-cluster.redis-12345.us-east-1-1.ec2.cloud.redislabs.com
+REDIS_STAGE_PORT=12345
+REDIS_STAGE_PASSWORD=your-stage-password
+REDIS_STAGE_SSL=true
+
+# Redis Cloud Production 환경
+REDIS_PROD_HOST=your-prod-cluster.redis-12345.us-east-1-1.ec2.cloud.redislabs.com
+REDIS_PROD_PORT=12345
+REDIS_PROD_PASSWORD=your-prod-password
+REDIS_PROD_SSL=true
+```
+
+**GitHub Variables (공개 정보)**:
+```bash
+REDIS_TIMEOUT=2000
+REDIS_MAX_ACTIVE=8
+REDIS_MAX_IDLE=8
+```
+
+#### 구현 방향
+- **RedisConfig**: Spring Boot Redis 설정 클래스
+- **CacheManager**: Redis 기반 캐시 관리자
+- **RedisTemplate**: JSON 직렬화 설정
+- **헬스체크**: Redis 연결 상태 모니터링
+- **환경별 프로필**: staging, production 분리
+
+#### 보안 및 모니터링
+- **SSL/TLS**: Redis Cloud 필수 요구사항
+- **접근 제어**: IP 화이트리스트 설정 (선택사항)
+- **모니터링**: 캐시 히트율, 메모리 사용량 추적
+- **장애 대응**: Redis 연결 실패 시 폴백 전략
+
 ## 🏗️ 백엔드 아키텍처 리팩토링 (헥사고날 아키텍처)
 
 ### 헥사고날 아키텍처 완전 적용 ✅
@@ -2126,7 +2206,7 @@ Infrastructure Layer
 - **비즈니스 로직**: 도메인 모델에 핵심 로직 집중
 - **데이터베이스**: PostgreSQL의 고급 기능 활용 가능
 
-## 🔧 Infrastructure Security 패키지 구조 리팩토링 [2025-01-14]
+## 🔧 Infrastructure Security 패키지 구조 리팩토링 [2025-08-14]
 
 ### 📁 **변경 내용**
 **Before**:
@@ -2162,7 +2242,7 @@ infrastructure/web/validation/
 - `ChatController.java`: import 경로 수정
 - 3개 서비스 파일: package 선언 업데이트
 
-## 🏗️ 헥사고날 아키텍처 Service/Adapter 분리 리팩토링 [2025-01-14]
+## 🏗️ 헥사고날 아키텍처 Service/Adapter 분리 리팩토링 [2025-08-14]
 
 ### 📂 **구조 변경**
 **Before (잘못된 구조)**:
@@ -2249,7 +2329,7 @@ infrastructure/
 - **일관성**: 모든 디렉토리명이 소문자로 통일
 - **명확성**: 기술별로 명확하게 분리된 구조
 
-## 🤖 AI 관련 구조 순수 Infrastructure로 리팩토링 [2025-01-14]
+## 🤖 AI 관련 구조 순수 Infrastructure로 리팩토링 [2025-08-14]
 
 ### 🎯 **구조 개선**
 **Before (문제가 있던 구조)**:
@@ -2293,7 +2373,7 @@ application/service/
 - **테스트**: 비즈니스 로직과 기술 구현 분리로 테스트 용이
 - **유지보수**: 각 레이어의 명확한 책임
 
-## 🌐 Web Layer 헥사고날 아키텍처 위반사항 수정 [2025-01-14]
+## 🌐 Web Layer 헥사고날 아키텍처 위반사항 수정 [2025-08-14]
 
 ### 🔍 **발견된 문제점**
 1. **DataController의 포트 직접 의존** (심각한 위반)

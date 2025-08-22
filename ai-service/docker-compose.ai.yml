@@ -27,12 +27,19 @@ services:
       - LLM_MAX_OUTPUT_TOKENS=${LLM_MAX_OUTPUT_TOKENS:-2048}
       # 로깅
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      # Redis 설정
+      - REDIS_HOST=${REDIS_HOST:-redis}
+      - REDIS_PORT=${REDIS_PORT:-6379}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
+      - REDIS_DB=${REDIS_DB:-0}
+      - REDIS_SSL=${REDIS_SSL:-false}
       # 서버 설정
       - SERVER_HOST=0.0.0.0
       - SERVER_PORT=8000
       - DEBUG_MODE=${DEBUG_MODE:-false}
     depends_on:
       - qdrant
+      - redis
     networks:
       - ai-network
     restart: unless-stopped
@@ -52,13 +59,26 @@ services:
       - QDRANT__SERVICE__HTTP_PORT=6333
       - QDRANT__SERVICE__GRPC_PORT=6334
 
-# Redis는 나중에 성능 최적화용으로 추가 예정
+# Redis 캐시 서버 (개발용)
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - ai-network
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    environment:
+      - REDIS_REPLICATION_MODE=master
 
 # PostgreSQL은 기존 백엔드에서 관리하므로 제거
 
 volumes:
   ai-service-data:
   qdrant-data:
+  redis-data:
 
 networks:
   ai-network:
