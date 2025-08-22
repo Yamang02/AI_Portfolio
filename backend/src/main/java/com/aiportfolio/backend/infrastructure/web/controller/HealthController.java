@@ -25,15 +25,4 @@ public class HealthController {
         return ResponseEntity.ok(health);
     }
 
-    @GetMapping("/")
-    public ResponseEntity<Map<String, Object>> root() {
-        log.debug("Root endpoint called");
-        
-        Map<String, Object> info = new HashMap<>();
-        info.put("service", "AI Portfolio Backend");
-        info.put("status", "running");
-        info.put("timestamp", LocalDateTime.now());
-        
-        return ResponseEntity.ok(info);
-    }
 }
