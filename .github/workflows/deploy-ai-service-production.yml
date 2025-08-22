@@ -1,0 +1,108 @@
+name: Deploy AI Service to Production
+
+on:
+  push:
+    branches: [ main ]
+    paths: 
+      - 'ai-service/**'
+      - '.github/workflows/deploy-ai-service-production.yml'
+  pull_request:
+    branches: [ main ]
+
+env:
+  GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+  GCP_AI_SERVICE_NAME: ${{ vars.GCP_AI_SERVICE_NAME }}
+  GCP_AI_REGION: ${{ vars.GCP_AI_REGION }}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Install dependencies
+      run: |
+        cd ai-service
+        pip install -r requirements.txt
+        
+    - name: Run tests and security scan
+      run: |
+        cd ai-service
+        # pytest tests/ --cov=app/ --cov-report=xml
+        # bandit -r app/ -f json
+        echo "AI Service 프로덕션 테스트 및 보안 검사 (향후 구현)"
+  
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    environment: production
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Authenticate to Google Cloud
+      uses: google-github-actions/auth@v2
+      with:
+        credentials_json: ${{ secrets.GCP_SA_KEY }}
+    
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v2
+    
+    - name: Configure Docker to use gcloud as a credential helper
+      run: gcloud auth configure-docker
+    
+    - name: Build and push AI Service Docker image
+      run: |
+        cd ai-service
+        docker build \
+          --build-arg GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }} \
+          --build-arg QDRANT_API_KEY=${{ secrets.QDRANT_API_KEY }} \
+          -t gcr.io/$GCP_PROJECT_ID/$GCP_AI_SERVICE_NAME:$GITHUB_SHA .
+        docker push gcr.io/$GCP_PROJECT_ID/$GCP_AI_SERVICE_NAME:$GITHUB_SHA
+    
+    - name: Deploy AI Service to Cloud Run Production
+      run: |
+        gcloud run deploy $GCP_AI_SERVICE_NAME \
+          --image gcr.io/$GCP_PROJECT_ID/$GCP_AI_SERVICE_NAME:$GITHUB_SHA \
+          --platform managed \
+          --region $GCP_AI_REGION \
+          --allow-unauthenticated \
+          --set-env-vars="GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" \
+          --set-env-vars="GEMINI_MODEL=${{ vars.GEMINI_MODEL }}" \
+          --set-env-vars="LLM_TEMPERATURE=${{ vars.LLM_TEMPERATURE }}" \
+          --set-env-vars="LLM_MAX_OUTPUT_TOKENS=${{ vars.LLM_MAX_OUTPUT_TOKENS }}" \
+          --set-env-vars="QDRANT_URL=${{ secrets.QDRANT_URL }}" \
+          --set-env-vars="QDRANT_API_KEY=${{ secrets.QDRANT_API_KEY }}" \
+          --set-env-vars="REDIS_HOST=${{ vars.REDIS_HOST }}" \
+          --set-env-vars="REDIS_PORT=${{ vars.REDIS_PORT }}" \
+          --set-env-vars="REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}" \
+          --set-env-vars="REDIS__DB=0" \
+          --set-env-vars="REDIS__KEY_PREFIX=ai-prod:" \
+          --set-env-vars="REDIS_SSL=${{ vars.REDIS_SSL }}" \
+          --set-env-vars="LOGGING__LEVEL=INFO" \
+          --memory 4Gi \
+          --cpu 2 \
+          --max-instances 20 \
+          --timeout 600 \
+          --cpu-boost \
+          --startup-probe="httpGet.path=/api/v1/health,httpGet.port=8000,initialDelaySeconds=30,timeoutSeconds=5,periodSeconds=10,failureThreshold=6"
+
+    - name: Verify AI Service deployment
+      run: |
+        sleep 30
+        SERVICE_URL=$(gcloud run services describe $GCP_AI_SERVICE_NAME --region=$GCP_AI_REGION --format='value(status.url)')
+        echo "AI Service URL: $SERVICE_URL"
+        curl -f "$SERVICE_URL/api/v1/health" || exit 1
+        
+    - name: Run smoke tests
+      run: |
+        SERVICE_URL=$(gcloud run services describe $GCP_AI_SERVICE_NAME --region=$GCP_AI_REGION --format='value(status.url)')
+        echo "Running smoke tests against $SERVICE_URL"
+        # 기본 응답 테스트
+        curl -f "$SERVICE_URL/api/v1/info" || exit 1

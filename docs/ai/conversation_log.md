@@ -2584,3 +2584,243 @@ if self.hnsw_config is None:
 ✅ 4개 컬렉션 생성 성공, HNSW 인덱스 설정 완료, Qdrant 연결 검증
 
 ---
+
+## 📅 2025-08-22 일일 로그
+
+### 1. 스프링부트 빈 매핑 우선순위 문제 해결
+
+**상황:** 스테이징 환경에서 프론트엔드가 서빙되지 않고 백엔드 JSON 응답만 표시되는 문제 발생
+
+**원인:** `HealthController.java`에서 `@GetMapping("/")`이 루트 경로를 백엔드 API로 매핑
+- Spring에서 `@RestController` 매핑이 정적 리소스 핸들러보다 우선순위가 높음
+- `WebConfig.java`의 정적 파일 설정이 무시됨
+
+**해결:**
+- `HealthController.java:28-38` 라인의 `@GetMapping("/")` 매핑 제거
+- 루트 경로가 `index.html` 서빙하도록 복구
+
+**파일 변경:** `backend/src/main/java/com/aiportfolio/backend/infrastructure/web/controller/HealthController.java`
+
+### 2. Redis URL SSL 미설정 포트 제공 문제
+
+**상황:** Redis 연결 설정에서 SSL 및 포트 설정 검토 필요
+
+**현재 설정:** 
+```yaml
+redis:
+  host: ${REDIS_HOST:localhost}
+  port: ${REDIS_PORT:6379}
+  ssl:
+    enabled: ${REDIS_SSL:false}
+```
+
+**확인 사항:**
+- Cloud Run 환경에서 Redis SSL 연결 필요 시 포트 변경 고려
+- Redis Cloud가 기본적으로 제공하는 포트는 ssl=true 설정 시 오류 발생. false로 고정
+
+**결과:** 두 문제 모두 해결되어 스테이징 환경에서 프론트엔드 정상 서빙 확인
+
+---
+
+## 📅 2025-08-22 일일 로그 (2차)
+
+### 1. AI Service 독립 배포 아키텍처 구축
+
+**목표:** AI Service를 메인 애플리케이션과 독립적으로 배포할 수 있는 체계 구축
+
+**구현 사항:**
+
+#### 배포 전략 결정
+- **전략:** 단일 브랜치 + 경로 기반 트리거 방식 채택
+- **브랜치 구조:** 기존 main/staging 브랜치 유지
+- **트리거 방식:** 
+  - `ai-service/**` 변경 시 → AI Service만 배포
+  - `frontend/**`, `backend/**` 변경 시 → 메인 앱만 배포
+
+#### GitHub Workflows 생성
+- ✅ `.github/workflows/deploy-ai-service-staging.yml` 생성
+- ✅ `.github/workflows/deploy-ai-service-production.yml` 생성  
+- ✅ 기존 워크플로우에 경로 필터 추가
+
+#### Cloud Run 서비스 분리
+```
+기존: ai-portfolio-chatbot-staging/production
+신규: ai-portfolio-ai-service-staging/production
+```
+
+### 2. 환경변수 관리 체계 개선
+
+**결정사항:**
+- **GitHub Environments:** 기존 staging/production 유지
+- **변수 네이밍:** 서비스별 접두사로 구분
+- **모델 파라미터:** 환경변수가 아닌 코드에서 관리
+
+#### GitHub Secrets (공통)
+```yaml
+GEMINI_API_KEY: Gemini API 키
+GCP_SA_KEY: Google Cloud 서비스 계정
+REDIS_PASSWORD: Redis 비밀번호
+QDRANT_API_KEY: Qdrant Cloud API 키
+QDRANT_URL: Qdrant 클러스터 URL
+POSTGRE_URL: PostgreSQL 연결 URL (DATABASE_URL에서 변경)
+```
+
+#### GitHub Variables (환경별)
+```yaml
+# 메인앱
+SERVICE_NAME: ai-portfolio-chatbot(-staging)
+VITE_API_BASE_URL: 환경별 API URL
+
+# AI서비스  
+AI_SERVICE_NAME: ai-portfolio-ai-service(-staging)
+AI_SERVICE_LOG_LEVEL: DEBUG/INFO
+```
+
+### 3. 로컬 개발환경 개선
+
+**dotenv-cli 도입:**
+- ✅ npm 루트에서 `backend/.env.local` 자동 로드
+- ✅ `npm run dev:backend` 명령어로 환경변수 주입
+- ✅ GEMINI_API_KEY 정상 로드 확인
+
+**package.json 스크립트:**
+```json
+"dev:backend": "dotenv -e backend/.env.local -- mvn -f backend/pom.xml compile exec:java -Dexec.mainClass=com.aiportfolio.backend.BackendApplication"
+```
+
+### 4. AI Service Dockerfile 최적화
+
+**보안 및 성능 개선:**
+- ✅ 비root 사용자(appuser) 생성
+- ✅ Cloud Run PORT 환경변수 지원
+- ✅ Gunicorn 프로덕션 설정 (4 workers)
+- ✅ 헬스체크 Cloud Run 최적화
+
+### 5. Task 1.4 완료 확인
+
+**개발 환경 통합 및 테스트:** 95% 완료
+- ✅ Docker Desktop 실행 및 컨테이너 관리
+- ✅ PostgreSQL, Qdrant, Redis 서비스 정상 동작
+- ✅ 서비스 간 네트워크 연결 테스트
+- ✅ 환경변수 관리 체계 구축
+
+**남은 작업:** AI Service 실제 배포 테스트
+
+---
+
+## 2025-08-22: AI 서비스 독립 배포 환경 구축 및 환경변수 표준화
+
+### 1. AI 서비스 독립 배포 아키텍처 구축
+
+**GitHub Actions 워크플로우 분리:**
+- ✅ `.github/workflows/deploy-ai-service-staging.yml` 생성
+- ✅ `.github/workflows/deploy-ai-service-production.yml` 생성  
+- ✅ 디렉토리 기반 배포 트리거: `ai-service/**` 경로 변경시에만 AI 서비스 배포
+- ✅ 메인 애플리케이션과 완전 독립적인 배포 파이프라인
+
+**지역별 최적화 배포:**
+- ✅ 메인 애플리케이션: `asia-northeast3` (기존)
+- ✅ AI 서비스: `us-east4` (Qdrant Cloud와 동일 지역으로 네트워크 지연 최소화)
+
+### 2. 환경변수 명명 규칙 표준화
+
+**시스템별 접두사 도입으로 관리 편의성 향상:**
+
+#### GCP 관련 변수
+```yaml
+# 기존 → 새로운 명명
+PROJECT_ID → GCP_PROJECT_ID
+REGION → GCP_MAIN_REGION  
+REGION_AI → GCP_AI_REGION
+SERVICE_NAME → GCP_MAIN_SERVICE_NAME
+AI_SERVICE_NAME_STAGING/PRODUCTION → GCP_AI_SERVICE_NAME (통합)
+```
+
+#### Redis 관리 전략 개선  
+**Redis Cloud Free Tier 제한사항 해결:**
+- ✅ DB Index 0번만 사용 가능함을 확인
+- ✅ 키 네임스페이스 분리 전략 도입
+
+```yaml
+# 기존 DATABASE 번호 분리 방식 (불가능)
+REDIS_DATABASE → REDIS_AI_DB_NUM (1번) # 에러 발생
+
+# 키 접두사 분리 방식 (채택)
+REDIS_DB_IDX: 0 (모든 서비스 공통)
+REDIS_KEY_PREFIX: 
+  - main-local: (로컬 개발)
+  - main-staging: (메인앱 스테이징)  
+  - main-prod: (메인앱 프로덕션)
+  - ai-staging: (AI서비스 스테이징)
+  - ai-prod: (AI서비스 프로덕션)
+```
+
+#### 로깅 설정 체계화
+```yaml
+# Spring Boot: 프로필별 yml 파일에 하드코딩 (표준 방식)
+SPRING_PROFILES_ACTIVE: staging/production
+
+# FastAPI: 환경변수 동적 설정
+LOGGING__LEVEL: DEBUG/INFO (Pydantic 중첩 구조)
+```
+
+### 3. 최종 환경변수 구조
+
+#### GitHub Secrets (보안 정보)
+```yaml
+GCP_SA_KEY: Google Cloud 서비스 계정 JSON
+GEMINI_API_KEY: Gemini API 키
+REDIS_PASSWORD: Redis Cloud 비밀번호  
+QDRANT_API_KEY: Qdrant Cloud API 키
+QDRANT_URL: Qdrant 클러스터 URL
+POSTGRE_URL: PostgreSQL 연결 URL
+```
+
+#### GitHub Variables (환경별 설정)
+```yaml
+# GCP 설정
+GCP_PROJECT_ID: 프로젝트 ID
+GCP_MAIN_REGION: asia-northeast3
+GCP_AI_REGION: us-east4
+GCP_MAIN_SERVICE_NAME: ai-portfolio-chatbot  
+GCP_AI_SERVICE_NAME: ai-portfolio-ai-service
+
+# Spring Boot 설정
+SPRING_PROFILES_ACTIVE: staging/production
+VITE_API_BASE_URL: 환경별 API URL
+
+# Redis 설정 (공통)
+REDIS_HOST, REDIS_PORT, REDIS_SSL: Redis Cloud 연결정보
+REDIS_KEY_PREFIX: 환경별 키 네임스페이스
+
+# AI 서비스 로깅
+LOGGING__LEVEL: DEBUG(staging)/INFO(production)
+```
+
+### 4. 배포 전략 결정사항
+
+**브랜치 정책:**
+- ✅ 단일 브랜치(staging/main) + 디렉토리 기반 트리거
+- ✅ 별도 AI 서비스용 브랜치 불필요
+- ✅ 각 서비스별 독립적 배포 사이클
+
+**Qdrant Cloud 설정:**
+- ✅ 클러스터명: `ai-portfolio-staging-vectors`, `ai-portfolio-production-vectors`
+- ✅ 지역: `us-east4` (AI 서비스와 동일)
+
+### 5. 개발 환경 통합 완료
+
+**Redis 구성 수정:**
+- ✅ 백엔드: `application.yml`에서 `REDIS_DB_IDX`, `REDIS_KEY_PREFIX` 지원
+- ✅ AI 서비스: `config.py`에서 키 접두사 설정 추가
+- ✅ 로컬 개발환경: `main-local:` 네임스페이스
+
+**최종 상태:**
+- ✅ 메인 애플리케이션과 AI 서비스 완전 독립 배포
+- ✅ 환경변수 시스템별 그룹화로 관리 편의성 향상
+- ✅ Redis Cloud Free Tier 제약사항 우회 해결
+- ✅ 지역별 최적화 배포로 성능 향상
+
+**배포 준비 완료:** GitHub에서 환경변수 설정 후 즉시 AI 서비스 독립 배포 가능
+
+---

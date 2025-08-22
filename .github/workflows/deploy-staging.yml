@@ -2,14 +2,23 @@ name: Deploy to Staging
 
 on:
   push:
-    branches: [ develop, staging ]  # develop 또는 staging 브랜치에 푸시시 실행
+    branches: [ develop, staging ]
+    paths:
+      - 'frontend/**'
+      - 'backend/**' 
+      - 'Dockerfile'
+      - '.github/workflows/deploy-staging.yml'
   pull_request:
     branches: [ main ]
+    paths:
+      - 'frontend/**'
+      - 'backend/**'
+      - 'Dockerfile'
 
 env:
-  PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
-  SERVICE_NAME: ${{ vars.SERVICE_NAME }}
-  REGION: ${{ vars.REGION }}
+  GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+  GCP_MAIN_SERVICE_NAME: ${{ vars.GCP_MAIN_SERVICE_NAME }}
+  GCP_MAIN_REGION: ${{ vars.GCP_MAIN_REGION }}
   VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
 
 jobs:
@@ -71,15 +80,15 @@ jobs:
       run: |
         docker build \
           --build-arg VITE_API_BASE_URL=$VITE_API_BASE_URL \
-          -t gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA .
-        docker push gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA
+          -t gcr.io/$GCP_PROJECT_ID/$GCP_MAIN_SERVICE_NAME:$GITHUB_SHA .
+        docker push gcr.io/$GCP_PROJECT_ID/$GCP_MAIN_SERVICE_NAME:$GITHUB_SHA
     
     - name: Deploy AI Portfolio to Cloud Run Staging
       run: |
-        gcloud run deploy $SERVICE_NAME \
-          --image gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA \
+        gcloud run deploy $GCP_MAIN_SERVICE_NAME \
+          --image gcr.io/$GCP_PROJECT_ID/$GCP_MAIN_SERVICE_NAME:$GITHUB_SHA \
           --platform managed \
-          --region $REGION \
+          --region $GCP_MAIN_REGION \
           --allow-unauthenticated \
           --set-env-vars="SPRING_PROFILES_ACTIVE=${{ vars.SPRING_PROFILES_ACTIVE }}" \
           --set-env-vars="DATABASE_URL=${{ secrets.DATABASE_URL }}" \
@@ -87,7 +96,8 @@ jobs:
           --set-env-vars="REDIS_HOST=${{ vars.REDIS_HOST }}" \
           --set-env-vars="REDIS_PORT=${{ vars.REDIS_PORT }}" \
           --set-env-vars="REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}" \
-          --set-env-vars="REDIS_DATABASE=${{ vars.REDIS_DATABASE }}" \
+          --set-env-vars="REDIS_DB_IDX=0" \
+          --set-env-vars="REDIS_KEY_PREFIX=main-staging:" \
           --set-env-vars="REDIS_SSL=${{ vars.REDIS_SSL }}" \
           --memory 1Gi \
           --cpu 1 \

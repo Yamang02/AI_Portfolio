@@ -51,11 +51,12 @@ class RAGConfig(BaseModel):
 
 
 class RedisConfig(BaseModel):
-    """Redis 설정"""
+    """Redis 설정 (AI 서비스용 - 키 접두사로 분리)"""
     host: str = Field(default="localhost", description="Redis 호스트")
     port: int = Field(default=6379, ge=1, le=65535, description="Redis 포트")
     password: Optional[str] = Field(default=None, description="Redis 비밀번호")
-    db: int = Field(default=0, ge=0, le=15, description="Redis 데이터베이스 번호")
+    db: int = Field(default=0, ge=0, le=15, description="Redis 데이터베이스 인덱스")
+    key_prefix: str = Field(default="ai:", description="Redis 키 네임스페이스 접두사")
     ssl: bool = Field(default=False, description="SSL 사용 여부")
     ttl: int = Field(default=3600, ge=60, description="캐시 TTL (초)")
     max_connections: int = Field(default=20, ge=1, le=100, description="최대 연결 수")

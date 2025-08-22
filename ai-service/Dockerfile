@@ -1,19 +1,21 @@
-# Staging/Production Dockerfile (환경변수로 구분)
+# Production AI Service Dockerfile
 FROM python:3.11-slim
 
 # 작업 디렉토리 설정
 WORKDIR /app
 
-# 시스템 패키지 설치
-RUN apt-get update && apt-get install -y \
+# 시스템 의존성 설치 (최소화)
+RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     g++ \
     curl \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
 
-# Python 의존성 파일 복사 및 설치
+# Python 의존성 파일 복사 및 설치 (캐시 최적화)
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --upgrade pip \
+    && pip install --no-cache-dir -r requirements.txt
 
 # 애플리케이션 코드 복사
 COPY . .
@@ -26,14 +28,23 @@ ENV PYTHONPATH=/app
 ENV PYTHONUNBUFFERED=1
 ENV DEBUG_MODE=false
 
-# 헬스체크
-HEALTHCHECK --interval=30s --timeout=30s --start-period=10s --retries=3 \
-    CMD curl -f http://localhost:8000/api/v1/health || exit 1
+# 비root 사용자 생성 (보안)
+RUN groupadd -r appuser && useradd -r -g appuser appuser \
+    && chown -R appuser:appuser /app
+USER appuser
 
-# 환경에 따라 다른 실행 방식
-# DEBUG_MODE=true면 uvicorn (개발/스테이징), false면 gunicorn (프로덕션)
-CMD if [ "$DEBUG_MODE" = "true" ]; then \
-        uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload; \
-    else \
-        gunicorn app.main:app -w 4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000; \
-    fi
+# 헬스체크 (Cloud Run용으로 최적화)
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:${PORT:-8000}/api/v1/health || exit 1
+
+# Cloud Run PORT 환경변수 지원
+ENV PORT=8000
+
+# 프로덕션용 Gunicorn 실행 (성능 최적화)
+CMD gunicorn app.main:app \
+    -w 4 \
+    -k uvicorn.workers.UvicornWorker \
+    --bind 0.0.0.0:$PORT \
+    --timeout 600 \
+    --access-logfile - \
+    --error-logfile -
