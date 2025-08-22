@@ -219,7 +219,8 @@ public class CacheService {
         try {
             // Redis INFO 명령어를 통한 통계 수집
             var connection = redisTemplate.getConnectionFactory().getConnection();
-            var info = connection.info();
+            var infoProps = connection.info();
+            String info = infoProps != null ? infoProps.toString() : "";
             
             return CacheStats.builder()
                 .available(true)

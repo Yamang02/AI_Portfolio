@@ -86,7 +86,7 @@ public class RedisConfig {
             poolConfig.setTestWhileIdle(true);
 
             // Lettuce 클라이언트 설정
-            LettucePoolingClientConfiguration.Builder clientConfigBuilder = 
+            var clientConfigBuilder = 
                 LettucePoolingClientConfiguration.builder()
                     .poolConfig(poolConfig)
                     .commandTimeout(Duration.ofMillis(redisTimeout))
