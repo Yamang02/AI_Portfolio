@@ -9,8 +9,9 @@ on:
 
 env:
   PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
-  SERVICE_NAME: ai-portfolio
-  REGION: asia-northeast3
+  SERVICE_NAME: ${{ vars.SERVICE_NAME }}
+  REGION: ${{ vars.REGION }}
+  VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
 
 jobs:
   test:
@@ -69,7 +70,9 @@ jobs:
     
     - name: Build and push Docker image
       run: |
-        docker build -t gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA .
+        docker build \
+          --build-arg VITE_API_BASE_URL=$VITE_API_BASE_URL \
+          -t gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA .
         docker push gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA
     
     - name: Deploy to Cloud Run
@@ -79,7 +82,7 @@ jobs:
           --platform managed \
           --region $REGION \
           --allow-unauthenticated \
-          --set-env-vars="SPRING_PROFILES_ACTIVE=production" \
+          --set-env-vars="SPRING_PROFILES_ACTIVE=${{ vars.SPRING_PROFILES_ACTIVE }}" \
           --set-env-vars="DATABASE_URL=${{ secrets.DATABASE_URL }}" \
           --set-env-vars="GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" \
           --set-env-vars="REDIS_HOST=${{ vars.REDIS_HOST }}" \
