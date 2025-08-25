@@ -24,8 +24,8 @@ class VectorStoreService:
         settings = get_settings()
         self.settings = settings
         # URL 우선 사용
-        self.url = url or settings.qdrant.url
-        self.api_key = settings.qdrant.api_key
+        self.url = url or settings.qdrant_url
+        self.api_key = settings.qdrant_api_key
         self.client: Optional[QdrantClient] = None
         self.collection_manager: Optional[CollectionManager] = None
         
@@ -42,7 +42,7 @@ class VectorStoreService:
         try:
             # 설정에서 Qdrant 클라이언트 인자 가져오기
             client_kwargs = self.settings.get_qdrant_client_kwargs()
-            logger.info(f"Qdrant 연결 모드: {'Cloud' if self.settings.qdrant.is_cloud else 'Local'}")
+            logger.info(f"Qdrant 연결 모드: {'Cloud' if self.settings.qdrant_is_cloud else 'Local'}")
             
             self.client = QdrantClient(**client_kwargs)
             

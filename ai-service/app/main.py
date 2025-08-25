@@ -13,13 +13,12 @@ from typing import Dict
 from app.api.routes import router as api_router, set_services
 from app.services.vector_store import VectorStoreService
 from app.services.chat import ChatService
-from app.config import get_settings, get_logging_config
+from app.config import get_settings
 
 # 설정 로드
 settings = get_settings()
-log_config = get_logging_config()
 
-# 로깅 설정 (단순화된 환경변수 사용)
+# 로깅 설정
 log_level = settings.log_level.upper() if settings.log_level else "INFO"
 if not hasattr(logging, log_level):
     print(f"Warning: Invalid log level '{log_level}', using INFO")
@@ -27,7 +26,7 @@ if not hasattr(logging, log_level):
 
 logging.basicConfig(
     level=getattr(logging, log_level),
-    format=log_config.format
+    format=settings.log_format
 )
 logger = logging.getLogger(__name__)
 
@@ -35,15 +34,18 @@ logger = logging.getLogger(__name__)
 logger.info(f"🔧 AI 서비스 설정 상태:")
 logger.info(f"  - Log Level: {settings.log_level} -> {log_level}")
 logger.info(f"  - Gemini API Key: {'✅ 설정됨' if settings.gemini_api_key and settings.gemini_api_key != 'dummy_key_for_build' else '❌ 더미키 사용'}")
-logger.info(f"  - Qdrant URL: {'✅ 설정됨' if settings.qdrant.url else '❌ 미설정'}")
-logger.info(f"  - Redis Host: {settings.redis.host}")
-logger.info(f"  - Qdrant URL: {settings.qdrant.url}")
-logger.info(f"  - Qdrant API Key: {'SET' if settings.qdrant.api_key else 'NOT SET'}")
+logger.info(f"  - Qdrant URL: {settings.qdrant_url}")
+logger.info(f"  - Qdrant API Key: {'SET' if settings.qdrant_api_key else 'NOT SET'}")
+logger.info(f"  - Qdrant 모드: {'Cloud' if settings.qdrant_is_cloud else 'Local'}")
+logger.info(f"  - Redis Host: {settings.redis_host}")
+logger.info(f"  - Redis SSL: {settings.redis_ssl}")
+logger.info(f"  - Redis 모드: {'Cloud' if settings.redis_is_cloud else 'Local'}")
+logger.info(f"  - Redis Key Prefix: {settings.redis_key_prefix}")
 # 환경변수 직접 확인
 import os
 logger.info(f"  - QDRANT_URL env: {os.getenv('QDRANT_URL', 'NOT SET')}")
+logger.info(f"  - QDRANT_API_KEY env: {os.getenv('QDRANT_API_KEY', 'NOT SET')}")
 logger.info(f"  - REDIS_HOST env: {os.getenv('REDIS_HOST', 'NOT SET')}")
-logger.info(f"  - Redis Key Prefix: {settings.redis.key_prefix}")
 
 # 전역 서비스 인스턴스
 vector_store_service: VectorStoreService = None

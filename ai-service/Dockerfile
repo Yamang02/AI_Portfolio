@@ -1,50 +1,36 @@
-# Optimized AI Service Dockerfile with Multi-stage build
-FROM python:3.11-slim as base
-
-# 시스템 의존성 최적화
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    gcc \
-    g++ \
-    curl \
-    && rm -rf /var/lib/apt/lists/* \
-    && apt-get clean
+# AI Service Dockerfile
+FROM python:3.11-slim
 
 WORKDIR /app
 
-# Stage 1: Dependencies installation (heavy caching layer)
-FROM base as deps
+# 시스템 의존성 설치
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc g++ curl \
+    && rm -rf /var/lib/apt/lists/*
 
-# 기본 의존성 먼저 설치 (변경 빈도 낮음)
+# Python 의존성 설치 (레이어별 캐싱 최적화)
+RUN pip install --no-cache-dir --upgrade pip
+
+# 1단계: 기본 FastAPI 의존성
 COPY requirements-base.txt .
-RUN pip install --no-cache-dir --upgrade pip \
-    && pip install --no-cache-dir -r requirements-base.txt
+RUN pip install --no-cache-dir -r requirements-base.txt
 
-# ML 의존성 분리 설치 (PyTorch CPU 전용으로 크기 줄이기)
+# 2단계: PyTorch CPU 전용 (가장 무거움, 캐시 효율성 최대화)
+RUN pip install --no-cache-dir torch==2.1.1 \
+    --index-url https://download.pytorch.org/whl/cpu
+
+# 3단계: 기타 ML 라이브러리
 COPY requirements-ml.txt .
-RUN pip install --no-cache-dir \
-    --index-url https://download.pytorch.org/whl/cpu \
-    torch==2.1.1 \
-    && pip install --no-cache-dir -r requirements-ml.txt
+RUN pip install --no-cache-dir -r requirements-ml.txt
 
-# Stage 2: Production image
-FROM python:3.11-slim as production
+# 빌드 도구 제거 (이미지 크기 최소화)
+RUN apt-get purge -y --auto-remove gcc g++ \
+    && rm -rf requirements*.txt
 
-# 시스템 의존성 (런타임만)
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
-    && rm -rf /var/lib/apt/lists/* \
-    && apt-get clean
-
-WORKDIR /app
-
-# Python dependencies 복사 (deps 스테이지에서)
-COPY --from=deps /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
-COPY --from=deps /usr/local/bin /usr/local/bin
-
-# 애플리케이션 코드 복사 (마지막에)
+# 애플리케이션 코드 (가장 마지막 - 자주 변경됨)
 COPY . .
 
-# 비root 사용자 생성
+# 보안 설정
 RUN groupadd -r appuser && useradd -r -g appuser appuser \
     && chown -R appuser:appuser /app
 USER appuser
@@ -60,7 +46,7 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
     CMD curl -f http://localhost:${PORT}/api/v1/health || exit 1
 
-# 프로덕션 실행
+# Gunicorn으로 실행
 CMD gunicorn app.main:app \
     -w 2 \
     -k uvicorn.workers.UvicornWorker \

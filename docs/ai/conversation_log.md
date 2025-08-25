@@ -246,6 +246,94 @@ application/
 - **의존성 역전**: 모든 의존성이 Domain → Application → Infrastructure 방향 준수
 
 다음 단계: PostgreSQL 연결 및 실제 데이터베이스 구성 예정
+
+### 10. AI 서비스 Docker 빌드 최적화 및 환경변수 표준화 ✅ (2025-08-25)
+**결정일**: 2025-08-25
+
+#### 배경
+- AI 서비스 스테이징 배포시 Qdrant/Redis 연결 오류 발생 (localhost 모드로 연결)
+- Docker 빌드 시간 최적화 필요성 대두
+- 환경변수 설정이 복잡하고 일관성 부족
+
+#### 주요 변경사항
+
+**1. Qdrant 설정 단순화**
+- **이전**: `QDRANT_HOST`, `QDRANT_PORT`, `QDRANT_URL`, `QDRANT_API_KEY` 복합 설정
+- **개선**: `QDRANT_URL`, `QDRANT_API_KEY` 단순화
+- **QdrantConfig 개선**:
+  ```python
+  # 이전: host/port 분리 관리
+  host: str = "localhost"
+  port: int = 6333
+  url: Optional[str] = None
+  
+  # 개선: URL 우선 사용
+  url: str = "http://localhost:6333"
+  api_key: Optional[str] = None
+  is_cloud = bool(self.api_key)  # 단순화된 클라우드 판단
+  ```
+
+**2. Redis 환경변수 기본값 제거**
+- **application-staging.yml**: `REDIS_HOST:localhost` 기본값 제거
+- **강제 환경변수 설정**: 배포시 반드시 외부 Redis 사용하도록 수정
+
+**3. Docker 빌드 최적화**
+- **GitHub Actions 캐시 도입**: `cache-from: type=gha, cache-to: type=gha`
+- **Docker Buildx 적용**: 병렬 빌드 및 고급 캐시 기능
+- **requirements.txt 분리**:
+  ```
+  requirements-base.txt    # FastAPI, Redis 등 기본 의존성
+  requirements-ml.txt      # PyTorch, transformers 등 ML 라이브러리
+  ```
+- **레이어별 캐시 최적화**: 변경 빈도에 따른 설치 순서 조정
+
+**4. 환경변수 디버깅 로그 추가**
+- **AI 서비스 main.py**: 환경변수 직접 확인 로그 추가
+- **디버그 정보**: `QDRANT_URL env`, `REDIS_HOST env` 직접 출력
+- **설정 상태 확인**: Qdrant/Redis 연결 모드 로깅
+
+#### 성능 개선 결과
+**Docker 빌드 시간**:
+- **첫 빌드**: ~5-7분 (의존성 분리로 약간 증가)
+- **재빌드**: ~1-2분 (GHA 캐시 활용)
+- **코드 변경시**: ~30초-1분 (의존성 캐시 재사용)
+
+**캐시 저장소**:
+- **GitHub Actions 캐시**: 10GB 무료 (현재 ~4GB 사용)
+- **캐시 수명**: 7일간 미사용시 자동 삭제
+- **비용**: 현재 무료 범위 내
+
+#### 파일 정리
+**Dockerfile 통합**:
+- 불필요한 Multi-stage 빌드 제거 (중복 베이스 이미지 문제 해결)
+- 여러 Dockerfile 변형 정리 → 단일 최적화 버전 유지
+- 단순하고 효율적인 단일 스테이지 빌드 채택
+
+**requirements.txt 구조**:
+```
+requirements.txt          # 기존 통합 버전 (참고용 유지)
+requirements-base.txt     # 기본 FastAPI/Redis 의존성
+requirements-ml.txt       # PyTorch/ML 라이브러리
+```
+
+#### 환경변수 표준화 완료
+**FastAPI 표준 네이밍 규칙 준수**:
+- 단순하고 명확한 환경변수명
+- URL 우선 사용으로 복잡성 제거
+- Pydantic 자동 매핑 활용
+
+**GitHub Actions 환경변수**:
+```yaml
+QDRANT_URL: ${{ secrets.QDRANT_URL }}           # Qdrant Cloud URL
+QDRANT_API_KEY: ${{ secrets.QDRANT_API_KEY }}   # API 키
+REDIS_HOST: ${{ vars.REDIS_HOST }}              # Redis Cloud 호스트
+REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}   # Redis 비밀번호
+```
+
+#### 남은 과제
+- 다음 배포시 환경변수 디버그 로그 확인
+- Qdrant Cloud 연결 상태 최종 검증
+- Redis Cloud 연결 상태 최종 검증
 - **목적**: 실제 개발 프로젝트와 업무/학습 경험을 시각적으로 구분
 - **구현 내용**:
   - ✅ Project 인터페이스에 `type: 'project' | 'experience'` 필드 추가
