@@ -1,0 +1,25 @@
+# AI 서비스 기본 의존성 (변경 빈도 낮음)
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+gunicorn==21.2.0
+pydantic==2.5.0
+pydantic-settings==2.1.0
+
+# 벡터 데이터베이스
+qdrant-client==1.7.0
+
+# 캐시 시스템
+redis==5.0.1
+
+# 유틸리티
+numpy==1.24.3
+python-multipart==0.0.6
+python-dotenv==1.0.0
+
+# 로깅 및 모니터링
+structlog==23.2.0
+
+# 개발 도구
+pytest==7.4.3
+pytest-asyncio==0.21.1
+httpx==0.25.2

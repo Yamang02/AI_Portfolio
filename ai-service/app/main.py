@@ -37,6 +37,12 @@ logger.info(f"  - Log Level: {settings.log_level} -> {log_level}")
 logger.info(f"  - Gemini API Key: {'✅ 설정됨' if settings.gemini_api_key and settings.gemini_api_key != 'dummy_key_for_build' else '❌ 더미키 사용'}")
 logger.info(f"  - Qdrant URL: {'✅ 설정됨' if settings.qdrant.url else '❌ 미설정'}")
 logger.info(f"  - Redis Host: {settings.redis.host}")
+logger.info(f"  - Qdrant URL: {settings.qdrant.url}")
+logger.info(f"  - Qdrant API Key: {'SET' if settings.qdrant.api_key else 'NOT SET'}")
+# 환경변수 직접 확인
+import os
+logger.info(f"  - QDRANT_URL env: {os.getenv('QDRANT_URL', 'NOT SET')}")
+logger.info(f"  - REDIS_HOST env: {os.getenv('REDIS_HOST', 'NOT SET')}")
 logger.info(f"  - Redis Key Prefix: {settings.redis.key_prefix}")
 
 # 전역 서비스 인스턴스

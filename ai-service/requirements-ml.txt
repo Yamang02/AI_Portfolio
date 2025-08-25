@@ -1,0 +1,12 @@
+# ML/AI 의존성 (변경 빈도 낮음, 용량 큼)
+# 주의: torch는 Dockerfile에서 CPU 전용으로 별도 설치
+
+# LangChain 및 LLM
+langchain==0.1.0
+langchain-google-genai==0.0.6
+google-generativeai==0.3.2
+
+# 임베딩 모델
+sentence-transformers==2.2.2
+transformers==4.36.2
+huggingface-hub==0.19.4

@@ -57,14 +57,22 @@ jobs:
     - name: Configure Docker to use gcloud as a credential helper
       run: gcloud auth configure-docker
     
-    - name: Build and push AI Service Docker image
-      run: |
-        cd ai-service
-        docker build \
-          --build-arg GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }} \
-          --build-arg QDRANT_API_KEY=${{ secrets.QDRANT_API_KEY }} \
-          -t gcr.io/$GCP_PROJECT_ID/$GCP_AI_SERVICE_NAME:$GITHUB_SHA .
-        docker push gcr.io/$GCP_PROJECT_ID/$GCP_AI_SERVICE_NAME:$GITHUB_SHA
+    - name: Set up Docker Buildx (캐시 최적화)
+      uses: docker/setup-buildx-action@v3
+    
+    - name: Build and push AI Service Docker image (최적화됨)
+      uses: docker/build-push-action@v5
+      with:
+        context: ./ai-service
+        file: ./ai-service/Dockerfile
+        push: true
+        tags: gcr.io/${{ env.GCP_PROJECT_ID }}/${{ env.GCP_AI_SERVICE_NAME }}:${{ github.sha }}
+        build-args: |
+          GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
+          QDRANT_API_KEY=${{ secrets.QDRANT_API_KEY }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        platforms: linux/amd64
     
     - name: Deploy AI Service to Cloud Run Production
       run: |
