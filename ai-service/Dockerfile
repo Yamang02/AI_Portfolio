@@ -23,12 +23,12 @@ RUN pip install --no-cache-dir torch==2.1.1 \
 COPY requirements-ml.txt .
 RUN pip install --no-cache-dir -r requirements-ml.txt
 
+# 애플리케이션 코드 (가장 마지막 - 자주 변경됨)
+COPY . .
+
 # 빌드 도구 제거 (이미지 크기 최소화)
 RUN apt-get purge -y --auto-remove gcc g++ \
     && rm -rf requirements*.txt
-
-# 애플리케이션 코드 (가장 마지막 - 자주 변경됨)
-COPY . .
 
 # 보안 설정 및 캐시 디렉토리 생성
 RUN groupadd -r appuser && useradd -r -g appuser -m -d /home/appuser appuser \
