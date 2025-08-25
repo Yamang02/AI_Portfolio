@@ -1,0 +1,196 @@
+[
+  {
+    "id": "frontend-tech-stack",
+    "project_id": "ai-portfolio",
+    "type": "qa",
+    "category": "frontend",
+    "subcategory": "technology",
+    "title": "프론트엔드 기술 스택",
+    "question": "프론트엔드는 어떤 기술 스택으로 구현되었나요?",
+    "answer": "모던 React 생태계를 활용했습니다:\n\n**핵심 기술**:\n- **Framework**: React 18 + TypeScript\n- **Build Tool**: Vite\n- **Styling**: CSS Modules + Tailwind CSS\n- **State Management**: React Context API\n- **Architecture**: FSD (Feature Sliced Design)",
+    "tags": ["react", "typescript", "vite", "tailwind", "fsd"],
+    "keywords": ["React", "TypeScript", "Vite", "프론트엔드", "기술스택"],
+    "difficulty": "beginner",
+    "priority": 9,
+    "related_content": ["fsd-architecture", "state-management", "build-optimization"],
+    "created_at": "2025-08-25T00:00:00Z",
+    "last_updated": "2025-08-25T00:00:00Z",
+    "author": "system",
+    "version": "1.0"
+  },
+  {
+    "id": "fsd-architecture",
+    "project_id": "ai-portfolio",
+    "type": "qa",
+    "category": "frontend",
+    "subcategory": "architecture",
+    "title": "FSD 아키텍처",
+    "question": "FSD 아키텍처를 선택한 이유는?",
+    "answer": "확장 가능하고 유지보수하기 쉬운 구조를 위해서입니다:\n\n**FSD 구조 장점**:\n1. **기능별 격리**: 각 기능이 독립적으로 개발/테스트 가능\n2. **명확한 의존성**: 레이어 간 의존성 규칙 명확\n3. **팀 협업**: 기능별로 팀원들이 병렬 작업 가능\n4. **확장성**: 새로운 기능 추가 시 일관된 구조",
+    "tags": ["fsd", "architecture", "feature-sliced-design", "scalability"],
+    "keywords": ["FSD", "아키텍처", "기능별격리", "확장성"],
+    "difficulty": "intermediate",
+    "priority": 8,
+    "code_examples": [
+      {
+        "language": "text",
+        "code": "src/\n├── app/           # 앱 설정, 프로바이더\n├── features/      # 비즈니스 기능\n│   ├── chatbot/\n│   └── projects/\n├── entities/      # 비즈니스 엔티티\n├── shared/        # 공통 컴포넌트/유틸\n└── main.tsx",
+        "description": "FSD 기반 프로젝트 구조"
+      }
+    ],
+    "external_links": [
+      {
+        "title": "Feature Sliced Design 공식 문서",
+        "url": "https://feature-sliced.design/",
+        "description": "FSD 아키텍처 공식 문서"
+      }
+    ],
+    "related_content": ["frontend-tech-stack", "state-management"],
+    "created_at": "2025-08-25T00:00:00Z",
+    "last_updated": "2025-08-25T00:00:00Z",
+    "author": "system",
+    "version": "1.0"
+  },
+  {
+    "id": "state-management",
+    "project_id": "ai-portfolio",
+    "type": "qa",
+    "category": "frontend",
+    "subcategory": "state",
+    "title": "상태 관리 전략",
+    "question": "상태 관리는 어떻게 하나요?",
+    "answer": "컴포넌트 규모에 따라 적절한 상태 관리 방법을 선택했습니다:\n\n**상태 관리 전략**:\n- **로컬 상태**: useState, useReducer\n- **공유 상태**: Context API + useContext\n- **서버 상태**: 자체 구현 hooks (useFetch)\n- **폼 상태**: 네이티브 form handling\n\n**주요 Context**:\n- AppProvider: 전역 앱 상태\n- ChatbotContext: 채팅 상태 관리\n- ProjectsContext: 프로젝트 데이터 상태",
+    "tags": ["state-management", "context-api", "hooks", "react-state"],
+    "keywords": ["상태관리", "Context API", "useState", "useContext"],
+    "difficulty": "intermediate",
+    "priority": 8,
+    "related_content": ["fsd-architecture", "chatbot-interface"],
+    "created_at": "2025-08-25T00:00:00Z",
+    "last_updated": "2025-08-25T00:00:00Z",
+    "author": "system",
+    "version": "1.0"
+  },
+  {
+    "id": "design-system",
+    "project_id": "ai-portfolio",
+    "type": "qa",
+    "category": "frontend",
+    "subcategory": "ui-design",
+    "title": "디자인 시스템",
+    "question": "디자인 시스템은?",
+    "answer": "일관된 사용자 경험을 위한 디자인 토큰 시스템을 구축했습니다:\n\n**컬러 시스템**: CSS 커스텀 프로퍼티 활용\n- Primary Colors: Blue 계열\n- Semantic Colors: Success, Error, Warning\n- Neutral Colors: Text, Background\n\n**타이포그래피**:\n- 폰트: Inter (웹폰트)\n- 크기: 1.2 비율 스케일\n- 무게: 400, 500, 600",
+    "tags": ["design-system", "css-variables", "typography", "color-palette"],
+    "keywords": ["디자인시스템", "컬러", "타이포그래피", "CSS"],
+    "difficulty": "intermediate", 
+    "priority": 6,
+    "code_examples": [
+      {
+        "language": "css",
+        "code": ":root {\n  /* Primary Colors */\n  --color-primary: #3B82F6;\n  --color-primary-hover: #2563EB;\n  \n  /* Semantic Colors */\n  --color-success: #10B981;\n  --color-error: #EF4444;\n  --color-warning: #F59E0B;\n}",
+        "description": "CSS 커스텀 프로퍼티 기반 컬러 시스템"
+      }
+    ],
+    "related_content": ["responsive-design", "accessibility"],
+    "created_at": "2025-08-25T00:00:00Z",
+    "last_updated": "2025-08-25T00:00:00Z",
+    "author": "system",
+    "version": "1.0"
+  },
+  {
+    "id": "responsive-design",
+    "project_id": "ai-portfolio",
+    "type": "qa",
+    "category": "frontend",
+    "subcategory": "responsive",
+    "title": "반응형 디자인",
+    "question": "반응형 디자인은 어떻게 구현했나요?",
+    "answer": "Mobile-First 접근법으로 구현했습니다:\n\n**브레이크포인트**:\n- Mobile: 320px+\n- Tablet: 768px+\n- Desktop: 1024px+\n- Large Desktop: 1280px+\n\n**반응형 기법**:\n- CSS Grid + Flexbox\n- clamp() 함수로 유연한 폰트 크기\n- rem 단위 기반 일관된 간격\n- object-fit으로 적응형 이미지",
+    "tags": ["responsive-design", "mobile-first", "css-grid", "flexbox"],
+    "keywords": ["반응형", "모바일퍼스트", "브레이크포인트", "CSS Grid"],
+    "difficulty": "intermediate",
+    "priority": 7,
+    "code_examples": [
+      {
+        "language": "css",
+        "code": "/* Mobile First */\n@media (min-width: 320px) { ... }\n@media (min-width: 768px) { ... }\n@media (min-width: 1024px) { ... }\n@media (min-width: 1280px) { ... }",
+        "description": "모바일 퍼스트 브레이크포인트"
+      }
+    ],
+    "related_content": ["design-system", "build-optimization"],
+    "created_at": "2025-08-25T00:00:00Z",
+    "last_updated": "2025-08-25T00:00:00Z",
+    "author": "system",
+    "version": "1.0"
+  },
+  {
+    "id": "chatbot-interface",
+    "project_id": "ai-portfolio", 
+    "type": "qa",
+    "category": "frontend",
+    "subcategory": "features",
+    "title": "챗봇 인터페이스",
+    "question": "챗봇 인터페이스는 어떻게 구현했나요?",
+    "answer": "사용자 친화적인 대화형 인터페이스를 구현했습니다:\n\n**주요 특징**:\n- 실시간 메시지: WebSocket 스타일 UI (HTTP 기반)\n- 타이핑 애니메이션: 응답 생성 중 로딩 표시\n- 메시지 히스토리: 대화 내용 저장 및 표시\n- 에러 핸들링: 네트워크 오류 시 재시도 UI",
+    "tags": ["chatbot", "ui-components", "real-time", "user-experience"],
+    "keywords": ["챗봇", "인터페이스", "실시간", "사용자경험"],
+    "difficulty": "advanced",
+    "priority": 9,
+    "code_examples": [
+      {
+        "language": "typescript", 
+        "code": "interface ChatMessage {\n  id: string;\n  content: string;\n  sender: 'user' | 'ai';\n  timestamp: Date;\n  status: 'sending' | 'sent' | 'error';\n}",
+        "description": "ChatMessage 컴포넌트 인터페이스"
+      }
+    ],
+    "related_content": ["state-management", "build-optimization"],
+    "created_at": "2025-08-25T00:00:00Z",
+    "last_updated": "2025-08-25T00:00:00Z",
+    "author": "system",
+    "version": "1.0"
+  },
+  {
+    "id": "build-optimization",
+    "project_id": "ai-portfolio",
+    "type": "qa",
+    "category": "frontend", 
+    "subcategory": "performance",
+    "title": "성능 최적화",
+    "question": "성능 최적화는 어떻게 했나요?",
+    "answer": "다양한 최적화 기법을 적용했습니다:\n\n**번들 최적화**:\n- Code Splitting: 라우트별 청크 분할\n- Tree Shaking: 미사용 코드 제거\n- Dynamic Import: 필요한 시점에 모듈 로드\n\n**렌더링 최적화**:\n- React.memo: 불필요한 리렌더링 방지\n- useMemo/useCallback: 값/함수 메모이제이션\n- 가상 스크롤: 큰 리스트 성능 개선",
+    "tags": ["performance", "optimization", "code-splitting", "memoization"],
+    "keywords": ["성능최적화", "코드스플리팅", "메모이제이션", "번들최적화"],
+    "difficulty": "advanced",
+    "priority": 8,
+    "related_content": ["frontend-tech-stack", "accessibility"],
+    "created_at": "2025-08-25T00:00:00Z",
+    "last_updated": "2025-08-25T00:00:00Z",
+    "author": "system",
+    "version": "1.0"
+  },
+  {
+    "id": "accessibility",
+    "project_id": "ai-portfolio",
+    "type": "qa",
+    "category": "frontend",
+    "subcategory": "accessibility", 
+    "title": "웹 접근성",
+    "question": "접근성(Accessibility)은 어떻게 고려했나요?",
+    "answer": "웹 표준과 접근성 가이드라인을 준수했습니다:\n\n**접근성 개선사항**:\n- 시맨틱 HTML: 의미있는 HTML 태그 사용\n- 키보드 네비게이션: Tab 순서 최적화\n- 스크린 리더: aria-label, aria-describedby 활용\n- 색상 대비: WCAG 2.1 AA 기준 준수\n- 포커스 관리: 명확한 포커스 표시",
+    "tags": ["accessibility", "wcag", "aria", "semantic-html"],
+    "keywords": ["접근성", "WCAG", "ARIA", "시맨틱HTML"],
+    "difficulty": "intermediate",
+    "priority": 7,
+    "external_links": [
+      {
+        "title": "WCAG 2.1 가이드라인",
+        "url": "https://www.w3.org/WAI/WCAG21/quickref/",
+        "description": "웹 콘텐츠 접근성 가이드라인"
+      }
+    ],
+    "related_content": ["design-system", "build-optimization"],
+    "created_at": "2025-08-25T00:00:00Z",
+    "last_updated": "2025-08-25T00:00:00Z",
+    "author": "system",
+    "version": "1.0"
+  }
+]

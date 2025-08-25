@@ -544,7 +544,7 @@ REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}   # Redis 비밀번호
 - 코드 구조 개선으로 유지보수성 향상
 - 향후 경험 추가 시 일관된 디자인 적용 가능
 
-### 히스토리 패널 기능 구현 ✅ (2024-07-19)
+### 히스토리 패널 기능 구현 ✅ (2025-07-19)
 **목적**: 프로젝트와 경험들을 시간순으로 시각화하여 경력 발전 과정을 한눈에 파악
 
 **구현 내용**:
@@ -1424,7 +1424,7 @@ const handleMouseLeave = () => {
 
 ---
 
-## 2024-07 GCP Cloud Run 배포 세션 요약
+## 2025-07 GCP Cloud Run 배포 세션 요약
 
 ### 주요 진행 상황
 - GCP Cloud Run + GitHub Actions 기반 자동 배포 환경 구축
@@ -2966,5 +2966,106 @@ set_services(chat_service, vector_store_service)  # 부분 서비스로 시작
 - [ ] **리소스 제한**: 메모리/CPU 사용량 프로파일링 후 최적화
 
 **현재 상태:** 임시 방편으로 배포 가능하나, 프로덕션 품질을 위해서는 위 개선사항 필요
+
+---
+
+## 2025-08-25: AI 서비스 배포 오류 해결 과정
+
+### 문제 상황: Cloud Run 배포 연속 실패
+- **증상**: AI 서비스 스테이징 배포가 헬스체크 실패로 지속적으로 실패
+- **오류 메시지**: 
+  ```
+  STARTUP HTTP probe failed 8 times consecutively for container "ai-portfolio-ai-service-staging-1" on port 8000 path "/api/v1/health"
+  Connection failed with status ERROR_CONNECTION_FAILED
+  ```
+
+### 해결 시도 과정 (잘못된 방향들)
+
+#### 1차 시도: Pydantic 경고 해결
+- **발견된 문제**: `Field "model_name" has conflict with protected namespace "model_"`
+- **해결 방법**: Pydantic 모델에 `alias="modelName"` 추가
+- **파일**: `ai-service/app/models/embeddings.py:22, 32`
+- **결과**: 경고 제거되었지만 배포 실패는 지속
+
+#### 2차 시도: gunicorn 시작 오류 해결
+- **발견된 문제**: `log_config.level.lower()` 변수 정의 안됨
+- **해결 방법**: `log_level.lower()`로 수정
+- **파일**: `ai-service/app/main.py:149`
+- **결과**: gunicorn 시작 오류 해결되었지만 배포 실패는 지속
+
+#### 3차 시도: Dockerfile 의존성 설치 순서 문제 해결
+- **발견된 문제**: `ModuleNotFoundError: No module named 'qdrant_client'`
+- **원인**: requirements 파일이 애플리케이션 코드 복사 전에 삭제됨
+- **해결 방법**: Dockerfile에서 의존성 파일 삭제 순서 변경
+- **파일**: `ai-service/Dockerfile:26-31`
+- **결과**: 모듈 임포트 오류 해결되었지만 배포 실패는 지속
+
+#### 4차 시도: Pydantic 설정 구조 불일치 해결
+- **발견된 문제**: `settings.server.cors_origins` AttributeError
+- **원인**: 설정이 평면화(`server_cors_origins`)되었는데 코드에서 중첩 구조 사용
+- **해결 방법**: 모든 파일에서 평면화된 설정 구조로 통일
+- **파일들**:
+  - `ai-service/app/main.py:117, 146-148`
+  - `ai-service/scripts/test_redis_cache.py:329-332`  
+  - `ai-service/test_collection_setup.py:28-41`
+- **결과**: 설정 오류 해결되었지만 배포 실패는 지속
+
+### 근본 원인 발견 및 해결
+
+#### Cloud Run 로그 분석 수행
+```bash
+gcloud logging read "resource.type=cloud_run_revision AND resource.labels.service_name=ai-portfolio-ai-service-staging" --limit=20
+```
+
+**핵심 발견사항:**
+1. ✅ 애플리케이션은 정상적으로 시작됨 (`Application startup complete`)
+2. ✅ 모든 서비스 초기화 완료 (벡터 스토어, 채팅, RAG)
+3. ❌ **포트 불일치로 인한 헬스체크 실패**
+
+#### 근본 원인: 포트 설정 불일치
+- **애플리케이션**: 포트 8000에서 실행 (`ENV PORT=8000`)
+- **Cloud Run**: 기본적으로 포트 8080으로 설정
+- **헬스체크**: 포트 8000에서 `/api/v1/health` 확인
+- **결과**: Cloud Run이 8080 포트로 트래픽 라우팅하지만 애플리케이션은 8000에서 실행
+
+#### 최종 해결책: Cloud Run 포트 설정 추가
+**변경사항:**
+```yaml
+# Before
+gcloud run deploy $GCP_AI_SERVICE_NAME \
+  --image gcr.io/$GCP_PROJECT_ID/$GCP_AI_SERVICE_NAME:$GITHUB_SHA \
+  --platform managed \
+  --region $GCP_AI_REGION \
+  --allow-unauthenticated \
+
+# After  
+gcloud run deploy $GCP_AI_SERVICE_NAME \
+  --image gcr.io/$GCP_PROJECT_ID/$GCP_AI_SERVICE_NAME:$GITHUB_SHA \
+  --platform managed \
+  --region $GCP_AI_REGION \
+  --allow-unauthenticated \
+  --port 8000 \  # 추가된 부분
+```
+
+**수정된 파일들:**
+- `.github/workflows/deploy-ai-service-staging.yml:85`
+- `.github/workflows/deploy-ai-service-production.yml:84`
+
+### 결과 및 교훈
+
+**✅ 최종 결과**: 배포 성공적으로 완료
+
+**🎯 주요 교훈:**
+1. **로그 분석의 중요성**: 처음부터 Cloud Run 로그를 확인했다면 빠르게 해결 가능
+2. **근본 원인 vs 증상**: 여러 증상들을 해결했지만 근본 원인은 단순한 설정 문제
+3. **인프라 설정 검증**: 애플리케이션과 인프라 설정 간 일치성 확인 필수
+4. **체계적 접근**: 로그 → 설정 → 코드 순으로 문제 해결 접근 필요
+
+**🔧 부수적으로 해결된 문제들:**
+- Pydantic 네임스페이스 충돌 경고 제거
+- Gunicorn 시작 오류 수정  
+- Docker 의존성 설치 순서 최적화
+- 설정 구조 일관성 확보
+- 민감한 환경변수 로깅 제거
 
 ---

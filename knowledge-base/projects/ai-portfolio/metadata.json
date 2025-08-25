@@ -1,0 +1,75 @@
+{
+  "$schema": "../../schemas/project-schema.json",
+  "id": "ai-portfolio",
+  "name": "AI Portfolio Chatbot",
+  "description": "개발자 포트폴리오와 AI 챗봇을 결합한 웹 애플리케이션",
+  "version": "1.0.0",
+  "domain": "web-development",
+  "tech_stack": [
+    "react",
+    "typescript", 
+    "spring-boot",
+    "java",
+    "python",
+    "fastapi",
+    "postgresql",
+    "redis",
+    "qdrant",
+    "docker",
+    "railway"
+  ],
+  "contexts": [
+    "portfolio",
+    "chatbot", 
+    "full-stack",
+    "ai-integration",
+    "rag-system",
+    "microservices"
+  ],
+  "categories": [
+    {
+      "id": "architecture",
+      "name": "Architecture",
+      "description": "시스템 아키텍처, 설계 패턴, 구조적 결정사항",
+      "color": "#3B82F6",
+      "icon": "🏗️"
+    },
+    {
+      "id": "ai",
+      "name": "AI Services",
+      "description": "AI/ML 서비스, 챗봇, RAG, 벡터 데이터베이스",
+      "color": "#8B5CF6",
+      "icon": "🤖"
+    },
+    {
+      "id": "devops",
+      "name": "DevOps",
+      "description": "배포, CI/CD, 인프라, 모니터링",
+      "color": "#10B981",
+      "icon": "🚀"
+    },
+    {
+      "id": "frontend",
+      "name": "Frontend",
+      "description": "React, UI/UX, 프론트엔드 개발",
+      "color": "#F59E0B",
+      "icon": "🎨"
+    },
+    {
+      "id": "backend",
+      "name": "Backend",
+      "description": "Spring Boot, API, 데이터베이스",
+      "color": "#EF4444",
+      "icon": "⚙️"
+    },
+    {
+      "id": "development",
+      "name": "Development",
+      "description": "개발 프로세스, 코드 품질, 테스팅",
+      "color": "#6B7280",
+      "icon": "💻"
+    }
+  ],
+  "created_at": "2025-07-01",
+  "last_updated": "2025-08-25"
+}
