@@ -27,7 +27,7 @@ spring:
   # Redis Cloud 설정 (스테이징)
   data:
     redis:
-      host: ${REDIS_HOST:localhost}
+      host: ${REDIS_HOST}
       port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD:}
       database: ${REDIS_DB_IDX:0}

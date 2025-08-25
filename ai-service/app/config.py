@@ -19,16 +19,14 @@ class LLMConfig(BaseModel):
 
 class QdrantConfig(BaseModel):
     """Qdrant 설정"""
-    host: str = Field(default="localhost", description="Qdrant 호스트")
-    port: int = Field(default=6333, ge=1, le=65535, description="Qdrant 포트")
-    url: Optional[str] = Field(default=None, description="Qdrant 전체 URL (Cloud용)")
+    url: str = Field(default="http://localhost:6333", description="Qdrant URL")
     api_key: Optional[str] = Field(default=None, description="Qdrant API 키 (Cloud용)")
     timeout: int = Field(default=60, description="연결 타임아웃 (초)")
     
     @property
     def is_cloud(self) -> bool:
         """Qdrant Cloud 사용 여부"""
-        return bool(self.url and self.api_key)
+        return bool(self.api_key)
 
 
 class EmbeddingConfig(BaseModel):
@@ -134,20 +132,14 @@ class Settings(BaseSettings):
 
     def get_qdrant_client_kwargs(self) -> dict:
         """Qdrant 클라이언트 생성용 kwargs 반환"""
-        if self.qdrant.is_cloud:
-            # Qdrant Cloud 사용
-            kwargs = {
-                "url": self.qdrant.url,
-                "api_key": self.qdrant.api_key,
-                "timeout": self.qdrant.timeout
-            }
-        else:
-            # 로컬 Qdrant 사용
-            kwargs = {
-                "host": self.qdrant.host,
-                "port": self.qdrant.port,
-                "timeout": self.qdrant.timeout
-            }
+        kwargs = {
+            "url": self.qdrant.url,
+            "timeout": self.qdrant.timeout
+        }
+        
+        # API 키가 있으면 추가 (Cloud용)
+        if self.qdrant.api_key:
+            kwargs["api_key"] = self.qdrant.api_key
             
         return kwargs
 

@@ -20,12 +20,11 @@ logger = logging.getLogger(__name__)
 class VectorStoreService:
     """Qdrant 벡터 스토어 서비스"""
     
-    def __init__(self, host: str = None, port: int = None):
+    def __init__(self, url: str = None):
         settings = get_settings()
         self.settings = settings
-        # 하위 호환성을 위해 개별 속성 유지
-        self.host = host or settings.qdrant.host
-        self.port = port or settings.qdrant.port
+        # URL 우선 사용
+        self.url = url or settings.qdrant.url
         self.api_key = settings.qdrant.api_key
         self.client: Optional[QdrantClient] = None
         self.collection_manager: Optional[CollectionManager] = None
