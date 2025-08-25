@@ -31,21 +31,10 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # 환경변수 상태 로깅
-logger.info(f"🔧 AI 서비스 설정 상태:")
-logger.info(f"  - Log Level: {settings.log_level} -> {log_level}")
-logger.info(f"  - Gemini API Key: {'✅ 설정됨' if settings.gemini_api_key and settings.gemini_api_key != 'dummy_key_for_build' else '❌ 더미키 사용'}")
-logger.info(f"  - Qdrant URL: {settings.qdrant_url}")
-logger.info(f"  - Qdrant API Key: {'SET' if settings.qdrant_api_key else 'NOT SET'}")
-logger.info(f"  - Qdrant 모드: {'Cloud' if settings.qdrant_is_cloud else 'Local'}")
-logger.info(f"  - Redis Host: {settings.redis_host}")
-logger.info(f"  - Redis SSL: {settings.redis_ssl}")
-logger.info(f"  - Redis 모드: {'Cloud' if settings.redis_is_cloud else 'Local'}")
-logger.info(f"  - Redis Key Prefix: {settings.redis_key_prefix}")
-# 환경변수 직접 확인
-import os
-logger.info(f"  - QDRANT_URL env: {os.getenv('QDRANT_URL', 'NOT SET')}")
-logger.info(f"  - QDRANT_API_KEY env: {os.getenv('QDRANT_API_KEY', 'NOT SET')}")
-logger.info(f"  - REDIS_HOST env: {os.getenv('REDIS_HOST', 'NOT SET')}")
+logger.info("🔧 AI 서비스 초기화 중...")
+logger.debug(f"Log Level: {settings.log_level} -> {log_level}")
+logger.debug(f"Gemini API Key: {'✅ 설정됨' if settings.gemini_api_key and settings.gemini_api_key != 'dummy_key_for_build' else '❌ 더미키 사용'}")
+logger.debug(f"서비스 설정 완료")
 
 # 전역 서비스 인스턴스
 vector_store_service: VectorStoreService = None
@@ -157,5 +146,5 @@ if __name__ == "__main__":
         host=settings.server.host,
         port=settings.server.port,
         reload=settings.server.debug_mode,
-        log_level=log_config.level.lower()
+        log_level=log_level.lower()
     )
