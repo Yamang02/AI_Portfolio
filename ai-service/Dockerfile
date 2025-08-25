@@ -30,8 +30,9 @@ RUN apt-get purge -y --auto-remove gcc g++ \
 # 애플리케이션 코드 (가장 마지막 - 자주 변경됨)
 COPY . .
 
-# 보안 설정
-RUN groupadd -r appuser && useradd -r -g appuser appuser \
+# 보안 설정 및 캐시 디렉토리 생성
+RUN groupadd -r appuser && useradd -r -g appuser -m -d /home/appuser appuser \
+    && mkdir -p /app/.cache/huggingface \
     && chown -R appuser:appuser /app
 USER appuser
 
@@ -39,6 +40,8 @@ USER appuser
 ENV PYTHONPATH=/app
 ENV PYTHONUNBUFFERED=1
 ENV PORT=8000
+ENV TRANSFORMERS_CACHE=/app/.cache/huggingface
+ENV HF_HOME=/app/.cache/huggingface
 
 EXPOSE 8000
 
