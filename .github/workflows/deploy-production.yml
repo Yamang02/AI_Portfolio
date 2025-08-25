@@ -42,7 +42,7 @@ jobs:
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
         restore-keys: ${{ runner.os }}-m2
     
-    - name: Build and skip tests (DB not available in CI)
+    - name: Build application
       run: |
         cd backend
         mvn clean package -DskipTests
@@ -61,7 +61,7 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
     
-    - name: Build application
+    - name: Package application
       run: |
         cd backend
         mvn clean package -DskipTests
@@ -77,14 +77,14 @@ jobs:
     - name: Configure Docker to use gcloud as a credential helper
       run: gcloud auth configure-docker
     
-    - name: Build and push Docker image
+    - name: Build and push container image
       run: |
         docker build \
           --build-arg VITE_API_BASE_URL=$VITE_API_BASE_URL \
           -t gcr.io/$GCP_PROJECT_ID/$GCP_MAIN_SERVICE_NAME:$GITHUB_SHA .
         docker push gcr.io/$GCP_PROJECT_ID/$GCP_MAIN_SERVICE_NAME:$GITHUB_SHA
     
-    - name: Deploy to Cloud Run
+    - name: Deploy to production environment
       run: |
         gcloud run deploy $GCP_MAIN_SERVICE_NAME \
           --image gcr.io/$GCP_PROJECT_ID/$GCP_MAIN_SERVICE_NAME:$GITHUB_SHA \

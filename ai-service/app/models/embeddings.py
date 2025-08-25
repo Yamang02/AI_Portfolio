@@ -18,7 +18,8 @@ class EmbeddingConfig(BaseModel):
     """임베딩 설정"""
     model_name: str = Field(
         default="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
-        description="사용할 임베딩 모델명"
+        description="사용할 임베딩 모델명",
+        alias="modelName"
     )
     max_seq_length: int = Field(default=512, description="최대 시퀀스 길이")
     batch_size: int = Field(default=32, description="배치 크기")
@@ -29,7 +30,7 @@ class EmbeddingResult(BaseModel):
     """임베딩 결과"""
     embeddings: List[List[float]] = Field(description="임베딩 벡터 리스트")
     dimensions: int = Field(description="임베딩 차원 수")
-    model_name: str = Field(description="사용된 모델명")
+    model_name: str = Field(description="사용된 모델명", alias="modelName")
     processing_time: float = Field(description="처리 시간 (초)")
 
 

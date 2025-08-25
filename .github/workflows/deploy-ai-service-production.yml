@@ -31,12 +31,12 @@ jobs:
         cd ai-service
         pip install -r requirements.txt
         
-    - name: Run tests and security scan
+    - name: Test and scan
       run: |
         cd ai-service
         # pytest tests/ --cov=app/ --cov-report=xml
         # bandit -r app/ -f json
-        echo "AI Service 프로덕션 테스트 및 보안 검사 (향후 구현)"
+        echo "Run tests and security scan (coming soon)"
   
   deploy:
     needs: test
@@ -60,7 +60,7 @@ jobs:
     - name: Set up Docker Buildx (캐시 최적화)
       uses: docker/setup-buildx-action@v3
     
-    - name: Build and push AI Service Docker image (최적화됨)
+    - name: Build and push container image
       uses: docker/build-push-action@v5
       with:
         context: ./ai-service
@@ -74,7 +74,7 @@ jobs:
         cache-to: type=gha,mode=max
         platforms: linux/amd64
     
-    - name: Deploy AI Service to Cloud Run Production
+    - name: Deploy to production environment
       run: |
         gcloud run deploy $GCP_AI_SERVICE_NAME \
           --image gcr.io/$GCP_PROJECT_ID/$GCP_AI_SERVICE_NAME:$GITHUB_SHA \
@@ -98,7 +98,7 @@ jobs:
           --cpu-boost \
           --startup-probe="httpGet.path=/api/v1/health,httpGet.port=8000,initialDelaySeconds=30,timeoutSeconds=5,periodSeconds=10,failureThreshold=6"
 
-    - name: Verify AI Service deployment
+    - name: Verify deployment
       run: |
         sleep 30
         SERVICE_URL=$(gcloud run services describe $GCP_AI_SERVICE_NAME --region=$GCP_AI_REGION --format='value(status.url)')
