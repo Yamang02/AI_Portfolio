@@ -25,20 +25,19 @@ async def test_collection_setup():
         # 설정 로드
         settings = get_settings()
         print(f"✅ 설정 로드 완료")
-        print(f"   - Qdrant Host: {settings.qdrant.host}")
-        print(f"   - Qdrant Port: {settings.qdrant.port}")
+        print(f"   - Qdrant URL: {settings.qdrant_url}")
+        print(f"   - Qdrant API Key: {'SET' if settings.qdrant_api_key else 'NOT SET'}")
         
         # Qdrant 클라이언트 생성
-        if settings.qdrant.url:
+        if settings.qdrant_api_key:
             client = QdrantClient(
-                url=settings.qdrant.url,
-                api_key=settings.qdrant.api_key
+                url=settings.qdrant_url,
+                api_key=settings.qdrant_api_key
             )
             print(f"✅ Qdrant Cloud 클라이언트 생성 완료")
         else:
             client = QdrantClient(
-                host=settings.qdrant.host,
-                port=settings.qdrant.port
+                url=settings.qdrant_url
             )
             print(f"✅ 로컬 Qdrant 클라이언트 생성 완료")
         

@@ -114,7 +114,7 @@ app = FastAPI(
 # CORS 설정
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.server.cors_origins,
+    allow_origins=settings.server_cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -143,8 +143,8 @@ async def root() -> Dict[str, str]:
 if __name__ == "__main__":
     uvicorn.run(
         "app.main:app",
-        host=settings.server.host,
-        port=settings.server.port,
-        reload=settings.server.debug_mode,
+        host=settings.server_host,
+        port=settings.server_port,
+        reload=settings.server_debug,
         log_level=log_level.lower()
     )

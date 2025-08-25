@@ -326,10 +326,10 @@ async def main():
     
     # 설정 확인
     settings = get_settings()
-    print(f"Redis 호스트: {settings.redis.host}:{settings.redis.port}")
-    print(f"Redis DB: {settings.redis.db}")
-    print(f"Redis SSL: {settings.redis.ssl}")
-    print(f"캐시 TTL: {settings.redis.ttl}초")
+    print(f"Redis 호스트: {settings.redis_host}:{settings.redis_port}")
+    print(f"Redis DB: {settings.redis_db}")
+    print(f"Redis SSL: {settings.redis_ssl}")
+    print(f"캐시 TTL: {settings.redis_ttl}초")
     
     test_results = []
     
