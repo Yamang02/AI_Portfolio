@@ -1,4 +1,4 @@
-name: [Production] AI Service Deployment
+name: "[Production] AI Service Deployment"
 
 on:
   push:

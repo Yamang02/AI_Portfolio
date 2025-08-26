@@ -1,4 +1,4 @@
-name: [Production] Main App Deployment
+name: "[Production] Main App Deployment"
 
 on:
   push:

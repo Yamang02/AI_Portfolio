@@ -1,4 +1,4 @@
-name: [Staging] AI Service Deployment
+name: "[Staging] AI Service Deployment"
 
 on:
   push:
