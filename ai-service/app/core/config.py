@@ -16,6 +16,7 @@ class ExternalConfig(BaseSettings):
     # Server settings
     SERVER_HOST: str = "0.0.0.0"
     SERVER_PORT: int = 8000
+    SERVER_DEBUG_MODE: bool = False
     
     # Database connection (PostgreSQL - same as backend)
     DATABASE_URL: str = "postgresql+asyncpg://dev_user:dev_password@localhost:5432/ai_portfolio"
@@ -23,6 +24,11 @@ class ExternalConfig(BaseSettings):
     # External services
     REDIS_URL: Optional[str] = None
     GEMINI_API_KEY: Optional[str] = None
+    
+    # Qdrant (vector database)
+    QDRANT_HOST: str = "localhost"
+    QDRANT_PORT: int = 6333
+    QDRANT_API_KEY: Optional[str] = None
     
     # LangSmith (optional)
     LANGCHAIN_API_KEY: Optional[str] = None
@@ -35,6 +41,7 @@ class ExternalConfig(BaseSettings):
     class Config:
         env_file = ".env"
         case_sensitive = True
+        extra = "ignore"  # Ignore extra environment variables
 
 
 class ConfigManager:

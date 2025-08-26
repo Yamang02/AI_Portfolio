@@ -4,6 +4,7 @@ Database connection and session management
 
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 from sqlalchemy.pool import NullPool
+from sqlalchemy import text
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 import logging
@@ -46,7 +47,7 @@ class DatabaseManager:
             
             # Test connection
             async with self.get_session() as session:
-                await session.execute("SELECT 1")
+                await session.execute(text("SELECT 1"))
                 
             logger.info("✅ Database connection initialized successfully")
             

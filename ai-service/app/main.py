@@ -28,8 +28,7 @@ async def lifespan(app: FastAPI):
     logger.info("Starting AI Service...")
     
     # Initialize database connection
-    config = get_config_manager()
-    db_manager = DatabaseManager(config.external.DATABASE_URL)
+    db_manager = DatabaseManager()
     await db_manager.initialize()
     
     # Store in app state for access in endpoints
