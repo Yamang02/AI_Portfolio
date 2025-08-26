@@ -13,6 +13,7 @@ from ...models.chat import ChatRequest, ChatResponse
 from ...services.chat.question_analyzer import QuestionAnalyzer
 from ...services.chat.context_builder import ContextBuilder
 from ...services.portfolio.service import PortfolioService
+from ...services.generation.llm_service import LLMService
 
 logger = logging.getLogger(__name__)
 
@@ -37,6 +38,7 @@ async def ask_question(
         portfolio_service = PortfolioService(db)
         question_analyzer = QuestionAnalyzer()
         context_builder = ContextBuilder(portfolio_service)
+        llm_service = LLMService()
         
         # Step 1: Analyze the question
         analysis = await question_analyzer.analyze_question(request.question)
@@ -74,12 +76,20 @@ async def ask_question(
         
         logger.debug(f"Built context: {len(context)} characters")
         
-        # Step 4: Generate AI response (placeholder - will implement LLM service next)
-        # For now, return a structured response showing our pipeline works
-        processing_time = time.time() - start_time
+        # Step 4: Generate AI response using LLM service
+        if not llm_service.is_available():
+            raise HTTPException(
+                status_code=503,
+                detail="LLM service is not available. Please check API key configuration."
+            )
         
-        # Temporary response until LLM service is implemented
-        answer = await _generate_temporary_response(request.question, analysis, context)
+        answer = await llm_service.generate_response(
+            question=request.question,
+            context=context,
+            system_prompt=None  # Use default from config
+        )
+        
+        processing_time = time.time() - start_time
         
         return ChatResponse(
             answer=answer,

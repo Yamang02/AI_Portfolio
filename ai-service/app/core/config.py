@@ -19,7 +19,7 @@ class ExternalConfig(BaseSettings):
     SERVER_DEBUG_MODE: bool = False
     
     # Database connection (PostgreSQL - same as backend)
-    DATABASE_URL: str = "postgresql+asyncpg://dev_user:dev_password@localhost:5432/ai_portfolio"
+    POSTGRE_URL: str = "postgresql+asyncpg://dev_user:dev_password@localhost:5432/ai_portfolio"
     
     # External services
     REDIS_URL: Optional[str] = None
@@ -84,7 +84,7 @@ class ConfigManager:
     
     def get_database_config(self) -> dict:
         return {
-            "url": self.external.DATABASE_URL,
+            "url": self.external.POSTGRE_URL,
             **self.internal['database']
         }
     

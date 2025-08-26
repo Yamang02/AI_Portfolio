@@ -84,6 +84,7 @@ jobs:
           --allow-unauthenticated \
           --port 8000 \
           --set-env-vars="GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" \
+          --set-env-vars="POSTGRE_URL=${{ secrets.POSTGRE_URL }}" \
           --set-env-vars="QDRANT_URL=${{ secrets.QDRANT_URL }}" \
           --set-env-vars="QDRANT_API_KEY=${{ secrets.QDRANT_API_KEY }}" \
           --set-env-vars="REDIS_HOST=${{ vars.REDIS_HOST }}" \
