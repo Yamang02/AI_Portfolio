@@ -1,12 +1,10 @@
 package com.aiportfolio.backend.application.chatbot;
 
 import com.aiportfolio.backend.domain.chatbot.port.in.ChatUseCase;
-import com.aiportfolio.backend.domain.chatbot.port.out.AIServicePort;
-import com.aiportfolio.backend.domain.chatbot.port.out.ContextBuilderPort;
-import com.aiportfolio.backend.application.chatbot.service.analysis.QuestionAnalysisService;
 import com.aiportfolio.backend.domain.chatbot.model.ChatRequest;
 import com.aiportfolio.backend.domain.chatbot.model.ChatResponse;
 import com.aiportfolio.backend.domain.chatbot.model.enums.ChatResponseType;
+import com.aiportfolio.backend.infrastructure.external.aiservice.AIServiceClient;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,65 +15,47 @@ import java.util.Map;
 
 /**
  * 채팅 관련 Application Service
- * ChatUseCase를 구현하는 헥사고날 아키텍처의 Application Layer
+ * AI-Service로 모든 AI 기능을 위임하는 프록시 역할
  */
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class ChatApplicationService implements ChatUseCase {
     
-    private final AIServicePort aiServicePort;
-    private final QuestionAnalysisService questionAnalysisService;
-    private final ContextBuilderPort contextBuilderPort;
+    private final AIServiceClient aiServiceClient;
     
     @Override
     public ChatResponse processQuestion(ChatRequest request) {
         String question = request.getQuestion();
-        String selectedProject = request.getUserContext();
+        String userContext = request.getUserContext();
+        String userId = request.getUserId();
         
-        log.info("채팅 요청 처리 - 질문: '{}', 선택 프로젝트: '{}'", question, selectedProject);
-        
-        // 1. AI 서비스 사용 가능 여부 확인
-        if (!aiServicePort.isAvailable()) {
-            log.warn("AI 서비스를 사용할 수 없습니다");
-            return createUnavailableResponse();
-        }
+        log.info("채팅 요청 처리 - AI Service로 전달: 질문='{}', 컨텍스트='{}'", question, userContext);
         
         try {
-            // 2. 질문 분석
-            var analysis = questionAnalysisService.analyzeQuestion(question);
-            log.debug("질문 분석 결과: 타입={}, AI 사용={}", analysis.getType(), analysis.shouldUseAI());
-            
-            // 3. 즉시 응답이 있는 경우
-            if (analysis.getImmediateResponse() != null) {
-                log.debug("즉시 응답 반환: {}", analysis.getImmediateResponse());
-                return ChatResponse.success(analysis.getImmediateResponse(), ChatResponseType.SUCCESS).build();
+            // AI-Service 사용 가능 여부 확인
+            if (!aiServiceClient.isHealthy()) {
+                log.warn("AI-Service를 사용할 수 없습니다");
+                return createUnavailableResponse();
             }
             
-            // 4. AI를 사용하지 않는 경우
-            if (!analysis.shouldUseAI()) {
-                log.debug("AI 사용 안함 - 표준 응답 반환");
-                return ChatResponse.success("해당 질문에 대한 표준 응답을 준비 중입니다.", ChatResponseType.SUCCESS).build();
-            }
+            // AI-Service에 요청 전달
+            var aiResponse = aiServiceClient.askQuestion(question, userContext, userId);
             
-            // 5. 컨텍스트 생성
-            String context = buildContext(selectedProject);
+            log.info("AI-Service 응답 수신 - 응답 길이: {} 문자, 신뢰도: {}", 
+                    aiResponse.getAnswer().length(), aiResponse.getConfidence());
             
-            // 6. AI 서비스 호출
-            String response = aiServicePort.generateResponse(question, context);
-            log.info("AI 응답 생성 완료 - 응답 길이: {} 문자", response.length());
-            
-            return ChatResponse.success(response, ChatResponseType.SUCCESS).build();
+            return ChatResponse.success(aiResponse.getAnswer(), ChatResponseType.SUCCESS).build();
             
         } catch (Exception e) {
-            log.error("채팅 처리 중 오류 발생", e);
-            return ChatResponse.error("죄송합니다. 처리 중 오류가 발생했습니다.").build();
+            log.error("AI-Service 호출 중 오류 발생", e);
+            return ChatResponse.error("죄송합니다. 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.").build();
         }
     }
     
     @Override
     public Object getChatUsageStatus() {
-        // 사용량 상태 조회 로직 (추후 구현)
+        // 사용량 상태 조회 (추후 AI-Service에서 제공 예정)
         Map<String, Object> status = new HashMap<>();
         status.put("dailyCount", 0);
         status.put("hourlyCount", 0);
@@ -86,32 +66,15 @@ public class ChatApplicationService implements ChatUseCase {
     
     @Override
     public String healthCheck() {
-        if (aiServicePort.isAvailable()) {
-            return "OK";
-        } else {
-            return "AI_SERVICE_UNAVAILABLE";
-        }
-    }
-    
-    // === Private Helper Methods ===
-    
-    private String buildContext(String selectedProject) {
         try {
-            if (!contextBuilderPort.isAvailable()) {
-                log.warn("컨텍스트 빌더를 사용할 수 없습니다");
-                return "포트폴리오 정보를 불러올 수 없습니다.";
-            }
-            
-            if (selectedProject != null && !selectedProject.trim().isEmpty()) {
-                // 특정 프로젝트가 선택된 경우
-                return contextBuilderPort.buildProjectContext(selectedProject);
+            if (aiServiceClient.isHealthy()) {
+                return "OK";
             } else {
-                // 전체 포트폴리오 컨텍스트
-                return contextBuilderPort.buildFullPortfolioContext();
+                return "AI_SERVICE_UNAVAILABLE";
             }
         } catch (Exception e) {
-            log.error("컨텍스트 생성 중 오류 발생", e);
-            return "포트폴리오 정보를 불러올 수 없습니다.";
+            log.error("AI-Service 헬스 체크 실패", e);
+            return "AI_SERVICE_ERROR";
         }
     }
     

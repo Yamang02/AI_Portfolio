@@ -78,9 +78,9 @@ logging:
 
 # 환경변수 설정
 app:
-  gemini:
-    api-key: ${GEMINI_API_KEY:}
-    model-name: gemini-2.5-flash
+  ai-service:
+    url: ${AI_SERVICE_URL:http://localhost:8081}
+    timeout: ${AI_SERVICE_TIMEOUT:30000}
   github:
     username: Yamang02
   contact:
