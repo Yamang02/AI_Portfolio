@@ -59,6 +59,28 @@ logging:
   format: "json"
   include_request_id: true
 
+# Document Processing Settings
+document_processing:
+  source_directory: "docs/projects/"
+  file_pattern: "*.md"
+  encoding: "utf-8"
+  enable_validation: true
+  max_concurrent_processing: 5
+  
+  # Splitter Configuration
+  splitter:
+    chunk_size: 1000
+    chunk_overlap: 200
+    header_levels: [1, 2, 3]  # Split on H1, H2, H3
+  
+  # Validator Configuration
+  validator:
+    max_file_size_mb: 10
+    min_chunk_size: 100
+    max_chunk_size: 2000
+    min_overlap_ratio: 0.1
+    max_overlap_ratio: 0.3
+
 # Performance Settings
 performance:
   max_concurrent_requests: 50
