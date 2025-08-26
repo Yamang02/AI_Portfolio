@@ -28,9 +28,9 @@ public class ChatApplicationService implements ChatUseCase {
     public ChatResponse processQuestion(ChatRequest request) {
         String question = request.getQuestion();
         String userContext = request.getUserContext();
-        String userId = request.getUserId();
+        String sessionId = request.getSessionId();
         
-        log.info("채팅 요청 처리 - AI Service로 전달: 질문='{}', 컨텍스트='{}'", question, userContext);
+        log.info("채팅 요청 처리 - AI Service로 전달: 질문='{}', 컨텍스트='{}', 세션='{}'", question, userContext, sessionId);
         
         try {
             // AI-Service 사용 가능 여부 확인
@@ -39,8 +39,8 @@ public class ChatApplicationService implements ChatUseCase {
                 return createUnavailableResponse();
             }
             
-            // AI-Service에 요청 전달
-            var aiResponse = aiServiceClient.askQuestion(question, userContext, userId);
+            // AI-Service에 요청 전달 (sessionId를 userId 파라미터로 전달)
+            var aiResponse = aiServiceClient.askQuestion(question, userContext, sessionId);
             
             log.info("AI-Service 응답 수신 - 응답 길이: {} 문자, 신뢰도: {}", 
                     aiResponse.getAnswer().length(), aiResponse.getConfidence());

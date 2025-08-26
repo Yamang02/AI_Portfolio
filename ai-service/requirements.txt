@@ -15,7 +15,7 @@ langchain-google-genai==1.0.1
 langchain-community==0.0.10
 
 # Prompt management
-langsmith==0.0.69
+langsmith>=0.0.77
 jinja2==3.1.2
 pyyaml==6.0.1
 

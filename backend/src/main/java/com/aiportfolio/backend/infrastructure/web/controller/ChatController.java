@@ -5,7 +5,7 @@ import com.aiportfolio.backend.infrastructure.web.dto.chat.ChatRequestDto;
 import com.aiportfolio.backend.infrastructure.web.dto.chat.ChatResponseDto;
 import com.aiportfolio.backend.domain.chatbot.port.in.ChatUseCase;
 import com.aiportfolio.backend.domain.chatbot.model.enums.ChatResponseType;
-import com.aiportfolio.backend.application.chatbot.service.analysis.QuestionAnalysisService;
+
 import com.aiportfolio.backend.application.chatbot.validation.InputValidationService;
 import com.aiportfolio.backend.domain.chatbot.model.ChatRequest;
 import com.aiportfolio.backend.domain.chatbot.model.ChatResponse;
@@ -32,7 +32,6 @@ public class ChatController {
 
     private final ChatUseCase chatUseCase;
     private final SpamProtectionService spamProtectionService;
-    private final QuestionAnalysisService questionAnalysisService;
     private final InputValidationService inputValidationService;
 
     @PostMapping("/message")
@@ -84,7 +83,8 @@ public class ChatController {
             }
 
             // 3. ChatUseCase를 통한 비즈니스 로직 처리 (헥사고날 아키텍처)
-            ChatRequest chatRequest = new ChatRequest(request.getQuestion(), request.getSelectedProject());
+            String sessionId = getClientId(httpRequest); // clientId를 sessionId로 사용
+            ChatRequest chatRequest = new ChatRequest(request.getQuestion(), request.getSelectedProject(), sessionId);
             ChatResponse chatResponse = chatUseCase.processQuestion(chatRequest);
             
             // Convert domain model to DTO for API response
