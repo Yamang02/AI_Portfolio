@@ -1,4 +1,4 @@
-name: Deploy to Staging
+name: [Staging] Main App Deployment
 
 on:
   push:

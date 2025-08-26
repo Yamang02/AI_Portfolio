@@ -1,4 +1,4 @@
-name: Deploy AI Service to Production
+name: [Production] AI Service Deployment
 
 on:
   push:
