@@ -67,9 +67,13 @@ def create_app() -> FastAPI:
     # Include API routes
     app.include_router(api_router, prefix="/api/v1")
     
-    # Health check endpoint
+    # Health check endpoints
     @app.get("/health")
     async def health_check():
+        return {"status": "healthy", "service": "ai-portfolio-service"}
+    
+    @app.get("/api/v1/health")
+    async def health_check_v1():
         return {"status": "healthy", "service": "ai-portfolio-service"}
     
     return app
@@ -81,4 +85,4 @@ app = create_app()
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("app.main:app", host="0.0.0.0", port=8081, reload=True)
+    uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)
