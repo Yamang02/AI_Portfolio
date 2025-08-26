@@ -1,4 +1,4 @@
-name: (Production) Main App Deployment(Cloud Run)
+name: "[Production](Main App FE/BE) Cloud Run_Deployment"
 
 on:
   push:

@@ -1,4 +1,4 @@
-name: (Staging) Main App Deployment(Cloud Run)
+name: "[Staging](Main App FE/BE) Cloud Run_Deployment"
 
 on:
   push:

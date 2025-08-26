@@ -1,4 +1,4 @@
-name: (Staging) AI Service Deployment(Cloud Run)
+name: "[Staging](AI Service) Cloud Run_Deployment"
 
 on:
   push:
