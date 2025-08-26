@@ -1,4 +1,4 @@
-name: "[Staging] Main App Deployment"
+name: (Staging) Main App Deployment(Cloud Run)
 
 on:
   push:
