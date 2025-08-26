@@ -5,6 +5,11 @@ gunicorn==21.2.0
 pydantic==2.5.0
 pydantic-settings==2.1.0
 
+# 데이터베이스
+asyncpg==0.29.0
+sqlalchemy[asyncio]==2.0.23
+alembic==1.13.1
+
 # 벡터 데이터베이스
 qdrant-client==1.7.0
 
