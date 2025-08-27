@@ -1,21 +1,34 @@
-# AI Portfolio Chatbot Service
+# AI Portfolio Service with RAG Demo
 
-LangChain + Qdrant 기반 포트폴리오 챗봇 AI 서비스입니다.
+LangChain + Qdrant 기반 포트폴리오 RAG 시스템과 Gradio 인터랙티브 데모를 제공하는 AI 서비스입니다.
 
 ## 🚀 주요 기능
 
-- **AI 챗봇 채팅**: Gemini Pro 모델을 활용한 자연어 대화
-- **RAG 시스템**: 벡터 검색 기반 지식 검색 및 응답 생성
-- **벡터 데이터베이스**: Qdrant를 활용한 고성능 벡터 검색
-- **대화 기록 관리**: 사용자별 대화 이력 저장 및 조회
+- **🎯 RAG 데모 인터페이스**: Gradio 기반 인터랙티브 RAG 파이프라인 체험
+- **📄 문서 처리**: 실제 프로젝트 문서 로딩 및 전처리 데모
+- **✂️ 텍스트 분할**: MarkdownTextSplitter를 활용한 청킹 시각화
+- **🤖 컨텍스트 구성**: ContextBuilder 기반 포트폴리오 컨텍스트 생성
+- **🔄 전체 파이프라인**: 문서 → 분할 → 컨텍스트 → 답변 생성 통합 플로우
+- **🚧 확장 예정**: 임베딩, 벡터 스토어, 검색 기능 향후 구현
 - **RESTful API**: FastAPI 기반의 현대적인 API 설계
 
 ## 🏗️ 아키텍처
 
+### RAG 데모 인터페이스 (새로 추가)
+```
+┌─────────────────┐    ┌─────────────────┐
+│    Browser      │    │   AI Service    │
+│                 │◄──►│  (FastAPI +     │
+│  Gradio Demo    │    │   Gradio)       │
+│  localhost:8000 │    │                 │
+└─────────────────┘    └─────────────────┘
+```
+
+### 전체 시스템 구조
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
 │   Frontend      │    │   Spring Boot   │    │   AI Service    │
-│   (React)       │◄──►│   Backend       │◄──►│   (FastAPI)     │
+│   (React)       │◄──►│   Backend       │◄──►│ (FastAPI+Gradio)│
 └─────────────────┘    └─────────────────┘    └─────────────────┘
                                 │                       │
                                 │                       │
@@ -30,47 +43,79 @@ LangChain + Qdrant 기반 포트폴리오 챗봇 AI 서비스입니다.
 ```
 ai-service/
 ├── app/
-│   ├── main.py              # FastAPI 애플리케이션 엔트리포인트
-│   ├── models/              # 데이터 모델 클래스
-│   │   ├── embeddings.py    # 임베딩 모델
-│   │   └── rag.py          # RAG 시스템 모델
-│   ├── services/            # 비즈니스 로직 서비스
-│   │   ├── vector_store.py # 벡터 스토어 서비스
-│   │   └── chat.py         # 챗봇 서비스
-│   └── api/                 # API 엔드포인트
-│       └── routes.py        # 라우터 정의
-├── requirements.txt          # Python 의존성
-├── Dockerfile               # Docker 이미지 빌드
-├── docker-compose.ai.yml    # 개발 환경 구성
-└── README.md                # 프로젝트 문서
+│   ├── main.py                    # FastAPI + Gradio 통합 엔트리포인트
+│   ├── demo/                      # RAG 데모 인터페이스 (새로 추가)
+│   │   ├── __init__.py
+│   │   ├── rag_demo.py           # Gradio 인터페이스 정의
+│   │   └── demo_service.py       # 데모 서비스 로직
+│   ├── models/                   # 데이터 모델 클래스
+│   │   ├── chat.py              # 채팅 모델
+│   │   └── portfolio.py         # 포트폴리오 모델
+│   ├── services/                # 비즈니스 로직 서비스
+│   │   ├── document/            # 문서 처리 파이프라인
+│   │   │   ├── pipeline.py     # 메인 처리 파이프라인
+│   │   │   ├── loaders/        # 문서 로더들
+│   │   │   └── splitters/      # 텍스트 분할기들
+│   │   ├── chat/               # 채팅 서비스
+│   │   │   ├── context_builder.py  # 컨텍스트 구성
+│   │   │   └── question_analyzer.py
+│   │   └── portfolio/          # 포트폴리오 서비스
+│   ├── api/                     # API 엔드포인트
+│   │   └── v1/                 # API v1
+│   └── core/                   # 핵심 설정
+│       ├── config.py          # 설정 관리
+│       └── database.py        # DB 연결
+├── docs/                       # 문서 디렉토리
+│   └── projects/              # 프로젝트 문서들 (데모용)
+├── requirements-base.txt       # 기본 의존성 (gradio 포함)
+├── Dockerfile                  # Docker 이미지 빌드
+├── docker-compose.ai.yml       # 개발 환경 구성
+└── README.md                   # 프로젝트 문서
 ```
 
 ## 🛠️ 기술 스택
 
-- **Backend Framework**: FastAPI 0.104.1
-- **LLM**: Google Gemini Pro (via LangChain)
-- **Vector Database**: Qdrant
-- **Embedding Model**: Sentence-Transformers
+- **Backend Framework**: FastAPI 0.104.1 + Gradio 4.44.0
+- **Demo Interface**: Gradio (인터랙티브 RAG 데모)
+- **Document Processing**: LangChain (DocumentLoader, TextSplitter)
+- **Vector Database**: Qdrant (향후 연동 예정)
+- **LLM**: Google Gemini Pro (향후 연동 예정)
 - **Cache**: Redis
 - **Container**: Docker & Docker Compose
 - **Language**: Python 3.11
 
 ## 🚀 빠른 시작
 
-### 1. 환경 설정
+### 1. RAG 데모 체험하기 (권장)
 
 ```bash
 # 저장소 클론
 git clone <repository-url>
 cd ai-service
 
+# Python 가상환경 생성
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+
+# 의존성 설치
+pip install -r requirements-base.txt
+
+# RAG 데모 서버 실행
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+**🎯 접속**: http://localhost:8000 (Gradio RAG 데모 인터페이스)
+
+### 2. 환경 설정 (API 사용 시)
+
+```bash
 # 환경변수 설정
 cp .env.example .env
 # .env 파일 편집하여 실제 API 키 설정
 GEMINI_API_KEY=your_actual_api_key_here
 ```
 
-### 2. Docker로 실행
+### 3. Docker로 실행
 
 ```bash
 # AI 서비스 및 의존성 서비스 실행
@@ -80,7 +125,7 @@ docker-compose -f docker-compose.ai.yml up -d
 docker-compose -f docker-compose.ai.yml logs -f ai-service
 ```
 
-### 3. 로컬 개발 환경
+### 4. 전체 시스템 실행 (DB 포함)
 
 ```bash
 # Python 가상환경 생성
@@ -88,26 +133,33 @@ python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
 
 # 의존성 설치
-pip install -r requirements.txt
+pip install -r requirements-base.txt
 
+# PostgreSQL, Redis 등 필요 (별도 설치 또는 Docker)
 # 서비스 실행
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-## 📡 API 엔드포인트
+## 📡 접속 포인트 및 API
 
-### 채팅 API
+### 🎯 메인 인터페이스
+- **RAG 데모 페이지**: `http://localhost:8000/` (Gradio 인터페이스)
+
+### 📡 REST API 엔드포인트
+
+#### 채팅 API
 - `POST /api/v1/chat` - AI 챗봇과 대화
-- `GET /api/v1/chat/history` - 대화 기록 조회
+- `GET /api/v1/chat/history` - 대화 기록 조회 
 - `DELETE /api/v1/chat/history` - 대화 기록 초기화
 
-### 벡터 검색 API
+#### 시스템 API
+- `GET /health` - 서비스 헬스체크 (데모 포함)
+- `GET /api/v1/health` - API 헬스체크
+
+### 🚧 향후 추가 예정 API
 - `POST /api/v1/vector/search` - 벡터 기반 유사도 검색
 - `GET /api/v1/vector/collections/{name}/stats` - 컬렉션 통계
-
-### 시스템 API
-- `GET /api/v1/health` - 서비스 헬스체크
-- `GET /api/v1/info` - 서비스 정보
+- `POST /api/v1/demo/reset` - 데모 데이터 초기화
 
 ## 🔧 개발 가이드
 

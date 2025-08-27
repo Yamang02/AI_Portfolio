@@ -24,6 +24,9 @@ python-dotenv==1.0.0
 # 로깅 및 모니터링
 structlog==23.2.0
 
+# UI 라이브러리
+gradio==4.44.0
+
 # 개발 도구
 pytest==7.4.3
 pytest-asyncio==0.21.1
