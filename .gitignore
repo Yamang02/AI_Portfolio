@@ -233,6 +233,8 @@ ai-service/data/
 ai-service/models/
 ai-service/.cache/
 ai-service/cache/
+ai-service/test_*.py
+ai-service/run_dev.py
 
 
 .env.*
