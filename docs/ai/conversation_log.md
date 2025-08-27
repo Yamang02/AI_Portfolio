@@ -307,6 +307,90 @@ answer = await llm_service.generate_response(
 **문제점:**
 - `"SELECT 1"` → `text("SELECT 1")` 문법 변경 필요
 
+---
+
+# RAG 데모 및 배포 최적화 추가 작업 (2025-08-27)
+
+## RAG 데모 페이지 구현
+
+### 1. RAG 파이프라인 데모 개발
+- **목적**: ai-service의 RAG 처리 과정을 실제 클래스들로 시연
+- **UI**: Gradio 5.44.0 기반 6개 탭 인터페이스
+- **기능**: 문서 업로드 → 임베딩 → 벡터 저장 → 유사도 검색 → RAG 응답
+
+#### 구현한 핵심 컴포넌트
+```python
+# 벡터 저장소
+app/demo/vector_store.py - InMemoryVectorStore (cosine similarity)
+
+# 임베딩 서비스  
+app/demo/embedding_service.py - SentenceTransformer 모델 관리
+
+# RAG 데모 서비스
+app/demo/rag_demo_service.py - 기존 RAG 클래스들과 통합
+
+# Gradio 인터페이스
+main_demo.py - 6개 탭: 업로드, 벡터검색, 임베딩, RAG생성, 관리, 설정
+```
+
+## 배포 전략 최적화
+
+### 1. 환경별 분리 전략
+```
+배포 환경 구분:
+├── 🏗️  CloudRun 프로덕션 (API 호출 기반)
+│   └── requirements-cloudrun.txt (langchain만, ML 모델 제외)
+│
+├── 🚀 HuggingFace Spaces 데모 (로컬 ML 모델)  
+│   └── requirements-demo.txt (sentence-transformers 포함)
+│
+└── 👨‍💻 로컬 개발
+    └── requirements-local.txt (개발 편의성)
+```
+
+### 2. HuggingFace Spaces 멀티스테이지 빌드
+- **문제**: sentence-transformers → torch 의존성으로 ~7GB 빌드
+- **해결**: Docker 멀티스테이지 빌드로 CPU-only PyTorch 사용
+- **최적화**: 모델 사전 다운로드, 사용자 권한 설정
+
+### 3. CI/CD 및 의존성 정리
+
+#### 워크플로우 구조화
+```
+GitHub Actions:
+├── deploy-ai-service-demo.yml     # HF Spaces (main/staging → ai-service/**)
+├── deploy-ai-service-production.yml # CloudRun 프로덕션  
+├── deploy-ai-service-staging.yml    # CloudRun 스테이징
+├── deploy-production.yml            # 메인 앱 프로덕션
+└── deploy-staging.yml               # 메인 앱 스테이징
+```
+
+#### 불필요한 파일 정리
+**제거한 파일들:**
+- ❌ `Dockerfile.demo` (Dockerfile.spaces와 중복)
+- ❌ `docker-compose.demo.yml` (불필요)
+- ❌ `requirements-base.txt`, `requirements-ml.txt` → `requirements-cloudrun.txt` 통합
+
+**정리한 의존성:**
+- CloudRun: 로컬 ML 모델 의존성 제거 (4-6GB 절약)
+- 로컬 개발: 미사용 패키지 제거 (langsmith, unstructured 등)
+
+## 배포 준비 완료
+
+### HuggingFace Spaces 배포 파일들
+- ✅ `app.py`: HF Spaces 엔트리 포인트 
+- ✅ `main_demo.py`: Gradio 인터페이스
+- ✅ `requirements-demo.txt`: 최적화된 의존성
+- ✅ `Dockerfile.spaces`: 멀티스테이지 빌드
+- ✅ `README-HuggingFace.md`: HF Spaces 메타데이터
+- ✅ `deploy-ai-service-demo.yml`: GitHub Actions 워크플로우
+
+### 예상 효과
+- **HF Spaces**: 16GB RAM에서 무료 RAG 데모 서비스
+- **CloudRun**: 4-6GB 절약된 경량 프로덕션 배포  
+- **개발**: 명확히 분리된 환경별 구성
+- **유지보수**: 중복 제거로 간소화된 관리
+
 **해결책:**
 - `from sqlalchemy import text` import 추가
 - 모든 raw SQL 쿼리를 `text()` 함수로 감싸기
@@ -949,3 +1033,425 @@ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload
 - ✅ **접근성**: 메인 페이지에서 바로 체험 가능
 
 이제 ai-service는 실용적인 RAG 데모 페이지를 갖춘 완전한 AI 서비스로 발전했습니다.
+
+---
+
+## 2025-08-27: 클라이언트 측 저장소 기반 RAG 데모 시스템 설계
+
+### 배경 및 결정 사항
+기존 RAG 데모 페이지의 한계를 극복하고 실제 벡터 검색 기능을 제공하기 위해 **클라이언트 측 저장소 기반 RAG 데모 시스템** 도입을 결정.
+
+### 문제 인식
+- **현재 상태**: 시뮬레이션 기반 데모 (실제 벡터 검색 없음)
+- **한계**: Qdrant 의존성으로 인한 복잡한 환경 설정
+- **목표**: 독립적이면서도 실제 RAG 기능을 체험할 수 있는 데모
+
+### 최종 선택: 메모리 기반 벡터 저장소 ⭐⭐⭐
+
+#### 핵심 아키텍처
+```python
+class InMemoryVectorStore:
+    """브라우저 세션 기반 벡터 저장소"""
+    def __init__(self):
+        self.documents = []     # 원본 문서
+        self.embeddings = []    # 벡터 임베딩
+        self.metadata = []      # 문서 메타데이터
+        self.chunks = []        # 분할된 텍스트 청크
+    
+    def add_documents(self, docs, embeddings, metadata):
+        """문서와 임베딩 추가"""
+        
+    def similarity_search(self, query_embedding, top_k=3):
+        """코사인 유사도 기반 검색"""
+        return similar_documents
+    
+    def get_store_stats(self):
+        """저장소 통계 정보"""
+        return {"docs": len(self.documents), "chunks": len(self.chunks)}
+```
+
+#### 경량 임베딩 모델 선택
+```python
+# 옵션 1: 다국어 지원 경량 모델 (추천)
+from sentence_transformers import SentenceTransformer
+model = SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2')
+
+# 옵션 2: 한국어 특화 모델 (고도화 단계)
+model = SentenceTransformer('jhgan/ko-sroberta-multitask')
+```
+
+### 새로운 데모 시나리오
+
+#### 1단계: 기본 데이터셋 로딩
+- `docs/projects/` 디렉토리의 포트폴리오 문서들
+- 사전 처리된 청크 및 임베딩 (선택사항)
+
+#### 2단계: 실시간 문서 업로드
+```python
+with gr.Tab("📄 Document Upload & Processing"):
+    file_upload = gr.File(
+        file_types=[".md", ".txt"], 
+        label="Upload Your Document"
+    )
+    process_btn = gr.Button("Process & Add to Vector Store")
+    processing_status = gr.Textbox(label="Processing Status")
+```
+
+#### 3단계: 실시간 임베딩 생성
+```python
+with gr.Tab("🧮 Embedding Generation (Live)"):
+    with gr.Row():
+        text_input = gr.Textbox(label="Text to Embed")
+        embed_btn = gr.Button("Generate Embedding")
+        
+    embedding_output = gr.Textbox(label="Embedding Vector")
+    similarity_viz = gr.Plot(label="Embedding Visualization")
+```
+
+#### 4단계: 벡터 검색 체험
+```python
+with gr.Tab("🔍 Vector Search (Live)"):
+    with gr.Row():
+        query_input = gr.Textbox(label="Search Query")
+        search_btn = gr.Button("Search Similar Documents")
+        
+    with gr.Row():
+        search_results = gr.DataFrame(label="Search Results")
+        similarity_scores = gr.Plot(label="Similarity Scores")
+```
+
+#### 5단계: 전체 RAG 파이프라인
+```python
+with gr.Tab("🔄 Full RAG Pipeline (Live)"):
+    # 질문 입력 → 검색 → 컨텍스트 구성 → 답변 생성
+    # 각 단계별 중간 결과 실시간 표시
+```
+
+### 기술적 장점
+
+#### A. 독립성 확보
+- ✅ **Qdrant 의존성 제거**: 복잡한 설치 과정 불필요
+- ✅ **즉시 실행 가능**: Docker 기본 환경에서 바로 동작
+- ✅ **포터블**: 어떤 환경에서든 일관된 동작
+
+#### B. 실제 RAG 기능 제공
+- ✅ **진짜 임베딩**: SentenceTransformer 기반 실제 벡터 생성
+- ✅ **실제 검색**: 코사인 유사도 기반 문서 검색
+- ✅ **실시간 처리**: 사용자 업로드 → 임베딩 → 검색 전체 플로우
+
+#### C. 교육적 가치
+- ✅ **단계별 시각화**: 각 단계의 중간 결과 확인 가능
+- ✅ **매개변수 조정**: chunk_size, top_k, similarity_threshold 실시간 변경
+- ✅ **성능 모니터링**: 처리 시간, 정확도, 저장소 상태 표시
+
+### 구현 계획
+
+#### Phase 1: 기본 벡터 저장소 구현
+1. **InMemoryVectorStore 클래스** 구현
+2. **경량 임베딩 모델** 통합 (sentence-transformers)
+3. **기본 CRUD 기능** (문서 추가, 검색, 삭제)
+
+#### Phase 2: Gradio UI 고도화
+1. **파일 업로드** 인터페이스
+2. **실시간 처리 상태** 표시
+3. **검색 결과 시각화** (유사도 점수, 하이라이팅)
+
+#### Phase 3: 고급 기능 추가
+1. **임베딩 시각화** (t-SNE, PCA)
+2. **매개변수 튜닝** UI
+3. **성능 벤치마크** 도구
+
+### 의존성 업데이트
+
+#### requirements-demo.txt 추가
+```bash
+# 기존 의존성
+fastapi==0.116.1
+uvicorn[standard]==0.35.0
+gradio==5.44.0
+langchain==0.3.27
+langchain-community==0.3.28
+
+# 새로운 의존성 (벡터 처리)
+sentence-transformers==5.1.0    # 경량 임베딩 모델
+numpy==2.3.2                    # 벡터 연산
+scikit-learn==1.5.2            # 유사도 계산
+matplotlib==3.9.0              # 결과 시각화
+```
+
+### 예상 사용자 경험
+
+#### 데모 플로우
+```
+1. 📄 기본 포트폴리오 문서들이 이미 로드됨
+2. 🔍 "React 프로젝트"를 검색하면 관련 문서 3개 반환
+3. 📤 사용자가 새 문서 업로드
+4. ⚡ 실시간으로 임베딩 생성 및 저장소에 추가
+5. 🔍 업로드한 문서 내용으로 검색 가능
+6. 📊 유사도 점수와 시각화 결과 확인
+```
+
+### 기대 효과
+
+#### A. 사용자 관점
+- **실제 RAG 시스템 체험**: 시뮬레이션이 아닌 진짜 벡터 검색
+- **학습 효과**: RAG의 각 단계를 직접 조작하며 이해
+- **포트폴리오 활용**: 실제 프로젝트 문서로 검색 테스트
+
+#### B. 개발자 관점  
+- **프로토타이핑**: 복잡한 인프라 없이 RAG 시스템 테스트
+- **알고리즘 검증**: 다양한 임베딩 모델과 검색 알고리즘 비교
+- **성능 측정**: 메모리 사용량, 검색 속도 등 실시간 모니터링
+
+#### C. 기술적 관점
+- **확장성**: 향후 Qdrant 연동 시 인터페이스 재사용 가능
+- **독립성**: 외부 서비스에 의존하지 않는 완전한 데모
+- **경량화**: 최소한의 리소스로 최대 기능 제공
+
+이제 클라이언트 측 저장소 기반의 실제 RAG 시스템 구축을 통해 진정한 인터랙티브 데모 환경을 제공할 수 있게 되었습니다.
+
+---
+
+## 2025-08-27: 환경별 배포 전략 및 Railway CI/CD 구축 결정
+
+### 최종 배포 전략 결정
+
+#### **이원화 + API 전략** 채택 ⭐⭐⭐
+
+**핵심 원칙**: 동일 코드베이스, 환경별 설정으로 최적화
+
+```yaml
+코드 통일성: 
+  - 단일 Git 리포지토리
+  - 환경 설정으로만 구분 (ENV_TYPE)
+  - 서비스 팩토리 패턴 적용
+
+환경별 최적화:
+  - Demo: Railway + 로컬 모델 (교육/시연용)
+  - Staging/Production: Cloud Run + API 호출 (실사용)
+```
+
+### 환경별 구성
+
+#### **1️⃣ Demo Environment (Railway)**
+```yaml
+목적: RAG 파이프라인 학습 및 시연
+플랫폼: Railway Pro ($20/월)
+설정:
+  ENV_TYPE: demo
+  EMBEDDING_SERVICE_TYPE: local  # sentence-transformers
+  LLM_SERVICE_TYPE: mock
+  VECTOR_STORE_TYPE: memory
+  ENABLE_GRADIO_DEMO: true
+
+기술 스택:
+  - sentence-transformers: 실제 임베딩 모델
+  - InMemoryVectorStore: 세션 기반 벡터 저장소  
+  - Gradio UI: 인터랙티브 RAG 데모
+  - 리소스: 4-6GB RAM, 4vCPU
+
+특징:
+  ✅ 실제 벡터 검색 체험
+  ✅ 문서 업로드 & 실시간 처리
+  ✅ 임베딩 생성 & 유사도 계산
+  ✅ RAG 파이프라인 전 과정 시연
+```
+
+#### **2️⃣ Staging/Production Environment (Cloud Run)**
+```yaml
+목적: 실제 포트폴리오 Q&A 서비스
+플랫폼: Google Cloud Run ($10-20/월)
+설정:
+  ENV_TYPE: production
+  EMBEDDING_SERVICE_TYPE: openai  # API 호출
+  LLM_SERVICE_TYPE: gemini       # API 호출
+  VECTOR_STORE_TYPE: qdrant      # 클라우드 벡터DB
+  ENABLE_GRADIO_DEMO: false      # API만
+
+기술 스택:
+  - OpenAI Embedding API: $0.0004/1K tokens
+  - Gemini LLM API: $0.002/1K tokens  
+  - Qdrant Cloud: 벡터 저장소
+  - PostgreSQL: 메타데이터
+  - 리소스: 512MB-1GB RAM, 1vCPU (초경량!)
+
+특징:
+  ✅ 빠른 응답 (1-3초)
+  ✅ 무제한 확장성
+  ✅ 최신 모델 품질
+  ✅ 서버리스 비용 효율성
+```
+
+### 통합 아키텍처 구현
+
+#### **환경별 설정 분리**
+```python
+# app/config/settings.py
+class Settings(BaseSettings):
+    ENV_TYPE: str = "demo"  # demo, staging, production
+    
+    # 서비스 타입별 설정
+    EMBEDDING_SERVICE_TYPE: str = "local"  # local, openai, gemini
+    LLM_SERVICE_TYPE: str = "mock"        # mock, openai, gemini  
+    VECTOR_STORE_TYPE: str = "memory"     # memory, qdrant
+    
+    # API 키 (환경별)
+    OPENAI_API_KEY: Optional[str] = None
+    GEMINI_API_KEY: Optional[str] = None
+    QDRANT_URL: Optional[str] = None
+    
+    # UI 설정
+    ENABLE_GRADIO_DEMO: bool = True
+    ENABLE_API_ENDPOINTS: bool = True
+
+    class Config:
+        env_file = {
+            "demo": ".env.demo",
+            "staging": ".env.staging", 
+            "production": ".env.production"
+        }
+```
+
+#### **서비스 팩토리 패턴**
+```python
+# app/services/factory.py
+class ServiceFactory:
+    @staticmethod
+    def create_embedding_service(settings):
+        if settings.EMBEDDING_SERVICE_TYPE == "local":
+            return SentenceTransformersService()  # 로컬 모델
+        elif settings.EMBEDDING_SERVICE_TYPE == "openai":
+            return OpenAIEmbeddingService()       # API 호출
+        elif settings.EMBEDDING_SERVICE_TYPE == "gemini":
+            return GeminiEmbeddingService()       # API 호출
+        else:
+            return MockEmbeddingService()         # Mock
+```
+
+### Docker 및 배포 구성
+
+#### **환경별 Dockerfile**
+```dockerfile
+# Dockerfile.demo (Railway용 - 모든 의존성)
+FROM python:3.11-slim
+COPY requirements-demo.txt .
+RUN pip install -r requirements-demo.txt
+COPY . .
+ENV ENV_TYPE=demo
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+
+# Dockerfile.prod (Cloud Run용 - 경량화)
+FROM python:3.11-slim  
+COPY requirements-prod.txt .
+RUN pip install -r requirements-prod.txt  # torch 제외
+COPY . .
+ENV ENV_TYPE=production
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+```
+
+#### **Requirements 분리**
+```txt
+# requirements-demo.txt (3.5GB+ 패키지)
+sentence-transformers==5.1.0
+torch==2.8.0
+scikit-learn==1.5.2  
+gradio==5.44.0
+# ... 모든 ML 의존성
+
+# requirements-prod.txt (경량 API 전용)
+fastapi==0.116.1
+openai==1.54.4
+google-generativeai==0.8.5
+qdrant-client==1.15.1
+# sentence-transformers, torch 제외
+```
+
+### 로컬 개발 환경
+
+#### **로컬에서 Demo 환경 확인 가능** ✅
+```bash
+# 로컬 개발 (Demo 환경과 동일)
+export ENV_TYPE=demo
+export EMBEDDING_SERVICE_TYPE=local
+export ENABLE_GRADIO_DEMO=true
+
+python -m uvicorn app.main:app --reload
+# → http://localhost:8000 (Gradio Demo UI)
+
+# 로컬에서 Production 환경 테스트도 가능
+export ENV_TYPE=production  
+export EMBEDDING_SERVICE_TYPE=openai
+export OPENAI_API_KEY=sk-...
+export ENABLE_GRADIO_DEMO=false
+
+python -m uvicorn app.main:app --reload  
+# → http://localhost:8000/api/v1/chat (API만)
+```
+
+### 비용 분석
+
+#### **총 운영 비용**
+```yaml
+Demo Environment (HuggingFace Spaces):
+  - 플랫폼: $0/월 (무료) ✅
+  - 하드웨어: 16GB RAM CPU Basic
+  - 특징: ML 모델 최적화, 무제한 스토리지
+
+Production Environment (Cloud Run):
+  - 플랫폼: $5-10/월 (사용량 기반)
+  - API 호출: $10-15/월 (OpenAI + Gemini)
+  - 특징: 서버리스, 요청 기반 과금
+
+총 예상 비용: $15-25/월 (70% 절약!)
+기존 통합 방식: $80-120/월 대비 80% 절약
+```
+
+### HuggingFace Spaces CI/CD 구축 계획
+
+#### **배포 전략 변경 이유**
+```yaml
+Railway Hobby 제약사항:
+  - Memory: 512MB (필요: 4-6GB) ❌
+  - Storage: 1GB (필요: 3.5GB) ❌  
+  - Sleep: 15분 비활성 시 슬립 ❌
+
+HuggingFace Spaces 장점:
+  - Memory: 16GB RAM 무료 ✅
+  - Storage: Unlimited ✅
+  - ML 모델 최적화 ✅
+  - 완전 무료 ✅
+```
+
+#### **자동 배포 트리거**
+```yaml
+브랜치 전략:
+  - main → Production (Cloud Run)  
+  - staging → Staging (Cloud Run)
+  - demo → Demo (HuggingFace Spaces)
+
+HuggingFace Spaces 설정:
+  - Repository: AI_Portfolio  
+  - Branch: demo
+  - Space Type: Gradio
+  - Hardware: CPU Basic (16GB RAM)
+  - SDK: gradio==5.44.0
+```
+
+### 기대 효과
+
+#### **개발 생산성**
+- ✅ **로컬 테스트**: Demo/Production 환경 모두 로컬에서 테스트 가능
+- ✅ **코드 통일성**: 단일 코드베이스로 모든 환경 지원
+- ✅ **배포 자동화**: 브랜치별 자동 배포
+
+#### **사용자 경험**  
+- ✅ **Demo**: 완전한 RAG 파이프라인 체험
+- ✅ **Production**: 빠르고 안정적인 실사용 서비스
+- ✅ **학습 가치**: 실제 모델과 API 호출 방식 비교 학습
+
+#### **운영 효율성**
+- ✅ **비용 최적화**: 환경별 최적의 리소스 사용
+- ✅ **관리 단순화**: 설정 기반 환경 분리  
+- ✅ **확장성**: 새로운 환경 쉽게 추가 가능
+
+이제 동일한 코드로 로컬 개발, Demo 시연, Production 서비스를 모두 지원하는 완벽한 multi-environment 아키텍처가 완성되었습니다.

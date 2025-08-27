@@ -12,22 +12,12 @@ asyncpg==0.30.0
 sqlalchemy[asyncio]==2.0.43
 alembic==1.16.4
 
-# LLM and AI
+# LLM and AI (로컬 개발용)
 langchain==0.3.27
-langchain-google-genai==2.1.9
 langchain-community==0.3.28
 
-# Document Processing
-unstructured==0.18.14
-python-magic==0.4.27
-pillow==11.3.0
-
-# Prompt management
-langsmith==0.4.18
+# Basic utilities
 pyyaml==6.0.2
-
-# HTTP client
-aiohttp==3.12.15
 httpx==0.28.1
 
 # Caching
@@ -45,10 +35,6 @@ python-dotenv==1.1.1
 # Vector database
 qdrant-client==1.15.1
 
-# ML/AI dependencies
+# Demo dependencies (로컬에서 데모 테스트용)
 sentence-transformers==5.1.0
-transformers==4.55.4
-huggingface-hub==0.34.4
-
-# UI Library for RAG Demo
 gradio==5.44.0

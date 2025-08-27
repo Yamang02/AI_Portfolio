@@ -1,17 +1,19 @@
-# RAG 데모를 위한 최소한의 의존성
-fastapi==0.116.1
-uvicorn[standard]==0.35.0
-pydantic==2.11.7
-pydantic-settings==2.10.1
-python-dotenv==1.1.1
-pyyaml==6.0.2
+# HuggingFace Spaces Demo Requirements
+# Minimal dependencies for RAG demo only
 
-# Document Processing (RAG 데모 핵심)
+# UI Library (demo main feature)
+gradio==5.44.0
+
+# Document Processing (RAG demo core)
 langchain==0.3.27
 langchain-community==0.3.28
 
-# UI Library
-gradio==5.44.0
+# Vector Processing (local embedding for demo)
+sentence-transformers==5.1.0
+numpy==2.3.2
 
 # Basic utilities
+python-dotenv==1.1.1
+pyyaml==6.0.2
 httpx==0.28.1
+uvicorn==0.30.5

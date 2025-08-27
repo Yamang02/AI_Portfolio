@@ -1,0 +1,51 @@
+# HuggingFace Spaces Optimized Dockerfile
+# Multi-stage build for sentence-transformers optimization
+
+# Stage 1: Build dependencies
+FROM python:3.11-slim as builder
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install CPU-only PyTorch first (saves ~4GB vs GPU version)
+RUN pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+
+# Copy requirements and install
+COPY requirements-demo.txt .
+RUN pip install --no-cache-dir -r requirements-demo.txt
+
+# Pre-download common models to avoid first-run delay
+RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2')"
+
+# Stage 2: Runtime
+FROM python:3.11-slim as runtime
+
+# Create user with ID 1000 (HF Spaces requirement)
+RUN useradd -m -u 1000 user
+
+# Copy Python packages from builder
+COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+COPY --from=builder /usr/local/bin /usr/local/bin
+COPY --from=builder /root/.cache/huggingface /home/user/.cache/huggingface
+
+# Set working directory and permissions
+WORKDIR /app
+RUN chown -R user:user /app
+USER user
+
+# Copy application code
+COPY --chown=user:user . .
+
+# Expose port
+EXPOSE 7860
+
+# Set environment variables
+ENV ENV_TYPE=demo
+ENV EMBEDDING_SERVICE_TYPE=local
+ENV ENABLE_GRADIO_DEMO=true
+
+# Run the application
+CMD ["uvicorn", "demo.main_demo:app", "--host", "0.0.0.0", "--port", "7860"]

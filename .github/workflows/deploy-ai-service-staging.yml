@@ -31,8 +31,7 @@ jobs:
     - name: Install dependencies
       run: |
         cd ai-service
-        pip install -r requirements-base.txt
-        pip install -r requirements-ml.txt
+        pip install -r requirements-cloudrun.txt
         
     - name: Run tests
       run: |
@@ -80,13 +79,7 @@ jobs:
       run: |
         gcloud run deploy $GCP_AI_SERVICE_NAME \
           --image gcr.io/$GCP_PROJECT_ID/$GCP_AI_SERVICE_NAME:$GITHUB_SHA \
-          --platform managed \
-          --region $GCP_AI_REGION \
-          --allow-unauthenticated \
-          --port 8000 \
-          --set-env-vars="GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" \
-          --set-env-vars="POSTGRE_URL=${{ secrets.POSTGRE_URL }}" \
-          --set-env-vars="QDRANT_URL=${{ secrets.QDRANT_URL }}" \
+          --platform managed \          --region $GCP_AI_REGION \          --allow-unauthenticated \          --port 8000 \          --set-env-vars="ENV_TYPE=staging" \          --set-env-vars="GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" \          --set-env-vars="POSTGRE_URL=${{ secrets.POSTGRE_URL }}" \          --set-env-vars="QDRANT_URL=${{ secrets.QDRANT_URL }}" \
           --set-env-vars="QDRANT_API_KEY=${{ secrets.QDRANT_API_KEY }}" \
           --set-env-vars="REDIS_HOST=${{ vars.REDIS_HOST }}" \
           --set-env-vars="REDIS_PORT=${{ vars.REDIS_PORT }}" \

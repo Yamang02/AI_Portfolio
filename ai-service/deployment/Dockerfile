@@ -11,17 +11,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Python 의존성 설치 (레이어별 캐싱 최적화)
 RUN pip install --no-cache-dir --upgrade pip
 
-# 1단계: 기본 FastAPI 의존성
-COPY requirements-base.txt .
-RUN pip install --no-cache-dir -r requirements-base.txt
-
-# 2단계: PyTorch CPU 전용 (가장 무거움, 캐시 효율성 최대화)
-RUN pip install --no-cache-dir torch==2.1.1 \
-    --index-url https://download.pytorch.org/whl/cpu
-
-# 3단계: 기타 ML 라이브러리
-COPY requirements-ml.txt .
-RUN pip install --no-cache-dir -r requirements-ml.txt
+# CloudRun 프로덕션 의존성 (API 호출 기반, 로컬 ML 모델 제외)
+COPY requirements-cloudrun.txt .
+RUN pip install --no-cache-dir -r requirements-cloudrun.txt
 
 # 애플리케이션 코드 (가장 마지막 - 자주 변경됨)
 COPY . .

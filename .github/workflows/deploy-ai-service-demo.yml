@@ -1,0 +1,81 @@
+name: "[Demo](AI Service) HuggingFace Spaces_Deployment"
+
+on:
+  push:
+    branches: [ main, staging ]
+    paths:
+      - 'ai-service/**'
+  pull_request:
+    branches: [ main, staging ]
+    paths:
+      - 'ai-service/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Install HuggingFace Hub
+      run: pip install huggingface_hub
+      
+    - name: Prepare HuggingFace Spaces files
+      run: |
+        cd ai-service
+        # Copy HuggingFace specific files
+        cp deployment/README-HuggingFace.md README.md
+        cp deployment/Dockerfile.spaces Dockerfile
+        # Ensure all required files are present
+        ls -la demo/main_demo.py requirements-demo.txt Dockerfile
+        
+    - name: Deploy to HuggingFace Spaces
+      env:
+        HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        HF_USERNAME: ${{ secrets.HF_USERNAME }}
+      run: |
+        cd ai-service
+        python -c "
+        from huggingface_hub import HfApi, create_repo
+        import os
+        
+        api = HfApi(token=os.environ['HF_TOKEN'])
+        repo_id = f\"{os.environ['HF_USERNAME']}/rag-pipeline-demo\"
+        
+        try:
+            # Create space if it doesn't exist
+            create_repo(
+                repo_id=repo_id,
+                repo_type='space',
+                space_sdk='gradio',
+                token=os.environ['HF_TOKEN'],
+                exist_ok=True
+            )
+            print(f'✅ Space {repo_id} ready')
+            
+            # Upload files
+            api.upload_folder(
+                folder_path='.',
+                repo_id=repo_id,
+                repo_type='space',
+                token=os.environ['HF_TOKEN'],
+                ignore_patterns=['__pycache__', '*.pyc', 'docker-compose*', 'Dockerfile*']
+            )
+            print(f'✅ Files uploaded to {repo_id}')
+            
+        except Exception as e:
+            print(f'❌ Deployment failed: {e}')
+            raise e
+        "
+        
+    - name: Verify Deployment
+      run: |
+        echo "✅ RAG Demo deployed to HuggingFace Spaces successfully!"
+        echo "🌐 Demo URL: https://huggingface.co/spaces/${{ secrets.HF_USERNAME }}/rag-pipeline-demo"
+        echo "📊 Monitor deployment at: https://huggingface.co/spaces/${{ secrets.HF_USERNAME }}/rag-pipeline-demo/settings"

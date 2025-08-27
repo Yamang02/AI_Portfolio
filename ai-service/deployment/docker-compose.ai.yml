@@ -14,27 +14,10 @@ services:
       - ai-service-data:/app/data
     environment:
       - PYTHONPATH=/app
-      # API 키
-      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
-      # Qdrant 설정
-      - QDRANT_URL=${QDRANT_URL:-http://qdrant:6333}
-      - QDRANT_API_KEY=${QDRANT_API_KEY:-}
-      # LLM 설정
-      - GEMINI_MODEL=${GEMINI_MODEL:-gemini-1.5-flash}
-      - LLM_TEMPERATURE=${LLM_TEMPERATURE:-0.7}
-      - LLM_MAX_OUTPUT_TOKENS=${LLM_MAX_OUTPUT_TOKENS:-2048}
-      # 로깅
-      - LOG_LEVEL=${LOG_LEVEL:-INFO}
-      # Redis 설정
-      - REDIS_HOST=${REDIS_HOST:-redis}
-      - REDIS_PORT=${REDIS_PORT:-6379}
-      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
-      - REDIS_DB=${REDIS_DB:-0}
-      - REDIS_SSL=${REDIS_SSL:-false}
+      - ENV_TYPE=development
       # 서버 설정
       - SERVER_HOST=0.0.0.0
       - SERVER_PORT=8000
-      - DEBUG_MODE=${DEBUG_MODE:-false}
     depends_on:
       - qdrant
       - redis
