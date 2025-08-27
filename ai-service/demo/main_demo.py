@@ -22,6 +22,9 @@ try:
 except ImportError as e:
     logging.basicConfig(level=logging.INFO)
     logging.error(f"Failed to import RAG service components: {e}")
+    logging.error(f"Exception type: {type(e)}")
+    import traceback
+    logging.error(f"Full traceback: {traceback.format_exc()}")
     RAG_SERVICE_AVAILABLE = False
 
 # Global service instance
@@ -30,23 +33,46 @@ rag_service = None
 def initialize_rag_service():
     """Initialize RAG service for the demo environment. This is now a synchronous function."""
     global rag_service
-    if RAG_SERVICE_AVAILABLE and rag_service is None:
+    
+    logging.info(f"Initializing RAG service... RAG_SERVICE_AVAILABLE={RAG_SERVICE_AVAILABLE}")
+    
+    if not RAG_SERVICE_AVAILABLE:
+        logging.warning("RAG service components not available, skipping initialization")
+        return False
+        
+    if rag_service is None:
         try:
+            logging.info("Creating demo-specific components...")
+            
             # 1. Create the demo-specific components
+            logging.info("Creating InMemoryVectorStore...")
             demo_vector_store = InMemoryVectorStore()
+            
+            logging.info("Getting embedding service...")
             demo_embedding_service = get_embedding_service()
+            
+            logging.info("Creating MockLlmService...")
             demo_llm_service = MockLlmService()
 
             # 2. Pass them to the factory to be assembled into a service
+            logging.info("Creating RAG service from factory...")
             rag_service = create_rag_service(
                 vector_store_override=demo_vector_store,
                 llm_service_override=demo_llm_service,
                 embedding_service_override=demo_embedding_service
             )
+            
+            logging.info("RAG service initialized successfully!")
+            
         except Exception as e:
             logging.error(f"Failed to create RAG service: {e}")
+            import traceback
+            logging.error(f"Full traceback: {traceback.format_exc()}")
             # Re-raise the exception to be caught by the startup handler
             raise
+    else:
+        logging.info("RAG service already initialized")
+        
     return rag_service is not None
 
 async def load_default_docs():
@@ -313,6 +339,14 @@ app = FastAPI(title="RAG Demo Service", version="1.0.0", lifespan=lifespan)
 @app.get("/health")
 async def health_check():
     return {"status": "healthy", "service": "RAG Demo"}
+
+@app.get("/rag-status")
+async def rag_status_check():
+    return {
+        "rag_service_available": RAG_SERVICE_AVAILABLE,
+        "rag_service_initialized": rag_service is not None,
+        "rag_service_type": str(type(rag_service)) if rag_service else "None"
+    }
 
 demo_interface = create_demo_interface()
 app = gr.mount_gradio_app(app, demo_interface, path="/")

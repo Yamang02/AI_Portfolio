@@ -75,11 +75,17 @@ class EmbeddingService:
             
             self.logger.info(f"Loading embedding model: {self.model_name}")
             
-            # SentenceTransformer 모델 로드
-            self.model = SentenceTransformer(
-                self.model_name,
-                cache_folder=self.cache_dir
-            )
+            # SentenceTransformer 모델 로드 (권한 오류 대비)
+            try:
+                self.model = SentenceTransformer(
+                    self.model_name,
+                    cache_folder=self.cache_dir
+                )
+            except (PermissionError, OSError) as cache_error:
+                self.logger.warning(f"Cache permission issue: {cache_error}")
+                self.logger.info("Trying to load model without cache")
+                # 캐시 없이 로드 시도
+                self.model = SentenceTransformer(self.model_name)
             
             # 임베딩 차원 확인
             test_embedding = self.model.encode(["test"])

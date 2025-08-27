@@ -38,3 +38,4 @@ qdrant-client==1.15.1
 # Demo dependencies (로컬에서 데모 테스트용)
 sentence-transformers==5.1.0
 gradio==5.44.0
+scikit-learn==1.5.2

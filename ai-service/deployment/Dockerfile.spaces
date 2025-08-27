@@ -33,7 +33,9 @@ COPY --from=builder /root/.cache/huggingface /home/user/.cache/huggingface
 
 # Set working directory and permissions
 WORKDIR /app
-RUN chown -R user:user /app
+RUN chown -R user:user /app && \
+    mkdir -p /home/user/.cache/huggingface && \
+    chown -R user:user /home/user/.cache
 USER user
 
 # Copy application code
@@ -46,6 +48,8 @@ EXPOSE 7860
 ENV ENV_TYPE=demo
 ENV EMBEDDING_SERVICE_TYPE=local
 ENV ENABLE_GRADIO_DEMO=true
+ENV TRANSFORMERS_CACHE=/home/user/.cache/huggingface
+ENV HF_HOME=/home/user/.cache/huggingface
 
 # Run the application
 CMD ["uvicorn", "demo.main_demo:app", "--host", "0.0.0.0", "--port", "7860"]
