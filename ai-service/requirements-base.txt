@@ -1,33 +1,41 @@
 # AI 서비스 기본 의존성 (변경 빈도 낮음)
-fastapi==0.104.1
-uvicorn[standard]==0.24.0
-gunicorn==21.2.0
-pydantic==2.5.0
-pydantic-settings==2.1.0
+fastapi==0.116.1
+uvicorn[standard]==0.35.0
+gunicorn==23.0.0
+pydantic==2.11.7
+pydantic-settings==2.10.1
 
 # 데이터베이스
-asyncpg==0.29.0
-sqlalchemy[asyncio]==2.0.23
-alembic==1.13.1
+asyncpg==0.30.0
+sqlalchemy[asyncio]==2.0.43
+alembic==1.16.4
 
 # 벡터 데이터베이스
-qdrant-client==1.7.0
+qdrant-client==1.15.1
 
 # 캐시 시스템
-redis==5.0.1
+redis==6.4.0
 
 # 유틸리티
-numpy==1.24.3
+numpy==2.3.2
 python-multipart==0.0.6
-python-dotenv==1.0.0
+python-dotenv==1.1.1
+pyyaml==6.0.2
 
 # 로깅 및 모니터링
-structlog==23.2.0
+structlog==25.4.0
 
 # UI 라이브러리
-gradio==4.44.0
+gradio==5.44.0
+
+# Document Processing (RAG 데모용)
+langchain==0.3.27
+langchain-community==0.3.28
+
+# HTTP 클라이언트
+httpx==0.28.1
 
 # 개발 도구
-pytest==7.4.3
-pytest-asyncio==0.21.1
-httpx==0.25.2
+pytest==8.4.1
+pytest-asyncio==1.1.0
+pytest-mock==3.14.1

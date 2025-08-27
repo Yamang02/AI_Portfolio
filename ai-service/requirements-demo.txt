@@ -1,0 +1,17 @@
+# RAG 데모를 위한 최소한의 의존성
+fastapi==0.116.1
+uvicorn[standard]==0.35.0
+pydantic==2.11.7
+pydantic-settings==2.10.1
+python-dotenv==1.1.1
+pyyaml==6.0.2
+
+# Document Processing (RAG 데모 핵심)
+langchain==0.3.27
+langchain-community==0.3.28
+
+# UI Library
+gradio==5.44.0
+
+# Basic utilities
+httpx==0.28.1

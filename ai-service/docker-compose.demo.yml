@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  # RAG 데모 서비스 (최소한 구성)
+  ai-service-demo:
+    build:
+      context: .
+      dockerfile: Dockerfile.demo
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+      - /app/__pycache__
+    environment:
+      - PYTHONPATH=/app
+      - SERVER_HOST=0.0.0.0
+      - SERVER_PORT=8000
+    restart: unless-stopped
+
+volumes:
+  demo-data:

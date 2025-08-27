@@ -1,0 +1,26 @@
+# RAG Demo Dockerfile - 최소한의 의존성으로 빠른 테스트
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# 시스템 패키지 업데이트
+RUN apt-get update && apt-get install -y \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# RAG 데모용 최소 의존성 설치
+COPY requirements-demo.txt .
+RUN pip install --no-cache-dir -r requirements-demo.txt
+
+# 소스 코드 복사
+COPY . .
+
+# 환경변수 설정
+ENV PYTHONPATH=/app
+ENV PYTHONUNBUFFERED=1
+
+# 포트 노출
+EXPOSE 8000
+
+# RAG 데모 실행
+CMD ["uvicorn", "main_demo:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
