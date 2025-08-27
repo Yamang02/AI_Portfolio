@@ -1,6 +1,0 @@
-# Docker 멀티스테이지 빌드용 requirements
-# 로컬 개발은 requirements-local.txt 사용
-
-# 이 파일은 Docker 빌드 시 requirements-base.txt + requirements-ml.txt 조합으로 대체됨
-# 로컬 개발 시에는 requirements-local.txt를 사용하세요:
-# pip install -r requirements-local.txt
