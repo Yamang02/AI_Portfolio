@@ -51,9 +51,7 @@ except Exception as e:
     import gradio as gr
     
     def error_interface():
-        return gr.Blocks(
-            title="RAG Demo - Initialization Error"
-        ) as demo:
+        with gr.Blocks(title="RAG Demo - Initialization Error") as demo:
             gr.HTML(f"""
             <div style="text-align: center; padding: 50px;">
                 <h1>🚫 Demo Initialization Error</h1>
@@ -63,7 +61,7 @@ except Exception as e:
                 <p>Please check the logs for more details.</p>
             </div>
             """)
-            return demo
+        return demo
     
     # Fallback interface
     demo_interface = error_interface()
