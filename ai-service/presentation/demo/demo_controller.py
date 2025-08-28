@@ -93,20 +93,38 @@ class DemoController:
         
         def sync_process_file(file_path):
             if file_path:
-                result = asyncio.create_task(self.process_file_upload(file_path.name))
-                return asyncio.run(result)
+                try:
+                    loop = asyncio.new_event_loop()
+                    asyncio.set_event_loop(loop)
+                    result = loop.run_until_complete(self.process_file_upload(file_path.name))
+                    loop.close()
+                    return result
+                except Exception as e:
+                    return {"success": False, "error": str(e)}
             return {"success": False, "error": "No file provided"}
         
         def sync_search(query, top_k):
             if query:
-                result = asyncio.create_task(self.search_documents(query, top_k))
-                return asyncio.run(result)
+                try:
+                    loop = asyncio.new_event_loop()
+                    asyncio.set_event_loop(loop)
+                    result = loop.run_until_complete(self.search_documents(query, top_k))
+                    loop.close()
+                    return result
+                except Exception as e:
+                    return {"success": False, "error": str(e)}
             return {"success": False, "error": "No query provided"}
         
         def sync_generate(query, top_k):
             if query:
-                result = asyncio.create_task(self.generate_rag_response(query, top_k))
-                return asyncio.run(result)
+                try:
+                    loop = asyncio.new_event_loop()
+                    asyncio.set_event_loop(loop)
+                    result = loop.run_until_complete(self.generate_rag_response(query, top_k))
+                    loop.close()
+                    return result
+                except Exception as e:
+                    return {"success": False, "error": str(e)}
             return {"success": False, "error": "No query provided"}
         
         with gr.Blocks(
