@@ -1,7 +1,8 @@
 version: '3.8'
 
-# 개발용 로컬 PostgreSQL
+# AI Portfolio 로컬 개발환경
 services:
+  # PostgreSQL Database
   postgres:
     image: postgres:15-alpine
     container_name: ai-portfolio-postgres
@@ -22,8 +23,120 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+    networks:
+      - ai-portfolio-network
 
-  # pgAdmin (선택사항)
+  # Redis for Caching
+  redis:
+    image: redis:7-alpine
+    container_name: ai-portfolio-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    networks:
+      - ai-portfolio-network
+
+  # Qdrant Vector Database
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: ai-portfolio-qdrant
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    restart: unless-stopped
+    networks:
+      - ai-portfolio-network
+
+  # Spring Boot Backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: ai-portfolio-backend
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=local
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=ai_portfolio
+      - DB_USER=dev_user
+      - DB_PASSWORD=dev_password
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    volumes:
+      - ./backend/src:/app/src
+      - ./backend/pom.xml:/app/pom.xml
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    restart: unless-stopped
+    networks:
+      - ai-portfolio-network
+
+  # React Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: ai-portfolio-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - VITE_API_BASE_URL=http://localhost:8080
+      - VITE_AI_API_BASE_URL=http://localhost:8001
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
+      - ./frontend/package.json:/app/package.json
+      - ./frontend/vite.config.js:/app/vite.config.js
+      - /app/node_modules
+    depends_on:
+      - backend
+      - ai-service
+    restart: unless-stopped
+    networks:
+      - ai-portfolio-network
+
+  # FastAPI AI Service
+  ai-service:
+    build:
+      context: ./ai-service
+      dockerfile: deployment/Dockerfile.dev
+    container_name: ai-portfolio-ai-service
+    ports:
+      - "8001:8000"
+    environment:
+      - PYTHONPATH=/app
+      - PYTHONUNBUFFERED=1
+      - DEBUG_MODE=true
+      - LOG_LEVEL=DEBUG
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - QDRANT_HOST=qdrant
+      - QDRANT_PORT=6333
+      - DATABASE_URL=postgresql://dev_user:dev_password@postgres:5432/ai_portfolio
+    volumes:
+      - ./ai-service/app:/app/app
+      - ./ai-service/requirements-local.txt:/app/requirements-local.txt
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      qdrant:
+        condition: service_started
+    restart: unless-stopped
+    networks:
+      - ai-portfolio-network
+
+  # pgAdmin (선택사항 - 필요시에만 실행)
   pgadmin:
     image: dpage/pgadmin4:latest
     container_name: ai-portfolio-pgadmin
@@ -36,7 +149,17 @@ services:
       - pgadmin_data:/var/lib/pgadmin
     depends_on:
       - postgres
+    profiles:
+      - admin
+    networks:
+      - ai-portfolio-network
 
 volumes:
   postgres_data:
+  redis_data:
+  qdrant_data:
   pgadmin_data:
+
+networks:
+  ai-portfolio-network:
+    driver: bridge
