@@ -93,10 +93,11 @@ jobs:
         # Copy Clean Architecture specific files
         cp deployment/README-HuggingFace-Clean.md README.md
         cp deployment/Dockerfile.spaces-clean Dockerfile
+        cp requirements-demo.txt requirements.txt  # HuggingFace Spaces용으로 복사
         
         # Validate all required files are present
         echo "📋 Validating deployment files..."
-        for file in "app.py" "README.md" "Dockerfile" "requirements-demo.txt"; do
+        for file in "app.py" "README.md" "Dockerfile" "requirements.txt"; do  # requirements.txt 확인
           if [ ! -f "$file" ]; then
             echo "❌ Missing deployment file: $file"
             exit 1
