@@ -1,4 +1,4 @@
-# HuggingFace Spaces Dockerfile - Clean Architecture
+# HuggingFace Spaces Dockerfile - Clean Architecture Demo
 FROM python:3.11-slim
 
 # Set working directory
@@ -20,10 +20,10 @@ ENV HOME=/home/user \
 RUN mkdir -p /home/user/.cache/huggingface
 
 # Copy requirements first for better caching
-COPY --chown=user:user requirements-demo.txt /app/
+COPY --chown=user:user requirements.txt /app/
 
 # Install dependencies
-RUN pip install --user --no-cache-dir -r requirements-demo.txt
+RUN pip install --user --no-cache-dir -r requirements.txt
 
 # Copy Clean Architecture source code
 COPY --chown=user:user app/ /app/app/

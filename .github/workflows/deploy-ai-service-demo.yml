@@ -92,7 +92,7 @@ jobs:
         
         # Copy Clean Architecture specific files
         cp deployment/README-HuggingFace-Clean.md README.md
-        cp deployment/Dockerfile.spaces-clean Dockerfile
+        cp deployment/Dockerfile.demo Dockerfile
         cp requirements-demo.txt requirements.txt  # HuggingFace Spaces용으로 복사
         
         # Validate all required files are present
