@@ -165,13 +165,27 @@ public class RedisConfig {
     @Bean
     public RedisCacheManager cacheManager(LettuceConnectionFactory connectionFactory) {
         
+        // Cache용 ObjectMapper 설정 (RedisTemplate과 동일하게)
+        ObjectMapper cacheObjectMapper = new ObjectMapper();
+        cacheObjectMapper.registerModule(new JavaTimeModule());
+        cacheObjectMapper.activateDefaultTyping(
+            BasicPolymorphicTypeValidator.builder()
+                .allowIfSubType(Object.class)
+                .build(),
+            ObjectMapper.DefaultTyping.NON_FINAL,
+            JsonTypeInfo.As.PROPERTY
+        );
+        
+        GenericJackson2JsonRedisSerializer cacheJsonSerializer = 
+            new GenericJackson2JsonRedisSerializer(cacheObjectMapper);
+        
         // 기본 캐시 설정
         RedisCacheConfiguration defaultConfig = RedisCacheConfiguration.defaultCacheConfig()
             .entryTtl(Duration.ofHours(1))  // 기본 TTL: 1시간
             .serializeKeysWith(org.springframework.data.redis.serializer.RedisSerializationContext.SerializationPair
                 .fromSerializer(new StringRedisSerializer()))
             .serializeValuesWith(org.springframework.data.redis.serializer.RedisSerializationContext.SerializationPair
-                .fromSerializer(new GenericJackson2JsonRedisSerializer()))
+                .fromSerializer(cacheJsonSerializer))
             .disableCachingNullValues()
             .prefixCacheNameWith("portfolio:");
 

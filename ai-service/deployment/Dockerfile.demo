@@ -1,55 +1,33 @@
-# HuggingFace Spaces Dockerfile - Clean Architecture Demo
+# HuggingFace Spaces Dockerfile for AI Portfolio RAG Demo
 FROM python:3.11-slim
 
-# Set working directory
 WORKDIR /app
 
-# Create user for HuggingFace Spaces
-RUN useradd -m -u 1000 user
-USER user
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc g++ \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python dependencies
+COPY requirements-demo.txt .
+RUN pip install --no-cache-dir -r requirements-demo.txt
+
+# Copy application code
+COPY . .
 
 # Set environment variables
-ENV HOME=/home/user \
-    PATH=/home/user/.local/bin:$PATH \
-    PYTHONPATH=/app \
-    PYTHONUNBUFFERED=1 \
-    TRANSFORMERS_CACHE=/home/user/.cache/huggingface \
-    HF_HOME=/home/user/.cache/huggingface
+ENV PYTHONPATH=/app
+ENV PYTHONUNBUFFERED=1
+ENV GRADIO_SERVER_NAME=0.0.0.0
+ENV GRADIO_SERVER_PORT=7860
 
-# Create cache directories
-RUN mkdir -p /home/user/.cache/huggingface
+# Create non-root user for security
+RUN groupadd -r appuser && useradd -r -g appuser appuser \
+    && chown -R appuser:appuser /app
+USER appuser
 
-# Copy requirements first for better caching
-COPY --chown=user:user requirements.txt /app/
-
-# Install dependencies
-RUN pip install --user --no-cache-dir -r requirements.txt
-
-# Copy Clean Architecture source code
-COPY --chown=user:user app/ /app/app/
-COPY --chown=user:user presentation/ /app/presentation/
-COPY --chown=user:user docs/ /app/docs/
-COPY --chown=user:user config.yaml /app/
-COPY --chown=user:user app.py /app/
-
-# Pre-download models to improve startup time
-RUN python -c "
-try:
-    from sentence_transformers import SentenceTransformer
-    print('📦 Pre-downloading sentence-transformers model...')
-    model = SentenceTransformer('all-MiniLM-L6-v2')
-    print('✅ Model downloaded successfully')
-except Exception as e:
-    print(f'⚠️ Model download failed: {e}')
-    print('Will use mock embeddings instead')
-"
-
-# Expose HuggingFace Spaces port
+# Expose Gradio port
 EXPOSE 7860
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD python -c "import requests; requests.get('http://localhost:7860/health', timeout=5)" || exit 1
-
-# Launch Clean Architecture demo
-CMD ["python", "app.py"]
+# Run the demo application
+CMD ["python", "demo.py"]

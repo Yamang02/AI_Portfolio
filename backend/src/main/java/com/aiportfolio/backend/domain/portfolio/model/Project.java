@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.aiportfolio.backend.domain.portfolio.model.enums.ProjectType;
 
 import jakarta.validation.constraints.NotBlank;
@@ -69,6 +70,7 @@ public class Project {
     /**
      * 프로젝트가 진행중인지 확인
      */
+    @JsonIgnore
     public boolean isOngoing() {
         return endDate == null;
     }
@@ -76,6 +78,7 @@ public class Project {
     /**
      * 프로젝트 기간을 월 단위로 계산
      */
+    @JsonIgnore
     public long getDurationInMonths() {
         if (endDate == null) {
             return java.time.temporal.ChronoUnit.MONTHS.between(startDate, LocalDate.now());

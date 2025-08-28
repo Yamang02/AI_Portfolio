@@ -1,4 +1,4 @@
-name: "[Demo](AI Service) HuggingFace Spaces Clean Architecture Deployment"
+name: "[Demo](AI Service) HuggingFace Spaces Hexagonal Architecture Deployment"
 
 on:
   push:
@@ -29,13 +29,13 @@ jobs:
         cd ai-service
         pip install -r requirements-demo.txt    
            
-    - name: Validate Clean Architecture Structure
+    - name: Validate Hexagonal Architecture Structure
       run: |
         cd ai-service
-        echo "🔍 Validating Clean Architecture structure..."
+        echo "🔍 Validating Hexagonal Architecture structure..."
         
         # Check required directories
-        for dir in "presentation/demo" "app/application" "app/domain" "app/infrastructure"; do
+        for dir in "src/adapters" "src/application" "src/core" "src/infrastructure"; do
           if [ ! -d "$dir" ]; then
             echo "❌ Missing directory: $dir"
             exit 1
@@ -44,7 +44,7 @@ jobs:
         done
         
         # Check key files
-        for file in "app.py" "presentation/demo/demo_controller.py" "requirements-demo.txt"; do
+        for file in "demo.py" "main.py" "requirements-demo.txt"; do
           if [ ! -f "$file" ]; then
             echo "❌ Missing file: $file"
             exit 1
@@ -52,30 +52,31 @@ jobs:
           echo "✅ Found: $file"
         done
         
-        echo "✅ Clean Architecture structure validated"
+        echo "✅ Hexagonal Architecture structure validated"
       
-    - name: Test Clean Architecture Imports
+    - name: Test Hexagonal Architecture Imports
       run: |
         cd ai-service
         python -c "
         import sys
         sys.path.insert(0, '.')
         
-        print('🧪 Testing Clean Architecture imports...')
+        print('🧪 Testing Hexagonal Architecture imports...')
         
         try:
-          from presentation.demo.demo_controller import DemoController
-          from app.application.rag.rag_use_case import RAGUseCase
-          from app.domain.entities.chat import ChatRequest
-          from app.infrastructure.demo.demo_factory import DemoServiceFactory
+          from src.application.rag_service import RAGService
+          from src.adapters.secondary.llm.mock_llm_adapter import MockLLMAdapter
+          from src.adapters.secondary.vector.memory_vector_adapter import MemoryVectorAdapter
+          from src.core.domain.models import DocumentChunk, RAGQuery
           
-          print('✅ All Clean Architecture imports successful')
+          print('✅ All Hexagonal Architecture imports successful')
           
           # Test basic instantiation
-          factory = DemoServiceFactory()
-          controller = DemoController()
+          llm_adapter = MockLLMAdapter()
+          vector_adapter = MemoryVectorAdapter()
+          rag_service = RAGService(llm_adapter, vector_adapter)
           
-          print('✅ Clean Architecture components instantiated successfully')
+          print('✅ Hexagonal Architecture components instantiated successfully')
           
         except Exception as e:
           print(f'❌ Import test failed: {e}')
@@ -88,16 +89,16 @@ jobs:
       run: |
         cd ai-service
         
-        echo "📦 Preparing Clean Architecture demo for HuggingFace Spaces..."
+        echo "📦 Preparing Hexagonal Architecture demo for HuggingFace Spaces..."
         
-        # Copy Clean Architecture specific files
+        # Copy Hexagonal Architecture specific files
         cp deployment/README-HuggingFace-Clean.md README.md
         cp deployment/Dockerfile.demo Dockerfile
         cp requirements-demo.txt requirements.txt  # HuggingFace Spaces용으로 복사
         
         # Validate all required files are present
         echo "📋 Validating deployment files..."
-        for file in "app.py" "README.md" "Dockerfile" "requirements.txt"; do  # requirements.txt 확인
+        for file in "demo.py" "main.py" "README.md" "Dockerfile" "requirements.txt"; do
           if [ ! -f "$file" ]; then
             echo "❌ Missing deployment file: $file"
             exit 1
@@ -122,7 +123,7 @@ jobs:
         api = HfApi(token=os.environ['HF_TOKEN'])
         repo_id = f\"{os.environ['HF_USERNAME']}/ai-portfolio-rag-demo\"
         
-        print(f'🚀 Deploying Clean Architecture RAG Demo to {repo_id}')
+        print(f'🚀 Deploying Hexagonal Architecture RAG Demo to {repo_id}')
         
         try:
             # Create space if it doesn't exist
@@ -135,7 +136,7 @@ jobs:
             )
             print(f'✅ Space {repo_id} ready')
             
-            # Upload Clean Architecture files
+            # Upload Hexagonal Architecture files
             api.upload_folder(
                 folder_path='.',
                 repo_id=repo_id,
@@ -146,21 +147,19 @@ jobs:
                     '*.pyc', 
                     'docker-compose*', 
                     'Dockerfile.dev*',
-                    'Dockerfile.spaces',  # Keep only Dockerfile (clean version)
                     'deployment/',
                     'scripts/',
                     'tests/',
                     '.pytest_cache',
-                    'app/core/',  # Old structure remnants
-                    'demo/',      # Old demo structure
-                    'main_clean.py'  # Local development only
+                    'config.yaml',
+                    'test_*.py'
                 ]
             )
-            print(f'✅ Clean Architecture files uploaded to {repo_id}')
+            print(f'✅ Hexagonal Architecture files uploaded to {repo_id}')
             
             # Verify key files were uploaded
             files = api.list_repo_files(repo_id=repo_id, repo_type='space')
-            required_files = ['app.py', 'README.md', 'requirements-demo.txt', 'Dockerfile']
+            required_files = ['demo.py', 'main.py', 'README.md', 'requirements.txt', 'Dockerfile']
             
             missing_files = [f for f in required_files if f not in files]
             if missing_files:
@@ -175,16 +174,17 @@ jobs:
         
     - name: Verify Deployment
       run: |
-        echo "🎉 Clean Architecture RAG Demo deployed successfully!"
+        echo "🎉 Hexagonal Architecture RAG Demo deployed successfully!"
         echo ""
         echo "🔗 Demo URL: https://huggingface.co/spaces/${{ secrets.HF_USERNAME }}/ai-portfolio-rag-demo"
         echo "⚙️  Settings: https://huggingface.co/spaces/${{ secrets.HF_USERNAME }}/ai-portfolio-rag-demo/settings"
         echo "📊 Logs: https://huggingface.co/spaces/${{ secrets.HF_USERNAME }}/ai-portfolio-rag-demo/logs"
         echo ""
         echo "✨ Features deployed:"
-        echo "  • Clean Architecture (Domain-Application-Infrastructure)"
+        echo "  • Hexagonal Architecture (Ports & Adapters)"
         echo "  • Real vector embeddings (sentence-transformers)"
         echo "  • Interactive document processing"
         echo "  • Live RAG pipeline demonstration"
+        echo "  • Clean separation of concerns"
         echo ""
         echo "🚀 The demo will be available in 2-3 minutes at the URL above!"

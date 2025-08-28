@@ -65,7 +65,7 @@ jobs:
       uses: docker/build-push-action@v5
       with:
         context: ./ai-service
-        file: ./ai-service/Dockerfile
+        file: ./ai-service/deployment/Dockerfile
         push: true
         tags: gcr.io/${{ env.GCP_PROJECT_ID }}/${{ env.GCP_AI_SERVICE_NAME }}:${{ github.sha }}
         build-args: |

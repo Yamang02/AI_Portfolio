@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Python 의존성 설치 (레이어별 캐싱 최적화)
 RUN pip install --no-cache-dir --upgrade pip
 
-# CloudRun 프로덕션 의존성 (API 호출 기반, 로컬 ML 모델 제외)
+# CloudRun 프로덕션 의존성 (경량화됨)
 COPY requirements-cloudrun.txt .
 RUN pip install --no-cache-dir -r requirements-cloudrun.txt
 
@@ -42,7 +42,7 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
     CMD curl -f http://localhost:${PORT}/api/v1/health || exit 1
 
 # Gunicorn으로 실행
-CMD gunicorn app.main:app \
+CMD gunicorn main:app \
     -w 2 \
     -k uvicorn.workers.UvicornWorker \
     --bind 0.0.0.0:$PORT \
