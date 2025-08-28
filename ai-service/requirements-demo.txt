@@ -10,7 +10,7 @@ langchain-community==0.3.28
 
 # Vector Processing (local embedding for demo)
 sentence-transformers==5.1.0
-numpy==2.3.2
+numpy==1.26.4
 scikit-learn==1.5.2
 
 # Basic utilities
