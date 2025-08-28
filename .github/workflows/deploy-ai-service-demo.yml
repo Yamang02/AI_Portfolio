@@ -1,18 +1,19 @@
-name: "[Demo](AI Service) HuggingFace Spaces_Deployment"
+name: "[Demo](AI Service) HuggingFace Spaces Clean Architecture Deployment"
 
 on:
   push:
-    branches: [ main, staging ]
+    branches: [ demo_ai-rag ]
     paths:
       - 'ai-service/**'
   pull_request:
-    branches: [ main, staging ]
+    branches: [ demo_ai-rag ]
     paths:
       - 'ai-service/**'
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: demo ai rag
     
     steps:
     - name: Checkout code
@@ -26,14 +27,84 @@ jobs:
     - name: Install HuggingFace Hub
       run: pip install huggingface_hub
       
+    - name: Validate Clean Architecture Structure
+      run: |
+        cd ai-service
+        echo "🔍 Validating Clean Architecture structure..."
+        
+        # Check required directories
+        for dir in "presentation/demo" "app/application" "app/domain" "app/infrastructure"; do
+          if [ ! -d "$dir" ]; then
+            echo "❌ Missing directory: $dir"
+            exit 1
+          fi
+          echo "✅ Found: $dir"
+        done
+        
+        # Check key files
+        for file in "app.py" "presentation/demo/demo_controller.py" "requirements-demo.txt"; do
+          if [ ! -f "$file" ]; then
+            echo "❌ Missing file: $file"
+            exit 1
+          fi
+          echo "✅ Found: $file"
+        done
+        
+        echo "✅ Clean Architecture structure validated"
+      
+    - name: Test Clean Architecture Imports
+      run: |
+        cd ai-service
+        python -c "
+        import sys
+        sys.path.insert(0, '.')
+        
+        print('🧪 Testing Clean Architecture imports...')
+        
+        try:
+          from presentation.demo.demo_controller import DemoController
+          from app.application.rag.rag_use_case import RAGUseCase
+          from app.domain.entities.chat import ChatRequest
+          from app.infrastructure.demo.demo_factory import DemoServiceFactory
+          
+          print('✅ All Clean Architecture imports successful')
+          
+          # Test basic instantiation
+          factory = DemoServiceFactory()
+          controller = DemoController()
+          
+          print('✅ Clean Architecture components instantiated successfully')
+          
+        except Exception as e:
+          print(f'❌ Import test failed: {e}')
+          import traceback
+          traceback.print_exc()
+          exit(1)
+        "
+        
     - name: Prepare HuggingFace Spaces files
       run: |
         cd ai-service
-        # Copy HuggingFace specific files
-        cp deployment/README-HuggingFace.md README.md
-        cp deployment/Dockerfile.spaces Dockerfile
-        # Ensure all required files are present
-        ls -la demo/main_demo.py requirements-demo.txt Dockerfile
+        
+        echo "📦 Preparing Clean Architecture demo for HuggingFace Spaces..."
+        
+        # Copy Clean Architecture specific files
+        cp deployment/README-HuggingFace-Clean.md README.md
+        cp deployment/Dockerfile.spaces-clean Dockerfile
+        
+        # Validate all required files are present
+        echo "📋 Validating deployment files..."
+        for file in "app.py" "README.md" "Dockerfile" "requirements-demo.txt"; do
+          if [ ! -f "$file" ]; then
+            echo "❌ Missing deployment file: $file"
+            exit 1
+          fi
+          echo "✅ Ready: $file"
+        done
+        
+        # Show directory structure for debugging
+        echo "📁 Final directory structure:"
+        find . -type f -name "*.py" | head -20
         
     - name: Deploy to HuggingFace Spaces
       env:
@@ -46,7 +117,9 @@ jobs:
         import os
         
         api = HfApi(token=os.environ['HF_TOKEN'])
-        repo_id = f\"{os.environ['HF_USERNAME']}/rag-pipeline-demo\"
+        repo_id = f\"{os.environ['HF_USERNAME']}/ai-portfolio-rag-demo\"
+        
+        print(f'🚀 Deploying Clean Architecture RAG Demo to {repo_id}')
         
         try:
             # Create space if it doesn't exist
@@ -59,15 +132,38 @@ jobs:
             )
             print(f'✅ Space {repo_id} ready')
             
-            # Upload files
+            # Upload Clean Architecture files
             api.upload_folder(
                 folder_path='.',
                 repo_id=repo_id,
                 repo_type='space',
                 token=os.environ['HF_TOKEN'],
-                ignore_patterns=['__pycache__', '*.pyc', 'docker-compose*', 'Dockerfile*']
+                ignore_patterns=[
+                    '__pycache__', 
+                    '*.pyc', 
+                    'docker-compose*', 
+                    'Dockerfile.dev*',
+                    'Dockerfile.spaces',  # Keep only Dockerfile (clean version)
+                    'deployment/',
+                    'scripts/',
+                    'tests/',
+                    '.pytest_cache',
+                    'app/core/',  # Old structure remnants
+                    'demo/',      # Old demo structure
+                    'main_clean.py'  # Local development only
+                ]
             )
-            print(f'✅ Files uploaded to {repo_id}')
+            print(f'✅ Clean Architecture files uploaded to {repo_id}')
+            
+            # Verify key files were uploaded
+            files = api.list_repo_files(repo_id=repo_id, repo_type='space')
+            required_files = ['app.py', 'README.md', 'requirements-demo.txt', 'Dockerfile']
+            
+            missing_files = [f for f in required_files if f not in files]
+            if missing_files:
+                raise Exception(f'Missing required files: {missing_files}')
+            
+            print(f'✅ All required files verified: {required_files}')
             
         except Exception as e:
             print(f'❌ Deployment failed: {e}')
@@ -76,6 +172,16 @@ jobs:
         
     - name: Verify Deployment
       run: |
-        echo "✅ RAG Demo deployed to HuggingFace Spaces successfully!"
-        echo "🌐 Demo URL: https://huggingface.co/spaces/${{ secrets.HF_USERNAME }}/rag-pipeline-demo"
-        echo "📊 Monitor deployment at: https://huggingface.co/spaces/${{ secrets.HF_USERNAME }}/rag-pipeline-demo/settings"
+        echo "🎉 Clean Architecture RAG Demo deployed successfully!"
+        echo ""
+        echo "🔗 Demo URL: https://huggingface.co/spaces/${{ secrets.HF_USERNAME }}/ai-portfolio-rag-demo"
+        echo "⚙️  Settings: https://huggingface.co/spaces/${{ secrets.HF_USERNAME }}/ai-portfolio-rag-demo/settings"
+        echo "📊 Logs: https://huggingface.co/spaces/${{ secrets.HF_USERNAME }}/ai-portfolio-rag-demo/logs"
+        echo ""
+        echo "✨ Features deployed:"
+        echo "  • Clean Architecture (Domain-Application-Infrastructure)"
+        echo "  • Real vector embeddings (sentence-transformers)"
+        echo "  • Interactive document processing"
+        echo "  • Live RAG pipeline demonstration"
+        echo ""
+        echo "🚀 The demo will be available in 2-3 minutes at the URL above!"

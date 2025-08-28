@@ -1,0 +1,7 @@
+This is a sample text file for testing the RAG system.
+
+The document contains multiple paragraphs to test text splitting functionality. Each paragraph should be processed correctly by the system.
+
+Here is another paragraph with some technical content about artificial intelligence and machine learning. The system should be able to split this into appropriate chunks based on sentence boundaries and paragraph breaks.
+
+Finally, this is the last paragraph of the test document. It contains information about document processing and should be searchable after being uploaded to the RAG system.

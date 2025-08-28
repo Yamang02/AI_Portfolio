@@ -1455,3 +1455,224 @@ HuggingFace Spaces 설정:
 - ✅ **확장성**: 새로운 환경 쉽게 추가 가능
 
 이제 동일한 코드로 로컬 개발, Demo 시연, Production 서비스를 모두 지원하는 완벽한 multi-environment 아키텍처가 완성되었습니다.
+
+---
+
+## 2025-08-28: 데모 앱 초기화 오류 해결 및 Clean Architecture 설계 변경
+
+### 배경
+데모 앱에서 Docker 실행 시 "❌ RAG Service Not Ready" 오류와 HuggingFace 캐시 권한 문제가 발생. 이를 해결하는 과정에서 시스템 전반의 아키텍처 문제점이 드러나 Clean Architecture 기반 재설계를 실시함.
+
+### 1. 데모 앱 초기화 오류 해결
+
+#### 발생한 문제들
+- **서비스 초기화 실패**: `main_demo.py`에서 RAG 서비스 import 오류
+- **HuggingFace 캐시 권한 오류**: `/home/user/.cache/huggingface/` 접근 권한 없음 
+- **의존성 누락**: `scikit-learn` 패키지 누락으로 임베딩 서비스 오류
+- **데이터 모델 불일치**: `TextChunk`과 LangChain `Document` 간 혼재 사용
+
+#### 해결 방안
+**Docker 권한 문제 해결**:
+```dockerfile
+# Dockerfile.spaces 수정
+RUN chown -R user:user /app && \
+    mkdir -p /home/user/.cache/huggingface && \
+    chown -R user:user /home/user/.cache
+ENV TRANSFORMERS_CACHE=/home/user/.cache/huggingface
+ENV HF_HOME=/home/user/.cache/huggingface
+```
+
+**의존성 관리 개선**:
+```bash
+# requirements-demo.txt와 requirements-local.txt에 추가
+scikit-learn==1.5.2
+```
+
+**데이터 모델 표준화**:
+- 모든 Document processing에서 LangChain `Document` 표준 사용
+- `TextChunk` → `Document.page_content` 변환
+- 메타데이터 구조 통일
+
+### 2. 아키텍처 문제점 식별
+
+#### 발견된 설계 결함들
+- **순환 의존성**: Document pipeline과 validator 간 상호 참조
+- **데이터 모델 혼재**: 커스텀 `TextChunk`와 LangChain `Document` 혼용
+- **관심사 혼재**: 비즈니스 로직과 인프라 구현이 강결합
+- **확장성 제약**: 새로운 파일 타입 추가 시 여러 클래스 수정 필요
+
+#### 사용자 피드백
+> "이렇게 된 건 설계적 결함이 있는 것 같다. ai-service 시스템이 단계별로 깔끔하게 진행되고, 참조들도 우아하게 될 수 있도록 전반적인 구조를 다시 고려해줘."
+
+### 3. Clean Architecture 재설계 실시
+
+#### 새로운 아키텍처 구조
+```
+ai-service/app/
+├── domain/                     # 순수 비즈니스 로직
+│   ├── entities/              # 도메인 객체
+│   │   └── document.py       # ProcessedDocument, DocumentChunk, ProcessingResult
+│   ├── interfaces/           # 의존성 역전을 위한 인터페이스
+│   │   └── document_processor.py  # DocumentLoader, DocumentSplitter 등
+│   └── services/            # 도메인 서비스
+│       └── document_processing_service.py  # 핵심 비즈니스 로직
+├── application/              # 애플리케이션 서비스
+│   └── document_pipeline.py  # 고수준 오케스트레이션
+└── infrastructure/          # 구현체
+    └── document/
+        ├── langchain_adapter.py    # LangChain 연동
+        ├── processor_factory.py    # 구체 팩토리
+        └── validator.py           # 검증 구현
+```
+
+#### 핵심 설계 원칙 적용
+**1. 의존성 역전 (Dependency Inversion)**
+- Domain layer가 인터페이스 정의
+- Infrastructure layer가 구체 구현 제공
+- Application layer가 둘을 연결
+
+**2. 관심사 분리 (Separation of Concerns)**
+- Domain: 순수 비즈니스 규칙
+- Application: 유스케이스 오케스트레이션  
+- Infrastructure: 외부 시스템 연동
+
+**3. 단일 책임 원칙 (Single Responsibility)**
+- 각 클래스는 하나의 책임만 가짐
+- Factory 패턴으로 객체 생성 분리
+- Adapter 패턴으로 외부 라이브러리 격리
+
+### 4. 구현된 핵심 클래스들
+
+#### Domain Entities (도메인 엔티티)
+```python
+@dataclass(frozen=True)
+class ProcessedDocument:
+    """순수한 도메인 객체 - 불변성 보장"""
+    content: str
+    metadata: Dict[str, Any]
+    
+    def __post_init__(self):
+        if not self.content:
+            raise ValueError("Document content cannot be empty")
+
+@dataclass(frozen=True) 
+class DocumentChunk:
+    """텍스트 청크 도메인 객체"""
+    content: str
+    metadata: Dict[str, Any]
+    chunk_index: int
+```
+
+#### Domain Interfaces (의존성 역전)
+```python
+class DocumentLoader(ABC):
+    @abstractmethod
+    async def load_document(self, file_path: Path) -> ProcessedDocument: ...
+
+class DocumentSplitter(ABC):
+    @abstractmethod
+    async def split_document(self, document: ProcessedDocument) -> List[DocumentChunk]: ...
+
+class DocumentProcessorFactory(ABC):
+    @abstractmethod
+    def create_loader(self, file_path: Path) -> DocumentLoader: ...
+    @abstractmethod  
+    def create_splitter(self, file_type: str) -> DocumentSplitter: ...
+```
+
+#### Infrastructure Adapters (LangChain 통합)
+```python
+def langchain_document_to_domain(langchain_doc: Document) -> ProcessedDocument:
+    """LangChain Document를 도메인 객체로 변환"""
+    metadata = dict(langchain_doc.metadata)
+    if "document_id" not in metadata:
+        metadata["document_id"] = str(uuid.uuid4())
+    
+    return ProcessedDocument(
+        content=langchain_doc.page_content,
+        metadata=metadata
+    )
+
+class LangChainProcessorFactory(DocumentProcessorFactory):
+    """LangChain 기반 구체 팩토리 구현"""
+    def create_loader(self, file_path: Path) -> DocumentLoader:
+        # 파일 확장자에 따른 적절한 로더 생성
+    def create_splitter(self, file_type: str) -> DocumentSplitter:
+        # 파일 타입에 따른 적절한 스플리터 생성
+```
+
+### 5. RAG 서비스 통합
+
+#### 기존 RAG 서비스 업데이트
+```python
+class RAGService:
+    def __init__(
+        self,
+        vector_store: VectorStore,
+        llm_service: LlmService, 
+        embedding_service: EmbeddingService,
+        document_pipeline: DocumentProcessingPipeline = None,  # Clean Architecture 주입
+    ):
+        # Clean Architecture 파이프라인 사용
+        self.document_pipeline = document_pipeline or DocumentProcessingPipeline({
+            "chunk_size": 1000,
+            "chunk_overlap": 200, 
+            "encoding": "utf-8"
+        })
+    
+    async def process_file(self, file_path: Path) -> Dict[str, Any]:
+        """Clean Architecture 파이프라인 사용"""
+        pipeline_result = await self.document_pipeline.process_file(file_path)
+        # ... LangChain 포맷으로 변환 후 벡터 저장소 연동
+```
+
+### 6. 테스트 및 검증
+
+#### 종단간 테스트 결과
+```python
+# 테스트 결과
+✅ Clean architecture pipeline initialized successfully
+✅ RAG Service import successful  
+✅ File processing success: True
+✅ Document count: 1, Chunk count: 1
+✅ Search success: True
+✅ End-to-end test passed!
+```
+
+#### 지원 파일 형식
+- `.txt` 파일: RecursiveCharacterTextSplitter
+- `.md` 파일: MarkdownHeaderTextSplitter + CharacterTextSplitter  
+- `.json` 파일: JSONLoader with flexible schema
+
+### 7. 주요 기술적 성과
+
+#### 아키텍처 품질 향상
+- **순환 의존성 해결**: 인터페이스 기반 의존성 역전으로 깔끔한 계층 구조
+- **단일 데이터 모델**: LangChain Document 표준으로 통일
+- **확장성 확보**: 새 파일 타입 추가 시 Factory에서만 수정
+- **테스트 용이성**: 각 계층별 독립적 단위 테스트 가능
+
+#### 개발 및 유지보수성 개선  
+- **코드 재사용성**: Domain 로직은 모든 환경에서 공통 사용
+- **변경 영향도 최소화**: 인프라 변경이 비즈니스 로직에 영향 없음
+- **명확한 책임 분리**: 각 클래스의 역할과 책임 명확화
+- **표준화**: 업계 표준인 Clean Architecture 패턴 적용
+
+### 8. 향후 확장 계획
+
+#### 새 아키텍처 기반 확장 포인트
+- **새 문서 형식 지원**: PDF, Word 등 추가 시 Factory만 확장
+- **다양한 임베딩 모델**: OpenAI, HuggingFace 등 플러그인 방식 지원
+- **벡터 저장소 확장**: Qdrant, Pinecone, Weaviate 등 어댑터 추가
+- **검증 시스템**: 도메인별 다양한 검증 규칙 추가
+
+### 결론
+
+기존의 혼재된 아키텍처를 Clean Architecture 기반으로 완전히 재설계하여:
+
+1. **설계 결함 해결**: 순환 의존성과 데이터 모델 불일치 문제 근본적 해결
+2. **확장성 확보**: 새로운 기능 추가 시 기존 코드 영향도 최소화  
+3. **유지보수성 향상**: 명확한 책임 분리와 표준 패턴 적용
+4. **테스트 용이성**: 각 계층별 독립적 테스트 가능한 구조
+
+사용자가 지적한 "설계적 결함"을 Clean Architecture 원칙으로 해결하여, ai-service가 "단계별로 깔끔하게 진행되고 참조들도 우아한" 시스템으로 발전했습니다.
