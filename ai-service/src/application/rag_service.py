@@ -349,10 +349,4 @@ class RAGService:
                 "error": str(e)
             }
     
-    def get_status(self) -> Dict[str, Any]:
-        """서비스 상태"""
-        return {
-            "llm_available": self.llm_port.is_available(),
-            "vector_available": self.vector_port.is_available(),
-            "llm_info": self.llm_port.get_model_info() if self.llm_port.is_available() else None
-        }
+    

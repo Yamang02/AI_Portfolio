@@ -5,25 +5,27 @@ Mock LLM Service - Infrastructure Layer
 
 import asyncio
 import random
-from typing import Dict, Any
-from ...domain.interfaces import LLMService
+from typing import Dict, Any, Optional
+
+from ...core.ports.llm_port import LLMPort
+from ...core.domain.models import RAGQuery
 
 
-class MockLLMService(LLMService):
+class MockLLMService(LLMPort):
     """개발/테스트용 Mock LLM 서비스"""
     
     def __init__(self):
         self.model_name = "mock-llm-v1"
         self._available = True
     
-    async def generate_response(self, query: str, context: str) -> str:
+    async def generate_response(self, query: str, context: Optional[str] = None, system_prompt: Optional[str] = None) -> str:
         """Mock 응답 생성"""
         # 응답 시간 시뮬레이션
         await asyncio.sleep(random.uniform(0.5, 1.5))
         
         # 컨텍스트 기반 Mock 응답
-        context_length = len(context)
-        context_preview = context[:100] + "..." if len(context) > 100 else context
+        context_length = len(context) if context else 0
+        context_preview = context[:100] + "..." if context and len(context) > 100 else context
         
         responses = [
             f"'{query}'에 대한 답변입니다. 제공된 컨텍스트({context_length}자)를 바탕으로 답변드리겠습니다.",
@@ -45,7 +47,11 @@ class MockLLMService(LLMService):
             base_response += "\n\n다양한 프로젝트 경험을 통해 풀스택 개발 역량을 쌓아왔습니다."
         
         return base_response
-    
+
+    async def generate_rag_response(self, rag_query: RAGQuery, context: str) -> str:
+        """Mock RAG 응답 생성"""
+        return await self.generate_response(rag_query.question, context)
+
     def is_available(self) -> bool:
         """서비스 사용 가능 여부"""
         return self._available

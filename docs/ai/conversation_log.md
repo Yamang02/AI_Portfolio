@@ -1,28 +1,3 @@
-    def create_loader(self, file_path: Path) -> DocumentLoader: ...
-    @abstractmethod  
-    def create_splitter(self, file_type: str) -> DocumentSplitter: ...
-```
-
-#### Infrastructure Adapters (LangChain 통합)
-```python
-def langchain_document_to_domain(langchain_doc: Document) -> ProcessedDocument:
-    """LangChain Document를 도메인 객체로 변환"""
-    metadata = dict(langchain_doc.metadata)
-    if "document_id" not in metadata:
-        metadata["document_id"] = str(uuid.uuid4())
-    
-    return ProcessedDocument(
-        content=langchain_doc.page_content,
-        metadata=metadata
-    )
-
-class LangChainProcessorFactory(DocumentProcessorFactory):
-    """LangChain 기반 구체 팩토리 구현"""
-    def create_loader(self, file_path: Path) -> DocumentLoader:
-        # 파일 확장자에 따른 적절한 로더 생성
-    def create_splitter(self, file_type: str) -> DocumentSplitter:
-        # 파일 타입에 따른 적절한 스플리터 생성
-```
 
 ### 5. RAG 서비스 통합
 
@@ -1301,3 +1276,51 @@ async def get_embedding_from_api(text: str) -> List[float]:
 
 다음 단계에서는 실제 데이터베이스와 벡터 스토어 연동을 통해 **완전한 RAG 시스템**을 구축할 예정입니다.
 ```
+
+## 2025-08-29 대화 요약 및 주요 결정사항
+
+ ### 1. Docker 빌드 문제 해결 및 CI/CD 워크플로우 개선
+- **문제 진단**: `ai-demo` Docker 컨테이너에서 `AttributeError: 'coroutine'
+object has no attribute 'get'` 및 `TypeError: RAGService.__init__() got an
+unexpected keyword argument 'llm_adapter'` 오류 발생. `README-HF.md` 파일을 찾지
+못하는 지속적인 빌드 오류 발생.
+ - **해결**:
+ - `demo.py` 수정: 비동기 메서드 호출 방식 및 `rag_service.py`의 중복
+`get_status` 메서드 제거.
+ - `README_HF.md` 파일 위치 변경: `ai-service/`에서 `ai-service/deployment/`로
+이동. 로컬 빌드용 `Dockerfile.demo`에서 해당 `COPY` 명령 제거.
+ - CI/CD 워크플로우(`deploy-ai-service-demo.yml`) 업데이트: `README_HF.md`를 새
+위치에서 복사하도록 수정.
+ - **결론**: Docker 빌드 문제는 사용자 로컬 환경(캐시, 데몬) 문제일 가능성이
+높다고 판단, 사용자에게 `docker system prune -a` 등 문제 해결 가이드 제공.
+
+### 2. 헥사고날 아키텍처 리팩토링
+- **문제 진단**: `ai-service/src/domain` 디렉토리가 헥사고날 아키텍처 원칙을
+위반하는 중복된 구조임을 확인.
+ - **해결**:
+ - `ai-service/src/infrastructure/llm/mock_llm.py` 수정:
+`src/domain/interfaces` 대신 `src/core/ports`의 `LLMPort`를 사용하도록 의존성
+변경.
+ - `ai-service/src/domain` 디렉토리 삭제.
+### 3. 데모 앱 현지화 (한국어)
+ - **결정**: `ai-service/demo.py` 파일 내 모든 영어 문자열을 한국어로 번역 완료.
+ - **결정**: 프론트엔드 앱은 번역하지 않기로 결정.
+
+### 4. 지식 베이스 데이터 모델 및 관리 전략 수립
+ - **데이터 모델 구조**: `Document` 및 `EmbeddingVector`에 원본 텍스트 또는
+`DocumentChunk` 참조를 포함하는 것이 성능에 유리함을 확인.
+ - **소스 문서 형식**: 수작업 부담을 줄이고 구조적 장점을 취하기 위해
+마크다운(Markdown)과 Frontmatter 결합 방식 채택.
+ - **템플릿 생성**: 새로운 간결하고 RAG 친화적인 템플릿
+`knowledge-base/template/project_template_simple.md` 생성.
+ - **프로젝트 문서화**: `ai-service` 프로젝트에 대한 상세 문서
+`knowledge-base/projects/ai-service.md` 생성. 프로젝트 개요, 역할, 발전
+과정(타임라인), 핵심 Q&A 포함.
+ - **Q&A 문서 분리**: `knowledge-base/projects/ai-portfolio/qa/` 디렉토리를
+생성하고, `ai-services.json` 등 기존 JSON 파일들을 주제별 Q&A 마크다운 문서(
+`qa_ai-services.md`, `qa_architecture.md` 등)로 변환하여 저장.
+ - **버전 관리 도입**: Q&A 문서에 `version` 및 `valid_from_date` 필드를
+Frontmatter에 추가하여 버전 관리 시작.
+ - **포트폴리오 전략**: "최신 정보 우선 + 이력 탐색 가능"의 "진화하는 포트폴리오"
+전략 채택. 프로젝트 문서도 버전 관리를 통해 발전 과정을 기록하고, 개발 중인
+프로젝트는 WIP(Work-in-Progress) 문서를 활용하기로 결정.
