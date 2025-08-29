@@ -79,7 +79,14 @@ jobs:
       run: |
         gcloud run deploy $GCP_AI_SERVICE_NAME \
           --image gcr.io/$GCP_PROJECT_ID/$GCP_AI_SERVICE_NAME:$GITHUB_SHA \
-          --platform managed \          --region $GCP_AI_REGION \          --allow-unauthenticated \          --port 8000 \          --set-env-vars="ENV_TYPE=staging" \          --set-env-vars="GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" \          --set-env-vars="POSTGRE_URL=${{ secrets.POSTGRE_URL }}" \          --set-env-vars="QDRANT_URL=${{ secrets.QDRANT_URL }}" \
+          --platform managed \
+          --region $GCP_AI_REGION \
+          --allow-unauthenticated \
+          --port 8000 \
+          --set-env-vars="ENV_TYPE=staging" \
+          --set-env-vars="GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" \
+          --set-env-vars="POSTGRE_URL=${{ secrets.POSTGRE_URL }}" \
+          --set-env-vars="QDRANT_URL=${{ secrets.QDRANT_URL }}" \
           --set-env-vars="QDRANT_API_KEY=${{ secrets.QDRANT_API_KEY }}" \
           --set-env-vars="REDIS_HOST=${{ vars.REDIS_HOST }}" \
           --set-env-vars="REDIS_PORT=${{ vars.REDIS_PORT }}" \
@@ -93,11 +100,11 @@ jobs:
           --max-instances 5 \
           --timeout 900 \
           --cpu-boost \
-          --startup-probe="httpGet.path=/api/v1/health,httpGet.port=8000,initialDelaySeconds=60,timeoutSeconds=10,periodSeconds=15,failureThreshold=8"
+          --startup-probe="httpGet.path=/health,httpGet.port=8000,initialDelaySeconds=60,timeoutSeconds=10,periodSeconds=15,failureThreshold=8"
 
     - name: Verify deployment
       run: |
         sleep 30
         SERVICE_URL=$(gcloud run services describe $GCP_AI_SERVICE_NAME --region=$GCP_AI_REGION --format='value(status.url)')
         echo "AI Service URL: $SERVICE_URL"
-        curl -f "$SERVICE_URL/api/v1/health" || exit 1
+        curl -f "$SERVICE_URL/health" || exit 1
