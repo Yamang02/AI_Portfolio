@@ -1,8 +1,8 @@
 ---
 title: AI Portfolio RAG Demo - Hexagonal Architecture
 emoji: 🌌
-colorFrom: violet
-colorTo: fuchsia
+colorFrom: purple
+colorTo: blue
 sdk: gradio
 sdk_version: 5.44.0
 app_file: demo.py
