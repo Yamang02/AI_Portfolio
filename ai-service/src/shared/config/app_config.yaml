@@ -1,0 +1,49 @@
+# AI Portfolio 서비스 기본 설정
+# 민감한 정보(API 키, 비밀번호 등)는 환경 변수로 설정
+
+# LLM 설정
+llm:
+  openai:
+    model_name: "gpt-3.5-turbo"
+    temperature: 0.7
+    max_tokens: 1000
+    # api_key는 OPENAI_API_KEY 환경 변수에서 로드
+  
+  google:
+    model_name: "gemini-pro"
+    temperature: 0.7
+    max_output_tokens: 1000
+    # api_key는 GOOGLE_API_KEY 환경 변수에서 로드
+
+# 데이터베이스 설정
+database:
+  host: "localhost"
+  port: 5432
+  database: "ai_portfolio"
+  username: "postgres"
+  # password는 DB_PASSWORD 환경 변수에서 로드
+
+# 캐시 설정
+cache:
+  host: "localhost"
+  port: 6379
+  # password는 REDIS_PASSWORD 환경 변수에서 로드
+  database: 0
+
+# 로깅 설정
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+# 서비스 설정
+service:
+  host: "0.0.0.0"
+  port: 8000
+  debug: false
+  workers: 4
+
+# 보안 설정
+security:
+  secret_key: ""  # SECRET_KEY 환경 변수에서 로드
+  algorithm: "HS256"
+  access_token_expire_minutes: 30

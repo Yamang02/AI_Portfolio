@@ -18,6 +18,8 @@ from langchain_core.runnables import RunnablePassthrough
 
 from ....core.ports.llm_port import LLMPort
 from ....core.domain.models import RAGQuery
+from ....shared.config.prompt_config import get_prompt_manager
+from ....shared.config.config_manager import get_config_manager
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +29,7 @@ class LangChainAdapter(LLMPort):
     
     def __init__(
         self, 
-        provider: str = "openai",  # "openai" or "google"
+        provider: str = "openai",  # "openai" or "openai"
         model_name: Optional[str] = None,
         temperature: float = 0.7,
         max_tokens: int = 1000
@@ -42,22 +44,64 @@ class LangChainAdapter(LLMPort):
         self.rag_chain = None
         self._available = False
         
-        # 프롬프트 템플릿
-        self.system_prompt = """당신은 한국의 개발자 포트폴리오 AI 어시스턴트입니다.
-
-역할과 특징:
-- 개발자의 프로젝트, 경험, 기술 스택에 대해 정확하고 유용한 정보를 제공합니다
-- 전문적이면서도 친근한 톤으로 대화합니다
-- 제공된 컨텍스트 정보를 바탕으로 답변하되, 없는 정보는 추측하지 않습니다
-- 기술적 질문에는 구체적이고 실용적인 답변을 제공합니다
-
-답변 가이드라인:
-1. 컨텍스트에서 관련 정보를 찾아 정확히 답변하세요
-2. 정보가 불충분하면 솔직히 말하고 추가 질문을 유도하세요
-3. 기술 스택, 프로젝트 경험, 성과에 대해 구체적으로 설명하세요
-4. 가능하면 예시나 구체적인 수치를 포함하세요
-5. 답변은 간결하면서도 유익하게 작성하세요"""
-
+        # 매니저 초기화
+        self.prompt_manager = get_prompt_manager()
+        self.config_manager = get_config_manager()
+        
+        # 기본 시스템 프롬프트
+        self.system_prompt = self.prompt_manager.get_system_prompt("main_assistant")
+        if not self.system_prompt:
+            # 기본값 설정
+            self.system_prompt = "당신은 한국의 개발자 포트폴리오 AI 어시스턴트입니다."
+        
+        # RAG 프롬프트 템플릿 초기화
+        self._setup_rag_prompts()
+    
+    def _setup_rag_prompts(self):
+        """RAG 프롬프트 템플릿 설정"""
+        try:
+            # 기본 RAG 프롬프트 가져오기
+            rag_config = self.prompt_manager.get_rag_prompt("basic_rag")
+            if rag_config:
+                system_prompt = self.prompt_manager.get_system_prompt(rag_config.get("system", "main_assistant"))
+                human_template = rag_config.get("human_template", "")
+                
+                if system_prompt and human_template:
+                    self.rag_prompt_template = ChatPromptTemplate.from_messages([
+                        ("system", system_prompt),
+                        ("human", human_template)
+                    ])
+                else:
+                    # fallback용 기본 RAG 프롬프트 사용
+                    self._setup_fallback_rag_prompt()
+            else:
+                # fallback용 기본 RAG 프롬프트 사용
+                self._setup_fallback_rag_prompt()
+                
+        except Exception as e:
+            logger.warning(f"RAG 프롬프트 설정 실패, fallback 사용: {e}")
+            self._setup_fallback_rag_prompt()
+    
+    def _setup_fallback_rag_prompt(self):
+        """fallback용 RAG 프롬프트 설정 (설정 파일에서 로드)"""
+        try:
+            # default_rag 프롬프트 시도
+            rag_config = self.prompt_manager.get_rag_prompt("default_rag")
+            if rag_config:
+                system_prompt = self.prompt_manager.get_system_prompt(rag_config.get("system", "main_assistant"))
+                human_template = rag_config.get("human_template", "")
+                
+                if system_prompt and human_template:
+                    self.rag_prompt_template = ChatPromptTemplate.from_messages([
+                        ("system", system_prompt),
+                        ("human", human_template)
+                    ])
+                    return
+        except Exception as e:
+            logger.warning(f"default_rag 프롬프트 로드 실패: {e}")
+        
+        # 최종 fallback: 하드코딩된 기본값
+        logger.warning("모든 RAG 프롬프트 설정 실패, 하드코딩된 기본값 사용")
         self.rag_prompt_template = ChatPromptTemplate.from_messages([
             ("system", self.system_prompt),
             ("human", """다음 컨텍스트 정보를 바탕으로 질문에 답변해주세요:
@@ -77,32 +121,32 @@ class LangChainAdapter(LLMPort):
     async def initialize(self):
         """LLM 초기화"""
         try:
+            # ConfigManager에서 LLM 설정 가져오기
+            llm_config = self.config_manager.get_llm_config(self.provider)
+            if not llm_config:
+                raise ValueError(f"지원하지 않는 LLM 제공자: {self.provider}")
+            
+            if not llm_config.api_key:
+                raise ValueError(f"{self.provider.upper()}_API_KEY 환경 변수가 설정되지 않았습니다.")
+            
             # LLM 모델 초기화
             if self.provider == "openai":
-                api_key = os.getenv("OPENAI_API_KEY")
-                if not api_key:
-                    raise ValueError("OPENAI_API_KEY environment variable not set")
-                    
                 self.llm = ChatOpenAI(
-                    api_key=api_key,
-                    model=self.model_name or "gpt-3.5-turbo",
+                    api_key=llm_config.api_key,
+                    model=self.model_name or llm_config.model_name,
                     temperature=self.temperature,
                     max_tokens=self.max_tokens
                 )
                 
             elif self.provider == "google":
-                api_key = os.getenv("GOOGLE_API_KEY")
-                if not api_key:
-                    raise ValueError("GOOGLE_API_KEY environment variable not set")
-                    
                 self.llm = ChatGoogleGenerativeAI(
-                    google_api_key=api_key,
-                    model=self.model_name or "gemini-pro",
+                    google_api_key=llm_config.api_key,
+                    model=self.model_name or llm_config.model_name,
                     temperature=self.temperature,
                     max_output_tokens=self.max_tokens
                 )
             else:
-                raise ValueError(f"Unsupported provider: {self.provider}")
+                raise ValueError(f"지원하지 않는 제공자: {self.provider}")
             
             # RAG 체인 구성
             self.rag_chain = (
@@ -189,16 +233,30 @@ class LangChainAdapter(LLMPort):
             return "요약을 생성할 수 없습니다."
         
         try:
-            summary_prompt = f"""다음 내용을 {max_length}자 이내로 핵심만 간단히 요약해주세요:
+            # 프롬프트 매니저에서 요약 템플릿 가져오기
+            prompt_config = self.prompt_manager.build_prompt(
+                "summary", "general_summary",
+                content=content,
+                max_length=max_length
+            )
+            
+            if prompt_config:
+                messages = [
+                    SystemMessage(content=prompt_config["system"]),
+                    HumanMessage(content=prompt_config["human"])
+                ]
+            else:
+                # 기본값 사용
+                summary_prompt = f"""다음 내용을 {max_length}자 이내로 핵심만 간단히 요약해주세요:
 
 {content}
 
 요약:"""
-            
-            messages = [
-                SystemMessage(content="당신은 전문적인 요약 작성자입니다. 핵심 내용을 간결하게 정리합니다."),
-                HumanMessage(content=summary_prompt)
-            ]
+                
+                messages = [
+                    SystemMessage(content="당신은 전문적인 요약 작성자입니다. 핵심 내용을 간결하게 정리합니다."),
+                    HumanMessage(content=summary_prompt)
+                ]
             
             response = await self.llm.ainvoke(messages)
             return response.content
@@ -213,18 +271,41 @@ class LangChainAdapter(LLMPort):
             return []
         
         try:
-            keyword_prompt = f"""다음 텍스트에서 중요한 키워드 {max_keywords}개를 추출해주세요.
+            # 프롬프트 매니저에서 키워드 추출 템플릿 가져오기
+            prompt_config = self.prompt_manager.build_prompt(
+                "summary", "general_summary",  # 키워드 추출용 템플릿이 없으므로 요약 템플릿 재사용
+                content=text,
+                max_length=max_keywords * 20  # 키워드당 대략 20자
+            )
+            
+            if prompt_config:
+                # 키워드 추출에 맞게 프롬프트 수정
+                keyword_prompt = f"""다음 텍스트에서 중요한 키워드 {max_keywords}개를 추출해주세요.
 기술 용어, 프로젝트명, 주요 개념 등을 우선적으로 선택하세요.
 
 텍스트:
 {text}
 
 키워드 (쉼표로 구분):"""
-            
-            messages = [
-                SystemMessage(content="당신은 키워드 추출 전문가입니다."),
-                HumanMessage(content=keyword_prompt)
-            ]
+                
+                messages = [
+                    SystemMessage(content=prompt_config["system"]),
+                    HumanMessage(content=keyword_prompt)
+                ]
+            else:
+                # 기본값 사용
+                keyword_prompt = f"""다음 텍스트에서 중요한 키워드 {max_keywords}개를 추출해주세요.
+기술 용어, 프로젝트명, 주요 개념 등을 우선적으로 선택하세요.
+
+텍스트:
+{text}
+
+키워드 (쉼표로 구분):"""
+                
+                messages = [
+                    SystemMessage(content="당신은 키워드 추출 전문가입니다."),
+                    HumanMessage(content=keyword_prompt)
+                ]
             
             response = await self.llm.ainvoke(messages)
             keywords = [k.strip() for k in response.content.split(',')]
@@ -240,7 +321,20 @@ class LangChainAdapter(LLMPort):
             return {"category": "unknown", "confidence": 0.0}
         
         try:
-            classification_prompt = f"""다음 질문을 카테고리별로 분류하고 신뢰도를 평가해주세요.
+            # 프롬프트 매니저에서 질문 분류 템플릿 가져오기
+            prompt_config = self.prompt_manager.build_prompt(
+                "classification", "basic_classification",
+                question=question
+            )
+            
+            if prompt_config:
+                messages = [
+                    SystemMessage(content=prompt_config["system"]),
+                    HumanMessage(content=prompt_config["human"])
+                ]
+            else:
+                # 기본값 사용
+                classification_prompt = f"""다음 질문을 카테고리별로 분류하고 신뢰도를 평가해주세요.
 
 카테고리:
 - project: 프로젝트 관련 질문
@@ -255,10 +349,10 @@ class LangChainAdapter(LLMPort):
 JSON 형식으로 답변:
 {{"category": "카테고리명", "confidence": 0.0-1.0, "reasoning": "분류 이유"}}"""
 
-            messages = [
-                SystemMessage(content="당신은 질문 분류 전문가입니다. JSON 형식으로만 답변하세요."),
-                HumanMessage(content=classification_prompt)
-            ]
+                messages = [
+                    SystemMessage(content="당신은 질문 분류 전문가입니다. JSON 형식으로만 답변하세요."),
+                    HumanMessage(content=classification_prompt)
+                ]
             
             response = await self.llm.ainvoke(messages)
             
@@ -305,7 +399,23 @@ class AdvancedLLMService:
     ) -> str:
         """프로젝트 상세 설명 자동 생성"""
         
-        prompt = f"""다음 프로젝트 정보를 바탕으로 매력적이고 전문적인 프로젝트 설명을 작성해주세요:
+        # 프롬프트 매니저에서 프로젝트 설명 템플릿 가져오기
+        prompt_config = self.langchain_adapter.prompt_manager.build_prompt(
+            "project_description", "basic_project_description",
+            title=project_data.get('title', 'Unknown'),
+            technologies=', '.join(project_data.get('technologies', [])),
+            type=project_data.get('type', 'Unknown'),
+            duration=project_data.get('duration', 'Unknown'),
+            team_info='팀 프로젝트' if project_data.get('is_team') else '개인 프로젝트',
+            description=project_data.get('description', '설명 없음'),
+            max_length=300
+        )
+        
+        if prompt_config:
+            prompt = prompt_config["human"]
+        else:
+            # 기본값 사용
+            prompt = f"""다음 프로젝트 정보를 바탕으로 매력적이고 전문적인 프로젝트 설명을 작성해주세요:
 
 프로젝트명: {project_data.get('title', 'Unknown')}
 기술스택: {', '.join(project_data.get('technologies', []))}
@@ -330,7 +440,19 @@ class AdvancedLLMService:
     ) -> List[str]:
         """프로젝트 개선사항 제안"""
         
-        prompt = f"""다음 프로젝트에 대한 개선사항을 3-5개 제안해주세요:
+        # 프롬프트 매니저에서 프로젝트 개선사항 템플릿 가져오기
+        prompt_config = self.langchain_adapter.prompt_manager.build_prompt(
+            "project_description", "project_improvements",
+            title=project_data.get('title', 'Unknown'),
+            technologies=', '.join(project_data.get('technologies', [])),
+            description=project_data.get('description', 'None')
+        )
+        
+        if prompt_config:
+            prompt = prompt_config["human"]
+        else:
+            # 기본값 사용
+            prompt = f"""다음 프로젝트에 대한 개선사항을 3-5개 제안해주세요:
 
 프로젝트: {project_data.get('title', 'Unknown')}
 기술스택: {', '.join(project_data.get('technologies', []))}
@@ -368,7 +490,19 @@ class AdvancedLLMService:
     ) -> str:
         """기술 설명 생성"""
         
-        prompt = f"""'{technology}' 기술에 대해 초보자도 이해할 수 있도록 설명해주세요.
+        # 프롬프트 매니저에서 기술 설명 템플릿 가져오기
+        prompt_config = self.langchain_adapter.prompt_manager.build_prompt(
+            "project_description", "tech_explanation",
+            technology=technology,
+            context=context,
+            max_length=200
+        )
+        
+        if prompt_config:
+            prompt = prompt_config["human"]
+        else:
+            # 기본값 사용
+            prompt = f"""'{technology}' 기술에 대해 초보자도 이해할 수 있도록 설명해주세요.
 
 컨텍스트: {context}
 
