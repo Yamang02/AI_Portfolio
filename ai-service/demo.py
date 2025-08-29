@@ -50,6 +50,56 @@ class RAGDemoInterface:
         except Exception as e:
             logger.error(f"Error adding document: {e}")
             return f"❌ Error: {str(e)}"
+
+    def add_document_with_analysis(self, content: str, source: str = "manual_input") -> Tuple[str, str, str]:
+        """Add document with detailed analysis"""
+        if not content.strip():
+            return "❌ Please enter some content", "", ""
+        
+        try:
+            result = self.rag_service.add_document_with_analysis(
+                content=content.strip(),
+                source=source,
+                metadata={"timestamp": "demo"}
+            )
+            
+            if not result.get("success"):
+                return f"❌ Failed to add document: {result.get('error', 'Unknown error')}", "", ""
+            
+            # 기본 결과
+            basic_result = f"✅ Document added successfully!\nDocument ID: {result.get('document_id', 'N/A')}\nSource: {result.get('source', 'N/A')}"
+            
+            # 처리 과정 분석
+            processing_steps = result.get("processing_steps", {})
+            vector_result = result.get("vector_result", {})
+            
+            processing_info = f"⏱️ **Processing Analysis:**\n"
+            processing_info += f"• Model Creation: {processing_steps.get('model_creation', 0):.3f}s\n"
+            processing_info += f"• Vector Processing: {processing_steps.get('vector_processing', 0):.3f}s\n"
+            processing_info += f"• Total Time: {processing_steps.get('total_time', 0):.3f}s\n\n"
+            
+            # 벡터 처리 결과
+            if vector_result.get("success"):
+                vector_info = f"🔢 **Vector Analysis:**\n"
+                vector_info += f"• Chunks Created: {vector_result.get('chunks_created', 0)}\n"
+                vector_info += f"• Vector Dimensions: {vector_result.get('vector_dimensions', 0)}\n"
+                vector_info += f"• Total Documents: {vector_result.get('total_documents', 0)}\n"
+                vector_info += f"• Total Chunks: {vector_result.get('total_chunks', 0)}\n\n"
+                
+                # 청크 상세 정보
+                chunk_details = vector_result.get("chunk_details", [])
+                if chunk_details:
+                    vector_info += "📄 **Chunk Details:**\n"
+                    for i, chunk in enumerate(chunk_details, 1):
+                        vector_info += f"• Chunk {i}: {chunk['length']} chars - {chunk['content_preview']}\n"
+            else:
+                vector_info = "❌ Vector processing failed"
+            
+            return basic_result, processing_info, vector_info
+                
+        except Exception as e:
+            logger.error(f"Error adding document with analysis: {e}")
+            return f"❌ Error: {str(e)}", "", ""
     
     def search_documents(self, query: str, top_k: int = 3) -> str:
         """Search documents in the knowledge base"""
@@ -66,7 +116,7 @@ class RAGDemoInterface:
             if not result.get("success"):
                 return f"❌ Search failed: {result.get('error', 'Unknown error')}"
             
-            documents = result.get("documents", [])
+            documents = result.get("results", [])
             if not documents:
                 return "📭 No relevant documents found"
             
@@ -80,6 +130,64 @@ class RAGDemoInterface:
         except Exception as e:
             logger.error(f"Error searching documents: {e}")
             return f"❌ Error: {str(e)}"
+
+    def search_documents_with_analysis(self, query: str, top_k: int = 3) -> Tuple[str, str, str]:
+        """Search documents with detailed analysis"""
+        if not query.strip():
+            return "❌ Please enter a search query", "", ""
+        
+        try:
+            result = self.rag_service.search_documents_with_analysis(
+                query=query.strip(),
+                top_k=top_k,
+                similarity_threshold=0.1
+            )
+            
+            if not result.get("success"):
+                return f"❌ Search failed: {result.get('error', 'Unknown error')}", "", ""
+            
+            # 검색 결과
+            documents = result.get("results", [])
+            if not documents:
+                return "📭 No relevant documents found", "", ""
+            
+            search_results = f"🔍 Found {len(documents)} relevant document(s):\n\n"
+            for i, doc in enumerate(documents, 1):
+                search_results += f"**{i}. Score: {doc.get('similarity_score', 0):.3f}**\n"
+                search_results += f"{doc.get('content', 'No content')[:200]}...\n\n"
+            
+            # 처리 과정 분석
+            detailed_analysis = result.get("detailed_analysis", {})
+            processing_steps = detailed_analysis.get("processing_steps", {})
+            vector_info = detailed_analysis.get("vector_info", {})
+            
+            processing_info = f"⏱️ **Processing Analysis:**\n"
+            processing_info += f"• Preprocessing: {processing_steps.get('preprocessing', 0):.3f}s\n"
+            processing_info += f"• Vectorization: {processing_steps.get('vectorization', 0):.3f}s\n"
+            processing_info += f"• Similarity Calculation: {processing_steps.get('similarity_calculation', 0):.3f}s\n"
+            processing_info += f"• Sorting: {processing_steps.get('sorting', 0):.3f}s\n"
+            processing_info += f"• Result Creation: {processing_steps.get('result_creation', 0):.3f}s\n"
+            processing_info += f"• Total Time: {processing_steps.get('total_time', 0):.3f}s\n\n"
+            
+            # 벡터 정보
+            vector_analysis = f"🔢 **Vector Analysis:**\n"
+            vector_analysis += f"• Vector Dimensions: {vector_info.get('dimensions', 0)}\n"
+            vector_analysis += f"• Total Chunks: {vector_info.get('total_chunks', 0)}\n"
+            vector_analysis += f"• Processed Chunks: {vector_info.get('processed_chunks', 0)}\n"
+            vector_analysis += f"• Similarity Threshold: {vector_info.get('threshold_applied', 0)}\n\n"
+            
+            # 유사도 분포
+            similarity_dist = detailed_analysis.get("similarity_distribution", {})
+            vector_analysis += f"📊 **Similarity Distribution:**\n"
+            vector_analysis += f"• Exact Matches: {similarity_dist.get('exact_matches', 0)}\n"
+            vector_analysis += f"• Similarity Matches: {similarity_dist.get('similarity_matches', 0)}\n"
+            vector_analysis += f"• Contextual Matches: {similarity_dist.get('contextual_matches', 0)}\n"
+            
+            return search_results, processing_info, vector_analysis
+            
+        except Exception as e:
+            logger.error(f"Error searching documents with analysis: {e}")
+            return f"❌ Error: {str(e)}", "", ""
     
     def generate_answer(self, question: str, max_results: int = 3) -> Tuple[str, str]:
         """Generate RAG answer with sources"""
@@ -159,9 +267,17 @@ def create_demo_interface() -> gr.Blocks:
         
         ### 🎯 How to Use:
         1. **Add Documents** to build your knowledge base
-        2. **Search** for relevant content
-        3. **Ask Questions** to get AI-generated answers
-        4. **Explore** the clean architecture structure
+        2. **Analyze Documents** to see detailed processing steps
+        3. **Search** for relevant content
+        4. **Analyze Search** to understand vector processing
+        5. **Ask Questions** to get AI-generated answers
+        6. **Explore** the clean architecture structure
+        
+        ### 🔬 New Features:
+        - **Document Analysis**: See how documents are chunked and vectorized
+        - **Search Analysis**: Understand the vector search process step by step
+        - **Processing Metrics**: Real-time performance analysis
+        - **Vector Insights**: Detailed information about embeddings and similarity
         """)
         
         with gr.Tab("📄 Document Management"):
@@ -192,6 +308,38 @@ def create_demo_interface() -> gr.Blocks:
                         lines=2,
                         interactive=False
                     )
+
+        with gr.Tab("🔬 Document Analysis"):
+            with gr.Row():
+                with gr.Column():
+                    doc_input_analysis = gr.Textbox(
+                        label="Document Content for Analysis",
+                        placeholder="Paste your document content here for detailed analysis...",
+                        lines=8
+                    )
+                    source_input_analysis = gr.Textbox(
+                        label="Source Name (Optional)",
+                        placeholder="e.g., research_paper.pdf",
+                        value="manual_input"
+                    )
+                    add_analysis_btn = gr.Button("🔬 Add & Analyze", variant="primary")
+                
+                with gr.Column():
+                    basic_result = gr.Textbox(
+                        label="Basic Result",
+                        lines=3,
+                        interactive=False
+                    )
+                    processing_info = gr.Textbox(
+                        label="Processing Analysis",
+                        lines=6,
+                        interactive=False
+                    )
+                    vector_info = gr.Textbox(
+                        label="Vector Analysis",
+                        lines=8,
+                        interactive=False
+                    )
         
         with gr.Tab("🔍 Document Search"):
             with gr.Row():
@@ -213,6 +361,39 @@ def create_demo_interface() -> gr.Blocks:
                     search_output = gr.Textbox(
                         label="Search Results",
                         lines=12,
+                        interactive=False
+                    )
+
+        with gr.Tab("🔬 Search Analysis"):
+            with gr.Row():
+                with gr.Column():
+                    search_input_analysis = gr.Textbox(
+                        label="Search Query for Analysis",
+                        placeholder="Enter your search terms for detailed analysis..."
+                    )
+                    top_k_analysis = gr.Slider(
+                        label="Number of Results",
+                        minimum=1,
+                        maximum=10,
+                        value=3,
+                        step=1
+                    )
+                    search_analysis_btn = gr.Button("🔬 Search & Analyze", variant="primary")
+                
+                with gr.Column():
+                    search_results_analysis = gr.Textbox(
+                        label="Search Results",
+                        lines=8,
+                        interactive=False
+                    )
+                    search_processing_info = gr.Textbox(
+                        label="Processing Analysis",
+                        lines=8,
+                        interactive=False
+                    )
+                    search_vector_info = gr.Textbox(
+                        label="Vector Analysis",
+                        lines=8,
                         interactive=False
                     )
         
@@ -278,6 +459,12 @@ def create_demo_interface() -> gr.Blocks:
             outputs=add_output
         )
         
+        add_analysis_btn.click(
+            fn=demo_controller.add_document_with_analysis,
+            inputs=[doc_input_analysis, source_input_analysis],
+            outputs=[basic_result, processing_info, vector_info]
+        )
+        
         clear_btn.click(
             fn=demo_controller.clear_knowledge_base,
             outputs=clear_output
@@ -287,6 +474,12 @@ def create_demo_interface() -> gr.Blocks:
             fn=demo_controller.search_documents,
             inputs=[search_input, top_k],
             outputs=search_output
+        )
+        
+        search_analysis_btn.click(
+            fn=demo_controller.search_documents_with_analysis,
+            inputs=[search_input_analysis, top_k_analysis],
+            outputs=[search_results_analysis, search_processing_info, search_vector_info]
         )
         
         answer_btn.click(

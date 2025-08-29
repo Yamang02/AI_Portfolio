@@ -63,6 +63,63 @@ class RAGService:
                 "error": str(e),
                 "processing_time": time.time() - start_time
             }
+
+    async def add_document_with_analysis(
+        self, 
+        content: str, 
+        source: str, 
+        metadata: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
+        """텍스트에서 문서 생성 및 추가 (상세 분석 포함)"""
+        start_time = time.time()
+        
+        try:
+            # 1. 도메인 모델 생성
+            model_creation_start = time.time()
+            document = Document(
+                id=str(uuid.uuid4()),
+                content=content,
+                source=source,
+                metadata=metadata or {}
+            )
+            model_creation_time = time.time() - model_creation_start
+            
+            # 2. 벡터 스토어에 상세 분석과 함께 추가
+            vector_start = time.time()
+            if hasattr(self.vector_port, 'add_document_with_details'):
+                result = await self.vector_port.add_document_with_details(document)
+            else:
+                result = await self.vector_port.add_document(document)
+            vector_time = time.time() - vector_start
+            
+            total_time = time.time() - start_time
+            
+            return {
+                "success": True,
+                "document_id": document.id,
+                "source": source,
+                "content_length": len(content),
+                "processing_steps": {
+                    "model_creation": model_creation_time,
+                    "vector_processing": vector_time,
+                    "total_time": total_time
+                },
+                "vector_result": result,
+                "analysis": {
+                    "word_count": len(content.split()),
+                    "character_count": len(content),
+                    "estimated_chunks": max(1, len(content) // 500),  # 500자당 청크 1개 추정
+                    "content_preview": content[:200] + "..." if len(content) > 200 else content
+                }
+            }
+            
+        except Exception as e:
+            logger.error(f"Document addition with analysis failed: {e}")
+            return {
+                "success": False,
+                "error": str(e),
+                "processing_time": time.time() - start_time
+            }
     
     async def search_documents(
         self, 
@@ -102,6 +159,82 @@ class RAGService:
             
         except Exception as e:
             logger.error(f"Document search failed: {e}")
+            return {
+                "success": False,
+                "error": str(e),
+                "processing_time": time.time() - start_time
+            }
+
+    async def search_documents_with_analysis(
+        self, 
+        query: str, 
+        top_k: int = 5,
+        similarity_threshold: float = 0.1
+    ) -> Dict[str, Any]:
+        """문서 검색 (상세 분석 포함)"""
+        start_time = time.time()
+        
+        try:
+            # 상세 분석이 포함된 벡터 검색 수행
+            if hasattr(self.vector_port, 'search_similar_with_details'):
+                detailed_result = await self.vector_port.search_similar_with_details(
+                    query=query,
+                    top_k=top_k, 
+                    similarity_threshold=similarity_threshold
+                )
+                
+                if not detailed_result.get("success"):
+                    return detailed_result
+                
+                # 상세 결과를 기존 형식과 호환되도록 변환
+                search_results = detailed_result.get("search_results", [])
+                processing_steps = detailed_result.get("processing_steps", {})
+                vector_info = detailed_result.get("vector_info", {})
+                similarity_distribution = detailed_result.get("similarity_distribution", {})
+                
+            else:
+                # 기존 방식으로 검색
+                search_results = await self.vector_port.search_similar(
+                    query=query,
+                    top_k=top_k, 
+                    similarity_threshold=similarity_threshold
+                )
+                processing_steps = {"total_time": time.time() - start_time}
+                vector_info = {}
+                similarity_distribution = {}
+            
+            total_time = time.time() - start_time
+            
+            return {
+                "success": True,
+                "query": query,
+                "results": [
+                    {
+                        "rank": result.rank,
+                        "similarity_score": result.similarity_score,
+                        "content": result.chunk.content,
+                        "metadata": result.chunk.metadata,
+                        "result_type": result.result_type.value
+                    }
+                    for result in search_results
+                ],
+                "total_results": len(search_results),
+                "processing_time": total_time,
+                "detailed_analysis": {
+                    "processing_steps": processing_steps,
+                    "vector_info": vector_info,
+                    "similarity_distribution": similarity_distribution,
+                    "query_analysis": {
+                        "original_query": query,
+                        "processed_query": detailed_result.get("query", query) if 'detailed_result' in locals() else query,
+                        "query_length": len(query),
+                        "word_count": len(query.split())
+                    }
+                }
+            }
+            
+        except Exception as e:
+            logger.error(f"Document search with analysis failed: {e}")
             return {
                 "success": False,
                 "error": str(e),

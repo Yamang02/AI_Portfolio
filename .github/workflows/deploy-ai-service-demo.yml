@@ -92,7 +92,7 @@ jobs:
         echo "📦 Preparing Hexagonal Architecture demo for HuggingFace Spaces..."
         
         # Copy Hexagonal Architecture specific files
-        cp deployment/README-HuggingFace-Clean.md README.md
+        cp README-HF.md README.md
         cp deployment/Dockerfile.demo Dockerfile
         cp requirements-demo.txt requirements.txt  # HuggingFace Spaces용으로 복사
         

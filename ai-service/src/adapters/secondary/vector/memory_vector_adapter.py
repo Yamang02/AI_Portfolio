@@ -130,6 +130,74 @@ class MemoryVectorAdapter(VectorPort):
         except Exception as e:
             logger.error(f"Failed to add document: {e}")
             raise
+
+    async def add_document_with_details(self, document: Document) -> Dict[str, Any]:
+        """문서 추가 시 상세한 처리 과정 반환"""
+        try:
+            start_time = time.time()
+            
+            # 1. 문서 저장
+            self.documents[document.id] = document
+            doc_save_time = time.time() - start_time
+            
+            # 2. 청크 생성
+            chunk_start_time = time.time()
+            chunks = self._create_chunks(document)
+            chunk_creation_time = time.time() - chunk_start_time
+            
+            # 3. 청크 저장
+            chunk_save_start = time.time()
+            chunk_texts = []
+            chunk_details = []
+            for chunk in chunks:
+                self.chunks[chunk.id] = chunk
+                chunk_texts.append(chunk.content)
+                chunk_details.append({
+                    "id": chunk.id,
+                    "content_preview": chunk.content[:100] + "..." if len(chunk.content) > 100 else chunk.content,
+                    "length": len(chunk.content),
+                    "metadata": chunk.metadata
+                })
+            chunk_save_time = time.time() - chunk_save_start
+            
+            # 4. 벡터 생성
+            vector_start_time = time.time()
+            if chunk_texts:
+                vectors = self._vectorize_texts(chunk_texts)
+                for i, chunk in enumerate(chunks):
+                    if hasattr(vectors, 'toarray'):
+                        self.vectors[chunk.id] = vectors[i].toarray()[0]
+                    else:
+                        self.vectors[chunk.id] = vectors[i]
+            vector_creation_time = time.time() - vector_start_time
+            
+            total_time = time.time() - start_time
+            
+            return {
+                "success": True,
+                "document_id": document.id,
+                "processing_steps": {
+                    "document_save": doc_save_time,
+                    "chunk_creation": chunk_creation_time,
+                    "chunk_save": chunk_save_time,
+                    "vector_creation": vector_creation_time,
+                    "total_time": total_time
+                },
+                "chunks_created": len(chunks),
+                "chunk_details": chunk_details,
+                "vector_dimensions": len(self.vectorizer.get_feature_names_out()) if self.is_fitted else 1000,
+                "total_documents": len(self.documents),
+                "total_chunks": len(self.chunks),
+                "total_vectors": len(self.vectors)
+            }
+            
+        except Exception as e:
+            logger.error(f"Failed to add document with details: {e}")
+            return {
+                "success": False,
+                "error": str(e),
+                "processing_time": time.time() - start_time
+            }
     
     async def add_documents(self, documents: List[Document]) -> Dict[str, Any]:
         """여러 문서 일괄 추가"""
@@ -209,6 +277,132 @@ class MemoryVectorAdapter(VectorPort):
         except Exception as e:
             logger.error(f"Search failed: {e}")
             return []
+
+    async def search_similar_with_details(
+        self,
+        query: str,
+        top_k: int = 5,
+        similarity_threshold: float = 0.1,
+        filters: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
+        """검색 과정의 상세한 단계별 결과 반환"""
+        try:
+            start_time = time.time()
+            
+            if not self.chunks:
+                return {
+                    "success": False,
+                    "error": "No documents available",
+                    "processing_time": time.time() - start_time
+                }
+            
+            # 1. 쿼리 전처리
+            preprocess_start = time.time()
+            processed_query = query.strip().lower()
+            preprocess_time = time.time() - preprocess_start
+            
+            # 2. 쿼리 벡터화
+            vectorization_start = time.time()
+            if self.is_fitted:
+                query_vector = self.vectorizer.transform([processed_query])
+                if hasattr(query_vector, 'toarray'):
+                    query_vector = query_vector.toarray()[0]
+                else:
+                    query_vector = query_vector[0]
+                vector_dimensions = len(self.vectorizer.get_feature_names_out())
+            else:
+                return {
+                    "success": False,
+                    "error": "Vectorizer not fitted",
+                    "processing_time": time.time() - start_time
+                }
+            vectorization_time = time.time() - vectorization_start
+            
+            # 3. 유사도 계산
+            similarity_start = time.time()
+            similarities = []
+            total_chunks = len(self.chunks)
+            processed_chunks = 0
+            
+            for chunk_id, chunk in self.chunks.items():
+                if chunk_id in self.vectors:
+                    chunk_vector = self.vectors[chunk_id]
+                    
+                    # 코사인 유사도 계산
+                    similarity = cosine_similarity(
+                        [query_vector], 
+                        [chunk_vector]
+                    )[0][0]
+                    
+                    processed_chunks += 1
+                    
+                    # 임계값 필터링
+                    if similarity >= similarity_threshold:
+                        similarities.append({
+                            "chunk_id": chunk_id,
+                            "chunk": chunk,
+                            "similarity": similarity,
+                            "content_preview": chunk.content[:150] + "..." if len(chunk.content) > 150 else chunk.content
+                        })
+            
+            similarity_time = time.time() - similarity_start
+            
+            # 4. 결과 정렬 및 선택
+            sorting_start = time.time()
+            similarities.sort(key=lambda x: x["similarity"], reverse=True)
+            top_similarities = similarities[:top_k]
+            sorting_time = time.time() - sorting_start
+            
+            # 5. SearchResult 객체 생성
+            result_creation_start = time.time()
+            results = []
+            for rank, item in enumerate(top_similarities, 1):
+                result_type = SearchResultType.EXACT_MATCH if item["similarity"] > 0.8 else \
+                             SearchResultType.SIMILARITY_MATCH if item["similarity"] > 0.5 else \
+                             SearchResultType.CONTEXTUAL_MATCH
+                
+                results.append(SearchResult(
+                    chunk=item["chunk"],
+                    similarity_score=float(item["similarity"]),
+                    rank=rank,
+                    result_type=result_type
+                ))
+            
+            result_creation_time = time.time() - result_creation_start
+            total_time = time.time() - start_time
+            
+            return {
+                "success": True,
+                "query": processed_query,
+                "processing_steps": {
+                    "preprocessing": preprocess_time,
+                    "vectorization": vectorization_time,
+                    "similarity_calculation": similarity_time,
+                    "sorting": sorting_time,
+                    "result_creation": result_creation_time,
+                    "total_time": total_time
+                },
+                "vector_info": {
+                    "dimensions": vector_dimensions,
+                    "total_chunks": total_chunks,
+                    "processed_chunks": processed_chunks,
+                    "threshold_applied": similarity_threshold
+                },
+                "search_results": results,
+                "similarity_distribution": {
+                    "exact_matches": len([r for r in results if r.result_type == SearchResultType.EXACT_MATCH]),
+                    "similarity_matches": len([r for r in results if r.result_type == SearchResultType.SIMILARITY_MATCH]),
+                    "contextual_matches": len([r for r in results if r.result_type == SearchResultType.CONTEXTUAL_MATCH])
+                }
+            }
+            
+        except Exception as e:
+            logger.error(f"Search with details failed: {e}")
+            return {
+                "success": False,
+                "error": str(e),
+                "processing_time": time.time() - start_time
+            }
     
     async def delete_document(self, document_id: str) -> bool:
         """문서 삭제"""
