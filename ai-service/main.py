@@ -7,7 +7,6 @@ import logging
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-import gradio as gr
 
 # Primary Adapters (들어오는)
 from src.adapters.primary.web.router import web_router

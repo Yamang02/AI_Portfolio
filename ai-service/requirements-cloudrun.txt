@@ -26,6 +26,7 @@ langchain-community==0.3.28
 
 # ===== 기본 유틸리티 =====
 numpy==2.3.2
+scikit-learn==1.5.2
 # NOTE: gradio는 demo.py에서만 필요하므로 requirements-demo.txt로 이동
 python-multipart>=0.0.18
 python-dotenv==1.1.1

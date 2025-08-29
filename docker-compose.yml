@@ -108,7 +108,7 @@ services:
   ai-service:
     build:
       context: ./ai-service
-      dockerfile: deployment/Dockerfile
+      dockerfile: deployment/Dockerfile.dev
     container_name: ai-portfolio-ai-service
     ports:
       - "8001:8000"
