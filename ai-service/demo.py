@@ -25,8 +25,8 @@ class RAGDemoInterface:
         self.llm_adapter = MockLLMAdapter()
         self.vector_adapter = MemoryVectorAdapter()
         self.rag_service = RAGService(
-            llm_adapter=self.llm_adapter,
-            vector_adapter=self.vector_adapter
+            llm_port=self.llm_adapter,
+            vector_port=self.vector_adapter
         )
         logger.info("✅ Hexagonal RAG Demo initialized")
     
