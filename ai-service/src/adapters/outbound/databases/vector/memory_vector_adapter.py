@@ -345,3 +345,17 @@ class MemoryVectorAdapter(VectorStoreOutboundPort):
         self.bm25 = None
         self._is_initialized = False
         logger.info("MemoryVectorAdapter closed")
+
+    async def get_info(self) -> Dict[str, Any]:
+        """어댑터 정보 반환"""
+        embedding_info = await self.get_embedding_info()
+        
+        return {
+            "store_name": "MemoryVector",
+            "type": "Hybrid (Vector + BM25)",
+            "embedding_model": self.model_name,
+            "dimensions": embedding_info.get("embedding_dimensions", 384),
+            "document_count": len(self.documents),
+            "available": self._is_initialized,
+            "description": "메모리 기반 하이브리드 벡터 스토어"
+        }

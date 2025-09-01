@@ -6,9 +6,8 @@ Web Dependencies - Inbound Adapter (Hexagonal Architecture)
 from functools import lru_cache
 from typing import Optional
 
-from src.core.ports.inbound import RAGInboundPort, ChatInboundPort
+from src.core.ports.inbound import RAGInboundPort
 from src.application.services.rag_service import RAGService
-from src.application.services.chat_service import ChatService
 from src.adapters.outbound.databases.vector.memory_vector_adapter import MemoryVectorAdapter
 from src.adapters.outbound.databases.vector.qdrant_adapter import QdrantAdapter
 from src.adapters.outbound.databases.cache.redis_cache_adapter import RedisCacheAdapter
@@ -201,28 +200,6 @@ def get_rag_service_demo() -> RAGInboundPort:
 
 
 @lru_cache()
-def get_chat_service_demo() -> ChatInboundPort:
-    """데모용 채팅 서비스 (MockLLM 사용 예정)"""
-    rag_service = get_rag_service_demo()
-    # cache_adapter = get_redis_cache_adapter()  # 데모에서는 캐시 사용하지 않음
-
-    return ChatService(
-        rag_service=rag_service,
-        cache_adapter=None
-    )
-
-
-# @lru_cache()
-# def get_knowledge_base_adapter() -> KnowledgeBaseAdapter:
-#     """지식 베이스 어댑터 반환"""
-#     config_manager = get_config_manager()
-#     return KnowledgeBaseAdapter(
-#         knowledge_base_path=config_manager.get_config(
-#             "knowledge_base.path",
-#             "./knowledge-base"))
-
-
-@lru_cache()
 def get_rag_service() -> RAGInboundPort:
     """RAG 서비스 반환 (DI 원칙 준수)"""
     vector_store = get_vector_store()
@@ -235,18 +212,6 @@ def get_rag_service() -> RAGInboundPort:
         llm_port=llm_port,  # ✅ DI 원칙 준수 - 추상화에 의존
         cache_adapter=None,
         knowledge_base=None
-    )
-
-
-@lru_cache()
-def get_chat_service() -> ChatInboundPort:
-    """채팅 서비스 반환"""
-    rag_service = get_rag_service()
-    # cache_adapter = get_redis_cache_adapter()  # 프로덕션에서는 캐시 사용
-
-    return ChatService(
-        rag_service=rag_service,
-        cache_adapter=None
     )
 
 

@@ -9,15 +9,14 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 # Outbound Adapters (들어오는)
-from src.adapters.Outbound.web.router import web_router
+from src.adapters.inbound.web.router import web_router
 
 # Application Services
-from src.application.rag_services import ChatService
-from src.application.rag_services import RAGService
+from src.application.services.rag_service import RAGService
 
 # Inbound Adapters (나가는) 
-from src.adapters.Inbound.ai_services.llm.mock_llm_adapter import MockLLMAdapter
-from src.adapters.Inbound.databases.vector.memory_vector_adapter import MemoryVectorAdapter
+from src.adapters.outbound.llm.mock_llm_adapter import MockLLMAdapter
+from src.adapters.outbound.databases.vector.memory_vector_adapter import MemoryVectorAdapter
 
 # Configure logging
 logging.basicConfig(

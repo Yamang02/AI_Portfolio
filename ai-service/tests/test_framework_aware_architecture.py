@@ -17,7 +17,6 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 from src.core.ports.outbound.llm_text_generation_port import LLMTextGenerationPort
 from src.core.ports.outbound.embedding_port import EmbeddingPort, EmbeddingTaskType
 from src.core.ports.inbound.rag_inbound_port import RAGInboundPort
-from src.core.ports.inbound.chat_inbound_port import ChatInboundPort
 from src.core.ports.inbound.document_inbound_port import DocumentInboundPort
 
 # LangChain 어댑터 테스트
@@ -27,7 +26,6 @@ from src.adapters.outbound.frameworks.langchain.strategy_configurator import Lan
 
 # 애플리케이션 서비스 테스트
 from src.application.services.rag_service import RAGService
-from src.application.services.chat_service import ChatService
 from src.application.services.document_service import DocumentService
 
 
@@ -180,25 +178,6 @@ class TestHexagonalArchitecture:
         
         # RAGInboundPort 구현 확인
         assert isinstance(rag_service, RAGInboundPort)
-    
-    def test_chat_service_dependency_injection(self):
-        """ChatService DI 테스트"""
-        # Mock 의존성들
-        mock_rag_service = Mock(spec=RAGInboundPort)
-        mock_cache_adapter = Mock()
-        
-        # ChatService 생성
-        chat_service = ChatService(
-            rag_service=mock_rag_service,
-            cache_adapter=mock_cache_adapter
-        )
-        
-        # 의존성 주입 확인
-        assert chat_service.rag_service == mock_rag_service
-        assert chat_service.cache_adapter == mock_cache_adapter
-        
-        # ChatInboundPort 구현 확인
-        assert isinstance(chat_service, ChatInboundPort)
     
     def test_document_service_dependency_injection(self):
         """DocumentService DI 테스트"""
@@ -357,11 +336,6 @@ class TestDependencyInversion:
             knowledge_base=mock_knowledge_base
         )
         
-        chat_service = ChatService(
-            rag_service=rag_service,
-            cache_adapter=mock_cache_adapter
-        )
-        
         document_service = DocumentService(
             vector_store=mock_vector_store,
             rdb_port=mock_rdb_port
@@ -369,12 +343,10 @@ class TestDependencyInversion:
         
         # 모든 서비스가 정상적으로 생성되는지 확인
         assert rag_service is not None
-        assert chat_service is not None
         assert document_service is not None
         
         # 구체적 구현체가 아닌 추상화에 의존하는지 확인
         assert isinstance(rag_service.llm_port, LLMTextGenerationPort)
-        assert isinstance(chat_service.rag_service, RAGInboundPort)
 
 
 if __name__ == "__main__":

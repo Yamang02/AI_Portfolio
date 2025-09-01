@@ -4,13 +4,12 @@ Application Layer - Hexagonal Architecture
 """
 
 # 핵심 서비스들
-from .services import RAGService, ChatService, DocumentService
+from .services import RAGService, DocumentService
 
 # DTOs
 from .dto import *
 
 __all__ = [
     'RAGService',
-    'ChatService',
     'DocumentService'
 ]

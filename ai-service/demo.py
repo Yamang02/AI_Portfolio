@@ -253,14 +253,28 @@ class RAGDemoInterface:
         """시스템 상태 가져오기"""
         try:
             status = await self.rag_service.get_status()
+            
+            # 실제 사용 중인 어댑터 정보 가져오기
+            llm_info = await self.llm_adapter.get_info()
+            vector_info = await self.vector_adapter.get_info()
+            
             return f"""
 📊 **시스템 상태**
-            
-**아키텍처:** Hexagonal (Clean Architecture)
-**문서:** {status.get('document_count', 0)}
-**벡터 임베딩:** {status.get('vector_count', 0)}
-**LLM 서비스:** {'✅ 준비됨' if status.get('llm_available') else '❌ 사용 불가'}
-**벡터 스토어:** {'✅ 준비됨' if status.get('vector_store_available') else '❌ 사용 불가'}
+
+**📄 문서 관리:**
+• 저장된 문서: {status.get('document_count', 0)}개
+• 벡터 임베딩: {status.get('vector_count', 0)}개
+
+**🤖 LLM 서비스:**
+• 모델: {llm_info.get('model_name', 'MockLLM')}
+• 상태: {'✅ 준비됨' if status.get('llm_available') else '❌ 사용 불가'}
+• 타입: {llm_info.get('type', 'Mock')}
+
+**🔍 벡터 스토어:**
+• 스토어: {vector_info.get('store_name', 'MemoryVector')}
+• 상태: {'✅ 준비됨' if status.get('vector_store_available') else '❌ 사용 불가'}
+• 임베딩 모델: {vector_info.get('embedding_model', 'all-MiniLM-L6-v2')}
+• 차원: {vector_info.get('dimensions', 384)}
             """
         except Exception as e:
             return f"❌ 상태 가져오기 오류: {str(e)}"
@@ -318,7 +332,7 @@ def create_demo_interface() -> gr.Blocks:
     demo_controller = RAGDemoInterface()
     
     with gr.Blocks(
-        title="AI 포트폴리오 RAG 데모 - 헥사고날 아키텍처",
+        title="AI 포트폴리오 RAG 데모",
         theme=gr.themes.Soft(),
         css="""
         .gradio-container {
@@ -346,11 +360,11 @@ def create_demo_interface() -> gr.Blocks:
         5. **질문하기**를 통해 AI 생성 답변을 받으세요
 
         
-        ### 🔬 새로운 기능:
-        - **문서 분석**: 문서가 어떻게 청크로 나뉘고 벡터화되는지 확인
-        - **검색 분석**: 벡터 검색 과정을 단계별로 이해
-        - **처리 메트릭**: 실시간 성능 분석
-        - **벡터 인사이트**: 임베딩 및 유사도에 대한 상세 정보
+        ### 🔬 주요 기능:
+        - **하이브리드 검색**: 벡터 유사도 + BM25 키워드 검색
+        - **실시간 분석**: 처리 단계별 상세 분석
+        - **벡터 시각화**: 임베딩 및 유사도 분석
+        - **성능 모니터링**: 응답 시간 및 정확도 측정
         """)
         
         with gr.Tab("📄 문서 관리"):
@@ -529,19 +543,19 @@ def create_demo_interface() -> gr.Blocks:
                 
                 with gr.Column():
                     gr.Markdown("""
-                    ### 🏗️ 아키텍처 정보
+                    ### 🔧 기술 스택 정보
                     
-                    **헥사고날 아키텍처 레이어:**
-                    - **어댑터**: 외부 인터페이스 (웹, LLM, 벡터 DB)
-                    - **애플리케이션**: 비즈니스 로직 및 유스케이스  
-                    - **코어**: 도메인 모델 및 포트
-                    - **인프라**: 외부 서비스 구현
+                    **사용 중인 기술:**
+                    - **LLM**: MockLLM (개발용)
+                    - **벡터 스토어**: MemoryVector (하이브리드)
+                    - **임베딩**: SentenceTransformers
+                    - **검색**: BM25 + 벡터 유사도
                     
-                    **장점:**
-                    - ✅ 관심사 분리
-                    - ✅ 모의 어댑터로 테스트 가능
-                    - ✅ 구현 교체 용이
-                    - ✅ 유지보수 및 확장 용이
+                    **성능 특징:**
+                    - ✅ 빠른 응답 속도
+                    - ✅ 메모리 기반 처리
+                    - ✅ 하이브리드 검색 정확도
+                    - ✅ 실시간 분석 기능
                     """)
         
         # Async wrapper functions for Gradio compatibility

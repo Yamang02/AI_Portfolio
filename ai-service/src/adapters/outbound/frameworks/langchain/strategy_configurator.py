@@ -14,8 +14,46 @@ from langchain_community.document_loaders import TextLoader, PyPDFLoader, Docx2t
 from src.core.ports.outbound.embedding_port import EmbeddingPort, EmbeddingTaskType
 from src.core.ports.outbound.vector_store_outbound_port import VectorStoreOutboundPort
 from src.core.ports.outbound.query_classifier_port import QueryClassifierPort
+from src.shared.config.prompt_config import get_prompt_manager
 
 logger = logging.getLogger(__name__)
+
+
+# 폴백 프롬프트 상수들
+class KoreanFallbackPrompts:
+    """한국어 폴백 프롬프트들을 한 곳에서 관리"""
+    
+    QUERY_ANALYSIS = """다음 한국어 질문을 분석하여 검색 전략을 결정해주세요:
+
+질문: {query}
+
+한국어 분석 기준:
+1. 질문 유형 분류 (프로젝트, 경험, 기술, 일반)
+2. 검색 전략 결정 (의미적, 키워드, 하이브리드, 특정)
+3. 필요한 컨텍스트 유형 식별
+4. 한국어 특성 고려 (조사, 어미 변화 등)
+
+분석 결과를 JSON으로 반환해주세요:
+{{"query_type": "분류된 질문 유형", "confidence": 0.0-1.0, "search_strategy": "검색 전략", "context_requirements": ["필요한 컨텍스트 목록"]}}"""
+
+    RESPONSE_GENERATION = """당신은 전문적인 AI 어시스턴트입니다. 주어진 컨텍스트를 바탕으로 사용자의 한국어 질문에 정확하고 도움이 되는 답변을 제공해주세요.
+
+질문 유형: {query_type}
+검색 전략: {search_strategy}
+
+컨텍스트:
+{context}
+
+질문: {query}
+
+한국어 답변 규칙:
+1. 컨텍스트에 기반한 정확한 정보만 제공하세요
+2. 자연스러운 한국어로 답변하세요
+3. 질문 유형에 맞는 적절한 톤으로 답변하세요
+4. 불확실한 정보는 명시하세요
+5. 구체적이고 실용적인 답변을 작성하세요
+
+답변:"""
 
 
 class LangChainStrategyConfigurator:
@@ -30,6 +68,7 @@ class LangChainStrategyConfigurator:
         self.embedding_port = embedding_port
         self.vector_store_port = vector_store_port
         self.query_classifier = query_classifier
+        self.prompt_manager = get_prompt_manager()
 
         # 한국어 처리 전략 설정
         self.korean_processing_config = {
@@ -114,26 +153,14 @@ class LangChainStrategyConfigurator:
     def _build_korean_query_analyzer(self, llm_adapter: Any) -> Runnable:
         """한국어 쿼리 분석기 구성"""
 
-        # 한국어 특화 분석 프롬프트
-        analysis_prompt = ChatPromptTemplate.from_template("""
-다음 한국어 질문을 분석하여 검색 전략을 결정해주세요:
-
-질문: {query}
-
-한국어 분석 기준:
-1. 질문 유형 분류 (프로젝트, 경험, 기술, 일반)
-2. 검색 전략 결정 (의미적, 키워드, 하이브리드, 특정)
-3. 필요한 컨텍스트 유형 식별
-4. 한국어 특성 고려 (조사, 어미 변화 등)
-
-분석 결과를 JSON으로 반환해주세요:
-{{
-    "query_type": "분류된 질문 유형",
-    "confidence": 0.0-1.0,
-    "search_strategy": "검색 전략",
-    "context_requirements": ["필요한 컨텍스트 목록"]
-}}
-""")
+        # 설정 파일에서 한국어 쿼리 분석 프롬프트 가져오기
+        prompt_data = self.prompt_manager.get_rag_prompt("korean_query_analysis")
+        
+        if prompt_data:
+            analysis_prompt = ChatPromptTemplate.from_template(prompt_data["human_template"])
+        else:
+            # 폴백 프롬프트
+            analysis_prompt = ChatPromptTemplate.from_template(KoreanFallbackPrompts.QUERY_ANALYSIS)
 
         json_parser = JsonOutputParser()
 
@@ -208,27 +235,14 @@ class LangChainStrategyConfigurator:
     def _build_korean_response_generator(self, llm_adapter: Any) -> Runnable:
         """한국어 응답 생성기 구성"""
 
-        # 한국어 특화 응답 프롬프트
-        response_prompt = ChatPromptTemplate.from_template("""
-당신은 전문적인 AI 어시스턴트입니다. 주어진 컨텍스트를 바탕으로 사용자의 한국어 질문에 정확하고 도움이 되는 답변을 제공해주세요.
-
-질문 유형: {query_type}
-검색 전략: {search_strategy}
-
-컨텍스트:
-{context}
-
-질문: {query}
-
-한국어 답변 규칙:
-1. 컨텍스트에 기반한 정확한 정보만 제공하세요
-2. 자연스러운 한국어로 답변하세요
-3. 질문 유형에 맞는 적절한 톤으로 답변하세요
-4. 불확실한 정보는 명시하세요
-5. 구체적이고 실용적인 답변을 작성하세요
-
-답변:
-""")
+        # 설정 파일에서 한국어 응답 생성 프롬프트 가져오기
+        prompt_data = self.prompt_manager.get_rag_prompt("korean_response_generation")
+        
+        if prompt_data:
+            response_prompt = ChatPromptTemplate.from_template(prompt_data["human_template"])
+        else:
+            # 폴백 프롬프트
+            response_prompt = ChatPromptTemplate.from_template(KoreanFallbackPrompts.RESPONSE_GENERATION)
 
         return (
             response_prompt

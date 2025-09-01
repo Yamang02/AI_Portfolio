@@ -6,11 +6,11 @@ Web Router - Inbound Adapter (Hexagonal Architecture)
 from fastapi import APIRouter, Depends, HTTPException
 from typing import Dict, Any, List
 
-from src.core.ports.inbound import RAGInboundPort, ChatInboundPort
+from src.core.ports.inbound import RAGInboundPort
 from .dependencies import (
-    get_rag_service, get_chat_service, get_project_overview_service,
+    get_rag_service, get_project_overview_service,
     get_cache_management_service, get_metrics_collector, get_health_checker,
-    get_rag_service_demo, get_chat_service_demo
+    get_rag_service_demo
 )
 from .schemas import (
     DocumentRequest, DocumentResponse,
@@ -119,23 +119,6 @@ async def demo_search_documents(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@web_router.post("/demo/chat", response_model=Dict[str, Any])
-async def demo_chat(
-    request: Dict[str, Any],
-    chat_service: ChatInboundPort = Depends(get_chat_service_demo)
-):
-    """데모: 채팅 (Mock LLM)"""
-    try:
-        result = await chat_service.process_message(
-            message=request.get("message", ""),
-            conversation_id=request.get("conversation_id"),
-            context=request.get("context", {})
-        )
-        return result
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
 @web_router.post("/search", response_model=SearchResponse)
 async def search_documents(
     request: SearchRequest,
@@ -194,25 +177,6 @@ async def generate_rag_answer(
         }
 
         return RAGResponse(**response_dict)
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@web_router.post("/chat", response_model=Dict[str, Any])
-async def chat(
-    request: Dict[str, Any],
-    chat_service: ChatInboundPort = Depends(get_chat_service)
-):
-    """채팅"""
-    try:
-        result = await chat_service.process_message(
-            message=request.get("message", ""),
-            conversation_id=request.get("conversation_id"),
-            context=request.get("context", {})
-        )
-
-        return result
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

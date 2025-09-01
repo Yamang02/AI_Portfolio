@@ -4,9 +4,7 @@ Inbound Ports - Hexagonal Architecture
 """
 
 from .rag_inbound_port import RAGInboundPort
-from .chat_inbound_port import ChatInboundPort
 
 __all__ = [
     'RAGInboundPort',
-    'ChatInboundPort',
 ]

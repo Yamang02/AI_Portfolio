@@ -4,15 +4,17 @@ RAG 관련 입력 포트 인터페이스
 """
 
 from abc import ABC, abstractmethod
-from typing import Dict, Any, Optional
-from src.application.dto import RAGQuery, RAGResult
+from typing import Dict, Any, Optional, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from src.application.dto import RAGQuery, RAGResult
 
 
 class RAGInboundPort(ABC):
     """RAG 입력 포트"""
 
     @abstractmethod
-    async def process_query(self, rag_query: RAGQuery) -> RAGResult:
+    async def process_query(self, rag_query: 'RAGQuery') -> 'RAGResult':
         """RAG 쿼리 처리"""
         pass
 

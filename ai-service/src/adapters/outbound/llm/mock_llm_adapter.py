@@ -136,3 +136,14 @@ class MockLLMAdapter(LLMOutboundPort):
         """연결 종료"""
         self._available = False
         logger.info("Mock LLM adapter closed")
+
+    async def get_info(self) -> Dict[str, Any]:
+        """어댑터 정보 반환"""
+        return {
+            "model_name": "MockLLM",
+            "type": "Mock",
+            "provider": "Local",
+            "available": self._available,
+            "response_delay": self.response_delay,
+            "description": "개발 및 테스트용 Mock LLM"
+        }

@@ -56,6 +56,37 @@ class LLMConfig:
     temperature: float = 0.7
     max_tokens: int = 1000
     timeout: int = 60
+    api_key: str = None
+
+@dataclass  
+class LLMProviderSettings:
+    """Provider별 LLM 설정"""
+    default_params: Dict[str, Any] = None
+    strategy_params: Dict[str, Dict[str, Any]] = None
+    
+    def __post_init__(self):
+        if self.default_params is None:
+            self.default_params = {
+                "temperature": 0.7,
+                "max_tokens": 1000,
+                "timeout": 60
+            }
+        
+        if self.strategy_params is None:
+            self.strategy_params = {
+                "creative": {
+                    "temperature": 0.9,
+                    "max_tokens": 1500
+                },
+                "precise": {
+                    "temperature": 0.3,
+                    "max_tokens": 1000
+                },
+                "analytical": {
+                    "temperature": 0.5,
+                    "max_tokens": 1200
+                }
+            }
 
 
 class AdapterConfigManager:
@@ -68,6 +99,13 @@ class AdapterConfigManager:
         self.vector_config = VectorConfig()
         self.embedding_config = EmbeddingConfig()
         self.llm_config = LLMConfig()
+        
+        # Provider별 LLM 설정 초기화
+        self.llm_provider_settings = {
+            "openai": LLMProviderSettings(),
+            "anthropic": LLMProviderSettings(),
+            "google": LLMProviderSettings()
+        }
 
     def update_database_config(self, **kwargs):
         """데이터베이스 설정 업데이트"""
@@ -99,6 +137,31 @@ class AdapterConfigManager:
             if hasattr(self.llm_config, key):
                 setattr(self.llm_config, key, value)
 
+    def get_llm_params_for_strategy(self, provider: str, strategy: str = "default") -> Dict[str, Any]:
+        """전략별 LLM 파라미터 반환"""
+        if provider not in self.llm_provider_settings:
+            provider = "openai"  # 기본값
+        
+        provider_settings = self.llm_provider_settings[provider]
+        
+        if strategy == "default" or strategy not in provider_settings.strategy_params:
+            return provider_settings.default_params.copy()
+        
+        # 기본 파라미터에 전략별 파라미터 오버라이드
+        params = provider_settings.default_params.copy()
+        params.update(provider_settings.strategy_params[strategy])
+        return params
+
+    def update_provider_strategy_params(self, provider: str, strategy: str, **params):
+        """Provider의 전략별 파라미터 업데이트"""
+        if provider not in self.llm_provider_settings:
+            self.llm_provider_settings[provider] = LLMProviderSettings()
+        
+        if strategy not in self.llm_provider_settings[provider].strategy_params:
+            self.llm_provider_settings[provider].strategy_params[strategy] = {}
+        
+        self.llm_provider_settings[provider].strategy_params[strategy].update(params)
+
     def get_all_configs(self) -> Dict[str, Any]:
         """모든 설정 반환"""
         return {
@@ -106,7 +169,14 @@ class AdapterConfigManager:
             'document_loader': self.document_loader_config.__dict__,
             'vector': self.vector_config.__dict__,
             'embedding': self.embedding_config.__dict__,
-            'llm': self.llm_config.__dict__
+            'llm': self.llm_config.__dict__,
+            'llm_provider_settings': {
+                provider: {
+                    'default_params': settings.default_params,
+                    'strategy_params': settings.strategy_params
+                }
+                for provider, settings in self.llm_provider_settings.items()
+            }
         }
 
 

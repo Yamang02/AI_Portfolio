@@ -1,0 +1,77 @@
+# LangChain LLM 전략별 템플릿
+
+# 창의적 텍스트 생성
+creative_generation:
+  system: "main_assistant"
+  
+  human_template: |
+    창의적으로 다음 요청을 처리해주세요:
+    
+    요청: {request}
+    
+    창의적 가이드라인:
+    - 독창적이고 흥미로운 접근
+    - 구체적인 예시와 세부사항 포함
+    - 한국어 표현의 풍부함 활용
+
+  llm_params:
+    temperature: 0.9
+    max_tokens: 1500
+
+# 정확한 정보 제공
+precise_information:
+  system: "main_assistant"
+  
+  human_template: |
+    다음 질문에 정확하고 객관적으로 답변해주세요:
+    
+    질문: {question}
+    컨텍스트: {context}
+    
+    정확성 가이드라인:
+    - 검증된 정보만 사용
+    - 불확실한 부분은 명시
+    - 출처와 근거 제시
+
+  llm_params:
+    temperature: 0.3
+    max_tokens: 1000
+
+# 요약 및 분석
+summarization_analysis:
+  system: "summary_writer"
+  
+  human_template: |
+    다음 내용을 요약하고 핵심 포인트를 분석해주세요:
+    
+    내용: {content}
+    요구사항: {requirements}
+    
+    분석 기준:
+    - 핵심 메시지 추출
+    - 중요도별 정보 분류
+    - 실행 가능한 인사이트 도출
+
+  llm_params:
+    temperature: 0.5
+    max_tokens: 800
+
+# 기술 문제 해결
+technical_problem_solving:
+  system: "main_assistant"
+  
+  human_template: |
+    다음 기술 문제에 대한 해결책을 제시해주세요:
+    
+    문제: {problem}
+    환경: {environment}
+    제약사항: {constraints}
+    
+    해결책 가이드라인:
+    - 단계별 접근 방법
+    - 대안 솔루션 제시
+    - 위험 요소 및 고려사항
+
+  llm_params:
+    temperature: 0.4
+    max_tokens: 1200

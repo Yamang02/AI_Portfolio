@@ -4,7 +4,7 @@ Port Interfaces - Hexagonal Architecture
 """
 
 # 입력 포트들
-from .inbound import RAGInboundPort, ChatInboundPort
+from .inbound import RAGInboundPort
 
 # 출력 포트들
 from .outbound import (
@@ -21,7 +21,6 @@ from .outbound.embedding_port import EmbeddingPort, EmbeddingTaskType
 __all__ = [
     # 입력 포트들
     'RAGInboundPort',
-    'ChatInboundPort',
 
     # 출력 포트들
     'LLMOutboundPort',

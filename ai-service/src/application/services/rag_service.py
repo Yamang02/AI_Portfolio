@@ -1,13 +1,12 @@
 """
 RAG Service - Application Layer
-표준 RAG 서비스 (입력 포트 구현체)
+표준 RAG 서비스 (비즈니스 로직 구현체)
 """
 
 import time
 import logging
 import uuid
 from typing import Dict, Any, Optional
-from src.core.ports.inbound import RAGInboundPort
 from src.core.ports.outbound import VectorStoreOutboundPort, LLMOutboundPort
 from src.application.dto import RAGQuery, RAGResult, SearchResult
 from src.core.domain import Document
@@ -15,8 +14,8 @@ from src.core.domain import Document
 logger = logging.getLogger(__name__)
 
 
-class RAGService(RAGInboundPort):
-    """표준 RAG 서비스"""
+class RAGService:
+    """표준 RAG 서비스 (비즈니스 로직)"""
 
     def __init__(
         self,
