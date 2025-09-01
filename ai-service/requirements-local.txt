@@ -42,6 +42,10 @@ konlpy==0.6.0
 # Google Gemini API
 google-generativeai==0.8.3
 
+# Monitoring and health check
+psutil==6.1.0
+httpx==0.28.1
+
 # Demo dependencies (로컬에서 데모 테스트용)
 sentence-transformers==5.1.0
 gradio==5.44.0

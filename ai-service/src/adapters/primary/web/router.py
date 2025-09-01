@@ -7,7 +7,10 @@ from fastapi import APIRouter, Depends, HTTPException
 from typing import Dict, Any, List
 
 from ....application.rag_service import RAGService
-from .dependencies import get_rag_service, get_project_overview_service, get_cache_management_service
+from .dependencies import (
+    get_rag_service, get_project_overview_service, get_cache_management_service,
+    get_metrics_collector, get_health_checker
+)
 from .schemas import (
     DocumentRequest, DocumentResponse,
     SearchRequest, SearchResponse, 
@@ -303,6 +306,89 @@ async def get_cache_config(
     """캐시 설정 정보"""
     try:
         return cache_service.get_cache_config()
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# === 모니터링 엔드포인트 ===
+
+@web_router.get("/metrics")
+async def get_metrics(
+    metrics_collector = Depends(get_metrics_collector)
+) -> Dict[str, Any]:
+    """현재 메트릭 조회"""
+    try:
+        return await metrics_collector.get_current_metrics()
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@web_router.get("/metrics/history")
+async def get_metrics_history(
+    hours: int = 24,
+    metrics_collector = Depends(get_metrics_collector)
+) -> List[Dict[str, Any]]:
+    """메트릭 히스토리 조회"""
+    try:
+        return await metrics_collector.get_metrics_history(hours)
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@web_router.get("/health/detailed")
+async def get_detailed_health(
+    health_checker = Depends(get_health_checker)
+) -> Dict[str, Any]:
+    """상세 헬스체크"""
+    try:
+        return await health_checker.get_health_status()
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@web_router.get("/health/summary")
+async def get_health_summary(
+    health_checker = Depends(get_health_checker)
+) -> Dict[str, Any]:
+    """헬스체크 요약"""
+    try:
+        return health_checker.get_health_summary()
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@web_router.post("/health/check")
+async def force_health_check(
+    service_name: str = None,
+    health_checker = Depends(get_health_checker)
+):
+    """강제 헬스체크 실행"""
+    try:
+        await health_checker.force_health_check(service_name)
+        return {"message": "헬스체크 완료", "service": service_name or "all"}
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@web_router.get("/health/{service_name}")
+async def get_service_health(
+    service_name: str,
+    health_checker = Depends(get_health_checker)
+) -> Dict[str, Any]:
+    """특정 서비스 헬스 상태"""
+    try:
+        result = await health_checker.get_service_health(service_name)
+        
+        if result is None:
+            raise HTTPException(status_code=404, detail=f"서비스 '{service_name}'를 찾을 수 없습니다")
+        
+        return result
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

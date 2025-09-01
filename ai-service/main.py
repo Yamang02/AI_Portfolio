@@ -62,6 +62,9 @@ def create_app() -> FastAPI:
     # Web API 라우터 추가
     app.include_router(web_router, prefix="/api/v1")
     
+    # 모니터링 엔드포인트들도 루트 레벨에 추가
+    app.include_router(web_router, prefix="")
+    
     # TODO: Gradio 데모는 추후 구현
     logger.info("⏳ Gradio demo will be implemented later")
     

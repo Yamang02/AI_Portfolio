@@ -4,14 +4,20 @@ FROM python:3.11-slim
 # 작업 디렉토리 설정
 WORKDIR /app
 
-# 시스템 패키지 업데이트 및 개발 도구 설치
+# 시스템 패키지 업데이트 및 개발 도구 설치 (Java 포함)
 RUN apt-get update && apt-get install -y \
     gcc \
     g++ \
     curl \
     git \
     vim \
+    default-jdk \
+    default-jre \
     && rm -rf /var/lib/apt/lists/*
+
+# Java 환경변수 설정
+ENV JAVA_HOME=/usr/lib/jvm/default-java
+ENV PATH=$JAVA_HOME/bin:$PATH
 
 # Python 의존성 파일 복사 및 설치
 COPY requirements-local.txt .
