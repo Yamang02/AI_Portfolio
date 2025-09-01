@@ -8,7 +8,7 @@ from .health_checker import HealthChecker, HealthCheckResult
 
 __all__ = [
     'MetricsCollector',
-    'CacheMetrics', 
+    'CacheMetrics',
     'APIMetrics',
     'SearchMetrics',
     'HealthChecker',

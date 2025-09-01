@@ -1,2 +1,11 @@
-# Config 패키지
-# 설정 관리, 프롬프트 관리 등을 포함
+"""
+Configuration - Shared
+설정 관련 모듈들
+"""
+
+from .config_manager import get_config_manager, ConfigManager
+
+__all__ = [
+    'get_config_manager',
+    'ConfigManager'
+]

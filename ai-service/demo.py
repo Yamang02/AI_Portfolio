@@ -13,9 +13,9 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Import hexagonal architecture components
-from src.application.rag_service import RAGService
-from src.adapters.secondary.llm.mock_llm_adapter import MockLLMAdapter
-from src.adapters.secondary.vector.memory_vector_adapter import MemoryVectorAdapter
+from src.application.services.rag_service import RAGService
+from src.adapters.outbound.llm.mock_llm_adapter import MockLLMAdapter
+from src.adapters.outbound.databases.vector.memory_vector_adapter import MemoryVectorAdapter
 
 
 class RAGDemoInterface:
@@ -26,10 +26,26 @@ class RAGDemoInterface:
         self.llm_adapter = MockLLMAdapter()
         self.vector_adapter = MemoryVectorAdapter()
         self.rag_service = RAGService(
-            llm_port=self.llm_adapter,
-            vector_port=self.vector_adapter
+            vector_store=self.vector_adapter,
+            llm_port=self.llm_adapter
         )
+        self.initialized = False
         logger.info("✅ Hexagonal RAG Demo initialized")
+
+    async def initialize(self):
+        """비동기 초기화 (임베딩 모델 로드)"""
+        if self.initialized:
+            return
+            
+        try:
+            logger.info("🔄 Initializing LLM and Vector adapters...")
+            await self.llm_adapter.initialize()
+            await self.vector_adapter.initialize()
+            self.initialized = True
+            logger.info("✅ All adapters initialized successfully")
+        except Exception as e:
+            logger.error(f"❌ Failed to initialize adapters: {e}")
+            raise
     
     async def add_document(self, content: str, source: str = "manual_input") -> str:
         """지식 베이스에 문서 추가"""
@@ -249,6 +265,52 @@ class RAGDemoInterface:
         except Exception as e:
             return f"❌ 상태 가져오기 오류: {str(e)}"
 
+    async def view_all_documents(self) -> str:
+        """데모: 저장된 모든 문서 보기"""
+        try:
+            documents = await self.vector_adapter.get_all_documents()
+            
+            if not documents:
+                return "📭 저장된 문서가 없습니다."
+            
+            output = f"📚 **저장된 문서 ({len(documents)}개)**\n\n"
+            
+            for i, doc in enumerate(documents, 1):
+                output += f"**{i}. {doc['source']}** `{doc['id'][:8]}...`\n"
+                output += f"• **길이**: {doc['content_length']} chars\n"
+                output += f"• **생성일**: {doc['created_at'][:19] if doc['created_at'] else 'N/A'}\n"
+                output += f"• **미리보기**: {doc['content_preview']}\n\n"
+                
+            return output
+            
+        except Exception as e:
+            logger.error(f"전체 문서 조회 중 오류 발생: {e}")
+            return f"❌ 오류: {str(e)}"
+
+    async def get_embedding_analysis(self) -> str:
+        """데모: 임베딩 분석 정보"""
+        try:
+            info = await self.vector_adapter.get_embedding_info()
+            
+            if not info.get("embeddings_available"):
+                return "❌ 임베딩이 사용 불가능합니다."
+                
+            output = f"""
+🔬 **임베딩 분석**
+
+**모델**: {info['model_name']}
+**문서 수**: {info['document_count']}
+**임베딩 차원**: {info['embedding_dimensions']}
+**임베딩 형태**: {info['embedding_shape']}
+**샘플 벡터 크기**: {info['sample_embedding_norm']:.4f}
+            """
+            
+            return output
+            
+        except Exception as e:
+            logger.error(f"임베딩 분석 중 오류 발생: {e}")
+            return f"❌ 오류: {str(e)}"
+
 
 def create_demo_interface() -> gr.Blocks:
     """Gradio 데모 인터페이스 생성"""
@@ -258,14 +320,23 @@ def create_demo_interface() -> gr.Blocks:
     with gr.Blocks(
         title="AI 포트폴리오 RAG 데모 - 헥사고날 아키텍처",
         theme=gr.themes.Soft(),
-        css=".gradio-container {max-width: 1200px !important}"
+        css="""
+        .gradio-container {
+            max-width: 1400px !important;
+            margin: 0 auto !important;
+        }
+        .tab-nav {
+            justify-content: center !important;
+        }
+        .contain {
+            max-width: none !important;
+            margin: 0 auto !important;
+        }
+        """
     ) as demo:
         
         gr.Markdown("""
         # 🚀 AI 포트폴리오 RAG 데모
-        ## 헥사고날 아키텍처 구현
-        
-        이 대화형 데모는 깔끔한 **헥사고날 아키텍처** 원칙으로 구축된 **검색 증강 생성(RAG)** 시스템을 보여줍니다.
         
         ### 🎯 사용 방법:
         1. **문서 추가**를 통해 지식 베이스를 구축하세요
@@ -273,7 +344,7 @@ def create_demo_interface() -> gr.Blocks:
         3. **검색**을 통해 관련 내용을 찾으세요
         4. **검색 분석**을 통해 벡터 처리 과정을 이해하세요
         5. **질문하기**를 통해 AI 생성 답변을 받으세요
-        6. **탐색**을 통해 깔끔한 아키텍처 구조를 살펴보세요
+
         
         ### 🔬 새로운 기능:
         - **문서 분석**: 문서가 어떻게 청크로 나뉘고 벡터화되는지 확인
@@ -399,6 +470,25 @@ def create_demo_interface() -> gr.Blocks:
                         interactive=False
                     )
         
+        with gr.Tab("📚 문서 보기"):
+            with gr.Row():
+                with gr.Column():
+                    view_docs_btn = gr.Button("📚 전체 문서 보기", variant="primary")
+                    documents_output = gr.Textbox(
+                        label="저장된 문서",
+                        lines=15,
+                        interactive=False,
+                        max_lines=20
+                    )
+                
+                with gr.Column():
+                    embedding_analysis_btn = gr.Button("🔬 임베딩 분석", variant="secondary")
+                    embedding_output = gr.Textbox(
+                        label="임베딩 분석",
+                        lines=15,
+                        interactive=False
+                    )
+
         with gr.Tab("🤖 RAG Q&A"):
             with gr.Row():
                 with gr.Column():
@@ -454,50 +544,115 @@ def create_demo_interface() -> gr.Blocks:
                     - ✅ 유지보수 및 확장 용이
                     """)
         
+        # Async wrapper functions for Gradio compatibility
+        def sync_add_document(content, source):
+            async def run():
+                await demo_controller.initialize()
+                return await demo_controller.add_document(content, source)
+            return asyncio.run(run())
+        
+        def sync_add_document_with_analysis(content, source):
+            async def run():
+                await demo_controller.initialize()
+                return await demo_controller.add_document_with_analysis(content, source)
+            return asyncio.run(run())
+        
+        def sync_clear_knowledge_base():
+            async def run():
+                await demo_controller.initialize()
+                return await demo_controller.clear_knowledge_base()
+            return asyncio.run(run())
+        
+        def sync_search_documents(query, top_k):
+            async def run():
+                await demo_controller.initialize()
+                return await demo_controller.search_documents(query, top_k)
+            return asyncio.run(run())
+        
+        def sync_search_documents_with_analysis(query, top_k):
+            async def run():
+                await demo_controller.initialize()
+                return await demo_controller.search_documents_with_analysis(query, top_k)
+            return asyncio.run(run())
+        
+        def sync_generate_answer(question, max_sources):
+            async def run():
+                await demo_controller.initialize()
+                return await demo_controller.generate_answer(question, max_sources)
+            return asyncio.run(run())
+        
+        def sync_get_status():
+            async def run():
+                await demo_controller.initialize()
+                return await demo_controller.get_status()
+            return asyncio.run(run())
+
+        def sync_view_all_documents():
+            async def run():
+                await demo_controller.initialize()
+                return await demo_controller.view_all_documents()
+            return asyncio.run(run())
+
+        def sync_get_embedding_analysis():
+            async def run():
+                await demo_controller.initialize()
+                return await demo_controller.get_embedding_analysis()
+            return asyncio.run(run())
+
         # Event handlers
         add_btn.click(
-            fn=demo_controller.add_document,
+            fn=sync_add_document,
             inputs=[doc_input, source_input],
             outputs=add_output
         )
         
         add_analysis_btn.click(
-            fn=demo_controller.add_document_with_analysis,
+            fn=sync_add_document_with_analysis,
             inputs=[doc_input_analysis, source_input_analysis],
             outputs=[basic_result, processing_info, vector_info]
         )
         
         clear_btn.click(
-            fn=demo_controller.clear_knowledge_base,
+            fn=sync_clear_knowledge_base,
             outputs=clear_output
         )
         
         search_btn.click(
-            fn=demo_controller.search_documents,
+            fn=sync_search_documents,
             inputs=[search_input, top_k],
             outputs=search_output
         )
         
         search_analysis_btn.click(
-            fn=demo_controller.search_documents_with_analysis,
+            fn=sync_search_documents_with_analysis,
             inputs=[search_input_analysis, top_k_analysis],
             outputs=[search_results_analysis, search_processing_info, search_vector_info]
         )
         
         answer_btn.click(
-            fn=demo_controller.generate_answer,
+            fn=sync_generate_answer,
             inputs=[question_input, max_sources],
             outputs=[answer_output, sources_output]
         )
         
         status_btn.click(
-            fn=demo_controller.get_status,
+            fn=sync_get_status,
             outputs=status_output
+        )
+
+        view_docs_btn.click(
+            fn=sync_view_all_documents,
+            outputs=documents_output
+        )
+
+        embedding_analysis_btn.click(
+            fn=sync_get_embedding_analysis,
+            outputs=embedding_output
         )
         
         # Load initial status
         demo.load(
-            fn=lambda: asyncio.run(demo_controller.get_status()),
+            fn=sync_get_status,
             outputs=status_output
         )
     

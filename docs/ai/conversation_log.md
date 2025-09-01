@@ -1,5 +1,162 @@
 # Conversation Log
 
+## Session 13.1: 애플리케이션 서비스 구조 단순화 및 DI 원칙 준수 (2025-09-01)
+
+### 📋 세션 개요
+- **날짜**: 2025-09-01
+- **주요 목표**: 애플리케이션 서비스 구조 단순화, DI 원칙 준수, LangChain 통합, 문서 관리 분리
+- **참여자**: 개발자, GPT-5 AI 에이전트
+
+### 🔧 주요 기술적 의사결정
+
+#### 1) 서비스 구조 단순화 (핵심 3개 서비스)
+- **RAGService**: 검색 + LLM 답변 생성 (RAGInboundPort 구현)
+- **ChatService**: 사용자 메시지 처리 (ChatInboundPort 구현, RAGService 사용)
+- **DocumentService**: 문서 관리 전용 (DocumentInboundPort 구현, 새로 추가)
+
+#### 2) DI 원칙 준수 및 LangChain 통합
+- **LLMTextGenerationPort 확장**: LangChain 호환 메서드 추가 (`create_custom_chain`, `get_llm_instance`, `is_langchain_compatible`)
+- **UnifiedLLMAdapter**: LangChain 기반 LLM 어댑터 (LLMTextGenerationPort 구현)
+- **Application Layer**: 추상화에만 의존, 구체적 구현체 직접 사용 금지
+
+#### 3) 포트 분리 및 책임 명확화
+- **RAGInboundPort**: `process_query`, `search_documents`만 포함 (문서 저장 기능 제거)
+- **DocumentInboundPort**: 문서 CRUD 전용 (`add_document`, `update_document`, `delete_document`, `get_document`, `list_documents`)
+- **LLMTextGenerationPort**: LangChain 호환 텍스트 생성
+
+#### 4) 삭제된 불필요한 서비스들
+- ❌ `AIOrchestrationService`: 과도한 복잡성
+- ❌ `PortfolioDomainService`: 도메인 특화 불필요
+- ❌ `UnifiedAIService`: Facade 패턴 불필요
+- ❌ `LangChainRAGService`: RAGService로 충분
+- ❌ `strategies/` 디렉토리: 전략 패턴 불필요
+- ❌ `data_services/` 디렉토리: 실제 구현 없음
+
+#### 5) 최종 애플리케이션 디렉토리 구조
+```
+application/
+├── services/
+│   ├── rag_service.py           # RAGInboundPort 구현 (검색 + 생성)
+│   ├── chat_service.py          # ChatInboundPort 구현 (사용자 인터페이스)
+│   └── document_service.py      # DocumentInboundPort 구현 (문서 관리)
+├── dto/
+│   ├── rag.py
+│   ├── search.py
+│   └── generation.py
+└── __init__.py
+```
+
+#### 6) LangChain 통합 전략 (Hexagonal Architecture with LangChain Integration)
+- **핵심 문제**: 프레임워크와 헥사고날 아키텍처의 충돌
+  - LangChain의 파이프 연산자(`|`), 체인, 에이전트 등 자체 패턴
+  - 헥사고날의 포트-어댑터 패턴으로 외부 의존성 격리
+  - DI 원칙과 프레임워크 특화 기능의 충돌
+
+- **해결방안**: Hexagonal Architecture with LangChain Integration (방안 2)
+  - **포트에 프레임워크 특화 메서드 포함**: `get_langchain_llm()`, `create_custom_chain()`
+  - **선택적 사용**: 필요에 따라 격리된 방식 또는 직접 방식 선택
+  - **DI 원칙 유지**: 추상화에 의존하면서 프레임워크 장점 활용
+
+- **구현 전략**:
+  ```python
+  class LLMTextGenerationPort(ABC):
+      @abstractmethod
+      async def generate_text(self, prompt: str) -> str:
+          pass
+      
+      @abstractmethod
+      def get_langchain_llm(self) -> BaseLanguageModel:
+          """LangChain LLM 인스턴스 반환 (고급 사용)"""
+          pass
+      
+      @abstractmethod
+      def create_custom_chain(self, template: str) -> Any:
+          """사용자 정의 체인 생성"""
+          pass
+  ```
+
+- **장점**:
+  - DI 원칙 준수 (추상화에 의존)
+  - LangChain의 파이프 연산자 등 장점 활용 가능
+  - 점진적 마이그레이션 지원
+  - 테스트 용이성 (포트를 통해 모킹 가능)
+
+- **LangChain 어댑터 단순화**: 11개 → 3개 파일
+  - `unified_llm_adapter.py`: LLM 처리 (OpenAI, Anthropic, Google)
+  - `embedding_adapter.py`: 임베딩 처리 (OpenAI, Google, HuggingFace)
+  - `strategy_configurator.py`: 한국어 최적화 전략 구성
+
+#### 7) 아키텍처 원칙
+- **단일 책임 원칙**: 각 서비스는 명확한 하나의 책임만 가짐
+- **의존성 역전 원칙**: 고수준 모듈은 저수준 모듈에 의존하지 않음
+- **인터페이스 분리 원칙**: 클라이언트는 사용하지 않는 인터페이스에 의존하지 않음
+- **개방-폐쇄 원칙**: 확장에는 열려있고 수정에는 닫혀있음
+- **Hexagonal with LangChain Integration**: LangChain 특화 기능을 포트에 포함하여 DI 원칙과 프레임워크 장점을 모두 활용
+
+#### 8) 문서 저장 처리 방식
+- **문서 저장**: DocumentService를 통해 처리 (벡터 스토어 + RDB 메타데이터)
+- **RAG 쿼리**: RAGService를 통해 처리 (검색 + 답변 생성)
+- **책임 분리**: 문서 관리와 RAG 처리는 별도 서비스로 분리
+
+### 📁 생성/수정된 파일들 (본 세션 적용 사항)
+
+#### 새로 생성된 파일
+- `ai-service/src/core/ports/inbound/document_inbound_port.py`: 문서 관리 입력 포트
+- `ai-service/src/application/services/document_service.py`: 문서 관리 서비스
+- `ai-service/src/adapters/outbound/external_apis/langchain/unified_llm_adapter.py`: LangChain 통합 LLM 어댑터
+
+#### 수정된 파일
+- `ai-service/src/core/ports/outbound/llm_text_generation_port.py`: LangChain 호환 메서드 추가
+- `ai-service/src/core/ports/inbound/rag_inbound_port.py`: 문서 저장 기능 제거
+- `ai-service/src/application/services/rag_service.py`: 문서 저장 기능 제거
+- `ai-service/src/application/services/__init__.py`: DocumentService 추가
+- `ai-service/src/application/__init__.py`: DocumentService 추가
+
+#### 삭제된 파일
+- `ai-service/src/application/services/ai_orchestration_service.py`: 과도한 복잡성
+- `ai-service/src/application/services/portfolio_domain_service.py`: 도메인 특화 불필요
+- `ai-service/src/application/services/unified_ai_service.py`: Facade 패턴 불필요
+- `ai-service/src/application/services/langchain_rag_service.py`: RAGService로 충분
+- `ai-service/src/application/strategies/` 디렉토리 전체: 전략 패턴 불필요
+- `ai-service/src/application/data_services/` 디렉토리 전체: 실제 구현 없음
+- `ai-service/src/adapters/outbound/frameworks/langchain/llm_text_generation_adapter.py`: unified_llm_adapter.py로 통합
+- `ai-service/src/adapters/outbound/frameworks/langchain/document_processing_adapter.py`: 중복 제거
+- `ai-service/src/adapters/outbound/frameworks/langchain/document_processing_pipeline.py`: 중복 제거
+- `ai-service/src/adapters/outbound/frameworks/langchain/rag_chain_adapter.py`: 중복 제거
+- `ai-service/src/adapters/outbound/frameworks/langchain/integrated_rag_pipeline.py`: 중복 제거
+- `ai-service/src/adapters/outbound/frameworks/langchain/chat_chain_adapter.py`: 중복 제거
+- `ai-service/src/adapters/outbound/frameworks/langchain/query_classifier_adapter.py`: 중복 제거
+- `ai-service/src/adapters/outbound/frameworks/langchain/rag_agent_adapter.py`: 중복 제거
+
+### 🎯 세션 결과 요약
+- **서비스 수**: 6개 → 3개로 단순화
+- **DI 원칙**: 완전 준수 (추상화에만 의존)
+- **LangChain 통합**: Hexagonal Architecture with LangChain Integration 적용
+- **책임 분리**: 문서 관리와 RAG 처리 명확히 분리
+- **유지보수성**: 크게 향상 (단순하고 명확한 구조)
+- **프레임워크 활용**: LangChain의 파이프 연산자 등 장점을 DI 원칙과 함께 활용
+```
+ai-service/src/core/ports/inbound/rag_inbound_port.py
+ai-service/src/core/ports/inbound/chat_inbound_port.py
+ai-service/src/core/ports/outbound/llm_text_generation_port.py
+ai-service/src/core/ports/outbound/query_classifier_port.py
+```
+
+#### 주요 수정된 파일
+```
+ai-service/src/core/ports/inbound/__init__.py          # 재노출 전용으로 단순화
+ai-service/src/core/ports/__init__.py                  # 새 포트 재노출 추가
+```
+
+### 🔄 다음 액션
+1. `application/services` 정리 및 `retrieval_service.py`, `ingestion_service.py` 추가
+2. `strategies/`를 `application/strategies/`로 이동 및 인터페이스 정합성 통일(`execute` 반환)
+3. `data_services/` 사용 계획 확정: 미사용 시 제거, 사용 시 실제 구현 추가
+4. DI 정합성 수정: `dependencies.py`와 서비스 생성자/메서드명 일치화(`generate_text` 등)
+5. `QueryType` 단일 소스화 및 참조 일원화
+
+---
+
 ## Session 13: 실제 환경 테스트 및 프로덕션 설정 최적화 (2025-09-01)
 
 ### 📋 세션 개요

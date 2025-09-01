@@ -19,9 +19,13 @@ RUN apt-get update && apt-get install -y \
 ENV JAVA_HOME=/usr/lib/jvm/default-java
 ENV PATH=$JAVA_HOME/bin:$PATH
 
-# Python 의존성 파일 복사 및 설치
+# Python 의존성 파일 복사 및 설치 (캐시 최적화)
 COPY requirements-local.txt .
 RUN pip install --no-cache-dir -r requirements-local.txt
+
+# 모델 다운로드 및 캐시 (빌드 시 한번만 다운로드하여 캐시)
+RUN python -c "import konlpy; konlpy.download('all')" || true
+RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('jhgan/ko-sroberta-multitask')" || true
 
 # 소스 코드 복사 (개발 시 볼륨 마운트 사용)
 COPY . .

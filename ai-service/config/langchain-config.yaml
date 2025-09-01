@@ -1,0 +1,55 @@
+# LangChain 설정 파일
+langchain:
+  # LLM 설정
+  llm:
+    provider: "openai"  # openai, anthropic, mock
+    model_name: "gpt-3.5-turbo"
+    api_key: "${OPENAI_API_KEY}"
+    temperature: 0.7
+    max_tokens: 1000
+    
+  # 임베딩 설정
+  embedding:
+    provider: "openai"  # openai, google, huggingface
+    model_name: "text-embedding-3-small"
+    api_key: "${OPENAI_API_KEY}"
+    batch_size: 20
+    
+  # RAG 체인 설정
+  rag:
+    chunk_size: 500
+    chunk_overlap: 75
+    top_k: 5
+    similarity_threshold: 0.7
+    
+  # 한국어 최적화 설정
+  korean:
+    text_splitter:
+      separators: ["\n\n", "\n", ". ", "! ", "? ", " ", ""]
+      chunk_size: 500
+      chunk_overlap: 75
+    embedding:
+      normalize: true
+      device: "cpu"
+    reranking:
+      enabled: false
+      model: "cross-encoder/ms-marco-MiniLM-L-6-v2"
+
+# 환경별 설정
+environments:
+  development:
+    langchain:
+      llm:
+        provider: "mock"
+      embedding:
+        provider: "huggingface"
+        model_name: "jhgan/ko-sroberta-multitask"
+        
+  production:
+    langchain:
+      llm:
+        provider: "openai"
+        model_name: "gpt-4"
+      embedding:
+        provider: "google"
+        model_name: "models/embedding-001"

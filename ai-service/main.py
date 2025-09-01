@@ -8,16 +8,16 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-# Primary Adapters (들어오는)
-from src.adapters.primary.web.router import web_router
+# Outbound Adapters (들어오는)
+from src.adapters.Outbound.web.router import web_router
 
 # Application Services
-from src.application.chat_service import ChatService
-from src.application.rag_service import RAGService
+from src.application.rag_services import ChatService
+from src.application.rag_services import RAGService
 
-# Secondary Adapters (나가는) 
-from src.adapters.secondary.llm.mock_llm_adapter import MockLLMAdapter
-from src.adapters.secondary.vector.memory_vector_adapter import MemoryVectorAdapter
+# Inbound Adapters (나가는) 
+from src.adapters.Inbound.ai_services.llm.mock_llm_adapter import MockLLMAdapter
+from src.adapters.Inbound.databases.vector.memory_vector_adapter import MemoryVectorAdapter
 
 # Configure logging
 logging.basicConfig(
@@ -65,8 +65,9 @@ def create_app() -> FastAPI:
     # 모니터링 엔드포인트들도 루트 레벨에 추가
     app.include_router(web_router, prefix="")
     
-    # TODO: Gradio 데모는 추후 구현
-    logger.info("⏳ Gradio demo will be implemented later")
+    # 프로덕션 환경에서는 Gradio 데모를 마운트하지 않음
+    # 데모는 별도 배포: HuggingFace Spaces 또는 독립 실행
+    logger.info("🚀 Production FastAPI Server (No Demo Integration)")
     
     # Health check endpoints
     @app.get("/health")

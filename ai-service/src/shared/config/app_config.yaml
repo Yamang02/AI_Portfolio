@@ -1,19 +1,43 @@
 # AI Portfolio 서비스 기본 설정
 # 민감한 정보(API 키, 비밀번호 등)는 환경 변수로 설정
 
-# LLM 설정
+# LLM 설정 (LangChain 통합)
 llm:
+  provider: "openai"  # openai, anthropic, google
   openai:
     model_name: "gpt-3.5-turbo"
     temperature: 0.7
     max_tokens: 1000
     # api_key는 OPENAI_API_KEY 환경 변수에서 로드
   
+  anthropic:
+    model_name: "claude-3-sonnet-20240229"
+    temperature: 0.7
+    max_tokens: 1000
+    # api_key는 ANTHROPIC_API_KEY 환경 변수에서 로드
+  
   google:
     model_name: "gemini-pro"
     temperature: 0.7
     max_output_tokens: 1000
     # api_key는 GOOGLE_API_KEY 환경 변수에서 로드
+
+# 임베딩 설정 (LangChain 통합)
+embedding:
+  provider: "openai"  # openai, google, huggingface
+  openai:
+    model_name: "text-embedding-3-small"
+    batch_size: 20
+    # api_key는 OPENAI_API_KEY 환경 변수에서 로드
+  
+  google:
+    model_name: "models/embedding-001"
+    batch_size: 20
+    # api_key는 GOOGLE_API_KEY 환경 변수에서 로드
+  
+  huggingface:
+    model_name: "jhgan/ko-sroberta-multitask"
+    batch_size: 20
 
 # 데이터베이스 설정
 database:

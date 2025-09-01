@@ -59,3 +59,4 @@ tenacity>=8.1.0
 dataclasses-json>=0.6.7
 pydantic-settings>=2.10.1
 httpx-sse>=0.4.0
+rank-bm25>=0.2.2
