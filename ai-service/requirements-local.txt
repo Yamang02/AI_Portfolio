@@ -39,6 +39,9 @@ qdrant-client==1.15.1
 rank-bm25==0.2.2
 konlpy==0.6.0
 
+# Google Gemini API
+google-generativeai==0.8.3
+
 # Demo dependencies (로컬에서 데모 테스트용)
 sentence-transformers==5.1.0
 gradio==5.44.0

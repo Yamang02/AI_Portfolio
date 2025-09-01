@@ -72,3 +72,31 @@ class RAGResponse(BaseModel):
     processing_time_ms: float
     sources: List[RAGSourceItem]
     metadata: Dict[str, Any]
+
+
+# === 프로젝트 Overview 스키마 ===
+
+class ProjectOverviewRequest(BaseModel):
+    """프로젝트 개요 생성 요청"""
+    force_regenerate: bool = Field(default=False, description="캐시 무시하고 강제 재생성")
+
+
+class ProjectOverviewResponse(BaseModel):
+    """프로젝트 개요 응답"""
+    project_id: str
+    content: str = Field(..., description="프로젝트 개요 마크다운 내용")
+    summary: str = Field(..., description="프로젝트 요약")
+    tech_stack: List[str] = Field(default_factory=list, description="기술 스택")
+    key_features: List[str] = Field(default_factory=list, description="핵심 기능")
+    documents_used: int = Field(..., description="분석한 문서 수")
+    content_type: str = Field(default="project_overview", description="콘텐츠 타입")
+    generated_at: str = Field(..., description="생성 시간")
+    from_cache: bool = Field(..., description="캐시에서 조회 여부")
+    cache_ttl_hours: Optional[int] = Field(default=None, description="캐시 유지 시간")
+
+
+class ProjectInfo(BaseModel):
+    """프로젝트 정보"""
+    project_id: str
+    title: str
+    description: str

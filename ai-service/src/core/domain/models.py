@@ -34,7 +34,10 @@ class Document:
     source: str
     document_type: DocumentType = DocumentType.GENERAL
     title: Optional[str] = None
+    project_id: Optional[str] = None  # 프로젝트 식별자 (프로젝트 문서용)
     priority_score: int = 5
+    valid_from_date: Optional[datetime] = None  # 문서 유효 시작 날짜
+    valid_to_date: Optional[datetime] = None    # 문서 유효 종료 날짜
     is_vectorized: bool = False
     vectorization_quality: str = "none"
     metadata: Dict[str, Any] = field(default_factory=dict)
@@ -49,6 +52,8 @@ class DocumentChunk:
     content: str
     document_id: str
     chunk_index: int
+    document_type: Optional[DocumentType] = None  # 상위 문서의 타입 (빠른 필터링용)
+    project_id: Optional[str] = None  # 상위 문서의 프로젝트 ID
     metadata: Dict[str, Any] = field(default_factory=dict)
 
 
@@ -103,6 +108,9 @@ class RetrievalQuery:
     """검색 쿼리 도메인 모델"""
     query_text: str
     query_type: str = "general"  # general, project, skill, experience
+    document_types: Optional[List[DocumentType]] = None  # 특정 문서 타입만 검색
+    project_ids: Optional[List[str]] = None  # 특정 프로젝트만 검색
+    date_range: Optional[Dict[str, datetime]] = None  # valid_from/to 날짜 범위 필터
     filters: Dict[str, Any] = field(default_factory=dict)
     top_k: int = 5
     similarity_threshold: float = 0.75

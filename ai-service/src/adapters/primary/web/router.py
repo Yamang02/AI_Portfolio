@@ -4,14 +4,15 @@ FastAPI HTTP 라우터
 """
 
 from fastapi import APIRouter, Depends, HTTPException
-from typing import Dict, Any
+from typing import Dict, Any, List
 
 from ....application.rag_service import RAGService
-from .dependencies import get_rag_service
+from .dependencies import get_rag_service, get_project_overview_service, get_cache_management_service
 from .schemas import (
     DocumentRequest, DocumentResponse,
     SearchRequest, SearchResponse, 
-    RAGRequest, RAGResponse
+    RAGRequest, RAGResponse,
+    ProjectOverviewRequest, ProjectOverviewResponse
 )
 
 web_router = APIRouter()
@@ -127,3 +128,181 @@ async def health_check():
         "architecture": "hexagonal", 
         "layer": "primary_adapter_web"
     }
+
+
+# === 프로젝트 Overview 엔드포인트 ===
+
+@web_router.post("/projects/{project_id}/overview", response_model=ProjectOverviewResponse)
+async def generate_project_overview(
+    project_id: str,
+    request: ProjectOverviewRequest,
+    overview_service = Depends(get_project_overview_service)
+):
+    """프로젝트 개요 생성"""
+    try:
+        result = await overview_service.generate_project_overview(
+            project_id=project_id,
+            force_regenerate=request.force_regenerate
+        )
+        
+        if "error" in result:
+            raise HTTPException(status_code=400, detail=result["error"])
+        
+        return ProjectOverviewResponse(**result)
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@web_router.get("/projects/{project_id}/overview")
+async def get_project_overview(
+    project_id: str,
+    overview_service = Depends(get_project_overview_service)
+):
+    """프로젝트 개요 조회 (캐시 우선)"""
+    try:
+        result = await overview_service.generate_project_overview(
+            project_id=project_id,
+            force_regenerate=False
+        )
+        
+        if "error" in result:
+            raise HTTPException(status_code=404, detail=result["error"])
+        
+        return result
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@web_router.get("/projects")
+async def get_available_projects(
+    overview_service = Depends(get_project_overview_service)
+) -> List[Dict[str, Any]]:
+    """사용 가능한 프로젝트 목록"""
+    try:
+        return await overview_service.get_available_projects()
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@web_router.delete("/projects/{project_id}/cache")
+async def clear_project_cache(
+    project_id: str,
+    overview_service = Depends(get_project_overview_service)
+):
+    """특정 프로젝트 캐시 클리어"""
+    try:
+        result = await overview_service.clear_project_cache(project_id)
+        return result
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# === 캐시 관리 엔드포인트 ===
+
+@web_router.get("/cache/overview")
+async def get_cache_overview(
+    cache_service = Depends(get_cache_management_service)
+) -> Dict[str, Any]:
+    """전체 캐시 시스템 개요"""
+    try:
+        return await cache_service.get_cache_overview()
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@web_router.get("/cache/statistics")
+async def get_cache_statistics(
+    cache_service = Depends(get_cache_management_service)
+) -> Dict[str, Any]:
+    """캐시 통계 정보"""
+    try:
+        return await cache_service.get_cache_statistics()
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@web_router.delete("/cache/{category}")
+async def clear_category_cache(
+    category: str,
+    cache_service = Depends(get_cache_management_service)
+):
+    """카테고리별 캐시 클리어"""
+    try:
+        result = await cache_service.clear_category_cache(category)
+        
+        if not result.get("success"):
+            raise HTTPException(status_code=400, detail=result.get("error"))
+        
+        return result
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@web_router.delete("/cache")
+async def clear_all_cache(
+    cache_service = Depends(get_cache_management_service)
+):
+    """전체 캐시 클리어"""
+    try:
+        result = await cache_service.clear_all_cache()
+        
+        if not result.get("success"):
+            raise HTTPException(status_code=500, detail=result.get("error"))
+        
+        return result
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@web_router.post("/cache/optimize")
+async def optimize_cache(
+    cache_service = Depends(get_cache_management_service)
+):
+    """캐시 최적화 실행"""
+    try:
+        result = await cache_service.optimize_cache()
+        
+        if "error" in result:
+            raise HTTPException(status_code=500, detail=result["error"])
+        
+        return result
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@web_router.get("/cache/health")
+async def cache_health_check(
+    cache_service = Depends(get_cache_management_service)
+):
+    """캐시 시스템 헬스 체크"""
+    try:
+        health = await cache_service.health_check()
+        
+        if health["status"] == "error":
+            raise HTTPException(status_code=503, detail=health.get("error"))
+        
+        return health
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@web_router.get("/cache/config")
+async def get_cache_config(
+    cache_service = Depends(get_cache_management_service)
+):
+    """캐시 설정 정보"""
+    try:
+        return cache_service.get_cache_config()
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
