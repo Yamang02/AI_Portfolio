@@ -1,95 +1,43 @@
-# GitHub Secrets 설정 가이드
+# GitHub Secrets 설정
+
+## 개요
+GitHub Secrets를 사용한 안전한 환경 변수 관리 방법입니다.
 
 ## 필수 Secrets
 
-### Google Cloud Platform
+### GCP 관련
 - `GCP_PROJECT_ID`: Google Cloud 프로젝트 ID
-- `GCP_SA_KEY`: Service Account JSON 키 (전체 JSON 내용)
+- `GCP_SA_KEY`: 서비스 계정 키 (JSON)
 
-### Railway Database
-- `RAILWAY_DATABASE_URL_STAGING`: 스테이징 환경 PostgreSQL 연결 URL
-- `RAILWAY_DATABASE_URL_PRODUCTION`: 프로덕션 환경 PostgreSQL 연결 URL
-  - 형식: `postgresql://username:password@host:port/database`
-
-### API Keys
+### API 키
 - `GEMINI_API_KEY`: Google Gemini API 키
-- `GITHUB_USERNAME`: GitHub 사용자명 (기본: Yamang02)
+- `GITHUB_TOKEN`: GitHub API 토큰 (선택사항)
 
-### Redis Cloud (캐시 시스템) 🚨 새로 추가 필요
-#### 스테이징 환경
-- `REDIS_STAGE_HOST`: Redis Cloud 스테이징 호스트
-- `REDIS_STAGE_PORT`: Redis Cloud 스테이징 포트
-- `REDIS_STAGE_PASSWORD`: Redis Cloud 스테이징 비밀번호
+## 설정 방법
 
-#### 프로덕션 환경
-- `REDIS_PROD_HOST`: Redis Cloud 프로덕션 호스트
-- `REDIS_PROD_PORT`: Redis Cloud 프로덕션 포트
-- `REDIS_PROD_PASSWORD`: Redis Cloud 프로덕션 비밀번호
-
-### Application Settings
-- `CONTACT_EMAIL`: 연락처 이메일
-- `ALLOWED_ORIGINS_STAGING`: 스테이징 환경 허용 도메인들 (쉼표로 구분)
-
-## Secrets 설정 방법
-
-1. GitHub 리포지토리 → Settings
-2. Secrets and variables → Actions
-3. New repository secret 클릭
-4. 각 시크릿 이름과 값 입력
-
-## Railway Database URL 확인 방법
-
+### 1. 서비스 계정 생성
 ```bash
-# Railway CLI로 확인
-railway variables
-
-# 또는 Railway 대시보드에서 확인
-# Project → PostgreSQL → Connect → Connection URL
-```
-
-## Redis Cloud 설정 방법
-
-### 1. Redis Cloud 계정 생성 및 설정
-
-1. https://redis.com/redis-enterprise-cloud/ 접속
-2. 무료 계정 생성
-3. 새 데이터베이스 생성 (Free tier)
-4. 스테이징용과 프로덕션용 별도 데이터베이스 생성 권장
-
-### 2. Redis Cloud 연결 정보 확인
-
-```bash
-# Redis Cloud 대시보드에서 확인
-# Database → Configuration → General
-
-# 예시:
-REDIS_STAGE_HOST=redis-12345.c123.us-east-1-1.ec2.cloud.redislabs.com
-REDIS_STAGE_PORT=12345
-REDIS_STAGE_PASSWORD=your_redis_password
-```
-
-## Google Cloud Service Account 생성
-
-```bash
-# Service Account 생성
+# 서비스 계정 생성
 gcloud iam service-accounts create github-actions \
-    --description="GitHub Actions deployment" \
-    --display-name="GitHub Actions"
+  --display-name="GitHub Actions"
 
-# 권한 부여
-gcloud projects add-iam-policy-binding PROJECT_ID \
-    --member="serviceAccount:github-actions@PROJECT_ID.iam.gserviceaccount.com" \
-    --role="roles/run.admin"
+# 필요한 권한 부여
+gcloud projects add-iam-policy-binding YOUR_PROJECT_ID \
+  --member="serviceAccount:github-actions@YOUR_PROJECT_ID.iam.gserviceaccount.com" \
+  --role="roles/run.admin"
 
-gcloud projects add-iam-policy-binding PROJECT_ID \
-    --member="serviceAccount:github-actions@PROJECT_ID.iam.gserviceaccount.com" \
-    --role="roles/storage.admin"
-
-gcloud projects add-iam-policy-binding PROJECT_ID \
-    --member="serviceAccount:github-actions@PROJECT_ID.iam.gserviceaccount.com" \
-    --role="roles/iam.serviceAccountUser"
-
-# JSON 키 생성
+# 서비스 계정 키 생성
 gcloud iam service-accounts keys create key.json \
-    --iam-account=github-actions@PROJECT_ID.iam.gserviceaccount.com
+  --iam-account=github-actions@YOUR_PROJECT_ID.iam.gserviceaccount.com
 ```
+
+### 2. GitHub Secrets 추가
+1. GitHub 레포지토리 → Settings → Secrets and variables → Actions
+2. `GCP_SA_KEY`에 key.json 내용 추가
+3. `GCP_PROJECT_ID`에 프로젝트 ID 추가
+4. `GEMINI_API_KEY`에 API 키 추가
+
+## 보안 원칙
+- **절대 커밋 금지**: API 키를 코드에 직접 포함하지 않음
+- **최소 권한**: 필요한 권한만 부여
+- **정기 갱신**: 서비스 계정 키 정기적 갱신

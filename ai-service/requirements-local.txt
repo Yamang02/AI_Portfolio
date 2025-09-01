@@ -35,6 +35,10 @@ python-dotenv==1.1.1
 # Vector database
 qdrant-client==1.15.1
 
+# BM25 and Korean text processing
+rank-bm25==0.2.2
+konlpy==0.6.0
+
 # Demo dependencies (로컬에서 데모 테스트용)
 sentence-transformers==5.1.0
 gradio==5.44.0

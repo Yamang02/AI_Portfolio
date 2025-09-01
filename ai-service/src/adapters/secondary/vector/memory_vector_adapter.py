@@ -8,8 +8,9 @@ import uuid
 import logging
 from typing import List, Dict, Any, Optional
 import numpy as np
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
+from rank_bm25 import BM25Okapi
+from konlpy.tag import Okt
+import re
 
 from ....core.ports.vector_port import VectorPort
 from ....core.domain.models import Document, DocumentChunk, SearchResult, SearchResultType
@@ -18,17 +19,18 @@ logger = logging.getLogger(__name__)
 
 
 class MemoryVectorAdapter(VectorPort):
-    """인메모리 벡터 스토어 어댑터"""
+    """인메모리 벡터 스토어 어댑터 (BM25 기반)"""
     
     def __init__(self):
         self.documents: Dict[str, Document] = {}
         self.chunks: Dict[str, DocumentChunk] = {}
-        self.vectors: Dict[str, np.ndarray] = {}
-        self.vectorizer = TfidfVectorizer(max_features=1000, stop_words='english')
+        self.chunk_tokens: Dict[str, List[str]] = {}  # 토큰화된 청크 저장
+        self.bm25 = None  # BM25 인덱스
+        self.okt = Okt()  # 한국어 토크나이저
         self.is_fitted = False
         self._available = True
         
-        logger.info("MemoryVectorAdapter initialized")
+        logger.info("MemoryVectorAdapter initialized with BM25 and Korean support")
     
     def _create_chunks(self, document: Document) -> List[DocumentChunk]:
         """문서를 청크로 분할"""
@@ -66,28 +68,48 @@ class MemoryVectorAdapter(VectorPort):
         
         return chunks
     
-    def _vectorize_texts(self, texts: List[str]) -> np.ndarray:
-        """텍스트들을 벡터화"""
-        if not self.is_fitted:
-            # 최초 학습
-            all_existing_texts = [chunk.content for chunk in self.chunks.values()]
-            all_texts = all_existing_texts + texts
+    def _tokenize_korean(self, text: str) -> List[str]:
+        """한국어 텍스트 토크나이징"""
+        try:
+            # HTML 태그 제거
+            text = re.sub(r'<[^>]+>', ' ', text)
+            # 특수문자 처리 (한글, 영문, 숫자, 공백만 유지)
+            text = re.sub(r'[^가-힣a-zA-Z0-9\s]', ' ', text)
+            # 연속된 공백 제거
+            text = re.sub(r'\s+', ' ', text).strip()
             
-            if len(all_texts) > 0:
-                self.vectorizer.fit(all_texts)
-                self.is_fitted = True
-                
-                # 기존 청크들 재벡터화
-                if all_existing_texts:
-                    existing_vectors = self.vectorizer.transform(all_existing_texts)
-                    for i, chunk_id in enumerate(self.chunks.keys()):
-                        self.vectors[chunk_id] = existing_vectors[i].toarray()[0]
-        
-        if self.is_fitted and texts:
-            return self.vectorizer.transform(texts)
-        else:
-            # 벡터화 불가능한 경우 랜덤 벡터 반환
-            return np.random.rand(len(texts), 1000)
+            if not text:
+                return []
+            
+            # 형태소 분석 (명사, 동사, 형용사, 영어, 숫자)
+            tokens = self.okt.pos(text, stem=True)
+            filtered_tokens = [
+                word for word, pos in tokens 
+                if pos in ['Noun', 'Verb', 'Adjective', 'Alpha', 'Number'] and len(word) > 1
+            ]
+            
+            return filtered_tokens if filtered_tokens else [text]
+            
+        except Exception as e:
+            logger.warning(f"Korean tokenization failed: {e}, using simple split")
+            return text.lower().split()
+    
+    def _rebuild_bm25_index(self):
+        """BM25 인덱스 재구축"""
+        if not self.chunk_tokens:
+            self.bm25 = None
+            self.is_fitted = False
+            return
+            
+        try:
+            corpus = list(self.chunk_tokens.values())
+            self.bm25 = BM25Okapi(corpus)
+            self.is_fitted = True
+            logger.info(f"BM25 index rebuilt with {len(corpus)} documents")
+        except Exception as e:
+            logger.error(f"Failed to rebuild BM25 index: {e}")
+            self.bm25 = None
+            self.is_fitted = False
     
     async def add_document(self, document: Document) -> Dict[str, Any]:
         """단일 문서 추가"""
@@ -100,20 +122,15 @@ class MemoryVectorAdapter(VectorPort):
             # 2. 청크 생성
             chunks = self._create_chunks(document)
             
-            # 3. 청크들 저장 및 벡터화
-            chunk_texts = []
+            # 3. 청크들 저장 및 토큰화
             for chunk in chunks:
                 self.chunks[chunk.id] = chunk
-                chunk_texts.append(chunk.content)
+                # 한국어 토큰화
+                tokens = self._tokenize_korean(chunk.content)
+                self.chunk_tokens[chunk.id] = tokens
             
-            # 4. 벡터 생성
-            if chunk_texts:
-                vectors = self._vectorize_texts(chunk_texts)
-                for i, chunk in enumerate(chunks):
-                    if hasattr(vectors, 'toarray'):
-                        self.vectors[chunk.id] = vectors[i].toarray()[0]
-                    else:
-                        self.vectors[chunk.id] = vectors[i]
+            # 4. BM25 인덱스 재구축
+            self._rebuild_bm25_index()
             
             processing_time = time.time() - start_time
             
@@ -145,30 +162,27 @@ class MemoryVectorAdapter(VectorPort):
             chunks = self._create_chunks(document)
             chunk_creation_time = time.time() - chunk_start_time
             
-            # 3. 청크 저장
+            # 3. 청크 저장 및 토큰화
             chunk_save_start = time.time()
-            chunk_texts = []
             chunk_details = []
             for chunk in chunks:
                 self.chunks[chunk.id] = chunk
-                chunk_texts.append(chunk.content)
+                # 한국어 토큰화
+                tokens = self._tokenize_korean(chunk.content)
+                self.chunk_tokens[chunk.id] = tokens
+                
                 chunk_details.append({
                     "id": chunk.id,
                     "content_preview": chunk.content[:100] + "..." if len(chunk.content) > 100 else chunk.content,
                     "length": len(chunk.content),
+                    "tokens_count": len(tokens),
                     "metadata": chunk.metadata
                 })
             chunk_save_time = time.time() - chunk_save_start
             
-            # 4. 벡터 생성
+            # 4. BM25 인덱스 생성
             vector_start_time = time.time()
-            if chunk_texts:
-                vectors = self._vectorize_texts(chunk_texts)
-                for i, chunk in enumerate(chunks):
-                    if hasattr(vectors, 'toarray'):
-                        self.vectors[chunk.id] = vectors[i].toarray()[0]
-                    else:
-                        self.vectors[chunk.id] = vectors[i]
+            self._rebuild_bm25_index()
             vector_creation_time = time.time() - vector_start_time
             
             total_time = time.time() - start_time
@@ -185,10 +199,10 @@ class MemoryVectorAdapter(VectorPort):
                 },
                 "chunks_created": len(chunks),
                 "chunk_details": chunk_details,
-                "vector_dimensions": len(self.vectorizer.get_feature_names_out()) if self.is_fitted else 1000,
+                "bm25_fitted": self.is_fitted,
                 "total_documents": len(self.documents),
                 "total_chunks": len(self.chunks),
-                "total_vectors": len(self.vectors)
+                "total_tokens": len(self.chunk_tokens)
             }
             
         except Exception as e:
@@ -219,54 +233,46 @@ class MemoryVectorAdapter(VectorPort):
         similarity_threshold: float = 0.1,
         filters: Optional[Dict[str, Any]] = None
     ) -> List[SearchResult]:
-        """유사도 기반 검색"""
+        """BM25 기반 검색"""
         try:
-            if not self.chunks:
+            if not self.chunks or not self.is_fitted or not self.bm25:
                 return []
             
-            # 1. 쿼리 벡터화
-            if self.is_fitted:
-                query_vector = self.vectorizer.transform([query])
-                if hasattr(query_vector, 'toarray'):
-                    query_vector = query_vector.toarray()[0]
-                else:
-                    query_vector = query_vector[0]
-            else:
-                # 벡터화 불가능한 경우 빈 결과 반환
+            # 1. 쿼리 토큰화
+            query_tokens = self._tokenize_korean(query)
+            if not query_tokens:
                 return []
             
-            # 2. 유사도 계산
-            similarities = []
-            for chunk_id, chunk in self.chunks.items():
-                if chunk_id in self.vectors:
-                    chunk_vector = self.vectors[chunk_id]
-                    
-                    # 코사인 유사도 계산
-                    similarity = cosine_similarity(
-                        [query_vector], 
-                        [chunk_vector]
-                    )[0][0]
-                    
-                    # 임계값 필터링
-                    if similarity >= similarity_threshold:
-                        similarities.append((chunk_id, chunk, similarity))
+            # 2. BM25 스코어 계산
+            scores = self.bm25.get_scores(query_tokens)
+            chunk_ids = list(self.chunk_tokens.keys())
             
-            # 3. 유사도순 정렬
-            similarities.sort(key=lambda x: x[2], reverse=True)
+            # 3. 스코어와 청크 매칭
+            scored_chunks = []
+            for i, (chunk_id, score) in enumerate(zip(chunk_ids, scores)):
+                if chunk_id in self.chunks and score >= similarity_threshold:
+                    chunk = self.chunks[chunk_id]
+                    scored_chunks.append((chunk_id, chunk, float(score)))
             
-            # 4. 상위 k개 선택
-            top_similarities = similarities[:top_k]
+            # 4. 스코어순 정렬
+            scored_chunks.sort(key=lambda x: x[2], reverse=True)
             
-            # 5. SearchResult 객체 생성
+            # 5. 상위 k개 선택
+            top_chunks = scored_chunks[:top_k]
+            
+            # 6. SearchResult 객체 생성
             results = []
-            for rank, (chunk_id, chunk, similarity) in enumerate(top_similarities, 1):
-                result_type = SearchResultType.EXACT_MATCH if similarity > 0.8 else \
-                             SearchResultType.SIMILARITY_MATCH if similarity > 0.5 else \
+            for rank, (chunk_id, chunk, score) in enumerate(top_chunks, 1):
+                # BM25 스코어를 유사도로 정규화 (0-1 범위)
+                normalized_score = min(score / 10.0, 1.0)  # BM25 스코어는 보통 0-10+ 범위
+                
+                result_type = SearchResultType.EXACT_MATCH if normalized_score > 0.8 else \
+                             SearchResultType.SIMILARITY_MATCH if normalized_score > 0.3 else \
                              SearchResultType.CONTEXTUAL_MATCH
                 
                 results.append(SearchResult(
                     chunk=chunk,
-                    similarity_score=float(similarity),
+                    similarity_score=normalized_score,
                     rank=rank,
                     result_type=result_type
                 ))
@@ -275,7 +281,7 @@ class MemoryVectorAdapter(VectorPort):
             return results
             
         except Exception as e:
-            logger.error(f"Search failed: {e}")
+            logger.error(f"BM25 search failed: {e}")
             return []
 
     async def search_similar_with_details(
@@ -301,47 +307,40 @@ class MemoryVectorAdapter(VectorPort):
             processed_query = query.strip().lower()
             preprocess_time = time.time() - preprocess_start
             
-            # 2. 쿼리 벡터화
+            # 2. 쿼리 토큰화
             vectorization_start = time.time()
-            if self.is_fitted:
-                query_vector = self.vectorizer.transform([processed_query])
-                if hasattr(query_vector, 'toarray'):
-                    query_vector = query_vector.toarray()[0]
-                else:
-                    query_vector = query_vector[0]
-                vector_dimensions = len(self.vectorizer.get_feature_names_out())
-            else:
+            query_tokens = self._tokenize_korean(processed_query)
+            if not query_tokens or not self.is_fitted or not self.bm25:
                 return {
                     "success": False,
-                    "error": "Vectorizer not fitted",
+                    "error": "BM25 not fitted or query tokenization failed",
                     "processing_time": time.time() - start_time
                 }
             vectorization_time = time.time() - vectorization_start
             
-            # 3. 유사도 계산
+            # 3. BM25 스코어 계산
             similarity_start = time.time()
+            scores = self.bm25.get_scores(query_tokens)
+            chunk_ids = list(self.chunk_tokens.keys())
+            
             similarities = []
             total_chunks = len(self.chunks)
             processed_chunks = 0
             
-            for chunk_id, chunk in self.chunks.items():
-                if chunk_id in self.vectors:
-                    chunk_vector = self.vectors[chunk_id]
-                    
-                    # 코사인 유사도 계산
-                    similarity = cosine_similarity(
-                        [query_vector], 
-                        [chunk_vector]
-                    )[0][0]
+            for i, (chunk_id, score) in enumerate(zip(chunk_ids, scores)):
+                if chunk_id in self.chunks:
+                    chunk = self.chunks[chunk_id]
+                    normalized_score = min(score / 10.0, 1.0)  # BM25 스코어 정규화
                     
                     processed_chunks += 1
                     
                     # 임계값 필터링
-                    if similarity >= similarity_threshold:
+                    if normalized_score >= similarity_threshold:
                         similarities.append({
                             "chunk_id": chunk_id,
                             "chunk": chunk,
-                            "similarity": similarity,
+                            "similarity": normalized_score,
+                            "bm25_raw_score": score,
                             "content_preview": chunk.content[:150] + "..." if len(chunk.content) > 150 else chunk.content
                         })
             
@@ -382,8 +381,8 @@ class MemoryVectorAdapter(VectorPort):
                     "result_creation": result_creation_time,
                     "total_time": total_time
                 },
-                "vector_info": {
-                    "dimensions": vector_dimensions,
+                "bm25_info": {
+                    "query_tokens": query_tokens,
                     "total_chunks": total_chunks,
                     "processed_chunks": processed_chunks,
                     "threshold_applied": similarity_threshold
@@ -421,8 +420,11 @@ class MemoryVectorAdapter(VectorPort):
             
             for chunk_id in chunks_to_delete:
                 del self.chunks[chunk_id]
-                if chunk_id in self.vectors:
-                    del self.vectors[chunk_id]
+                if chunk_id in self.chunk_tokens:
+                    del self.chunk_tokens[chunk_id]
+            
+            # BM25 인덱스 재구축
+            self._rebuild_bm25_index()
             
             logger.info(f"Deleted document {document_id} and {len(chunks_to_delete)} chunks")
             return True
@@ -439,16 +441,16 @@ class MemoryVectorAdapter(VectorPort):
         
         self.documents.clear()
         self.chunks.clear()
-        self.vectors.clear()
+        self.chunk_tokens.clear()
+        self.bm25 = None
         self.is_fitted = False
-        self.vectorizer = TfidfVectorizer(max_features=1000, stop_words='english')
         
         logger.info("All documents and vectors cleared")
         
         return {
             "cleared_documents": prev_docs,
             "cleared_chunks": prev_chunks,
-            "cleared_vectors": prev_vectors,
+            "cleared_tokens": prev_chunks,
             "status": "success"
         }
     
@@ -466,12 +468,12 @@ class MemoryVectorAdapter(VectorPort):
         return {
             "total_documents": len(self.documents),
             "total_chunks": len(self.chunks),
-            "total_vectors": len(self.vectors),
+            "total_tokens": len(self.chunk_tokens),
             "total_content_length": total_content_length,
             "average_chunk_length": round(avg_chunk_length, 2),
-            "is_vectorizer_fitted": self.is_fitted,
+            "is_bm25_fitted": self.is_fitted,
             "memory_usage_estimate_mb": round(
-                (total_content_length + len(self.vectors) * 1000 * 8) / 1024 / 1024, 2
+                (total_content_length + len(self.chunk_tokens) * 100 * 8) / 1024 / 1024, 2
             )
         }
     
