@@ -1,6 +1,6 @@
 """
-LLM Text Generation Outbound Port - LangChain 호환
-LangChain과 LangGraph를 지원하는 LLM 텍스트 생성 포트
+LLM Text Generation Outbound Port
+LLM 텍스트 생성 포트
 """
 
 from abc import ABC, abstractmethod
@@ -8,7 +8,7 @@ from typing import Optional, AsyncIterator, Any, Dict
 
 
 class LLMTextGenerationPort(ABC):
-    """LLM 텍스트 생성 포트 - LangChain 호환"""
+    """LLM 텍스트 생성 포트"""
 
     @abstractmethod
     async def initialize(self):
@@ -40,28 +40,13 @@ class LLMTextGenerationPort(ABC):
         pass
 
     @abstractmethod
-    def create_custom_chain(self, template: str) -> Any:
-        """사용자 정의 체인 생성 (LangChain 호환)"""
-        pass
-
-    @abstractmethod
-    def get_llm_instance(self) -> Any:
-        """LangChain LLM 인스턴스 반환 (LangGraph 등에서 사용)"""
+    async def summarize(self, text: str, max_length: Optional[int] = None) -> str:
+        """텍스트 요약"""
         pass
 
     @abstractmethod
     def get_provider_info(self) -> Dict[str, Any]:
         """제공자 정보 반환"""
-        pass
-
-    @abstractmethod
-    def is_langchain_compatible(self) -> bool:
-        """LangChain 호환성 확인"""
-        pass
-
-    @abstractmethod
-    def is_langgraph_compatible(self) -> bool:
-        """LangGraph 호환성 확인"""
         pass
 
     @abstractmethod

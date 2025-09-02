@@ -138,3 +138,91 @@ class OpenAIAdapter(LLMOutboundPort):
             await self.client.close()
             self._available = False
             logger.info("OpenAI connection closed")
+
+    async def generate_text(
+        self,
+        prompt: str,
+        context: Optional[str] = None,
+        system_message: Optional[str] = None,
+        max_tokens: Optional[int] = None,
+        temperature: Optional[float] = None,
+    ) -> str:
+        """텍스트 생성 (generate_response의 별칭)"""
+        return await self.generate_response(
+            prompt=prompt,
+            context=context,
+            system_message=system_message
+        )
+
+    async def generate_stream(
+        self,
+        prompt: str,
+        context: Optional[str] = None,
+        system_message: Optional[str] = None,
+        max_tokens: Optional[int] = None,
+        temperature: Optional[float] = None,
+    ):
+        """스트리밍 텍스트 생성 (generate_streaming_response의 별칭)"""
+        async for chunk in self.generate_streaming_response(
+            prompt=prompt,
+            context=context,
+            system_message=system_message
+        ):
+            yield chunk
+
+    async def summarize(self, text: str, max_length: Optional[int] = None) -> str:
+        """텍스트 요약"""
+        prompt = f"다음 텍스트를 요약해주세요:\n\n{text}"
+        if max_length:
+            prompt += f"\n\n요약은 {max_length}자 이내로 작성해주세요."
+        
+        return await self.generate_text(prompt=prompt)
+
+    def get_provider_info(self) -> Dict[str, Any]:
+        """제공자 정보 반환"""
+        return {
+            "provider": "openai",
+            "model": self.model,
+            "temperature": self.temperature,
+            "max_tokens": self.max_tokens,
+            "available": self._available
+        }
+
+    async def generate_text(
+        self,
+        prompt: str,
+        context: Optional[str] = None,
+        system_message: Optional[str] = None,
+        max_tokens: Optional[int] = None,
+        temperature: Optional[float] = None,
+    ) -> str:
+        """텍스트 생성 (generate_response의 별칭)"""
+        return await self.generate_response(
+            prompt=prompt,
+            context=context,
+            system_message=system_message
+        )
+
+    async def generate_stream(
+        self,
+        prompt: str,
+        context: Optional[str] = None,
+        system_message: Optional[str] = None,
+        max_tokens: Optional[int] = None,
+        temperature: Optional[float] = None,
+    ):
+        """스트리밍 텍스트 생성 (generate_streaming_response의 별칭)"""
+        async for chunk in self.generate_streaming_response(
+            prompt=prompt,
+            context=context,
+            system_message=system_message
+        ):
+            yield chunk
+
+    async def summarize(self, text: str, max_length: Optional[int] = None) -> str:
+        """텍스트 요약"""
+        prompt = f"다음 텍스트를 요약해주세요:\n\n{text}"
+        if max_length:
+            prompt += f"\n\n요약은 {max_length}자 이내로 작성해주세요."
+        
+        return await self.generate_text(prompt=prompt)

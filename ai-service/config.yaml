@@ -1,88 +1,134 @@
-# AI-Service Configuration
-api:
-  title: "AI Portfolio Service"
-  version: "2.0.0"
-  description: "Complete AI service with backend logic migration"
+# AI Portfolio Service Configuration
+# 환경변수는 .env 파일에서 관리됩니다
 
-# Database connection
+# =============================================================================
+# LLM Configuration
+# =============================================================================
+llm:
+  # OpenAI 설정
+  openai:
+    model_name: "gpt-3.5-turbo"
+    temperature: 0.7
+    max_tokens: 1000
+    api_key: "${OPENAI_API_KEY}"
+  
+  # Google 설정
+  google:
+    model_name: "gemini-pro"
+    temperature: 0.7
+    max_output_tokens: 1000
+    api_key: "${GEMINI_API_KEY}"
+  
+  # Anthropic 설정
+  anthropic:
+    model_name: "claude-3-sonnet-20240229"
+    temperature: 0.7
+    max_tokens: 1000
+    api_key: "${ANTHROPIC_API_KEY}"
+
+# =============================================================================
+# Database Configuration
+# =============================================================================
 database:
+  host: "${DB_HOST:-localhost}"
+  port: "${DB_PORT:-5432}"
+  database: "${DB_NAME:-ai_portfolio}"
+  username: "${DB_USER:-postgres}"
+  password: "${DB_PASSWORD}"
   pool_size: 10
   max_overflow: 20
   pool_timeout: 30
   pool_recycle: 3600
 
-# Question Analysis Settings
-question_analysis:
-  ai_keywords:
-    - "프로젝트"
-    - "경험" 
-    - "기술"
-    - "스킬"
-    - "개발"
-    - "경력"
-  immediate_responses:
-    greetings:
-      - "안녕"
-      - "안녕하세요"  
-      - "hi"
-      - "hello"
-    contact:
-      - "연락처"
-      - "이메일"
-      - "email"
+# =============================================================================
+# Cache Configuration (Redis)
+# =============================================================================
+cache:
+  host: "${REDIS_HOST:-localhost}"
+  port: "${REDIS_PORT:-6379}"
+  password: "${REDIS_PASSWORD:-}"
+  database: "${REDIS_DB:-0}"
+  key_prefix: "ai_service:"
+  default_ttl: 3600
+  context_ttl: 7200
 
-# Context Building Settings  
-context_builder:
+# =============================================================================
+# Embedding Configuration
+# =============================================================================
+embedding:
+  provider: "openai"  # openai, google, huggingface
+  model_name: "text-embedding-3-small"
+  api_key: "${OPENAI_API_KEY}"
+  batch_size: 20
+  normalize: true
+  device: "cpu"
+
+# =============================================================================
+# Adapters Configuration
+# =============================================================================
+adapters:
+  # 벡터 저장소 어댑터 설정
+  vector:
+    memory:
+      model_name: "sentence-transformers/all-MiniLM-L6-v2"  # 로컬 임베딩 모델
+      similarity_threshold: 0.7
+      max_results: 10
+      hybrid_weight: 0.7  # Vector 검색 가중치 (0.3은 BM25)
+    
+    qdrant:
+      url: "${QDRANT_URL:-http://localhost:6333}"
+      api_key: "${QDRANT_API_KEY}"
+      collection_name: "${QDRANT_COLLECTION:-ai_portfolio}"
+      vector_size: 768
+      distance_metric: "cosine"
+      similarity_threshold: 0.7
+      max_results: 10
+  
+  # 임베딩 어댑터 설정
+  embedding:
+    provider: "huggingface"  # 데모에서는 로컬 모델 사용
+    model_name: "sentence-transformers/all-MiniLM-L6-v2"
+    batch_size: 20
+    normalize: true
+    device: "cpu"
+
+# =============================================================================
+# RAG Configuration
+# =============================================================================
+rag:
+  chunk_size: 500
+  chunk_overlap: 75
+  top_k: 5
+  similarity_threshold: 0.7
   max_context_length: 8000
   project_priority_boost: true
   include_metadata: true
-  
-# LLM Generation Settings
-generation:
-  model: "gemini-pro"
-  temperature: 0.3
-  max_tokens: 1000
-  system_prompt_template: |
-    당신은 개발자 포트폴리오를 소개하는 전문적이고 친근한 AI 어시스턴트입니다.
-    제공된 포트폴리오 정보를 바탕으로 정확하고 도움이 되는 답변을 해주세요.
-    기술적인 내용은 구체적으로, 경험은 성과 중심으로 설명해주세요.
 
-# Caching Settings
-cache:
-  redis_key_prefix: "ai_service:"
-  default_ttl: 3600
-  context_ttl: 7200
-  
-# Logging Settings  
+# =============================================================================
+# Logging Configuration
+# =============================================================================
 logging:
-  level: "INFO"
+  level: "${LOG_LEVEL:-INFO}"
   format: "json"
   include_request_id: true
 
-# Document Processing Settings
-document_processing:
-  source_directory: "docs/projects/"
-  file_pattern: "*.md"
-  encoding: "utf-8"
-  enable_validation: true
-  max_concurrent_processing: 5
-  
-  # Splitter Configuration
-  splitter:
-    chunk_size: 1000
-    chunk_overlap: 200
-    header_levels: [1, 2, 3]  # Split on H1, H2, H3
-  
-  # Validator Configuration
-  validator:
-    max_file_size_mb: 10
-    min_chunk_size: 100
-    max_chunk_size: 2000
-    min_overlap_ratio: 0.1
-    max_overlap_ratio: 0.3
-
-# Performance Settings
+# =============================================================================
+# Performance Configuration
+# =============================================================================
 performance:
   max_concurrent_requests: 50
   request_timeout_seconds: 30
   db_connection_timeout: 10
+  
+  # Mock LLM 설정 (테스트용)
+  mock_llm:
+    response_delay: 0.5
+    
+  # 메트릭 수집 설정
+  metrics:
+    collection_interval: 60
+    
+  # 헬스체크 설정
+  health_check:
+    interval: 30
+    timeout: 5

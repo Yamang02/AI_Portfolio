@@ -55,18 +55,8 @@ class EmbeddingPort(ABC):
         pass
 
     @abstractmethod
-    def get_langchain_embeddings(self) -> Any:
-        """LangChain 임베딩 인스턴스 반환 (고급 사용)"""
-        pass
-
-    @abstractmethod
     def get_provider_info(self) -> Dict[str, Any]:
         """제공자 정보 반환"""
-        pass
-
-    @abstractmethod
-    def is_langchain_compatible(self) -> bool:
-        """LangChain 호환성 확인"""
         pass
 
     @abstractmethod

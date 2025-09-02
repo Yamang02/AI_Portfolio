@@ -11,14 +11,6 @@ from src.core.ports.outbound import VectorStoreOutboundPort, LLMOutboundPort
 from src.application.dto import RAGQuery, RAGResult, SearchResult
 from src.core.domain import Document
 
-# 프로덕션 청킹 전략을 위한 import
-try:
-    from langchain.text_splitter import RecursiveCharacterTextSplitter
-    from langchain.schema import Document as LangChainDocument
-    LANGCHAIN_AVAILABLE = True
-except ImportError:
-    LANGCHAIN_AVAILABLE = False
-
 # 프로덕션 설정 공유를 위한 import
 try:
     from src.shared.config.config_manager import ConfigManager
@@ -29,7 +21,7 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 
-class RAGService:
+class RAGHexagonalService:
     """표준 RAG 서비스 (비즈니스 로직)"""
 
     def __init__(
@@ -88,18 +80,19 @@ class RAGService:
     def _initialize_production_text_splitter(self):
         """프로덕션 설정 기반 텍스트 분할기 초기화"""
         try:
-            if LANGCHAIN_AVAILABLE:
-                return RecursiveCharacterTextSplitter(
-                    chunk_size=self.chunking_config["chunk_size"],
-                    chunk_overlap=self.chunking_config["chunk_overlap"],
-                    separators=self.chunking_config["separators"],
-                    length_function=self.chunking_config["length_function"],
-                    is_separator_regex=self.chunking_config["is_separator_regex"]
-                )
-            else:
-                logger.warning("LangChain not available, using fallback chunking strategy")
-                return None
+            # 간단한 텍스트 분할기 구현
+            return SimpleTextSplitter(
+                chunk_size=self.chunking_config["chunk_size"],
+                chunk_overlap=self.chunking_config["chunk_overlap"],
+                separators=self.chunking_config["separators"]
+            )
         except Exception as e:
+            logger.warning(f"Failed to initialize text splitter, using fallback: {e}")
+            return SimpleTextSplitter(
+                chunk_size=500,
+                chunk_overlap=75,
+                separators=["\n\n", "\n", ". ", "! ", "? ", " ", ""]
+            )
             logger.error(f"Failed to initialize production text splitter: {e}")
             return None
 
@@ -274,24 +267,17 @@ class RAGService:
     ) -> Dict[str, Any]:
         """문서 로드 단계 (프로덕션 메타데이터 구조 사용)"""
         try:
-            # LangChain Document 객체 생성 (프로덕션과 동일한 구조)
-            if LANGCHAIN_AVAILABLE:
-                document = LangChainDocument(
-                    page_content=content,
-                    metadata=metadata or {}
-                )
-            else:
-                # 폴백: 간단한 문서 객체
-                document = {
-                    "content": content,
-                    "metadata": metadata or {}
-                }
+            # 간단한 문서 객체 생성
+            document = {
+                "content": content,
+                "metadata": metadata or {}
+            }
             
             return {
                 "success": True,
                 "document": document,
                 "content_length": len(content),
-                "metadata": document.metadata if hasattr(document, 'metadata') else document["metadata"]
+                "metadata": document["metadata"]
             }
             
         except Exception as e:
@@ -314,13 +300,11 @@ class RAGService:
                 }
             
             document = document_load_result["document"]
+            content = document["content"]
             
-            if self.text_splitter and LANGCHAIN_AVAILABLE:
+            if self.text_splitter:
                 # 프로덕션 청킹 전략 사용 (설정 기반)
-                if hasattr(document, 'page_content'):
-                    chunks = self.text_splitter.split_text(document.page_content)
-                else:
-                    chunks = self.text_splitter.split_text(document["content"])
+                chunks = self.text_splitter.split_text(content)
                 
                 chunk_details = []
                 for i, chunk in enumerate(chunks):
@@ -347,7 +331,6 @@ class RAGService:
                 }
             else:
                 # 폴백: 간단한 청킹 (프로덕션 설정 기반)
-                content = document.page_content if hasattr(document, 'page_content') else document["content"]
                 chunk_size = self.chunking_config["chunk_size"]
                 chunk_overlap = self.chunking_config["chunk_overlap"]
                 
@@ -491,33 +474,58 @@ class RAGService:
         source: str = "manual_input", 
         metadata: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
-        """데모: 텍스트로부터 문서 추가 (기존 방식 유지)"""
+        """데모: 텍스트로부터 문서 추가 (프로덕션 청킹 전략 적용)"""
         start_time = time.time()
         
         try:
-            # Document 생성
-            from src.core.domain import Document
-            document = Document(
-                id=str(uuid.uuid4()),
-                content=content,
-                source=source,
-                metadata=metadata or {}
-            )
+            if not self.text_splitter:
+                raise RuntimeError("Text splitter is not initialized.")
+
+            # 1. 프로덕션 설정에 따라 텍스트를 청크로 분할
+            chunks = self.text_splitter.split_text(content)
+            logger.info(f"Original content split into {len(chunks)} chunks.")
+
+            # 2. 각 청크를 Document 객체로 변환
+            documents = []
+            parent_document_id = str(uuid.uuid4())
+            for i, chunk_content in enumerate(chunks):
+                chunk_metadata = (metadata or {}).copy()
+                chunk_metadata.update({
+                    "parent_document_id": parent_document_id,
+                    "chunk_index": i,
+                    "total_chunks": len(chunks)
+                })
+                
+                document = Document(
+                    id=f"{parent_document_id}_chunk_{i}",
+                    content=chunk_content,
+                    source=source,
+                    metadata=chunk_metadata
+                )
+                documents.append(document)
             
-            # Vector store에 추가
-            result = await self.vector_store.add_document(document)
-            
+            # 3. Vector store에 문서 리스트 추가
+            # MemoryVectorAdapter는 add_documents를 지원하지 않으므로, add_document를 순차 호출
+            results = []
+            for doc in documents:
+                result = await self.vector_store.add_document(doc)
+                results.append(result)
+
             processing_time = time.time() - start_time
             
+            successful_adds = [res for res in results if res.get("success")]
+
             return {
-                "success": True,
-                "document_id": result.get("document_id", "demo-doc"),
+                "success": len(successful_adds) > 0,
+                "document_id": parent_document_id,
                 "source": source,
+                "chunks_created": len(documents),
+                "chunks_stored": len(successful_adds),
                 "processing_time": processing_time
             }
             
         except Exception as e:
-            logger.error(f"Failed to add document: {e}")
+            logger.error(f"Failed to add document with chunking: {e}", exc_info=True)
             return {
                 "success": False,
                 "error": str(e),
@@ -695,3 +703,58 @@ class RAGService:
         if hasattr(self.vector_store, 'get_chunk_count'):
             return await self.vector_store.get_chunk_count()
         return 3  # 기본값
+
+
+class SimpleTextSplitter:
+    """간단한 텍스트 분할기"""
+    
+    def __init__(self, chunk_size: int = 500, chunk_overlap: int = 75, separators: List[str] = None):
+        self.chunk_size = chunk_size
+        self.chunk_overlap = chunk_overlap
+        self.separators = separators or ["\n\n", "\n", ". ", "! ", "? ", " ", ""]
+    
+    def split_text(self, text: str) -> List[str]:
+        """텍스트를 청크로 분할"""
+        if not text:
+            return []
+        
+        chunks = []
+        current_chunk = ""
+        
+        # 구분자로 텍스트 분할
+        for separator in self.separators:
+            if separator in text:
+                parts = text.split(separator)
+                for part in parts:
+                    if len(current_chunk) + len(part) <= self.chunk_size:
+                        current_chunk += part + separator
+                    else:
+                        if current_chunk:
+                            chunks.append(current_chunk.strip())
+                        current_chunk = part + separator
+                break
+        
+        # 마지막 청크 추가
+        if current_chunk:
+            chunks.append(current_chunk.strip())
+        
+        # 청크가 너무 크면 강제로 분할
+        final_chunks = []
+        for chunk in chunks:
+            if len(chunk) > self.chunk_size:
+                # 단어 단위로 분할
+                words = chunk.split()
+                current = ""
+                for word in words:
+                    if len(current) + len(word) + 1 <= self.chunk_size:
+                        current += " " + word if current else word
+                    else:
+                        if current:
+                            final_chunks.append(current)
+                        current = word
+                if current:
+                    final_chunks.append(current)
+            else:
+                final_chunks.append(chunk)
+        
+        return final_chunks

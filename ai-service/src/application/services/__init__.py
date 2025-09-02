@@ -4,10 +4,10 @@ Services - Application Layer
 """
 
 # 핵심 서비스들
-from .rag_service import RAGService
+from .rag_hexagonal_service import RAGHexagonalService
 from .document_service import DocumentService
 
 __all__ = [
-    'RAGService',
+    'RAGHexagonalService',
     'DocumentService'
 ]

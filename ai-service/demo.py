@@ -14,9 +14,10 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Import hexagonal architecture components
-from src.application.services.rag_service import RAGService
+from src.application.services.rag_hexagonal_service import RAGHexagonalService
 from src.adapters.outbound.llm.mock_llm_adapter import MockLLMAdapter
-from src.adapters.outbound.databases.vector.memory_vector_adapter import MemoryVectorAdapter
+from src.adapters.outbound.databases.vector.vector_adapter_factory import VectorAdapterFactory
+
 
 # 프로덕션 설정 공유를 위한 import
 try:
@@ -42,9 +43,17 @@ class RAGDemoInterface:
         
         # Initialize hexagonal architecture components
         self.llm_adapter = MockLLMAdapter()
-        self.vector_adapter = MemoryVectorAdapter()
-        self.rag_service = RAGService(
-            vector_store=self.vector_adapter,
+        
+        # 벡터스토어 팩토리 (데모 환경용)
+        self.vector_adapter_factory = VectorAdapterFactory(environment="demo")
+        
+        
+        
+        # 벡터 어댑터 생성 (RAGService 호환용)
+        self.vector_adapter = self.vector_adapter_factory.create_vector_adapter()
+        
+        self.rag_service = RAGHexagonalService(
+            vector_store=self.vector_adapter,  # Vector Adapter 사용
             llm_port=self.llm_adapter,
             config_manager=self.config_manager  # 프로덕션 설정 공유
         )
@@ -60,7 +69,7 @@ class RAGDemoInterface:
         try:
             logger.info("🔄 Initializing LLM and Vector adapters...")
             await self.llm_adapter.initialize()
-            await self.vector_adapter.initialize()
+            
             self.initialized = True
             logger.info("✅ All adapters initialized successfully")
         except Exception as e:
@@ -246,6 +255,64 @@ class RAGDemoInterface:
             logger.error(f"문서 검색 중 오류 발생: {e}")
             return f"❌ 오류: {str(e)}"
 
+    async def demonstrate_retriever_process(self, query: str) -> Tuple[str, str, str]:
+        """리트리버 과정을 단계별로 시연"""
+        if not query.strip():
+            return "❌ 검색어를 입력해주세요", "", ""
+        
+        try:
+            # 1단계: 쿼리 임베딩 생성
+            step1_info = "🔄 **1단계: 쿼리 임베딩 생성**\n"
+            step1_info += f"• 쿼리: '{query}'\n"
+            step1_info += f"• 모델: sentence-transformers/all-MiniLM-L6-v2\n"
+            step1_info += f"• 벡터 차원: 384\n"
+            
+            # 2단계: 벡터 검색
+            step2_info = "🔍 **2단계: 벡터 검색**\n"
+            step2_info += f"• 검색 알고리즘: 코사인 유사도 + BM25\n"
+            step2_info += f"• 검색 범위: 전체 벡터 스토어\n"
+            
+            # 실제 검색 실행
+            result = await self.rag_service.search_documents_with_analysis(
+                query=query.strip(),
+                top_k=5,
+                similarity_threshold=0.1
+            )
+            
+            if not result.get("success"):
+                return f"❌ 검색 실패: {result.get('error', 'Unknown error')}", "", ""
+            
+            documents = result.get("results", [])
+            detailed_analysis = result.get("detailed_analysis", {})
+            processing_steps = detailed_analysis.get("processing_steps", {})
+            
+            # 3단계: 검색 결과
+            step3_info = "📊 **3단계: 검색 결과**\n"
+            step3_info += f"• 찾은 문서: {len(documents)}개\n"
+            step3_info += f"• 처리 시간: {processing_steps.get('total_time', 0):.3f}s\n\n"
+            
+            for i, doc in enumerate(documents[:3], 1):
+                step3_info += f"**{i}. 유사도: {doc.get('similarity_score', 0):.3f}**\n"
+                step3_info += f"{doc.get('content', '')[:150]}...\n\n"
+            
+            # 상세 분석 정보
+            analysis_info = "🔬 **상세 분석**\n"
+            analysis_info += f"• 전처리: {processing_steps.get('preprocessing', 0):.3f}s\n"
+            analysis_info += f"• 벡터화: {processing_steps.get('vectorization', 0):.3f}s\n"
+            analysis_info += f"• 유사도 계산: {processing_steps.get('similarity_calculation', 0):.3f}s\n"
+            analysis_info += f"• 정렬: {processing_steps.get('sorting', 0):.3f}s\n"
+            
+            vector_info = detailed_analysis.get("vector_info", {})
+            analysis_info += f"• 벡터 차원: {vector_info.get('dimensions', 384)}\n"
+            analysis_info += f"• 총 청크 수: {vector_info.get('total_chunks', 0)}\n"
+            analysis_info += f"• 처리된 청크: {vector_info.get('processed_chunks', 0)}\n"
+            
+            return step1_info, step2_info + step3_info, analysis_info
+                
+        except Exception as e:
+            logger.error(f"리트리버 과정 시연 중 오류 발생: {e}")
+            return f"❌ 오류: {str(e)}", "", ""
+
     async def search_documents_with_analysis(self, query: str, top_k: int = 3) -> Tuple[str, str, str]:
         """상세 분석과 함께 문서 검색"""
         if not query.strip():
@@ -371,6 +438,7 @@ class RAGDemoInterface:
 **🔍 벡터 스토어:**
 • 스토어: {vector_info.get('store_name', 'MemoryVector')}
 • 상태: {'✅ 준비됨' if status.get('vector_store_available') else '❌ 사용 불가'}
+• 환경: {self.vector_store_factory.environment}
 • 임베딩 모델: {vector_info.get('embedding_model', 'all-MiniLM-L6-v2')}
 • 차원: {vector_info.get('dimensions', 384)}
             """
@@ -706,6 +774,112 @@ class RAGDemoInterface:
             logger.error(f"벡터스토어 내용 가져오기 중 오류 발생: {e}")
             return f"❌ 벡터스토어 내용 가져오기 실패: {str(e)}"
 
+    async def demonstrate_complete_rag_pipeline(self, content: str, query: str) -> Tuple[str, str, str, str]:
+        """완전한 RAG 파이프라인 시연: 문서 추가부터 검색까지"""
+        try:
+            pipeline_log = []
+            
+            # === 1단계: 문서 로딩 ===
+            pipeline_log.append("🔄 **1단계: 문서 로딩**")
+            pipeline_log.append(f"• 입력 텍스트 길이: {len(content)} 문자")
+            pipeline_log.append(f"• 문서 타입: 텍스트")
+            pipeline_log.append(f"• 처리 시간: 즉시\n")
+            
+            # === 2단계: 문서 저장 및 벡터화 ===
+            pipeline_log.append("🔄 **2단계: 문서 저장 및 벡터화**")
+            add_result = await self.rag_service.add_document_with_analysis(
+                content=content.strip(),
+                source="pipeline_demo",
+                metadata={"demo": "complete_pipeline"}
+            )
+            
+            if not add_result.get("success"):
+                return "❌ 문서 추가 실패", "", "", ""
+            
+            processing_steps = add_result.get("processing_steps", {})
+            vector_result = add_result.get("vector_result", {})
+            
+            pipeline_log.append(f"• 임베딩 모델: sentence-transformers/all-MiniLM-L6-v2")
+            pipeline_log.append(f"• 벡터 차원: {vector_result.get('vector_dimensions', 384)}")
+            pipeline_log.append(f"• 생성된 청크: {vector_result.get('chunks_created', 0)}개")
+            pipeline_log.append(f"• 벡터화 시간: {processing_steps.get('vector_processing', 0):.3f}s")
+            pipeline_log.append(f"• BM25 인덱싱 완료\n")
+            
+            # === 3단계: 쿼리 처리 ===
+            pipeline_log.append("🔍 **3단계: 쿼리 처리**")
+            pipeline_log.append(f"• 검색 쿼리: '{query}'")
+            pipeline_log.append(f"• 쿼리 길이: {len(query)} 문자")
+            pipeline_log.append(f"• 검색 알고리즘: 하이브리드 (Vector + BM25)\n")
+            
+            # === 4단계: 유사도 검색 실행 ===
+            search_result = await self.rag_service.search_documents_with_analysis(
+                query=query.strip(),
+                top_k=3,
+                similarity_threshold=0.1
+            )
+            
+            if not search_result.get("success"):
+                return "\n".join(pipeline_log), "❌ 검색 실패", "", ""
+            
+            documents = search_result.get("results", [])
+            detailed_analysis = search_result.get("detailed_analysis", {})
+            processing_steps_search = detailed_analysis.get("processing_steps", {})
+            
+            pipeline_log.append("📊 **4단계: 검색 실행 결과**")
+            pipeline_log.append(f"• 찾은 문서: {len(documents)}개")
+            pipeline_log.append(f"• 검색 시간: {processing_steps_search.get('total_time', 0):.3f}s")
+            pipeline_log.append(f"• 벡터 유사도 계산: {processing_steps_search.get('similarity_calculation', 0):.3f}s")
+            pipeline_log.append(f"• BM25 점수 계산: {processing_steps_search.get('preprocessing', 0):.3f}s")
+            
+            # 검색 결과 포맷팅
+            search_results = f"🔍 **검색 결과 ({len(documents)}개)**\n\n"
+            for i, doc in enumerate(documents, 1):
+                search_results += f"**{i}. 유사도: {doc.get('similarity_score', 0):.3f}**\n"
+                search_results += f"{doc.get('content', '')[:300]}...\n\n"
+            
+            # 벡터 분석 정보
+            vector_info = detailed_analysis.get("vector_info", {})
+            vector_analysis = f"🔢 **벡터 분석**\n"
+            vector_analysis += f"• 처리된 청크: {vector_info.get('processed_chunks', 0)}개\n"
+            vector_analysis += f"• 벡터 차원: {vector_info.get('dimensions', 384)}\n"
+            vector_analysis += f"• 유사도 임계값: {vector_info.get('threshold_applied', 0.1)}\n\n"
+            
+            similarity_dist = detailed_analysis.get("similarity_distribution", {})
+            vector_analysis += f"**유사도 분포:**\n"
+            vector_analysis += f"• 고유사도 (>0.7): {similarity_dist.get('exact_matches', 0)}개\n"
+            vector_analysis += f"• 중유사도 (0.3-0.7): {similarity_dist.get('similarity_matches', 0)}개\n"
+            vector_analysis += f"• 저유사도 (<0.3): {similarity_dist.get('contextual_matches', 0)}개\n"
+            
+            # === 5단계: RAG 답변 생성 ===
+            if documents:
+                rag_result = await self.rag_service.generate_rag_answer(
+                    question=query.strip(),
+                    context_hint=None,
+                    metadata={"demo": "complete_pipeline"}
+                )
+                
+                pipeline_log.append(f"\n🤖 **5단계: RAG 답변 생성**")
+                pipeline_log.append(f"• LLM 모델: MockLLM (데모용)")
+                pipeline_log.append(f"• 사용된 컨텍스트: {len(rag_result.sources)}개 문서")
+                pipeline_log.append(f"• 답변 생성 시간: {rag_result.processing_time_ms:.0f}ms")
+                pipeline_log.append(f"• 신뢰도: {rag_result.confidence:.2f}")
+                
+                final_answer = f"🤖 **최종 RAG 답변**\n\n{rag_result.answer}\n\n"
+                final_answer += f"**메타 정보:**\n"
+                final_answer += f"• 처리 시간: {rag_result.processing_time_ms:.0f}ms\n"
+                final_answer += f"• 신뢰도: {rag_result.confidence:.2f}\n"
+                final_answer += f"• 사용된 소스: {len(rag_result.sources)}개"
+            else:
+                pipeline_log.append(f"\n❌ **5단계: RAG 답변 생성 실패**")
+                pipeline_log.append("• 관련 문서를 찾을 수 없어 답변을 생성할 수 없습니다.")
+                final_answer = "❌ 관련 문서를 찾을 수 없어 답변을 생성할 수 없습니다."
+            
+            return "\n".join(pipeline_log), search_results, vector_analysis, final_answer
+            
+        except Exception as e:
+            logger.error(f"완전한 RAG 파이프라인 시연 중 오류 발생: {e}")
+            return f"❌ 오류: {str(e)}", "", "", ""
+
 
 def create_demo_interface() -> gr.Blocks:
     """Gradio 데모 인터페이스 생성"""
@@ -906,6 +1080,46 @@ def create_demo_interface() -> gr.Blocks:
                         interactive=False
                     )
         
+        with gr.Tab("🔄 리트리버 과정 시연"):
+            with gr.Row():
+                # 왼쪽 열: 쿼리 입력
+                with gr.Column(scale=1):
+                    gr.Markdown("### 🔍 리트리버 과정 시연")
+                    gr.Markdown("**실제 리트리버 과정을 단계별로 보여줍니다:**")
+                    gr.Markdown("• 1단계: 쿼리 임베딩 생성")
+                    gr.Markdown("• 2단계: 벡터 검색 (코사인 유사도)")
+                    gr.Markdown("• 3단계: 검색 결과 분석")
+                    
+                    retriever_query = gr.Textbox(
+                        label="검색할 쿼리",
+                        placeholder="예: 헥사고날 아키텍처의 장점은 무엇인가요?",
+                        lines=3
+                    )
+                    retriever_btn = gr.Button("🔄 리트리버 과정 시연", variant="primary")
+                
+                # 중앙 열: 1단계 + 2단계
+                with gr.Column(scale=1):
+                    gr.Markdown("### 📊 처리 과정")
+                    step1_output = gr.Textbox(
+                        label="1단계: 쿼리 임베딩 생성",
+                        lines=6,
+                        interactive=False
+                    )
+                    step2_output = gr.Textbox(
+                        label="2단계: 벡터 검색 + 결과",
+                        lines=12,
+                        interactive=False
+                    )
+                
+                # 오른쪽 열: 상세 분석
+                with gr.Column(scale=1):
+                    gr.Markdown("### 🔬 상세 분석")
+                    analysis_output = gr.Textbox(
+                        label="상세 분석 정보",
+                        lines=20,
+                        interactive=False
+                    )
+
         with gr.Tab("🔍 문서 검색"):
             with gr.Row():
                 # 왼쪽 열: 검색 입력
@@ -1034,6 +1248,63 @@ def create_demo_interface() -> gr.Blocks:
                         interactive=False
                     )
 
+        with gr.Tab("🔄 RAG 파이프라인"):
+            with gr.Row():
+                gr.Markdown("""
+                ## 🎯 완전한 RAG 파이프라인 시연
+                **문서 로딩 → 청킹 → 벡터화 → 저장 → 검색 → 답변생성**의 전체 과정을 한 번에 보여줍니다.
+                """)
+            
+            with gr.Row():
+                # 왼쪽 열: 입력
+                with gr.Column(scale=1):
+                    gr.Markdown("### 📝 입력 데이터")
+                    pipeline_document = gr.Textbox(
+                        label="분석할 문서",
+                        placeholder="RAG 파이프라인으로 처리할 문서를 입력하세요...",
+                        lines=10
+                    )
+                    pipeline_query = gr.Textbox(
+                        label="검색 쿼리",
+                        placeholder="문서에서 찾고자 하는 내용을 질문하세요...",
+                        lines=3
+                    )
+                    pipeline_btn = gr.Button("🚀 전체 파이프라인 실행", variant="primary")
+                
+                # 중앙 열: 파이프라인 과정
+                with gr.Column(scale=1):
+                    gr.Markdown("### 🔄 처리 과정")
+                    pipeline_process = gr.Textbox(
+                        label="파이프라인 로그",
+                        lines=25,
+                        interactive=False
+                    )
+                
+                # 오른쪽 열: 검색 결과
+                with gr.Column(scale=1):
+                    gr.Markdown("### 🔍 검색 결과")
+                    pipeline_search_result = gr.Textbox(
+                        label="검색된 문서",
+                        lines=12,
+                        interactive=False
+                    )
+                    gr.Markdown("### 🔢 벡터 분석")
+                    pipeline_vector_analysis = gr.Textbox(
+                        label="벡터 분석 결과",
+                        lines=10,
+                        interactive=False
+                    )
+            
+            with gr.Row():
+                # 하단: 최종 RAG 답변
+                with gr.Column():
+                    gr.Markdown("### 🤖 최종 RAG 답변")
+                    pipeline_final_answer = gr.Textbox(
+                        label="생성된 답변",
+                        lines=8,
+                        interactive=False
+                    )
+
         with gr.Tab("📊 데이터 확인"):
             with gr.Row():
                 # 왼쪽 열: 메모리 내용 확인
@@ -1139,6 +1410,12 @@ def create_demo_interface() -> gr.Blocks:
                 return await demo_controller.get_vector_store_detailed_info()
             return asyncio.run(run())
 
+        def sync_demonstrate_retriever_process(query):
+            async def run():
+                await demo_controller.initialize()
+                return await demo_controller.demonstrate_retriever_process(query)
+            return asyncio.run(run())
+
         def sync_get_memory_content():
             async def run():
                 await demo_controller.initialize()
@@ -1155,6 +1432,12 @@ def create_demo_interface() -> gr.Blocks:
             async def run():
                 await demo_controller.initialize()
                 return await demo_controller.get_vector_store_content()
+            return asyncio.run(run())
+        
+        def sync_demonstrate_complete_rag_pipeline(document, query):
+            async def run():
+                await demo_controller.initialize()
+                return await demo_controller.demonstrate_complete_rag_pipeline(document, query)
             return asyncio.run(run())
 
         def format_system_status_html(status_text):
@@ -1272,6 +1555,12 @@ def create_demo_interface() -> gr.Blocks:
             outputs=[search_results_analysis, search_processing_info, search_vector_info]
         )
         
+        retriever_btn.click(
+            fn=sync_demonstrate_retriever_process,
+            inputs=[retriever_query],
+            outputs=[step1_output, step2_output, analysis_output]
+        )
+
         answer_btn.click(
             fn=sync_generate_answer,
             inputs=[question_input, max_sources],
@@ -1309,6 +1598,13 @@ def create_demo_interface() -> gr.Blocks:
         vector_content_btn.click(
             fn=sync_get_vector_store_content,
             outputs=vector_content_output
+        )
+
+        # RAG 파이프라인 이벤트 핸들러
+        pipeline_btn.click(
+            fn=sync_demonstrate_complete_rag_pipeline,
+            inputs=[pipeline_document, pipeline_query],
+            outputs=[pipeline_process, pipeline_search_result, pipeline_vector_analysis, pipeline_final_answer]
         )
 
         # 페이지 로드 시 초기 시스템 상태 업데이트

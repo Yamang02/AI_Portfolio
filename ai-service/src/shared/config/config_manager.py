@@ -47,8 +47,7 @@ class ConfigManager:
 
     def __init__(self, config_dir: str = "config"):
         self.config_dir = Path(config_dir)
-        self.config_file = self.config_dir / "app_config.yaml"
-        self.langchain_config_file = self.config_dir / "langchain-config.yaml"
+        self.config_file = Path("config.yaml")  # 루트의 config.yaml 사용
         self.env_file = self.config_dir / ".env"
 
         # 필수 설정 키 정의
@@ -69,29 +68,12 @@ class ConfigManager:
             "cache.database": "캐시 데이터베이스 번호",
             "logging.level": "로깅 레벨",
             "logging.format": "로깅 포맷",
-            "langchain.korean.text_splitter.chunk_size": "텍스트 분할 청크 크기",
-            "langchain.korean.text_splitter.chunk_overlap": "텍스트 분할 청크 오버랩",
-            "langchain.korean.text_splitter.separators": "텍스트 분할 구분자",
-            "langchain.rag.chunk_size": "RAG 청크 크기",
-            "langchain.rag.chunk_overlap": "RAG 청크 오버랩",
-            "langchain.rag.top_k": "RAG Top-K",
-            "langchain.rag.similarity_threshold": "RAG 유사도 임계값",
-            # 어댑터 설정
-            "adapters.embedding.provider": "임베딩 제공자",
-            "adapters.embedding.model_name": "임베딩 모델명",
-            "adapters.embedding.batch_size": "임베딩 배치 크기",
-            "adapters.vector.memory.model_name": "벡터 저장소 모델명",
-            "adapters.database.postgresql.pool_size": "PostgreSQL 풀 크기",
-            "adapters.database.postgresql.max_overflow": "PostgreSQL 최대 오버플로우",
-            "adapters.llm.unified.default_provider": "통합 LLM 기본 제공자",
-            "adapters.llm.unified.default_model": "통합 LLM 기본 모델",
-            "adapters.llm.unified.default_temperature": "통합 LLM 기본 Temperature",
-            "adapters.llm.unified.default_max_tokens": "통합 LLM 기본 Max Tokens",
-            # 성능 설정
-            "performance.mock_llm.response_delay": "Mock LLM 응답 지연시간",
-            "performance.metrics.collection_interval": "메트릭 수집 주기",
-            "performance.health_check.interval": "헬스체크 주기",
-            "performance.health_check.timeout": "헬스체크 타임아웃"
+            "embedding.provider": "임베딩 제공자",
+            "embedding.model_name": "임베딩 모델명",
+            "rag.chunk_size": "RAG 청크 크기",
+            "rag.chunk_overlap": "RAG 청크 오버랩",
+            "rag.top_k": "RAG Top-K",
+            "rag.similarity_threshold": "RAG 유사도 임계값"
         }
 
         self.config: Dict[str, Any] = {}
@@ -113,14 +95,6 @@ class ConfigManager:
                     raise ValueError(f"설정 파일이 비어있습니다: {self.config_file}")
                 self.config = file_config
                 logger.info(f"설정 파일 로드 완료: {self.config_file}")
-
-            # 2. LangChain 설정 파일이 있으면 로드
-            if self.langchain_config_file.exists():
-                with open(self.langchain_config_file, 'r', encoding='utf-8') as f:
-                    langchain_config = yaml.safe_load(f)
-                    if langchain_config:
-                        self._deep_merge(self.config, langchain_config)
-                        logger.info(f"LangChain 설정 파일 로드 완료: {self.langchain_config_file}")
 
             # 환경 변수 오버라이드
             self._load_from_env()
@@ -160,11 +134,12 @@ class ConfigManager:
             "DB_HOST": "database.host",
             "DB_PORT": "database.port",
             "DB_NAME": "database.database",
-            "DB_USERNAME": "database.username",
+            "DB_USER": "database.username",
             "DB_PASSWORD": "database.password",
             "REDIS_HOST": "cache.host",
             "REDIS_PORT": "cache.port",
             "REDIS_PASSWORD": "cache.password",
+            "REDIS_DB": "cache.database",
             "LOG_LEVEL": "logging.level"
         }
         
@@ -236,27 +211,16 @@ class ConfigManager:
         if not self.config.get("database", {}).get("password"):
             logger.warning("데이터베이스 비밀번호가 설정되지 않았습니다.")
 
-    def get_langchain_config(self) -> Dict[str, Any]:
-        """LangChain 설정 반환"""
-        if not self._loaded:
-            self.load_config()
-        
-        return self.config.get("langchain", {})
-
     def get_chunking_config(self) -> Dict[str, Any]:
         """청킹 설정 반환 (프로덕션과 데모 공유용)"""
         if not self._loaded:
             self.load_config()
         
-        # LangChain 설정에서 청킹 관련 설정 추출
-        langchain_config = self.config["langchain"]
-        korean_config = langchain_config["korean"]
-        text_splitter_config = korean_config["text_splitter"]
-        
+        # 기본 청킹 설정 반환
         chunking_config = {
-            "chunk_size": text_splitter_config["chunk_size"],
-            "chunk_overlap": text_splitter_config["chunk_overlap"],
-            "separators": text_splitter_config["separators"],
+            "chunk_size": self.config.get("rag", {}).get("chunk_size", 500),
+            "chunk_overlap": self.config.get("rag", {}).get("chunk_overlap", 75),
+            "separators": ["\n\n", "\n", ". ", "! ", "? ", " ", ""],
             "config_source": "production_shared"
         }
         
@@ -331,9 +295,15 @@ class ConfigManager:
         
         return self.config.get("performance", {})
     
-    def get_embedding_config(self) -> Dict[str, Any]:
+    def get_embedding_config(self, provider: str) -> Optional[Dict[str, Any]]:
         """임베딩 어댑터 설정 반환"""
-        return self.get_adapter_config("embedding")
+        if not self._loaded:
+            self.load_config()
+        
+        embedding_config = self.config.get("embedding", {})
+        if provider in embedding_config:
+            return embedding_config[provider]
+        return None
     
     def get_vector_config(self, vector_type: str = "memory") -> Dict[str, Any]:
         """벡터 저장소 어댑터 설정 반환"""

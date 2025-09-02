@@ -13,9 +13,11 @@ from sklearn.metrics.pairwise import cosine_similarity
 from src.core.domain.services.text_tokenizer import TextTokenizerService
 
 from src.core.ports.outbound.vector_store_port import VectorStoreOutboundPort
+from src.core.ports.outbound.embedding_port import EmbeddingPort
 from src.core.domain.entities.document import Document, DocumentChunk
 from src.application.dto.search import SearchResult
 from src.core.domain.value_objects import SearchResultType
+from src.core.domain.value_objects.vector_config import VectorStoreConfig
 from src.shared.config.config_manager import get_config_manager
 
 logger = logging.getLogger(__name__)
@@ -24,40 +26,57 @@ logger = logging.getLogger(__name__)
 class MemoryVectorAdapter(VectorStoreOutboundPort):
     """하이브리드 메모리 벡터 스토어 (sentence-transformers + BM25)"""
 
-    def __init__(self, config_manager=None):
+    def __init__(self, config_manager=None, embedding_port: EmbeddingPort = None):
         # ConfigManager에서 설정 로드
         self.config_manager = config_manager or get_config_manager()
         vector_config = self.config_manager.get_vector_config("memory")
         
-        # 설정 파일에서만 값 가져오기 (필수)
-        self.model_name = vector_config["model_name"]
+        # ✅ 설정을 Value Object로 변환
+        self.vector_config = VectorStoreConfig(
+            model_name=vector_config["model_name"],
+            similarity_threshold=vector_config["similarity_threshold"],
+            max_results=vector_config["max_results"],
+            hybrid_weight=vector_config.get("hybrid_weight", 0.7)
+        )
+        
+        # ✅ 임베딩 포트 의존성 주입 (헥사고날 원칙)
+        self.embedding_port = embedding_port
         
         self.documents: List[Document] = []
         self.document_embeddings: Optional[np.ndarray] = None
         self.bm25: Optional[BM25Okapi] = None
         self.tokenizer = TextTokenizerService()
-        self.embedding_model: Optional[SentenceTransformer] = None
+        
+        # ❌ 직접 임베딩 모델 사용 제거
+        # self.embedding_model: Optional[SentenceTransformer] = None
+        
         self._is_initialized = False
 
-        logger.info(f"MemoryVectorAdapter initializing with model: {self.model_name}")
+        logger.info(f"MemoryVectorAdapter initializing with embedding port: {type(embedding_port).__name__ if embedding_port else 'None'}")
 
     def is_available(self) -> bool:
         """사용 가능 여부"""
         return self._is_initialized
 
     async def initialize(self):
-        """초기화 - 임베딩 모델 로드"""
+        """초기화 - 임베딩 포트 준비"""
         try:
-            # SentenceTransformer 모델 로드
-            logger.info(f"Loading embedding model: {self.model_name}")
-            self.embedding_model = SentenceTransformer(self.model_name)
+            # ✅ 임베딩 포트를 통한 초기화 (헥사고날 원칙)
+            if self.embedding_port:
+                await self.embedding_port.initialize()
+                logger.info(f"Embedding port initialized: {type(self.embedding_port).__name__}")
+            else:
+                logger.warning("No embedding port provided - falling back to direct model loading")
+                # 임시 호환성을 위한 폴백 (추후 제거 예정)
+                from sentence_transformers import SentenceTransformer
+                self.embedding_model = SentenceTransformer(self.vector_config.model_name)
             
             if self.documents:
-                self._update_embeddings()
+                await self._update_embeddings()
                 self._update_bm25()
                 
             self._is_initialized = True
-            logger.info("MemoryVectorAdapter initialized successfully with embeddings")
+            logger.info("MemoryVectorAdapter initialized successfully")
         except Exception as e:
             logger.error(f"Failed to initialize MemoryVectorAdapter: {e}")
             raise
@@ -68,7 +87,7 @@ class MemoryVectorAdapter(VectorStoreOutboundPort):
             self.documents.append(document)
             
             # 임베딩과 BM25 업데이트
-            self._update_embeddings()
+            await self._update_embeddings()
             self._update_bm25()
             
             logger.info(f"Added document {document.id} with embeddings to memory vector store")
@@ -100,21 +119,33 @@ class MemoryVectorAdapter(VectorStoreOutboundPort):
     async def search_documents(
         self,
         query: str,
-        top_k: int = 5,
-        similarity_threshold: float = 0.1,
-        hybrid_weight: float = 0.7  # 벡터 검색 가중치 (0.3은 BM25)
+        top_k: int = None,
+        similarity_threshold: float = None,
+        hybrid_weight: float = None
     ) -> List[SearchResult]:
         """하이브리드 검색 (Vector Similarity + BM25)"""
         if not self.is_available() or not self.documents:
             return []
+
+        # ✅ 설정에서 기본값 사용 (매개변수 우선)
+        k = top_k or self.vector_config.max_results
+        threshold = similarity_threshold or self.vector_config.similarity_threshold
+        weight = hybrid_weight or self.vector_config.hybrid_weight
 
         try:
             start_time = time.time()
 
             # 1. 벡터 검색 점수 계산
             vector_scores = np.zeros(len(self.documents))
-            if self.embedding_model is not None and self.document_embeddings is not None:
-                query_embedding = self.embedding_model.encode([query])
+            if self.document_embeddings is not None:
+                # ✅ 임베딩 포트를 통한 쿼리 임베딩 생성 (헥사고날 원칙)
+                if self.embedding_port:
+                    query_embedding_list = await self.embedding_port.embed_single(query)
+                    query_embedding = np.array([query_embedding_list])
+                else:
+                    # 임시 호환성 폴백
+                    query_embedding = self.embedding_model.encode([query])
+                
                 vector_similarities = cosine_similarity(query_embedding, self.document_embeddings)[0]
                 vector_scores = vector_similarities
 
@@ -128,17 +159,17 @@ class MemoryVectorAdapter(VectorStoreOutboundPort):
                     bm25_scores = bm25_raw_scores / np.max(bm25_raw_scores)
 
             # 3. 하이브리드 점수 계산
-            hybrid_scores = (hybrid_weight * vector_scores) + ((1 - hybrid_weight) * bm25_scores)
+            hybrid_scores = (weight * vector_scores) + ((1 - weight) * bm25_scores)
 
             # 임계값 필터링
-            valid_indices = np.where(hybrid_scores >= similarity_threshold)[0]
+            valid_indices = np.where(hybrid_scores >= threshold)[0]
 
             # 점수 순으로 정렬
             sorted_indices = valid_indices[np.argsort(hybrid_scores[valid_indices])[::-1]]
 
             # 상위 k개 결과 반환 (SearchResult 객체로 변환)
             results = []
-            for rank, idx in enumerate(sorted_indices[:top_k]):
+            for rank, idx in enumerate(sorted_indices[:k]):
                 document = self.documents[idx]
                 # Document를 DocumentChunk로 변환 (전체 문서를 하나의 청크로 처리)
                 chunk = DocumentChunk(
@@ -283,16 +314,27 @@ class MemoryVectorAdapter(VectorStoreOutboundPort):
 
         logger.info(f"BM25 model updated with {len(self.documents)} documents")
 
-    def _update_embeddings(self):
+    async def _update_embeddings(self):
         """문서 임베딩 업데이트"""
-        if not self.documents or self.embedding_model is None:
+        if not self.documents:
             self.document_embeddings = None
             return
 
         try:
-            # 모든 문서 내용을 임베딩
+            # ✅ 임베딩 포트를 통한 배치 임베딩 생성 (헥사고날 원칙)
             document_texts = [doc.content for doc in self.documents]
-            self.document_embeddings = self.embedding_model.encode(document_texts)
+            
+            if self.embedding_port:
+                embeddings_list = await self.embedding_port.embed_batch(document_texts)
+                self.document_embeddings = np.array(embeddings_list)
+            else:
+                # 임시 호환성 폴백
+                if hasattr(self, 'embedding_model') and self.embedding_model:
+                    self.document_embeddings = self.embedding_model.encode(document_texts)
+                else:
+                    logger.warning("No embedding method available")
+                    self.document_embeddings = None
+                    return
             
             logger.info(f"Document embeddings updated: {len(self.documents)} docs, "
                        f"{self.document_embeddings.shape[1]} dimensions")
@@ -312,7 +354,7 @@ class MemoryVectorAdapter(VectorStoreOutboundPort):
             
             return {
                 "embeddings_available": True,
-                "model_name": self.model_name,
+                "model_name": self.vector_config.model_name,
                 "document_count": len(self.documents),
                 "embedding_dimensions": self.document_embeddings.shape[1],
                 "embedding_shape": list(self.document_embeddings.shape),
@@ -390,7 +432,7 @@ class MemoryVectorAdapter(VectorStoreOutboundPort):
         return {
             "store_name": "MemoryVector",
             "type": "Hybrid (Vector + BM25)",
-            "embedding_model": self.model_name,
+            "embedding_model": self.vector_config.model_name,
             "dimensions": embedding_info.get("embedding_dimensions", 384),
             "document_count": len(self.documents),
             "available": self._is_initialized,

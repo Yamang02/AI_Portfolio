@@ -12,6 +12,8 @@ from qdrant_client.models import Distance, VectorParams, PointStruct, Filter, Fi
 
 from src.core.ports.outbound.vector_store_port import VectorStoreOutboundPort
 from src.core.domain.entities.document import Document
+from src.core.domain.value_objects.vector_config import VectorStoreConfig, QdrantConfig
+from src.shared.config.config_manager import get_config_manager
 
 logger = logging.getLogger(__name__)
 
@@ -19,17 +21,25 @@ logger = logging.getLogger(__name__)
 class QdrantAdapter(VectorStoreOutboundPort):
     """Qdrant 벡터 데이터베이스 어댑터"""
 
-    def __init__(
-        self,
-        url: str,
-        api_key: Optional[str] = None,
-        collection_name: str = "documents",
-        vector_size: int = 768
-    ):
-        self.url = url
-        self.api_key = api_key
-        self.collection_name = collection_name
-        self.vector_size = vector_size
+    def __init__(self, config_manager=None):
+        # ConfigManager에서 설정 로드
+        self.config_manager = config_manager or get_config_manager()
+        qdrant_settings = self.config_manager.get_vector_config("qdrant")
+        
+        # ✅ 설정을 Value Objects로 변환
+        self.qdrant_config = QdrantConfig(
+            url=qdrant_settings["url"],
+            api_key=qdrant_settings.get("api_key"),
+            collection_name=qdrant_settings["collection_name"],
+            vector_size=qdrant_settings["vector_size"],
+            distance_metric=qdrant_settings.get("distance_metric", "cosine")
+        )
+        
+        self.vector_config = VectorStoreConfig(
+            model_name="qdrant",  # Qdrant는 임베딩 모델 이름이 없음
+            similarity_threshold=qdrant_settings["similarity_threshold"],
+            max_results=qdrant_settings["max_results"]
+        )
 
         self.client: Optional[AsyncQdrantClient] = None
         self._available = False
@@ -38,28 +48,35 @@ class QdrantAdapter(VectorStoreOutboundPort):
         """Qdrant 클라이언트 초기화"""
         try:
             self.client = AsyncQdrantClient(
-                url=self.url,
-                api_key=self.api_key
+                url=self.qdrant_config.url,
+                api_key=self.qdrant_config.api_key
             )
 
             # 컬렉션 존재 여부 확인 및 생성
             collections = await self.client.get_collections()
             collection_names = [col.name for col in collections.collections]
 
-            if self.collection_name not in collection_names:
+            if self.qdrant_config.collection_name not in collection_names:
+                # 설정에서 거리 메트릭 결정
+                distance_metric = Distance.COSINE
+                if self.qdrant_config.distance_metric == "euclidean":
+                    distance_metric = Distance.EUCLID
+                elif self.qdrant_config.distance_metric == "dot":
+                    distance_metric = Distance.DOT
+                
                 await self.client.create_collection(
-                    collection_name=self.collection_name,
+                    collection_name=self.qdrant_config.collection_name,
                     vectors_config=VectorParams(
-                        size=self.vector_size,
-                        distance=Distance.COSINE
+                        size=self.qdrant_config.vector_size,
+                        distance=distance_metric
                     )
                 )
                 logger.info(
-                    f"Created Qdrant collection: {self.collection_name}")
+                    f"Created Qdrant collection: {self.qdrant_config.collection_name}")
 
             self._available = True
             logger.info(
-                f"Qdrant adapter initialized with collection: {self.collection_name}")
+                f"Qdrant adapter initialized with collection: {self.qdrant_config.collection_name}")
 
         except Exception as e:
             logger.error(f"Failed to initialize Qdrant adapter: {e}")
@@ -79,7 +96,7 @@ class QdrantAdapter(VectorStoreOutboundPort):
             points = []
             for doc in documents:
                 # 문서를 벡터로 변환 (임시로 랜덤 벡터 사용)
-                vector = np.random.normal(0, 1, self.vector_size).tolist()
+                vector = np.random.normal(0, 1, self.qdrant_config.vector_size).tolist()
 
                 point = PointStruct(
                     id=doc.id,
@@ -92,7 +109,7 @@ class QdrantAdapter(VectorStoreOutboundPort):
                 points.append(point)
 
             await self.client.upsert(
-                collection_name=self.collection_name,
+                collection_name=self.qdrant_config.collection_name,
                 points=points
             )
 
@@ -106,25 +123,29 @@ class QdrantAdapter(VectorStoreOutboundPort):
     async def search_documents(
         self,
         query: str,
-        top_k: int = 5,
-        similarity_threshold: float = 0.1
+        top_k: int = None,
+        similarity_threshold: float = None
     ) -> List[Tuple[Document, float]]:
         """문서 검색"""
         if not self.is_available():
             return []
 
+        # ✅ 설정에서 기본값 사용 (매개변수 우선)
+        k = top_k or self.vector_config.max_results
+        threshold = similarity_threshold or self.vector_config.similarity_threshold
+
         try:
             start_time = time.time()
 
             # 쿼리를 벡터로 변환 (임시로 랜덤 벡터 사용)
-            query_vector = np.random.normal(0, 1, self.vector_size).tolist()
+            query_vector = np.random.normal(0, 1, self.qdrant_config.vector_size).tolist()
 
             # 벡터 검색 수행
             search_result = await self.client.search(
-                collection_name=self.collection_name,
+                collection_name=self.qdrant_config.collection_name,
                 query_vector=query_vector,
-                limit=top_k,
-                score_threshold=similarity_threshold
+                limit=k,
+                score_threshold=threshold
             )
 
             # 결과를 Document 객체로 변환
@@ -155,7 +176,7 @@ class QdrantAdapter(VectorStoreOutboundPort):
 
         try:
             await self.client.delete(
-                collection_name=self.collection_name,
+                collection_name=self.qdrant_config.collection_name,
                 points_selector=document_ids
             )
 
@@ -172,7 +193,7 @@ class QdrantAdapter(VectorStoreOutboundPort):
             return 0
 
         try:
-            collection_info = await self.client.get_collection(self.collection_name)
+            collection_info = await self.client.get_collection(self.qdrant_config.collection_name)
             return collection_info.points_count
         except Exception as e:
             logger.error(f"Failed to get document count from Qdrant: {e}")
@@ -185,7 +206,7 @@ class QdrantAdapter(VectorStoreOutboundPort):
 
         try:
             await self.client.delete(
-                collection_name=self.collection_name,
+                collection_name=self.qdrant_config.collection_name,
                 points_selector=Filter(
                     must=[
                         FieldCondition(
