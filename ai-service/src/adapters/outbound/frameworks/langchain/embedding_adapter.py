@@ -10,6 +10,7 @@ from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_huggingface import HuggingFaceEmbeddings
 
 from src.core.ports.outbound.embedding_port import EmbeddingPort, EmbeddingTaskType
+from src.shared.config.config_manager import get_config_manager
 
 logger = logging.getLogger(__name__)
 
@@ -17,19 +18,22 @@ logger = logging.getLogger(__name__)
 class LangChainEmbeddingAdapter(EmbeddingPort):
     """LangChain 기반 임베딩 어댑터"""
 
-    def __init__(
-        self,
-        provider: str = "openai",
-        model_name: str = "text-embedding-3-small",
-        api_key: Optional[str] = None,
-        batch_size: int = 20
-    ):
-        self.provider = provider
-        self.model_name = model_name
-        self.batch_size = batch_size
+    def __init__(self, config_manager=None):
+        # ConfigManager에서 설정 로드
+        self.config_manager = config_manager or get_config_manager()
+        embedding_config = self.config_manager.get_embedding_config()
+        
+        # 설정 파일에서만 값 가져오기 (필수)
+        self.provider = embedding_config["provider"]
+        self.model_name = embedding_config["model_name"]
+        self.batch_size = embedding_config["batch_size"]
+        
+        # API 키는 ConfigManager를 통해 가져오기
+        llm_config = self.config_manager.get_llm_config(self.provider)
+        self._api_key = llm_config.api_key if llm_config else None
+        
         self._embedding_model = None
         self._is_initialized = False
-        self._api_key = api_key
 
     async def initialize(self):
         """LangChain 임베딩 모델 초기화"""

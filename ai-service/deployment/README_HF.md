@@ -15,18 +15,25 @@ pinned: false
 This interactive demo showcases a **Retrieval-Augmented Generation (RAG)** system built with clean **hexagonal architecture** principles.
 
 ### 🎯 How to Use:
-1. **Add Documents** to build your knowledge base
-2. **Analyze Documents** to see detailed processing steps
-3. **Search** for relevant content
-4. **Analyze Search** to understand vector processing
-5. **Ask Questions** to get AI-generated answers
-6. **Explore** the clean architecture structure
+1. **📚 Load Sample Data** to automatically add AI Portfolio project documents
+2. **📄 Add Documents** to build additional knowledge base
+3. **🔍 Search** for relevant content (sample queries provided)
+4. **🤖 Ask Questions** to get AI-generated answers
+5. **🔬 Analyze** to see detailed processing steps
+6. **📊 Explore** the clean architecture structure
 
 ### 🔬 New Features:
-- **Document Analysis**: See how documents are chunked and vectorized
-- **Search Analysis**: Understand the vector search process step by step
-- **Processing Metrics**: Real-time performance analysis
-- **Vector Insights**: Detailed information about embeddings and similarity
+- **📚 Auto Sample Data**: AI Portfolio project documents automatically available
+- **💡 Sample Queries**: Pre-defined questions for easy testing
+- **🔍 Document Analysis**: See how documents are chunked and vectorized
+- **⚡ Search Analysis**: Understand the vector search process step by step
+- **📈 Processing Metrics**: Real-time performance analysis
+- **🔢 Vector Insights**: Detailed information about embeddings and similarity
+
+### 📚 Sample Data Included:
+- **AI Portfolio Overview**: Project goals and technical decisions (simplified)
+- **Architecture Q&A**: Hexagonal architecture implementation details
+- **RAG System Q&A**: RAG system and vector processing explanations
 
 ### 🏗️ Architecture Info
 

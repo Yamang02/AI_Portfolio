@@ -108,36 +108,45 @@ AI_Portfolio/
 - **Google Gemini API** - AI 챗봇
 - **GitHub API** - 프로젝트 정보
 
+## 🚀 빠른 시작
+
+### 전체 시스템 실행 (백엔드 + 프론트엔드 + AI 서비스)
+```bash
+# 전체 시스템 실행
+docker-compose up
+
+# 백그라운드 실행
+docker-compose up -d
+```
+
+### AI 데모만 독립 실행 (추천)
+```bash
+# AI 데모만 실행 (가장 빠름)
+docker-compose -f docker-compose.demo.yml up
+
+# 백그라운드 실행
+docker-compose -f docker-compose.demo.yml up -d
+
+# 빌드와 함께 실행
+docker-compose -f docker-compose.demo.yml up --build
+```
+
+### AI 데모 + 전체 시스템
+```bash
+# AI 데모와 함께 전체 시스템 실행 (기존 방식)
+docker-compose --profile demo up
+
+# 백그라운드 실행
+docker-compose --profile demo up -d
+```
+
+### 관리 도구 실행
+```bash
+# pgAdmin (데이터베이스 관리)
+docker-compose --profile admin up pgadmin
+```
+
 ## 📦 설치 및 실행
-
-### 1. 전체 프로젝트 설치
-
-```bash
-# 모든 의존성 설치
-npm run install:all
-```
-
-### 2. 개발 모드 실행
-
-```bash
-# 프론트엔드와 백엔드 동시 실행
-npm run dev
-
-# 또는 개별 실행
-npm run dev:frontend  # 프론트엔드만
-npm run dev:backend   # 백엔드만
-```
-
-### 3. 프로덕션 빌드
-
-```bash
-# 전체 프로젝트 빌드
-npm run build
-
-# 또는 개별 빌드
-npm run build:frontend
-npm run build:backend
-```
 
 ## 🔧 환경 설정
 

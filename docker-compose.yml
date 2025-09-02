@@ -132,11 +132,14 @@ services:
       - ENVIRONMENT=development
       - HEALTH_CHECK_ENABLED=true
       - METRICS_ENABLED=true
-      - HF_HOME=/tmp/huggingface_cache
+      - HF_HOME=/app/model_cache/huggingface
+      - TRANSFORMERS_CACHE=/app/model_cache/huggingface
+      - KONLPY_DATA_PATH=/app/model_cache/konlpy
     volumes:
       - ./ai-service/src:/app/src
       - ./ai-service/main.py:/app/main.py
       - ./ai-service/requirements-cloudrun.txt:/app/requirements-cloudrun.txt
+      - ./model_cache:/app/model_cache
     depends_on:
       postgres:
         condition: service_healthy
@@ -145,30 +148,6 @@ services:
       qdrant:
         condition: service_started
     restart: unless-stopped
-    networks:
-      - ai-portfolio-network
-
-  # AI Service Demo (Gradio Interface)
-  ai-demo:
-    build:
-      context: ./ai-service
-      dockerfile: deployment/Dockerfile.demo
-    container_name: ai-portfolio-demo
-    ports:
-      - "7860:7860"
-    environment:
-      - PYTHONPATH=/app
-      - PYTHONUNBUFFERED=1
-      - GRADIO_SERVER_NAME=0.0.0.0
-      - GRADIO_SERVER_PORT=7860
-      - HF_HOME=/tmp/huggingface_cache
-    volumes:
-      - ./ai-service/src:/app/src
-      - ./ai-service/demo.py:/app/demo.py
-      - ./ai-service/requirements-demo.txt:/app/requirements-demo.txt
-    restart: unless-stopped
-    profiles:
-      - demo
     networks:
       - ai-portfolio-network
 

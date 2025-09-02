@@ -1,0 +1,28 @@
+# AI Portfolio Demo Environment
+services:
+  # Gradio Demo Service
+  demo:
+    build:
+      context: ./ai-service
+      dockerfile: deployment/Dockerfile.demo
+    container_name: ai-portfolio-demo
+    ports:
+      - "7860:7860"
+    environment:
+      - PYTHONPATH=/app
+      - PYTHONUNBUFFERED=1
+      - HF_HOME=/app/model_cache/huggingface
+      - TRANSFORMERS_CACHE=/app/model_cache/huggingface
+    volumes:
+      - ./ai-service/src:/app/src
+      - ./ai-service/demo.py:/app/demo.py
+      - ./ai-service/sampledata:/app/sampledata
+      - ./model_cache:/app/model_cache
+    command: ["python", "demo.py"]
+    restart: unless-stopped
+    networks:
+      - demo-network
+
+networks:
+  demo-network:
+    driver: bridge

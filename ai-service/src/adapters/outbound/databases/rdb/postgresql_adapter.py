@@ -11,6 +11,7 @@ from datetime import datetime
 
 from src.core.ports.outbound.rdb_port import RDBOutboundPort
 from src.core.domain.entities.document import Document
+from src.shared.config.config_manager import get_config_manager
 
 logger = logging.getLogger(__name__)
 
@@ -18,15 +19,18 @@ logger = logging.getLogger(__name__)
 class PostgreSQLAdapter(RDBOutboundPort):
     """PostgreSQL RDB 어댑터"""
 
-    def __init__(
-        self,
-        connection_string: str,
-        pool_size: int = 10,
-        max_overflow: int = 20
-    ):
-        self.connection_string = connection_string
-        self.pool_size = pool_size
-        self.max_overflow = max_overflow
+    def __init__(self, config_manager=None):
+        # ConfigManager에서 설정 로드
+        self.config_manager = config_manager or get_config_manager()
+        db_config = self.config_manager.get_database_config()
+        postgresql_config = self.config_manager.get_postgresql_config()
+        
+        # 연결 문자열 생성
+        self.connection_string = f"postgresql://{db_config.username}:{db_config.password}@{db_config.host}:{db_config.port}/{db_config.database}"
+        
+        # 설정 파일에서만 값 가져오기 (필수)
+        self.pool_size = postgresql_config["pool_size"]
+        self.max_overflow = postgresql_config["max_overflow"]
 
         self.pool: Optional[asyncpg.Pool] = None
         self._available = False

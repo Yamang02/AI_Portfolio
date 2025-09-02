@@ -42,6 +42,9 @@ konlpy==0.6.0
 # Google Gemini API
 google-generativeai==0.8.3
 
+# OpenAI API (for LLM factory)
+openai==1.102.0
+
 # Monitoring and health check
 psutil==6.1.0
 httpx==0.28.1

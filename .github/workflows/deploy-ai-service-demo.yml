@@ -32,58 +32,12 @@ jobs:
     - name: Validate Hexagonal Architecture Structure
       run: |
         cd ai-service
-        echo "🔍 Validating Hexagonal Architecture structure..."
-        
-        # Check required directories
-        for dir in "src/adapters" "src/application" "src/core" "src/infrastructure"; do
-          if [ ! -d "$dir" ]; then
-            echo "❌ Missing directory: $dir"
-            exit 1
-          fi
-          echo "✅ Found: $dir"
-        done
-        
-        # Check key files
-        for file in "demo.py" "main.py" "requirements-demo.txt"; do
-          if [ ! -f "$file" ]; then
-            echo "❌ Missing file: $file"
-            exit 1
-          fi
-          echo "✅ Found: $file"
-        done
-        
-        echo "✅ Hexagonal Architecture structure validated"
+        python validate_architecture.py
       
     - name: Test Hexagonal Architecture Imports
       run: |
         cd ai-service
-        python -c "
-        import sys
-        sys.path.insert(0, '.')
-        
-        print('🧪 Testing Hexagonal Architecture imports...')
-        
-        try:
-          from src.application.rag_service import RAGService
-          from src.adapters.secondary.llm.mock_llm_adapter import MockLLMAdapter
-          from src.adapters.secondary.vector.memory_vector_adapter import MemoryVectorAdapter
-          from src.core.domain.models import DocumentChunk, RAGQuery
-          
-          print('✅ All Hexagonal Architecture imports successful')
-          
-          # Test basic instantiation
-          llm_adapter = MockLLMAdapter()
-          vector_adapter = MemoryVectorAdapter()
-          rag_service = RAGService(llm_adapter, vector_adapter)
-          
-          print('✅ Hexagonal Architecture components instantiated successfully')
-          
-        except Exception as e:
-          print(f'❌ Import test failed: {e}')
-          import traceback
-          traceback.print_exc()
-          exit(1)
-        "
+        echo "Import test is now included in validate_architecture.py"
         
     - name: Prepare HuggingFace Spaces files
       run: |
@@ -186,5 +140,8 @@ jobs:
         echo "  • Interactive document processing"
         echo "  • Live RAG pipeline demonstration"
         echo "  • Clean separation of concerns"
+        echo "  • 📚 Auto sample data loading"
+        echo "  • 💡 Pre-defined sample queries"
+        echo "  • 🔍 Advanced search analysis"
         echo ""
         echo "🚀 The demo will be available in 2-3 minutes at the URL above!"

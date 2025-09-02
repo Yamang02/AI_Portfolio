@@ -101,6 +101,22 @@ temp/
 ehthumbs.db
 Thumbs.db
 
+# Model Cache (대용량 모델 파일들)
+model_cache/
+*.bin
+*.safetensors
+*.ckpt
+*.pth
+*.h5
+*.hdf5
+
+# HuggingFace Cache
+.cache/
+huggingface_cache/
+
+# KoNLPy Cache
+konlpy_cache/
+
 # Docker
 .dockerignore
 

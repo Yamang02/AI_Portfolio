@@ -16,6 +16,7 @@ from src.core.ports.outbound.vector_store_port import VectorStoreOutboundPort
 from src.core.domain.entities.document import Document, DocumentChunk
 from src.application.dto.search import SearchResult
 from src.core.domain.value_objects import SearchResultType
+from src.shared.config.config_manager import get_config_manager
 
 logger = logging.getLogger(__name__)
 
@@ -23,16 +24,22 @@ logger = logging.getLogger(__name__)
 class MemoryVectorAdapter(VectorStoreOutboundPort):
     """하이브리드 메모리 벡터 스토어 (sentence-transformers + BM25)"""
 
-    def __init__(self, model_name: str = "all-MiniLM-L6-v2"):
+    def __init__(self, config_manager=None):
+        # ConfigManager에서 설정 로드
+        self.config_manager = config_manager or get_config_manager()
+        vector_config = self.config_manager.get_vector_config("memory")
+        
+        # 설정 파일에서만 값 가져오기 (필수)
+        self.model_name = vector_config["model_name"]
+        
         self.documents: List[Document] = []
         self.document_embeddings: Optional[np.ndarray] = None
         self.bm25: Optional[BM25Okapi] = None
         self.tokenizer = TextTokenizerService()
-        self.model_name = model_name
         self.embedding_model: Optional[SentenceTransformer] = None
         self._is_initialized = False
 
-        logger.info(f"MemoryVectorAdapter initializing with model: {model_name}")
+        logger.info(f"MemoryVectorAdapter initializing with model: {self.model_name}")
 
     def is_available(self) -> bool:
         """사용 가능 여부"""
@@ -187,6 +194,36 @@ class MemoryVectorAdapter(VectorStoreOutboundPort):
     async def get_chunk_count(self) -> int:
         """청크 개수 반환 (현재는 문서 개수와 동일)"""
         return len(self.documents)
+
+    async def get_document_chunks(self, document_id: str) -> List[Dict[str, Any]]:
+        """문서의 청크 조회 (현재는 전체 문서를 하나의 청크로 처리)"""
+        try:
+            # 문서 찾기
+            document = next((doc for doc in self.documents if doc.id == document_id), None)
+            if not document:
+                return []
+            
+            # 전체 문서를 하나의 청크로 처리
+            chunk = {
+                "id": f"{document_id}_chunk_0",
+                "content": document.content,
+                "document_id": document_id,
+                "chunk_index": 0,
+                "source": document.source,
+                "metadata": document.metadata,
+                "embedding": None  # 임베딩은 별도로 계산 필요
+            }
+            
+            # 임베딩 정보 추가 (있는 경우)
+            if self.document_embeddings is not None:
+                doc_index = next((i for i, doc in enumerate(self.documents) if doc.id == document_id), None)
+                if doc_index is not None and doc_index < len(self.document_embeddings):
+                    chunk["embedding"] = self.document_embeddings[doc_index].tolist()
+            
+            return [chunk]
+        except Exception as e:
+            logger.error(f"Failed to get document chunks: {e}")
+            return []
 
     async def get_all_documents(self) -> List[Dict[str, Any]]:
         """데모: 모든 문서 조회"""

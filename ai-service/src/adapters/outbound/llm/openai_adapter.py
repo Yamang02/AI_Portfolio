@@ -10,6 +10,7 @@ import openai
 from openai import AsyncOpenAI
 
 from src.core.ports.outbound.llm_port import LLMOutboundPort
+from src.shared.config.config_manager import get_config_manager
 
 logger = logging.getLogger(__name__)
 
@@ -17,17 +18,19 @@ logger = logging.getLogger(__name__)
 class OpenAIAdapter(LLMOutboundPort):
     """OpenAI LLM 어댑터"""
 
-    def __init__(
-        self,
-        api_key: str,
-        model: str = "gpt-3.5-turbo",
-        max_tokens: int = 1000,
-        temperature: float = 0.7
-    ):
-        self.api_key = api_key
-        self.model = model
-        self.max_tokens = max_tokens
-        self.temperature = temperature
+    def __init__(self, config_manager=None):
+        # ConfigManager에서 설정 로드
+        self.config_manager = config_manager or get_config_manager()
+        openai_llm_config = self.config_manager.get_llm_config("openai")
+        
+        if not openai_llm_config:
+            raise ValueError("OpenAI LLM 설정을 찾을 수 없습니다.")
+        
+        # 설정 파일에서만 값 가져오기 (필수)
+        self.api_key = openai_llm_config.api_key
+        self.model = openai_llm_config.model_name
+        self.max_tokens = openai_llm_config.max_tokens
+        self.temperature = openai_llm_config.temperature
 
         self.client: Optional[AsyncOpenAI] = None
         self._available = False
