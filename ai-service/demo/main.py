@@ -238,29 +238,61 @@ def create_demo_interface() -> gr.Blocks:
 
         # === 2. Textsplitter(Chunking) 탭 ===
         with gr.Tab("✂️ Textsplitter(Chunking)"):
-            # 1단계: 메모리 내 Document 확인 및 대상 Document 설정
-            gr.Markdown("### 📋 1단계: 메모리 내 Document 확인 및 대상 Document 설정")
+            # 1단계: Document 확인 및 설정
+            gr.Markdown('<div class="step-title">1단계: Document 확인 및 설정</div>')
+            
+            # 1-1: 메모리 로드 문서 확인 및 대상문서 선택
+            gr.Markdown('<div class="section-title">📋 메모리 로드 문서 확인 및 대상문서 선택</div>')
             with gr.Row():
-                with gr.Column(scale=2):
-                    gr.Markdown("**현재 메모리에 로드된 문서들:**")
+                # 왼쪽: 메모리 로드 문서 확인
+                with gr.Column(scale=1):
                     document_list_output = gr.HTML(
                         label="로드된 문서 목록",
                         value="<div style='text-align: center; color: #666; padding: 20px;'>문서를 로드하면 여기에 목록이 표시됩니다.</div>"
                     )
+                    refresh_docs_btn = gr.Button("🔄 문서 목록 새로고침", variant="secondary", size="sm")
                 
+                # 오른쪽: 대상문서 선택
                 with gr.Column(scale=1):
-                    gr.Markdown("**대상 문서 선택:**")
                     document_selection = gr.Radio(
-                        choices=["전체 문서", "개별 문서 선택"],
+                        choices=["전체 문서", "개별 문서 선택", "다중 문서 선택"],
                         label="처리 방식",
                         value="전체 문서"
                     )
                     selected_document = gr.Dropdown(
-                        choices=[],
+                        choices=demo_controller.get_document_choices(),
                         label="선택할 문서 (개별 선택 시)",
                         interactive=False
                     )
-                    refresh_docs_btn = gr.Button("🔄 문서 목록 새로고침", variant="secondary", size="sm")
+                    selected_documents = gr.CheckboxGroup(
+                        choices=demo_controller.get_document_choices(),
+                        label="선택할 문서들 (다중 선택 시)",
+                        interactive=False
+                    )
+                    gr.Markdown("**선택된 문서 미리보기:**")
+                    selected_doc_preview = gr.HTML(
+                        label="선택된 문서 미리보기",
+                        value="<div style='text-align: center; color: #666; padding: 20px;'>문서를 선택하면 여기에 미리보기가 표시됩니다.</div>"
+                    )
+            
+            # 1-3: 대상문서 분석
+            gr.Markdown('<div class="section-title">🔬 대상문서 분석</div>')
+            gr.Markdown("스마트 청킹을 위한 문서 구조 및 특성 분석")
+            with gr.Row():
+                with gr.Column(scale=1):
+                    analyze_doc_btn = gr.Button("📊 문서 분석 실행", variant="primary")
+                    doc_analysis_output = gr.Textbox(
+                        label="문서 분석 결과",
+                        lines=8,
+                        interactive=False
+                    )
+                
+                with gr.Column(scale=2):
+                    gr.Markdown("**분석 항목:**")
+                    gr.Markdown("• 문서 길이 및 구조")
+                    gr.Markdown("• 문단 및 섹션 분포")
+                    gr.Markdown("• 키워드 및 주제 분포")
+                    gr.Markdown("• 최적 청킹 전략 제안")
             
             # 2단계: Chunking 설정
             gr.Markdown("### ⚙️ 2단계: Chunking 설정")
@@ -582,8 +614,8 @@ def create_demo_interface() -> gr.Blocks:
         def sync_update_chunking_settings(preset, chunk_size, chunk_overlap):
             return demo_controller.update_chunking_settings(preset, chunk_size, chunk_overlap)
         
-        def sync_execute_chunking(document_selection, selected_document):
-            return demo_controller.execute_chunking(document_selection, selected_document)
+        def sync_execute_chunking(document_selection, selected_document, selected_documents):
+            return demo_controller.execute_chunking(document_selection, selected_document, selected_documents)
         
         def sync_get_chunk_cards():
             return demo_controller.get_chunk_cards()
@@ -679,9 +711,36 @@ def create_demo_interface() -> gr.Blocks:
         
         # 문서 선택 변경 시 드롭다운 업데이트
         document_selection.change(
-            fn=lambda selection: gr.update(choices=demo_controller.get_document_choices(), interactive=(selection == "개별 문서 선택")),
+            fn=lambda selection: (
+                gr.update(choices=demo_controller.get_document_choices(), interactive=(selection == "개별 문서 선택")),
+                gr.update(choices=demo_controller.get_document_choices(), interactive=(selection == "다중 문서 선택"))
+            ),
             inputs=document_selection,
-            outputs=selected_document
+            outputs=[selected_document, selected_documents]
+        )
+        
+        # 문서 분석 실행
+        analyze_doc_btn.click(
+            fn=lambda selection, single_doc, multiple_docs: 
+                demo_controller.analyze_document(single_doc) if selection == "개별 문서 선택" else
+                demo_controller.analyze_multiple_documents(multiple_docs) if selection == "다중 문서 선택" else
+                "❌ 분석할 문서를 선택해주세요.",
+            inputs=[document_selection, selected_document, selected_documents],
+            outputs=doc_analysis_output
+        )
+        
+        # 문서 선택 시 미리보기 업데이트
+        selected_document.change(
+            fn=lambda choice: demo_controller.get_document_preview_by_choice(choice) if choice else "<div style='text-align: center; color: #666; padding: 20px;'>문서를 선택하면 여기에 미리보기가 표시됩니다.</div>",
+            inputs=selected_document,
+            outputs=selected_doc_preview
+        )
+        
+        # 다중 문서 선택 시 미리보기 업데이트
+        selected_documents.change(
+            fn=lambda choices: demo_controller.get_multiple_documents_preview(choices) if choices else "<div style='text-align: center; color: #666; padding: 20px;'>문서를 선택하면 여기에 미리보기가 표시됩니다.</div>",
+            inputs=selected_documents,
+            outputs=selected_doc_preview
         )
         
         # 프리셋 변경 시 설정 업데이트
@@ -714,7 +773,7 @@ def create_demo_interface() -> gr.Blocks:
         # 청킹 실행
         execute_chunking_btn.click(
             fn=sync_execute_chunking,
-            inputs=[document_selection, selected_document],
+            inputs=[document_selection, selected_document, selected_documents],
             outputs=[chunking_status, chunk_analysis_output]
         )
         

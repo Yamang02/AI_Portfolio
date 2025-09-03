@@ -1,11 +1,4 @@
----
-title: "AI 포트폴리오 RAG 챗봇"
-document_type: "PROJECT"
-year: 2025
-skills: ["Hexagonal Architecture", "RAG", "Java", "Spring Boot", "Python", "FastAPI", "React", "Docker", "GCP Cloud Run", "CI/CD", "Qdrant", "Redis", "PostgreSQL", "Gemini API"]
-keywords: ["포트폴리오", "챗봇", "풀스택", "AI-통합", "RAG 시스템", "마이크로서비스"]
-summary: "헥사고날 아키텍처를 기반으로 RAG(검색 증강 생성) 파이프라인을 구축하여, 제 포트폴리오에 대해 자연어로 답변하는 AI 챗봇 시스템을 설계하고 개발했습니다."
----
+# AI 포트폴리오 RAG 챗봇
 
 ## 프로젝트 목표 및 기획 의도
 

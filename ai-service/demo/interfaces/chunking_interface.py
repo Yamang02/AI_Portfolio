@@ -64,7 +64,7 @@ class ChunkingInterface:
         </div>
         """
 
-    def execute_chunking(self, document_selection: str, selected_document: str) -> Tuple[str, str]:
+    def execute_chunking(self, document_selection: str, selected_document: str, selected_documents: list = None) -> Tuple[str, str]:
         """청킹 실행 및 결과 반환 (새로운 전략 기반)"""
         try:
             # 대상 문서 선택
@@ -73,7 +73,7 @@ class ChunkingInterface:
             if document_selection == "전체 문서":
                 # 모든 문서 선택
                 target_documents = self.document_interface.get_all_documents()
-            else:
+            elif document_selection == "개별 문서 선택":
                 # 개별 문서 선택
                 if selected_document:
                     # 선택된 문서 찾기
@@ -83,6 +83,15 @@ class ChunkingInterface:
                         if f"📖 {doc['title']} ({doc['source']})" == selected_document or f"✍️ {doc['title']} ({doc['source']})" == selected_document:
                             target_documents.append(doc)
                             break
+            elif document_selection == "다중 문서 선택":
+                # 다중 문서 선택
+                if selected_documents:
+                    all_docs = self.document_interface.get_all_documents()
+                    
+                    for doc in all_docs:
+                        doc_choice = f"📖 {doc['title']} ({doc['source']})" if doc['type'] == 'sample_data' else f"✍️ {doc['title']} ({doc['source']})"
+                        if doc_choice in selected_documents:
+                            target_documents.append(doc)
             
             if not target_documents:
                 return (

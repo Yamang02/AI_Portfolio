@@ -1,11 +1,11 @@
 """
 Chunking Strategy Factory
-문서 유형에 따른 청킹 전략 자동 선택
+문서 유형에 따른 청킹 전략 자동 선택 - 메타데이터 기반 우아한 구조
 """
 
 import os
 import re
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List, Type
 from .base_chunker import BaseChunker
 from .project_chunker import ProjectDocumentChunker
 from .qa_chunker import QADocumentChunker
@@ -44,11 +44,84 @@ class DefaultTextChunker(BaseChunker):
         return chunks
 
 
-class ChunkingStrategyFactory:
-    """청킹 전략 팩토리"""
+class DocumentTypeDetector:
+    """문서 타입 감지기 - 메타데이터 기반 단순 구조"""
     
-    @staticmethod
-    def get_chunker(document: str, 
+    def __init__(self):
+        self.detectors = [
+            MetadataDetector()  # 메타데이터만 사용 (실서비스 + 데모 통일)
+        ]
+    
+    def detect_document_type(self, document: str, document_metadata: Optional[Dict[str, Any]] = None) -> str:
+        """메타데이터에서 문서 타입 감지"""
+        for detector in self.detectors:
+            doc_type = detector.detect(document, document_metadata)
+            if doc_type:
+                return doc_type
+        return "UNKNOWN"  # 메타데이터가 없으면 기본 청킹 사용
+
+
+class BaseDetector:
+    """감지기 기본 클래스"""
+    
+    def detect(self, document: str, document_metadata: Optional[Dict[str, Any]] = None) -> Optional[str]:
+        """문서 타입 감지 (하위 클래스에서 구현)"""
+        raise NotImplementedError
+
+
+class MetadataDetector(BaseDetector):
+    """메타데이터 기반 문서 타입 감지기 (실서비스용, 최고 신뢰도)"""
+    
+    def detect(self, document: str, document_metadata: Optional[Dict[str, Any]] = None) -> Optional[str]:
+        """메타데이터에서 document_type 추출"""
+        if not document_metadata:
+            return None
+        
+        # 메타데이터에서 직접 document_type 확인
+        doc_type = document_metadata.get('document_type')
+        if doc_type:
+            return doc_type.upper()
+        
+        # 메타데이터의 type 필드 확인 (데모용)
+        doc_type = document_metadata.get('type')
+        if doc_type:
+            return doc_type.upper()
+        
+        return None
+
+
+class ChunkerRegistry:
+    """청커 레지스트리 - 전략 매핑"""
+    
+    def __init__(self):
+        self._chunkers: Dict[str, Type[BaseChunker]] = {
+            "PROJECT": ProjectDocumentChunker,
+            "QA": QADocumentChunker,
+            "TEXT": DefaultTextChunker,
+            "UNKNOWN": DefaultTextChunker
+        }
+    
+    def get_chunker_class(self, document_type: str) -> Type[BaseChunker]:
+        """문서 타입에 따른 청커 클래스 반환"""
+        return self._chunkers.get(document_type, DefaultTextChunker)
+    
+    def register_chunker(self, document_type: str, chunker_class: Type[BaseChunker]):
+        """새로운 청커 등록"""
+        self._chunkers[document_type] = chunker_class
+    
+    def get_available_types(self) -> List[str]:
+        """사용 가능한 문서 타입 목록"""
+        return list(self._chunkers.keys())
+
+
+class ChunkingStrategyFactory:
+    """청킹 전략 팩토리 - 메타데이터 기반 우아한 구조"""
+    
+    def __init__(self):
+        self.detector = DocumentTypeDetector()
+        self.registry = ChunkerRegistry()
+    
+    def get_chunker(self, document: str, 
                    document_metadata: Optional[Dict[str, Any]] = None,
                    chunker_config: Optional[Dict[str, Any]] = None) -> BaseChunker:
         """
@@ -56,7 +129,7 @@ class ChunkingStrategyFactory:
         
         Args:
             document: 원본 문서 텍스트
-            document_metadata: 문서 메타데이터 (파일 경로, 확장자 등)
+            document_metadata: 문서 메타데이터 (파일 경로, 확장자, document_type 등)
             chunker_config: 청킹 설정 (chunk_size, chunk_overlap 등)
             
         Returns:
@@ -69,138 +142,18 @@ class ChunkingStrategyFactory:
         chunk_overlap = config.get('chunk_overlap', 75)
         preserve_structure = config.get('preserve_structure', True)
         
-        # 1. Frontmatter에서 document_type 확인
-        document_type = ChunkingStrategyFactory._extract_document_type_from_frontmatter(document)
+        # 문서 타입 감지 (메타데이터 우선)
+        document_type = self.detector.detect_document_type(document, document_metadata)
         
-        # 2. 파일 경로/이름에서 유형 추론
-        if not document_type:
-            document_type = ChunkingStrategyFactory._extract_document_type_from_path(document_metadata)
+        # 청커 클래스 가져오기
+        chunker_class = self.registry.get_chunker_class(document_type)
         
-        # 3. 문서 내용에서 패턴 분석
-        if not document_type:
-            document_type = ChunkingStrategyFactory._analyze_document_content(document)
-        
-        # 4. 전략 선택 및 반환
-        if document_type == "PROJECT":
-            return ProjectDocumentChunker(
-                chunk_size=chunk_size,
-                chunk_overlap=chunk_overlap,
-                preserve_structure=preserve_structure
-            )
-        elif document_type == "QA":
-            return QADocumentChunker(
-                chunk_size=chunk_size,
-                chunk_overlap=chunk_overlap,
-                preserve_structure=preserve_structure
-            )
-        else:
-            return DefaultTextChunker(
-                chunk_size=chunk_size,
-                chunk_overlap=chunk_overlap,
-                preserve_structure=preserve_structure
-            )
-    
-    @staticmethod
-    def _extract_document_type_from_frontmatter(document: str) -> Optional[str]:
-        """YAML frontmatter에서 document_type 추출"""
-        frontmatter_pattern = r'^---\s*\n(.*?)\n---\s*\n'
-        match = re.match(frontmatter_pattern, document, re.DOTALL)
-        
-        if match:
-            frontmatter_content = match.group(1)
-            
-            # document_type 찾기
-            type_pattern = r'document_type:\s*["\']?([^"\'\n]+)["\']?'
-            type_match = re.search(type_pattern, frontmatter_content)
-            
-            if type_match:
-                doc_type = type_match.group(1).strip().upper()
-                return doc_type
-        
-        return None
-    
-    @staticmethod
-    def _extract_document_type_from_path(document_metadata: Optional[Dict[str, Any]]) -> Optional[str]:
-        """파일 경로/이름에서 문서 유형 추론"""
-        if not document_metadata:
-            return None
-        
-        file_path = document_metadata.get('file_path', '')
-        file_name = document_metadata.get('source', '')
-        
-        # 파일 경로나 이름 분석
-        path_to_check = file_path or file_name
-        
-        if not path_to_check:
-            return None
-        
-        # Q&A 문서 패턴
-        qa_patterns = [
-            r'qa[_-]',  # qa_architecture.md, qa-development.md
-            r'/qa/',    # path/qa/file.md
-            r'q&a',     # q&a.md
-            r'faq'      # faq.md
-        ]
-        
-        for pattern in qa_patterns:
-            if re.search(pattern, path_to_check, re.IGNORECASE):
-                return "QA"
-        
-        # 프로젝트 문서 패턴
-        project_patterns = [
-            r'project',
-            r'portfolio',
-            r'/projects/',
-            r'readme\.md$'
-        ]
-        
-        for pattern in project_patterns:
-            if re.search(pattern, path_to_check, re.IGNORECASE):
-                return "PROJECT"
-        
-        return None
-    
-    @staticmethod
-    def _analyze_document_content(document: str) -> str:
-        """문서 내용 분석을 통한 유형 추론"""
-        
-        # Q&A 패턴 확인
-        qa_indicators = [
-            r'###\s*Q:',  # ### Q: 패턴
-            r'\*\*Q:',    # **Q: 패턴
-            r'Q&A',       # Q&A 제목
-            r'질문.*답변',  # 한국어 Q&A
-        ]
-        
-        qa_count = 0
-        for pattern in qa_indicators:
-            matches = re.findall(pattern, document, re.IGNORECASE)
-            qa_count += len(matches)
-        
-        if qa_count >= 2:  # 2개 이상의 Q&A 패턴이 있으면 Q&A 문서
-            return "QA"
-        
-        # 프로젝트 문서 패턴 확인
-        project_indicators = [
-            r'프로젝트\s+목표',
-            r'주요\s+역할',
-            r'기술적\s+결정',
-            r'프로젝트\s+발전\s+과정',
-            r'Timeline',
-            r'기술\s+스택',
-            r'skills:\s*\[',  # YAML frontmatter의 skills
-            r'summary:\s*["\']'  # YAML frontmatter의 summary
-        ]
-        
-        project_count = 0
-        for pattern in project_indicators:
-            matches = re.findall(pattern, document, re.IGNORECASE)
-            project_count += len(matches)
-        
-        if project_count >= 2:  # 2개 이상의 프로젝트 패턴이 있으면 프로젝트 문서
-            return "PROJECT"
-        
-        return "TEXT"  # 기본값
+        # 청커 인스턴스 생성 및 반환
+        return chunker_class(
+            chunk_size=chunk_size,
+            chunk_overlap=chunk_overlap,
+            preserve_structure=preserve_structure
+        )
     
     @staticmethod
     def get_available_strategies() -> Dict[str, str]:
@@ -208,39 +161,26 @@ class ChunkingStrategyFactory:
         return {
             "PROJECT": "프로젝트 문서 특화 청킹 (섹션별, Q&A, Timeline 분할)",
             "QA": "Q&A 문서 특화 청킹 (질문-답변 쌍 단위 분할)",
-            "TEXT": "기본 텍스트 청킹 (크기 기반 분할)"
+            "TEXT": "기본 텍스트 청킹 (크기 기반 분할)",
+            "UNKNOWN": "메타데이터 없는 문서용 기본 청킹 (크기 기반 분할)"
         }
     
-    @staticmethod
-    def analyze_document_for_strategy(document: str, document_metadata: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    def analyze_document_for_strategy(self, document: str, document_metadata: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """문서 분석 결과와 권장 전략 반환 (디버깅/분석용)"""
         
-        # frontmatter 분석
-        frontmatter_type = ChunkingStrategyFactory._extract_document_type_from_frontmatter(document)
+        # 메타데이터에서 문서 타입 감지
+        document_type = self.detector.detect_document_type(document, document_metadata)
         
-        # 경로 분석
-        path_type = ChunkingStrategyFactory._extract_document_type_from_path(document_metadata)
-        
-        # 내용 분석
-        content_type = ChunkingStrategyFactory._analyze_document_content(document)
-        
-        # 최종 전략 결정
-        final_strategy = frontmatter_type or path_type or content_type
-        
-        # Q&A 패턴 수량 분석
-        qa_patterns = len(re.findall(r'(###\s*Q:|\*\*Q:)', document, re.IGNORECASE))
-        
-        # 프로젝트 패턴 수량 분석  
-        project_patterns = len(re.findall(r'(프로젝트|Timeline|기술.*스택|주요.*역할)', document, re.IGNORECASE))
+        # 기본 통계
+        structural_elements = len(re.findall(r'^#{1,6}\s+', document, re.MULTILINE))
+        code_blocks = len(re.findall(r'```[\w]*\n', document))
         
         return {
-            "recommended_strategy": final_strategy,
+            "recommended_strategy": document_type,
             "analysis": {
-                "frontmatter_type": frontmatter_type,
-                "path_type": path_type, 
-                "content_type": content_type,
-                "qa_pattern_count": qa_patterns,
-                "project_pattern_count": project_patterns
+                "document_type": document_type,
+                "structural_elements": structural_elements,
+                "code_blocks": code_blocks
             },
             "document_stats": {
                 "total_length": len(document),
