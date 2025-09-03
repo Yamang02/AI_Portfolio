@@ -77,13 +77,13 @@ class RAGDemoInterface:
             raise
 
     def load_sample_data(self) -> str:
-        """sampledata 디렉토리에서 샘플 데이터 로드 (경량화)"""
+        """sampledata 디렉토리에서 샘플 데이터 로드 (문서 로드만)"""
         try:
             # sampledata 디렉토리 경로 설정
             sample_path = Path("sampledata")
             
             if not sample_path.exists():
-                return "❌ sampledata 디렉토리를 찾을 수 없습니다"
+                return "<div style='text-align: center; color: #dc3545; padding: 20px; font-weight: 600;'>❌ sampledata 디렉토리를 찾을 수 없습니다</div>"
             
             logger.info(f"📚 샘플 데이터 로드 시작: {sample_path}")
             sample_data = []
@@ -101,9 +101,7 @@ class RAGDemoInterface:
                 if file_path.exists():
                     with open(file_path, 'r', encoding='utf-8') as f:
                         content = f.read()
-                        # 내용을 간단하게 요약 (첫 2000자만)
-                        if len(content) > 2000:
-                            content = content[:2000] + "\n\n... (내용이 길어서 일부만 포함)"
+                        # 데모에서는 전체 내용 로드 (제한 없음)
                         sample_data.append({
                             "content": content,
                             "source": filename,
@@ -116,13 +114,274 @@ class RAGDemoInterface:
             logger.info(f"📊 총 {len(sample_data)}개의 샘플 데이터 준비됨")
             
             if not sample_data:
-                return "❌ 샘플 데이터를 찾을 수 없습니다"
+                return "<div style='text-align: center; color: #dc3545; padding: 20px; font-weight: 600;'>❌ 샘플 데이터를 찾을 수 없습니다</div>"
             
-            # 비동기로 데이터 추가
+            # 샘플 데이터를 메모리에 저장 (문서 추가는 하지 않음)
+            self.sample_data = sample_data
+            self.sample_data_loaded = True
+            
+            # 결과 요약 생성
+            result_summary = """
+            <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+                <h3 style="color: #2c3e50; margin-bottom: 20px;">📚 샘플 데이터 로드 완료!</h3>
+                <div style="background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 100%); border: 2px solid #4caf50; border-radius: 12px; padding: 20px;">
+                    <h4 style="margin: 0 0 15px 0; color: #2c3e50;">✅ 로드된 문서 목록:</h4>
+            """
+            for data in sample_data:
+                result_summary += f"""
+                    <div style="background: rgba(255,255,255,0.8); border-radius: 8px; padding: 12px; margin-bottom: 8px;">
+                        <div style="font-weight: 600; color: #2c3e50;">📖 {data['title']}</div>
+                        <div style="font-size: 12px; color: #666;">📏 크기: {len(data['content']):,} 문자</div>
+                    </div>
+                """
+            result_summary += """
+                </div>
+            </div>
+            """
+            
+            return result_summary
+            
+        except Exception as e:
+            logger.error(f"샘플 데이터 로드 중 오류 발생: {e}")
+            return f"<div style='text-align: center; color: #dc3545; padding: 20px; font-weight: 600;'>❌ 샘플 데이터 로드 실패: {str(e)}</div>"
+
+    def get_all_documents_preview(self) -> str:
+        """모든 로드된 문서 통합 미리보기 (카드 형태)"""
+        all_documents = []
+        
+        # 샘플 데이터 추가
+        if hasattr(self, 'sample_data') and self.sample_data:
+            for data in self.sample_data:
+                all_documents.append({
+                    **data,
+                    'type': 'sample_data',
+                    'icon': '📖',
+                    'bg_color': '#e8f5e8',
+                    'border_color': '#4caf50'
+                })
+        
+        # 수동 문서 추가
+        if hasattr(self, 'manual_documents') and self.manual_documents:
+            for data in self.manual_documents:
+                all_documents.append({
+                    **data,
+                    'type': 'manual_input',
+                    'icon': '✍️',
+                    'bg_color': '#fff3e0',
+                    'border_color': '#ff9800'
+                })
+        
+        if not all_documents:
+            return "<div style='text-align: center; color: #6c757d; padding: 40px; font-weight: 600;'>📭 아직 로드된 문서가 없습니다.</div>"
+        
+        # HTML 카드 형태로 출력
+        html_output = f"""
+        <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+            <div style="display: flex; overflow-x: auto; gap: 20px; padding-bottom: 10px;">
+        """
+        
+        for i, data in enumerate(all_documents, 1):
+            # 내용 미리보기 (최대 200자)
+            content_preview = data['content'][:200] + "..." if len(data['content']) > 200 else data['content']
+            
+            html_output += f"""
+            <div style="
+                background: linear-gradient(135deg, {data['bg_color']} 0%, {data['bg_color'].replace('e8', 'f0').replace('f3', 'f8')} 100%);
+                border: 2px solid {data['border_color']};
+                border-radius: 12px;
+                padding: 20px;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                transition: transform 0.2s ease-in-out;
+                min-width: 350px;
+                flex-shrink: 0;
+            " onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                <div style="display: flex; align-items: center; margin-bottom: 12px;">
+                    <span style="font-size: 24px; margin-right: 8px;">{data['icon']}</span>
+                    <h4 style="margin: 0; color: #2c3e50; font-size: 16px; font-weight: 600;">
+                        {data['title']}
+                    </h4>
+                </div>
+                
+                <div style="margin-bottom: 12px;">
+                    <div style="font-size: 12px; color: #666; margin-bottom: 4px;">
+                        <strong>📁 출처:</strong> {data['source']}
+                    </div>
+                    <div style="font-size: 12px; color: #666; margin-bottom: 4px;">
+                        <strong>📏 크기:</strong> {len(data['content']):,} 문자
+                    </div>
+                    <div style="font-size: 12px; color: #666; margin-bottom: 4px;">
+                        <strong>🏷️ 타입:</strong> {data['type']}
+                    </div>
+                </div>
+                
+                <div style="
+                    background: rgba(255,255,255,0.8);
+                    border-radius: 8px;
+                    padding: 12px;
+                    font-size: 13px;
+                    line-height: 1.4;
+                    color: #555;
+                    max-height: 100px;
+                    overflow: hidden;
+                ">
+                    {content_preview}
+                </div>
+            </div>
+            """
+        
+        html_output += """
+            </div>
+        </div>
+        """
+        
+        return html_output
+
+    def preview_sample_data(self) -> str:
+        """로드된 샘플 데이터 미리보기 (카드 형태)"""
+        if not hasattr(self, 'sample_data') or not self.sample_data:
+            return "<div style='text-align: center; color: #dc3545; padding: 20px; font-weight: 600;'>❌ 먼저 샘플 데이터를 로드해주세요.</div>"
+        
+        # HTML 카드 형태로 출력
+        html_output = """
+        <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+            <h3 style="color: #2c3e50; margin-bottom: 20px;">📖 샘플 데이터 미리보기</h3>
+            <div style="display: flex; overflow-x: auto; gap: 20px; padding-bottom: 10px;">
+        """
+        
+        for i, data in enumerate(self.sample_data, 1):
+            # 내용 미리보기 (최대 200자)
+            content_preview = data['content'][:200] + "..." if len(data['content']) > 200 else data['content']
+            
+            html_output += f"""
+            <div style="
+                background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 100%);
+                border: 2px solid #4caf50;
+                border-radius: 12px;
+                padding: 20px;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                transition: transform 0.2s ease-in-out;
+                min-width: 350px;
+                flex-shrink: 0;
+            " onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                <div style="display: flex; align-items: center; margin-bottom: 12px;">
+                    <span style="font-size: 24px; margin-right: 8px;">📖</span>
+                    <h4 style="margin: 0; color: #2c3e50; font-size: 16px; font-weight: 600;">
+                        {data['title']}
+                    </h4>
+                </div>
+                
+                <div style="margin-bottom: 12px;">
+                    <div style="font-size: 12px; color: #666; margin-bottom: 4px;">
+                        <strong>📁 파일:</strong> {data['source']}
+                    </div>
+                    <div style="font-size: 12px; color: #666; margin-bottom: 4px;">
+                        <strong>📏 크기:</strong> {len(data['content']):,} 문자
+                    </div>
+                    <div style="font-size: 12px; color: #666; margin-bottom: 4px;">
+                        <strong>🏷️ 타입:</strong> 샘플 데이터
+                    </div>
+                </div>
+                
+                <div style="
+                    background: rgba(255,255,255,0.8);
+                    border-radius: 8px;
+                    padding: 12px;
+                    font-size: 13px;
+                    line-height: 1.4;
+                    color: #555;
+                    max-height: 100px;
+                    overflow: hidden;
+                ">
+                    {content_preview}
+                </div>
+            </div>
+            """
+        
+        html_output += """
+            </div>
+        </div>
+        """
+        
+        return html_output
+
+    def preview_manual_documents(self) -> str:
+        """로드된 수동 문서 미리보기 (카드 형태)"""
+        if not hasattr(self, 'manual_documents') or not self.manual_documents:
+            return "<div style='text-align: center; color: #dc3545; padding: 20px; font-weight: 600;'>❌ 먼저 수동 문서를 로드해주세요.</div>"
+        
+        # HTML 카드 형태로 출력
+        html_output = """
+        <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+            <h3 style="color: #2c3e50; margin-bottom: 20px;">✍️ 수동 입력 문서 미리보기</h3>
+            <div style="display: flex; overflow-x: auto; gap: 20px; padding-bottom: 10px;">
+        """
+        
+        for i, data in enumerate(self.manual_documents, 1):
+            # 내용 미리보기 (최대 200자)
+            content_preview = data['content'][:200] + "..." if len(data['content']) > 200 else data['content']
+            
+            html_output += f"""
+            <div style="
+                background: linear-gradient(135deg, #fff3e0 0%, #fff8e1 100%);
+                border: 2px solid #ff9800;
+                border-radius: 12px;
+                padding: 20px;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                transition: transform 0.2s ease-in-out;
+                min-width: 350px;
+                flex-shrink: 0;
+            " onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                <div style="display: flex; align-items: center; margin-bottom: 12px;">
+                    <span style="font-size: 24px; margin-right: 8px;">✍️</span>
+                    <h4 style="margin: 0; color: #2c3e50; font-size: 16px; font-weight: 600;">
+                        {data['title']}
+                    </h4>
+                </div>
+                
+                <div style="margin-bottom: 12px;">
+                    <div style="font-size: 12px; color: #666; margin-bottom: 4px;">
+                        <strong>📁 출처:</strong> {data['source']}
+                    </div>
+                    <div style="font-size: 12px; color: #666; margin-bottom: 4px;">
+                        <strong>📏 크기:</strong> {len(data['content']):,} 문자
+                    </div>
+                    <div style="font-size: 12px; color: #666; margin-bottom: 4px;">
+                        <strong>🏷️ 타입:</strong> 수동 입력
+                    </div>
+                </div>
+                
+                <div style="
+                    background: rgba(255,255,255,0.8);
+                    border-radius: 8px;
+                    padding: 12px;
+                    font-size: 13px;
+                    line-height: 1.4;
+                    color: #555;
+                    max-height: 100px;
+                    overflow: hidden;
+                ">
+                    {content_preview}
+                </div>
+            </div>
+            """
+        
+        html_output += """
+            </div>
+        </div>
+        """
+        
+        return html_output
+
+    def add_sample_data_to_knowledge_base(self) -> str:
+        """로드된 샘플 데이터를 지식 베이스에 추가"""
+        if not hasattr(self, 'sample_data') or not self.sample_data:
+            return "<div style='text-align: center; color: #dc3545; padding: 20px; font-weight: 600;'>❌ 먼저 샘플 데이터를 로드해주세요.</div>"
+        
+        try:
             async def add_all_samples():
                 await self.initialize()
                 results = []
-                for data in sample_data:
+                for data in self.sample_data:
                     try:
                         result = await self.rag_service.add_document_from_text(
                             content=data["content"],
@@ -136,14 +395,35 @@ class RAGDemoInterface:
                     except Exception as e:
                         results.append(f"❌ {data['title']} 추가 실패: {str(e)}")
                 
-                self.sample_data_loaded = True
                 return "\n".join(results)
             
-            return asyncio.run(add_all_samples())
+            result_text = asyncio.run(add_all_samples())
+            
+            # HTML로 포맷팅
+            html_result = """
+            <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+                <h3 style="color: #2c3e50; margin-bottom: 20px;">➕ 샘플 데이터 지식 베이스 추가 결과</h3>
+                <div style="background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 100%); border: 2px solid #4caf50; border-radius: 12px; padding: 20px;">
+            """
+            
+            for line in result_text.split('\n'):
+                if line.startswith('✅'):
+                    html_result += f'<div style="color: #28a745; margin-bottom: 8px;">{line}</div>'
+                elif line.startswith('❌'):
+                    html_result += f'<div style="color: #dc3545; margin-bottom: 8px;">{line}</div>'
+                else:
+                    html_result += f'<div style="color: #6c757d; margin-bottom: 8px;">{line}</div>'
+            
+            html_result += """
+                </div>
+            </div>
+            """
+            
+            return html_result
             
         except Exception as e:
-            logger.error(f"샘플 데이터 로드 중 오류 발생: {e}")
-            return f"❌ 샘플 데이터 로드 실패: {str(e)}"
+            logger.error(f"샘플 데이터 추가 중 오류 발생: {e}")
+            return f"<div style='text-align: center; color: #dc3545; padding: 20px; font-weight: 600;'>❌ 샘플 데이터 추가 실패: {str(e)}</div>"
 
     def get_sample_queries(self) -> List[str]:
         """샘플 검색 쿼리 목록 반환 (경량화)"""
@@ -155,25 +435,40 @@ class RAGDemoInterface:
         ]
     
     async def add_document(self, content: str, source: str = "manual_input") -> str:
-        """지식 베이스에 문서 추가"""
+        """메모리에 문서 로드 (지식 베이스 추가 없음)"""
         if not content.strip():
-            return "❌ 내용을 입력해주세요"
+            return "<div style='text-align: center; color: #dc3545; padding: 20px; font-weight: 600;'>❌ 내용을 입력해주세요</div>"
         
         try:
-            result = await self.rag_service.add_document_from_text(
-                content=content.strip(),
-                source=source,
-                metadata={"timestamp": "demo"}
-            )
+            # 메모리에 문서 저장
+            if not hasattr(self, 'manual_documents'):
+                self.manual_documents = []
             
-            if result.get("success"):
-                return f"✅ 문서가 성공적으로 추가되었습니다! 문서 ID: {result.get('document_id', 'N/A')}"
-            else:
-                return f"❌ 문서 추가 실패: {result.get('error', 'Unknown error')}"
+            document_data = {
+                "content": content.strip(),
+                "source": source,
+                "title": f"수동 입력: {source}",
+                "timestamp": "demo"
+            }
+            
+            self.manual_documents.append(document_data)
+            
+            return f"""
+            <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+                <div style="background: linear-gradient(135deg, #fff3e0 0%, #fff8e1 100%); border: 2px solid #ff9800; border-radius: 12px; padding: 20px;">
+                    <h4 style="margin: 0 0 10px 0; color: #2c3e50;">✅ 문서 로드 완료!</h4>
+                    <div style="color: #495057;">
+                        <div><strong>📄 제목:</strong> {document_data['title']}</div>
+                        <div><strong>📏 크기:</strong> {len(content.strip()):,} 문자</div>
+                        <div><strong>📁 출처:</strong> {source}</div>
+                    </div>
+                </div>
+            </div>
+            """
                 
         except Exception as e:
-            logger.error(f"문서 추가 중 오류 발생: {e}")
-            return f"❌ 오류: {str(e)}"
+            logger.error(f"문서 로드 중 오류 발생: {e}")
+            return f"<div style='text-align: center; color: #dc3545; padding: 20px; font-weight: 600;'>❌ 오류: {str(e)}</div>"
 
     async def add_document_with_analysis(self, content: str, source: str = "manual_input") -> Tuple[str, str, str]:
         """상세 분석과 함께 문서 추가"""
@@ -426,10 +721,6 @@ class RAGDemoInterface:
             return f"""
 📊 **시스템 상태**
 
-**📄 문서 관리:**
-• 저장된 문서: {status.get('document_count', 0)}개
-• 벡터 임베딩: {status.get('vector_count', 0)}개
-
 **🤖 LLM 서비스:**
 • 모델: {llm_info.get('model_name', 'MockLLM')}
 • 상태: {'✅ 준비됨' if status.get('llm_available') else '❌ 사용 불가'}
@@ -450,22 +741,104 @@ class RAGDemoInterface:
             return f"❌ 상태 가져오기 오류: {str(e)}"
 
     async def view_all_documents(self) -> str:
-        """데모: 저장된 모든 문서 보기"""
+        """데모: 저장된 모든 문서 보기 (카드 형태)"""
         try:
             documents = await self.vector_adapter.get_all_documents()
             
             if not documents:
-                return "📭 저장된 문서가 없습니다."
+                return "<div style='text-align: center; color: #6c757d; padding: 20px; font-weight: 600;'>📭 저장된 문서가 없습니다.</div>"
             
-            output = f"📚 **저장된 문서 ({len(documents)}개)**\n\n"
+            # HTML 카드 형태로 출력
+            html_output = f"""
+            <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+                <h3 style="color: #2c3e50; margin-bottom: 20px;">📚 저장된 문서 ({len(documents)}개)</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+            """
             
             for i, doc in enumerate(documents, 1):
-                output += f"**{i}. {doc['source']}** `{doc['id'][:8]}...`\n"
-                output += f"• **길이**: {doc['content_length']} chars\n"
-                output += f"• **생성일**: {doc['created_at'][:19] if doc['created_at'] else 'N/A'}\n"
-                output += f"• **미리보기**: {doc['content_preview']}\n\n"
+                # 문서 타입에 따른 아이콘과 색상
+                doc_type = doc.get('metadata', {}).get('type', 'unknown')
+                if doc_type == 'sample_data':
+                    icon = "📖"
+                    bg_color = "#e8f5e8"
+                    border_color = "#4caf50"
+                elif 'manual' in doc.get('source', ''):
+                    icon = "✍️"
+                    bg_color = "#fff3e0"
+                    border_color = "#ff9800"
+                else:
+                    icon = "📄"
+                    bg_color = "#f0f8ff"
+                    border_color = "#2196f3"
                 
-            return output
+                # 생성일 포맷팅
+                created_at = doc.get('created_at', 'N/A')
+                if created_at and created_at != 'N/A':
+                    try:
+                        from datetime import datetime
+                        dt = datetime.fromisoformat(created_at.replace('Z', '+00:00'))
+                        formatted_date = dt.strftime('%Y-%m-%d %H:%M')
+                    except:
+                        formatted_date = created_at[:19] if len(created_at) > 19 else created_at
+                else:
+                    formatted_date = 'N/A'
+                
+                # 내용 미리보기 (최대 150자)
+                content_preview = doc.get('content_preview', '내용 없음')
+                if len(content_preview) > 150:
+                    content_preview = content_preview[:150] + "..."
+                
+                html_output += f"""
+                <div style="
+                    background: {bg_color};
+                    border: 2px solid {border_color};
+                    border-radius: 12px;
+                    padding: 20px;
+                    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                    transition: transform 0.2s ease-in-out;
+                    cursor: pointer;
+                " onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                    <div style="display: flex; align-items: center; margin-bottom: 12px;">
+                        <span style="font-size: 24px; margin-right: 8px;">{icon}</span>
+                        <h4 style="margin: 0; color: #2c3e50; font-size: 16px; font-weight: 600;">
+                            {doc.get('source', 'Unknown')}
+                        </h4>
+                    </div>
+                    
+                    <div style="margin-bottom: 12px;">
+                        <div style="font-size: 12px; color: #666; margin-bottom: 4px;">
+                            <strong>📏 크기:</strong> {doc.get('content_length', 0):,} 문자
+                        </div>
+                        <div style="font-size: 12px; color: #666; margin-bottom: 4px;">
+                            <strong>🆔 ID:</strong> {doc.get('id', 'N/A')[:12]}...
+                        </div>
+                        <div style="font-size: 12px; color: #666; margin-bottom: 4px;">
+                            <strong>📅 생성일:</strong> {formatted_date}
+                        </div>
+                        {f'<div style="font-size: 12px; color: #666; margin-bottom: 4px;"><strong>🏷️ 타입:</strong> {doc_type}</div>' if doc_type != 'unknown' else ''}
+                    </div>
+                    
+                    <div style="
+                        background: rgba(255,255,255,0.7);
+                        border-radius: 8px;
+                        padding: 12px;
+                        font-size: 13px;
+                        line-height: 1.4;
+                        color: #555;
+                        max-height: 80px;
+                        overflow: hidden;
+                    ">
+                        {content_preview}
+                    </div>
+                </div>
+                """
+            
+            html_output += """
+                </div>
+            </div>
+            """
+            
+            return html_output
             
         except Exception as e:
             logger.error(f"전체 문서 조회 중 오류 발생: {e}")
@@ -884,6 +1257,377 @@ class RAGDemoInterface:
             logger.error(f"완전한 RAG 파이프라인 시연 중 오류 발생: {e}")
             return f"❌ 오류: {str(e)}", "", "", ""
 
+    # === 새로운 TextSplitter 관련 메서드들 ===
+    
+    def get_document_list(self) -> str:
+        """메모리에 로드된 문서 목록을 HTML 형태로 반환"""
+        all_documents = []
+        
+        # 샘플 데이터 추가
+        if hasattr(self, 'sample_data') and self.sample_data:
+            for data in self.sample_data:
+                all_documents.append({
+                    **data,
+                    'type': 'sample_data',
+                    'icon': '📖',
+                    'bg_color': '#e8f5e8',
+                    'border_color': '#4caf50'
+                })
+        
+        # 수동 문서 추가
+        if hasattr(self, 'manual_documents') and self.manual_documents:
+            for data in self.manual_documents:
+                all_documents.append({
+                    **data,
+                    'type': 'manual_input',
+                    'icon': '✍️',
+                    'bg_color': '#fff3e0',
+                    'border_color': '#ff9800'
+                })
+        
+        if not all_documents:
+            return "<div style='text-align: center; color: #6c757d; padding: 20px; font-weight: 600;'>📭 아직 로드된 문서가 없습니다. DocumentLoad 탭에서 문서를 먼저 로드해주세요.</div>"
+        
+        # HTML 목록 형태로 출력
+        html_output = f"""
+        <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+            <h3 style="color: #2c3e50; margin-bottom: 20px;">📋 로드된 문서 목록 (총 {len(all_documents)}개)</h3>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+        """
+        
+        for i, data in enumerate(all_documents, 1):
+            html_output += f"""
+            <div style="
+                background: linear-gradient(135deg, {data['bg_color']} 0%, {data['bg_color'].replace('e8', 'f0').replace('f3', 'f8')} 100%);
+                border: 2px solid {data['border_color']};
+                border-radius: 8px;
+                padding: 16px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            ">
+                <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                    <span style="font-size: 20px; margin-right: 8px;">{data['icon']}</span>
+                    <h4 style="margin: 0; color: #2c3e50; font-size: 14px; font-weight: 600;">
+                        {data['title']}
+                    </h4>
+                </div>
+                
+                <div style="font-size: 12px; color: #666; line-height: 1.4;">
+                    <div><strong>📁 출처:</strong> {data['source']}</div>
+                    <div><strong>📏 크기:</strong> {len(data['content']):,} 문자</div>
+                    <div><strong>🏷️ 타입:</strong> {data['type']}</div>
+                </div>
+            </div>
+            """
+        
+        html_output += """
+            </div>
+        </div>
+        """
+        
+        return html_output
+
+    def get_document_choices(self) -> List[str]:
+        """선택 가능한 문서 목록 반환"""
+        choices = []
+        
+        # 샘플 데이터 추가
+        if hasattr(self, 'sample_data') and self.sample_data:
+            for data in self.sample_data:
+                choices.append(f"📖 {data['title']} ({data['source']})")
+        
+        # 수동 문서 추가
+        if hasattr(self, 'manual_documents') and self.manual_documents:
+            for data in self.manual_documents:
+                choices.append(f"✍️ {data['title']} ({data['source']})")
+        
+        return choices
+
+    def update_chunking_settings(self, preset: str, chunk_size: int, chunk_overlap: int) -> str:
+        """청킹 설정 업데이트"""
+        # ConfigManager에서 base.yaml 설정 로드 (안전하게 처리)
+        base_chunk_size = 500  # 기본값
+        base_chunk_overlap = 75  # 기본값
+        
+        if self.config_manager:
+            try:
+                base_config = self.config_manager.get_config('base')
+                if base_config:
+                    base_chunk_size = base_config.get('rag', {}).get('chunk_size', 500)
+                    base_chunk_overlap = base_config.get('rag', {}).get('chunk_overlap', 75)
+            except Exception as e:
+                logger.warning(f"⚠️ ConfigManager에서 base 설정을 가져올 수 없습니다: {e}")
+        
+        # 프리셋에 따른 설정 적용
+        if preset == "기본 설정 (500/75)":  # base.yaml 설정에 맞춤
+            chunk_size, chunk_overlap = base_chunk_size, base_chunk_overlap
+        elif preset == "작은 청크 (300/50)":
+            chunk_size, chunk_overlap = 300, 50
+        elif preset == "큰 청크 (800/100)":
+            chunk_size, chunk_overlap = 800, 100
+        # "사용자 정의"인 경우 입력값 그대로 사용
+        
+        # 설정 저장
+        self.current_chunk_settings = {
+            'chunk_size': chunk_size,
+            'chunk_overlap': chunk_overlap,
+            'preset': preset
+        }
+        
+        # HTML 형태로 현재 설정 반환
+        return f"""
+        <div style="padding: 10px; background: #f8f9fa; border-radius: 5px; border-left: 4px solid #007bff;">
+            <strong>현재 설정:</strong><br>
+            • 청크 크기: {chunk_size:,} 문자<br>
+            • 청크 겹침: {chunk_overlap:,} 문자<br>
+            • 분할 방식: 문장 단위<br>
+            • 프리셋: {preset}<br>
+            • 설정 소스: {preset if preset != "사용자 정의" else "사용자 입력"}
+        </div>
+        """
+
+    def execute_chunking(self, document_selection: str, selected_document: str) -> Tuple[str, str]:
+        """청킹 실행 및 결과 반환"""
+        try:
+            # 대상 문서 선택
+            target_documents = []
+            
+            if document_selection == "전체 문서":
+                # 모든 문서 선택
+                if hasattr(self, 'sample_data') and self.sample_data:
+                    target_documents.extend(self.sample_data)
+                if hasattr(self, 'manual_documents') and self.manual_documents:
+                    target_documents.extend(self.manual_documents)
+            else:
+                # 개별 문서 선택
+                if selected_document:
+                    # 선택된 문서 찾기
+                    all_docs = []
+                    if hasattr(self, 'sample_data') and self.sample_data:
+                        all_docs.extend(self.sample_data)
+                    if hasattr(self, 'manual_documents') and self.manual_documents:
+                        all_docs.extend(self.manual_documents)
+                    
+                    for doc in all_docs:
+                        if f"📖 {doc['title']} ({doc['source']})" == selected_document or f"✍️ {doc['title']} ({doc['source']})" == selected_document:
+                            target_documents.append(doc)
+                            break
+            
+            if not target_documents:
+                return (
+                    "<div style='text-align: center; color: #dc3545; padding: 20px; font-weight: 600;'>❌ 처리할 문서가 없습니다.</div>",
+                    "❌ 처리할 문서가 없습니다."
+                )
+            
+            # 청킹 설정 가져오기
+            settings = getattr(self, 'current_chunk_settings', {
+                'chunk_size': 500,
+                'chunk_overlap': 75
+            })
+            
+            chunk_size = settings['chunk_size']
+            chunk_overlap = settings['chunk_overlap']
+            
+            # 청킹 실행
+            all_chunks = []
+            chunk_analysis = []
+            
+            for i, doc in enumerate(target_documents, 1):
+                # 간단한 문장 단위 청킹 (실제로는 더 정교한 로직 필요)
+                sentences = doc['content'].split('. ')
+                chunks = []
+                current_chunk = ""
+                
+                for sentence in sentences:
+                    if len(current_chunk) + len(sentence) <= chunk_size:
+                        current_chunk += sentence + ". "
+                    else:
+                        if current_chunk:
+                            chunks.append(current_chunk.strip())
+                        current_chunk = sentence + ". "
+                
+                if current_chunk:
+                    chunks.append(current_chunk.strip())
+                
+                # 겹침 처리 (간단한 구현)
+                if chunk_overlap > 0 and len(chunks) > 1:
+                    overlapped_chunks = []
+                    for j in range(len(chunks)):
+                        if j == 0:
+                            overlapped_chunks.append(chunks[j])
+                        else:
+                            # 이전 청크의 끝 부분을 현재 청크에 추가
+                            prev_chunk = chunks[j-1]
+                            overlap_text = prev_chunk[-chunk_overlap:] if len(prev_chunk) > chunk_overlap else prev_chunk
+                            overlapped_chunk = overlap_text + " " + chunks[j]
+                            overlapped_chunks.append(overlapped_chunk)
+                    chunks = overlapped_chunks
+                
+                # 청크 정보 저장
+                for j, chunk in enumerate(chunks):
+                    chunk_info = {
+                        'document_id': i,
+                        'document_title': doc['title'],
+                        'document_source': doc['source'],
+                        'chunk_id': j + 1,
+                        'content': chunk,
+                        'length': len(chunk),
+                        'type': doc.get('type', 'unknown')
+                    }
+                    all_chunks.append(chunk_info)
+                
+                # 분석 정보 추가
+                chunk_analysis.append(f"📄 문서 {i}: {doc['title']}")
+                chunk_analysis.append(f"   • 원본 크기: {len(doc['content']):,} 문자")
+                chunk_analysis.append(f"   • 생성된 청크: {len(chunks)}개")
+                chunk_analysis.append(f"   • 평균 청크 크기: {sum(len(c) for c in chunks) // len(chunks):,} 문자")
+                chunk_analysis.append("")
+            
+            # 청킹 결과 저장
+            self.chunking_results = {
+                'chunks': all_chunks,
+                'settings': settings,
+                'total_chunks': len(all_chunks),
+                'total_documents': len(target_documents)
+            }
+            
+            # 상태 메시지 생성
+            status_html = f"""
+            <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+                <div style="background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 100%); border: 2px solid #4caf50; border-radius: 12px; padding: 20px;">
+                    <h4 style="margin: 0 0 10px 0; color: #2c3e50;">✅ 청킹 완료!</h4>
+                    <div style="color: #495057;">
+                        <div><strong>📄 처리된 문서:</strong> {len(target_documents)}개</div>
+                        <div><strong>✂️ 생성된 청크:</strong> {len(all_chunks)}개</div>
+                        <div><strong>⚙️ 청크 크기:</strong> {chunk_size:,} 문자</div>
+                        <div><strong>🔄 청크 겹침:</strong> {chunk_overlap:,} 문자</div>
+                    </div>
+                </div>
+            </div>
+            """
+            
+            # 분석 결과 생성
+            analysis_text = f"🔬 **청킹 분석 결과**\n\n"
+            analysis_text += f"📊 **전체 요약:**\n"
+            analysis_text += f"• 처리된 문서: {len(target_documents)}개\n"
+            analysis_text += f"• 생성된 청크: {len(all_chunks)}개\n"
+            analysis_text += f"• 청크 크기 설정: {chunk_size:,} 문자\n"
+            analysis_text += f"• 청크 겹침 설정: {chunk_overlap:,} 문자\n\n"
+            
+            analysis_text += "📄 **문서별 상세 분석:**\n"
+            analysis_text += "\n".join(chunk_analysis)
+            
+            return status_html, analysis_text
+            
+        except Exception as e:
+            logger.error(f"청킹 실행 중 오류 발생: {e}")
+            return (
+                f"<div style='text-align: center; color: #dc3545; padding: 20px; font-weight: 600;'>❌ 청킹 실패: {str(e)}</div>",
+                f"❌ 청킹 실패: {str(e)}"
+            )
+
+    def get_chunk_cards(self) -> str:
+        """생성된 청크들을 카드 형태로 반환"""
+        if not hasattr(self, 'chunking_results') or not self.chunking_results:
+            return "<div style='text-align: center; color: #6c757d; padding: 40px; font-weight: 600;'>📭 청킹을 먼저 실행해주세요.</div>"
+        
+        chunks = self.chunking_results['chunks']
+        
+        html_output = f"""
+        <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+            <h3 style="color: #2c3e50; margin-bottom: 20px;">📄 생성된 청크들 (총 {len(chunks)}개)</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px;">
+        """
+        
+        for i, chunk in enumerate(chunks):
+            # 내용 미리보기 (최대 150자)
+            content_preview = chunk['content'][:150] + "..." if len(chunk['content']) > 150 else chunk['content']
+            
+            # 문서 타입에 따른 색상 설정
+            if chunk['type'] == 'sample_data':
+                bg_color = '#e8f5e8'
+                border_color = '#4caf50'
+                icon = '📖'
+            else:
+                bg_color = '#fff3e0'
+                border_color = '#ff9800'
+                icon = '✍️'
+            
+            html_output += f"""
+            <div style="
+                background: linear-gradient(135deg, {bg_color} 0%, {bg_color.replace('e8', 'f0').replace('f3', 'f8')} 100%);
+                border: 2px solid {border_color};
+                border-radius: 8px;
+                padding: 16px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                cursor: pointer;
+                transition: transform 0.2s ease-in-out;
+            " onclick="showChunkContent({i})" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <span style="font-size: 18px;">{icon}</span>
+                    <span style="font-size: 12px; color: #666; background: rgba(255,255,255,0.8); padding: 2px 6px; border-radius: 4px;">
+                        청크 {chunk['chunk_id']}
+                    </span>
+                </div>
+                
+                <div style="font-size: 12px; color: #666; margin-bottom: 8px;">
+                    <div><strong>📄 문서:</strong> {chunk['document_title']}</div>
+                    <div><strong>📏 크기:</strong> {chunk['length']:,} 문자</div>
+                </div>
+                
+                <div style="
+                    background: rgba(255,255,255,0.8);
+                    border-radius: 6px;
+                    padding: 10px;
+                    font-size: 12px;
+                    line-height: 1.4;
+                    color: #555;
+                    max-height: 80px;
+                    overflow: hidden;
+                ">
+                    {content_preview}
+                </div>
+            </div>
+            """
+        
+        html_output += """
+            </div>
+            <script>
+            function showChunkContent(chunkIndex) {
+                // 이 함수는 Gradio의 JavaScript 이벤트와 연동되어야 함
+                console.log('Chunk clicked:', chunkIndex);
+            }
+            </script>
+        </div>
+        """
+        
+        return html_output
+
+    def get_chunk_content(self, chunk_index: int) -> str:
+        """특정 청크의 전체 내용 반환"""
+        if not hasattr(self, 'chunking_results') or not self.chunking_results:
+            return "❌ 청킹을 먼저 실행해주세요."
+        
+        chunks = self.chunking_results['chunks']
+        
+        if chunk_index < 0 or chunk_index >= len(chunks):
+            return "❌ 잘못된 청크 인덱스입니다."
+        
+        chunk = chunks[chunk_index]
+        
+        return f"""📄 **청크 상세 내용**
+
+**문서 정보:**
+• 문서 제목: {chunk['document_title']}
+• 문서 출처: {chunk['document_source']}
+• 청크 ID: {chunk['chunk_id']}
+• 청크 크기: {chunk['length']:,} 문자
+• 문서 타입: {chunk['type']}
+
+**청크 내용:**
+{chunk['content']}"""
+
+
+
 
 def create_demo_interface() -> gr.Blocks:
     """Gradio 데모 인터페이스 생성"""
@@ -941,6 +1685,7 @@ def create_demo_interface() -> gr.Blocks:
         
         gr.Markdown("""
         # 🚀 AI 포트폴리오 RAG 데모
+        **RAG(Retrieval-Augmented Generation) 과정을 단계별로 체험해보세요**
         """)
         
         with gr.Row():
@@ -948,13 +1693,13 @@ def create_demo_interface() -> gr.Blocks:
             with gr.Column(scale=1):
                 gr.Markdown("""
                 <div class="usage-card" style="border: 1px solid #28a745; border-radius: 8px; padding: 12px; margin: 4px; background: linear-gradient(135deg, #f8fff9 0%, #e8f5e8 100%); box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                    <h3>🎯 사용 방법</h3>
+                    <h3>🎯 RAG 과정 가이드</h3>
                     <ol style="margin: 8px 0; padding-left: 20px;">
-                        <li><strong>📚 샘플 데이터 로드</strong>를 통해 AI 포트폴리오 프로젝트 문서를 자동으로 추가하세요</li>
-                        <li><strong>📄 문서 추가</strong>를 통해 추가 지식 베이스를 구축하세요</li>
-                        <li><strong>🔍 문서 검색</strong>을 통해 관련 내용을 찾으세요 (샘플 쿼리 제공)</li>
-                        <li><strong>🤖 질문하기</strong>를 통해 AI 생성 답변을 받으세요</li>
-                        <li><strong>🔬 문서 분석</strong>을 통해 상세 처리 단계를 확인하세요</li>
+                        <li><strong>📄 DocumentLoad</strong>: 문서를 로드하고 준비합니다</li>
+                        <li><strong>✂️ Textsplitter</strong>: 문서를 적절한 크기로 분할합니다</li>
+                        <li><strong>🔢 Embedding/VectorStore</strong>: 텍스트를 벡터로 변환하고 저장합니다</li>
+                        <li><strong>🔍 Retriever</strong>: 관련 문서를 검색하고 찾습니다</li>
+                        <li><strong>📊 Data확인</strong>: 각 단계의 결과를 확인합니다</li>
                     </ol>
                 </div>
                 """)
@@ -998,22 +1743,23 @@ def create_demo_interface() -> gr.Blocks:
                 # 시스템 상태 새로고침 버튼
                 refresh_status_btn = gr.Button("🔄 시스템 상태 새로고침", variant="secondary", size="sm")
         
-        with gr.Tab("📄 문서 관리"):
+        # === 1. DocumentLoad 탭 ===
+        with gr.Tab("📄 DocumentLoad"):
             with gr.Row():
-                # 왼쪽 열: 샘플 데이터 로드
+                # 왼쪽: 샘플 데이터 로드
                 with gr.Column(scale=1):
                     gr.Markdown("### 🚀 빠른 시작: 샘플 데이터 로드")
-                    load_sample_btn = gr.Button("📚 AI 포트폴리오 샘플 데이터 로드", variant="primary", size="lg")
-                    sample_status = gr.Textbox(
-                        label="샘플 데이터 상태",
-                        lines=8,
-                        interactive=False,
-                        placeholder="샘플 데이터를 로드하면 AI 포트폴리오 프로젝트의 모든 문서가 자동으로 추가됩니다..."
+                    gr.Markdown("AI 포트폴리오 프로젝트의 핵심 문서들을 로드합니다.")
+                    load_sample_btn = gr.Button("📚 샘플 데이터 로드", variant="primary", size="lg")
+                    sample_status = gr.HTML(
+                        label="로드 상태",
+                        value="<div style='text-align: center; color: #666; padding: 20px;'>샘플 데이터를 로드하면 여기에 결과가 표시됩니다.</div>"
                     )
                 
-                # 중앙 열: 수동 문서 추가
+                # 오른쪽: 수동 문서 추가
                 with gr.Column(scale=1):
                     gr.Markdown("### 📝 수동 문서 추가")
+                    gr.Markdown("직접 문서를 입력하여 메모리에 로드합니다.")
                     doc_input = gr.Textbox(
                         label="문서 내용",
                         placeholder="여기에 문서 내용을 붙여넣으세요...",
@@ -1024,116 +1770,185 @@ def create_demo_interface() -> gr.Blocks:
                         placeholder="예: research_paper.pdf",
                         value="manual_input"
                     )
-                    add_btn = gr.Button("➕ 문서 추가", variant="primary")
-                    add_output = gr.Textbox(
-                        label="상태",
-                        lines=3,
-                        interactive=False
+                    add_btn = gr.Button("📥 문서 로드", variant="primary")
+                    add_output = gr.HTML(
+                        label="로드 상태",
+                        value="<div style='text-align: center; color: #666; padding: 20px;'>문서를 로드하면 여기에 결과가 표시됩니다.</div>"
                     )
-                    clear_btn = gr.Button("🗑️ 모든 문서 삭제", variant="secondary")
-                    clear_output = gr.Textbox(
-                        label="상태 초기화",
-                        lines=2,
-                        interactive=False
-                    )
-                
-                # 오른쪽 열: 문서 보기 (전체 높이)
-                with gr.Column(scale=1):
-                    gr.Markdown("### 📚 저장된 문서 보기")
-                    view_docs_btn = gr.Button("📚 전체 문서 보기", variant="primary")
-                    documents_output = gr.Textbox(
-                        label="저장된 문서",
-                        lines=25,
-                        interactive=False,
-                        max_lines=30
-                    )
+            
+            # 통합 미리보기 섹션
+            gr.Markdown("### 👁️ 로드된 문서 미리보기")
+            preview_output = gr.HTML(
+                label="문서 미리보기",
+                value="<div style='text-align: center; color: #666; padding: 40px;'>문서를 로드하면 자동으로 미리보기가 업데이트됩니다.</div>"
+            )
 
-        with gr.Tab("🔬 문서 분석"):
+        # === 2. Textsplitter(Chunking) 탭 ===
+        with gr.Tab("✂️ Textsplitter(Chunking)"):
+            # 1단계: 메모리 내 Document 확인 및 대상 Document 설정
+            gr.Markdown("### 📋 1단계: 메모리 내 Document 확인 및 대상 Document 설정")
             with gr.Row():
-                # 왼쪽 열: 문서 입력
-                with gr.Column(scale=1):
-                    gr.Markdown("### 📄 분석할 문서")
-                    doc_input_analysis = gr.Textbox(
-                        label="분석할 문서 내용",
-                        placeholder="상세 분석을 위해 여기에 문서 내용을 붙여넣으세요...",
-                        lines=12
+                with gr.Column(scale=2):
+                    gr.Markdown("**현재 메모리에 로드된 문서들:**")
+                    document_list_output = gr.HTML(
+                        label="로드된 문서 목록",
+                        value="<div style='text-align: center; color: #666; padding: 20px;'>문서를 로드하면 여기에 목록이 표시됩니다.</div>"
                     )
-                    source_input_analysis = gr.Textbox(
-                        label="출처 이름 (선택 사항)",
-                        placeholder="예: research_paper.pdf",
-                        value="manual_input"
-                    )
-                    add_analysis_btn = gr.Button("🔬 추가 및 분석", variant="primary")
                 
-                # 중앙 열: 기본 결과
                 with gr.Column(scale=1):
-                    gr.Markdown("### ✅ 기본 결과")
-                    basic_result = gr.Textbox(
-                        label="기본 결과",
-                        lines=6,
+                    gr.Markdown("**대상 문서 선택:**")
+                    document_selection = gr.Radio(
+                        choices=["전체 문서", "개별 문서 선택"],
+                        label="처리 방식",
+                        value="전체 문서"
+                    )
+                    selected_document = gr.Dropdown(
+                        choices=[],
+                        label="선택할 문서 (개별 선택 시)",
                         interactive=False
                     )
-                    gr.Markdown("### ⏱️ 처리 분석")
-                    processing_info = gr.Textbox(
-                        label="처리 분석",
+                    refresh_docs_btn = gr.Button("🔄 문서 목록 새로고침", variant="secondary", size="sm")
+            
+            # 2단계: Chunking 설정
+            gr.Markdown("### ⚙️ 2단계: Chunking 설정")
+            with gr.Row():
+                with gr.Column(scale=1):
+                    gr.Markdown("**기본 설정 (Load):**")
+                    preset_dropdown = gr.Dropdown(
+                        choices=["기본 설정 (500/75)", "작은 청크 (300/50)", "큰 청크 (800/100)", "사용자 정의"],
+                        label="프리셋 선택",
+                        value="기본 설정 (500/75)"
+                    )
+                
+                with gr.Column(scale=1):
+                    gr.Markdown("**사용자 정의 설정:**")
+                    chunk_size = gr.Slider(
+                        label="청크 크기 (문자 수)",
+                        minimum=100,
+                        maximum=1000,
+                        value=500,
+                        step=50,
+                        interactive=False
+                    )
+                    chunk_overlap = gr.Slider(
+                        label="청크 겹침 (문자 수)",
+                        minimum=0,
+                        maximum=200,
+                        value=75,
+                        step=10,
+                        interactive=False
+                    )
+                
+                with gr.Column(scale=1):
+                    gr.Markdown("**설정 관리:**")
+                    reset_settings_btn = gr.Button("🔄 설정 초기화", variant="secondary")
+                    apply_settings_btn = gr.Button("✅ 설정 적용", variant="primary")
+                    current_settings_display = gr.HTML(
+                        label="현재 설정",
+                        value="<div style='padding: 10px; background: #f8f9fa; border-radius: 5px;'><strong>현재 설정:</strong><br>• 청크 크기: 500 문자<br>• 청크 겹침: 75 문자<br>• 분할 방식: 문장 단위<br>• 설정 소스: base.yaml</div>"
+                    )
+            
+            # 3단계: Chunking 실시 및 청크 카드화
+            gr.Markdown("### 🔬 3단계: Chunking 실시 및 청크 카드화")
+            with gr.Row():
+                with gr.Column(scale=1):
+                    gr.Markdown("**청킹 실행:**")
+                    execute_chunking_btn = gr.Button("✂️ 청킹 실행", variant="primary", size="lg")
+                    chunking_status = gr.HTML(
+                        label="실행 상태",
+                        value="<div style='text-align: center; color: #666; padding: 20px;'>청킹을 실행하면 여기에 결과가 표시됩니다.</div>"
+                    )
+                    gr.Markdown("**청킹 분석:**")
+                    chunk_analysis_btn = gr.Button("📊 청크 분석", variant="primary")
+                    chunk_analysis_output = gr.Textbox(
+                        label="청킹 분석",
                         lines=8,
                         interactive=False
                     )
                 
-                # 오른쪽 열: 벡터 분석
-                with gr.Column(scale=1):
-                    gr.Markdown("### 🔢 벡터 분석")
-                    vector_info = gr.Textbox(
-                        label="벡터 분석",
-                        lines=20,
-                        interactive=False
+                with gr.Column(scale=2):
+                    gr.Markdown("**생성된 청크들 (카드 형태):**")
+                    chunk_cards_output = gr.HTML(
+                        label="청크 카드",
+                        value="<div style='text-align: center; color: #666; padding: 40px;'>청킹을 실행하면 여기에 카드가 표시됩니다.</div>"
                     )
-        
-        with gr.Tab("🔄 리트리버 과정 시연"):
+
+        # === 3. Embedding / VectorStore 탭 ===
+        with gr.Tab("🔢 Embedding / VectorStore"):
             with gr.Row():
-                # 왼쪽 열: 쿼리 입력
+                # 왼쪽: 임베딩 모델 정보
                 with gr.Column(scale=1):
-                    gr.Markdown("### 🔍 리트리버 과정 시연")
-                    gr.Markdown("**실제 리트리버 과정을 단계별로 보여줍니다:**")
-                    gr.Markdown("• 1단계: 쿼리 임베딩 생성")
-                    gr.Markdown("• 2단계: 벡터 검색 (코사인 유사도)")
-                    gr.Markdown("• 3단계: 검색 결과 분석")
+                    gr.Markdown("### 🤖 임베딩 모델")
+                    gr.Markdown("**현재 사용 중인 모델:**")
+                    gr.Markdown("• 모델명: sentence-transformers/all-MiniLM-L6-v2")
+                    gr.Markdown("• 차원: 384")
+                    gr.Markdown("• 언어: 다국어 지원")
+                    gr.Markdown("• 성능: 빠르고 효율적")
                     
-                    retriever_query = gr.Textbox(
-                        label="검색할 쿼리",
-                        placeholder="예: 헥사고날 아키텍처의 장점은 무엇인가요?",
-                        lines=3
-                    )
-                    retriever_btn = gr.Button("🔄 리트리버 과정 시연", variant="primary")
-                
-                # 중앙 열: 1단계 + 2단계
-                with gr.Column(scale=1):
-                    gr.Markdown("### 📊 처리 과정")
-                    step1_output = gr.Textbox(
-                        label="1단계: 쿼리 임베딩 생성",
-                        lines=6,
-                        interactive=False
-                    )
-                    step2_output = gr.Textbox(
-                        label="2단계: 벡터 검색 + 결과",
-                        lines=12,
+                    embedding_analysis_btn = gr.Button("🔬 임베딩 분석", variant="primary")
+                    embedding_output = gr.Textbox(
+                        label="임베딩 분석",
+                        lines=15,
                         interactive=False
                     )
                 
-                # 오른쪽 열: 상세 분석
+                # 중앙: 벡터스토어 정보
                 with gr.Column(scale=1):
-                    gr.Markdown("### 🔬 상세 분석")
-                    analysis_output = gr.Textbox(
-                        label="상세 분석 정보",
+                    gr.Markdown("### 🗄️ 벡터스토어")
+                    gr.Markdown("**현재 사용 중인 스토어:**")
+                    gr.Markdown("• 타입: Memory Vector Store")
+                    gr.Markdown("• 검색 알고리즘: 코사인 유사도 + BM25")
+                    gr.Markdown("• 저장 방식: 메모리 내 저장")
+                    gr.Markdown("• 환경: 데모 모드")
+                    
+                    vector_info_btn = gr.Button("🔍 벡터스토어 상세 정보", variant="primary")
+                    vector_info_output = gr.Textbox(
+                        label="벡터스토어 정보",
+                        lines=15,
+                        interactive=False
+                    )
+                
+                # 오른쪽: 벡터 내용 확인
+                with gr.Column(scale=1):
+                    gr.Markdown("### 🔍 벡터 내용 확인")
+                    gr.Markdown("벡터스토어에 저장된 실제 벡터 데이터를 확인합니다.")
+                    vector_content_btn = gr.Button("🔍 벡터 내용 보기", variant="primary")
+                    vector_content_output = gr.Textbox(
+                        label="벡터 내용",
                         lines=20,
                         interactive=False
                     )
 
-        with gr.Tab("🔍 문서 검색"):
+        # === 4. Retriever 탭 ===
+        with gr.Tab("🔍 Retriever"):
             with gr.Row():
-                # 왼쪽 열: 검색 입력
+                # 왼쪽: 검색 설정
                 with gr.Column(scale=1):
-                    gr.Markdown("### 💡 샘플 검색 쿼리")
+                    gr.Markdown("### ⚙️ 검색 설정")
+                    gr.Markdown("**검색 파라미터를 조정합니다:**")
+                    top_k = gr.Slider(
+                        label="결과 수 (top_k)",
+                        minimum=1,
+                        maximum=10,
+                        value=3,
+                        step=1
+                    )
+                    similarity_threshold = gr.Slider(
+                        label="유사도 임계값",
+                        minimum=0.0,
+                        maximum=1.0,
+                        value=0.1,
+                        step=0.05
+                    )
+                    gr.Markdown("**검색 알고리즘:**")
+                    gr.Markdown("• 벡터 유사도 (코사인)")
+                    gr.Markdown("• BM25 키워드 검색")
+                    gr.Markdown("• 하이브리드 점수 계산")
+                
+                # 중앙: 검색 실행
+                with gr.Column(scale=1):
+                    gr.Markdown("### 🔍 검색 실행")
+                    gr.Markdown("**샘플 쿼리:**")
                     sample_query_dropdown = gr.Dropdown(
                         choices=demo_controller.get_sample_queries(),
                         label="미리 정의된 질문들",
@@ -1142,23 +1957,15 @@ def create_demo_interface() -> gr.Blocks:
                     )
                     use_sample_btn = gr.Button("🔍 선택한 질문으로 검색", variant="secondary")
                     
-                    gr.Markdown("---")
-                    gr.Markdown("### 🔍 직접 검색")
+                    gr.Markdown("**직접 검색:**")
                     search_input = gr.Textbox(
                         label="검색어",
-                        placeholder="예: 헥사고날 아키텍처, RAG 시스템, Docker 최적화, CI/CD 파이프라인, 성능 최적화, 문제 해결...",
+                        placeholder="예: 헥사고날 아키텍처, RAG 시스템, Docker 최적화...",
                         lines=4
-                    )
-                    top_k = gr.Slider(
-                        label="결과 수",
-                        minimum=1,
-                        maximum=10,
-                        value=3,
-                        step=1
                     )
                     search_btn = gr.Button("🔍 검색", variant="primary")
                 
-                # 중앙 열: 검색 결과
+                # 오른쪽: 검색 결과
                 with gr.Column(scale=1):
                     gr.Markdown("### 📋 검색 결과")
                     search_output = gr.Textbox(
@@ -1166,68 +1973,53 @@ def create_demo_interface() -> gr.Blocks:
                         lines=20,
                         interactive=False
                     )
-                
-                # 오른쪽 열: 임베딩 분석
+
+        # === 5. Data확인 탭 ===
+        with gr.Tab("📊 Data확인"):
+            with gr.Row():
+                # 왼쪽: 시스템 상태
                 with gr.Column(scale=1):
-                    gr.Markdown("### 🔬 임베딩 분석")
-                    embedding_analysis_btn = gr.Button("🔬 임베딩 분석", variant="secondary")
-                    embedding_output = gr.Textbox(
-                        label="임베딩 분석",
-                        lines=25,
+                    gr.Markdown("### 📊 시스템 상태")
+                    gr.Markdown("전체 시스템의 현재 상태를 확인합니다.")
+                    status_btn = gr.Button("📊 시스템 상태 확인", variant="primary")
+                    status_output = gr.Textbox(
+                        label="시스템 상태",
+                        lines=15,
+                        interactive=False
+                    )
+                
+                # 중앙: 메모리 사용량
+                with gr.Column(scale=1):
+                    gr.Markdown("### 💾 메모리 사용량")
+                    gr.Markdown("시스템 메모리 사용 현황을 확인합니다.")
+                    memory_btn = gr.Button("💾 메모리 정보", variant="primary")
+                    memory_output = gr.Textbox(
+                        label="메모리 정보",
+                        lines=15,
+                        interactive=False
+                    )
+                
+                # 오른쪽: 메모리 내용
+                with gr.Column(scale=1):
+                    gr.Markdown("### 💾 메모리 내용")
+                    gr.Markdown("메모리에 저장된 실제 데이터를 확인합니다.")
+                    memory_content_btn = gr.Button("💾 메모리 내용 보기", variant="primary")
+                    memory_content_output = gr.Textbox(
+                        label="메모리 내용",
+                        lines=15,
                         interactive=False
                     )
 
-        with gr.Tab("🔬 검색 분석"):
-            with gr.Row():
-                # 왼쪽 열: 검색 입력
-                with gr.Column(scale=1):
-                    gr.Markdown("### 🔍 분석할 검색")
-                    search_input_analysis = gr.Textbox(
-                        label="분석할 검색어",
-                        placeholder="상세 분석을 위해 검색어를 입력하세요...",
-                        lines=4
-                    )
-                    top_k_analysis = gr.Slider(
-                        label="결과 수",
-                        minimum=1,
-                        maximum=10,
-                        value=3,
-                        step=1
-                    )
-                    search_analysis_btn = gr.Button("🔬 검색 및 분석", variant="primary")
-                
-                # 중앙 열: 검색 결과
-                with gr.Column(scale=1):
-                    gr.Markdown("### 📋 검색 결과")
-                    search_results_analysis = gr.Textbox(
-                        label="검색 결과",
-                        lines=12,
-                        interactive=False
-                    )
-                    gr.Markdown("### ⏱️ 처리 분석")
-                    search_processing_info = gr.Textbox(
-                        label="처리 분석",
-                        lines=10,
-                        interactive=False
-                    )
-                
-                # 오른쪽 열: 벡터 분석
-                with gr.Column(scale=1):
-                    gr.Markdown("### 🔢 벡터 분석")
-                    search_vector_info = gr.Textbox(
-                        label="벡터 분석",
-                        lines=20,
-                        interactive=False
-                    )
-        
+        # === 추가: RAG Q&A 탭 (선택적) ===
         with gr.Tab("🤖 RAG Q&A"):
             with gr.Row():
-                # 왼쪽 열: 질문 입력
+                # 왼쪽: 질문 입력
                 with gr.Column(scale=1):
                     gr.Markdown("### 💬 질문하기")
+                    gr.Markdown("RAG 시스템을 통해 질문에 답변을 받습니다.")
                     question_input = gr.Textbox(
                         label="질문",
-                        placeholder="예: 헥사고날 아키텍처의 장점은 무엇인가요? RAG 시스템은 어떻게 작동하나요? Docker 최적화 방법을 알려주세요...",
+                        placeholder="예: 헥사고날 아키텍처의 장점은 무엇인가요? RAG 시스템은 어떻게 작동하나요?",
                         lines=6
                     )
                     max_sources = gr.Slider(
@@ -1239,7 +2031,7 @@ def create_demo_interface() -> gr.Blocks:
                     )
                     answer_btn = gr.Button("💬 답변 생성", variant="primary")
                 
-                # 중앙 열: AI 답변
+                # 중앙: AI 답변
                 with gr.Column(scale=1):
                     gr.Markdown("### 🤖 AI 답변")
                     answer_output = gr.Textbox(
@@ -1248,116 +2040,23 @@ def create_demo_interface() -> gr.Blocks:
                         interactive=False
                     )
                 
-                # 오른쪽 열: 출처 문서
+                # 오른쪽: 출처 문서
                 with gr.Column(scale=1):
                     gr.Markdown("### 📚 출처 문서")
                     sources_output = gr.Textbox(
                         label="출처 문서",
-                        lines=25,
+                        lines=20,
                         interactive=False
                     )
 
-        with gr.Tab("🔄 RAG 파이프라인"):
-            with gr.Row():
-                gr.Markdown("""
-                ## 🎯 완전한 RAG 파이프라인 시연
-                **문서 로딩 → 청킹 → 벡터화 → 저장 → 검색 → 답변생성**의 전체 과정을 한 번에 보여줍니다.
-                """)
-            
-            with gr.Row():
-                # 왼쪽 열: 입력
-                with gr.Column(scale=1):
-                    gr.Markdown("### 📝 입력 데이터")
-                    pipeline_document = gr.Textbox(
-                        label="분석할 문서",
-                        placeholder="RAG 파이프라인으로 처리할 문서를 입력하세요...",
-                        lines=10
-                    )
-                    pipeline_query = gr.Textbox(
-                        label="검색 쿼리",
-                        placeholder="문서에서 찾고자 하는 내용을 질문하세요...",
-                        lines=3
-                    )
-                    pipeline_btn = gr.Button("🚀 전체 파이프라인 실행", variant="primary")
-                
-                # 중앙 열: 파이프라인 과정
-                with gr.Column(scale=1):
-                    gr.Markdown("### 🔄 처리 과정")
-                    pipeline_process = gr.Textbox(
-                        label="파이프라인 로그",
-                        lines=25,
-                        interactive=False
-                    )
-                
-                # 오른쪽 열: 검색 결과
-                with gr.Column(scale=1):
-                    gr.Markdown("### 🔍 검색 결과")
-                    pipeline_search_result = gr.Textbox(
-                        label="검색된 문서",
-                        lines=12,
-                        interactive=False
-                    )
-                    gr.Markdown("### 🔢 벡터 분석")
-                    pipeline_vector_analysis = gr.Textbox(
-                        label="벡터 분석 결과",
-                        lines=10,
-                        interactive=False
-                    )
-            
-            with gr.Row():
-                # 하단: 최종 RAG 답변
-                with gr.Column():
-                    gr.Markdown("### 🤖 최종 RAG 답변")
-                    pipeline_final_answer = gr.Textbox(
-                        label="생성된 답변",
-                        lines=8,
-                        interactive=False
-                    )
-
-        with gr.Tab("📊 데이터 확인"):
-            with gr.Row():
-                # 왼쪽 열: 메모리 내용 확인
-                with gr.Column(scale=1):
-                    gr.Markdown("### 💾 메모리 내용 확인")
-                    memory_content_btn = gr.Button("💾 메모리 내용 보기", variant="primary")
-                    memory_content_output = gr.Textbox(
-                        label="메모리에 저장된 내용",
-                        lines=20,
-                        interactive=False
-                    )
-                
-                # 중앙 열: 청크 내용 확인
-                with gr.Column(scale=1):
-                    gr.Markdown("### 📄 청크 내용 확인")
-                    chunk_content_btn = gr.Button("📄 청크 내용 보기", variant="primary")
-                    chunk_content_output = gr.Textbox(
-                        label="청크 내용",
-                        lines=20,
-                        interactive=False
-                    )
-                
-                # 오른쪽 열: 벡터스토어 내용 확인
-                with gr.Column(scale=1):
-                    gr.Markdown("### 🔍 벡터스토어 내용 확인")
-                    vector_content_btn = gr.Button("🔍 벡터스토어 내용 보기", variant="primary")
-                    vector_content_output = gr.Textbox(
-                        label="벡터스토어 내용",
-                        lines=20,
-                        interactive=False
-                    )
-        
         # Async wrapper functions for Gradio compatibility
         def sync_add_document(content, source):
             async def run():
                 await demo_controller.initialize()
                 return await demo_controller.add_document(content, source)
-            return asyncio.run(run())
-        
-        def sync_add_document_with_analysis(content, source):
-            async def run():
-                await demo_controller.initialize()
-                return await demo_controller.add_document_with_analysis(content, source)
-            return asyncio.run(run())
+            result = asyncio.run(run())
+            preview = demo_controller.get_all_documents_preview()
+            return result, preview
         
         def sync_clear_knowledge_base():
             async def run():
@@ -1369,12 +2068,6 @@ def create_demo_interface() -> gr.Blocks:
             async def run():
                 await demo_controller.initialize()
                 return await demo_controller.search_documents(query, top_k)
-            return asyncio.run(run())
-        
-        def sync_search_documents_with_analysis(query, top_k):
-            async def run():
-                await demo_controller.initialize()
-                return await demo_controller.search_documents_with_analysis(query, top_k)
             return asyncio.run(run())
         
         def sync_generate_answer(question, max_sources):
@@ -1419,22 +2112,10 @@ def create_demo_interface() -> gr.Blocks:
                 return await demo_controller.get_vector_store_detailed_info()
             return asyncio.run(run())
 
-        def sync_demonstrate_retriever_process(query):
-            async def run():
-                await demo_controller.initialize()
-                return await demo_controller.demonstrate_retriever_process(query)
-            return asyncio.run(run())
-
         def sync_get_memory_content():
             async def run():
                 await demo_controller.initialize()
                 return await demo_controller.get_memory_content()
-            return asyncio.run(run())
-
-        def sync_get_chunk_content():
-            async def run():
-                await demo_controller.initialize()
-                return await demo_controller.get_chunk_content()
             return asyncio.run(run())
 
         def sync_get_vector_store_content():
@@ -1442,23 +2123,48 @@ def create_demo_interface() -> gr.Blocks:
                 await demo_controller.initialize()
                 return await demo_controller.get_vector_store_content()
             return asyncio.run(run())
+
+        def sync_load_sample_data():
+            result = demo_controller.load_sample_data()
+            preview = demo_controller.get_all_documents_preview()
+            return result, preview
         
-        def sync_demonstrate_complete_rag_pipeline(document, query):
+        def sync_preview_sample_data():
+            return demo_controller.preview_sample_data()
+        
+        def sync_add_sample_data_to_knowledge_base():
             async def run():
                 await demo_controller.initialize()
-                return await demo_controller.demonstrate_complete_rag_pipeline(document, query)
+                return await demo_controller.add_sample_data_to_knowledge_base()
             return asyncio.run(run())
+
+        def sync_preview_manual_documents():
+            return demo_controller.preview_manual_documents()
+
+        # === 새로운 TextSplitter 관련 동기 함수들 ===
+        
+        def sync_get_document_list():
+            return demo_controller.get_document_list()
+        
+        def sync_get_document_choices():
+            return demo_controller.get_document_choices()
+        
+        def sync_update_chunking_settings(preset, chunk_size, chunk_overlap):
+            return demo_controller.update_chunking_settings(preset, chunk_size, chunk_overlap)
+        
+        def sync_execute_chunking(document_selection, selected_document):
+            return demo_controller.execute_chunking(document_selection, selected_document)
+        
+        def sync_get_chunk_cards():
+            return demo_controller.get_chunk_cards()
+        
+        def sync_get_chunk_content(chunk_index):
+            return demo_controller.get_chunk_content(chunk_index)
 
         def format_system_status_html(status_text):
             """시스템 상태 텍스트를 HTML로 포맷팅"""
             if not status_text or "❌" in status_text:
                 return """<div style="font-size: 14px; line-height: 1.4; color: #dc3545; min-width: 300px; width: 100%;">
-                    <div style="margin-bottom: 8px;">
-                        <strong>📄 문서 관리:</strong><br>
-                        • 저장된 문서: <strong>❌ 오류</strong><br>
-                        • 벡터 임베딩: <strong>❌ 오류</strong>
-                    </div>
-                    
                     <div style="margin-bottom: 8px;">
                         <strong>🤖 LLM 서비스:</strong><br>
                         <strong>❌ 준비안됨</strong>
@@ -1477,8 +2183,6 @@ def create_demo_interface() -> gr.Blocks:
             
             # 상태 텍스트에서 정보 추출 (실제 출력 구조에 맞게 수정)
             lines = status_text.split('\n')
-            doc_count = "0"
-            vector_count = "0"
             llm_model = "MockLLM"
             llm_type = "Mock"
             llm_status = "❌ 준비안됨"
@@ -1492,11 +2196,7 @@ def create_demo_interface() -> gr.Blocks:
             # 실제 출력 구조에 맞게 파싱
             for line in lines:
                 line = line.strip()
-                if "저장된 문서:" in line:
-                    doc_count = line.split(":")[-1].strip().replace("개", "")
-                elif "벡터 임베딩:" in line:
-                    vector_count = line.split(":")[-1].strip().replace("개", "")
-                elif "스토어:" in line:
+                if "스토어:" in line:
                     vector_store = line.split(":")[-1].strip()
                 elif "저장된 벡터:" in line:
                     stored_vectors = line.split(":")[-1].strip().replace("개", "")
@@ -1521,12 +2221,6 @@ def create_demo_interface() -> gr.Blocks:
             
             return f"""<div style="font-size: 14px; line-height: 1.4; min-width: 300px; width: 100%;">
                 <div style="margin-bottom: 8px;">
-                    <strong>📄 문서 관리:</strong><br>
-                    • 저장된 문서: <strong>{doc_count}개</strong><br>
-                    • 벡터 임베딩: <strong>{vector_count}개</strong>
-                </div>
-                
-                <div style="margin-bottom: 8px;">
                     <strong>🤖 LLM 서비스:</strong><br>
                     <strong>{llm_model}({llm_type})</strong> - <strong>{llm_status}</strong>
                 </div>
@@ -1544,8 +2238,8 @@ def create_demo_interface() -> gr.Blocks:
 
         # Event handlers
         load_sample_btn.click(
-            fn=lambda: demo_controller.load_sample_data(),
-            outputs=sample_status
+            fn=sync_load_sample_data,
+            outputs=[sample_status, preview_output]
         )
         
         use_sample_btn.click(
@@ -1557,47 +2251,13 @@ def create_demo_interface() -> gr.Blocks:
         add_btn.click(
             fn=sync_add_document,
             inputs=[doc_input, source_input],
-            outputs=add_output
-        )
-        
-        add_analysis_btn.click(
-            fn=sync_add_document_with_analysis,
-            inputs=[doc_input_analysis, source_input_analysis],
-            outputs=[basic_result, processing_info, vector_info]
-        )
-        
-        clear_btn.click(
-            fn=sync_clear_knowledge_base,
-            outputs=clear_output
+            outputs=[add_output, preview_output]
         )
         
         search_btn.click(
             fn=sync_search_documents,
             inputs=[search_input, top_k],
             outputs=search_output
-        )
-        
-        search_analysis_btn.click(
-            fn=sync_search_documents_with_analysis,
-            inputs=[search_input_analysis, top_k_analysis],
-            outputs=[search_results_analysis, search_processing_info, search_vector_info]
-        )
-        
-        retriever_btn.click(
-            fn=sync_demonstrate_retriever_process,
-            inputs=[retriever_query],
-            outputs=[step1_output, step2_output, analysis_output]
-        )
-
-        answer_btn.click(
-            fn=sync_generate_answer,
-            inputs=[question_input, max_sources],
-            outputs=[answer_output, sources_output]
-        )
-
-        view_docs_btn.click(
-            fn=sync_view_all_documents,
-            outputs=documents_output
         )
 
         # 임베딩 분석 버튼 이벤트 핸들러
@@ -1618,21 +2278,94 @@ def create_demo_interface() -> gr.Blocks:
             outputs=memory_content_output
         )
 
-        chunk_content_btn.click(
-            fn=sync_get_chunk_content,
-            outputs=chunk_content_output
-        )
-
         vector_content_btn.click(
             fn=sync_get_vector_store_content,
             outputs=vector_content_output
         )
 
-        # RAG 파이프라인 이벤트 핸들러
-        pipeline_btn.click(
-            fn=sync_demonstrate_complete_rag_pipeline,
-            inputs=[pipeline_document, pipeline_query],
-            outputs=[pipeline_process, pipeline_search_result, pipeline_vector_analysis, pipeline_final_answer]
+        # 청킹 분석 이벤트 핸들러
+        chunk_analysis_btn.click(
+            fn=sync_get_chunk_analysis,
+            outputs=chunk_analysis_output
+        )
+
+        # 벡터스토어 정보 이벤트 핸들러
+        vector_info_btn.click(
+            fn=sync_get_vector_store_detailed_info,
+            outputs=vector_info_output
+        )
+
+        # 시스템 상태 이벤트 핸들러
+        status_btn.click(
+            fn=sync_get_status,
+            outputs=status_output
+        )
+
+        # 메모리 정보 이벤트 핸들러
+        memory_btn.click(
+            fn=sync_get_memory_info,
+            outputs=memory_output
+        )
+
+        # === 새로운 TextSplitter 이벤트 핸들러들 ===
+        
+        # 문서 목록 새로고침
+        refresh_docs_btn.click(
+            fn=sync_get_document_list,
+            outputs=document_list_output
+        )
+        
+        # 문서 선택 변경 시 드롭다운 업데이트
+        document_selection.change(
+            fn=lambda selection: gr.update(choices=sync_get_document_choices(), interactive=(selection == "개별 문서 선택")),
+            inputs=document_selection,
+            outputs=selected_document
+        )
+        
+        # 프리셋 변경 시 설정 업데이트
+        preset_dropdown.change(
+            fn=lambda preset_value: (
+                500 if preset_value == "기본 설정 (500/75)" else 
+                300 if preset_value == "작은 청크 (300/50)" else 
+                800 if preset_value == "큰 청크 (800/100)" else 500,
+                75 if preset_value == "기본 설정 (500/75)" else 
+                50 if preset_value == "작은 청크 (300/50)" else 
+                100 if preset_value == "큰 청크 (800/100)" else 75
+            ),
+            inputs=preset_dropdown,
+            outputs=[chunk_size, chunk_overlap]
+        )
+        
+        # 설정 적용
+        apply_settings_btn.click(
+            fn=sync_update_chunking_settings,
+            inputs=[preset_dropdown, chunk_size, chunk_overlap],
+            outputs=current_settings_display
+        )
+        
+        # 설정 초기화
+        reset_settings_btn.click(
+            fn=lambda: (500, 75, "기본 설정 (500/75)"),
+            outputs=[chunk_size, chunk_overlap, preset_dropdown]
+        )
+        
+        # 청킹 실행
+        execute_chunking_btn.click(
+            fn=sync_execute_chunking,
+            inputs=[document_selection, selected_document],
+            outputs=[chunking_status, chunk_analysis_output]
+        )
+        
+        # 청크 카드 표시
+        execute_chunking_btn.click(
+            fn=sync_get_chunk_cards,
+            outputs=chunk_cards_output
+        )
+        
+        # 페이지 로드 시 초기 문서 목록 표시
+        demo.load(
+            fn=sync_get_document_list,
+            outputs=document_list_output
         )
 
         # 페이지 로드 시 초기 시스템 상태 업데이트

@@ -15,10 +15,10 @@ services:
       - TRANSFORMERS_CACHE=/app/model_cache/huggingface
     volumes:
       - ./ai-service/src:/app/src
-      - ./ai-service/demo.py:/app/demo.py
+      - ./ai-service/demo:/app/demo
       - ./ai-service/sampledata:/app/sampledata
       - ./model_cache:/app/model_cache
-    command: ["python", "demo.py"]
+    command: ["python", "demo/main.py"]
     restart: unless-stopped
     networks:
       - demo-network
