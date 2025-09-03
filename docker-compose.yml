@@ -129,7 +129,7 @@ services:
       - DB_PASSWORD=dev_password
       - GOOGLE_API_KEY=${GOOGLE_API_KEY:-}
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}
-      - ENVIRONMENT=development
+      - APP_ENV=development
       - HEALTH_CHECK_ENABLED=true
       - METRICS_ENABLED=true
       - HF_HOME=/app/model_cache/huggingface

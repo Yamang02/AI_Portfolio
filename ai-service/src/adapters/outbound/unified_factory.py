@@ -75,3 +75,4 @@ class UnifiedAdapterFactory:
             "database": DatabaseAdapterFactory.get_supported_providers(),
             "vector": VectorAdapterFactory.get_supported_providers()
         }
+

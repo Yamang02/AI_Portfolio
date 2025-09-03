@@ -45,9 +45,10 @@ class CacheConfig:
 class ConfigManager:
     """설정을 중앙에서 관리하는 매니저 클래스"""
 
-    def __init__(self, config_dir: str = "config"):
+    def __init__(self, config_dir: str = "config", environment: str = "production"):
         self.config_dir = Path(config_dir)
-        self.config_file = Path("config.yaml")  # 루트의 config.yaml 사용
+        self.environment = environment
+        self.config_file = self.config_dir / f"{environment}.yaml"  # config/production.yaml 또는 config/demo.yaml
         self.env_file = self.config_dir / ".env"
 
         # 필수 설정 키 정의
@@ -434,9 +435,16 @@ class ConfigManager:
 
 
 # 전역 설정 매니저 인스턴스
-config_manager = ConfigManager()
+config_manager = None
 
 
-def get_config_manager() -> ConfigManager:
+def get_config_manager(environment: str = None) -> ConfigManager:
     """전역 설정 매니저 반환"""
+    global config_manager
+    
+    if config_manager is None:
+        # 환경변수에서 환경 설정 확인 (기본값: production)
+        env = environment or os.getenv("APP_ENV", "production")
+        config_manager = ConfigManager(environment=env)
+        
     return config_manager

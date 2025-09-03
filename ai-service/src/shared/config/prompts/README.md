@@ -5,8 +5,12 @@
 ## 구조
 
 ```
+config/                      # 환경별 설정 (루트 디렉토리)
+├── production.yaml          # 프로덕션 환경 설정
+├── demo.yaml               # 데모 환경 설정
+└── base.yaml               # 공통 설정
+
 src/shared/config/
-├── app_config.yaml          # 애플리케이션 기본 설정
 ├── config_manager.py        # 설정 관리 클래스
 ├── prompt_config.py         # 프롬프트 관리 클래스
 ├── prompts/                 # 프롬프트 설정 디렉토리

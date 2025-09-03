@@ -7,8 +7,6 @@ import logging
 import time
 from typing import Dict, Any, List, Optional, Tuple
 import numpy as np
-from qdrant_client import AsyncQdrantClient
-from qdrant_client.models import Distance, VectorParams, PointStruct, Filter, FieldCondition, MatchValue
 
 from src.core.ports.outbound.vector_store_port import VectorStoreOutboundPort
 from src.core.domain.entities.document import Document
@@ -41,12 +39,16 @@ class QdrantAdapter(VectorStoreOutboundPort):
             max_results=qdrant_settings["max_results"]
         )
 
-        self.client: Optional[AsyncQdrantClient] = None
+        self.client = None
         self._available = False
 
     async def initialize(self):
         """Qdrant 클라이언트 초기화"""
         try:
+            # 지연 로딩: 필요할 때만 qdrant_client import
+            from qdrant_client import AsyncQdrantClient
+            from qdrant_client.models import Distance, VectorParams
+            
             self.client = AsyncQdrantClient(
                 url=self.qdrant_config.url,
                 api_key=self.qdrant_config.api_key
@@ -78,6 +80,9 @@ class QdrantAdapter(VectorStoreOutboundPort):
             logger.info(
                 f"Qdrant adapter initialized with collection: {self.qdrant_config.collection_name}")
 
+        except ImportError as e:
+            logger.error(f"qdrant_client 모듈을 import할 수 없습니다: {e}")
+            raise ImportError("qdrant_client 패키지가 설치되지 않았습니다. pip install qdrant-client를 실행해주세요.")
         except Exception as e:
             logger.error(f"Failed to initialize Qdrant adapter: {e}")
             self._available = False
@@ -93,6 +98,8 @@ class QdrantAdapter(VectorStoreOutboundPort):
             return False
 
         try:
+            from qdrant_client.models import PointStruct
+            
             points = []
             for doc in documents:
                 # 문서를 벡터로 변환 (임시로 랜덤 벡터 사용)
@@ -205,6 +212,8 @@ class QdrantAdapter(VectorStoreOutboundPort):
             return False
 
         try:
+            from qdrant_client.models import Filter, FieldCondition, MatchValue
+            
             await self.client.delete(
                 collection_name=self.qdrant_config.collection_name,
                 points_selector=Filter(

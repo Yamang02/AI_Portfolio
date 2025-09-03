@@ -83,3 +83,4 @@ class DatabaseAdapterFactory:
     def register_adapter(cls, provider: DatabaseProvider, adapter_class: type):
         """새로운 어댑터 등록"""
         cls._adapters[provider] = adapter_class
+

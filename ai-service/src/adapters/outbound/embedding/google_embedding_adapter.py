@@ -112,3 +112,4 @@ class GoogleEmbeddingAdapter(EmbeddingPort):
         logger.info("Google embedding adapter resources cleaned up.")
         self._model = None
         self._available = False
+

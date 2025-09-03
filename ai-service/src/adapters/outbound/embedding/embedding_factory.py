@@ -70,3 +70,4 @@ class EmbeddingAdapterFactory:
     def register_adapter(cls, provider: EmbeddingProvider, adapter_class: type):
         """새로운 어댑터 등록"""
         cls._adapters[provider] = adapter_class
+

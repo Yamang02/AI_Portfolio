@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 class PromptManager:
     """프롬프트 설정을 중앙에서 관리하는 매니저 클래스"""
 
-    def __init__(self, config_dir: str = "config/prompts"):
+    def __init__(self, config_dir: str = "src/shared/config/prompts"):
         self.config_dir = Path(config_dir)
         self.system_prompts: Dict[str, str] = {}
         self.rag_prompts: Dict[str, Dict[str, Any]] = {}

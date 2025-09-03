@@ -438,9 +438,13 @@ class RAGDemoInterface:
 **🔍 벡터 스토어:**
 • 스토어: {vector_info.get('store_name', 'MemoryVector')}
 • 상태: {'✅ 준비됨' if status.get('vector_store_available') else '❌ 사용 불가'}
-• 환경: {self.vector_store_factory.environment}
-• 임베딩 모델: {vector_info.get('embedding_model', 'all-MiniLM-L6-v2')}
+• 환경: {self.vector_adapter_factory.environment}
+• 저장된 벡터: {vector_info.get('stored_vectors', 0)}개
+
+**🔤 임베딩 서비스:**
+• 모델: {vector_info.get('embedding_model', 'sentence-transformers/all-MiniLM-L6-v2')}
 • 차원: {vector_info.get('dimensions', 384)}
+• 상태: {'✅ 준비됨' if vector_info.get('embedding_available', True) else '❌ 사용 불가'}
             """
         except Exception as e:
             return f"❌ 상태 가져오기 오류: {str(e)}"
@@ -980,6 +984,11 @@ def create_demo_interface() -> gr.Blocks:
                                 <strong>🔍 벡터 스토어:</strong><br>
                                 <strong>로딩 중...</strong>
                             </div>
+                            
+                            <div style="margin-bottom: 8px;">
+                                <strong>🔤 임베딩 서비스:</strong><br>
+                                <strong>로딩 중...</strong>
+                            </div>
                         </div>
                     </div>
                     """,
@@ -1459,9 +1468,14 @@ def create_demo_interface() -> gr.Blocks:
                         <strong>🔍 벡터 스토어:</strong><br>
                         <strong>❌ 준비안됨</strong>
                     </div>
+                    
+                    <div style="margin-bottom: 8px;">
+                        <strong>🔤 임베딩 서비스:</strong><br>
+                        <strong>❌ 준비안됨</strong>
+                    </div>
                 </div>"""
             
-            # 상태 텍스트에서 정보 추출
+            # 상태 텍스트에서 정보 추출 (실제 출력 구조에 맞게 수정)
             lines = status_text.split('\n')
             doc_count = "0"
             vector_count = "0"
@@ -1469,32 +1483,41 @@ def create_demo_interface() -> gr.Blocks:
             llm_type = "Mock"
             llm_status = "❌ 준비안됨"
             vector_store = "MemoryVector"
-            embedding_model = "all-MiniLM-L6-v2"
-            dimensions = "384"
+            stored_vectors = "0"
             vector_status = "❌ 준비안됨"
+            embedding_model = "sentence-transformers/all-MiniLM-L6-v2"
+            dimensions = "384"
+            embedding_status = "❌ 준비안됨"
             
+            # 실제 출력 구조에 맞게 파싱
             for line in lines:
                 line = line.strip()
                 if "저장된 문서:" in line:
                     doc_count = line.split(":")[-1].strip().replace("개", "")
                 elif "벡터 임베딩:" in line:
                     vector_count = line.split(":")[-1].strip().replace("개", "")
-                elif "모델:" in line and "LLM" not in line:
-                    llm_model = line.split(":")[-1].strip()
-                elif "타입:" in line:
-                    llm_type = line.split(":")[-1].strip()
                 elif "스토어:" in line:
                     vector_store = line.split(":")[-1].strip()
-                elif "임베딩 모델:" in line:
+                elif "저장된 벡터:" in line:
+                    stored_vectors = line.split(":")[-1].strip().replace("개", "")
+                elif "모델:" in line and "sentence-transformers" in line:
                     embedding_model = line.split(":")[-1].strip()
                 elif "차원:" in line:
                     dimensions = line.split(":")[-1].strip()
                 elif "상태:" in line and "✅" in line:
-                    llm_status = "✅ 준비됨"
+                    # 현재 섹션을 추정하여 상태 설정
+                    if "LLM" in status_text and "MockLLM" in status_text:
+                        llm_status = "✅ 준비됨"
+                    if "MemoryVector" in line or "스토어" in line:
+                        vector_status = "✅ 준비됨"
+                    if "sentence-transformers" in line or "차원" in line:
+                        embedding_status = "✅ 준비됨"
             
-            # 벡터 스토어 상태 확인
+            # 기본값 설정 (실제 상태에서 정보가 없을 경우)
             if "✅ 준비됨" in status_text:
+                llm_status = "✅ 준비됨"
                 vector_status = "✅ 준비됨"
+                embedding_status = "✅ 준비됨"
             
             return f"""<div style="font-size: 14px; line-height: 1.4; min-width: 300px; width: 100%;">
                 <div style="margin-bottom: 8px;">
@@ -1510,7 +1533,12 @@ def create_demo_interface() -> gr.Blocks:
                 
                 <div style="margin-bottom: 8px;">
                     <strong>🔍 벡터 스토어:</strong><br>
-                    <strong>{vector_store}</strong> - <strong>{embedding_model}/{dimensions}차원</strong> - <strong>{vector_status}</strong>
+                    <strong>{vector_store}</strong> - <strong>{stored_vectors}개 벡터</strong> - <strong>{vector_status}</strong>
+                </div>
+                
+                <div style="margin-bottom: 8px;">
+                    <strong>🔤 임베딩 서비스:</strong><br>
+                    <strong>{embedding_model}</strong> - <strong>{dimensions}차원</strong> - <strong>{embedding_status}</strong>
                 </div>
             </div>"""
 

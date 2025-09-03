@@ -1,72 +1,58 @@
 """
-Vector Adapter Factory - 헥사고널 아키텍처
-벡터 어댑터 팩토리
+Vector Adapter Factory - 환경별 벡터 어댑터 제공
 """
 
 import logging
-from enum import Enum
-from typing import Optional, Dict, Any
-from src.core.ports.outbound import VectorStoreOutboundPort
+from src.shared.config.config_manager import get_config_manager
 from src.adapters.outbound.databases.vector.memory_vector_adapter import MemoryVectorAdapter
-from src.adapters.outbound.databases.vector.qdrant_adapter import QdrantAdapter
 
 logger = logging.getLogger(__name__)
 
 
-class VectorProvider(Enum):
-    """벡터 제공자 열거형"""
-    MEMORY = "memory"
-    QDRANT = "qdrant"
-
-
 class VectorAdapterFactory:
-    """벡터 어댑터 팩토리 클래스"""
+    """벡터 어댑터 팩토리 - 환경별 벡터 어댑터 제공"""
     
-    _adapters: Dict[VectorProvider, type] = {
-        VectorProvider.MEMORY: MemoryVectorAdapter,
-        VectorProvider.QDRANT: QdrantAdapter,
-    }
+    def __init__(self, environment: str = "demo"):
+        self.environment = environment
+        self.config_manager = get_config_manager()
+        logger.info(f"VectorAdapterFactory initialized for environment: {environment}")
     
-    @classmethod
-    def create_adapter(
-        cls, 
-        provider: VectorProvider, 
-        config: Optional[Dict[str, Any]] = None
-    ) -> VectorStoreOutboundPort:
-        """
-        벡터 어댑터 생성
-        
-        Args:
-            provider: 벡터 제공자
-            config: 설정 정보
+    def create_vector_adapter(self):
+        """환경에 따른 벡터 어댑터 생성"""
+        if self.environment == "production":
+            return self._create_qdrant_adapter()
+        else:
+            return self._create_memory_adapter()
+    
+    def _create_memory_adapter(self):
+        """메모리 벡터 어댑터 생성 (데모용)"""
+        try:
+            from src.adapters.outbound.embedding.local_embedding_adapter import LocalEmbeddingAdapter
             
-        Returns:
-            VectorStoreOutboundPort: 벡터 어댑터 인스턴스
-        """
-        if provider not in cls._adapters:
-            raise ValueError(f"지원하지 않는 벡터 제공자: {provider}")
-        
-        adapter_class = cls._adapters[provider]
-        
-        if provider == VectorProvider.MEMORY:
-            return adapter_class()
-        
-        elif provider == VectorProvider.QDRANT:
-            return adapter_class(
-                url=config.get("url", "https://your-qdrant-url") if config else "https://your-qdrant-url",
-                api_key=config.get("api_key", "your-api-key") if config else "your-api-key",
-                collection_name=config.get("collection_name", "documents") if config else "documents",
-                vector_size=config.get("vector_size", 768) if config else 768
+            embedding_port = LocalEmbeddingAdapter(model_name='all-MiniLM-L6-v2')
+            
+            memory_adapter = MemoryVectorAdapter(
+                config_manager=self.config_manager,
+                embedding_port=embedding_port
             )
-        
-        raise ValueError(f"알 수 없는 벡터 제공자: {provider}")
+            
+            logger.info("✅ Memory vector adapter created with embedding port injection")
+            return memory_adapter
+            
+        except Exception as e:
+            logger.error(f"Failed to create memory vector adapter: {e}", exc_info=True)
+            raise
     
-    @classmethod
-    def get_supported_providers(cls) -> list[str]:
-        """지원하는 제공자 목록 반환"""
-        return [provider.value for provider in cls._adapters.keys()]
-    
-    @classmethod
-    def register_adapter(cls, provider: VectorProvider, adapter_class: type):
-        """새로운 어댑터 등록"""
-        cls._adapters[provider] = adapter_class
+    def _create_qdrant_adapter(self):
+        """Qdrant 벡터 어댑터 생성 (프로덕션용)"""
+        try:
+            from src.adapters.outbound.databases.vector.qdrant_adapter import QdrantAdapter
+            
+            qdrant_adapter = QdrantAdapter(self.config_manager)
+            
+            logger.info("✅ Qdrant vector adapter created for production environment")
+            return qdrant_adapter
+            
+        except Exception as e:
+            logger.error(f"Failed to create Qdrant vector adapter: {e}", exc_info=True)
+            raise

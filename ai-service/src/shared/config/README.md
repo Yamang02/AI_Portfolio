@@ -6,7 +6,6 @@
 
 ```
 src/shared/config/
-├── app_config.yaml              # 애플리케이션 기본 설정
 ├── config_manager.py            # 설정 관리 클래스
 ├── prompt_config.py             # 프롬프트 관리 클래스
 ├── prompts/                     # 프롬프트 설정 디렉토리
@@ -18,6 +17,10 @@ src/shared/config/
 │   │   └── project_description.yaml # 프로젝트 설명 템플릿
 │   └── README.md              # 프롬프트 설정 가이드
 └── README.md                   # 이 파일
+
+Note: 애플리케이션 설정 파일들은 루트의 config/ 디렉토리로 이동했습니다:
+- config/production.yaml  # 프로덕션 환경 설정
+- config/demo.yaml        # 데모 환경 설정
 ```
 
 ## 주요 컴포넌트
@@ -32,8 +35,9 @@ src/shared/config/
 - 시스템 프롬프트, RAG 프롬프트, 작업별 템플릿 관리
 - 동적 프롬프트 로딩 및 유효성 검증
 
-### 3. 설정 파일 (`app_config.yaml`)
-- 기본 설정값 정의
+### 3. 환경별 설정 파일
+- `config/production.yaml`: 프로덕션 환경 설정
+- `config/demo.yaml`: 데모 환경 설정  
 - 민감한 정보는 환경 변수로 주입
 
 ## 사용 방법
