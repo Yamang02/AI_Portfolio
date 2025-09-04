@@ -1,5 +1,587 @@
 # Conversation Log
 
+### 📝 템플릿 사용 가이드
+
+#### 작성 시점
+- AI 에이전트와의 중요한 기술적 대화 완료 직후
+- 주요 기능 구현이나 문제 해결 완료 후
+- 새로운 기술 학습이나 아키텍처 결정 후
+
+#### 세션 순서
+- **최신 세션이 가이드 아래, 파일 상단에 위치**하도록 작성 (Session N이 위에, Session 1이 아래)
+- 각 세션은 `---` 구분선으로 분리
+- 백업된 기존 로그는 `docs/ai/backup/`에 보관
+
+#### 기록할 가치가 있는 내용
+- **기술적 의사결정**: 왜 그 선택을 했는지 근거
+- **문제해결 과정**: 체계적 접근법과 결과
+- **성능 개선**: Before/After 수치가 있는 최적화
+- **새로운 학습**: 기존 지식에서 확장된 부분
+- **실패와 교훈**: 시행착오에서 얻은 인사이트
+
+#### 포트폴리오 활용 팁
+- 면접에서 **"구체적 사례"** 질문에 바로 활용 가능
+- 기술적 역량을 **정량적 지표**로 증명
+- 문제해결 **사고 과정**을 체계적으로 보여줌
+- 지속적 성장과 학습 **의지** 입증
+
+
+## 📅 Session 16.1: Gradio 드롭다운 컴포넌트 문제 해결 실패 분석
+
+**날짜**: 2025-09-04  
+**담당**: Claude Sonnet 4  
+**문제**: document_tab.py에서 문서 드롭다운 목록이 표시되지 않는 문제
+
+### 🚫 실패 원인 분석
+
+#### 1. Gradio 버전 이해 부족
+- **문제**: Gradio 5.44.0 최신 버전의 API 변경사항을 정확히 파악하지 못함
+- **잘못된 시도들**:
+  - `gr.Dropdown.update()` 사용 (존재하지 않는 메서드)
+  - `tab.load()` 사용 (Tab 객체에 없는 메서드)
+  - 복잡한 초기화 로직 추가
+
+#### 2. 근본적인 문제 진단 실패
+- **실제 해결책**: `gr.update(choices=choices, value=None)` 사용
+- **놓친 핵심**: Gradio 5.x에서는 단순히 `gr.update()` 함수를 사용해야 함
+- **문제**: API 문서 확인 없이 추측에 의존한 해결 시도
+
+#### 3. 체계적 접근법 부재
+- **문제**: 에러 메시지를 정확히 분석하지 않고 즉흥적 수정
+- **결과**: 3-4번의 잘못된 시도로 시간 낭비
+- **교훈**: 라이브러리 버전 확인 → 공식 문서 참조 → 테스트 순서 필요
+
+#### 4. 최종 해결방법 (사용자가 직접 수정)
+```python
+# 올바른 방법
+return gr.update(choices=doc_choices, value=None)
+
+# 잘못된 시도들
+return gr.Dropdown.update(choices=doc_choices, value=None)  # ❌
+return doc_choices  # ❌
+tab.load(fn=func, outputs=component)  # ❌
+```
+
+### 📚 학습된 교훈
+1. **라이브러리 버전 변경**: 메이저 버전 업데이트 시 API 변경 가능성 항상 확인
+2. **에러 메시지 정독**: `'Tab' object has no attribute 'load'` 같은 명확한 에러는 즉시 다른 접근법 시도
+3. **공식 문서 우선**: 추측보다는 공식 문서나 예제 코드 참조
+
+---
+
+## 📅 Session 16: 헥사고날 아키텍처 기반 RAG 데모 시스템 완전 리팩토링 및 Use Case 중심 설계
+
+**날짜**: 2025-09-04  
+**주요 목표**: 기존 interfaces 기반 구조를 헥사고날 아키텍처 원칙에 맞게 Use Case 중심으로 완전 리팩토링
+
+### 🎯 주요 작업 내용
+
+#### 1. 기존 구조의 문제점 분석 및 해결 방향
+**발견한 문제점들**:
+- `interfaces/` 디렉토리가 헥사고날 아키텍처 원칙에 위배됨
+- UI 어댑터가 직접 비즈니스 로직을 처리하는 구조적 문제
+- `DemoApplicationService`가 단일 책임 원칙(SRP) 위배
+- 탭별 어댑터들이 interfaces에 직접 의존하는 구조
+
+**해결 방향**:
+- Use Case 중심의 애플리케이션 서비스 설계
+- 도메인 서비스 기반 비즈니스 로직 분리
+- UI 어댑터는 순수하게 UI만 담당하도록 리팩토링
+
+#### 2. 헥사고날 아키텍처 기반 새로운 구조 설계
+```
+ai-service/
+├── demo/
+│   ├── adapters/
+│   │   └── inbound/ui/gradio/
+│   │       ├── gradio_adapter.py      # 메인 UI 조합
+│   │       ├── document_tab.py        # 문서 관리 탭
+│   │       ├── text_splitter_tab.py   # 텍스트 분할 탭
+│   │       ├── embedding_tab.py       # 임베딩 탭
+│   │       ├── retrieval_tab.py       # 검색 탭
+│   │       ├── rag_qa_tab.py          # RAG Q&A 탭
+│   │       └── status_tab.py          # 상태 확인 탭
+│   ├── application/
+│   │   └── services/
+│   │       ├── load_sample_documents_usecase.py
+│   │       ├── add_document_usecase.py
+│   │       └── get_documents_preview_usecase.py
+│   ├── domain/
+│   │   ├── entities/
+│   │   │   ├── document.py
+│   │   │   ├── chunk.py
+│   │   │   ├── embedding.py
+│   │   │   ├── query.py
+│   │   │   ├── search_result.py
+│   │   │   ├── rag_response.py
+│   │   │   └── vector_store.py
+│   │   └── services/
+│   │       ├── document_service.py
+│   │       ├── chunking_service.py
+│   │       ├── embedding_service.py
+│   │       ├── retrieval_service.py
+│   │       └── generation_service.py
+│   └── main.py
+└── core/                              # 공통 모듈
+    ├── shared-kernel/
+    ├── ports/
+    └── services/
+```
+
+#### 3. RAG 단계별 도메인 서비스 설계 및 구현
+**RAG Stage-Centric 도메인 서비스 설계**:
+- `DocumentService`: 문서 CRUD 및 샘플 데이터 로딩
+- `ChunkingService`: 문서를 청크로 분할하는 비즈니스 로직
+- `EmbeddingService`: 청크를 벡터로 변환하는 비즈니스 로직
+- `RetrievalService`: 벡터 유사도 기반 검색 비즈니스 로직
+- `GenerationService`: RAG 응답 생성 비즈니스 로직
+
+**구현된 도메인 서비스들**:
+```python
+# DocumentService - 문서 관리 도메인 서비스
+class DocumentService:
+    def load_sample_documents(self) -> List[Document]
+    def add_document(self, content: str, source: str) -> Document
+    def list_documents(self) -> List[Document]
+    def get_document_by_title(self, title: str) -> Optional[Document]
+
+# ChunkingService - 텍스트 분할 도메인 서비스
+class ChunkingService:
+    def chunk_document(self, document: Document) -> List[Chunk]
+    def chunk_documents(self, documents: List[Document]) -> List[Chunk]
+    def get_chunks_by_document(self, document_id: DocumentId) -> List[Chunk]
+    def get_chunking_statistics(self) -> Dict[str, Any]
+
+# EmbeddingService - 임베딩 생성 도메인 서비스
+class EmbeddingService:
+    def create_embedding(self, chunk: Chunk) -> Embedding
+    def create_embeddings(self, chunks: List[Chunk]) -> List[Embedding]
+    def get_vector_store_statistics(self) -> Dict[str, Any]
+    def calculate_similarity(self, embedding1: Embedding, embedding2: Embedding) -> float
+
+# RetrievalService - 검색 도메인 서비스
+class RetrievalService:
+    def search_similar_chunks(self, query: str, top_k: int = 3) -> List[SearchResult]
+    def get_search_history(self) -> List[Query]
+    def get_search_statistics(self) -> Dict[str, Any]
+
+# GenerationService - RAG 응답 생성 도메인 서비스
+class GenerationService:
+    def generate_rag_response(self, query: str, search_results: List[SearchResult]) -> RAGResponse
+    def get_rag_response(self, response_id: RAGResponseId) -> Optional[RAGResponse]
+    def get_generation_statistics(self) -> Dict[str, Any]
+```
+
+#### 4. Use Case 중심 애플리케이션 서비스 설계
+**Use Case별 애플리케이션 서비스**:
+```python
+# LoadSampleDocumentsUseCase - 샘플 문서 로드 유스케이스
+class LoadSampleDocumentsUseCase:
+    def __init__(self, document_service: DocumentService)
+    async def execute(self) -> Dict[str, Any]
+
+# AddDocumentUseCase - 문서 추가 유스케이스
+class AddDocumentUseCase:
+    def __init__(self, document_service: DocumentService)
+    async def execute(self, content: str, source: str) -> Dict[str, Any]
+
+# GetDocumentsPreviewUseCase - 문서 미리보기 유스케이스
+class GetDocumentsPreviewUseCase:
+    def __init__(self, document_service: DocumentService)
+    async def execute(self) -> Dict[str, Any]
+```
+
+#### 5. UI 어댑터 리팩토링 및 Use Case 연동
+**DocumentTabAdapter 리팩토링**:
+- Use Case를 통한 도메인 서비스 호출
+- UI 이벤트 핸들러에서 비즈니스 로직 제거
+- HTML 렌더링 로직 분리 및 재사용 가능한 컴포넌트화
+
+**구현된 UI 패턴**:
+```python
+class DocumentTabAdapter:
+    def __init__(self, document_service: DocumentService):
+        # Use Case 초기화
+        self.load_sample_usecase = LoadSampleDocumentsUseCase(document_service)
+        self.add_document_usecase = AddDocumentUseCase(document_service)
+        self.get_preview_usecase = GetDocumentsPreviewUseCase(document_service)
+    
+    def _load_sample_data(self) -> Tuple[str, str]:
+        # Use Case를 통한 샘플 데이터 로드
+        result = asyncio.run(self.load_sample_usecase.execute())
+        if result["success"]:
+            preview_result = asyncio.run(self.get_preview_usecase.execute())
+            return self._create_success_html(result), self._create_preview_html(preview_result)
+```
+
+#### 6. 불필요한 코드 및 파일 정리
+**삭제된 파일들**:
+- `ai-service/demo/interfaces/` 전체 디렉토리
+  - `document_interface.py`
+  - `status_interface.py`
+  - `retrieval_interface.py`
+  - `generation_interface.py`
+  - `chunking_interface.py`
+- `ai-service/demo/services/` 전체 디렉토리
+  - `demo_orchestrator.py`
+- `ai-service/demo/application/services/demo_application_service.py`
+
+**수정된 파일들**:
+- 모든 탭 어댑터에서 interfaces 의존성 제거
+- import 경로 수정 (`....domain.services` → `...domain.services`)
+- Use Case 기반 구조로 변경
+
+#### 7. Docker 실행 환경 구성 및 오류 해결
+**Docker Compose 설정**:
+```yaml
+# docker-compose.demo.yml
+services:
+  demo:
+    build:
+      context: ./ai-service/demo
+      dockerfile: Dockerfile
+    ports:
+      - "7860:7860"
+    volumes:
+      - ./ai-service/demo:/app/demo
+      - ./ai-service/core:/app/core
+      - ./model_cache:/app/model_cache
+```
+
+**해결된 오류들**:
+- `ModuleNotFoundError: No module named 'adapters.domain'` - import 경로 수정
+- interfaces 의존성 제거로 인한 import 오류 해결
+- Use Case 기반 구조로 변경으로 인한 의존성 문제 해결
+
+### 🔧 현재 진행 상황
+
+#### ✅ 완료된 작업
+1. **헥사고날 아키텍처 기반 구조 설계** - 완료
+2. **RAG 단계별 도메인 서비스 구현** - 완료
+3. **Use Case 중심 애플리케이션 서비스 구현** - 완료
+4. **DocumentLoad 탭 Use Case 리팩토링** - 완료
+5. **불필요한 코드 및 파일 정리** - 완료
+6. **Docker 실행 환경 구성** - 완료
+
+#### 🚧 진행 중인 작업
+1. **다른 탭들의 Use Case 리팩토링** - TextSplitter 탭 완료, 나머지 진행 중
+2. **도메인 서비스 간 연동 테스트** - 진행 중
+3. **전체 시스템 통합 테스트** - 진행 중
+
+#### 📋 남은 작업
+1. **나머지 탭들의 Use Case 구현**:
+   - Embedding 탭 Use Case 구현
+   - Retrieval 탭 Use Case 구현
+   - RAG Q&A 탭 Use Case 구현
+   - Status 탭 Use Case 구현
+
+2. **도메인 서비스 간 데이터 흐름 검증**:
+   - Document → Chunking → Embedding → Retrieval → Generation
+   - 각 단계별 데이터 전달 및 상태 관리
+
+3. **성능 최적화 및 에러 처리**:
+   - 비동기 처리 최적화
+   - 에러 핸들링 강화
+   - 로깅 시스템 개선
+
+### 🎯 다음 세션 계획
+
+#### 우선순위 1: 나머지 탭 Use Case 구현
+- 각 탭별 독립적인 Use Case 클래스 생성
+- 도메인 서비스와의 연동 구현
+- UI 어댑터 리팩토링 완료
+
+#### 우선순위 2: 전체 시스템 통합 테스트
+- Docker 환경에서 전체 워크플로우 테스트
+- 각 단계별 데이터 흐름 검증
+- 성능 및 안정성 테스트
+
+#### 우선순위 3: 문서화 및 최적화
+- 아키텍처 문서 업데이트
+- 코드 최적화 및 리팩토링
+- 배포 준비 완료
+
+### 💡 주요 학습 및 인사이트
+
+#### 헥사고날 아키텍처 적용 경험
+- **Use Case 중심 설계의 중요성**: 각 유스케이스가 명확한 책임을 가지도록 설계
+- **도메인 서비스 설계 원칙**: RAG 단계별로 도메인 서비스를 분리하여 단일 책임 원칙 준수
+- **UI 어댑터의 역할 명확화**: UI는 순수하게 사용자 인터페이스만 담당하고 비즈니스 로직은 Use Case와 도메인 서비스에 위임
+
+#### RAG 시스템 아키텍처 설계
+- **단계별 도메인 서비스 설계**: Document → Chunking → Embedding → Retrieval → Generation
+- **데이터 흐름 최적화**: 각 단계별 명확한 입력/출력 정의
+- **확장성 고려**: 각 서비스가 독립적으로 교체 가능하도록 설계
+
+#### 실무 적용 가능한 패턴
+- **Use Case 패턴**: 복잡한 비즈니스 로직을 명확한 유스케이스로 분리
+- **도메인 서비스 패턴**: 비즈니스 로직을 도메인 중심으로 구성
+- **어댑터 패턴**: 외부 시스템과의 인터페이스를 명확히 분리
+- 공통 인터페이스를 통한 일관성 보장
+
+### 🔄 진행 상황
+- [x] Session 16 시작 및 현황 정리 ✅
+- [x] Event Manager 아키텍처 구현 ✅
+- [x] UI State Manager 구현 ✅  
+- [x] 설정 기반 이벤트 바인딩 구현 ✅
+- [x] 탭별 이벤트 로직 분리 ✅
+- [x] 리팩토링된 main.py 생성 ✅
+
+### ✅ 구현 완료 사항
+
+#### 1. Event Manager 아키텍처 (`demo/core/event_manager.py`)
+```python
+class DemoEventManager:
+    - register_event_chain(): 이벤트 체인 등록
+    - execute_chain(): 순차적 이벤트 실행 보장
+    - create_gradio_handler(): Gradio 호환 핸들러 생성
+```
+
+#### 2. UI State Manager (`demo/core/state_manager.py`)  
+```python
+class UIStateManager:
+    - subscribe(): 상태 변경 구독
+    - update_state(): 중앙 상태 업데이트
+    - get_history(): 상태 변경 히스토리 추적
+```
+
+#### 3. 설정 기반 이벤트 바인딩
+- **YAML 설정**: `demo/config/events.yaml` - 선언적 이벤트 정의
+- **자동 바인딩**: `demo/core/config_loader.py` - 설정 기반 자동 이벤트 연결
+- **미들웨어**: 로깅, 타이밍, 에러 처리 미들웨어 지원
+
+#### 4. 탭별 모듈 분리
+```
+demo/tabs/
+├── base_tab.py          # 모든 탭의 기본 클래스
+├── document_load_tab.py # 문서 로드 탭
+├── text_splitter_tab.py # 텍스트 분할 탭  
+├── embedding_tab.py     # 임베딩/벡터스토어 탭
+├── retrieval_tab.py     # 검색/리트리버 탭
+├── data_check_tab.py    # 데이터 확인 탭
+└── rag_qa_tab.py        # RAG 질의응답 탭
+```
+
+#### 6. DocumentStore 통합 완료 ✅ 완료
+- **sampledata 실제 로딩**: metadata.json과 .md 파일을 실제로 읽어서 DocumentStore에 저장
+- **demo_orchestrator 업데이트**: 모든 문서 관련 메서드를 DocumentStore 기반으로 변경
+- **드롭다운 문제 해결**: `get_document_by_display_name()` 메서드로 정확한 문서 조회
+- **Docker 테스트 성공**: 리팩토링된 시스템이 http://localhost:7861에서 정상 작동
+
+#### 7. 현재 진행 중: 헥사고날 아키텍처 재정리 🚧
+**발견한 핵심 이슈**:
+```bash
+# 기존 애플리케이션 서비스와 중복 발생
+src/application/services/document_service.py  # 기존 프로덕션 서비스
+src/core/services/document_service.py         # 방금 만든 데모용 서비스 (중복!)
+
+# 올바른 구조 논의 중
+src/application/services/   # 애플리케이션 레이어 (비즈니스 로직)
+src/adapters/inbound/demo/   # 데모 UI 어댑터
+demo/                        # 순수 UI 컴포넌트만
+```
+
+**다음 단계**:
+1. 기존 애플리케이션 서비스 구조 파악
+2. 중복 제거 및 올바른 레이어 분리
+3. 팩토리 패턴으로 환경별 구성 통합
+
+### 🎯 최종 리팩토링 효과
+- **코드 라인 수**: 800+ 라인 → 150 라인 (main.py)
+- **이벤트 관리**: 분산된 20+ 핸들러 → 중앙화된 체인 관리
+- **디버깅**: 람다 함수 → 명명된 메서드로 추적 용이
+- **확장성**: 하드코딩 → YAML 설정으로 유연한 확장
+- **테스트**: 각 탭별 독립적 테스트 가능
+- **데이터 흐름**: 분산된 document_interface → 중앙화된 DocumentStore
+- **아키텍처**: 헥사고날 원칙 적용으로 재사용 가능한 비즈니스 로직 분리
+
+---
+## Session 15.6: TextSplitter 탭 UI 개선 및 메타데이터 통합 (2025-09-04)
+
+### 📋 세션 개요
+- **날짜**: 2025-09-04
+- **주요 목표**: TextSplitter 탭의 자동 새로고침 기능 구현 및 대상문서 분석 UI 개선
+- **참여자**: 개발자, Claude Sonnet 4 AI 에이전트
+- **소요 시간**: 2시간
+- **기술 스택**: Python, Gradio, HTML/CSS, JSON, Hexagonal Architecture
+
+### 🎯 달성한 주요 성과
+
+#### 1. TextSplitter 탭 자동 새로고침 기능
+- **탭 선택 시 자동 문서 목록 업데이트**: TextSplitter 탭을 선택하면 자동으로 문서 목록이 새로고침됨
+- **드롭다운 동기화**: 문서 선택 드롭다운과 분석 대상 드롭다운이 동시에 업데이트됨
+- **상태 초기화**: 탭 전환 시 모든 선택 상태가 초기화되어 깨끗한 상태로 시작
+
+#### 2. 대상문서 분석 UI 구성 변경
+- **왼쪽 영역**: 현재 문서 분석 결과 (메타데이터 로드 상태만 표시)
+- **오른쪽 영역**: 분석 대상 선택 드롭다운 + 선택된 문서 메타데이터 표시
+- **분석 항목 제거**: 기존의 고정된 분석 항목 목록을 제거하고 동적 메타데이터 표시로 변경
+
+#### 3. 메타데이터 통합 및 표시 시스템
+- **metadata.json 연동**: `demo_id` 기반으로 샘플 문서와 메타데이터 연결
+- **구조화된 메타데이터 표시**: 문서 타입, 설명, 태그 등을 시각적으로 표시
+- **수동 문서 처리**: 메타데이터가 없는 수동 문서에 대한 안내 메시지 표시
+
+### 🔧 주요 기술적 의사결정
+
+#### Gradio 탭 선택 이벤트 처리 방식
+> **상황**: TextSplitter 탭 선택 시 자동 새로고침 기능 구현이 필요했으나 `gr.Blocks`에는 `select` 메서드가 없음
+> 
+> **고려한 옵션들**:
+> - ❌ **demo.select()**: `gr.Blocks` 객체에 존재하지 않는 메서드
+> - ✅ **별도 이벤트 처리**: 탭 변경 이벤트를 다른 방식으로 처리
+> 
+> **선택 근거**: Gradio의 실제 API 구조에 맞는 구현 방식 선택
+
+#### 메타데이터 표시 방식
+> **상황**: 문서 메타데이터를 UI에 표시할 때 어떤 형식을 사용할지 결정
+> 
+> **고려한 옵션들**:
+> - ❌ **텍스트 기반**: 가독성 부족, 구조적 정보 표현 어려움
+> - ✅ **HTML 기반**: 시각적 구조화, 이모지 활용, 사용자 친화적
+> 
+> **선택 근거**: 사용자 경험 향상, 정보 구조화, 시각적 명확성
+
+### 🚀 구현된 핵심 기능
+
+#### 1. 메타데이터 기반 문서 분석 시스템
+- **demo_id 연결**: `metadata.json`의 `demo_id` 필드로 샘플 문서와 메타데이터 연결
+- **구조화된 표시**: 문서 타입, 태그, 설명을 시각적으로 구분하여 표시
+- **수동 문서 처리**: 메타데이터 없는 수동 문서에 대한 명확한 안내
+- **분석 상태 요약**: 전체 문서 중 샘플/수동 데이터 비율 표시
+
+#### 2. 대상문서 분석 UI 재구성
+- **왼쪽 영역**: 메타데이터 로드 상태 요약 (총 문서 수, 샘플/수동 비율)
+- **오른쪽 영역**: 분석 대상 선택 드롭다운 + 선택된 문서 메타데이터 표시
+- **동적 메타데이터**: 문서 선택 시 실시간으로 해당 문서의 메타데이터 표시
+- **사용자 안내**: 수동 데이터의 메타데이터 처리 제한에 대한 명확한 안내
+
+#### 3. 문서 선택 및 미리보기 시스템 개선
+- **개별 문서 선택**: 선택된 문서만의 미리보기 카드 표시
+- **전체 문서 요약**: 전체 문서 모드에서 간단한 요약 카드 표시
+- **드롭다운 동기화**: 문서 선택과 분석 대상 선택 드롭다운 동기화
+- **카드 너비 최적화**: 컨테이너 영역에 맞는 카드 크기 조정
+
+### 🎨 UI/UX 개선 사항
+
+#### 메타데이터 표시 디자인
+**샘플 데이터 (메타데이터 있음)**:
+```
+📄 AI 포트폴리오 프로젝트 개요
+📁 출처: ai-portfolio.md
+📏 크기: 15,234 문자
+🏷️ 문서 타입: PROJECT
+📝 설명: 헥사고날 아키텍처를 기반으로 RAG 파이프라인을 구축한 AI 챗봇 시스템
+🏷️ 태그: [포트폴리오] [챗봇] [풀스택] [AI-통합] [RAG 시스템] [마이크로서비스]
+✅ 메타데이터 기반 최적화된 청킹 전략이 적용됩니다.
+```
+
+**수동 데이터 (메타데이터 없음)**:
+```
+📄 수동 입력: manual_input
+📁 출처: manual_input
+📏 크기: 1,234 문자
+🏷️ 타입: 수동 입력 (메타데이터 없음)
+⚠️ 이 문서는 메타데이터가 없어 기본 청킹 전략이 적용됩니다.
+```
+
+#### 문서 분석 결과 표시
+```
+📊 문서 분석 결과
+총 3개 문서의 메타데이터 로드가 완료되었습니다.
+📖 샘플 데이터: 3개
+✍️ 수동 데이터: 0개
+ℹ️ 안내: 수동 데이터의 메타데이터는 처리되지 않습니다. 샘플 데이터만 메타데이터 기반 분석이 가능합니다.
+```
+
+### 🔄 워크플로우 개선
+
+#### TextSplitter 탭 사용 흐름
+1. **탭 선택** → 자동으로 문서 목록 새로고침
+2. **문서 분석 실행** → 메타데이터 로드 상태 확인
+3. **분석 대상 선택** → 개별 문서의 상세 메타데이터 확인
+4. **청킹 실행** → 메타데이터 기반 최적화된 청킹 전략 적용
+
+#### 메타데이터 기반 청킹 전략
+- **샘플 데이터**: 문서 타입, 태그, 설명을 기반으로 최적화된 청킹 전략 적용
+- **수동 데이터**: 기본 청킹 전략 적용 (크기 기반 분할)
+- **혼합 처리**: 샘플과 수동 데이터를 구분하여 각각에 맞는 전략 적용
+
+### 📁 생성/수정된 파일들
+
+#### 주요 수정된 파일
+```
+ai-service/demo/main.py - TextSplitter 탭 자동 새로고침 및 분석 UI 개선
+ai-service/demo/services/demo_orchestrator.py - 메타데이터 표시 메서드 추가
+ai-service/sampledata/metadata.json - demo_id 필드 추가로 문서 연결
+```
+
+#### TextSplitter 탭 주요 변경사항
+- **자동 새로고침**: 탭 선택 시 문서 목록 자동 업데이트
+- **분석 UI 재구성**: 왼쪽(분석 결과) + 오른쪽(대상 선택) 레이아웃
+- **메타데이터 드롭다운**: 분석 대상 문서 선택 기능
+- **구조화된 메타데이터 표시**: 문서 타입, 태그, 설명 등 시각적 표시
+- **수동 문서 안내**: 메타데이터 없는 문서에 대한 명확한 안내
+
+#### 메타데이터 시스템 개선
+```
+메타데이터 연결 구조:
+├── metadata.json
+│   ├── demo_id: "S0", "S1", "S2" (문서 식별자)
+│   ├── document_type: "PROJECT", "QA" (문서 타입)
+│   ├── tags: ["포트폴리오", "챗봇", ...] (태그 목록)
+│   └── description: "문서 설명" (상세 설명)
+└── document_interface.py
+    ├── load_sample_data() - 메타데이터 로드 및 연결
+    ├── get_document_by_choice() - demo_id 기반 문서 검색
+    └── 메타데이터 기반 문서 처리 로직
+```
+
+### 🎯 포트폴리오 관점에서의 가치
+
+#### 사용자 경험 설계 능력
+- **자동화된 워크플로우**: 탭 전환 시 자동 상태 업데이트로 사용자 편의성 증대
+- **직관적 정보 표시**: 메타데이터를 구조화하여 시각적으로 명확하게 표시
+- **상태 기반 UI**: 문서 타입에 따른 차별화된 UI 및 안내 메시지
+- **일관된 사용자 경험**: 모든 탭에서 동일한 문서 선택 및 표시 방식
+
+#### 프론트엔드 기술 적용
+- **동적 UI 업데이트**: Gradio의 select 이벤트를 활용한 자동 새로고침
+- **조건부 렌더링**: 메타데이터 유무에 따른 차별화된 UI 표시
+- **구조화된 데이터 표시**: HTML/CSS를 활용한 메타데이터 시각화
+- **태그 시스템**: 색상 코딩된 태그 표시로 정보 계층화
+
+#### 시스템 아키텍처 이해
+- **메타데이터 기반 설계**: 문서의 구조적 정보를 활용한 최적화
+- **이벤트 기반 아키텍처**: 사용자 액션에 따른 동적 시스템 반응
+- **관심사 분리**: UI 표시 로직과 메타데이터 처리 로직의 명확한 분리
+- **확장 가능한 구조**: 새로운 문서 타입과 메타데이터 필드 추가 용이
+
+#### 문제 해결 능력
+- **자동화된 상태 관리**: 탭 전환 시 일관된 상태 유지를 위한 자동 새로고침
+- **메타데이터 통합**: 외부 JSON 파일과 내부 문서 시스템의 효율적 연결
+- **사용자 안내**: 메타데이터 없는 문서에 대한 명확한 설명과 대안 제시
+- **워크플로우 최적화**: 불필요한 수동 새로고침 단계 제거
+
+### 🔄 다음 세션 계획
+
+#### 우선순위 작업
+1. **청킹 실행 기능 완성**: 메타데이터 기반 최적화된 청킹 전략 구현
+2. **청크 카드 시각화**: 생성된 청크들의 시각적 표시 및 분석
+3. **VectorStore 탭 개선**: 벡터 저장 및 검색 기능의 사용자 경험 개선
+
+#### 해결해야 할 과제
+- **청킹 전략 최적화**: 문서 타입별 최적 청킹 파라미터 자동 설정
+- **성능 최적화**: 대용량 문서의 메타데이터 처리 성능 개선
+- **에러 처리**: 메타데이터 로드 실패 시의 복구 방안
+
+#### 학습 목표
+- **메타데이터 기반 설계**: 구조화된 데이터를 활용한 시스템 최적화
+- **동적 UI 관리**: 사용자 액션에 따른 자동화된 UI 상태 관리
+- **사용자 중심 설계**: 사용자 워크플로우를 고려한 UI/UX 최적화
+
+---
+
 ## Session 15.5: 템플릿 기반 지능형 청킹 전략 시스템 구축 (2025-09-03)
 
 ### 📋 세션 개요
@@ -487,6 +1069,7 @@ UIComponents 클래스:
 - **시각적 피드백**: 사용자 액션에 대한 즉각적이고 명확한 피드백 제공
 
 ---
+
 
 ## Session 15.3: 헥사고날 아키텍처 설정 시스템 완전 정리 및 환경별 설정 통일 (2025-09-03)
 
@@ -2274,27 +2857,3 @@ path/to/modified/file2.ext - [수정 내용과 이유]
 
 ---
 
-### 📝 템플릿 사용 가이드
-
-#### 작성 시점
-- AI 에이전트와의 중요한 기술적 대화 완료 직후
-- 주요 기능 구현이나 문제 해결 완료 후
-- 새로운 기술 학습이나 아키텍처 결정 후
-
-#### 세션 순서
-- **최신 세션이 파일 상단에 위치**하도록 작성 (Session N이 위에, Session 1이 아래)
-- 각 세션은 `---` 구분선으로 분리
-- 백업된 기존 로그는 `docs/ai/backup/`에 보관
-
-#### 기록할 가치가 있는 내용
-- **기술적 의사결정**: 왜 그 선택을 했는지 근거
-- **문제해결 과정**: 체계적 접근법과 결과
-- **성능 개선**: Before/After 수치가 있는 최적화
-- **새로운 학습**: 기존 지식에서 확장된 부분
-- **실패와 교훈**: 시행착오에서 얻은 인사이트
-
-#### 포트폴리오 활용 팁
-- 면접에서 **"구체적 사례"** 질문에 바로 활용 가능
-- 기술적 역량을 **정량적 지표**로 증명
-- 문제해결 **사고 과정**을 체계적으로 보여줌
-- 지속적 성장과 학습 **의지** 입증

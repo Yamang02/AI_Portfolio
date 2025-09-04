@@ -102,11 +102,11 @@ services:
     networks:
       - ai-portfolio-network
 
-  # FastAPI AI Service (Hexagonal Architecture) - API 호출만
+  # FastAPI AI Service (Hexagonal Architecture) - Production API
   ai-service:
     build:
-      context: ./ai-service
-      dockerfile: deployment/Dockerfile.dev
+      context: ./ai-service/prod
+      dockerfile: Dockerfile
       args:
         BUILDKIT_INLINE_CACHE: 1
     container_name: ai-portfolio-ai-service
@@ -136,10 +136,10 @@ services:
       - TRANSFORMERS_CACHE=/app/model_cache/huggingface
       - KONLPY_DATA_PATH=/app/model_cache/konlpy
     volumes:
-      - ./ai-service/src:/app/src
-      - ./ai-service/main.py:/app/main.py
-      - ./ai-service/requirements-cloudrun.txt:/app/requirements-cloudrun.txt
+      - ./ai-service/prod:/app/prod
+      - ./ai-service/core:/app/core
       - ./model_cache:/app/model_cache
+    command: ["python", "prod/main.py"]
     depends_on:
       postgres:
         condition: service_healthy

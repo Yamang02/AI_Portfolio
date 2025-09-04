@@ -1,0 +1,29 @@
+{
+  "documents": [
+    {
+      "filename": "ai-portfolio.md",
+      "title": "AI 포트폴리오 프로젝트 개요",
+      "document_type": "PROJECT",
+      "description": "헥사고날 아키텍처를 기반으로 RAG 파이프라인을 구축한 AI 챗봇 시스템",
+      "tags": ["포트폴리오", "챗봇", "풀스택", "AI-통합", "RAG 시스템", "마이크로서비스"],
+      "demo_id": "S0"
+    },
+    {
+      "filename": "qa_architecture.md", 
+      "title": "헥사고날 아키텍처 Q&A",
+      "document_type": "QA",
+      "description": "헥사고날 아키텍처와 관련된 질문과 답변",
+      "tags": ["아키텍처", "헥사고날", "Q&A", "설계 패턴"],
+      "demo_id": "S1"
+    },
+    {
+      "filename": "qa_ai-services.md",
+      "title": "RAG 시스템 Q&A", 
+      "document_type": "QA",
+      "description": "RAG 시스템 구현과 관련된 질문과 답변",
+      "tags": ["RAG", "AI", "Q&A", "벡터 검색", "캐싱"],
+      "demo_id": "S2"
+    }
+  ]
+}
+

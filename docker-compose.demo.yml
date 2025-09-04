@@ -1,10 +1,10 @@
-# AI Portfolio Demo Environment
+# AI Portfolio Demo Environment - Hexagonal Architecture
 services:
   # Gradio Demo Service
   demo:
     build:
-      context: ./ai-service
-      dockerfile: deployment/Dockerfile.demo
+      context: ./ai-service/demo
+      dockerfile: Dockerfile
     container_name: ai-portfolio-demo
     ports:
       - "7860:7860"
@@ -14,11 +14,10 @@ services:
       - HF_HOME=/app/model_cache/huggingface
       - TRANSFORMERS_CACHE=/app/model_cache/huggingface
     volumes:
-      - ./ai-service/src:/app/src
       - ./ai-service/demo:/app/demo
-      - ./ai-service/sampledata:/app/sampledata
+      - C:\GIT\AI_Portfolio\ai-service\core:/app/core
       - ./model_cache:/app/model_cache
-    command: ["python", "demo/main.py"]
+    command: ["python", "main.py"]
     restart: unless-stopped
     networks:
       - demo-network
