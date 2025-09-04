@@ -60,6 +60,18 @@ class UIComponents:
         """
     
     @staticmethod
+    def create_scrollable_card_container(title: str, count: int = None, container_id: str = None, max_height: str = "400px") -> str:
+        """스크롤 가능한 카드 컨테이너 생성 (고정 높이, 스크롤바)"""
+        count_text = f" (총 {count}개)" if count is not None else ""
+        container_attr = f' id="{container_id}"' if container_id else ""
+        
+        return f"""
+        <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; width: 100%; max-width: 1400px;">
+            <h3 style="color: #2c3e50; margin-bottom: 20px;">{title}{count_text}</h3>
+            <div style="display: flex; overflow-x: auto; gap: 20px; padding-bottom: 10px; width: 100%; max-width: 1400px; max-height: {max_height}; overflow-y: auto;"{container_attr}>
+        """
+    
+    @staticmethod
     def create_simple_document_card(
         title: str,
         source: str,
@@ -69,36 +81,35 @@ class UIComponents:
         border_color: str = '#4caf50',
         icon: str = '📖'
     ) -> str:
-        """간단한 문서 카드 생성"""
+        """간단한 문서 카드 생성 (Document 탭 스타일 적용)"""
         return f"""
         <div style="
-            background: {bg_color};
+            background: linear-gradient(135deg, {bg_color} 0%, {bg_color.replace('e8', 'f0').replace('f3', 'f8')} 100%);
             border: 2px solid {border_color};
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            width: 420px;
-            min-width: 420px;
-            max-width: 420px;
-            flex-shrink: 0;
-        ">
-            <div style="display: flex; align-items: center; margin-bottom: 12px;">
-                <span style="font-size: 24px; margin-right: 8px;">{icon}</span>
-                <h4 style="margin: 0; color: #2c3e50; font-size: 16px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            min-width: 300px;
+            flex: 1;
+            transition: all 0.3s ease;
+        " 
+        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.15)';"
+        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.1)';"
+        >
+            <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                <span style="font-size: 20px; margin-right: 8px;">{icon}</span>
+                <h4 style="margin: 0; color: #2c3e50; font-size: 14px; font-weight: 600;">
                     {title}
                 </h4>
             </div>
-            
-            <div style="margin-bottom: 12px;">
-                <div style="font-size: 12px; color: #666; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                    <strong>📁 출처:</strong> {source}
-                </div>
-                <div style="font-size: 12px; color: #666; margin-bottom: 4px;">
-                    <strong>📏 크기:</strong> {content_length:,} 문자
-                </div>
-                <div style="font-size: 12px; color: #666;">
-                    <strong>🏷️ 타입:</strong> {doc_type}
-                </div>
+            <div style="font-size: 12px; color: #666; margin-bottom: 4px;">
+                <strong>📁 출처:</strong> {source}
+            </div>
+            <div style="font-size: 12px; color: #666; margin-bottom: 4px;">
+                <strong>📏 크기:</strong> {content_length:,} 문자
+            </div>
+            <div style="font-size: 12px; color: #666;">
+                <strong>🏷️ 타입:</strong> {doc_type}
             </div>
         </div>
         """
@@ -163,93 +174,6 @@ class UIComponents:
             {details_html}
         </div>
         """
-        """문서 카드 생성 (고정 너비, hover 효과 없음)"""
-        return f"""
-        <div style="
-            background: {bg_color};
-            border: 2px solid {border_color};
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            width: {min_width}px;
-            min-width: {min_width}px;
-            max-width: {max_width}px;
-            flex-shrink: 0;
-        ">
-            <div style="display: flex; align-items: center; margin-bottom: 12px;">
-                <span style="font-size: 24px; margin-right: 8px;">{icon}</span>
-                <h4 style="margin: 0; color: #2c3e50; font-size: 16px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                    {title}
-                </h4>
-            </div>
-            
-            <div style="margin-bottom: 12px;">
-                <div style="font-size: 12px; color: #666; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                    <strong>📁 출처:</strong> {source}
-                </div>
-                <div style="font-size: 12px; color: #666; margin-bottom: 4px;">
-                    <strong>📏 크기:</strong> {content_length:,} 문자
-                </div>
-                <div style="font-size: 12px; color: #666; margin-bottom: 4px;">
-                    <strong>🏷️ 타입:</strong> {doc_type}
-                </div>
-            </div>
-            
-            <div style="
-                background: rgba(255,255,255,0.8);
-                border-radius: 8px;
-                padding: 12px;
-                font-size: 13px;
-                line-height: 1.4;
-                color: #555;
-                max-height: 100px;
-                overflow: hidden;
-                white-space: pre-wrap;
-                word-wrap: break-word;
-            ">
-                {content_preview}
-            </div>
-        </div>
-        """
-    
-    @staticmethod
-    def create_simple_document_card(
-        title: str,
-        source: str,
-        content_length: int,
-        doc_type: str,
-        bg_color: str = '#e8f5e8',
-        border_color: str = '#4caf50',
-        icon: str = '📖'
-    ) -> str:
-        """간단한 문서 카드 생성 (고정 너비, 내용 미리보기 없음, 높이 최소화, hover 효과 없음)"""
-        return f"""
-        <div style="
-            background: {bg_color};
-            border: 2px solid {border_color};
-            border-radius: 12px;
-            padding: 12px;
-            margin-bottom: 12px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            width: 420px;
-            min-width: 420px;
-            max-width: 420px;
-            flex-shrink: 0;
-        ">
-            <div style="display: flex; align-items: center; margin-bottom: 8px;">
-                <span style="font-size: 18px; margin-right: 8px;">{icon}</span>
-                <h4 style="margin: 0; color: #2c3e50; font-size: 14px; font-weight: 600;">
-                    {title}
-                </h4>
-            </div>
-            
-            <div style="font-size: 11px; color: #666; line-height: 1.3;">
-                <div style="margin-bottom: 2px;"><strong>📁 출처:</strong> {source}</div>
-                <div style="margin-bottom: 2px;"><strong>📏 크기:</strong> {content_length:,} 문자</div>
-                <div><strong>🏷️ 타입:</strong> {doc_type}</div>
-            </div>
-        </div>
-        """
     
     @staticmethod
     def create_chunk_card(
@@ -265,24 +189,26 @@ class UIComponents:
         clickable: bool = True,
         chunk_index: int = 0
     ) -> str:
-        """청크 카드 생성 (고정 너비, hover 효과 없음)"""
+        """청크 카드 생성 (Document 탭 스타일 적용)"""
         click_attr = f' onclick="showChunkContent({chunk_index})"' if clickable else ""
         
         return f"""
         <div style="
-            background: {bg_color};
+            background: linear-gradient(135deg, {bg_color} 0%, {bg_color.replace('e8', 'f0').replace('f3', 'f8')} 100%);
             border: 2px solid {border_color};
             border-radius: 8px;
             padding: 16px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            cursor: {'pointer' if clickable else 'default'};
-            width: {min_width}px;
             min-width: {min_width}px;
-            max-width: {min_width}px;
-            flex-shrink: 0;
-        "{click_attr}>
+            flex: 1;
+            transition: all 0.3s ease;
+            cursor: {'pointer' if clickable else 'default'};
+        "{click_attr}
+        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.15)';"
+        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.1)';"
+        >
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                <span style="font-size: 18px;">{icon}</span>
+                <span style="font-size: 20px;">{icon}</span>
                 <span style="font-size: 12px; color: #666; background: rgba(255,255,255,0.8); padding: 2px 6px; border-radius: 4px;">
                     청크 {chunk_id}
                 </span>
@@ -306,35 +232,6 @@ class UIComponents:
                 word-wrap: break-word;
             ">
                 {content_preview}
-            </div>
-        </div>
-        """
-    
-    @staticmethod
-    def create_success_message(title: str, details: List[str], bg_color: str = '#e8f5e8', border_color: str = '#4caf50') -> str:
-        """성공 메시지 생성"""
-        details_html = ""
-        for detail in details:
-            details_html += f'<div><strong>{detail.split(":")[0]}:</strong> {detail.split(":", 1)[1] if ":" in detail else detail}</div>'
-        
-        return f"""
-        <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
-            <div style="background: {bg_color}; border: 2px solid {border_color}; border-radius: 12px; padding: 20px;">
-                <h4 style="margin: 0 0 10px 0; color: #2c3e50;">✅ {title}</h4>
-                <div style="color: #495057;">
-                    {details_html}
-                </div>
-            </div>
-        </div>
-        """
-    
-    @staticmethod
-    def create_error_message(message: str, bg_color: str = '#f8d7da', border_color: str = '#dc3545') -> str:
-        """에러 메시지 생성"""
-        return f"""
-        <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
-            <div style="background: {bg_color}; border: 2px solid {border_color}; border-radius: 12px; padding: 20px;">
-                <h4 style="margin: 0 0 10px 0; color: #721c24;">❌ {message}</h4>
             </div>
         </div>
         """

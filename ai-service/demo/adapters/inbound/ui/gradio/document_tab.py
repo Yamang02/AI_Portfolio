@@ -14,6 +14,7 @@ from application.services.add_document_usecase import AddDocumentUseCase
 from application.services.get_documents_preview_usecase import GetDocumentsPreviewUseCase
 from application.services.get_document_content_usecase import GetDocumentContentUseCase
 from domain.services.document_management_service import DocumentService
+from .components.ui_components import UIComponents
 
 logger = logging.getLogger(__name__)
 
@@ -115,6 +116,34 @@ class DocumentTabAdapter:
                 inputs=[doc_select],
                 outputs=[doc_content_output]
             )
+            
+            # 키보드 네비게이션을 위한 실시간 문서 내용 업데이트
+            doc_select.change(
+                fn=self._get_document_content,
+                inputs=[doc_select],
+                outputs=[doc_content_output]
+            )
+            
+            # 키보드 단축키 지원 (JavaScript)
+            gr.HTML("""
+            <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // 드롭다운에 포커스가 있을 때 키보드 이벤트 처리
+                const dropdown = document.querySelector('select[data-testid="dropdown"]');
+                if (dropdown) {
+                    dropdown.addEventListener('keydown', function(e) {
+                        // Ctrl + Enter로 문서 내용 새로고침
+                        if (e.ctrlKey && e.key === 'Enter') {
+                            e.preventDefault();
+                            // Gradio 이벤트 트리거
+                            const event = new Event('change', { bubbles: true });
+                            dropdown.dispatchEvent(event);
+                        }
+                    });
+                }
+            });
+            </script>
+            """)
         
         # 드롭다운 컴포넌트 참조 저장 (나중에 업데이트용)
         self._doc_select_component = doc_select
