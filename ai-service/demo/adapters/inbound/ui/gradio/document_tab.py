@@ -9,10 +9,10 @@ Document Management Tab Adapter
 import gradio as gr
 import logging
 from typing import List, Tuple, Any
-from application.services.load_sample_documents_usecase import LoadSampleDocumentsUseCase
-from application.services.add_document_usecase import AddDocumentUseCase
-from application.services.get_documents_preview_usecase import GetDocumentsPreviewUseCase
-from application.services.get_document_content_usecase import GetDocumentContentUseCase
+from application.usecases.load_sample_documents_usecase import LoadSampleDocumentsUseCase
+from application.usecases.add_document_usecase import AddDocumentUseCase
+from application.usecases.get_documents_preview_usecase import GetDocumentsPreviewUseCase
+from application.usecases.get_document_content_usecase import GetDocumentContentUseCase
 from domain.services.document_management_service import DocumentService
 from .components.ui_components import UIComponents
 

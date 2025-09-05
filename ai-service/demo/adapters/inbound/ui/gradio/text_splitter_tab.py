@@ -10,21 +10,21 @@ import gradio as gr
 import logging
 
 from typing import List, Tuple, Any
-from application.services.chunk_document_usecase import ChunkDocumentUseCase
-from application.services.get_chunks_preview_usecase import GetChunksPreviewUseCase
-from application.services.get_chunk_content_usecase import GetChunkContentUseCase
-from application.services.get_chunking_statistics_usecase import (
+from application.usecases.chunk_document_usecase import ChunkDocumentUseCase
+from application.usecases.get_chunks_preview_usecase import GetChunksPreviewUseCase
+from application.usecases.get_chunk_content_usecase import GetChunkContentUseCase
+from application.usecases.get_chunking_statistics_usecase import (
     GetChunkingStatisticsUseCase,
 )
-from application.services.clear_all_chunks_usecase import ClearAllChunksUseCase
-from application.services.get_chunking_strategies_usecase import (
+from application.usecases.clear_all_chunks_usecase import ClearAllChunksUseCase
+from application.usecases.get_chunking_strategies_usecase import (
     GetChunkingStrategiesUseCase,
 )
-from application.services.get_chunking_strategy_defaults_usecase import (
+from application.usecases.get_chunking_strategy_defaults_usecase import (
     GetChunkingStrategyDefaultsUseCase,
 )
 from domain.services.chunking_strategy_service import ChunkingStrategyService
-from application.services.get_documents_preview_usecase import (
+from application.usecases.get_documents_preview_usecase import (
     GetDocumentsPreviewUseCase,
 )
 from domain.services.chunking_service import ChunkingService

@@ -5,7 +5,7 @@ Get System Status Use Case - Demo Application Layer
 전체 시스템의 실시간 상태 정보를 제공합니다.
 """
 
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 from dataclasses import dataclass
 from datetime import datetime
 import psutil

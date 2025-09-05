@@ -54,20 +54,17 @@ class GetConfigurationStatusUseCase:
         }
     
     def _get_config_files_status(self) -> List[Dict[str, Any]]:
-        """설정 파일들의 상태 조회"""
+        """설정 파일들의 상태 조회 - 데모용 설정만"""
         config_files = []
         
-        # 예상되는 설정 파일들
-        expected_files = [
-            "production.yaml",
-            "demo.yaml", 
-            "development.yaml",
-            ".env",
-            "prompts/templates",
-            "chunking"
+        # 데모에서 사용하는 설정 파일들만
+        demo_files = [
+            "demo.yaml",  # 데모 환경 설정
+            "prompts/templates",  # 프롬프트 템플릿
+            "chunking"  # 청킹 설정
         ]
         
-        for filename in expected_files:
+        for filename in demo_files:
             file_path = self.config_dir / filename
             
             if filename in ["prompts/templates", "chunking"]:
@@ -76,6 +73,7 @@ class GetConfigurationStatusUseCase:
             else:
                 # 파일인 경우
                 config_files.append(self._get_file_status(filename, file_path))
+        
         
         return config_files
     
@@ -186,7 +184,7 @@ class GetConfigurationStatusUseCase:
             return False
     
     def _get_config_sections_status(self) -> List[Dict[str, Any]]:
-        """설정 섹션별 상태 조회"""
+        """설정 섹션별 상태 조회 - 데모용 설정만"""
         sections = []
         
         if not self.config_manager:
@@ -201,27 +199,19 @@ class GetConfigurationStatusUseCase:
             }]
         
         try:
-            # LLM 설정 섹션
-            sections.append(self._get_llm_config_status())
-            
-            # 데이터베이스 설정 섹션
-            sections.append(self._get_database_config_status())
-            
+            # 데모에서 중요한 설정들만 표시
             # 임베딩 설정 섹션
             sections.append(self._get_embedding_config_status())
             
-            # RAG 설정 섹션
+            # RAG 설정 섹션 (청킹 포함)
             sections.append(self._get_rag_config_status())
             
-            # 캐시 설정 섹션
-            sections.append(self._get_cache_config_status())
-            
-            # 로깅 설정 섹션
-            sections.append(self._get_logging_config_status())
+            # LLM 설정 섹션 (데모용으로 간소화)
+            sections.append(self._get_demo_llm_config_status())
             
         except Exception as e:
             sections.append({
-                "name": "Configuration",
+                "name": "Demo Configuration",
                 "status": "error",
                 "error_message": str(e),
                 "keys_count": 0,
@@ -412,48 +402,84 @@ class GetConfigurationStatusUseCase:
         }
     
     def _get_environment_variables_status(self) -> Dict[str, Any]:
-        """환경변수 상태 조회"""
-        important_env_vars = [
-            "OPENAI_API_KEY",
-            "GOOGLE_API_KEY",
-            "DB_HOST",
-            "DB_PORT",
-            "DB_NAME",
-            "DB_USER", 
-            "DB_PASSWORD",
-            "REDIS_HOST",
-            "REDIS_PORT",
-            "LOG_LEVEL",
-            "APP_ENV"
+        """환경변수 상태 조회 - 데모용"""
+        # 데모에서는 환경변수 의존성을 최소화
+        demo_env_vars = [
+            "APP_ENV",
+            "LOG_LEVEL"
         ]
         
         env_status = {
             "total_env_vars": len(os.environ),
-            "ai_related_vars": {},
-            "missing_important_vars": [],
+            "demo_related_vars": {},
+            "missing_demo_vars": [],
             "recommendations": []
         }
         
-        for var in important_env_vars:
-            value = os.getenv(var)
-            if value:
-                # 민감한 정보 마스킹
-                if any(sensitive in var.lower() for sensitive in ["key", "password", "secret"]):
-                    masked_value = "***"
-                else:
-                    masked_value = value
-                env_status["ai_related_vars"][var] = masked_value
-            else:
-                env_status["missing_important_vars"].append(var)
+        # APP_ENV 확인 
+        app_env = os.getenv("APP_ENV", "demo")
+        env_status["demo_related_vars"]["APP_ENV"] = app_env
         
-        # 권장사항
-        if "OPENAI_API_KEY" not in env_status["ai_related_vars"]:
-            env_status["recommendations"].append("OpenAI API 키를 설정하여 LLM 기능을 활성화하세요")
+        # LOG_LEVEL 확인
+        log_level = os.getenv("LOG_LEVEL", "INFO")
+        env_status["demo_related_vars"]["LOG_LEVEL"] = log_level
         
-        if "APP_ENV" not in env_status["ai_related_vars"]:
-            env_status["recommendations"].append("APP_ENV를 설정하여 환경별 설정을 구분하세요")
+        # 데모용 권장사항
+        if app_env != "demo":
+            env_status["recommendations"].append("데모 모드에서는 APP_ENV=demo 설정을 권장합니다")
+        
+        env_status["recommendations"].append("데모에서는 외부 API 키가 필요하지 않습니다 (Mock 서비스 사용)")
+        env_status["recommendations"].append("모든 데이터는 메모리에서 처리되어 환경변수 설정이 간단합니다")
             
         return env_status
+    
+    def _get_demo_llm_config_status(self) -> Dict[str, Any]:
+        """데모용 LLM 설정 상태 - ConfigManager에서 가져오기"""
+        if not self.config_manager:
+            return {
+                "name": "LLM Configuration (Demo)",
+                "status": "not_available", 
+                "keys_count": 0,
+                "required_keys": [],
+                "missing_keys": [],
+                "sample_values": {}
+            }
+        
+        try:
+            # ConfigManager에서 Mock LLM 설정 가져오기
+            mock_config = self.config_manager.get_mock_llm_config()
+            if mock_config:
+                return {
+                    "name": "LLM Configuration (Demo)",
+                    "status": "loaded",
+                    "keys_count": len(mock_config),
+                    "required_keys": ["response_type", "delay_ms"],
+                    "missing_keys": [],
+                    "sample_values": {
+                        "response_type": mock_config.get("response_type", "mock"),
+                        "delay_ms": str(mock_config.get("delay_ms", 0)),
+                        "provider": "Mock"
+                    }
+                }
+            else:
+                return {
+                    "name": "LLM Configuration (Demo)",
+                    "status": "incomplete",
+                    "keys_count": 0,
+                    "required_keys": ["response_type", "delay_ms"],
+                    "missing_keys": ["response_type", "delay_ms"],
+                    "sample_values": {}
+                }
+        except Exception as e:
+            return {
+                "name": "LLM Configuration (Demo)",
+                "status": "error",
+                "error_message": str(e),
+                "keys_count": 0,
+                "required_keys": [],
+                "missing_keys": [],
+                "sample_values": {}
+            }
     
     def _get_validation_results(self) -> Dict[str, Any]:
         """설정 유효성 검증 결과"""
@@ -514,7 +540,7 @@ class GetConfigurationStatusUseCase:
         return validation_results
     
     def _get_configuration_recommendations(self) -> List[Dict[str, str]]:
-        """설정 관련 권장사항"""
+        """설정 관련 권장사항 - 데모용"""
         recommendations = []
         
         # 환경변수 권장사항
@@ -523,37 +549,30 @@ class GetConfigurationStatusUseCase:
             recommendations.append({
                 "type": "environment",
                 "message": rec,
-                "priority": "medium"
+                "priority": "low"  # 데모에서는 중요도 낮음
             })
         
-        # 설정 파일 권장사항
-        config_files = self._get_config_files_status()
-        missing_files = [f for f in config_files if not f["exists"]]
-        if missing_files:
-            recommendations.append({
-                "type": "files",
-                "message": f"{len(missing_files)}개의 설정 파일이 누락되었습니다",
-                "priority": "high"
-            })
+        # ConfigManager에서 설정 관련 권장사항 가져오기 (실제 설정 기반)
+        if self.config_manager:
+            try:
+                # 실제 설정 상태에 따른 권장사항
+                config_files = self._get_config_files_status()
+                missing_files = [f for f in config_files if not f["exists"]]
+                if missing_files:
+                    recommendations.append({
+                        "type": "files",
+                        "message": f"{len(missing_files)}개의 설정 파일이 누락되었습니다",
+                        "priority": "medium"
+                    })
+            except:
+                pass
         
-        # 일반 권장사항
-        recommendations.extend([
-            {
-                "type": "security",
-                "message": "민감한 정보는 환경변수로 관리하세요",
-                "priority": "high"
-            },
-            {
-                "type": "backup",
-                "message": "설정 파일의 백업을 정기적으로 수행하세요",
-                "priority": "low"
-            },
-            {
-                "type": "monitoring",
-                "message": "설정 변경 사항을 로깅하여 추적하세요",
-                "priority": "medium"
-            }
-        ])
+        # 기본 데모 권장사항
+        recommendations.append({
+            "type": "demo",
+            "message": "데모는 ConfigManager를 통해 중앙 집중식 설정 관리를 사용합니다",
+            "priority": "info"
+        })
         
         return recommendations
     

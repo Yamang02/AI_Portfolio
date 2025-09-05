@@ -246,6 +246,18 @@ class ChunkingService:
         logger.info("📋 기본 TEXT 전략 사용")
         return "TEXT"
     
+    async def get_chunk_by_id(self, chunk_id: str) -> Optional[Chunk]:
+        """청크 ID로 청크 조회"""
+        return self.chunks.get(chunk_id)
+    
+    async def get_chunks_by_document_id(self, document_id: str) -> List[Chunk]:
+        """문서 ID로 청크 목록 조회"""
+        return [chunk for chunk in self.chunks.values() if str(chunk.document_id) == document_id]
+    
+    async def get_all_chunks(self) -> List[Chunk]:
+        """모든 청크 조회"""
+        return list(self.chunks.values())
+    
     def _chunk_project_document(
         self,
         document: Document,
