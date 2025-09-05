@@ -25,14 +25,14 @@ class GetEmbeddingAnalysisUseCase:
         self.chunking_service = chunking_service
         logger.info("✅ GetEmbeddingAnalysisUseCase initialized")
     
-    async def execute(self) -> Dict[str, Any]:
+    def execute(self) -> Dict[str, Any]:
         """임베딩 분석 정보 조회 실행"""
         try:
             # 임베딩 서비스에서 통계 정보 조회
             embedding_stats = self.embedding_service.get_embedding_statistics()
             
             # 청킹 서비스에서 청크 통계 조회
-            chunk_stats = await self.chunking_service.get_chunking_statistics()
+            chunk_stats = self.chunking_service.get_chunking_statistics()
             
             # 벡터스토어 정보 조회
             vector_store_info = self.embedding_service.get_vector_store_info()

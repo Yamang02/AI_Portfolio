@@ -33,7 +33,7 @@ class CreateEmbeddingUseCase:
         self.validation_service = validation_service
         logger.info("✅ CreateEmbeddingUseCase initialized")
     
-    async def execute(
+    def execute(
         self,
         chunk_ids: Optional[List[str]] = None,
         document_id: Optional[str] = None,
@@ -42,7 +42,7 @@ class CreateEmbeddingUseCase:
         """임베딩 생성 실행"""
         try:
             # 청크 조회
-            chunks = await self._get_chunks(chunk_ids, document_id, all_chunks)
+            chunks = self._get_chunks(chunk_ids, document_id, all_chunks)
             
             if not chunks:
                 return {
@@ -80,7 +80,7 @@ class CreateEmbeddingUseCase:
                 "error": str(e)
             }
     
-    async def _get_chunks(
+    def _get_chunks(
         self,
         chunk_ids: Optional[List[str]],
         document_id: Optional[str],
@@ -91,18 +91,18 @@ class CreateEmbeddingUseCase:
             # 특정 청크 ID들로 조회
             chunks = []
             for chunk_id in chunk_ids:
-                chunk = await self.chunking_service.get_chunk_by_id(chunk_id)
+                chunk = self.chunking_service.get_chunk_by_id(chunk_id)
                 if chunk:
                     chunks.append(chunk)
             return chunks
         
         elif document_id:
             # 특정 문서의 모든 청크 조회
-            return await self.chunking_service.get_chunks_by_document_id(document_id)
+            return self.chunking_service.get_chunks_by_document_id(document_id)
         
         elif all_chunks:
             # 모든 청크 조회
-            return await self.chunking_service.get_all_chunks()
+            return self.chunking_service.get_all_chunks()
         
         else:
             return []

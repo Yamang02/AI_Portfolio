@@ -185,27 +185,17 @@ class EmbeddingTabAdapter:
     ) -> str:
         """임베딩 생성"""
         try:
-            import asyncio
+            if option == "all_chunks":
+                result = self.create_embedding_usecase.execute(all_chunks=True)
+            elif option == "document" and document_id.strip():
+                result = self.create_embedding_usecase.execute(document_id=document_id.strip())
+            elif option == "specific" and chunk_ids.strip():
+                chunk_id_list = [cid.strip() for cid in chunk_ids.split(",") if cid.strip()]
+                result = self.create_embedding_usecase.execute(chunk_ids=chunk_id_list)
+            else:
+                return "<div style='color: red; padding: 20px;'>❌ 잘못된 입력입니다. 옵션에 맞는 값을 입력해주세요.</div>"
             
-            async def _execute():
-                if option == "all_chunks":
-                    result = await self.create_embedding_usecase.execute(all_chunks=True)
-                elif option == "document" and document_id.strip():
-                    result = await self.create_embedding_usecase.execute(document_id=document_id.strip())
-                elif option == "specific" and chunk_ids.strip():
-                    chunk_id_list = [cid.strip() for cid in chunk_ids.split(",") if cid.strip()]
-                    result = await self.create_embedding_usecase.execute(chunk_ids=chunk_id_list)
-                else:
-                    return "<div style='color: red; padding: 20px;'>❌ 잘못된 입력입니다. 옵션에 맞는 값을 입력해주세요.</div>"
-                
-                return self._format_embedding_result(result)
-            
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-            try:
-                return loop.run_until_complete(_execute())
-            finally:
-                loop.close()
+            return self._format_embedding_result(result)
                 
         except Exception as e:
             logger.error(f"임베딩 생성 중 오류: {e}")
@@ -214,18 +204,8 @@ class EmbeddingTabAdapter:
     def _get_embedding_analysis(self) -> str:
         """임베딩 분석 정보"""
         try:
-            import asyncio
-            
-            async def _execute():
-                result = await self.get_analysis_usecase.execute()
-                return self._format_analysis_result(result)
-            
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-            try:
-                return loop.run_until_complete(_execute())
-            finally:
-                loop.close()
+            result = self.get_analysis_usecase.execute()
+            return self._format_analysis_result(result)
                 
         except Exception as e:
             logger.error(f"임베딩 분석 중 오류: {e}")
@@ -234,18 +214,8 @@ class EmbeddingTabAdapter:
     def _get_vector_store_info(self) -> str:
         """벡터스토어 정보"""
         try:
-            import asyncio
-            
-            async def _execute():
-                result = await self.get_vector_info_usecase.execute()
-                return self._format_vector_info_result(result)
-            
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-            try:
-                return loop.run_until_complete(_execute())
-            finally:
-                loop.close()
+            result = self.get_vector_info_usecase.execute()
+            return self._format_vector_info_result(result)
                 
         except Exception as e:
             logger.error(f"벡터스토어 정보 조회 중 오류: {e}")
@@ -254,18 +224,8 @@ class EmbeddingTabAdapter:
     def _get_vector_content(self, show_vectors: bool) -> str:
         """벡터 내용 확인"""
         try:
-            import asyncio
-            
-            async def _execute():
-                result = await self.get_vector_content_usecase.execute(show_vectors=show_vectors)
-                return self._format_vector_content_result(result)
-            
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-            try:
-                return loop.run_until_complete(_execute())
-            finally:
-                loop.close()
+            result = self.get_vector_content_usecase.execute(show_vectors=show_vectors)
+            return self._format_vector_content_result(result)
                 
         except Exception as e:
             logger.error(f"벡터 내용 조회 중 오류: {e}")
@@ -274,18 +234,8 @@ class EmbeddingTabAdapter:
     def _clear_vector_store(self) -> str:
         """벡터스토어 초기화"""
         try:
-            import asyncio
-            
-            async def _execute():
-                result = await self.clear_vector_usecase.execute()
-                return self._format_clear_result(result)
-            
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-            try:
-                return loop.run_until_complete(_execute())
-            finally:
-                loop.close()
+            result = self.clear_vector_usecase.execute()
+            return self._format_clear_result(result)
                 
         except Exception as e:
             logger.error(f"벡터스토어 초기화 중 오류: {e}")

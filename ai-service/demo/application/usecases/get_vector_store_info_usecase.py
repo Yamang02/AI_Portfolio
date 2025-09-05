@@ -25,7 +25,7 @@ class GetVectorStoreInfoUseCase:
         self.chunking_service = chunking_service
         logger.info("✅ GetVectorStoreInfoUseCase initialized")
     
-    async def execute(self) -> Dict[str, Any]:
+    def execute(self) -> Dict[str, Any]:
         """벡터스토어 정보 조회 실행"""
         try:
             # 벡터스토어 기본 정보 조회
@@ -35,7 +35,7 @@ class GetVectorStoreInfoUseCase:
             embedding_stats = self.embedding_service.get_embedding_statistics()
             
             # 청크 통계 조회
-            chunk_stats = await self.chunking_service.get_chunking_statistics()
+            chunk_stats = self.chunking_service.get_chunking_statistics()
             
             # 벡터스토어 상세 정보 구성
             info = {

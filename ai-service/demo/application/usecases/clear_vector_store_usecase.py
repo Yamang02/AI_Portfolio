@@ -19,7 +19,7 @@ class ClearVectorStoreUseCase:
         self.embedding_service = embedding_service
         logger.info("✅ ClearVectorStoreUseCase initialized")
     
-    async def execute(self) -> Dict[str, Any]:
+    def execute(self) -> Dict[str, Any]:
         """벡터스토어 초기화 실행"""
         try:
             # 초기화 전 벡터 수 확인

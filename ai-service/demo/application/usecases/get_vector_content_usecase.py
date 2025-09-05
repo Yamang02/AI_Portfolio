@@ -19,7 +19,7 @@ class GetVectorContentUseCase:
         self.embedding_service = embedding_service
         logger.info("✅ GetVectorContentUseCase initialized")
     
-    async def execute(
+    def execute(
         self,
         limit: int = 10,
         show_vectors: bool = False
