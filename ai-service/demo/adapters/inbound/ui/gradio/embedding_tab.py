@@ -16,6 +16,7 @@ from application.usecases.get_embedding_analysis_usecase import GetEmbeddingAnal
 from application.usecases.get_vector_store_info_usecase import GetVectorStoreInfoUseCase
 from application.usecases.get_vector_content_usecase import GetVectorContentUseCase
 from application.usecases.clear_vector_store_usecase import ClearVectorStoreUseCase
+from .components.ui_components import UIComponents
 
 logger = logging.getLogger(__name__)
 
@@ -55,11 +56,13 @@ class EmbeddingTabAdapter:
             gr.Markdown("## 🔢 Embedding / VectorStore")
             gr.Markdown("텍스트를 벡터로 변환하고 저장합니다")
             
+            # 1단계: 임베딩 생성
+            gr.Markdown(UIComponents.create_step_title("임베딩 생성", 1))
+            
             with gr.Row():
-                # 왼쪽: 임베딩 생성 및 관리
+                # 왼쪽: 임베딩 생성 설정
                 with gr.Column(scale=1):
-                    gr.Markdown("### 🚀 임베딩 생성")
-                    gr.Markdown("청크를 임베딩으로 변환하고 벡터스토어에 저장합니다.")
+                    gr.Markdown(UIComponents.create_section_title("🎯 생성 대상 선택"))
                     
                     # 임베딩 생성 옵션
                     embedding_options = gr.Radio(
@@ -87,40 +90,47 @@ class EmbeddingTabAdapter:
                     create_embedding_btn = gr.Button("🔢 임베딩 생성", variant="primary")
                     create_embedding_output = gr.HTML(
                         label="생성 결과",
-                        value="<div style='text-align: center; color: #666; padding: 20px;'>임베딩을 생성하면 여기에 결과가 표시됩니다.</div>"
-                    )
-                    
-                    # 벡터스토어 관리
-                    gr.Markdown("### 🗄️ 벡터스토어 관리")
-                    clear_vector_btn = gr.Button("🗑️ 벡터스토어 초기화", variant="stop")
-                    clear_vector_output = gr.HTML(
-                        label="초기화 결과",
-                        value="<div style='text-align: center; color: #666; padding: 20px;'>벡터스토어를 초기화하면 여기에 결과가 표시됩니다.</div>"
+                        value=UIComponents.create_empty_state("임베딩을 생성하면 여기에 결과가 표시됩니다.")
                     )
                 
                 # 중앙: 임베딩 분석
                 with gr.Column(scale=1):
-                    gr.Markdown("### 🔬 임베딩 분석")
-                    gr.Markdown("임베딩 모델과 생성된 임베딩들의 분석 정보를 확인합니다.")
+                    gr.Markdown(UIComponents.create_section_title("🔬 임베딩 분석"))
                     
                     embedding_analysis_btn = gr.Button("🔬 임베딩 분석", variant="primary")
                     embedding_output = gr.HTML(
                         label="임베딩 분석",
-                        value="<div style='text-align: center; color: #666; padding: 20px;'>임베딩 분석을 실행하면 여기에 결과가 표시됩니다.</div>"
+                        value=UIComponents.create_empty_state("임베딩 분석을 실행하면 여기에 결과가 표시됩니다.")
                     )
                 
-                # 오른쪽: 벡터스토어 정보 및 내용
+                # 오른쪽: 벡터스토어 관리
                 with gr.Column(scale=1):
-                    gr.Markdown("### 🔍 벡터스토어 정보")
-                    gr.Markdown("벡터스토어의 상세 정보와 저장된 데이터를 확인합니다.")
+                    gr.Markdown(UIComponents.create_section_title("🗄️ 벡터스토어 관리"))
+                    
+                    clear_vector_btn = gr.Button("🗑️ 벡터스토어 초기화", variant="stop")
+                    clear_vector_output = gr.HTML(
+                        label="초기화 결과",
+                        value=UIComponents.create_empty_state("벡터스토어를 초기화하면 여기에 결과가 표시됩니다.")
+                    )
+            
+            # 2단계: 벡터스토어 정보 및 내용
+            gr.Markdown(UIComponents.create_step_title("벡터스토어 정보 및 내용", 2))
+            
+            with gr.Row():
+                # 왼쪽: 벡터스토어 정보
+                with gr.Column(scale=1):
+                    gr.Markdown(UIComponents.create_section_title("🔍 벡터스토어 정보"))
                     
                     vector_info_btn = gr.Button("🔍 벡터스토어 정보", variant="primary")
                     vector_info_output = gr.HTML(
                         label="벡터스토어 정보",
-                        value="<div style='text-align: center; color: #666; padding: 20px;'>벡터스토어 정보를 조회하면 여기에 결과가 표시됩니다.</div>"
+                        value=UIComponents.create_empty_state("벡터스토어 정보를 조회하면 여기에 결과가 표시됩니다.")
                     )
+                
+                # 오른쪽: 벡터 내용 확인
+                with gr.Column(scale=1):
+                    gr.Markdown(UIComponents.create_section_title("📋 벡터 내용 확인"))
                     
-                    gr.Markdown("### 📋 벡터 내용 확인")
                     show_vectors_checkbox = gr.Checkbox(
                         label="벡터 값 표시",
                         value=False,
@@ -129,7 +139,7 @@ class EmbeddingTabAdapter:
                     vector_content_btn = gr.Button("📋 벡터 내용 보기", variant="primary")
                     vector_content_output = gr.HTML(
                         label="벡터 내용",
-                        value="<div style='text-align: center; color: #666; padding: 20px;'>벡터 내용을 조회하면 여기에 결과가 표시됩니다.</div>"
+                        value=UIComponents.create_empty_state("벡터 내용을 조회하면 여기에 결과가 표시됩니다.")
                     )
             
             # Event handlers
@@ -193,13 +203,13 @@ class EmbeddingTabAdapter:
                 chunk_id_list = [cid.strip() for cid in chunk_ids.split(",") if cid.strip()]
                 result = self.create_embedding_usecase.execute(chunk_ids=chunk_id_list)
             else:
-                return "<div style='color: red; padding: 20px;'>❌ 잘못된 입력입니다. 옵션에 맞는 값을 입력해주세요.</div>"
+                return UIComponents.create_error_message("잘못된 입력입니다. 옵션에 맞는 값을 입력해주세요.")
             
             return self._format_embedding_result(result)
                 
         except Exception as e:
             logger.error(f"임베딩 생성 중 오류: {e}")
-            return f"<div style='color: red; padding: 20px;'>❌ 임베딩 생성 실패: {str(e)}</div>"
+            return UIComponents.create_error_message(f"임베딩 생성 실패: {str(e)}")
     
     def _get_embedding_analysis(self) -> str:
         """임베딩 분석 정보"""
@@ -209,7 +219,7 @@ class EmbeddingTabAdapter:
                 
         except Exception as e:
             logger.error(f"임베딩 분석 중 오류: {e}")
-            return f"<div style='color: red; padding: 20px;'>❌ 임베딩 분석 실패: {str(e)}</div>"
+            return UIComponents.create_error_message(f"임베딩 분석 실패: {str(e)}")
     
     def _get_vector_store_info(self) -> str:
         """벡터스토어 정보"""
@@ -219,7 +229,7 @@ class EmbeddingTabAdapter:
                 
         except Exception as e:
             logger.error(f"벡터스토어 정보 조회 중 오류: {e}")
-            return f"<div style='color: red; padding: 20px;'>❌ 벡터스토어 정보 실패: {str(e)}</div>"
+            return UIComponents.create_error_message(f"벡터스토어 정보 실패: {str(e)}")
     
     def _get_vector_content(self, show_vectors: bool) -> str:
         """벡터 내용 확인"""
@@ -229,7 +239,7 @@ class EmbeddingTabAdapter:
                 
         except Exception as e:
             logger.error(f"벡터 내용 조회 중 오류: {e}")
-            return f"<div style='color: red; padding: 20px;'>❌ 벡터 내용 확인 실패: {str(e)}</div>"
+            return UIComponents.create_error_message(f"벡터 내용 확인 실패: {str(e)}")
     
     def _clear_vector_store(self) -> str:
         """벡터스토어 초기화"""
@@ -239,126 +249,75 @@ class EmbeddingTabAdapter:
                 
         except Exception as e:
             logger.error(f"벡터스토어 초기화 중 오류: {e}")
-            return f"<div style='color: red; padding: 20px;'>❌ 벡터스토어 초기화 실패: {str(e)}</div>"
+            return UIComponents.create_error_message(f"벡터스토어 초기화 실패: {str(e)}")
     
     def _format_embedding_result(self, result: Dict[str, Any]) -> str:
         """임베딩 생성 결과 포맷팅"""
         if result["success"]:
-            return f"""
-            <div style='background-color: #e8f5e8; padding: 20px; border-radius: 8px;'>
-                <h3 style='color: #2e7d32; margin-top: 0;'>✅ 임베딩 생성 완료</h3>
-                <div style='margin: 10px 0;'>
-                    <strong>생성된 임베딩:</strong> {result['embeddings_created']}개<br>
-                    <strong>저장된 임베딩:</strong> {result['embeddings_stored']}개<br>
-                    <strong>벡터 차원:</strong> {result['vector_dimension']}차원<br>
-                    <strong>모델명:</strong> {result['model_name']}<br>
-                    <strong>메시지:</strong> {result['message']}
-                </div>
-            </div>
-            """
+            details = [
+                f"생성된 임베딩: {result['embeddings_created']}개",
+                f"저장된 임베딩: {result['embeddings_stored']}개",
+                f"벡터 차원: {result['vector_dimension']}차원",
+                f"모델명: {result['model_name']}",
+                result['message']
+            ]
+            return UIComponents.create_success_message("임베딩 생성 완료", details)
         else:
-            return f"""
-            <div style='background-color: #ffebee; padding: 20px; border-radius: 8px;'>
-                <h3 style='color: #c62828; margin-top: 0;'>❌ 임베딩 생성 실패</h3>
-                <div style='margin: 10px 0;'>
-                    <strong>오류:</strong> {result['error']}
-                </div>
-            </div>
-            """
+            return UIComponents.create_error_message(f"임베딩 생성 실패: {result['error']}")
     
     def _format_analysis_result(self, result: Dict[str, Any]) -> str:
         """분석 결과 포맷팅"""
         if result["success"]:
             analysis = result["analysis"]
-            return f"""
-            <div style='background-color: #e3f2fd; padding: 20px; border-radius: 8px;'>
-                <h3 style='color: #1976d2; margin-top: 0;'>🔬 임베딩 분석 결과</h3>
-                <div style='margin: 10px 0;'>
-                    <h4>모델 정보</h4>
-                    <strong>모델명:</strong> {analysis['model_info']['model_name']}<br>
-                    <strong>차원:</strong> {analysis['model_info']['vector_dimension']}차원<br>
-                    <strong>타입:</strong> {analysis['model_info']['model_type']}<br>
-                    <strong>언어 지원:</strong> {analysis['model_info']['language_support']}<br>
-                    <strong>성능:</strong> {analysis['model_info']['performance']}<br><br>
-                    
-                    <h4>임베딩 통계</h4>
-                    <strong>총 임베딩:</strong> {analysis['embedding_statistics']['total_embeddings']}개<br>
-                    <strong>총 청크:</strong> {analysis['embedding_statistics']['total_chunks']}개<br>
-                    <strong>총 문서:</strong> {analysis['embedding_statistics']['total_documents']}개<br>
-                    <strong>평균 청크 길이:</strong> {analysis['embedding_statistics']['average_chunk_length']:.1f}자<br><br>
-                    
-                    <h4>성능 메트릭스</h4>
-                    <strong>평균 임베딩 시간:</strong> {analysis['performance_metrics']['average_embedding_time_ms']:.1f}ms<br>
-                    <strong>총 처리 시간:</strong> {analysis['performance_metrics']['total_processing_time_ms']:.1f}ms<br>
-                    <strong>성공률:</strong> {analysis['performance_metrics']['success_rate']:.1f}%
-                </div>
-            </div>
-            """
+            details = [
+                f"모델명: {analysis['model_info']['model_name']}",
+                f"차원: {analysis['model_info']['vector_dimension']}차원",
+                f"타입: {analysis['model_info']['model_type']}",
+                f"언어 지원: {analysis['model_info']['language_support']}",
+                f"성능: {analysis['model_info']['performance']}",
+                f"총 임베딩: {analysis['embedding_statistics']['total_embeddings']}개",
+                f"총 청크: {analysis['embedding_statistics']['total_chunks']}개",
+                f"총 문서: {analysis['embedding_statistics']['total_documents']}개",
+                f"평균 청크 길이: {analysis['embedding_statistics']['average_chunk_length']:.1f}자",
+                f"평균 임베딩 시간: {analysis['performance_metrics']['average_embedding_time_ms']:.1f}ms",
+                f"총 처리 시간: {analysis['performance_metrics']['total_processing_time_ms']:.1f}ms",
+                f"성공률: {analysis['performance_metrics']['success_rate']:.1f}%"
+            ]
+            return UIComponents.create_success_message("임베딩 분석 완료", details)
         else:
-            return f"""
-            <div style='background-color: #ffebee; padding: 20px; border-radius: 8px;'>
-                <h3 style='color: #c62828; margin-top: 0;'>❌ 분석 실패</h3>
-                <div style='margin: 10px 0;'>
-                    <strong>오류:</strong> {result['error']}
-                </div>
-            </div>
-            """
+            return UIComponents.create_error_message(f"분석 실패: {result['error']}")
     
     def _format_vector_info_result(self, result: Dict[str, Any]) -> str:
         """벡터스토어 정보 결과 포맷팅"""
         if result["success"]:
             info = result["vector_store_info"]
-            return f"""
-            <div style='background-color: #f3e5f5; padding: 20px; border-radius: 8px;'>
-                <h3 style='color: #7b1fa2; margin-top: 0;'>🔍 벡터스토어 상세 정보</h3>
-                <div style='margin: 10px 0;'>
-                    <h4>스토어 기본 정보</h4>
-                    <strong>스토어 이름:</strong> {info['store_basic_info']['store_name']}<br>
-                    <strong>스토어 타입:</strong> {info['store_basic_info']['store_type']}<br>
-                    <strong>초기화 상태:</strong> {info['store_basic_info']['initialization_status']}<br>
-                    <strong>검색 알고리즘:</strong> {info['store_basic_info']['search_algorithm']}<br>
-                    <strong>저장 방식:</strong> {info['store_basic_info']['storage_method']}<br>
-                    <strong>환경:</strong> {info['store_basic_info']['environment']}<br><br>
-                    
-                    <h4>임베딩 모델 정보</h4>
-                    <strong>모델명:</strong> {info['embedding_model_info']['model_name']}<br>
-                    <strong>벡터 차원:</strong> {info['embedding_model_info']['vector_dimension']}차원<br>
-                    <strong>모델 타입:</strong> {info['embedding_model_info']['model_type']}<br>
-                    <strong>샘플 벡터 크기:</strong> {info['embedding_model_info']['sample_vector_size']}<br><br>
-                    
-                    <h4>저장된 데이터 통계</h4>
-                    <strong>총 문서:</strong> {info['stored_data_statistics']['total_documents']}개<br>
-                    <strong>총 청크:</strong> {info['stored_data_statistics']['total_chunks']}개<br>
-                    <strong>총 벡터:</strong> {info['stored_data_statistics']['total_vectors']}개<br>
-                    <strong>평균 문서 길이:</strong> {info['stored_data_statistics']['average_document_length']:.1f}자<br>
-                    <strong>스토어 크기:</strong> {info['stored_data_statistics']['store_size_mb']:.2f}MB<br>
-                    <strong>인덱스 상태:</strong> {info['stored_data_statistics']['index_status']}
-                </div>
-            </div>
-            """
+            details = [
+                f"스토어 이름: {info['store_basic_info']['store_name']}",
+                f"스토어 타입: {info['store_basic_info']['store_type']}",
+                f"초기화 상태: {info['store_basic_info']['initialization_status']}",
+                f"검색 알고리즘: {info['store_basic_info']['search_algorithm']}",
+                f"저장 방식: {info['store_basic_info']['storage_method']}",
+                f"환경: {info['store_basic_info']['environment']}",
+                f"모델명: {info['embedding_model_info']['model_name']}",
+                f"벡터 차원: {info['embedding_model_info']['vector_dimension']}차원",
+                f"모델 타입: {info['embedding_model_info']['model_type']}",
+                f"샘플 벡터 크기: {info['embedding_model_info']['sample_vector_size']}",
+                f"총 문서: {info['stored_data_statistics']['total_documents']}개",
+                f"총 청크: {info['stored_data_statistics']['total_chunks']}개",
+                f"총 벡터: {info['stored_data_statistics']['total_vectors']}개",
+                f"평균 문서 길이: {info['stored_data_statistics']['average_document_length']:.1f}자",
+                f"스토어 크기: {info['stored_data_statistics']['store_size_mb']:.2f}MB",
+                f"인덱스 상태: {info['stored_data_statistics']['index_status']}"
+            ]
+            return UIComponents.create_success_message("벡터스토어 정보 조회 완료", details)
         else:
-            return f"""
-            <div style='background-color: #ffebee; padding: 20px; border-radius: 8px;'>
-                <h3 style='color: #c62828; margin-top: 0;'>❌ 정보 조회 실패</h3>
-                <div style='margin: 10px 0;'>
-                    <strong>오류:</strong> {result['error']}
-                </div>
-            </div>
-            """
+            return UIComponents.create_error_message(f"정보 조회 실패: {result['error']}")
     
     def _format_vector_content_result(self, result: Dict[str, Any]) -> str:
         """벡터 내용 결과 포맷팅"""
         if result["success"]:
             if result["total_vectors"] == 0:
-                return """
-                <div style='background-color: #fff3e0; padding: 20px; border-radius: 8px;'>
-                    <h3 style='color: #ef6c00; margin-top: 0;'>📭 벡터스토어 비어있음</h3>
-                    <div style='margin: 10px 0;'>
-                        벡터스토어에 저장된 내용이 없습니다.<br>
-                        먼저 임베딩을 생성해주세요.
-                    </div>
-                </div>
-                """
+                return UIComponents.create_info_message("벡터스토어에 저장된 내용이 없습니다. 먼저 임베딩을 생성해주세요.")
             
             vectors_html = ""
             for i, vector in enumerate(result["vectors"][:10]):  # 최대 10개만 표시
@@ -383,44 +342,20 @@ class EmbeddingTabAdapter:
             if result["total_vectors"] > 10:
                 vectors_html += f"<div style='margin: 10px 0; color: #666;'>... 및 {result['total_vectors'] - 10}개 더</div>"
             
-            return f"""
-            <div style='background-color: #e8f5e8; padding: 20px; border-radius: 8px;'>
-                <h3 style='color: #2e7d32; margin-top: 0;'>📋 벡터 내용 ({result['total_vectors']}개)</h3>
-                <div style='margin: 10px 0;'>
-                    {vectors_html}
-                </div>
-            </div>
-            """
+            details = [f"총 벡터 수: {result['total_vectors']}개"]
+            return UIComponents.create_success_message("벡터 내용 조회 완료", details) + vectors_html
         else:
-            return f"""
-            <div style='background-color: #ffebee; padding: 20px; border-radius: 8px;'>
-                <h3 style='color: #c62828; margin-top: 0;'>❌ 벡터 내용 조회 실패</h3>
-                <div style='margin: 10px 0;'>
-                    <strong>오류:</strong> {result['error']}
-                </div>
-            </div>
-            """
+            return UIComponents.create_error_message(f"벡터 내용 조회 실패: {result['error']}")
     
     def _format_clear_result(self, result: Dict[str, Any]) -> str:
         """초기화 결과 포맷팅"""
         if result["success"]:
-            return f"""
-            <div style='background-color: #fff3e0; padding: 20px; border-radius: 8px;'>
-                <h3 style='color: #ef6c00; margin-top: 0;'>🗑️ 벡터스토어 초기화 완료</h3>
-                <div style='margin: 10px 0;'>
-                    <strong>초기화 전 벡터 수:</strong> {result['vectors_before']}개<br>
-                    <strong>초기화 후 벡터 수:</strong> {result['vectors_after']}개<br>
-                    <strong>삭제된 벡터:</strong> {result['vectors_cleared']}개<br>
-                    <strong>메시지:</strong> {result['message']}
-                </div>
-            </div>
-            """
+            details = [
+                f"초기화 전 벡터 수: {result['vectors_before']}개",
+                f"초기화 후 벡터 수: {result['vectors_after']}개",
+                f"삭제된 벡터: {result['vectors_cleared']}개",
+                result['message']
+            ]
+            return UIComponents.create_success_message("벡터스토어 초기화 완료", details)
         else:
-            return f"""
-            <div style='background-color: #ffebee; padding: 20px; border-radius: 8px;'>
-                <h3 style='color: #c62828; margin-top: 0;'>❌ 초기화 실패</h3>
-                <div style='margin: 10px 0;'>
-                    <strong>오류:</strong> {result['error']}
-                </div>
-            </div>
-            """
+            return UIComponents.create_error_message(f"초기화 실패: {result['error']}")
