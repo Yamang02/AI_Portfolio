@@ -149,3 +149,19 @@ class DocumentService:
     async def get_documents_statistics(self) -> Dict[str, Any]:
         """문서 통계 반환"""
         return await self.document_repository.get_documents_statistics()
+    
+    def get_all_documents(self) -> List[Document]:
+        """모든 문서 조회 (동기 버전) - UI에서 사용"""
+        try:
+            import asyncio
+            # 현재 이벤트 루프가 있는지 확인
+            try:
+                loop = asyncio.get_running_loop()
+                # 이미 실행 중인 루프가 있으면 repository에서 직접 가져오기
+                return list(self.document_repository.documents.values()) if hasattr(self.document_repository, 'documents') else []
+            except RuntimeError:
+                # 새 이벤트 루프 생성
+                return asyncio.run(self.list_documents(limit=1000))
+        except Exception as e:
+            logger.error(f"Error getting all documents: {e}")
+            return []

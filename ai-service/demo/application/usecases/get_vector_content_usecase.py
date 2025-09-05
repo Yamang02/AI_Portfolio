@@ -48,7 +48,9 @@ class GetVectorContentUseCase:
                     "created_at": embedding.created_at.isoformat() if embedding.created_at else "Unknown",
                     "metadata": {
                         "chunk_text_preview": embedding.metadata.get("chunk_text_preview", "")[:100] + "..." if embedding.metadata.get("chunk_text_preview") else "",
-                        "document_source": embedding.metadata.get("document_source", "Unknown")
+                        "document_id": embedding.metadata.get("document_id", "Unknown"),
+                        "chunk_index": embedding.metadata.get("chunk_index", 0),
+                        "chunk_size": embedding.metadata.get("chunk_size", 0)
                     }
                 }
                 

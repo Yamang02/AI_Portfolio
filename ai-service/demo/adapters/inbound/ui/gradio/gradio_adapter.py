@@ -13,7 +13,7 @@ from .service_factory import ServiceFactory
 from .document_tab import DocumentTabAdapter
 from .text_splitter_tab import TextSplitterTabAdapter
 from .embedding_tab import EmbeddingTabAdapter
-from .rag_qa_tab import RagQATabAdapter
+from .rag_qa_tab import QueryVectorSearchTabAdapter
 from .status_tab import SystemInfoTabAdapter
 
 logger = logging.getLogger(__name__)
@@ -36,7 +36,7 @@ class GradioAdapter:
             self.service_factory.get_embedding_service(), 
             self.service_factory.get_chunking_service()
         )
-        self.rag_qa_tab = RagQATabAdapter(self.service_factory.get_generation_service())
+        self.query_vector_search_tab = QueryVectorSearchTabAdapter(self.service_factory)
         self.status_tab = SystemInfoTabAdapter(
             embedding_service=self.service_factory.get_embedding_service(),
             chunking_service=self.service_factory.get_chunking_service(),
@@ -77,7 +77,7 @@ class GradioAdapter:
                 self.document_tab.create_tab()
                 self.text_splitter_tab.create_tab()
                 self.embedding_tab.create_tab()
-                self.rag_qa_tab.create_tab()
+                self.query_vector_search_tab.create_tab()
                 self.status_tab.create_tab()
             
             # 푸터

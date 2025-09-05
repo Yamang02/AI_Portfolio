@@ -439,7 +439,7 @@ class UIComponents:
                 <div><strong>🔗 청크:</strong> {chunk_id}</div>
                 <div><strong>🤖 모델:</strong> {model_name}</div>
                 <div><strong>📐 차원:</strong> {vector_dimension}차원</div>
-                <div><strong>📄 문서:</strong> {document_source}</div>
+                <div><strong>📄 문서 ID:</strong> {document_source}</div>
                 <div><strong>⏰ 생성:</strong> {created_at}</div>
             </div>
             

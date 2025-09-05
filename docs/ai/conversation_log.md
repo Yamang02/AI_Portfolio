@@ -27,6 +27,172 @@
 
 ---
 
+## Session 20: RAG QnA 탭을 Query/VectorSearch 탭으로 리팩토링 및 지능형 쿼리 시스템 구현 (2025-01-06)
+
+### 📅 세션 정보
+- **날짜**: 2025-01-06  
+- **목표**: RAG QnA 탭을 Query/VectorSearch로 분리하고 지능형 쿼리 분류 시스템 구현
+- **주요 작업**: 헥사고널 아키텍처 적용, Mock LLM 기반 쿼리 분류, 동적 샘플 쿼리 생성
+
+### 🎯 주요 성과
+
+#### 1. **탭 구조 개선 및 기능 분리**
+- ✅ **RAG Q&A → Query/VectorSearch 탭 변경**
+  - 기존 단일 RAG 탭을 두 개의 서브탭으로 분리
+  - **Query 탭**: 완전한 RAG 질의응답 기능
+  - **Vector Search 탭**: 순수 벡터 유사도 검색 기능
+  - 각 기능의 목적과 결과를 명확히 구분
+
+- ✅ **UI/UX 개선**
+  - Query 탭: 질문 입력 → AI 답변 + 참조 출처
+  - Vector Search 탭: 검색 쿼리 → 유사 청크 목록 + 유사도 점수
+  - 각 탭별 파라미터 최적화 (max_sources, top_k, similarity_threshold)
+
+#### 2. **헥사고널 아키텍처 완전 적용**
+- ✅ **Use Case 레이어 구현**
+  - `ExecuteRAGQueryUseCase`: RAG 질의응답 비즈니스 로직
+  - `ExecuteVectorSearchUseCase`: 벡터 검색 비즈니스 로직
+  - UI 어댑터가 도메인 서비스를 직접 호출하지 않고 Use Case를 통해 호출
+
+- ✅ **의존성 주입 패턴 개선**
+  ```python
+  # Before: 탭에서 직접 서비스 주입
+  def __init__(self, generation_service: GenerationService):
+  
+  # After: 서비스 팩토리를 통한 Use Case 생성
+  def __init__(self, service_factory):
+      self.execute_rag_query_usecase = ExecuteRAGQueryUseCase(
+          retrieval_service=service_factory.get_retrieval_service(),
+          generation_service=service_factory.get_generation_service()
+      )
+  ```
+
+#### 3. **지능형 쿼리 분류 시스템 구현**
+- ✅ **Mock LLM 기반 쿼리 분류**
+  - 실제 환경: 외부 LLM (Google Gemini API)을 통한 질의 분류
+  - Demo 환경: Mock LLM을 통한 분류 시뮬레이션
+  - 분류 타입: `PROJECT`, `EXPERIENCE`, `TECHNICAL_SKILL`, `GENERAL`
+
+- ✅ **QueryTemplateService 도메인 서비스 구현**
+  - DocumentService와 동일한 패턴으로 파일 로드 담당
+  - `query_templates.json`을 통한 구조화된 템플릿 관리
+  - 문서 타입별 적절한 샘플 쿼리 동적 생성
+
+- ✅ **템플릿 기반 동적 쿼리 생성**
+  ```json
+  {
+    "template": "{doc_title}의 주요 기술 스택은 무엇인가요?",
+    "expected_type": "PROJECT",
+    "confidence": 0.95,
+    "reasoning": "프로젝트의 기술 스택을 묻는 질문 (Mock LLM 분류)"
+  }
+  ```
+
+#### 4. **샘플 쿼리 시스템 완전 개편**
+- ✅ **파일 시스템 직접 로드 제거**
+  - Before: 정적 `sample_queries.json` 파일 직접 로드
+  - After: 로드된 문서 메타데이터 기반 동적 생성
+
+- ✅ **문서 기반 샘플 쿼리 생성**
+  - 현재 로드된 문서들의 타입과 제목 분석
+  - 각 문서에 적합한 질의 템플릿 자동 선택
+  - Mock LLM 분류 결과와 신뢰도 점수 포함
+
+- ✅ **UI 개선**
+  - "로드된 문서 기반 샘플 쿼리 생성" 버튼 추가
+  - 드롭다운에서 `[QUERY_TYPE] 질문내용 (신뢰도: 0.95) - 문서명` 형식 표시
+  - 선택 시 자동으로 질문 입력창에 반영
+
+#### 5. **코드 품질 및 아키텍처 개선**
+- ✅ **관심사 분리 완료**
+  - QueryTemplateService: 템플릿 로드 및 쿼리 생성
+  - ExecuteRAGQueryUseCase: RAG 비즈니스 로직
+  - UI Adapter: 순수 UI 이벤트 처리만 담당
+
+- ✅ **확장성 확보**
+  - 새로운 문서 타입 추가 시 템플릿 파일만 수정
+  - 새로운 쿼리 분류 타입 추가 시 템플릿만 확장
+  - Mock LLM을 실제 LLM으로 교체 시 서비스 레이어만 수정
+
+### 🔧 기술적 의사결정
+
+#### **Query 분류 시스템 설계**
+**문제**: 사용자 질의를 어떻게 지능적으로 분류하여 최적화된 검색을 할 것인가?
+
+**선택**: Mock LLM 기반 시뮬레이션 + 템플릿 시스템
+- **장점**: Demo 환경에서 외부 API 의존성 없이 동작
+- **장점**: 실제 LLM 분류 로직을 시뮬레이션하여 실제 동작 방식 구현
+- **장점**: 템플릿 파일로 쉬운 확장 및 수정
+
+**대안**: 하드코딩된 규칙 기반 분류
+- **단점**: 확장성 부족, 실제 LLM 동작과 차이
+
+#### **샘플 쿼리 생성 방식**
+**문제**: 정적 파일 vs 동적 생성 중 어떤 방식을 선택할 것인가?
+
+**선택**: 로드된 문서 기반 동적 생성
+- **장점**: 실제 로드된 문서에 맞는 관련성 높은 질의 제공
+- **장점**: 문서가 없을 때 적절한 안내 메시지 표시
+- **장점**: DocumentService와 일관된 파일 로드 패턴
+
+**대안**: 정적 JSON 파일
+- **단점**: 로드된 문서와 무관한 질의 표시 가능성
+- **단점**: 문서 로드 상태 반영 불가
+
+### 📈 성능 및 사용성 개선
+
+#### **Before & After 비교**
+
+**Before: 단일 RAG Q&A 탭**
+```python
+# 하나의 탭에서 모든 기능
+with gr.Tab("🤖 RAG Q&A"):
+    # 질의응답만 가능
+    # 벡터 검색 결과 확인 불가
+    # 정적 샘플 질의
+```
+
+**After: Query/VectorSearch 분리**
+```python
+# 기능별 명확한 분리
+with gr.Tab("💬 Query"):
+    # RAG 질의응답 + 출처 표시
+with gr.Tab("🔍 Vector Search"): 
+    # 순수 벡터 검색 + 유사도 점수
+# 동적 샘플 질의 생성
+```
+
+#### **사용자 경험 개선**
+- **기능 명확성**: Query vs Vector Search 목적 구분
+- **결과 이해도**: 각 기능별 적절한 출력 형식
+- **학습 효과**: Mock LLM 분류 시스템에 대한 이해 증진
+
+### 🎓 학습 및 인사이트
+
+#### **헥사고널 아키텍처 적용 경험**
+- **Use Case의 역할**: UI와 도메인 서비스 사이의 비즈니스 로직 조정자
+- **의존성 방향**: UI → Use Case → Domain Service 단방향 의존성 유지
+- **테스트 가능성**: Use Case 단위로 독립적인 테스트 가능
+
+#### **템플릿 시스템 설계 패턴**
+- **DocumentService 패턴 재사용**: 일관된 파일 로드 방식
+- **변수 치환 패턴**: `{doc_title}` 같은 플레이스홀더 활용
+- **타입별 템플릿 분류**: 문서 타입에 따른 적절한 질의 생성
+
+#### **Mock 시스템 구현 전략**  
+- **실제 동작 시뮬레이션**: 실제 LLM 분류 결과와 유사한 구조
+- **신뢰도 점수 포함**: 실제 분류 시스템의 불확실성 반영
+- **확장 가능한 설계**: Mock → Real LLM 교체 용이성
+
+### 🚀 다음 단계 및 확장 계획
+
+1. **실제 LLM 연동**: Mock LLM을 Google Gemini API로 교체
+2. **쿼리 히스토리**: 사용자 질의 이력 및 분석 기능
+3. **개인화된 추천**: 사용자 패턴 기반 질의 추천
+4. **A/B 테스트**: 다양한 분류 모델 성능 비교
+
+---
+
 ## Session 19: 임베딩/벡터스토어 탭 완전 리팩토링 및 UI 개선 (2025-01-06)
 
 ### 📅 세션 정보

@@ -27,33 +27,45 @@ class RetrievalService:
     def search_similar_chunks(
         self,
         query: Query,
-        chunks: List[Chunk],
-        embeddings: List[Embedding],
-        top_k: int = 5,
-        similarity_threshold: float = 0.1
+        top_k: int = None,
+        similarity_threshold: float = None
     ) -> List[SearchResult]:
         """유사한 청크 검색"""
         try:
-            if not chunks or not embeddings:
-                logger.warning("검색할 청크나 임베딩이 없습니다")
+            # Query에서 기본값 사용 또는 파라미터 우선
+            final_top_k = top_k if top_k is not None else query.max_results
+            final_threshold = similarity_threshold if similarity_threshold is not None else query.similarity_threshold
+            
+            # VectorStore에서 임베딩 목록 가져오기
+            embeddings = self.vector_store.embeddings
+            logger.info(f"🔍 벡터스토어 상태 확인: 임베딩 수 = {len(embeddings)}")
+            if not embeddings:
+                logger.warning("벡터스토어에 임베딩이 없습니다")
                 return []
             
             # 쿼리 임베딩 생성 (Mock)
             query_embedding = self._create_query_embedding(query.text)
             
-            # 모든 청크와의 유사도 계산
+            # 모든 임베딩과의 유사도 계산
             similarities = []
-            for chunk, embedding in zip(chunks, embeddings):
+            logger.info(f"🔍 유사도 계산 시작: {len(embeddings)}개 임베딩과 비교")
+            for i, embedding in enumerate(embeddings):
+                # 임베딩에서 청크 정보 추출 (메타데이터 활용)
+                chunk = self._create_chunk_from_embedding_metadata(embedding)
                 similarity = self._calculate_cosine_similarity(query_embedding, embedding.vector)
                 similarities.append((chunk, embedding, similarity))
+                if i < 3:  # 처음 3개만 로그 출력
+                    logger.info(f"🔍 임베딩 {i+1}: 유사도 = {similarity:.4f}, 청크 내용 미리보기 = {chunk.content[:50]}...")
             
             # 유사도 기준으로 정렬
             similarities.sort(key=lambda x: x[2], reverse=True)
             
             # 상위 결과 필터링
             results = []
-            for rank, (chunk, embedding, similarity) in enumerate(similarities[:top_k]):
-                if similarity >= similarity_threshold:
+            logger.info(f"🔍 필터링 시작: 임계값 = {final_threshold}, 상위 K개 = {final_top_k}")
+            for rank, (chunk, embedding, similarity) in enumerate(similarities[:final_top_k]):
+                logger.info(f"🔍 결과 {rank+1}: 유사도 = {similarity:.4f}, 임계값 통과 = {'✅' if similarity >= final_threshold else '❌'}")
+                if similarity >= final_threshold:
                     search_result = SearchResult(
                         query_id=query.query_id,
                         chunk=chunk,
@@ -66,7 +78,7 @@ class RetrievalService:
                     # 메모리에 저장
                     self.search_results[str(search_result.search_result_id)] = search_result
             
-            logger.info(f"✅ 검색 완료: '{query.text}' → {len(results)}개 결과")
+            logger.info(f"✅ 검색 완료: '{query.text}' → {len(results)}개 결과 (전체 {len(similarities)}개 중)")
             return results
             
         except Exception as e:
@@ -134,3 +146,37 @@ class RetrievalService:
         except Exception as e:
             logger.error(f"유사도 계산 중 오류 발생: {e}")
             return 0.0
+    
+    def _create_chunk_from_embedding_metadata(self, embedding: Embedding) -> Chunk:
+        """임베딩 메타데이터에서 청크 객체 생성"""
+        try:
+            from ..entities.chunk import Chunk, ChunkId
+            from ..entities.document import DocumentId
+            
+            # 메타데이터에서 정보 추출 (document_id 기반)
+            metadata = embedding.metadata or {}
+            chunk_text = metadata.get("chunk_text_preview", "")
+            document_id_str = metadata.get("document_id", "unknown")
+            
+            # 청크 객체 생성 (document_id 기반)
+            chunk = Chunk(
+                content=chunk_text,
+                document_id=DocumentId(document_id_str),
+                chunk_id=ChunkId(),
+                chunk_index=metadata.get("chunk_index", 0),
+                chunk_size=metadata.get("chunk_size", len(chunk_text)),
+                chunk_overlap=metadata.get("chunk_overlap", 0)
+            )
+            
+            return chunk
+            
+        except Exception as e:
+            logger.error(f"청크 생성 중 오류 발생: {e}")
+            # 기본 청크 반환 (document_id 기반)
+            from ..entities.chunk import Chunk, ChunkId
+            from ..entities.document import DocumentId
+            return Chunk(
+                content="Content not available",
+                document_id=DocumentId("unknown"),
+                chunk_id=ChunkId()
+            )

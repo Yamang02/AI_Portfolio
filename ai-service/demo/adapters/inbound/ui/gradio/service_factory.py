@@ -12,6 +12,8 @@ from domain.services.chunking_service import ChunkingService
 from domain.services.embedding_service import EmbeddingService
 from domain.services.retrieval_service import RetrievalService
 from domain.services.generation_service import GenerationService
+from application.usecases.execute_rag_query_usecase import ExecuteRAGQueryUseCase
+from application.usecases.execute_vector_search_usecase import ExecuteVectorSearchUseCase
 from adapters.outbound.repositories.memory_document_repository_adapter import MemoryDocumentRepositoryAdapter
 from adapters.outbound.embedding_model_adapter import SentenceTransformerEmbeddingModelAdapter, MockEmbeddingModelAdapter
 
@@ -29,6 +31,8 @@ class ServiceFactory:
         self._embedding_service = None
         self._retrieval_service = None
         self._generation_service = None
+        self._execute_rag_query_usecase = None
+        self._execute_vector_search_usecase = None
         
         logger.info("✅ Service Factory initialized")
     

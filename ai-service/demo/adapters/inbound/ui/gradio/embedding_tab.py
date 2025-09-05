@@ -493,7 +493,7 @@ class EmbeddingTabAdapter:
                     model_name=vector['model_name'],
                     vector_dimension=vector['vector_dimension'],
                     created_at=vector['created_at'],
-                    document_source=vector['metadata']['document_source'],
+                    document_source=vector['metadata']['document_id'],
                     chunk_preview=vector['metadata']['chunk_text_preview'],
                     vector_preview=vector_preview,
                     vector_norm=vector_norm
