@@ -49,11 +49,32 @@ class Embedding:
     
     def get_vector_norm(self) -> float:
         """벡터의 노름 계산"""
-        return float(np.linalg.norm(self.vector))
+        try:
+            # NumPy 배열인 경우와 리스트인 경우 모두 처리
+            if hasattr(self.vector, 'tolist'):
+                # NumPy 배열인 경우
+                return float(np.linalg.norm(self.vector))
+            else:
+                # 리스트인 경우
+                vector_array = np.array(self.vector)
+                return float(np.linalg.norm(vector_array))
+        except Exception:
+            # 오류 발생 시 기본값 반환
+            return 0.0
     
     def get_vector_magnitude(self) -> float:
         """벡터의 크기 계산"""
-        return float(np.sqrt(sum(x * x for x in self.vector)))
+        try:
+            # NumPy 배열인 경우와 리스트인 경우 모두 처리
+            if hasattr(self.vector, 'tolist'):
+                # NumPy 배열인 경우
+                return float(np.sqrt(np.sum(self.vector * self.vector)))
+            else:
+                # 리스트인 경우
+                return float(np.sqrt(sum(x * x for x in self.vector)))
+        except Exception:
+            # 오류 발생 시 기본값 반환
+            return 0.0
     
     def to_dict(self) -> Dict[str, Any]:
         """딕셔너리로 변환"""

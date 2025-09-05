@@ -49,9 +49,12 @@ class EmbeddingService:
             # 실제 임베딩 생성 (Port를 통한 모델 사용)
             vector = self.embedding_model.encode_single(chunk.content)
             
+            # NumPy 배열을 리스트로 변환
+            vector_list = vector.tolist() if hasattr(vector, 'tolist') else list(vector)
+            
             embedding = Embedding(
                 chunk_id=chunk.chunk_id,
-                vector=vector,
+                vector=vector_list,
                 model_name=self.embedding_model.get_model_info()["model_name"],
                 dimension=self.embedding_model.get_dimension()
             )
@@ -73,7 +76,7 @@ class EmbeddingService:
             if self.validation_service:
                 self.validation_service.validate_embedding_creation(chunk, actual_embedding=embedding)
             
-            logger.info(f"✅ 임베딩 생성 완료: 청크 {chunk.chunk_id} → {len(vector)}차원")
+            logger.info(f"✅ 임베딩 생성 완료: 청크 {chunk.chunk_id} → {len(vector_list)}차원")
             return embedding
             
         except Exception as e:
