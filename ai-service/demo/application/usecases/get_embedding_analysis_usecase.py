@@ -37,32 +37,32 @@ class GetEmbeddingAnalysisUseCase:
             # 벡터스토어 정보 조회
             vector_store_info = self.embedding_service.get_vector_store_info()
             
-            # 분석 결과 구성
+            # 분석 결과 구성 - 실제 데이터만 사용
             analysis = {
                 "model_info": {
-                    "model_name": embedding_stats.get("model_name", "sentence-transformers/all-MiniLM-L6-v2"),
-                    "vector_dimension": embedding_stats.get("vector_dimension", 384),
-                    "model_type": "sentence-transformers",
-                    "language_support": "다국어 지원",
-                    "performance": "빠르고 효율적"
+                    "model_name": embedding_stats.get("model_name", "unknown"),
+                    "vector_dimension": embedding_stats.get("vector_dimension", 0),
+                    "model_type": embedding_stats.get("model_type", "unknown"),
+                    "language_support": embedding_stats.get("language_support", "unknown"),
+                    "performance": embedding_stats.get("performance", "unknown")
                 },
                 "embedding_statistics": {
                     "total_embeddings": embedding_stats.get("total_embeddings", 0),
                     "total_chunks": chunk_stats.get("total_chunks", 0),
                     "total_documents": chunk_stats.get("total_documents", 0),
                     "average_chunk_length": chunk_stats.get("average_chunk_length", 0),
-                    "vector_dimension": embedding_stats.get("vector_dimension", 384)
+                    "vector_dimension": embedding_stats.get("vector_dimension", 0)
                 },
                 "vector_store_info": {
-                    "store_type": vector_store_info.get("store_type", "Memory"),
+                    "store_type": vector_store_info.get("store_type", "unknown"),
                     "total_vectors": vector_store_info.get("total_vectors", 0),
                     "store_size_mb": vector_store_info.get("store_size_mb", 0),
-                    "index_status": vector_store_info.get("index_status", "Not Indexed")
+                    "index_status": vector_store_info.get("index_status", "unknown")
                 },
                 "performance_metrics": {
-                    "average_embedding_time_ms": embedding_stats.get("average_embedding_time_ms", 0),
-                    "total_processing_time_ms": embedding_stats.get("total_processing_time_ms", 0),
-                    "success_rate": embedding_stats.get("success_rate", 100.0)
+                    "average_embedding_time_ms": embedding_stats.get("average_embedding_time_ms", 0.0),
+                    "total_processing_time_ms": embedding_stats.get("total_processing_time_ms", 0.0),
+                    "success_rate": embedding_stats.get("success_rate", 0.0)
                 }
             }
             

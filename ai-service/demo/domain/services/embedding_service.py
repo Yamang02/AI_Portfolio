@@ -197,8 +197,20 @@ class EmbeddingService:
         return vector
     
     def get_embedding_statistics(self) -> Dict[str, Any]:
-        """임베딩 통계 반환 (상태 추적 포함)"""
+        """임베딩 통계 반환 (상태 추적 포함) - 실제 데이터만 사용"""
         model_info = self.embedding_model.get_model_info()
+        
+        # 실제 처리 시간 계산 (상태 추적 서비스에서)
+        avg_time = 0.0
+        total_time = 0.0
+        success_rate = 0.0
+        
+        if self.processing_status_service:
+            processing_stats = self.processing_status_service.get_processing_statistics()
+            avg_time = processing_stats.get("average_processing_time_ms", 0.0)
+            total_time = processing_stats.get("total_processing_time_ms", 0.0)
+            success_rate = processing_stats.get("success_rate", 0.0)
+        
         stats = {
             "total_embeddings": len(self.embeddings),
             "vector_store_embeddings": self.vector_store.get_embeddings_count(),
@@ -206,9 +218,9 @@ class EmbeddingService:
             "vector_dimension": model_info["dimension"],
             "dimension": model_info["dimension"],
             "total_vector_size_bytes": self.vector_store.get_total_vectors_size(),
-            "average_embedding_time_ms": 50.0,  # 실제 모델 기준 추정값
-            "total_processing_time_ms": len(self.embeddings) * 50.0,
-            "success_rate": 100.0,
+            "average_embedding_time_ms": avg_time,
+            "total_processing_time_ms": total_time,
+            "success_rate": success_rate,
             "model_loaded": model_info["is_available"],
             "model_type": model_info["model_type"]
         }

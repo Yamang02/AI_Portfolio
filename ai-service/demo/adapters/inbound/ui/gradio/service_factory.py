@@ -67,8 +67,16 @@ class ServiceFactory:
     def get_embedding_service(self):
         """임베딩 서비스 조회 (싱글톤)"""
         if self._embedding_service is None:
-            self._embedding_service = EmbeddingService(self.get_embedding_model())
-            logger.info("✅ Embedding Service created")
+            # 상태 추적 및 검증 서비스 추가
+            processing_status_service = self.get_processing_status_service()
+            validation_service = self.get_validation_service()
+            
+            self._embedding_service = EmbeddingService(
+                embedding_model=self.get_embedding_model(),
+                processing_status_service=processing_status_service,
+                validation_service=validation_service
+            )
+            logger.info("✅ Embedding Service created with status tracking")
         return self._embedding_service
     
     def get_retrieval_service(self):
@@ -85,3 +93,19 @@ class ServiceFactory:
             self._generation_service = GenerationService()
             logger.info("✅ Generation Service created")
         return self._generation_service
+    
+    def get_processing_status_service(self):
+        """처리 상태 서비스 조회 (싱글톤)"""
+        if not hasattr(self, '_processing_status_service') or self._processing_status_service is None:
+            from domain.services.processing_status_service import ProcessingStatusService
+            self._processing_status_service = ProcessingStatusService()
+            logger.info("✅ Processing Status Service created")
+        return self._processing_status_service
+    
+    def get_validation_service(self):
+        """검증 서비스 조회 (싱글톤)"""
+        if not hasattr(self, '_validation_service') or self._validation_service is None:
+            from domain.services.validation_service import ValidationService
+            self._validation_service = ValidationService()
+            logger.info("✅ Validation Service created")
+        return self._validation_service

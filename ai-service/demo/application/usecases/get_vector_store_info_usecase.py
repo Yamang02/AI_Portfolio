@@ -37,35 +37,35 @@ class GetVectorStoreInfoUseCase:
             # 청크 통계 조회
             chunk_stats = self.chunking_service.get_chunking_statistics()
             
-            # 벡터스토어 상세 정보 구성
+            # 벡터스토어 상세 정보 구성 - 실제 데이터만 사용
             info = {
                 "store_basic_info": {
-                    "store_name": vector_store_info.get("store_name", "MemoryVector"),
-                    "store_type": vector_store_info.get("store_type", "Memory"),
-                    "initialization_status": "✅ 초기화됨",
-                    "search_algorithm": "코사인 유사도 + BM25",
+                    "store_name": vector_store_info.get("store_name", "unknown"),
+                    "store_type": vector_store_info.get("store_type", "unknown"),
+                    "initialization_status": "✅ 초기화됨" if embedding_stats.get("model_loaded", False) else "❌ 미초기화",
+                    "search_algorithm": "코사인 유사도",
                     "storage_method": "메모리 내 저장",
-                    "environment": "데모 모드"
+                    "environment": "데모 환경"
                 },
                 "embedding_model_info": {
-                    "model_name": embedding_stats.get("model_name", "sentence-transformers/all-MiniLM-L6-v2"),
-                    "vector_dimension": embedding_stats.get("vector_dimension", 384),
-                    "model_type": "sentence-transformers",
-                    "sample_vector_size": f"{embedding_stats.get('vector_dimension', 384)}차원"
+                    "model_name": embedding_stats.get("model_name", "unknown"),
+                    "vector_dimension": embedding_stats.get("vector_dimension", 0),
+                    "model_type": embedding_stats.get("model_type", "unknown"),
+                    "sample_vector_size": f"{embedding_stats.get('vector_dimension', 0)}차원"
                 },
                 "stored_data_statistics": {
                     "total_documents": chunk_stats.get("total_documents", 0),
                     "total_chunks": chunk_stats.get("total_chunks", 0),
                     "total_vectors": vector_store_info.get("total_vectors", 0),
-                    "average_document_length": chunk_stats.get("average_chunk_length", 0),
-                    "store_size_mb": vector_store_info.get("store_size_mb", 0),
-                    "index_status": vector_store_info.get("index_status", "Not Indexed")
+                    "average_document_length": chunk_stats.get("average_chunk_length", 0.0),
+                    "store_size_mb": vector_store_info.get("store_size_mb", 0.0),
+                    "index_status": vector_store_info.get("index_status", "unknown")
                 },
                 "performance_info": {
-                    "average_embedding_time_ms": embedding_stats.get("average_embedding_time_ms", 0),
-                    "total_processing_time_ms": embedding_stats.get("total_processing_time_ms", 0),
-                    "success_rate": embedding_stats.get("success_rate", 100.0),
-                    "last_updated": vector_store_info.get("last_updated", "Unknown")
+                    "average_embedding_time_ms": embedding_stats.get("average_embedding_time_ms", 0.0),
+                    "total_processing_time_ms": embedding_stats.get("total_processing_time_ms", 0.0),
+                    "success_rate": embedding_stats.get("success_rate", 0.0),
+                    "last_updated": vector_store_info.get("last_updated", "unknown")
                 }
             }
             
