@@ -38,14 +38,17 @@ class Embedding:
         embedding_id: Optional[EmbeddingId] = None,
         model_name: str = "sentence-transformers/all-MiniLM-L6-v2",
         dimension: int = 384,
-        created_at: Optional[datetime] = None
+        created_at: Optional[datetime] = None,
+        metadata: Optional[Dict[str, Any]] = None
     ):
         self.embedding_id = embedding_id or EmbeddingId()
         self.chunk_id = chunk_id
         self.vector = vector
         self.model_name = model_name
         self.dimension = dimension
+        self.vector_dimension = dimension  # 호환성을 위한 별칭
         self.created_at = created_at or datetime.now()
+        self.metadata = metadata or {}
     
     def get_vector_norm(self) -> float:
         """벡터의 노름 계산"""
@@ -84,7 +87,9 @@ class Embedding:
             "vector": self.vector,
             "model_name": self.model_name,
             "dimension": self.dimension,
-            "created_at": self.created_at.isoformat()
+            "vector_dimension": self.vector_dimension,  # 호환성을 위한 별칭
+            "created_at": self.created_at.isoformat(),
+            "metadata": self.metadata
         }
     
     @classmethod
@@ -96,7 +101,8 @@ class Embedding:
             embedding_id=EmbeddingId(data["embedding_id"]),
             model_name=data["model_name"],
             dimension=data["dimension"],
-            created_at=datetime.fromisoformat(data["created_at"])
+            created_at=datetime.fromisoformat(data["created_at"]),
+            metadata=data.get("metadata", {})
         )
     
     def __str__(self) -> str:

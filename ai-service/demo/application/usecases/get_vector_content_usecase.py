@@ -55,7 +55,7 @@ class GetVectorContentUseCase:
                 # 벡터 값 표시 (선택사항)
                 if show_vectors and hasattr(embedding, 'vector'):
                     vector_info["vector_preview"] = embedding.vector[:5].tolist() if hasattr(embedding.vector, 'tolist') else str(embedding.vector[:5])
-                    vector_info["vector_norm"] = float(embedding.vector_norm) if hasattr(embedding, 'vector_norm') else 0.0
+                    vector_info["vector_norm"] = embedding.get_vector_norm()
                 
                 vectors.append(vector_info)
             

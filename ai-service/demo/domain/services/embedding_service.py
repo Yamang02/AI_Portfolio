@@ -52,11 +52,21 @@ class EmbeddingService:
             # NumPy 배열을 리스트로 변환
             vector_list = vector.tolist() if hasattr(vector, 'tolist') else list(vector)
             
+            # 메타데이터 구성
+            metadata = {
+                "chunk_text_preview": chunk.get_content_preview(100),
+                "document_source": getattr(chunk, 'document_source', 'Unknown'),
+                "chunk_index": getattr(chunk, 'chunk_index', 0),
+                "chunk_size": getattr(chunk, 'chunk_size', len(chunk.content)),
+                "chunk_overlap": getattr(chunk, 'chunk_overlap', 0)
+            }
+            
             embedding = Embedding(
                 chunk_id=chunk.chunk_id,
                 vector=vector_list,
                 model_name=self.embedding_model.get_model_info()["model_name"],
-                dimension=self.embedding_model.get_dimension()
+                dimension=self.embedding_model.get_dimension(),
+                metadata=metadata
             )
             
             # 메모리에 저장
