@@ -301,32 +301,31 @@ class EmbeddingTabAdapter:
         """생성된 임베딩 내용 확인 (메모리에서)"""
         try:
             # 임베딩 서비스에서 메모리의 임베딩들 조회
-            embeddings = self.embedding_service.get_all_embeddings(limit=10)
+            embeddings = self.embedding_service.get_all_embeddings(limit=30)
             
             if not embeddings:
                 return UIComponents.create_info_message("생성된 임베딩이 없습니다. 먼저 임베딩을 생성해주세요.")
             
             embeddings_html = ""
-            for i, embedding in enumerate(embeddings):
-                embeddings_html += f"""
-                <div style='margin: 10px 0; padding: 10px; background-color: #f5f5f5; border-radius: 5px;'>
-                    <strong>임베딩 {i+1}:</strong><br>
-                    <strong>ID:</strong> {embedding.embedding_id}<br>
-                    <strong>청크 ID:</strong> {embedding.chunk_id}<br>
-                    <strong>모델:</strong> {embedding.model_name}<br>
-                    <strong>차원:</strong> {embedding.vector_dimension}차원<br>
-                    <strong>생성 시간:</strong> {embedding.created_at}<br>
-                    <strong>벡터 노름:</strong> {embedding.get_vector_norm():.4f}<br>
-                """
-                
-                if show_vectors:
+            for embedding in embeddings:
+                # 벡터 미리보기 생성
+                vector_preview = ""
+                if show_vectors and embedding.vector:
                     vector_preview = str(embedding.vector[:5]) + "..." if len(embedding.vector) > 5 else str(embedding.vector)
-                    embeddings_html += f"<strong>벡터 미리보기:</strong> {vector_preview}<br>"
                 
-                embeddings_html += "</div>"
+                # 임베딩 카드 생성
+                embeddings_html += UIComponents.create_embedding_card(
+                    embedding_id=str(embedding.embedding_id),
+                    chunk_id=str(embedding.chunk_id),
+                    model_name=embedding.model_name,
+                    vector_dimension=embedding.vector_dimension,
+                    vector_norm=embedding.get_vector_norm(),
+                    created_at=embedding.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+                    vector_preview=vector_preview
+                )
             
-            details = [f"총 임베딩 수: {len(embeddings)}개 (메모리)"]
-            return UIComponents.create_success_message("임베딩 내용 조회 완료", details) + embeddings_html
+            # 임베딩 미리보기 컨테이너로 감싸기
+            return UIComponents.create_embedding_preview_container(embeddings_html, len(embeddings))
             
         except Exception as e:
             logger.error(f"임베딩 내용 조회 중 오류: {e}")

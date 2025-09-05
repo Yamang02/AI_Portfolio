@@ -272,3 +272,125 @@ class UIComponents:
             </div>
         </div>
         """
+    
+    @staticmethod
+    def create_embedding_card(
+        embedding_id: str,
+        chunk_id: str,
+        model_name: str,
+        vector_dimension: int,
+        vector_norm: float,
+        created_at: str,
+        vector_preview: str = "",
+        bg_color: str = '#e3f2fd',
+        border_color: str = '#2196f3',
+        icon: str = '🧠'
+    ) -> str:
+        """임베딩 카드 생성"""
+        return f"""
+        <div style="
+            background: linear-gradient(135deg, {bg_color} 0%, {bg_color.replace('e3', 'f0').replace('f2', 'f8')} 100%);
+            border: 2px solid {border_color};
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            min-width: 280px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        " 
+        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.15)';"
+        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.1)';"
+        title="임베딩 {embedding_id}"
+        >
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span style="font-size: 20px;">{icon}</span>
+                <span style="font-size: 12px; color: #666; background: rgba(255,255,255,0.8); padding: 2px 6px; border-radius: 4px;">
+                    임베딩 {embedding_id[:8]}...
+                </span>
+            </div>
+            
+            <div style="font-size: 12px; color: #666; margin-bottom: 8px;">
+                <div><strong>🔗 청크:</strong> {chunk_id}</div>
+                <div><strong>🤖 모델:</strong> {model_name}</div>
+                <div><strong>📐 차원:</strong> {vector_dimension}차원</div>
+                <div><strong>📏 노름:</strong> {vector_norm:.4f}</div>
+                <div><strong>⏰ 생성:</strong> {created_at}</div>
+            </div>
+            
+            {f'''
+            <div style="
+                background: rgba(255,255,255,0.8);
+                border-radius: 6px;
+                padding: 10px;
+                font-size: 11px;
+                line-height: 1.4;
+                color: #555;
+                max-height: 60px;
+                overflow: hidden;
+                white-space: pre-wrap;
+                word-wrap: break-word;
+                font-family: monospace;
+            ">
+                <strong>벡터 미리보기:</strong><br>
+                {vector_preview}
+            </div>
+            ''' if vector_preview else ''}
+        </div>
+        """
+    
+    @staticmethod
+    def create_embedding_preview_container(embeddings_html: str, total_count: int) -> str:
+        """임베딩 미리보기 컨테이너 생성"""
+        return f"""
+        <div style="
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 2px solid #6c757d;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        ">
+            <div style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 16px;
+                padding-bottom: 12px;
+                border-bottom: 2px solid #dee2e6;
+            ">
+                <h3 style="
+                    margin: 0;
+                    color: #495057;
+                    font-size: 18px;
+                    font-weight: 600;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                ">
+                    🧠 생성된 임베딩 미리보기
+                </h3>
+                <span style="
+                    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+                    color: white;
+                    padding: 6px 12px;
+                    border-radius: 20px;
+                    font-size: 12px;
+                    font-weight: 600;
+                    box-shadow: 0 2px 4px rgba(0,123,255,0.3);
+                ">
+                    총 {total_count}개
+                </span>
+            </div>
+            
+            <div style="
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 16px;
+                max-height: 400px;
+                overflow-y: auto;
+                padding: 8px;
+            ">
+                {embeddings_html}
+            </div>
+        </div>
+        """
