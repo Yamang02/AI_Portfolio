@@ -45,6 +45,7 @@ class ChunkingConfigManager:
             "chunking_strategies": {
                 "PROJECT": {
                     "name": "프로젝트 문서 특화 청킹",
+                    "description": "프로젝트 문서의 구조적 특성을 고려한 청킹",
                     "parameters": {
                         "chunk_size": 600,
                         "chunk_overlap": 100,
@@ -61,6 +62,7 @@ class ChunkingConfigManager:
                 },
                 "QA": {
                     "name": "Q&A 문서 특화 청킹",
+                    "description": "질문-답변 쌍 단위로 최적화된 청킹",
                     "parameters": {
                         "chunk_size": 800,
                         "chunk_overlap": 50,
@@ -75,6 +77,7 @@ class ChunkingConfigManager:
                 },
                 "TEXT": {
                     "name": "기본 텍스트 청킹",
+                    "description": "일반 텍스트 문서용 크기 기반 청킹",
                     "parameters": {
                         "chunk_size": 500,
                         "chunk_overlap": 75,
@@ -93,6 +96,48 @@ class ChunkingConfigManager:
                 }
             }
         }
+    
+    def _get_default_strategy_config(self, strategy_name: str) -> Dict[str, Any]:
+        """기본 전략 설정 반환"""
+        default_configs = {
+            "PROJECT": {
+                "name": "프로젝트 문서 특화 청킹",
+                "description": "프로젝트 문서의 구조적 특성을 고려한 청킹",
+                "parameters": {
+                    "chunk_size": 600,
+                    "chunk_overlap": 100,
+                    "preserve_structure": True
+                }
+            },
+            "QA": {
+                "name": "Q&A 문서 특화 청킹", 
+                "description": "질문-답변 쌍 단위로 최적화된 청킹",
+                "parameters": {
+                    "chunk_size": 800,
+                    "chunk_overlap": 50,
+                    "preserve_structure": True
+                }
+            },
+            "TEXT": {
+                "name": "기본 텍스트 청킹",
+                "description": "일반 텍스트 문서용 크기 기반 청킹",
+                "parameters": {
+                    "chunk_size": 500,
+                    "chunk_overlap": 75,
+                    "preserve_structure": False
+                }
+            }
+        }
+        
+        return default_configs.get(strategy_name, {
+            "name": f"{strategy_name} 전략",
+            "description": "기본 청킹 전략",
+            "parameters": {
+                "chunk_size": 500,
+                "chunk_overlap": 75,
+                "preserve_structure": True
+            }
+        })
     
     def get_strategy_config(self, strategy_name: str) -> Dict[str, Any]:
         """특정 전략의 설정 반환"""

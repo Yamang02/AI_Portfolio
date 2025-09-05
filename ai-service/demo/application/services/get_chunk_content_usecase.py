@@ -31,6 +31,14 @@ class GetChunkContentUseCase:
                     "message": "청크를 찾을 수 없습니다"
                 }
             
+            # 전체 청크 리스트에서의 위치 계산
+            all_chunks = self.chunking_service.get_all_chunks()
+            global_index = None
+            for i, c in enumerate(all_chunks):
+                if str(c.chunk_id) == chunk_id:
+                    global_index = i + 1
+                    break
+            
             logger.info(f"✅ 청크 내용 조회 완료: {chunk_id}")
             
             return {
@@ -39,6 +47,7 @@ class GetChunkContentUseCase:
                     "chunk_id": str(chunk.chunk_id),
                     "document_id": str(chunk.document_id),
                     "chunk_index": chunk.chunk_index,
+                    "global_index": global_index,  # 전체 청크 리스트 기준 고유 번호
                     "content": chunk.content,
                     "content_length": len(chunk.content),
                     "chunk_size": chunk.chunk_size,
