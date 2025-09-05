@@ -10,6 +10,9 @@ from .chunking_service import ChunkingService
 from .embedding_service import EmbeddingService
 from .retrieval_service import RetrievalService
 from .generation_service import GenerationService
+from .processing_status_service import ProcessingStatusService
+from .validation_service import ValidationService
+from .batch_processing_service import BatchProcessingService
 
 __all__ = [
     # Document Service
@@ -26,4 +29,13 @@ __all__ = [
     
     # Generation Service
     'GenerationService',
+    
+    # Processing Status Service
+    'ProcessingStatusService',
+    
+    # Validation Service
+    'ValidationService',
+    
+    # Batch Processing Service
+    'BatchProcessingService',
 ]

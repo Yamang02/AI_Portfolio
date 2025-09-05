@@ -33,9 +33,10 @@ class DocumentType:
     API = "API"
     PROJECT = "PROJECT"
     QA = "QA"
+    TEXT = "TEXT"  # 테스트용 일반 텍스트 문서 타입
     
     def __init__(self, value: str):
-        if value not in [self.MANUAL, self.SAMPLE, self.API, self.PROJECT, self.QA]:
+        if value not in [self.MANUAL, self.SAMPLE, self.API, self.PROJECT, self.QA, self.TEXT]:
             raise ValueError(f"Invalid document type: {value}")
         self.value = value
     

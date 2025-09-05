@@ -78,6 +78,44 @@ class VectorStore:
             "last_updated": self.last_updated.isoformat()
         }
     
+    def validate_embedding_exists(self, embedding_id: str) -> bool:
+        """임베딩 존재 여부 검증"""
+        return any(str(emb.embedding_id) == embedding_id for emb in self.embeddings)
+    
+    def validate_embedding_by_chunk_id(self, chunk_id: str) -> bool:
+        """청크 ID로 임베딩 존재 여부 검증"""
+        return any(str(emb.chunk_id) == chunk_id for emb in self.embeddings)
+    
+    def get_embedding_by_chunk_id(self, chunk_id: str) -> Optional['Embedding']:
+        """청크 ID로 임베딩 조회"""
+        for emb in self.embeddings:
+            if str(emb.chunk_id) == chunk_id:
+                return emb
+        return None
+    
+    def validate_data_consistency(self, expected_chunk_ids: List[str]) -> Dict[str, Any]:
+        """데이터 일치성 검증"""
+        stored_chunk_ids = [str(emb.chunk_id) for emb in self.embeddings]
+        
+        missing_embeddings = set(expected_chunk_ids) - set(stored_chunk_ids)
+        extra_embeddings = set(stored_chunk_ids) - set(expected_chunk_ids)
+        
+        return {
+            "expected_count": len(expected_chunk_ids),
+            "stored_count": len(stored_chunk_ids),
+            "missing_embeddings": list(missing_embeddings),
+            "extra_embeddings": list(extra_embeddings),
+            "is_consistent": len(missing_embeddings) == 0 and len(extra_embeddings) == 0
+        }
+    
+    def get_validation_summary(self) -> str:
+        """검증 요약 반환"""
+        if self.is_empty():
+            return "벡터스토어가 비어있습니다"
+        
+        consistency_check = self.validate_data_consistency([])
+        return f"저장된 임베딩: {len(self.embeddings)}개, 크기: {self.get_total_vectors_size() / 1024 / 1024:.1f}MB"
+    
     def to_dict(self) -> Dict[str, Any]:
         """딕셔너리로 변환"""
         return {

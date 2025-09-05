@@ -20,9 +20,10 @@ logger = logging.getLogger(__name__)
 class ChunkingService:
     """청킹 도메인 서비스"""
     
-    def __init__(self):
+    def __init__(self, processing_status_service=None):
         self.chunks: Dict[str, Chunk] = {}
         self.config_manager = ChunkingConfigManager()
+        self.processing_status_service = processing_status_service
         logger.info("✅ Chunking Service initialized with config manager")
     
     def chunk_document(
@@ -66,9 +67,13 @@ class ChunkingService:
             else:
                 chunks = self._chunk_text_document(document, chunk_size, chunk_overlap, preserve_structure)
             
-            # 메모리에 저장
+            # 메모리에 저장 및 처리 상태 생성
             for chunk in chunks:
                 self.chunks[str(chunk.chunk_id)] = chunk
+                
+                # ProcessingStatus 자동 생성
+                if self.processing_status_service:
+                    self.processing_status_service.create_status(chunk)
             
             logger.info(f"✅ 문서 청킹 완료: {document.source} → {len(chunks)}개 청크 ({chunking_strategy} 전략)")
             return chunks

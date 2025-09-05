@@ -23,6 +23,14 @@
       "description": "RAG 시스템 구현과 관련된 질문과 답변",
       "tags": ["RAG", "AI", "Q&A", "벡터 검색", "캐싱"],
       "demo_id": "S2"
+    },
+    {
+      "filename": "test_document.md",
+      "title": "테스트용 일반 텍스트 문서",
+      "document_type": "TEXT",
+      "description": "청킹 및 임베딩 테스트를 위한 일반 텍스트 문서",
+      "tags": ["테스트", "청킹", "임베딩", "텍스트 처리"],
+      "demo_id": "S3"
     }
   ]
 }

@@ -12,6 +12,9 @@ from .query import Query, QueryId
 from .search_result import SearchResult, SearchResultId
 from .rag_response import RAGResponse, RAGResponseId
 from .vector_store import VectorStore, VectorStoreId
+from .processing_status import ProcessingStatus, ProcessingStatusId, ProcessingStage
+from .batch_job import BatchJob, BatchJobId, BatchJobStatus, BatchJobType
+from .validation_result import ValidationResult, ValidationResultId, ValidationStatus, ValidationType, ValidationIssue
 
 __all__ = [
     # Document
@@ -40,4 +43,22 @@ __all__ = [
     # VectorStore
     'VectorStore',
     'VectorStoreId',
+    
+    # ProcessingStatus
+    'ProcessingStatus',
+    'ProcessingStatusId',
+    'ProcessingStage',
+    
+    # BatchJob
+    'BatchJob',
+    'BatchJobId',
+    'BatchJobStatus',
+    'BatchJobType',
+    
+    # ValidationResult
+    'ValidationResult',
+    'ValidationResultId',
+    'ValidationStatus',
+    'ValidationType',
+    'ValidationIssue',
 ]
