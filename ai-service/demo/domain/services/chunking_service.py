@@ -42,8 +42,18 @@ class ChunkingService:
             strategy_config = self.config_manager.get_strategy_config(chunking_strategy)
             params = strategy_config.get("parameters", {})
             
-            chunk_size = custom_chunk_size or params.get("chunk_size", 500)
-            chunk_overlap = custom_chunk_overlap or params.get("chunk_overlap", 75)
+            # 전략별 기본값 우선 사용, 수동 설정은 오버라이드로 사용
+            chunk_size = params.get("chunk_size", 500)
+            chunk_overlap = params.get("chunk_overlap", 75)
+            
+            # 수동 설정이 제공된 경우에만 오버라이드
+            if custom_chunk_size is not None:
+                chunk_size = custom_chunk_size
+                logger.info(f"🔧 수동 청크 크기 오버라이드: {chunk_size}")
+            if custom_chunk_overlap is not None:
+                chunk_overlap = custom_chunk_overlap
+                logger.info(f"🔧 수동 청크 겹침 오버라이드: {chunk_overlap}")
+            
             preserve_structure = params.get("preserve_structure", True)
             
             logger.info(f"📋 청킹 전략: {chunking_strategy} (크기: {chunk_size}, 겹침: {chunk_overlap})")
