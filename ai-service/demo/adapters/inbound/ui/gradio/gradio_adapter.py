@@ -9,12 +9,7 @@ Repository 패턴을 적용하여 데이터 접근을 추상화합니다.
 
 import gradio as gr
 import logging
-from domain.services.document_management_service import DocumentService
-from domain.services.chunking_service import ChunkingService
-from domain.services.embedding_service import EmbeddingService
-from domain.services.retrieval_service import RetrievalService
-from domain.services.generation_service import GenerationService
-from adapters.outbound.repositories.memory_document_repository_adapter import MemoryDocumentRepositoryAdapter
+from .service_factory import ServiceFactory
 from .document_tab import DocumentTabAdapter
 from .text_splitter_tab import TextSplitterTabAdapter
 from .embedding_tab import EmbeddingTabAdapter
@@ -28,32 +23,31 @@ class GradioAdapter:
     """메인 Gradio 어댑터 - UI 조합만 담당 (Repository 패턴 적용)"""
     
     def __init__(self):
-        # Repository 초기화
-        self.document_repository = MemoryDocumentRepositoryAdapter()
+        # 서비스 팩토리 초기화
+        self.service_factory = ServiceFactory()
         
-        # 도메인 서비스 초기화 (독립적으로)
-        self.document_service = DocumentService(self.document_repository)
-        self.chunking_service = ChunkingService()
-        self.embedding_service = EmbeddingService()
-        self.retrieval_service = RetrievalService(self.embedding_service.vector_store)
-        self.generation_service = GenerationService()
-        
-        # 각 탭 어댑터 초기화 (Use Case 기반)
-        self.document_tab = DocumentTabAdapter(self.document_service)
-        self.text_splitter_tab = TextSplitterTabAdapter(self.document_service, self.chunking_service)
-        self.embedding_tab = EmbeddingTabAdapter(self.embedding_service, self.chunking_service)
-        self.rag_qa_tab = RagQATabAdapter(self.generation_service)
+        # 각 탭 어댑터 초기화 (팩토리를 통한 서비스 주입)
+        self.document_tab = DocumentTabAdapter(self.service_factory.get_document_service())
+        self.text_splitter_tab = TextSplitterTabAdapter(
+            self.service_factory.get_document_service(), 
+            self.service_factory.get_chunking_service()
+        )
+        self.embedding_tab = EmbeddingTabAdapter(
+            self.service_factory.get_embedding_service(), 
+            self.service_factory.get_chunking_service()
+        )
+        self.rag_qa_tab = RagQATabAdapter(self.service_factory.get_generation_service())
         self.status_tab = SystemInfoTabAdapter(
-            embedding_service=self.embedding_service,
-            chunking_service=self.chunking_service,
+            embedding_service=self.service_factory.get_embedding_service(),
+            chunking_service=self.service_factory.get_chunking_service(),
             processing_status_service=None,  # 추후 추가 가능
             validation_service=None,  # 추후 추가 가능
-            generation_service=self.generation_service,
+            generation_service=self.service_factory.get_generation_service(),
             batch_processing_service=None,  # 추후 추가 가능
             config_manager=None  # 추후 추가 가능
         )
         
-        logger.info("✅ Gradio Adapter initialized with Repository pattern")
+        logger.info("✅ Gradio Adapter initialized with Service Factory")
     
     def create_interface(self) -> gr.Blocks:
         """전체 Gradio 인터페이스 생성"""
