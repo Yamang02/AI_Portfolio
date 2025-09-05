@@ -50,27 +50,21 @@ class CreateEmbeddingUseCase:
                     "error": "임베딩을 생성할 청크가 없습니다"
                 }
             
-            # 임베딩 생성
+            # 임베딩 생성 (메모리에만 저장)
             embeddings = []
             for chunk in chunks:
                 embedding = self.embedding_service.create_embedding(chunk)
                 embeddings.append(embedding)
             
-            # 벡터스토어에 저장
-            stored_count = 0
-            for embedding in embeddings:
-                self.embedding_service.store_embedding(embedding)
-                stored_count += 1
-            
-            logger.info(f"✅ 임베딩 생성 완료: {len(embeddings)}개 생성, {stored_count}개 저장")
+            logger.info(f"✅ 임베딩 생성 완료: {len(embeddings)}개 생성 (메모리 저장)")
             
             return {
                 "success": True,
                 "embeddings_created": len(embeddings),
-                "embeddings_stored": stored_count,
+                "embeddings_stored": 0,  # 벡터스토어에는 저장하지 않음
                 "vector_dimension": embeddings[0].vector_dimension if embeddings else 0,
                 "model_name": embeddings[0].model_name if embeddings else "unknown",
-                "message": f"{len(embeddings)}개의 임베딩이 성공적으로 생성되고 저장되었습니다"
+                "message": f"{len(embeddings)}개의 임베딩이 성공적으로 생성되었습니다 (메모리 저장)"
             }
             
         except Exception as e:

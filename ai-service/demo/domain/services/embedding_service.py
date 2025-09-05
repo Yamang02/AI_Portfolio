@@ -258,6 +258,12 @@ class EmbeddingService:
             logger.error(f"임베딩 재시도 중 오류 발생: {e}")
             return None
     
+    def store_embedding(self, embedding: Embedding) -> None:
+        """임베딩을 벡터스토어에 저장"""
+        self.embeddings[str(embedding.embedding_id)] = embedding
+        self.vector_store.add_embedding(embedding)
+        logger.info(f"✅ 임베딩 저장 완료: {embedding.embedding_id}")
+    
     def get_vector_store_size(self) -> int:
         """벡터스토어 크기 조회"""
         return len(self.embeddings)
