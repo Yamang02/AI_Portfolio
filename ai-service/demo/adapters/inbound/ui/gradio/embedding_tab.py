@@ -12,7 +12,6 @@ from typing import Dict, Any
 from domain.services.embedding_service import EmbeddingService
 from domain.services.chunking_service import ChunkingService
 from application.usecases.create_embedding_usecase import CreateEmbeddingUseCase
-from application.usecases.get_embedding_analysis_usecase import GetEmbeddingAnalysisUseCase
 from application.usecases.get_vector_store_info_usecase import GetVectorStoreInfoUseCase
 from application.usecases.get_vector_content_usecase import GetVectorContentUseCase
 from application.usecases.clear_vector_store_usecase import ClearVectorStoreUseCase
@@ -34,10 +33,6 @@ class EmbeddingTabAdapter:
         
         # Use Case 초기화
         self.create_embedding_usecase = CreateEmbeddingUseCase(
-            embedding_service=embedding_service,
-            chunking_service=chunking_service
-        )
-        self.get_analysis_usecase = GetEmbeddingAnalysisUseCase(
             embedding_service=embedding_service,
             chunking_service=chunking_service
         )
@@ -105,7 +100,7 @@ class EmbeddingTabAdapter:
                         value=UIComponents.create_empty_state("임베딩을 생성하면 여기에 결과가 표시됩니다.")
                     )
                 
-                # 중앙: 임베딩 분석 및 모델 정보
+                # 오른쪽: 임베딩 분석 및 모델 정보
                 with gr.Column(scale=1):
                     gr.Markdown(UIComponents.create_section_title("🔬 임베딩 모델 정보"))
                     
@@ -116,28 +111,22 @@ class EmbeddingTabAdapter:
                         value=UIComponents.create_empty_state("모델 정보를 조회하면 여기에 표시됩니다.")
                     )
                     
-                    gr.Markdown(UIComponents.create_section_title("📊 임베딩 분석"))
-                    
-                    embedding_analysis_btn = gr.Button("🔬 임베딩 분석", variant="primary")
-                    embedding_output = gr.HTML(
-                        label="임베딩 분석",
-                        value=UIComponents.create_empty_state("임베딩 분석을 실행하면 여기에 결과가 표시됩니다.")
-                    )
-                
-                # 오른쪽: 임베딩 내용 확인
-                with gr.Column(scale=1):
-                    gr.Markdown(UIComponents.create_section_title("📋 생성된 임베딩 확인"))
-                    
-                    show_vectors_checkbox = gr.Checkbox(
-                        label="벡터 값 표시",
-                        value=False,
-                        info="체크하면 실제 벡터 값도 표시됩니다"
-                    )
-                    view_embeddings_btn = gr.Button("👀 임베딩 내용 보기", variant="primary")
-                    embeddings_content_output = gr.HTML(
-                        label="임베딩 내용",
-                        value=UIComponents.create_empty_state("임베딩 내용을 조회하면 여기에 표시됩니다.")
-                    )
+            
+            # 생성된 임베딩 확인 (전체 너비)
+            gr.Markdown(UIComponents.create_section_title("📋 생성된 임베딩 확인"))
+            
+            with gr.Row():
+                show_vectors_checkbox = gr.Checkbox(
+                    label="벡터 값 표시",
+                    value=False,
+                    info="체크하면 실제 벡터 값도 표시됩니다"
+                )
+                view_embeddings_btn = gr.Button("👀 임베딩 내용 보기", variant="primary")
+            
+            embeddings_content_output = gr.HTML(
+                label="임베딩 내용",
+                value=UIComponents.create_empty_state("임베딩 내용을 조회하면 여기에 표시됩니다.")
+            )
             
             # 2단계: 벡터스토어 저장
             gr.Markdown(UIComponents.create_step_title("벡터스토어 저장", 2))
@@ -175,22 +164,50 @@ class EmbeddingTabAdapter:
                     vector_info_output = gr.HTML(
                         label="벡터스토어 정보",
                         value=UIComponents.create_empty_state("벡터스토어 정보를 조회하면 여기에 결과가 표시됩니다.")
-                    )
-                
-                # 오른쪽: 벡터 내용 확인
-                with gr.Column(scale=1):
-                    gr.Markdown(UIComponents.create_section_title("📋 벡터 내용 확인"))
-                    
-                    show_stored_vectors_checkbox = gr.Checkbox(
-                        label="벡터 값 표시",
-                        value=False,
-                        info="체크하면 실제 벡터 값도 표시됩니다"
-                    )
-                    vector_content_btn = gr.Button("📋 벡터 내용 보기", variant="primary")
-                    vector_content_output = gr.HTML(
-                        label="벡터 내용",
-                        value=UIComponents.create_empty_state("벡터 내용을 조회하면 여기에 결과가 표시됩니다.")
-                    )
+            )
+            
+            # 4단계: 벡터 내용 확인 (전체 너비)
+            gr.Markdown(UIComponents.create_step_title("벡터 내용 확인", 4))
+            
+            # 벡터 스토어 저장 필드 안내
+            gr.Markdown("""
+            <div style="
+                background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 100%);
+                border: 2px solid #4caf50;
+                border-radius: 8px;
+                padding: 16px;
+                margin-bottom: 16px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            ">
+                <h4 style="margin: 0 0 12px 0; color: #2e7d32; display: flex; align-items: center; gap: 8px;">
+                    ℹ️ 벡터 스토어 저장 정보 안내
+                </h4>
+                <div style="font-size: 14px; color: #555; line-height: 1.6;">
+                    <p style="margin: 0 0 8px 0;"><strong>실제 저장되는 필드:</strong></p>
+                    <ul style="margin: 0; padding-left: 20px;">
+                        <li><strong>벡터 데이터:</strong> 384차원의 숫자 배열 (실제 임베딩 값)</li>
+                        <li><strong>메타데이터:</strong> 청크 ID, 문서 ID, 모델명, 생성시간</li>
+                        <li><strong>인덱스 정보:</strong> 검색을 위한 인덱스 구조</li>
+                    </ul>
+                    <p style="margin: 8px 0 0 0; color: #666; font-size: 13px;">
+                        <em>※ 미리보기에 표시되는 텍스트는 참고용이며, 실제 저장되는 것은 벡터 데이터입니다.</em>
+                    </p>
+                </div>
+            </div>
+            """)
+            
+            with gr.Row():
+                show_stored_vectors_checkbox = gr.Checkbox(
+                    label="벡터 값 표시",
+                    value=False,
+                    info="체크하면 실제 벡터 값도 표시됩니다"
+                )
+                vector_content_btn = gr.Button("📋 벡터 내용 보기", variant="primary")
+            
+            vector_content_output = gr.HTML(
+                label="벡터 내용",
+                value=UIComponents.create_empty_state("벡터 내용을 조회하면 여기에 표시됩니다.")
+            )
             
             # Event handlers
             refresh_chunks_btn.click(
@@ -215,10 +232,6 @@ class EmbeddingTabAdapter:
                 outputs=[model_info_output]
             )
             
-            embedding_analysis_btn.click(
-                fn=self._get_embedding_analysis,
-                outputs=[embedding_output]
-            )
             
             view_embeddings_btn.click(
                 fn=self._view_embeddings_content,
@@ -388,16 +401,6 @@ class EmbeddingTabAdapter:
             logger.error(f"임베딩 생성 중 오류: {e}")
             return UIComponents.create_error_message(f"임베딩 생성 실패: {str(e)}")
     
-    def _get_embedding_analysis(self) -> str:
-        """임베딩 분석 정보"""
-        try:
-            result = self.get_analysis_usecase.execute()
-            return self._format_analysis_result(result)
-                
-        except Exception as e:
-            logger.error(f"임베딩 분석 중 오류: {e}")
-            return UIComponents.create_error_message(f"임베딩 분석 실패: {str(e)}")
-    
     def _get_vector_store_info(self) -> str:
         """벡터스토어 정보"""
         try:
@@ -442,28 +445,6 @@ class EmbeddingTabAdapter:
         else:
             return UIComponents.create_error_message(f"임베딩 생성 실패: {result['error']}")
     
-    def _format_analysis_result(self, result: Dict[str, Any]) -> str:
-        """분석 결과 포맷팅"""
-        if result["success"]:
-            analysis = result["analysis"]
-            details = [
-                f"모델명: {analysis['model_info']['model_name']}",
-                f"차원: {analysis['model_info']['vector_dimension']}차원",
-                f"타입: {analysis['model_info']['model_type']}",
-                f"언어 지원: {analysis['model_info']['language_support']}",
-                f"성능: {analysis['model_info']['performance']}",
-                f"총 임베딩: {analysis['embedding_statistics']['total_embeddings']}개",
-                f"총 청크: {analysis['embedding_statistics']['total_chunks']}개",
-                f"총 문서: {analysis['embedding_statistics']['total_documents']}개",
-                f"평균 청크 길이: {analysis['embedding_statistics']['average_chunk_length']:.1f}자",
-                f"평균 임베딩 시간: {analysis['performance_metrics']['average_embedding_time_ms']:.1f}ms",
-                f"총 처리 시간: {analysis['performance_metrics']['total_processing_time_ms']:.1f}ms",
-                f"성공률: {analysis['performance_metrics']['success_rate']:.1f}%"
-            ]
-            return UIComponents.create_success_message("임베딩 분석 완료", details)
-        else:
-            return UIComponents.create_error_message(f"분석 실패: {result['error']}")
-    
     def _format_vector_info_result(self, result: Dict[str, Any]) -> str:
         """벡터스토어 정보 결과 포맷팅"""
         if result["success"]:
@@ -497,30 +478,29 @@ class EmbeddingTabAdapter:
                 return UIComponents.create_info_message("벡터스토어에 저장된 내용이 없습니다. 먼저 임베딩을 생성해주세요.")
             
             vectors_html = ""
-            for i, vector in enumerate(result["vectors"][:10]):  # 최대 10개만 표시
-                vectors_html += f"""
-                <div style='margin: 10px 0; padding: 10px; background-color: #f5f5f5; border-radius: 5px;'>
-                    <strong>임베딩 {i+1}:</strong><br>
-                    <strong>ID:</strong> {vector['embedding_id']}<br>
-                    <strong>청크 ID:</strong> {vector['chunk_id']}<br>
-                    <strong>모델:</strong> {vector['model_name']}<br>
-                    <strong>차원:</strong> {vector['vector_dimension']}차원<br>
-                    <strong>생성 시간:</strong> {vector['created_at']}<br>
-                    <strong>문서 출처:</strong> {vector['metadata']['document_source']}<br>
-                    <strong>청크 미리보기:</strong> {vector['metadata']['chunk_text_preview']}<br>
-                """
-                
+            for vector in result["vectors"]:
+                # 벡터 미리보기 생성
+                vector_preview = ""
+                vector_norm = 0.0
                 if 'vector_preview' in vector:
-                    vectors_html += f"<strong>벡터 미리보기:</strong> {vector['vector_preview']}<br>"
-                    vectors_html += f"<strong>벡터 노름:</strong> {vector['vector_norm']:.4f}<br>"
+                    vector_preview = str(vector['vector_preview'])
+                    vector_norm = vector.get('vector_norm', 0.0)
                 
-                vectors_html += "</div>"
+                # 벡터 카드 생성
+                vectors_html += UIComponents.create_vector_card(
+                    embedding_id=vector['embedding_id'],
+                    chunk_id=vector['chunk_id'],
+                    model_name=vector['model_name'],
+                    vector_dimension=vector['vector_dimension'],
+                    created_at=vector['created_at'],
+                    document_source=vector['metadata']['document_source'],
+                    chunk_preview=vector['metadata']['chunk_text_preview'],
+                    vector_preview=vector_preview,
+                    vector_norm=vector_norm
+                )
             
-            if result["total_vectors"] > 10:
-                vectors_html += f"<div style='margin: 10px 0; color: #666;'>... 및 {result['total_vectors'] - 10}개 더</div>"
-            
-            details = [f"총 벡터 수: {result['total_vectors']}개"]
-            return UIComponents.create_success_message("벡터 내용 조회 완료", details) + vectors_html
+            # 벡터 내용 컨테이너로 감싸기
+            return UIComponents.create_vector_content_container(vectors_html, result["total_vectors"])
         else:
             return UIComponents.create_error_message(f"벡터 내용 조회 실패: {result['error']}")
     

@@ -294,7 +294,7 @@ class UIComponents:
             border-radius: 8px;
             padding: 16px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            min-width: 280px;
+            width: 100%;
             transition: all 0.3s ease;
             cursor: pointer;
         " 
@@ -325,11 +325,13 @@ class UIComponents:
                 font-size: 11px;
                 line-height: 1.4;
                 color: #555;
-                max-height: 60px;
-                overflow: hidden;
+                max-height: 80px;
+                overflow-y: auto;
+                overflow-x: hidden;
                 white-space: pre-wrap;
                 word-wrap: break-word;
                 font-family: monospace;
+                border: 1px solid rgba(0,0,0,0.1);
             ">
                 <strong>벡터 미리보기:</strong><br>
                 {vector_preview}
@@ -384,13 +386,159 @@ class UIComponents:
             
             <div style="
                 display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                grid-template-columns: repeat(3, 1fr);
                 gap: 16px;
                 max-height: 400px;
                 overflow-y: auto;
                 padding: 8px;
             ">
                 {embeddings_html}
+            </div>
+        </div>
+        """
+    
+    @staticmethod
+    def create_vector_card(
+        embedding_id: str,
+        chunk_id: str,
+        model_name: str,
+        vector_dimension: int,
+        created_at: str,
+        document_source: str,
+        chunk_preview: str,
+        vector_preview: str = "",
+        vector_norm: float = 0.0,
+        bg_color: str = '#f3e5f5',
+        border_color: str = '#9c27b0',
+        icon: str = '🔍'
+    ) -> str:
+        """벡터 카드 생성 (벡터스토어 내용용)"""
+        return f"""
+        <div style="
+            background: linear-gradient(135deg, {bg_color} 0%, {bg_color.replace('f3', 'f8').replace('e5', 'f0')} 100%);
+            border: 2px solid {border_color};
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            width: 100%;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        " 
+        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.15)';"
+        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.1)';"
+        title="벡터 {embedding_id}"
+        >
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span style="font-size: 20px;">{icon}</span>
+                <span style="font-size: 12px; color: #666; background: rgba(255,255,255,0.8); padding: 2px 6px; border-radius: 4px;">
+                    벡터 {embedding_id[:8]}...
+                </span>
+            </div>
+            
+            <div style="font-size: 12px; color: #666; margin-bottom: 8px;">
+                <div><strong>🔗 청크:</strong> {chunk_id}</div>
+                <div><strong>🤖 모델:</strong> {model_name}</div>
+                <div><strong>📐 차원:</strong> {vector_dimension}차원</div>
+                <div><strong>📄 문서:</strong> {document_source}</div>
+                <div><strong>⏰ 생성:</strong> {created_at}</div>
+            </div>
+            
+            <div style="
+                background: rgba(255,255,255,0.8);
+                border-radius: 6px;
+                padding: 10px;
+                font-size: 11px;
+                line-height: 1.4;
+                color: #555;
+                max-height: 60px;
+                overflow-y: auto;
+                overflow-x: hidden;
+                white-space: pre-wrap;
+                word-wrap: break-word;
+                margin-bottom: 8px;
+                border: 1px solid rgba(0,0,0,0.1);
+            ">
+                <strong>청크 미리보기:</strong><br>
+                {chunk_preview}
+            </div>
+            
+            {f'''
+            <div style="
+                background: rgba(255,255,255,0.8);
+                border-radius: 6px;
+                padding: 10px;
+                font-size: 11px;
+                line-height: 1.4;
+                color: #555;
+                max-height: 80px;
+                overflow-y: auto;
+                overflow-x: hidden;
+                white-space: pre-wrap;
+                word-wrap: break-word;
+                font-family: monospace;
+                border: 1px solid rgba(0,0,0,0.1);
+            ">
+                <strong>벡터 미리보기:</strong><br>
+                {vector_preview}
+                <br><strong>노름:</strong> {vector_norm:.4f}
+            </div>
+            ''' if vector_preview else ''}
+        </div>
+        """
+    
+    @staticmethod
+    def create_vector_content_container(vectors_html: str, total_count: int) -> str:
+        """벡터 내용 컨테이너 생성"""
+        return f"""
+        <div style="
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 2px solid #6c757d;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        ">
+            <div style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 16px;
+                padding-bottom: 12px;
+                border-bottom: 2px solid #dee2e6;
+            ">
+                <h3 style="
+                    margin: 0;
+                    color: #495057;
+                    font-size: 18px;
+                    font-weight: 600;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                ">
+                    🔍 벡터스토어 내용
+                </h3>
+                <span style="
+                    background: linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%);
+                    color: white;
+                    padding: 6px 12px;
+                    border-radius: 20px;
+                    font-size: 12px;
+                    font-weight: 600;
+                    box-shadow: 0 2px 4px rgba(156,39,176,0.3);
+                ">
+                    총 {total_count}개
+                </span>
+            </div>
+            
+            <div style="
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 16px;
+                max-height: 500px;
+                overflow-y: auto;
+                padding: 8px;
+            ">
+                {vectors_html}
             </div>
         </div>
         """

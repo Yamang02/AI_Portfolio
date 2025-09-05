@@ -55,7 +55,7 @@ class EmbeddingService:
             # 메타데이터 구성
             metadata = {
                 "chunk_text_preview": chunk.get_content_preview(100),
-                "document_source": getattr(chunk, 'document_source', 'Unknown'),
+                "document_source": str(chunk.document_id),  # document_id를 문서 출처로 사용
                 "chunk_index": getattr(chunk, 'chunk_index', 0),
                 "chunk_size": getattr(chunk, 'chunk_size', len(chunk.content)),
                 "chunk_overlap": getattr(chunk, 'chunk_overlap', 0)
