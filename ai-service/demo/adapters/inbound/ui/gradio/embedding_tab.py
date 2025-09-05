@@ -59,20 +59,21 @@ class EmbeddingTabAdapter:
             # 1단계: 임베딩 생성 및 분석
             gr.Markdown(UIComponents.create_step_title("임베딩 생성 및 분석", 1))
             
+            # 청크 미리보기 (전체 너비)
+            gr.Markdown(UIComponents.create_section_title("📋 청크 미리보기"))
+            
+            # 청크 목록 새로고침 버튼
+            refresh_chunks_btn = gr.Button("🔄 청크 목록 새로고침", variant="secondary", size="sm")
+            
+            # 청크 미리보기 (전체 너비)
+            chunks_preview = gr.HTML(
+                label="청크 미리보기",
+                value=UIComponents.create_empty_state("청크 목록을 새로고침하면 여기에 표시됩니다.")
+            )
+            
             with gr.Row():
-                # 왼쪽: 청크 미리보기 및 생성 대상 선택
+                # 왼쪽: 생성 대상 선택
                 with gr.Column(scale=1):
-                    gr.Markdown(UIComponents.create_section_title("📋 청크 미리보기"))
-                    
-                    # 청크 목록 새로고침 버튼
-                    refresh_chunks_btn = gr.Button("🔄 청크 목록 새로고침", variant="secondary", size="sm")
-                    
-                    # 청크 미리보기
-                    chunks_preview = gr.HTML(
-                        label="청크 미리보기",
-                        value=UIComponents.create_empty_state("청크 목록을 새로고침하면 여기에 표시됩니다.")
-                    )
-                    
                     gr.Markdown(UIComponents.create_section_title("🎯 생성 대상 선택"))
                     
                     # 임베딩 생성 옵션
@@ -260,7 +261,7 @@ class EmbeddingTabAdapter:
             # 청크 카드 생성
             chunks_html = UIComponents.create_document_preview_container("📄 청크 목록", len(chunks))
             
-            for chunk in chunks[:20]:  # 최대 20개만 표시
+            for chunk in chunks[:30]:  # 최대 30개 표시 (3열 그리드로 더 많이 표시 가능)
                 chunks_html += UIComponents.create_chunk_card(
                     chunk_id=str(chunk.chunk_id),
                     document_title=f"문서 {chunk.document_id}",
@@ -269,8 +270,8 @@ class EmbeddingTabAdapter:
                     chunk_index=chunk.chunk_index
                 )
             
-            if len(chunks) > 20:
-                chunks_html += f"<div style='text-align: center; color: #666; margin: 20px 0;'>... 및 {len(chunks) - 20}개 더</div>"
+            if len(chunks) > 30:
+                chunks_html += f"<div style='text-align: center; color: #666; margin: 20px 0;'>... 및 {len(chunks) - 30}개 더</div>"
             
             chunks_html += UIComponents.close_container()
             return chunks_html
