@@ -21,13 +21,22 @@ class ExecuteVectorSearchUseCase:
         retrieval_service: RetrievalService
     ):
         self.retrieval_service = retrieval_service
-        logger.info("✅ ExecuteVectorSearchUseCase initialized")
+        
+        # ConfigManager를 통한 검색 품질 설정 로드
+        try:
+            from core.shared.config.config_manager import get_config_manager
+            config_manager = get_config_manager()
+            self.search_config = config_manager.get_search_quality_config()
+            logger.info("✅ ExecuteVectorSearchUseCase initialized with ConfigManager")
+        except Exception as e:
+            logger.error(f"❌ ConfigManager 로드 실패: {e}")
+            raise RuntimeError("검색 품질 설정을 로드할 수 없습니다. ConfigManager를 확인해주세요.")
     
     def execute(
         self,
         search_query: str,
-        top_k: int = 5,
-        similarity_threshold: float = 0.05
+        top_k: int = None,
+        similarity_threshold: float = None
     ) -> Dict[str, Any]:
         """Vector Search 실행"""
         try:
@@ -37,6 +46,12 @@ class ExecuteVectorSearchUseCase:
                     "error": "검색 쿼리를 입력해주세요",
                     "results": ""
                 }
+            
+            # ConfigManager 기반 기본값 적용
+            if top_k is None:
+                top_k = self.search_config["default_top_k"]
+            if similarity_threshold is None:
+                similarity_threshold = self.search_config["default_similarity_threshold"]
             
             # Query 엔티티 생성
             query = Query(
@@ -121,50 +136,71 @@ class ExecuteVectorSearchUseCase:
         top_k: int, 
         similarity_threshold: float
     ) -> str:
-        """검색 결과 포맷팅"""
-        results_parts = [f"""🔍 **Vector Search 결과:** (청크 기반 검색)
-
-**검색 쿼리**: {search_query}
-**상위 K개**: {top_k}
-**유사도 임계값**: {similarity_threshold}
-
-**검색된 청크들:**
-"""]
+        """검색 결과 포맷팅 (HTML 카드 기반)"""
+        from adapters.inbound.ui.gradio.components.ui_components import UIComponents
         
+        # HTML 헤더 생성
+        header_html = f"""
+        <div style="
+            background: linear-gradient(135deg, #e3f2fd 0%, #f0f8ff 100%);
+            border: 2px solid #2196f3;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        ">
+            <h3 style="margin: 0 0 8px 0; color: #1976d2;">🔍 Vector Search 결과</h3>
+            <div style="font-size: 14px; color: #666;">
+                <strong>검색 쿼리:</strong> {search_query} | 
+                <strong>상위 K개:</strong> {top_k} | 
+                <strong>유사도 임계값:</strong> {similarity_threshold}
+            </div>
+        </div>
+        """
+        
+        # 청크 카드들 생성 (HTML)
+        cards_html = ""
         for i, result in enumerate(search_results):
             chunk = result.chunk
             similarity = result.similarity_score
-            relevance = result.get_relevance_level()
             rank = result.rank
             
-            # 임계값 표시
-            threshold_indicator = "✅" if similarity >= similarity_threshold else "⚠️"
+            # 청크 내용 미리보기 (처음 300자)
+            content_preview = chunk.content[:300] + "..." if len(chunk.content) > 300 else chunk.content
             
-            # 청크 내용 미리보기 (처음 200자)
-            content_preview = chunk.content[:200] + "..." if len(chunk.content) > 200 else chunk.content
-            
-            result_info = f"""
-{threshold_indicator} **청크 #{i+1}** (순위: {rank})
-- **유사도 점수**: {similarity:.4f} ({relevance})
-- **소속 문서 ID**: {str(chunk.document_id)[:12]}...
-- **청크 ID**: {str(chunk.chunk_id)[:12]}...
-- **청크 인덱스**: {chunk.chunk_index}
-- **청크 크기**: {len(chunk.content)} 글자
-- **청크 내용 미리보기**:
-  {content_preview}
----"""
-            results_parts.append(result_info)
+            # 청크 카드 생성 (HTML)
+            card_html = UIComponents.create_vector_search_chunk_card(
+                chunk_id=str(chunk.chunk_id),
+                document_id=str(chunk.document_id),
+                similarity_score=similarity,
+                content_preview=content_preview,
+                chunk_index=chunk.chunk_index,
+                content_length=len(chunk.content),
+                rank=rank
+            )
+            cards_html += card_html + "\n"
         
-        # 검색 통계 추가
+        # 검색 통계 HTML 생성
         above_threshold_count = sum(1 for r in search_results if r.similarity_score >= similarity_threshold)
         
-        stats = f"""
-**검색 통계:**
-- 총 검색 결과: {len(search_results)}
-- 임계값({similarity_threshold}) 이상: {above_threshold_count}
-- 반환된 결과: {len(search_results)}
-- 평균 유사도: {sum(r.similarity_score for r in search_results) / len(search_results):.4f}
-"""
+        stats_html = f"""
+        <div style="
+            background: linear-gradient(135deg, #f3e5f5 0%, #fce4ec 100%);
+            border: 2px solid #9c27b0;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 16px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        ">
+            <h4 style="margin: 0 0 8px 0; color: #7b1fa2;">📊 검색 통계</h4>
+            <div style="font-size: 14px; color: #666;">
+                총 검색 결과: <strong>{len(search_results)}</strong> | 
+                임계값({similarity_threshold}) 이상: <strong>{above_threshold_count}</strong> | 
+                반환된 결과: <strong>{len(search_results)}</strong> | 
+                평균 유사도: <strong>{sum(r.similarity_score for r in search_results) / len(search_results):.4f}</strong>
+            </div>
+        </div>
+        """
         
-        results_parts.append(stats)
-        return "\n".join(results_parts)
+        # 모든 HTML 조합
+        return header_html + cards_html + stats_html

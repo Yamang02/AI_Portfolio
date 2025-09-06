@@ -15,7 +15,7 @@ from domain.services.generation_service import GenerationService
 from application.usecases.execute_rag_query_usecase import ExecuteRAGQueryUseCase
 from application.usecases.execute_vector_search_usecase import ExecuteVectorSearchUseCase
 from adapters.outbound.repositories.memory_document_repository_adapter import MemoryDocumentRepositoryAdapter
-from adapters.outbound.embedding_model_adapter import SentenceTransformerEmbeddingModelAdapter, MockEmbeddingModelAdapter
+from adapters.outbound.embedding.sentence_transformer_adapter import SentenceTransformerAdapter
 
 logger = logging.getLogger(__name__)
 
@@ -46,12 +46,10 @@ class ServiceFactory:
     def get_embedding_model(self):
         """임베딩 모델 조회 (싱글톤)"""
         if self._embedding_model is None:
-            # 실제 모델 시도
-            self._embedding_model = SentenceTransformerEmbeddingModelAdapter()
+            self._embedding_model = SentenceTransformerAdapter()
             if not self._embedding_model.is_available():
-                logger.warning("⚠️ SentenceTransformer 모델 로드 실패, Mock 모델로 전환")
-                self._embedding_model = MockEmbeddingModelAdapter()
-            logger.info("✅ Embedding Model created")
+                raise RuntimeError("SentenceTransformer 모델을 로드할 수 없습니다. 모델이 설치되어 있는지 확인해주세요.")
+            logger.info("✅ SentenceTransformer Embedding Model created")
         return self._embedding_model
     
     def get_document_service(self):
@@ -87,8 +85,12 @@ class ServiceFactory:
         """검색 서비스 조회 (싱글톤)"""
         if self._retrieval_service is None:
             embedding_service = self.get_embedding_service()
-            self._retrieval_service = RetrievalService(embedding_service.vector_store)
-            logger.info("✅ Retrieval Service created")
+            embedding_model = self.get_embedding_model()
+            self._retrieval_service = RetrievalService(
+                vector_store=embedding_service.vector_store,
+                embedding_model=embedding_model
+            )
+            logger.info("✅ Retrieval Service created with embedding model")
         return self._retrieval_service
     
     def get_generation_service(self):

@@ -37,8 +37,14 @@ class EmbeddingService:
         logger.info("✅ Embedding Service initialized with dependency injection")
     
     def create_embedding(self, chunk: Chunk) -> Embedding:
-        """청크를 임베딩으로 변환 (상태 추적 포함)"""
+        """청크를 임베딩으로 변환 (중복 확인 포함)"""
         try:
+            # 중복 확인: 이미 임베딩된 청크인지 확인
+            existing_embedding = self._find_existing_embedding(chunk)
+            if existing_embedding:
+                logger.info(f"⏭️ 청크 {chunk.chunk_id}는 이미 임베딩되어 있습니다. 기존 임베딩 반환")
+                return existing_embedding
+            
             # 상태 추적: 임베딩 처리 시작
             if self.processing_status_service:
                 self.processing_status_service.update_stage(
@@ -70,11 +76,8 @@ class EmbeddingService:
                 metadata=metadata
             )
             
-            # 메모리에 저장
+            # 메모리에만 저장 (벡터스토어 저장은 명시적 호출 필요)
             self.embeddings[str(embedding.embedding_id)] = embedding
-            
-            # 벡터스토어에 추가
-            self.vector_store.add_embedding(embedding)
             
             # 상태 추적: 임베딩 완료
             if self.processing_status_service:
@@ -83,23 +86,25 @@ class EmbeddingService:
                     ProcessingStage.EMBEDDING_COMPLETED
                 )
             
-            # 검증 수행
-            if self.validation_service:
-                self.validation_service.validate_embedding_creation(chunk, actual_embedding=embedding)
-            
-            logger.info(f"✅ 임베딩 생성 완료: 청크 {chunk.chunk_id} → {len(vector_list)}차원")
+            logger.info(f"✅ 임베딩 생성 완료: 청크 {chunk.chunk_id} → 임베딩 {embedding.embedding_id}")
             return embedding
             
         except Exception as e:
-            # 상태 추적: 임베딩 실패
+            logger.error(f"임베딩 생성 중 오류 발생: {e}")
+            # 상태 추적: 오류 발생
             if self.processing_status_service:
                 self.processing_status_service.update_stage(
                     str(chunk.chunk_id), 
-                    ProcessingStage.EMBEDDING_FAILED,
-                    str(e)
+                    ProcessingStage.EMBEDDING_FAILED
                 )
-            logger.error(f"임베딩 생성 중 오류 발생: {e}")
             raise
+    
+    def _find_existing_embedding(self, chunk: Chunk) -> Optional[Embedding]:
+        """기존 임베딩 찾기 (청크 ID 기반)"""
+        for embedding in self.embeddings.values():
+            if str(embedding.chunk_id) == str(chunk.chunk_id):
+                return embedding
+        return None
     
     def create_embeddings(self, chunks: List[Chunk]) -> List[Embedding]:
         """여러 청크를 임베딩으로 변환 (상태 추적 포함)"""
@@ -191,24 +196,6 @@ class EmbeddingService:
             logger.error(f"유사도 계산 중 오류 발생: {e}")
             return 0.0
     
-    def _generate_mock_embedding(self, text: str) -> List[float]:
-        """Mock 임베딩 생성 (실제 구현에서는 sentence-transformers 사용)"""
-        # 텍스트 길이와 내용을 기반으로 한 간단한 벡터 생성
-        import hashlib
-        
-        # 텍스트를 해시하여 일관된 벡터 생성
-        hash_obj = hashlib.md5(text.encode())
-        hash_hex = hash_obj.hexdigest()
-        
-        # 384차원 벡터 생성 (sentence-transformers/all-MiniLM-L6-v2와 동일)
-        vector = []
-        for i in range(384):
-            # 해시값을 기반으로 한 결정적 랜덤 벡터 생성
-            seed = int(hash_hex[i % 32], 16) + i
-            np.random.seed(seed)
-            vector.append(float(np.random.normal(0, 1)))
-        
-        return vector
     
     def get_embedding_statistics(self) -> Dict[str, Any]:
         """임베딩 통계 반환 (상태 추적 포함) - 실제 데이터만 사용"""

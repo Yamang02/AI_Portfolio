@@ -56,7 +56,7 @@ class GetVectorStoreInfoUseCase:
                 "stored_data_statistics": {
                     "total_documents": chunk_stats.get("total_documents", 0),
                     "total_chunks": chunk_stats.get("total_chunks", 0),
-                    "total_vectors": vector_store_info.get("total_vectors", 0),
+                    "total_vectors": embedding_stats.get("total_embeddings", 0),
                     "average_document_length": chunk_stats.get("average_chunk_length", 0.0),
                     "store_size_mb": vector_store_info.get("store_size_mb", 0.0),
                     "index_status": vector_store_info.get("index_status", "unknown")

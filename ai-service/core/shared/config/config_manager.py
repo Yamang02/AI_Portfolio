@@ -418,6 +418,28 @@ class ConfigManager:
         self._loaded = False
         return self.load_config()
 
+    def get_search_quality_config(self) -> Dict[str, Any]:
+        """검색 품질 관련 설정 반환"""
+        if not self._loaded:
+            self.load_config()
+        
+        return {
+            # 기본 검색 설정
+            "default_top_k": self.get_config("rag.top_k", 5),
+            "max_top_k": self.get_config("rag.max_top_k", 20),
+            "default_similarity_threshold": self.get_config("rag.similarity_threshold", 0.25),
+            "high_quality_threshold": self.get_config("rag.high_quality_threshold", 0.4),
+            
+            # 청크 필터링 설정
+            "min_chunk_length": self.get_config("rag.min_chunk_length", 10),
+            "short_chunk_threshold": self.get_config("rag.short_chunk_threshold", 50),
+            "short_chunk_penalty": self.get_config("rag.short_chunk_penalty", 0.7),
+            
+            # UI 표시 설정
+            "content_preview_length": self.get_config("rag.content_preview_length", 300),
+            "chunk_id_display_length": self.get_config("rag.chunk_id_display_length", 12)
+        }
+
     def get_config_info(self) -> Dict[str, Any]:
         """설정 정보 반환 (민감한 정보 제외)"""
         if not self._loaded:

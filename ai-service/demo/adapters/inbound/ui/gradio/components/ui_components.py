@@ -274,6 +274,86 @@ class UIComponents:
         """
     
     @staticmethod
+    def create_vector_search_chunk_card(
+        chunk_id: str,
+        document_id: str,
+        similarity_score: float,
+        content_preview: str,
+        chunk_index: int = 0,
+        content_length: int = 0,
+        rank: int = 1,
+        bg_color: str = '#e3f2fd',
+        border_color: str = '#2196f3',
+        icon: str = '🔍'
+    ) -> str:
+        """Vector Search용 청크 카드 생성 (유사도 표시)"""
+        # 유사도에 따른 색상 조정
+        if similarity_score >= 0.7:
+            bg_color = '#e8f5e8'
+            border_color = '#4caf50'
+            icon = '✅'
+        elif similarity_score >= 0.4:
+            bg_color = '#fff3e0'
+            border_color = '#ff9800'
+            icon = '⚠️'
+        else:
+            bg_color = '#ffebee'
+            border_color = '#f44336'
+            icon = '❌'
+        
+        # 유사도 백분율 계산
+        similarity_percentage = similarity_score * 100
+        
+        return f"""
+        <div style="
+            background: linear-gradient(135deg, {bg_color} 0%, {bg_color.replace('e8', 'f0').replace('f3', 'f8')} 100%);
+            border: 2px solid {border_color};
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            min-width: 300px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        " 
+        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.15)';"
+        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.1)';"
+        title="청크 {chunk_id} (유사도: {similarity_percentage:.1f}%)" data-chunk-id="{chunk_id}" data-rank="{rank}"
+        >
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span style="font-size: 20px;">{icon}</span>
+                <div style="display: flex; flex-direction: column; align-items: flex-end;">
+                    <span style="font-size: 12px; color: #666; background: rgba(255,255,255,0.8); padding: 2px 6px; border-radius: 4px;">
+                        순위 #{rank}
+                    </span>
+                    <span style="font-size: 14px; font-weight: bold; color: {border_color}; margin-top: 2px;">
+                        {similarity_percentage:.1f}%
+                    </span>
+                </div>
+            </div>
+            
+            <div style="font-size: 12px; color: #666; margin-bottom: 8px;">
+                <div><strong>📄 문서 ID:</strong> {document_id[:12]}...</div>
+                <div style="word-break: break-all;"><strong>🔗 청크 ID:</strong> {chunk_id}</div>
+                <div><strong>🔢 인덱스:</strong> {chunk_index}</div>
+                <div><strong>📊 크기:</strong> {content_length} 글자</div>
+            </div>
+            
+            <div style="
+                background: rgba(255,255,255,0.8);
+                border-radius: 6px;
+                padding: 10px;
+                font-size: 13px;
+                line-height: 1.4;
+                color: #333;
+                max-height: 120px;
+                overflow-y: auto;
+            ">
+                {content_preview}
+            </div>
+        </div>
+        """
+    
+    @staticmethod
     def create_embedding_card(
         embedding_id: str,
         chunk_id: str,

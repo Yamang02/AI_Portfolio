@@ -82,12 +82,26 @@ class ChunkingStrategyService:
     def get_default_chunk_size(self, strategy_name: str) -> int:
         """전략별 기본 청크 크기 반환"""
         strategy = self.get_strategy(strategy_name)
-        return strategy.chunk_size if strategy else 500
+        if strategy:
+            return strategy.chunk_size
+        
+        # ConfigManager에서 기본값 가져오기
+        from core.shared.config.config_manager import get_config_manager
+        config_manager = get_config_manager()
+        chunking_config = config_manager.get_chunking_config()
+        return chunking_config["chunk_size"]
     
     def get_default_chunk_overlap(self, strategy_name: str) -> int:
         """전략별 기본 청크 겹침 반환"""
         strategy = self.get_strategy(strategy_name)
-        return strategy.chunk_overlap if strategy else 75
+        if strategy:
+            return strategy.chunk_overlap
+        
+        # ConfigManager에서 기본값 가져오기
+        from core.shared.config.config_manager import get_config_manager
+        config_manager = get_config_manager()
+        chunking_config = config_manager.get_chunking_config()
+        return chunking_config["chunk_overlap"]
     
     
     def _create_default_config(self) -> ChunkingStrategyConfig:

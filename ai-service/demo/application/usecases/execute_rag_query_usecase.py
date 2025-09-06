@@ -36,72 +36,57 @@ class ExecuteRAGQueryUseCase:
         self,
         question: str,
         max_sources: int = 3,
-        similarity_threshold: float = 0.1
+        similarity_threshold: float = 0.4
     ) -> Dict[str, Any]:
         """RAG Query 실행"""
-        try:
-            if not question.strip():
-                return {
-                    "success": False,
-                    "error": "질문을 입력해주세요",
-                    "answer": "",
-                    "sources": ""
-                }
-            
-            # Query 엔티티 생성
-            query = Query(
-                text=question,
-                query_type="RAG_QUESTION",
-                max_results=max_sources,
-                similarity_threshold=similarity_threshold
-            )
-            
-            # 벡터 검색 수행
-            search_results = self.retrieval_service.search_similar_chunks(
-                query=query,
-                top_k=max_sources,
-                similarity_threshold=similarity_threshold
-            )
-            
-            if not search_results:
-                return {
-                    "success": True,
-                    "answer": "죄송합니다. 관련된 정보를 찾을 수 없습니다. 먼저 문서를 로드하고 청킹한 후 임베딩을 생성해주세요.",
-                    "sources": "📭 벡터스토어에 청크가 없거나 관련 정보를 찾을 수 없습니다.",
-                    "query_id": str(query.query_id),
-                    "search_results_count": 0
-                }
-            
-            # RAG 응답 생성
-            rag_response = self.generation_service.generate_rag_response(
-                query=query,
-                search_results=search_results,
-                max_sources=max_sources
-            )
-            
-            # 출처 정보 포맷팅
-            sources_text = self._format_sources(search_results[:max_sources])
-            
+        if not question.strip():
+            raise ValueError("질문을 입력해주세요")
+        
+        # Query 엔티티 생성
+        query = Query(
+            text=question,
+            query_type="RAG_QUESTION",
+            max_results=max_sources,
+            similarity_threshold=similarity_threshold
+        )
+        
+        # 벡터 검색 수행
+        search_results = self.retrieval_service.search_similar_chunks(
+            query=query,
+            top_k=max_sources,
+            similarity_threshold=similarity_threshold
+        )
+        
+        if not search_results:
             return {
                 "success": True,
-                "answer": rag_response.answer,
-                "sources": sources_text,
+                "answer": "죄송합니다. 관련된 정보를 찾을 수 없습니다. 먼저 문서를 로드하고 청킹한 후 임베딩을 생성해주세요.",
+                "sources": "📭 벡터스토어에 청크가 없거나 관련 정보를 찾을 수 없습니다.",
                 "query_id": str(query.query_id),
-                "response_id": str(rag_response.rag_response_id),
-                "confidence_score": rag_response.confidence_score,
-                "processing_time_ms": rag_response.processing_time_ms,
-                "search_results_count": len(search_results),
-                "used_sources_count": len(search_results[:max_sources])
+                "search_results_count": 0
             }
-            
-        except Exception as e:
-            logger.error(f"RAG Query 실행 중 오류: {e}")
-            return {
-                "success": False,
-                "error": str(e),
-                "answer": f"❌ Query 실행 중 오류가 발생했습니다: {str(e)}",
-                "sources": "오류로 인해 출처를 가져올 수 없습니다."
-            }
+        
+        # RAG 응답 생성
+        rag_response = self.generation_service.generate_rag_response(
+            query=query,
+            search_results=search_results,
+            max_sources=max_sources
+        )
+        
+        # 출처 정보 포맷팅
+        sources_text = self._format_sources(search_results[:max_sources])
+        
+        return {
+            "success": True,
+            "answer": rag_response.answer,
+            "sources": sources_text,
+            "query_id": str(query.query_id),
+            "response_id": str(rag_response.rag_response_id),
+            "confidence_score": rag_response.confidence_score,
+            "processing_time_ms": rag_response.processing_time_ms,
+            "search_results_count": len(search_results),
+            "used_sources_count": len(search_results[:max_sources])
+        }
     
     def _format_sources(self, search_results) -> str:
         """출처 정보 포맷팅"""
@@ -132,42 +117,37 @@ class ExecuteRAGQueryUseCase:
     
     def get_sample_queries_for_loaded_documents(self) -> List[Dict[str, Any]]:
         """로드된 문서들을 기반으로 샘플 쿼리 생성"""
-        try:
-            # 간단한 테스트: 기본 샘플 쿼리 반환 (문서 로드 상태 무관)
-            sample_queries = [
-                {
-                    "query": "AI 포트폴리오 프로젝트의 주요 기술 스택은 무엇인가요?",
-                    "expected_type": "PROJECT",
-                    "confidence": 0.95,
-                    "reasoning": "프로젝트의 기술 스택을 묻는 질문 (Mock LLM 분류)",
-                    "source_document": "AI Portfolio Project"
-                },
-                {
-                    "query": "헥사고날 아키텍처를 선택한 이유는 무엇인가요?",
-                    "expected_type": "EXPERIENCE",
-                    "confidence": 0.91,
-                    "reasoning": "아키텍처 선택 경험을 묻는 질문 (Mock LLM 분류)",
-                    "source_document": "Architecture Q&A"
-                },
-                {
-                    "query": "RAG 시스템에서 벡터 검색은 어떻게 구현했나요?",
-                    "expected_type": "TECHNICAL_SKILL",
-                    "confidence": 0.89,
-                    "reasoning": "구체적 기술 구현을 묻는 질문 (Mock LLM 분류)",
-                    "source_document": "RAG System Q&A"
-                },
-                {
-                    "query": "이 프로젝트를 통해 배운 점은 무엇인가요?",
-                    "expected_type": "EXPERIENCE", 
-                    "confidence": 0.88,
-                    "reasoning": "프로젝트 경험과 학습을 묻는 질문 (Mock LLM 분류)",
-                    "source_document": "Learning Experience"
-                }
-            ]
-            
-            return sample_queries
-            
-        except Exception as e:
-            logger.error(f"Error generating sample queries: {e}")
-            return []
+        # 간단한 테스트: 기본 샘플 쿼리 반환 (문서 로드 상태 무관)
+        sample_queries = [
+            {
+                "query": "AI 포트폴리오 프로젝트의 주요 기술 스택은 무엇인가요?",
+                "expected_type": "PROJECT",
+                "confidence": 0.95,
+                "reasoning": "프로젝트의 기술 스택을 묻는 질문",
+                "source_document": "AI Portfolio Project"
+            },
+            {
+                "query": "헥사고날 아키텍처를 선택한 이유는 무엇인가요?",
+                "expected_type": "EXPERIENCE",
+                "confidence": 0.91,
+                "reasoning": "아키텍처 선택 경험을 묻는 질문",
+                "source_document": "Architecture Q&A"
+            },
+            {
+                "query": "RAG 시스템에서 벡터 검색은 어떻게 구현했나요?",
+                "expected_type": "TECHNICAL_SKILL",
+                "confidence": 0.89,
+                "reasoning": "구체적 기술 구현을 묻는 질문",
+                "source_document": "RAG System Q&A"
+            },
+            {
+                "query": "이 프로젝트를 통해 배운 점은 무엇인가요?",
+                "expected_type": "EXPERIENCE", 
+                "confidence": 0.88,
+                "reasoning": "프로젝트 경험과 학습을 묻는 질문",
+                "source_document": "Learning Experience"
+            }
+        ]
+        
+        return sample_queries
     

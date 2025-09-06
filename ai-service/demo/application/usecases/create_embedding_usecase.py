@@ -40,39 +40,28 @@ class CreateEmbeddingUseCase:
         all_chunks: bool = False
     ) -> Dict[str, Any]:
         """임베딩 생성 실행"""
-        try:
-            # 청크 조회
-            chunks = self._get_chunks(chunk_ids, document_id, all_chunks)
-            
-            if not chunks:
-                return {
-                    "success": False,
-                    "error": "임베딩을 생성할 청크가 없습니다"
-                }
-            
-            # 임베딩 생성 (메모리에만 저장)
-            embeddings = []
-            for chunk in chunks:
-                embedding = self.embedding_service.create_embedding(chunk)
-                embeddings.append(embedding)
-            
-            logger.info(f"✅ 임베딩 생성 완료: {len(embeddings)}개 생성 (메모리 저장)")
-            
-            return {
-                "success": True,
-                "embeddings_created": len(embeddings),
-                "embeddings_stored": 0,  # 벡터스토어에는 저장하지 않음
-                "vector_dimension": embeddings[0].vector_dimension if embeddings else 0,
-                "model_name": embeddings[0].model_name if embeddings else "unknown",
-                "message": f"{len(embeddings)}개의 임베딩이 성공적으로 생성되었습니다 (메모리 저장)"
-            }
-            
-        except Exception as e:
-            logger.error(f"임베딩 생성 중 오류: {e}")
-            return {
-                "success": False,
-                "error": str(e)
-            }
+        # 청크 조회
+        chunks = self._get_chunks(chunk_ids, document_id, all_chunks)
+        
+        if not chunks:
+            raise RuntimeError("임베딩을 생성할 청크가 없습니다")
+        
+        # 임베딩 생성 (메모리에만 저장)
+        embeddings = []
+        for chunk in chunks:
+            embedding = self.embedding_service.create_embedding(chunk)
+            embeddings.append(embedding)
+        
+        logger.info(f"✅ 임베딩 생성 완료: {len(embeddings)}개 생성 (메모리 저장)")
+        
+        return {
+            "success": True,
+            "embeddings_created": len(embeddings),
+            "embeddings_stored": 0,  # 벡터스토어에는 저장하지 않음
+            "vector_dimension": embeddings[0].vector_dimension if embeddings else 0,
+            "model_name": embeddings[0].model_name if embeddings else "unknown",
+            "message": f"{len(embeddings)}개의 임베딩이 성공적으로 생성되었습니다 (메모리 저장)"
+        }
     
     def _get_chunks(
         self,

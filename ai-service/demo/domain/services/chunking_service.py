@@ -33,8 +33,14 @@ class ChunkingService:
         custom_chunk_size: Optional[int] = None,
         custom_chunk_overlap: Optional[int] = None
     ) -> List[Chunk]:
-        """문서를 청크로 분할"""
+        """문서를 청크로 분할 (중복 확인 포함)"""
         try:
+            # 중복 확인: 이미 청킹된 문서인지 확인
+            existing_chunks = self.get_chunks_by_document(str(document.document_id))
+            if existing_chunks:
+                logger.info(f"⏭️ 문서 '{document.source}'는 이미 청킹되어 있습니다. 기존 {len(existing_chunks)}개 청크 반환")
+                return existing_chunks
+            
             # 문서 유형 자동 감지
             if not chunking_strategy:
                 chunking_strategy = self._detect_document_type(document)
@@ -43,9 +49,16 @@ class ChunkingService:
             strategy_config = self.config_manager.get_strategy_config(chunking_strategy)
             params = strategy_config.get("parameters", {})
             
+            # ConfigManager에서 기본값 가져오기
+            from core.shared.config.config_manager import get_config_manager
+            config_manager = get_config_manager()
+            chunking_config = config_manager.get_chunking_config()
+            default_chunk_size = chunking_config["chunk_size"]
+            default_chunk_overlap = chunking_config["chunk_overlap"]
+            
             # 전략별 기본값 우선 사용, 수동 설정은 오버라이드로 사용
-            chunk_size = params.get("chunk_size", 500)
-            chunk_overlap = params.get("chunk_overlap", 75)
+            chunk_size = params.get("chunk_size", default_chunk_size)
+            chunk_overlap = params.get("chunk_overlap", default_chunk_overlap)
             
             # 수동 설정이 제공된 경우에만 오버라이드
             if custom_chunk_size is not None:

@@ -146,17 +146,16 @@ class QueryVectorSearchTabAdapter:
                                 label="유사도 임계값",
                                 minimum=0.0,
                                 maximum=1.0,
-                                value=0.05,
-                                step=0.01
+                                value=0.01,
+                                step=0.001
                             )
                             search_btn = gr.Button("🔍 Vector Search 실행", variant="secondary")
                         
                         # 오른쪽: 검색 결과
                         with gr.Column(scale=2):
-                            search_results = gr.Textbox(
+                            search_results = gr.HTML(
                                 label="검색 결과",
-                                lines=20,
-                                interactive=False
+                                value="<div style='text-align: center; color: #666; padding: 20px;'>벡터 검색을 실행하면 여기에 결과가 표시됩니다.</div>"
                             )
             
             # Event handlers

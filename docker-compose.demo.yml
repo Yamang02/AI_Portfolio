@@ -16,6 +16,7 @@ services:
     volumes:
       - ./ai-service/demo:/app
       - ./ai-service/core:/app/core
+      - ./ai-service/demo/config:/app/config
       - ./model_cache:/app/model_cache
     command: ["python", "main.py"]
     restart: unless-stopped

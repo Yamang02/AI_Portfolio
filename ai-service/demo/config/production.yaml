@@ -1,0 +1,134 @@
+# AI Portfolio Service Configuration
+# 환경변수는 .env 파일에서 관리됩니다
+
+# =============================================================================
+# LLM Configuration
+# =============================================================================
+llm:
+  # OpenAI 설정
+  openai:
+    model_name: "gpt-3.5-turbo"
+    temperature: 0.7
+    max_tokens: 1000
+    api_key: "${OPENAI_API_KEY}"
+  
+  # Google 설정
+  google:
+    model_name: "gemini-pro"
+    temperature: 0.7
+    max_output_tokens: 1000
+    api_key: "${GEMINI_API_KEY}"
+  
+  # Anthropic 설정
+  anthropic:
+    model_name: "claude-3-sonnet-20240229"
+    temperature: 0.7
+    max_tokens: 1000
+    api_key: "${ANTHROPIC_API_KEY}"
+
+# =============================================================================
+# Database Configuration
+# =============================================================================
+database:
+  host: "${DB_HOST:-localhost}"
+  port: "${DB_PORT:-5432}"
+  database: "${DB_NAME:-ai_portfolio}"
+  username: "${DB_USER:-postgres}"
+  password: "${DB_PASSWORD}"
+  pool_size: 10
+  max_overflow: 20
+  pool_timeout: 30
+  pool_recycle: 3600
+
+# =============================================================================
+# Cache Configuration (Redis)
+# =============================================================================
+cache:
+  host: "${REDIS_HOST:-localhost}"
+  port: "${REDIS_PORT:-6379}"
+  password: "${REDIS_PASSWORD:-}"
+  database: "${REDIS_DB:-0}"
+  key_prefix: "ai_service:"
+  default_ttl: 3600
+  context_ttl: 7200
+
+# =============================================================================
+# Embedding Configuration
+# =============================================================================
+embedding:
+  provider: "openai"  # openai, google, huggingface
+  model_name: "text-embedding-3-small"
+  api_key: "${OPENAI_API_KEY}"
+  batch_size: 20
+  normalize: true
+  device: "cpu"
+
+# =============================================================================
+# Adapters Configuration
+# =============================================================================
+adapters:
+  # 벡터 저장소 어댑터 설정
+  vector:
+    memory:
+      model_name: "sentence-transformers/all-MiniLM-L6-v2"  # 로컬 임베딩 모델
+      similarity_threshold: 0.7
+      max_results: 10
+      hybrid_weight: 0.7  # Vector 검색 가중치 (0.3은 BM25)
+    
+    qdrant:
+      url: "${QDRANT_URL:-http://localhost:6333}"
+      api_key: "${QDRANT_API_KEY}"
+      collection_name: "${QDRANT_COLLECTION:-ai_portfolio}"
+      vector_size: 768
+      distance_metric: "cosine"
+      similarity_threshold: 0.7
+      max_results: 10
+  
+  # 임베딩 어댑터 설정
+  embedding:
+    provider: "huggingface"  # 데모에서는 로컬 모델 사용
+    model_name: "sentence-transformers/all-MiniLM-L6-v2"
+    batch_size: 20
+    normalize: true
+    device: "cpu"
+
+# =============================================================================
+# RAG Configuration
+# =============================================================================
+rag:
+  chunk_size: 500
+  chunk_overlap: 75
+  top_k: 5
+  similarity_threshold: 0.7
+  max_context_length: 8000
+  project_priority_boost: true
+  include_metadata: true
+
+# =============================================================================
+# Logging Configuration
+# =============================================================================
+logging:
+  level: "${LOG_LEVEL:-INFO}"
+  format: "json"
+  include_request_id: true
+
+# =============================================================================
+# Performance Configuration
+# =============================================================================
+performance:
+  max_concurrent_requests: 50
+  request_timeout_seconds: 30
+  db_connection_timeout: 10
+  
+  # Mock LLM 설정 (테스트용)
+  mock_llm:
+    response_delay: 0.5
+    
+  # 메트릭 수집 설정
+  metrics:
+    collection_interval: 60
+    
+  # 헬스체크 설정
+  health_check:
+    interval: 30
+    timeout: 5

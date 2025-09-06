@@ -345,28 +345,36 @@ class EmbeddingTabAdapter:
             return UIComponents.create_error_message(f"임베딩 내용 조회 실패: {str(e)}")
     
     def _save_embeddings_to_vectorstore(self) -> str:
-        """임베딩을 벡터스토어에 저장"""
-        try:
-            # 메모리의 임베딩들을 벡터스토어에 저장
-            embeddings = self.embedding_service.get_all_embeddings(limit=100)  # 모든 임베딩
+        """임베딩을 벡터스토어에 저장 (중복 확인 포함)"""
+        # 메모리의 임베딩들을 벡터스토어에 저장
+        embeddings = self.embedding_service.get_all_embeddings(limit=100)  # 모든 임베딩
+        
+        if not embeddings:
+            return UIComponents.create_info_message("저장할 임베딩이 없습니다. 먼저 임베딩을 생성해주세요.")
+        
+        stored_count = 0
+        skipped_count = 0
+        
+        for embedding in embeddings:
+            # 이미 벡터스토어에 있는지 확인
+            if self.embedding_service.vector_store.validate_embedding_by_chunk_id(str(embedding.chunk_id)):
+                skipped_count += 1
+                continue  # 이미 저장된 경우 건너뛰기
             
-            if not embeddings:
-                return UIComponents.create_info_message("저장할 임베딩이 없습니다. 먼저 임베딩을 생성해주세요.")
-            
-            stored_count = 0
-            for embedding in embeddings:
-                self.embedding_service.store_embedding(embedding)
-                stored_count += 1
-            
-            details = [
-                f"저장된 임베딩: {stored_count}개",
-                f"벡터스토어 총 크기: {self.embedding_service.get_vector_store_size()}개"
-            ]
+            # 벡터스토어에만 추가 (메모리에는 이미 있으므로)
+            self.embedding_service.vector_store.add_embedding(embedding)
+            stored_count += 1
+        
+        details = [
+            f"새로 저장된 임베딩: {stored_count}개",
+            f"이미 존재하여 건너뛴 임베딩: {skipped_count}개",
+            f"벡터스토어 총 크기: {self.embedding_service.get_vector_store_size()}개"
+        ]
+        
+        if stored_count > 0:
             return UIComponents.create_success_message("벡터스토어 저장 완료", details)
-            
-        except Exception as e:
-            logger.error(f"벡터스토어 저장 중 오류: {e}")
-            return UIComponents.create_error_message(f"벡터스토어 저장 실패: {str(e)}")
+        else:
+            return UIComponents.create_info_message("모든 임베딩이 이미 벡터스토어에 저장되어 있습니다.", details)
     
     def _update_input_visibility(self, option: str) -> tuple:
         """입력 필드 가시성 업데이트"""
@@ -384,52 +392,32 @@ class EmbeddingTabAdapter:
         chunk_ids: str
     ) -> str:
         """임베딩 생성"""
-        try:
-            if option == "all_chunks":
-                result = self.create_embedding_usecase.execute(all_chunks=True)
-            elif option == "document" and document_id.strip():
-                result = self.create_embedding_usecase.execute(document_id=document_id.strip())
-            elif option == "specific" and chunk_ids.strip():
-                chunk_id_list = [cid.strip() for cid in chunk_ids.split(",") if cid.strip()]
-                result = self.create_embedding_usecase.execute(chunk_ids=chunk_id_list)
-            else:
-                return UIComponents.create_error_message("잘못된 입력입니다. 옵션에 맞는 값을 입력해주세요.")
-            
-            return self._format_embedding_result(result)
-                
-        except Exception as e:
-            logger.error(f"임베딩 생성 중 오류: {e}")
-            return UIComponents.create_error_message(f"임베딩 생성 실패: {str(e)}")
+        if option == "all_chunks":
+            result = self.create_embedding_usecase.execute(all_chunks=True)
+        elif option == "document" and document_id.strip():
+            result = self.create_embedding_usecase.execute(document_id=document_id.strip())
+        elif option == "specific" and chunk_ids.strip():
+            chunk_id_list = [cid.strip() for cid in chunk_ids.split(",") if cid.strip()]
+            result = self.create_embedding_usecase.execute(chunk_ids=chunk_id_list)
+        else:
+            raise ValueError("잘못된 입력입니다. 옵션에 맞는 값을 입력해주세요.")
+        
+        return self._format_embedding_result(result)
     
     def _get_vector_store_info(self) -> str:
         """벡터스토어 정보"""
-        try:
-            result = self.get_vector_info_usecase.execute()
-            return self._format_vector_info_result(result)
-                
-        except Exception as e:
-            logger.error(f"벡터스토어 정보 조회 중 오류: {e}")
-            return UIComponents.create_error_message(f"벡터스토어 정보 실패: {str(e)}")
+        result = self.get_vector_info_usecase.execute()
+        return self._format_vector_info_result(result)
     
     def _get_vector_content(self, show_vectors: bool) -> str:
         """벡터 내용 확인"""
-        try:
-            result = self.get_vector_content_usecase.execute(show_vectors=show_vectors)
-            return self._format_vector_content_result(result)
-                
-        except Exception as e:
-            logger.error(f"벡터 내용 조회 중 오류: {e}")
-            return UIComponents.create_error_message(f"벡터 내용 확인 실패: {str(e)}")
+        result = self.get_vector_content_usecase.execute(limit=50, show_vectors=show_vectors)
+        return self._format_vector_content_result(result)
     
     def _clear_vector_store(self) -> str:
         """벡터스토어 초기화"""
-        try:
-            result = self.clear_vector_usecase.execute()
-            return self._format_clear_result(result)
-                
-        except Exception as e:
-            logger.error(f"벡터스토어 초기화 중 오류: {e}")
-            return UIComponents.create_error_message(f"벡터스토어 초기화 실패: {str(e)}")
+        result = self.clear_vector_usecase.execute()
+        return self._format_clear_result(result)
     
     def _format_embedding_result(self, result: Dict[str, Any]) -> str:
         """임베딩 생성 결과 포맷팅"""

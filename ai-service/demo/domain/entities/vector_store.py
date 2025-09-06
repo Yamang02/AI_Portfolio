@@ -50,7 +50,11 @@ class VectorStore:
         self.last_updated = last_updated or datetime.now()
     
     def add_embedding(self, embedding: Embedding) -> None:
-        """임베딩 추가"""
+        """임베딩 추가 (중복 확인 포함)"""
+        # 중복 확인: 같은 chunk_id를 가진 임베딩이 이미 있는지 확인
+        if self.validate_embedding_by_chunk_id(str(embedding.chunk_id)):
+            return  # 이미 존재하면 추가하지 않음
+        
         self.embeddings.append(embedding)
         self.last_updated = datetime.now()
     
@@ -115,6 +119,29 @@ class VectorStore:
         
         consistency_check = self.validate_data_consistency([])
         return f"저장된 임베딩: {len(self.embeddings)}개, 크기: {self.get_total_vectors_size() / 1024 / 1024:.1f}MB"
+    
+    def remove_duplicates(self) -> int:
+        """중복 임베딩 제거 후 제거된 개수 반환"""
+        seen_chunk_ids = set()
+        unique_embeddings = []
+        duplicates_count = 0
+        
+        for embedding in self.embeddings:
+            chunk_id_str = str(embedding.chunk_id)
+            if chunk_id_str not in seen_chunk_ids:
+                seen_chunk_ids.add(chunk_id_str)
+                unique_embeddings.append(embedding)
+            else:
+                duplicates_count += 1
+        
+        self.embeddings = unique_embeddings
+        self.last_updated = datetime.now()
+        return duplicates_count
+    
+    def clear(self) -> None:
+        """벡터스토어 초기화"""
+        self.embeddings.clear()
+        self.last_updated = datetime.now()
     
     def to_dict(self) -> Dict[str, Any]:
         """딕셔너리로 변환"""
