@@ -6,7 +6,7 @@ Embedding Entity - Demo Domain Layer
 """
 
 from typing import Dict, Any, Optional, List
-from core.shared.value_objects.document_entities import DocumentId
+from ..value_objects.document_entities import DocumentId
 from .chunk import ChunkId
 from datetime import datetime
 import uuid

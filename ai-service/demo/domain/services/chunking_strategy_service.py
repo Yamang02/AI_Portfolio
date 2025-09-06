@@ -3,13 +3,13 @@ Chunking Strategy Service
 청킹 전략 도메인 서비스
 
 청킹 전략 관련 비즈니스 로직을 담당합니다.
-ConfigManager를 통해 설정을 관리합니다.
+DemoConfigManager를 통해 설정을 관리합니다.
 """
 
 import logging
 from typing import Dict, List, Optional
 from domain.entities.chunking_strategy import ChunkingStrategy, ChunkingStrategyConfig
-from core.shared.config.chunking.chunking_config_manager import ChunkingConfigManager
+from config.demo_config_manager import get_demo_config_manager
 
 logger = logging.getLogger(__name__)
 
@@ -19,13 +19,13 @@ class ChunkingStrategyService:
     
     def __init__(self):
         self._config: Optional[ChunkingStrategyConfig] = None
-        self.config_manager = ChunkingConfigManager()
+        self.config_manager = get_demo_config_manager()
     
     def load_strategies(self) -> ChunkingStrategyConfig:
         """청킹 전략 설정 로드"""
         try:
-            # ChunkingConfigManager를 통해 설정 로드
-            raw_config = self.config_manager._config_cache
+            # DemoConfigManager를 통해 청킹 설정 로드
+            raw_config = self.config_manager.get_chunking_config()
             
             if not raw_config:
                 logger.warning("청킹 전략 설정을 로드할 수 없습니다. 기본 설정을 사용합니다.")
@@ -85,11 +85,10 @@ class ChunkingStrategyService:
         if strategy:
             return strategy.chunk_size
         
-        # ConfigManager에서 기본값 가져오기
-        from core.shared.config.config_manager import get_config_manager
-        config_manager = get_config_manager()
-        chunking_config = config_manager.get_chunking_config()
-        return chunking_config["chunk_size"]
+        # DemoConfigManager에서 기본값 가져오기
+        demo_config = self.config_manager.get_demo_config()
+        rag_config = demo_config.get("rag", {})
+        return rag_config.get("chunk_size", 500)
     
     def get_default_chunk_overlap(self, strategy_name: str) -> int:
         """전략별 기본 청크 겹침 반환"""
@@ -97,11 +96,10 @@ class ChunkingStrategyService:
         if strategy:
             return strategy.chunk_overlap
         
-        # ConfigManager에서 기본값 가져오기
-        from core.shared.config.config_manager import get_config_manager
-        config_manager = get_config_manager()
-        chunking_config = config_manager.get_chunking_config()
-        return chunking_config["chunk_overlap"]
+        # DemoConfigManager에서 기본값 가져오기
+        demo_config = self.config_manager.get_demo_config()
+        rag_config = demo_config.get("rag", {})
+        return rag_config.get("chunk_overlap", 75)
     
     
     def _create_default_config(self) -> ChunkingStrategyConfig:

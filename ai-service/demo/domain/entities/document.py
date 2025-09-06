@@ -6,7 +6,7 @@ Document Entity - Demo Domain Layer
 """
 
 from typing import Dict, Any, Optional
-from core.shared.value_objects.document_entities import DocumentId, DocumentType, DocumentMetadata
+from ..value_objects.document_entities import DocumentId, DocumentType, DocumentMetadata
 from datetime import datetime
 
 

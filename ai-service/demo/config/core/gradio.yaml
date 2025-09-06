@@ -1,0 +1,144 @@
+# Gradio UI Configuration
+# Gradio UI 특화 설정
+
+# =============================================================================
+# UI Theme and Styling
+# =============================================================================
+theme:
+  name: "soft"
+  primary_color: "#4caf50"
+  secondary_color: "#2196f3"
+  neutral_color: "#9e9e9e"
+  background_color: "#f5f5f5"
+
+# =============================================================================
+# Layout Configuration
+# =============================================================================
+layout:
+  max_width: 1200
+  container_padding: 20
+  section_spacing: 30
+  component_spacing: 15
+
+# =============================================================================
+# Tab Configuration
+# =============================================================================
+tabs:
+  document:
+    title: "📄 DocumentLoad"
+    icon: "📄"
+    show_preview: true
+    max_preview_length: 300
+    auto_refresh: true
+    
+  text_splitter:
+    title: "✂️ TextSplitter"
+    icon: "✂️"
+    show_statistics: true
+    show_preview: true
+    max_preview_length: 200
+    
+  embedding:
+    title: "🔮 Embedding"
+    icon: "🔮"
+    show_progress: true
+    batch_size: 5
+    show_vector_info: true
+    
+  rag_qa:
+    title: "🔍 Query & Vector Search"
+    icon: "🔍"
+    show_sources: true
+    max_sources: 3
+    show_confidence: true
+    
+  system_info:
+    title: "📊 System Info"
+    icon: "📊"
+    show_architecture: true
+    show_metrics: true
+    auto_refresh: true
+
+# =============================================================================
+# Component Configuration
+# =============================================================================
+components:
+  buttons:
+    primary_style: "primary"
+    secondary_style: "secondary"
+    size: "lg"
+    
+  textboxes:
+    default_lines: 3
+    max_lines: 10
+    placeholder_text: "입력하세요..."
+    
+  dropdowns:
+    allow_custom_value: false
+    multiselect: false
+    
+  html:
+    sanitize: true
+    allow_html: true
+
+# =============================================================================
+# Interactive Features
+# =============================================================================
+interactive:
+  auto_refresh_interval: 5000  # 5초마다 자동 새로고침
+  show_loading_indicators: true
+  enable_tooltips: true
+  show_debug_info: true
+  
+  # 실시간 업데이트 설정
+  real_time_updates:
+    document_list: true
+    chunk_preview: true
+    embedding_status: true
+    vector_search: true
+
+# =============================================================================
+# Error Handling
+# =============================================================================
+error_handling:
+  show_error_details: true
+  error_message_style: "error"
+  fallback_message: "오류가 발생했습니다. 다시 시도해주세요."
+  
+  # 에러 메시지 템플릿
+  error_templates:
+    network_error: "네트워크 연결을 확인해주세요."
+    validation_error: "입력값을 확인해주세요."
+    processing_error: "처리 중 오류가 발생했습니다."
+
+# =============================================================================
+# Performance Settings
+# =============================================================================
+performance:
+  # UI 렌더링 최적화
+  lazy_loading: true
+  component_caching: true
+  batch_updates: true
+  
+  # 메모리 관리
+  max_cached_components: 50
+  cache_ttl: 300  # 5분
+  
+  # 응답 시간 최적화
+  timeout_warning_threshold: 10  # 10초
+  progress_update_interval: 1000  # 1초
+
+# =============================================================================
+# Accessibility
+# =============================================================================
+accessibility:
+  enable_aria_labels: true
+  keyboard_navigation: true
+  screen_reader_support: true
+  high_contrast_mode: false
+  
+  # 다국어 지원
+  i18n:
+    default_language: "ko"
+    supported_languages: ["ko", "en"]
+    fallback_language: "en"

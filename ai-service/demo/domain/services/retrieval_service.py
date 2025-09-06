@@ -27,8 +27,8 @@ class RetrievalService:
         
         # ConfigManager를 통한 검색 품질 설정 로드
         try:
-            from core.shared.config.config_manager import get_config_manager
-            config_manager = get_config_manager()
+            from config.demo_config_manager import get_demo_config_manager
+            config_manager = get_demo_config_manager()
             self.search_config = config_manager.get_search_quality_config()
             logger.info("✅ Retrieval Service initialized with embedding model and ConfigManager")
         except Exception as e:

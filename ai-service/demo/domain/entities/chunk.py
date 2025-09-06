@@ -6,7 +6,7 @@ Chunk Entity - Demo Domain Layer
 """
 
 from typing import Dict, Any, Optional
-from core.shared.value_objects.document_entities import DocumentId
+from ..value_objects.document_entities import DocumentId
 from datetime import datetime
 import uuid
 

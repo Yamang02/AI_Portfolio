@@ -3,7 +3,7 @@ Chunking Service - Demo Domain Layer
 데모 도메인 청킹 서비스
 
 문서를 청크로 분할하는 도메인 서비스입니다.
-core의 chunking 설정을 활용합니다.
+DemoConfigManager를 통해 청킹 설정을 관리합니다.
 """
 
 import logging
@@ -11,8 +11,8 @@ import re
 from typing import List, Dict, Any, Optional
 from ..entities.document import Document
 from ..entities.chunk import Chunk, ChunkId
-from core.shared.value_objects.document_entities import DocumentId
-from core.shared.config.chunking.chunking_config_manager import ChunkingConfigManager
+from ..value_objects.document_entities import DocumentId
+from config.demo_config_manager import get_demo_config_manager
 
 logger = logging.getLogger(__name__)
 
@@ -22,9 +22,9 @@ class ChunkingService:
     
     def __init__(self, processing_status_service=None):
         self.chunks: Dict[str, Chunk] = {}
-        self.config_manager = ChunkingConfigManager()
+        self.config_manager = get_demo_config_manager()
         self.processing_status_service = processing_status_service
-        logger.info("✅ Chunking Service initialized with config manager")
+        logger.info("✅ Chunking Service initialized with Demo Config Manager")
     
     def chunk_document(
         self,
@@ -46,15 +46,15 @@ class ChunkingService:
                 chunking_strategy = self._detect_document_type(document)
             
             # 설정에서 파라미터 가져오기
-            strategy_config = self.config_manager.get_strategy_config(chunking_strategy)
+            chunking_config = self.config_manager.get_chunking_config()
+            strategy_config = chunking_config.get("chunking_strategies", {}).get(chunking_strategy, {})
             params = strategy_config.get("parameters", {})
             
             # ConfigManager에서 기본값 가져오기
-            from core.shared.config.config_manager import get_config_manager
-            config_manager = get_config_manager()
-            chunking_config = config_manager.get_chunking_config()
-            default_chunk_size = chunking_config["chunk_size"]
-            default_chunk_overlap = chunking_config["chunk_overlap"]
+            demo_config = self.config_manager.get_demo_config()
+            rag_config = demo_config.get("rag", {})
+            default_chunk_size = rag_config.get("chunk_size", 500)
+            default_chunk_overlap = rag_config.get("chunk_overlap", 75)
             
             # 전략별 기본값 우선 사용, 수동 설정은 오버라이드로 사용
             chunk_size = params.get("chunk_size", default_chunk_size)
@@ -217,7 +217,9 @@ class ChunkingService:
     
     def get_available_strategies(self) -> Dict[str, str]:
         """사용 가능한 청킹 전략 목록 반환"""
-        return self.config_manager.get_available_strategies()
+        chunking_config = self.config_manager.get_chunking_config()
+        strategies = chunking_config.get("chunking_strategies", {})
+        return {name: strategy.get("description", "") for name, strategy in strategies.items()}
     
     def _detect_document_type(self, document: Document) -> str:
         """문서 유형 자동 감지"""
@@ -228,7 +230,8 @@ class ChunkingService:
             return doc_type
         
         # 메타데이터가 없으면 내용 기반 감지
-        detection_config = self.config_manager.get_detection_config()
+        chunking_config = self.config_manager.get_chunking_config()
+        detection_config = chunking_config.get("document_detection", {})
         content = document.content.lower()
         source = document.source.lower()
         

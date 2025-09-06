@@ -11,8 +11,8 @@ from typing import List, Dict, Any, Optional
 from pathlib import Path
 import json
 from ..entities.document import Document
-from core.shared.value_objects.document_entities import DocumentType, DocumentMetadata
-from core.shared.common_validations import DocumentValidator
+from ..value_objects.document_entities import DocumentType, DocumentMetadata
+from .document_validator import DocumentValidator
 from ..ports.outbound.document_repository_port import DocumentRepositoryPort
 
 logger = logging.getLogger(__name__)
@@ -26,7 +26,7 @@ class DocumentService:
         self.document_repository = document_repository
         logger.info("✅ Document Management Service initialized with Repository")
     
-    async def load_sample_documents(self) -> List[Document]:
+    def load_sample_documents(self) -> List[Document]:
         """sampledata 디렉토리에서 샘플 문서들을 로드 (중복 방지)"""
         try:
             sample_path = Path("sampledata")
@@ -51,7 +51,7 @@ class DocumentService:
                 demo_id = doc_info["demo_id"]
                 
                 # 이미 로드된 샘플 문서인지 확인 (Repository에서 조회)
-                existing_docs = await self.document_repository.get_documents_by_type(doc_info["document_type"])
+                existing_docs = self.document_repository.get_documents_by_type(doc_info["document_type"])
                 existing_docs = [doc for doc in existing_docs 
                                if hasattr(doc.metadata, 'demo_id') and doc.metadata.demo_id == demo_id]
                 
@@ -86,7 +86,7 @@ class DocumentService:
                     )
                     
                     # Repository에 저장
-                    await self.document_repository.save_document(document)
+                    self.document_repository.save_document(document)
                     documents.append(document)
                     loaded_count += 1
                     
@@ -101,7 +101,7 @@ class DocumentService:
             logger.error(f"샘플 문서 로드 중 오류 발생: {e}")
             raise
     
-    async def add_document(self, content: str, source: str, document_type: str = "MANUAL") -> Document:
+    def add_document(self, content: str, source: str, document_type: str = "MANUAL") -> Document:
         """새 문서 추가"""
         # 유효성 검사
         errors = self.validator.validate_content(content)
@@ -124,31 +124,31 @@ class DocumentService:
         )
         
         # Repository에 저장
-        await self.document_repository.save_document(document)
+        self.document_repository.save_document(document)
         
         logger.info(f"✅ 문서 추가 완료: {source} ({len(content)} chars)")
         return document
     
-    async def get_document(self, document_id: str) -> Optional[Document]:
+    def get_document(self, document_id: str) -> Optional[Document]:
         """문서 조회"""
-        return await self.document_repository.get_document_by_id(document_id)
+        return self.document_repository.get_document_by_id(document_id)
     
-    async def list_documents(self, limit: int = 100, offset: int = 0) -> List[Document]:
+    def list_documents(self, limit: int = 100, offset: int = 0) -> List[Document]:
         """문서 목록 조회"""
-        all_documents = await self.document_repository.get_all_documents()
+        all_documents = self.document_repository.get_all_documents()
         return all_documents[offset:offset + limit]
     
-    async def get_documents_count(self) -> int:
+    def get_documents_count(self) -> int:
         """저장된 문서 수 반환"""
-        return await self.document_repository.get_documents_count()
+        return self.document_repository.get_documents_count()
     
-    async def get_documents_by_type(self, document_type: str) -> List[Document]:
+    def get_documents_by_type(self, document_type: str) -> List[Document]:
         """문서 타입별 조회"""
-        return await self.document_repository.get_documents_by_type(document_type)
+        return self.document_repository.get_documents_by_type(document_type)
     
-    async def get_documents_statistics(self) -> Dict[str, Any]:
+    def get_documents_statistics(self) -> Dict[str, Any]:
         """문서 통계 반환"""
-        return await self.document_repository.get_documents_statistics()
+        return self.document_repository.get_documents_statistics()
     
     def get_all_documents(self) -> List[Document]:
         """모든 문서 조회 (동기 버전) - UI에서 사용"""
