@@ -10,13 +10,13 @@ service_config = {
     "services": {
         # Repository 서비스들 (메모리 기반)
         "document_repository": {
-            "module": "adapters.outbound.repositories.document.memory_document_repository_adapter",
+            "module": "infrastructure.outbound.repositories.document.memory_document_repository_adapter",
             "class": "MemoryDocumentRepositoryAdapter",
             "dependencies": {},
             "description": "문서 저장소 (메모리 기반)"
         },
         "memory_vector_repository": {
-            "module": "adapters.outbound.repositories.vector.memory_vector_repository_adapter",
+            "module": "infrastructure.outbound.repositories.vector.memory_vector_repository_adapter",
             "class": "MemoryVectorRepositoryAdapter",
             "dependencies": {},
             "description": "벡터 저장소 (메모리 기반)"
@@ -24,13 +24,13 @@ service_config = {
         
         # Adapter 서비스들 (로컬 모델 및 Mock)
         "embedding_model": {
-            "module": "adapters.outbound.embedding.sentence_transformer_adapter",
+            "module": "infrastructure.outbound.embedding.sentence_transformer_adapter",
             "class": "SentenceTransformerAdapter",
             "dependencies": {},
             "description": "임베딩 모델 (SentenceTransformer)"
         },
         "mock_llm_service": {
-            "module": "adapters.outbound.llm.mock_llm_adapter",
+            "module": "infrastructure.outbound.llm.mock_llm_adapter",
             "class": "MockLLMAdapter",
             "dependencies": {},
             "description": "Mock LLM 서비스 (데모용)"

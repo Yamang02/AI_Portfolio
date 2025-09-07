@@ -10,8 +10,7 @@ import logging
 from typing import List, Dict, Any, Optional
 from pathlib import Path
 import json
-from ..entities.document import Document
-from ..value_objects.document_entities import DocumentType, DocumentMetadata
+from ..entities.document import Document, DocumentType
 from .document_validator import DocumentValidator
 from ..ports.outbound.document_repository_port import DocumentRepositoryPort
 
@@ -53,7 +52,7 @@ class DocumentService:
                 # 이미 로드된 샘플 문서인지 확인 (Repository에서 조회)
                 existing_docs = self.document_repository.get_documents_by_type(doc_info["document_type"])
                 existing_docs = [doc for doc in existing_docs 
-                               if hasattr(doc.metadata, 'demo_id') and doc.metadata.demo_id == demo_id]
+                               if doc.demo_id == demo_id]
                 
                 if existing_docs:
                     # 이미 로드된 경우 기존 문서 반환
@@ -68,21 +67,15 @@ class DocumentService:
                     with open(file_path, 'r', encoding='utf-8') as f:
                         content = f.read()
                     
-                    # 문서 메타데이터 생성
-                    doc_metadata = DocumentMetadata(
-                        document_type=DocumentType(doc_info["document_type"]),
-                        source=filename,
-                        title=doc_info["title"],
-                        description=doc_info["description"],
-                        tags=doc_info["tags"],
-                        demo_id=doc_info["demo_id"]
-                    )
-                    
                     # 문서 생성
                     document = Document(
                         content=content,
                         source=filename,
-                        metadata=doc_metadata
+                        document_type=DocumentType.from_string(doc_info["document_type"]),
+                        title=doc_info["title"],
+                        description=doc_info["description"],
+                        tags=doc_info["tags"],
+                        demo_id=doc_info["demo_id"]
                     )
                     
                     # Repository에 저장
@@ -110,17 +103,11 @@ class DocumentService:
         if errors:
             raise ValueError(f"문서 추가 실패: {'; '.join(errors)}")
         
-        # 메타데이터 생성
-        metadata = DocumentMetadata(
-            document_type=DocumentType(document_type),
-            source=source
-        )
-        
         # 문서 생성
         document = Document(
-            content=content,
-            source=source,
-            metadata=metadata
+            content=content.strip(),
+            source=source.strip(),
+            document_type=DocumentType.from_string(document_type)
         )
         
         # Repository에 저장
@@ -134,8 +121,8 @@ class DocumentService:
         return self.document_repository.get_document_by_id(document_id)
     
     def list_documents(self, limit: int = 100, offset: int = 0) -> List[Document]:
-        """문서 목록 조회"""
-        all_documents = self.document_repository.get_all_documents()
+        """문서 목록 조회 (페이지네이션)"""
+        all_documents = self.get_all_documents()
         return all_documents[offset:offset + limit]
     
     def get_documents_count(self) -> int:
@@ -152,16 +139,4 @@ class DocumentService:
     
     def get_all_documents(self) -> List[Document]:
         """모든 문서 조회 (동기 버전) - UI에서 사용"""
-        try:
-            import asyncio
-            # 현재 이벤트 루프가 있는지 확인
-            try:
-                loop = asyncio.get_running_loop()
-                # 이미 실행 중인 루프가 있으면 repository에서 직접 가져오기
-                return list(self.document_repository.documents.values()) if hasattr(self.document_repository, 'documents') else []
-            except RuntimeError:
-                # 새 이벤트 루프 생성
-                return asyncio.run(self.list_documents(limit=1000))
-        except Exception as e:
-            logger.error(f"Error getting all documents: {e}")
-            return []
+        return self.document_repository.get_all_documents()

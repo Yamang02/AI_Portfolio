@@ -15,9 +15,9 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..', '..
 from domain.services.validation_service import ValidationService
 from domain.entities.validation_result import ValidationType, ValidationStatus
 from domain.entities.chunk import Chunk, ChunkId
-from domain.entities.embedding import Embedding, EmbeddingId
+from domain.entities.embedding import Embedding
 from domain.entities.vector_store import VectorStore
-from core.shared.value_objects.document_entities import DocumentId
+# DocumentId는 Document 엔티티로 통합됨
 
 
 class TestValidationService(unittest.TestCase):
@@ -26,9 +26,9 @@ class TestValidationService(unittest.TestCase):
     def setUp(self):
         """테스트 설정"""
         self.service = ValidationService()
-        self.document_id = DocumentId("test-doc-123")
+        self.document_id = "test-doc-123"
         self.chunk_id = ChunkId("test-chunk-456")
-        self.embedding_id = EmbeddingId("test-embedding-789")
+        self.embedding_id = "test-embedding-789"
         
         # 테스트용 청크 생성
         self.test_chunk = Chunk(

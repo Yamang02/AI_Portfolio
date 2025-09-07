@@ -15,7 +15,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..', '..
 from domain.services.processing_status_service import ProcessingStatusService
 from domain.entities.processing_status import ProcessingStage
 from domain.entities.chunk import Chunk, ChunkId
-from core.shared.value_objects.document_entities import DocumentId
+# DocumentId는 Document 엔티티로 통합됨
 
 
 class TestProcessingStatusService(unittest.TestCase):
@@ -24,7 +24,7 @@ class TestProcessingStatusService(unittest.TestCase):
     def setUp(self):
         """테스트 설정"""
         self.service = ProcessingStatusService()
-        self.document_id = DocumentId("test-doc-123")
+        self.document_id = "test-doc-123"
         self.chunk_id = ChunkId("test-chunk-456")
         
         # 테스트용 청크 생성

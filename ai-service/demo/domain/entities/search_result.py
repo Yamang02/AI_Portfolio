@@ -6,7 +6,7 @@ SearchResult Entity - Demo Domain Layer
 """
 
 from typing import Dict, Any, Optional, List
-from .chunk import Chunk, ChunkId
+from .chunk import Chunk
 from .embedding import Embedding
 from .query import Query, QueryId
 from datetime import datetime

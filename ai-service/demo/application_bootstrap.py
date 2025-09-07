@@ -7,9 +7,9 @@ Application Factory
 """
 
 import logging
-from adapters.inbound.service_factory import ServiceFactory
-from adapters.inbound.usecase_factory import UseCaseFactory
-from adapters.inbound.adapter_factory import InboundAdapterFactory
+from infrastructure.inbound.service_factory import ServiceFactory
+from infrastructure.inbound.usecase_factory import UseCaseFactory
+from infrastructure.inbound.adapter_factory import InboundAdapterFactory
 
 logger = logging.getLogger(__name__)
 
@@ -32,9 +32,8 @@ class ApplicationFactory:
             # 1. 팩토리들 초기화
             self._initialize_factories()
             
-            # 2. 메인 어댑터 초기화 (GradioAdapter)
-            self.ui_composer = self.inbound_adapter_factory.create_main_adapter(
-                self.service_factory, 
+            # 2. 인바운드 어댑터 초기화 (GradioAdapter)
+            self.ui_composer = self.inbound_adapter_factory.create_inbound_adapter(
                 self.usecase_factory
             )
             

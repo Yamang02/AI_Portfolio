@@ -97,3 +97,4 @@ class SampleDataValidator:
                 errors.append(f"유효하지 않은 문서 타입입니다: {metadata['document_type']}")
         
         return errors
+

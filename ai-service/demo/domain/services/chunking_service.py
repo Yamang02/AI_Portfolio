@@ -10,8 +10,7 @@ import logging
 import re
 from typing import List, Dict, Any, Optional
 from ..entities.document import Document
-from ..entities.chunk import Chunk, ChunkId
-from ..value_objects.document_entities import DocumentId
+from ..entities.chunk import Chunk
 from config.demo_config_manager import get_demo_config_manager
 
 logger = logging.getLogger(__name__)
@@ -411,7 +410,7 @@ class ChunkingService:
     def _chunk_timeline_section(
         self,
         timeline_content: str,
-        document_id: DocumentId,
+        document_id: str,
         chunk_index: int,
         chunk_size: int,
         chunk_overlap: int
@@ -454,7 +453,7 @@ class ChunkingService:
     def _chunk_by_sentences(
         self,
         content: str,
-        document_id: DocumentId,
+        document_id: str,
         chunk_index: int,
         chunk_size: int,
         chunk_overlap: int
@@ -498,7 +497,7 @@ class ChunkingService:
     def _chunk_by_paragraphs(
         self,
         content: str,
-        document_id: DocumentId,
+        document_id: str,
         chunk_index: int,
         chunk_size: int,
         chunk_overlap: int
@@ -552,7 +551,7 @@ class ChunkingService:
     def _create_chunk(
         self,
         content: str,
-        document_id: DocumentId,
+        document_id: str,
         chunk_index: int,
         chunk_size: int,
         chunk_overlap: int

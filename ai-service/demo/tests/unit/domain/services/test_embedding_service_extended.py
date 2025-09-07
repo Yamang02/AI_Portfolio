@@ -16,11 +16,11 @@ from domain.services.embedding_service import EmbeddingService
 from domain.services.processing_status_service import ProcessingStatusService
 from domain.services.validation_service import ValidationService
 from domain.entities.chunk import Chunk, ChunkId
-from domain.entities.embedding import Embedding, EmbeddingId
+from domain.entities.embedding import Embedding
 from domain.entities.processing_status import ProcessingStage
 from domain.entities.batch_job import BatchJob, BatchJobType
 from domain.entities.validation_result import ValidationStatus
-from core.shared.value_objects.document_entities import DocumentId
+# DocumentId는 Document 엔티티로 통합됨
 
 
 class TestEmbeddingServiceExtended(unittest.TestCase):
@@ -38,7 +38,7 @@ class TestEmbeddingServiceExtended(unittest.TestCase):
             validation_service=self.mock_validation_service
         )
         
-        self.document_id = DocumentId("test-doc-123")
+        self.document_id = "test-doc-123"
         self.chunk_id = ChunkId("test-chunk-456")
         
         # 테스트용 청크 생성

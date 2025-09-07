@@ -6,24 +6,8 @@ Chunk Entity - Demo Domain Layer
 """
 
 from typing import Dict, Any, Optional
-from ..value_objects.document_entities import DocumentId
 from datetime import datetime
 import uuid
-
-
-class ChunkId:
-    """청크 ID 값 객체"""
-    
-    def __init__(self, value: Optional[str] = None):
-        self.value = value or str(uuid.uuid4())
-    
-    def __str__(self) -> str:
-        return self.value
-    
-    def __eq__(self, other) -> bool:
-        if not isinstance(other, ChunkId):
-            return False
-        return self.value == other.value
 
 
 class Chunk:
@@ -32,14 +16,14 @@ class Chunk:
     def __init__(
         self,
         content: str,
-        document_id: DocumentId,
-        chunk_id: Optional[ChunkId] = None,
+        document_id: str,
+        chunk_id: Optional[str] = None,
         chunk_index: int = 0,
         chunk_size: int = 0,
         chunk_overlap: int = 0,
         created_at: Optional[datetime] = None
     ):
-        self.chunk_id = chunk_id or ChunkId()
+        self.chunk_id = chunk_id or str(uuid.uuid4())
         self.content = content
         self.document_id = document_id
         self.chunk_index = chunk_index
@@ -60,9 +44,9 @@ class Chunk:
     def to_dict(self) -> Dict[str, Any]:
         """딕셔너리로 변환"""
         return {
-            "chunk_id": str(self.chunk_id),
+            "chunk_id": self.chunk_id,
             "content": self.content,
-            "document_id": str(self.document_id),
+            "document_id": self.document_id,
             "chunk_index": self.chunk_index,
             "chunk_size": self.chunk_size,
             "chunk_overlap": self.chunk_overlap,
@@ -74,8 +58,8 @@ class Chunk:
         """딕셔너리에서 생성"""
         return cls(
             content=data["content"],
-            document_id=DocumentId(data["document_id"]),
-            chunk_id=ChunkId(data["chunk_id"]),
+            document_id=data["document_id"],
+            chunk_id=data["chunk_id"],
             chunk_index=data["chunk_index"],
             chunk_size=data["chunk_size"],
             chunk_overlap=data["chunk_overlap"],

@@ -7,9 +7,9 @@ Gradio UI 기반의 데모 애플리케이션에 특화된 어댑터 구성
 """
 
 adapter_config = {
-    "main_adapters": {
+    "inbound_adapters": {
         "gradio_adapter": {
-            "module": "adapters.inbound.ui.gradio.gradio_adapter",
+            "module": "infrastructure.inbound.ui.gradio.gradio_adapter",
             "class": "GradioAdapter",
             "dependencies": {
                 "usecase_factory": "direct"
@@ -19,6 +19,6 @@ adapter_config = {
     },
     
     "categories": {
-        "main_ui": ["gradio_adapter"]
+        "inbound_ui": ["gradio_adapter"]
     }
 }

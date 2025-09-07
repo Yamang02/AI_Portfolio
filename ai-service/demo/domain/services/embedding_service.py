@@ -10,7 +10,7 @@ import logging
 from typing import List, Dict, Any, Optional
 import numpy as np
 from ..entities.chunk import Chunk
-from ..entities.embedding import Embedding, EmbeddingId
+from ..entities.embedding import Embedding
 from ..entities.vector_store import VectorStore
 from ..entities.processing_status import ProcessingStage
 from ..entities.batch_job import BatchJob

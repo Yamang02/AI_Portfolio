@@ -141,7 +141,7 @@ class ExecuteVectorSearchUseCase:
         similarity_threshold: float
     ) -> str:
         """검색 결과 포맷팅 (HTML 카드 기반)"""
-        from adapters.inbound.ui.gradio.components.ui_components import UIComponents
+        from infrastructure.inbound.ui.gradio.components.ui_components import UIComponents
         
         # HTML 헤더 생성
         header_html = f"""

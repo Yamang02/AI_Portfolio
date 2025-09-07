@@ -6,8 +6,8 @@ Demo Domain Entities
 """
 
 from .document import Document
-from .chunk import Chunk, ChunkId
-from .embedding import Embedding, EmbeddingId
+from .chunk import Chunk
+from .embedding import Embedding
 from .query import Query, QueryId
 from .search_result import SearchResult, SearchResultId
 from .rag_response import RAGResponse, RAGResponseId
@@ -22,11 +22,9 @@ __all__ = [
     
     # Chunk
     'Chunk',
-    'ChunkId',
     
     # Embedding
     'Embedding',
-    'EmbeddingId',
     
     # Query
     'Query',

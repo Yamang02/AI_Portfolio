@@ -18,7 +18,7 @@ from application.common import (
     ResponseFormatter,
     log_usecase_execution
 )
-from adapters.outbound.config.demo_config_adapter import get_demo_config_adapter
+from infrastructure.outbound.config.demo_config_adapter import get_demo_config_adapter
 
 logger = logging.getLogger(__name__)
 

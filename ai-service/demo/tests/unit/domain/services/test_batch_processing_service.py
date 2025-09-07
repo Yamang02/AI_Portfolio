@@ -15,8 +15,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..', '..
 from domain.services.batch_processing_service import BatchProcessingService
 from domain.entities.batch_job import BatchJobType, BatchJobStatus
 from domain.entities.chunk import Chunk, ChunkId
-from domain.entities.embedding import Embedding, EmbeddingId
-from core.shared.value_objects.document_entities import DocumentId
+from domain.entities.embedding import Embedding
+# DocumentId는 Document 엔티티로 통합됨
 
 
 class TestBatchProcessingService(unittest.TestCase):
@@ -25,7 +25,7 @@ class TestBatchProcessingService(unittest.TestCase):
     def setUp(self):
         """테스트 설정"""
         self.service = BatchProcessingService()
-        self.document_id = DocumentId("test-doc-123")
+        self.document_id = "test-doc-123"
         
         # 테스트용 청크들 생성
         self.test_chunks = [
@@ -45,7 +45,7 @@ class TestBatchProcessingService(unittest.TestCase):
             Embedding(
                 chunk_id=chunk.chunk_id,
                 vector=[0.1] * 384,
-                embedding_id=EmbeddingId(f"test-embedding-{i}"),
+                embedding_id=f"test-embedding-{i}",
                 model_name="sentence-transformers/all-MiniLM-L6-v2",
                 dimension=384
             )

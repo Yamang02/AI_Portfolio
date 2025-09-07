@@ -46,7 +46,8 @@ class ConfigurationError(UseCaseError):
 def handle_usecase_errors(
     default_error_message: str = "처리 중 오류가 발생했습니다.",
     log_error: bool = True,
-    include_traceback: bool = False
+    include_traceback: bool = False,
+    return_dto: bool = True
 ):
     """
     UseCase 오류 처리 데코레이터
@@ -55,22 +56,34 @@ def handle_usecase_errors(
         default_error_message: 기본 오류 메시지
         log_error: 오류 로깅 여부
         include_traceback: 스택 트레이스 포함 여부
+        return_dto: DTO 형태로 반환할지 여부
     """
-    def decorator(func: Callable[..., Dict[str, Any]]) -> Callable[..., Dict[str, Any]]:
+    def decorator(func: Callable[..., Union[Dict[str, Any], T]]) -> Callable[..., Union[Dict[str, Any], T]]:
         @wraps(func)
-        def wrapper(*args, **kwargs) -> Dict[str, Any]:
+        def wrapper(*args, **kwargs) -> Union[Dict[str, Any], T]:
             try:
                 return func(*args, **kwargs)
                 
             except ValidationError as e:
-                error_response = {
-                    "success": False,
-                    "error": e.message,
-                    "error_code": e.error_code,
-                    "error_type": "validation",
-                    "details": e.details,
-                    "timestamp": datetime.now().isoformat()
-                }
+                if return_dto:
+                    from application.dto.document_dtos import ErrorDto
+                    error_response = ErrorDto(
+                        success=False,
+                        error=e.message,
+                        error_code=e.error_code,
+                        error_type="validation",
+                        details=e.details,
+                        timestamp=datetime.now().isoformat()
+                    )
+                else:
+                    error_response = {
+                        "success": False,
+                        "error": e.message,
+                        "error_code": e.error_code,
+                        "error_type": "validation",
+                        "details": e.details,
+                        "timestamp": datetime.now().isoformat()
+                    }
                 
                 if log_error:
                     logger.warning(f"검증 오류: {e.message} - {e.details}")
@@ -78,14 +91,25 @@ def handle_usecase_errors(
                 return error_response
                 
             except ServiceError as e:
-                error_response = {
-                    "success": False,
-                    "error": e.message,
-                    "error_code": e.error_code,
-                    "error_type": "service",
-                    "details": e.details,
-                    "timestamp": datetime.now().isoformat()
-                }
+                if return_dto:
+                    from application.dto.document_dtos import ErrorDto
+                    error_response = ErrorDto(
+                        success=False,
+                        error=e.message,
+                        error_code=e.error_code,
+                        error_type="service",
+                        details=e.details,
+                        timestamp=datetime.now().isoformat()
+                    )
+                else:
+                    error_response = {
+                        "success": False,
+                        "error": e.message,
+                        "error_code": e.error_code,
+                        "error_type": "service",
+                        "details": e.details,
+                        "timestamp": datetime.now().isoformat()
+                    }
                 
                 if log_error:
                     logger.error(f"서비스 오류: {e.message} - {e.details}")
@@ -93,14 +117,25 @@ def handle_usecase_errors(
                 return error_response
                 
             except ConfigurationError as e:
-                error_response = {
-                    "success": False,
-                    "error": e.message,
-                    "error_code": e.error_code,
-                    "error_type": "configuration",
-                    "details": e.details,
-                    "timestamp": datetime.now().isoformat()
-                }
+                if return_dto:
+                    from application.dto.document_dtos import ErrorDto
+                    error_response = ErrorDto(
+                        success=False,
+                        error=e.message,
+                        error_code=e.error_code,
+                        error_type="configuration",
+                        details=e.details,
+                        timestamp=datetime.now().isoformat()
+                    )
+                else:
+                    error_response = {
+                        "success": False,
+                        "error": e.message,
+                        "error_code": e.error_code,
+                        "error_type": "configuration",
+                        "details": e.details,
+                        "timestamp": datetime.now().isoformat()
+                    }
                 
                 if log_error:
                     logger.error(f"설정 오류: {e.message} - {e.details}")
@@ -108,14 +143,25 @@ def handle_usecase_errors(
                 return error_response
                 
             except UseCaseError as e:
-                error_response = {
-                    "success": False,
-                    "error": e.message,
-                    "error_code": e.error_code,
-                    "error_type": "usecase",
-                    "details": e.details,
-                    "timestamp": datetime.now().isoformat()
-                }
+                if return_dto:
+                    from application.dto.document_dtos import ErrorDto
+                    error_response = ErrorDto(
+                        success=False,
+                        error=e.message,
+                        error_code=e.error_code,
+                        error_type="usecase",
+                        details=e.details,
+                        timestamp=datetime.now().isoformat()
+                    )
+                else:
+                    error_response = {
+                        "success": False,
+                        "error": e.message,
+                        "error_code": e.error_code,
+                        "error_type": "usecase",
+                        "details": e.details,
+                        "timestamp": datetime.now().isoformat()
+                    }
                 
                 if log_error:
                     logger.error(f"UseCase 오류: {e.message} - {e.details}")
@@ -123,13 +169,23 @@ def handle_usecase_errors(
                 return error_response
                 
             except ValueError as e:
-                error_response = {
-                    "success": False,
-                    "error": f"입력값 오류: {str(e)}",
-                    "error_code": "VALUE_ERROR",
-                    "error_type": "validation",
-                    "timestamp": datetime.now().isoformat()
-                }
+                if return_dto:
+                    from application.dto.document_dtos import ErrorDto
+                    error_response = ErrorDto(
+                        success=False,
+                        error=f"입력값 오류: {str(e)}",
+                        error_code="VALUE_ERROR",
+                        error_type="validation",
+                        timestamp=datetime.now().isoformat()
+                    )
+                else:
+                    error_response = {
+                        "success": False,
+                        "error": f"입력값 오류: {str(e)}",
+                        "error_code": "VALUE_ERROR",
+                        "error_type": "validation",
+                        "timestamp": datetime.now().isoformat()
+                    }
                 
                 if log_error:
                     logger.warning(f"입력값 오류: {e}")
@@ -137,16 +193,27 @@ def handle_usecase_errors(
                 return error_response
                 
             except Exception as e:
-                error_response = {
-                    "success": False,
-                    "error": default_error_message,
-                    "error_code": "UNEXPECTED_ERROR",
-                    "error_type": "system",
-                    "timestamp": datetime.now().isoformat()
-                }
-                
-                if include_traceback:
-                    error_response["traceback"] = traceback.format_exc()
+                if return_dto:
+                    from application.dto.document_dtos import ErrorDto
+                    error_response = ErrorDto(
+                        success=False,
+                        error=default_error_message,
+                        error_code="UNEXPECTED_ERROR",
+                        error_type="system",
+                        timestamp=datetime.now().isoformat()
+                    )
+                    if include_traceback:
+                        error_response.details = {"traceback": traceback.format_exc()}
+                else:
+                    error_response = {
+                        "success": False,
+                        "error": default_error_message,
+                        "error_code": "UNEXPECTED_ERROR",
+                        "error_type": "system",
+                        "timestamp": datetime.now().isoformat()
+                    }
+                    if include_traceback:
+                        error_response["traceback"] = traceback.format_exc()
                 
                 if log_error:
                     logger.error(f"예상치 못한 오류: {e}", exc_info=True)
@@ -169,21 +236,36 @@ def validate_required_fields(**required_fields):
         def wrapper(*args, **kwargs) -> Dict[str, Any]:
             # 함수의 첫 번째 인자가 self인 경우 제외
             if args and hasattr(args[0], '__class__'):
-                # 메서드 호출인 경우
-                method_args = args[1:]  # self 제외
+                # 메서드 호출인 경우 - self 제외하고 나머지 args 처리
+                method_args = args[1:]
             else:
                 # 함수 호출인 경우
                 method_args = args
             
-            # kwargs와 args를 합쳐서 검증
-            all_args = dict(zip(func.__code__.co_varnames[len(args) - len(method_args):], method_args))
-            all_args.update(kwargs)
+            # 함수 시그니처에서 매개변수 이름들 가져오기
+            import inspect
+            sig = inspect.signature(func)
+            param_names = list(sig.parameters.keys())
             
+            # self가 있는 경우 제거
+            if param_names and param_names[0] == 'self':
+                param_names = param_names[1:]
+            
+            # 위치 인수를 키워드 인수로 변환
+            bound_args = {}
+            for i, param_name in enumerate(param_names):
+                if i < len(method_args):
+                    bound_args[param_name] = method_args[i]
+            
+            # kwargs와 병합 (kwargs가 우선)
+            bound_args.update(kwargs)
+            
+            # 필수 필드 검증
             for field_name, validator in required_fields.items():
-                if field_name not in all_args:
+                if field_name not in bound_args:
                     raise ValidationError(f"필수 필드 '{field_name}'가 누락되었습니다.", field_name)
                 
-                value = all_args[field_name]
+                value = bound_args[field_name]
                 if not validator(value):
                     raise ValidationError(f"필드 '{field_name}'의 값이 유효하지 않습니다.", field_name, value)
             
@@ -300,10 +382,22 @@ def log_usecase_execution(func_name: str = None):
             
             execution_time = (end_time - start_time).total_seconds()
             
-            if result.get("success", False):
+            # DTO 객체와 딕셔너리 모두 지원
+            if hasattr(result, 'success'):
+                # DTO 객체인 경우
+                if result.success:
+                    logger.info(f"✅ {usecase_name} 실행 완료 ({execution_time:.2f}초)")
+                else:
+                    logger.warning(f"⚠️ {usecase_name} 실행 실패 ({execution_time:.2f}초)")
+            elif hasattr(result, 'get') and result.get("success", False):
+                # 딕셔너리인 경우
                 logger.info(f"✅ {usecase_name} 실행 완료 ({execution_time:.2f}초)")
-            else:
+            elif hasattr(result, 'get') and not result.get("success", True):
+                # 딕셔너리 실패인 경우
                 logger.warning(f"⚠️ {usecase_name} 실행 실패 ({execution_time:.2f}초)")
+            else:
+                # 기타 객체인 경우 성공으로 간주
+                logger.info(f"✅ {usecase_name} 실행 완료 ({execution_time:.2f}초)")
             
             return result
         return wrapper

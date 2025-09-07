@@ -14,10 +14,9 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..', '..
 
 from domain.services.chunking_service import ChunkingService
 from domain.services.processing_status_service import ProcessingStatusService
-from domain.entities.document import Document, DocumentId
-from domain.entities.chunk import Chunk, ChunkId
+from domain.entities.document import Document, DocumentType
+from domain.entities.chunk import Chunk
 from domain.entities.processing_status import ProcessingStage
-from core.shared.value_objects.document_entities import DocumentType
 
 
 class TestChunkingServiceExtended(unittest.TestCase):
@@ -36,7 +35,7 @@ class TestChunkingServiceExtended(unittest.TestCase):
         # 테스트용 문서 생성
         self.test_document = Document(
             source="테스트 문서입니다. 이것은 충분히 긴 텍스트입니다. 여러 문장으로 구성되어 있습니다.",
-            document_id=DocumentId("test-doc-123"),
+            document_id="test-doc-123",
             document_type=DocumentType.TEXT,
             metadata={"title": "테스트 문서", "author": "테스터"}
         )
@@ -104,7 +103,7 @@ class TestChunkingServiceExtended(unittest.TestCase):
         # 빈 문서 생성
         empty_document = Document(
             source="",
-            document_id=DocumentId("empty-doc"),
+            document_id="empty-doc",
             document_type=DocumentType.TEXT
         )
         
@@ -120,7 +119,7 @@ class TestChunkingServiceExtended(unittest.TestCase):
         # 짧은 문서 생성
         short_document = Document(
             source="짧은 텍스트",
-            document_id=DocumentId("short-doc"),
+            document_id="short-doc",
             document_type=DocumentType.TEXT
         )
         
@@ -138,7 +137,7 @@ class TestChunkingServiceExtended(unittest.TestCase):
         long_content = "긴 텍스트입니다. " * 100  # 약 1500자
         long_document = Document(
             source=long_content,
-            document_id=DocumentId("long-doc"),
+            document_id="long-doc",
             document_type=DocumentType.TEXT
         )
         
@@ -219,7 +218,7 @@ class TestChunkingServiceExtended(unittest.TestCase):
         # 특수 문자가 포함된 문서 생성
         special_document = Document(
             source="특수문자 테스트: !@#$%^&*()_+-=[]{}|;':\",./<>? 한글과 English가 섞인 텍스트입니다.",
-            document_id=DocumentId("special-doc"),
+            document_id="special-doc",
             document_type=DocumentType.TEXT
         )
         
@@ -240,7 +239,7 @@ class TestChunkingServiceExtended(unittest.TestCase):
         # 여러 문장이 포함된 문서 생성
         multi_sentence_document = Document(
             source="첫 번째 문장입니다. 두 번째 문장입니다. 세 번째 문장입니다. 네 번째 문장입니다. 다섯 번째 문장입니다.",
-            document_id=DocumentId("multi-sentence-doc"),
+            document_id="multi-sentence-doc",
             document_type=DocumentType.TEXT
         )
         
@@ -261,7 +260,7 @@ class TestChunkingServiceExtended(unittest.TestCase):
         # 메타데이터가 포함된 문서 생성
         document_with_metadata = Document(
             source="메타데이터 테스트 문서입니다.",
-            document_id=DocumentId("metadata-doc"),
+            document_id="metadata-doc",
             document_type=DocumentType.TEXT,
             metadata={
                 "title": "테스트 제목",
@@ -291,7 +290,7 @@ class TestChunkingServiceExtended(unittest.TestCase):
         large_content = "성능 테스트용 텍스트입니다. " * 500  # 약 15000자
         large_document = Document(
             source=large_content,
-            document_id=DocumentId("large-doc"),
+            document_id="large-doc",
             document_type=DocumentType.TEXT
         )
         

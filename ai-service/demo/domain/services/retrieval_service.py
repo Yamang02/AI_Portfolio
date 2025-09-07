@@ -6,6 +6,7 @@ Retrieval Service - Demo Domain Layer
 """
 
 import logging
+import uuid
 from typing import List, Dict, Any, Optional
 from ..entities.query import Query, QueryId
 from ..entities.chunk import Chunk
@@ -181,8 +182,7 @@ class RetrievalService:
     def _create_chunk_from_embedding_metadata(self, embedding: Embedding) -> Chunk:
         """임베딩 메타데이터에서 청크 객체 생성 (원본 청크 ID 유지)"""
         try:
-            from ..entities.chunk import Chunk, ChunkId
-            from ..entities.document import DocumentId
+            from ..entities.chunk import Chunk
             
             # 메타데이터에서 정보 추출
             metadata = embedding.metadata or {}
@@ -192,7 +192,7 @@ class RetrievalService:
             # 원본 청크 ID 사용 (임베딩의 chunk_id)
             chunk = Chunk(
                 content=chunk_text,
-                document_id=DocumentId(document_id_str),
+                document_id=document_id_str,
                 chunk_id=embedding.chunk_id,  # 원본 청크 ID 사용
                 chunk_index=metadata.get("chunk_index", 0),
                 chunk_size=metadata.get("chunk_size", len(chunk_text)),
@@ -204,10 +204,9 @@ class RetrievalService:
         except Exception as e:
             logger.error(f"청크 생성 중 오류 발생: {e}")
             # 기본 청크 반환
-            from ..entities.chunk import Chunk, ChunkId
-            from ..entities.document import DocumentId
+            from ..entities.chunk import Chunk
             return Chunk(
                 content="Content not available",
-                document_id=DocumentId("unknown"),
-                chunk_id=embedding.chunk_id if hasattr(embedding, 'chunk_id') else ChunkId()
+                document_id="unknown",
+                chunk_id=embedding.chunk_id if hasattr(embedding, 'chunk_id') else str(uuid.uuid4())
             )
