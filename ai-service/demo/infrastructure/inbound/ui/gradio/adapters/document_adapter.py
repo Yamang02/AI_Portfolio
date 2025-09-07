@@ -14,10 +14,14 @@ from application.dto.document_dtos import (
     CreateDocumentRequest,
     GetDocumentContentRequest,
     LoadSampleDocumentsRequest,
+    DeleteDocumentRequest,
+    ClearAllDocumentsRequest,
     # Response DTOs
     CreateDocumentResponse,
     GetDocumentContentResponse,
-    LoadSampleDocumentsResponse
+    LoadSampleDocumentsResponse,
+    DeleteDocumentResponse,
+    ClearAllDocumentsResponse
 )
 from ..document_ui_objects import (
     DocumentListUI,
@@ -117,3 +121,37 @@ class DocumentAdapter:
         
         # 3. UI 변환 서비스를 통한 변환
         return self.ui_formatter.format_document_preview(response)
+    
+    @handle_infrastructure_error(InterfaceType.GRADIO)
+    def handle_delete_document(self, document_selection: str) -> DocumentListUI:
+        """개별 문서 삭제 이벤트 처리 - 도메인 중심 Request/Response 사용"""
+        logger.info(f"🗑️ 개별 문서 삭제 요청: document_selection={document_selection}")
+        
+        # 1. UI 파라미터를 Request DTO로 변환
+        if not document_selection or "|" not in document_selection:
+            return DocumentErrorUI(error_message="❌ 유효하지 않은 문서 선택입니다.")
+        
+        document_id = document_selection.split("|")[-1]
+        request = DeleteDocumentRequest(document_id=document_id)
+        
+        # 2. UseCase 호출
+        usecase = self.usecase_factory.get_usecase("DeleteDocumentUseCase")
+        response = usecase.execute(request)
+        
+        # 3. UI 변환 서비스를 통한 변환
+        return self.ui_formatter.format_document_list(response)
+    
+    @handle_infrastructure_error(InterfaceType.GRADIO)
+    def handle_clear_all_documents(self) -> DocumentListUI:
+        """모든 문서 삭제 이벤트 처리 - 도메인 중심 Request/Response 사용"""
+        logger.info("🗑️ 모든 문서 삭제 요청")
+        
+        # 1. UI 파라미터를 Request DTO로 변환
+        request = ClearAllDocumentsRequest()
+        
+        # 2. UseCase 호출
+        usecase = self.usecase_factory.get_usecase("ClearAllDocumentsUseCase")
+        response = usecase.execute(request)
+        
+        # 3. UI 변환 서비스를 통한 변환
+        return self.ui_formatter.format_document_list(response)

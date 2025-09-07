@@ -29,7 +29,7 @@ class DocumentService:
     
     def add_sample_document(self, title: str, source: str, content: str, 
                           sample_metadata: Dict[str, Any]) -> str:
-        """샘플 문서 추가 (sampledata metadata.json 기반)"""
+        """샘플 문서 추가 (infrastructure/sampledata metadata.json 기반)"""
         # document_type을 enum으로 변환
         doc_type_str = sample_metadata.get('document_type', 'QA')
         try:

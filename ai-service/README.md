@@ -23,7 +23,10 @@
 │   ├── domain/                    # 데모 도메인
 │   ├── application/               # 데모 애플리케이션
 │   ├── adapters/                  # 데모 어댑터
-│   ├── sampledata/                # 샘플 데이터
+│   ├── infrastructure/               # 데모 인프라스트럭처
+│   │   ├── sampledata/              # 샘플 데이터
+│   │   ├── inbound/                 # 인바운드 어댑터
+│   │   └── outbound/                # 아웃바운드 어댑터
 │   ├── main.py                    # 데모 메인
 │   ├── main_new.py                # 새로운 헥사고널 메인
 │   ├── demo_legacy.py             # 레거시 데모

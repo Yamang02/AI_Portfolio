@@ -86,6 +86,17 @@ class DocumentTabComponent:
                 value="<div style='text-align: center; color: #666; padding: 40px;'>문서를 선택하고 '전체 내용 보기' 버튼을 클릭하세요.</div>"
             )
             
+            # 문서 관리 섹션
+            gr.Markdown("### 🗑️ 문서 관리")
+            with gr.Row():
+                delete_doc_btn = gr.Button("🗑️ 선택한 문서 삭제", variant="stop", size="sm")
+                clear_all_btn = gr.Button("🗑️ 모든 문서 삭제", variant="stop", size="sm")
+            
+            delete_output = gr.HTML(
+                label="삭제 결과",
+                value="<div style='text-align: center; color: #666; padding: 20px;'>문서를 삭제하면 여기에 결과가 표시됩니다.</div>"
+            )
+            
             # Event handlers - GradioAdapter에 위임 (객체 중심 처리)
             load_sample_btn.click(
                 fn=lambda: self.gradio_adapter.handle_load_sample_data().to_gradio_outputs(),
@@ -104,6 +115,15 @@ class DocumentTabComponent:
                 fn=lambda doc_selection: self.gradio_adapter.handle_get_document_content(doc_selection).to_gradio_outputs(),
                 inputs=[doc_select],
                 outputs=[doc_content_output]
+            )
+            delete_doc_btn.click(
+                fn=lambda doc_selection: self.gradio_adapter.handle_delete_document(doc_selection),
+                inputs=[doc_select],
+                outputs=[delete_output, preview_output, doc_select]
+            )
+            clear_all_btn.click(
+                fn=lambda: self.gradio_adapter.handle_clear_all_documents(),
+                outputs=[delete_output, preview_output, doc_select]
             )
         
         return tab

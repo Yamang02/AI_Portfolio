@@ -1,6 +1,6 @@
 """
 Demo Document Entities
-데모에서 사용하는 문서 엔티티들 (sampledata 구조 기반)
+데모에서 사용하는 문서 엔티티들 (infrastructure/sampledata 구조 기반)
 
 NOTE: 현재 데모에서만 사용되지만, 향후 다른 UI(CLI, REST API)에서도 재사용 가능
 TODO: 프로덕션용 Document 엔티티와 통합 고려
@@ -13,7 +13,7 @@ from typing import Dict, List, Any, Optional
 
 
 class DocumentType(Enum):
-    """문서 타입 (sampledata 기반)"""
+    """문서 타입 (infrastructure/sampledata 기반)"""
     PROJECT = "PROJECT"
     QA = "QA" 
     MANUAL = "MANUAL"  # 수동 입력 문서
@@ -21,17 +21,17 @@ class DocumentType(Enum):
 
 @dataclass
 class DocumentMetadata:
-    """문서 메타데이터 (sampledata metadata.json 구조 기반)"""
+    """문서 메타데이터 (infrastructure/sampledata metadata.json 구조 기반)"""
     doc_id: str
     title: str
     source: str  # filename or "manual_input"
     document_type: DocumentType
     created_at: datetime = field(default_factory=datetime.now)
     
-    # sampledata 기반 메타데이터
+    # infrastructure/sampledata 기반 메타데이터
     description: Optional[str] = None
     tags: Optional[List[str]] = None
-    demo_id: Optional[str] = None  # sampledata의 demo_id (S0, S1, S2 등)
+    demo_id: Optional[str] = None  # infrastructure/sampledata의 demo_id (S0, S1, S2 등)
     
     # 자동 계산 메타데이터
     content_length: Optional[int] = None

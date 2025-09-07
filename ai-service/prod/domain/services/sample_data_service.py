@@ -94,9 +94,9 @@ class SampleDataService(SampleDataPort):
     
     def load_sample_data_from_default_location(self) -> Dict[str, Any]:
         """기본 위치에서 샘플 데이터 로드"""
-        # 프로젝트 루트의 sampledata 디렉토리
+        # 프로젝트 루트의 infrastructure/sampledata 디렉토리
         current_dir = os.path.dirname(os.path.abspath(__file__))
-        sampledata_path = os.path.join(current_dir, '..', '..', '..', 'sampledata')
+        sampledata_path = os.path.join(current_dir, '..', '..', '..', 'infrastructure', 'sampledata')
         
         return self.load_sample_data_from_directory(sampledata_path)
     

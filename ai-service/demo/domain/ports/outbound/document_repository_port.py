@@ -57,3 +57,13 @@ class DocumentRepositoryPort(ABC):
     def get_documents_by_source(self, source: str) -> List[Document]:
         """출처별 문서 조회"""
         pass
+    
+    @abstractmethod
+    def delete_document(self, document_id: str) -> bool:
+        """개별 문서 삭제"""
+        pass
+    
+    @abstractmethod
+    def delete_documents_by_type(self, document_type: str) -> int:
+        """타입별 문서 삭제 (삭제된 문서 수 반환)"""
+        pass

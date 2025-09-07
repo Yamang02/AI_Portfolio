@@ -1,0 +1,67 @@
+[tool.flake8]
+# flake8 설정 파일
+# See https://flake8.pycqa.org/en/latest/user/configuration.html
+
+# 최대 라인 길이
+max-line-length = 88
+
+# 무시할 에러들
+ignore = [
+    "E203",  # whitespace before ':' (black과 충돌)
+    "W503",  # line break before binary operator (black과 충돌)
+    "E501",  # line too long (black이 처리)
+    "E402",  # module level import not at top of file
+    "F401",  # imported but unused (ruff가 처리)
+    "F841",  # local variable assigned but never used (ruff가 처리)
+]
+
+# 제외할 디렉토리들
+exclude = [
+    ".git",
+    "__pycache__",
+    ".venv",
+    "venv",
+    "build",
+    "dist",
+    ".pytest_cache",
+    ".mypy_cache",
+    ".ruff_cache",
+    "tests",
+    "test_*.py",
+    "*_test.py",
+]
+
+# 최대 복잡도
+max-complexity = 10
+
+# 임포트 순서 검사 비활성화 (isort가 처리)
+import-order-style = "google"
+
+# docstring 검사 비활성화 (pydocstyle가 처리)
+docstring-convention = "none"
+
+# 추가 경로들
+extend-ignore = [
+    "E203",  # whitespace before ':'
+    "W503",  # line break before binary operator
+]
+
+# 파일별 설정
+per-file-ignores = [
+    "__init__.py:F401",  # __init__.py에서 unused import 허용
+    "tests/*:S101",      # 테스트에서 assert 허용
+]
+
+# 추가 플러그인들
+enable-extensions = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "C",  # mccabe complexity
+]
+
+# 출력 형식
+format = "default"
+show-source = true
+statistics = true
+count = true

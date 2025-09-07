@@ -74,6 +74,16 @@ class GradioAdapter:
         """문서 목록 새로고침 이벤트 처리 (청킹 탭용)"""
         return self.document_adapter.handle_refresh_documents()
     
+    def handle_delete_document(self, document_selection: str) -> Tuple[str, str, Any]:
+        """개별 문서 삭제 이벤트 처리"""
+        result = self.document_adapter.handle_delete_document(document_selection)
+        return result.to_gradio_outputs()
+    
+    def handle_clear_all_documents(self) -> Tuple[str, str, Any]:
+        """모든 문서 삭제 이벤트 처리"""
+        result = self.document_adapter.handle_clear_all_documents()
+        return result.to_gradio_outputs()
+    
     # ==================== Chunking 관련 이벤트 핸들러 (위임) ====================
     
     def handle_chunk_document(self, document_id: str, chunking_strategy: str, 

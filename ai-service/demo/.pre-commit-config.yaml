@@ -1,0 +1,112 @@
+# Pre-commit hooks for AI Service
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+
+repos:
+  # 기본 Git 훅들
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace
+        description: "Remove trailing whitespace"
+      - id: end-of-file-fixer
+        description: "Ensure files end with newline"
+      - id: check-yaml
+        description: "Check YAML syntax"
+        args: ['--unsafe']
+      - id: check-json
+        description: "Check JSON syntax"
+      - id: check-toml
+        description: "Check TOML syntax"
+      - id: check-merge-conflict
+        description: "Check for merge conflict markers"
+      - id: check-added-large-files
+        description: "Check for large files"
+        args: ['--maxkb=1000']
+      - id: debug-statements
+        description: "Check for debug statements (pdb, ipdb, etc.)"
+      - id: check-docstring-first
+        description: "Check that docstrings are at the beginning of functions"
+
+  # Python 코드 포맷팅 및 린팅
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.9.3
+    hooks:
+      - id: ruff
+        description: "Fast Python linter"
+        args: ['--fix', '--exit-non-zero-on-fix']
+      - id: ruff-format
+        description: "Fast Python formatter"
+
+  # Import 정렬
+  - repo: https://github.com/pycqa/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        description: "Sort Python imports"
+        args: ['--profile', 'black', '--filter-files']
+
+  # 타입 체크
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.13.0
+    hooks:
+      - id: mypy
+        description: "Static type checking"
+        additional_dependencies: [types-all]
+        args: ['--ignore-missing-imports', '--no-strict-optional']
+        exclude: '^tests/'
+
+  # 보안 취약점 검사
+  - repo: https://github.com/pycqa/bandit
+    rev: 1.7.8
+    hooks:
+      - id: bandit
+        description: "Security linter for Python"
+        args: ['-ll', '-r', '.', '--skip', 'B101,B601']
+        exclude: '^tests/'
+
+  # 커밋 메시지 검사
+  - repo: https://github.com/commitizen-tools/commitizen
+    rev: v3.30.0
+    hooks:
+      - id: commitizen
+        description: "Check commit message format"
+
+  # 추가 Python 품질 도구들
+  - repo: https://github.com/pycqa/flake8
+    rev: 7.1.1
+    hooks:
+      - id: flake8
+        description: "Style guide enforcement"
+        args: ['--max-line-length=88', '--extend-ignore=E203,W503']
+        exclude: '^tests/'
+
+  # 문서화 검사
+  - repo: https://github.com/pycqa/pydocstyle
+    rev: 6.3.0
+    hooks:
+      - id: pydocstyle
+        description: "Python docstring style checker"
+        args: ['--convention=google']
+        exclude: '^tests/'
+
+  # 의존성 보안 검사
+  - repo: https://github.com/Lucas-C/pre-commit-hooks-safety
+    rev: v1.3.2
+    hooks:
+      - id: python-safety-dependencies-check
+        description: "Check for known security vulnerabilities"
+        files: requirements\.txt$
+
+# CI에서 실행할 때는 일부 훅을 건너뛰기
+ci:
+  autofix_commit_msg: |
+    [pre-commit.ci] auto fixes from pre-commit.com hooks
+
+    for more information, see https://pre-commit.ci
+  autofix_prs: true
+  autoupdate_branch: ''
+  autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
+  autoupdate_schedule: weekly
+  skip: [mypy, bandit, pydocstyle]  # CI에서는 타입 체크와 보안 검사만 실행
+  submodules: false

@@ -26,7 +26,7 @@ class QueryTemplateService:
             if self._templates is not None:
                 return self._templates
             
-            template_path = Path("sampledata") / "query_templates.json"
+            template_path = Path("infrastructure/sampledata") / "query_templates.json"
             
             if not template_path.exists():
                 logger.warning("Query templates file not found, using default templates")

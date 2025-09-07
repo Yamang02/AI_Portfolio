@@ -89,6 +89,22 @@ usecase_config = {
             },
             "description": "문서 내용 조회"
         },
+        "DeleteDocumentUseCase": {
+            "module": "application.usecases.document.delete_document_usecase",
+            "class": "DeleteDocumentUseCase",
+            "dependencies": {
+                "document_service": "document_service"
+            },
+            "description": "개별 문서 삭제"
+        },
+        "ClearAllDocumentsUseCase": {
+            "module": "application.usecases.document.clear_all_documents_usecase",
+            "class": "ClearAllDocumentsUseCase",
+            "dependencies": {
+                "document_service": "document_service"
+            },
+            "description": "모든 문서 삭제"
+        },
         
         # Text Splitter UseCases
         "ChunkDocumentUseCase": {
@@ -204,7 +220,9 @@ usecase_config = {
             "LoadSampleDocumentsUseCase",
             "AddDocumentUseCase",
             "GetDocumentsPreviewUseCase",
-            "GetDocumentContentUseCase"
+            "GetDocumentContentUseCase",
+            "DeleteDocumentUseCase",
+            "ClearAllDocumentsUseCase"
         ],
         "text_splitter": [
             "ChunkDocumentUseCase",

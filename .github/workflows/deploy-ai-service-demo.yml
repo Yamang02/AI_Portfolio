@@ -26,33 +26,45 @@ jobs:
 
     - name: Install dependencies
       run: |
-        cd ai-service
-        pip install -r requirements-demo.txt    
-           
-    - name: Validate Hexagonal Architecture Structure
+        cd ai-service/demo
+        pip install -r requirements.txt
+        pip install pytest pytest-cov pytest-mock
+        
+    - name: Run Demo Tests
       run: |
-        cd ai-service
-        python validate_architecture.py
-      
-    - name: Test Hexagonal Architecture Imports
-      run: |
-        cd ai-service
-        echo "Import test is now included in validate_architecture.py"
+        cd ai-service/demo
+        echo "🧪 Running Demo tests before deployment..."
+        
+        # 유닛 테스트 실행
+        python tests/scripts/run_unit_tests.py --coverage
+        
+        # 기본 실행 테스트 실행
+        python tests/scripts/run_basic_tests.py --coverage
+        
+        echo "✅ All tests passed successfully!"
+        
+    - name: Upload Test Coverage
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./ai-service/demo/htmlcov/coverage.xml
+        flags: demo-tests
+        name: demo-tests-coverage
+        fail_ci_if_error: false
         
     - name: Prepare HuggingFace Spaces files
       run: |
-        cd ai-service
+        cd ai-service/demo
         
         echo "📦 Preparing Hexagonal Architecture demo for HuggingFace Spaces..."
         
         # Copy Hexagonal Architecture specific files
         cp deployment/README_HF.md README.md
         cp deployment/Dockerfile.demo Dockerfile
-        cp requirements-demo.txt requirements.txt  # HuggingFace Spaces용으로 복사
+        cp requirements.txt requirements.txt  # HuggingFace Spaces용으로 복사
         
         # Validate all required files are present
         echo "📋 Validating deployment files..."
-        for file in "demo.py" "main.py" "README.md" "Dockerfile" "requirements.txt"; do
+        for file in "main.py" "README.md" "Dockerfile" "requirements.txt"; do
           if [ ! -f "$file" ]; then
             echo "❌ Missing deployment file: $file"
             exit 1
@@ -69,7 +81,7 @@ jobs:
         HF_TOKEN: ${{ secrets.HF_TOKEN }}
         HF_USERNAME: ${{ secrets.HF_USERNAME }}
       run: |
-        cd ai-service
+        cd ai-service/demo
         python -c "
         from huggingface_hub import HfApi, create_repo
         import os
@@ -113,7 +125,7 @@ jobs:
             
             # Verify key files were uploaded
             files = api.list_repo_files(repo_id=repo_id, repo_type='space')
-            required_files = ['demo.py', 'main.py', 'README.md', 'requirements.txt', 'Dockerfile']
+            required_files = ['main.py', 'README.md', 'requirements.txt', 'Dockerfile']
             
             missing_files = [f for f in required_files if f not in files]
             if missing_files:
@@ -143,5 +155,7 @@ jobs:
         echo "  • 📚 Auto sample data loading"
         echo "  • 💡 Pre-defined sample queries"
         echo "  • 🔍 Advanced search analysis"
+        echo "  • 🧪 Comprehensive test coverage"
+        echo "  • 🚀 CI/CD automated deployment"
         echo ""
         echo "🚀 The demo will be available in 2-3 minutes at the URL above!"

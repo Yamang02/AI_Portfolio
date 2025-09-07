@@ -74,7 +74,7 @@ class MemoryDocumentRepositoryAdapter(DocumentRepositoryPort):
             logger.error(f"문서 수 조회 중 오류 발생: {e}")
             return 0
     
-    async def get_documents_statistics(self) -> Dict[str, Any]:
+    def get_documents_statistics(self) -> Dict[str, Any]:
         """문서 통계 조회"""
         try:
             total_docs = len(self.documents)
@@ -131,3 +131,40 @@ class MemoryDocumentRepositoryAdapter(DocumentRepositoryPort):
         except Exception as e:
             logger.error(f"문서 삭제 중 오류 발생: {e}")
             raise
+    
+    def delete_document(self, document_id: str) -> bool:
+        """개별 문서 삭제"""
+        try:
+            if document_id not in self.documents:
+                logger.warning(f"⚠️ 삭제할 문서를 찾을 수 없음: {document_id}")
+                return False
+            
+            deleted_doc = self.documents.pop(document_id)
+            logger.info(f"✅ 개별 문서 삭제 완료: {deleted_doc.source}")
+            return True
+        except Exception as e:
+            logger.error(f"❌ 개별 문서 삭제 실패: {e}")
+            return False
+    
+    def delete_documents_by_type(self, document_type: str) -> int:
+        """타입별 문서 삭제 (삭제된 문서 수 반환)"""
+        try:
+            # 삭제할 문서 ID 목록 수집
+            docs_to_delete = [
+                doc_id for doc_id, doc in self.documents.items()
+                if doc.document_type.value == document_type
+            ]
+            
+            if not docs_to_delete:
+                logger.info(f"📭 삭제할 {document_type} 타입 문서가 없습니다")
+                return 0
+            
+            # 문서 삭제
+            for doc_id in docs_to_delete:
+                del self.documents[doc_id]
+            
+            logger.info(f"✅ {document_type} 타입 문서 삭제 완료: {len(docs_to_delete)}개")
+            return len(docs_to_delete)
+        except Exception as e:
+            logger.error(f"❌ 타입별 문서 삭제 실패: {e}")
+            return 0

@@ -26,13 +26,13 @@ class DocumentService:
         logger.info("✅ Document Management Service initialized with Repository")
     
     def load_sample_documents(self) -> List[Document]:
-        """sampledata 디렉토리에서 샘플 문서들을 로드 (중복 방지)"""
+        """infrastructure/sampledata 디렉토리에서 샘플 문서들을 로드 (중복 방지)"""
         try:
-            sample_path = Path("sampledata")
+            sample_path = Path("infrastructure/sampledata")
             metadata_path = sample_path / "metadata.json"
             
             if not sample_path.exists():
-                raise ValueError("sampledata 디렉토리를 찾을 수 없습니다")
+                raise ValueError("infrastructure/sampledata 디렉토리를 찾을 수 없습니다")
             
             if not metadata_path.exists():
                 raise ValueError("metadata.json 파일을 찾을 수 없습니다")
@@ -140,3 +140,57 @@ class DocumentService:
     def get_all_documents(self) -> List[Document]:
         """모든 문서 조회 (동기 버전) - UI에서 사용"""
         return self.document_repository.get_all_documents()
+    
+    def delete_document(self, document_id: str) -> bool:
+        """개별 문서 삭제"""
+        if not document_id or not document_id.strip():
+            raise ValueError("문서 ID가 필요합니다")
+        
+        # 문서 존재 여부 확인
+        if not self.document_repository.exists_document(document_id):
+            logger.warning(f"⚠️ 삭제할 문서를 찾을 수 없음: {document_id}")
+            return False
+        
+        # 문서 삭제
+        success = self.document_repository.delete_document(document_id)
+        
+        if success:
+            logger.info(f"✅ 문서 삭제 완료: {document_id}")
+        else:
+            logger.error(f"❌ 문서 삭제 실패: {document_id}")
+        
+        return success
+    
+    def delete_documents_by_type(self, document_type: str) -> int:
+        """타입별 문서 삭제"""
+        if not document_type or not document_type.strip():
+            raise ValueError("문서 타입이 필요합니다")
+        
+        # 삭제할 문서 수 확인
+        documents_to_delete = self.document_repository.get_documents_by_type(document_type)
+        count_before = len(documents_to_delete)
+        
+        if count_before == 0:
+            logger.info(f"📭 삭제할 {document_type} 타입 문서가 없습니다")
+            return 0
+        
+        # 문서 삭제
+        deleted_count = self.document_repository.delete_documents_by_type(document_type)
+        
+        logger.info(f"✅ {document_type} 타입 문서 삭제 완료: {deleted_count}개 삭제")
+        return deleted_count
+    
+    def clear_all_documents(self) -> int:
+        """모든 문서 삭제"""
+        # 삭제 전 문서 수 확인
+        count_before = self.document_repository.get_documents_count()
+        
+        if count_before == 0:
+            logger.info("📭 삭제할 문서가 없습니다")
+            return 0
+        
+        # 모든 문서 삭제
+        self.document_repository.clear_all_documents()
+        
+        logger.info(f"✅ 모든 문서 삭제 완료: {count_before}개 삭제")
+        return count_before

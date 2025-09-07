@@ -229,7 +229,7 @@ class DemoConfigService:
         """샘플 데이터 설정 반환"""
         return self.config_manager.get_config("demo.sample_data", {
             "load_on_startup": True,
-            "documents_path": "./sampledata",
+            "documents_path": "./infrastructure/sampledata",
             "auto_load_sample_documents": True,
             "sample_document_types": ["PROJECT", "QA", "MANUAL"]
         })

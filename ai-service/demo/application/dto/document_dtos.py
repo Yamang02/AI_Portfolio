@@ -30,6 +30,24 @@ class LoadSampleDocumentsRequest:
     pass  # 파라미터 없음
 
 
+@dataclass
+class DeleteDocumentRequest:
+    """개별 문서 삭제 요청 DTO"""
+    document_id: str
+
+
+@dataclass
+class DeleteDocumentsByTypeRequest:
+    """타입별 문서 삭제 요청 DTO"""
+    document_type: str
+
+
+@dataclass
+class ClearAllDocumentsRequest:
+    """모든 문서 삭제 요청 DTO"""
+    pass  # 파라미터 없음
+
+
 # Response DTOs (Application → UI)
 @dataclass
 class CreateDocumentResponse:
@@ -62,6 +80,49 @@ class LoadSampleDocumentsResponse:
     count: int = 0
     message: str = ""
     error: Optional[str] = None
+    
+    def __post_init__(self):
+        if self.documents is None:
+            self.documents = []
+
+
+@dataclass
+class DeleteDocumentResponse:
+    """개별 문서 삭제 응답 DTO"""
+    success: bool
+    deleted_document_id: Optional[str] = None
+    message: str = ""
+    error: Optional[str] = None
+    documents: List['DocumentSummaryDto'] = None  # 삭제 후 전체 문서 목록
+    
+    def __post_init__(self):
+        if self.documents is None:
+            self.documents = []
+
+
+@dataclass
+class DeleteDocumentsByTypeResponse:
+    """타입별 문서 삭제 응답 DTO"""
+    success: bool
+    deleted_count: int = 0
+    document_type: str = ""
+    message: str = ""
+    error: Optional[str] = None
+    documents: List['DocumentSummaryDto'] = None  # 삭제 후 전체 문서 목록
+    
+    def __post_init__(self):
+        if self.documents is None:
+            self.documents = []
+
+
+@dataclass
+class ClearAllDocumentsResponse:
+    """모든 문서 삭제 응답 DTO"""
+    success: bool
+    deleted_count: int = 0
+    message: str = ""
+    error: Optional[str] = None
+    documents: List['DocumentSummaryDto'] = None  # 삭제 후 전체 문서 목록 (빈 목록)
     
     def __post_init__(self):
         if self.documents is None:
