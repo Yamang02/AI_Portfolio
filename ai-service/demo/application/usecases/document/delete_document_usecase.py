@@ -8,8 +8,8 @@ DocumentLoad 탭에서 개별 문서를 삭제하는 Use Case입니다.
 
 import logging
 from typing import Dict, Any
-from domain.services.document_management_service import DocumentService
-from application.dto.document_dtos import (
+from domain.ports.outbound.document_repository_port import DocumentRepositoryPort
+from application.model.dto.document_dtos import (
     DeleteDocumentRequest, DeleteDocumentResponse, DocumentSummaryDto
 )
 
@@ -19,8 +19,8 @@ logger = logging.getLogger(__name__)
 class DeleteDocumentUseCase:
     """개별 문서 삭제 유스케이스"""
     
-    def __init__(self, document_service: DocumentService):
-        self.document_service = document_service
+    def __init__(self, document_repository: DocumentRepositoryPort):
+        self.document_repository = document_repository
         logger.info("✅ DeleteDocumentUseCase initialized")
     
     def execute(self, request: DeleteDocumentRequest) -> DeleteDocumentResponse:
@@ -38,7 +38,7 @@ class DeleteDocumentUseCase:
                 )
             
             # 삭제할 문서 정보 조회 (삭제 전)
-            document_to_delete = self.document_service.get_document(document_id)
+            document_to_delete = self.document_repository.get_document_by_id(document_id)
             if not document_to_delete:
                 return DeleteDocumentResponse(
                     success=False,
@@ -46,8 +46,8 @@ class DeleteDocumentUseCase:
                     documents=[]
                 )
             
-            # 도메인 서비스를 통한 문서 삭제
-            success = self.document_service.delete_document(document_id.strip())
+            # Repository를 통한 문서 삭제
+            success = self.document_repository.delete_document(document_id.strip())
             
             if not success:
                 return DeleteDocumentResponse(
@@ -59,7 +59,7 @@ class DeleteDocumentUseCase:
             logger.info(f"✅ 문서 삭제 완료: {document_id}")
             
             # 전체 문서 목록 조회 (삭제 후)
-            all_documents = self.document_service.list_documents()
+            all_documents = self.document_repository.get_all_documents()
             document_summaries = [
                 DocumentSummaryDto(
                     document_id=doc.document_id,

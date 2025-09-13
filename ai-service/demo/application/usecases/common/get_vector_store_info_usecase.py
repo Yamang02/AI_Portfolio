@@ -8,8 +8,6 @@ Get Vector Store Info Use Case
 
 import logging
 from typing import Dict, Any
-from domain.services.embedding_service import EmbeddingService
-from domain.services.chunking_service import ChunkingService
 from application.common import (
     handle_usecase_errors,
     ResponseFormatter,
@@ -22,13 +20,7 @@ logger = logging.getLogger(__name__)
 class GetVectorStoreInfoUseCase:
     """벡터스토어 정보 조회 유스케이스"""
     
-    def __init__(
-        self,
-        embedding_service: EmbeddingService,
-        chunking_service: ChunkingService
-    ):
-        self.embedding_service = embedding_service
-        self.chunking_service = chunking_service
+    def __init__(self):
         logger.info("✅ GetVectorStoreInfoUseCase initialized")
     
     @handle_usecase_errors(

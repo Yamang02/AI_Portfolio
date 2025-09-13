@@ -22,6 +22,54 @@ class ChunkingAdapter:
         logger.info("✅ Chunking Adapter initialized")
     
     # ==================== Chunking 관련 이벤트 핸들러 ====================
+
+    def handle_get_chunking_strategies(self) -> Any:
+        """청킹 전략 목록 조회 이벤트 처리"""
+        try:
+            result = self.usecase_factory.get_usecase("GetChunkingStrategiesUseCase").execute()
+
+            if result["success"]:
+                strategies = result["data"]["chunking_strategies"]
+                choices = [(strategy_data["description"], key) for key, strategy_data in strategies.items()]
+                return gr.update(choices=choices, value=choices[0][1] if choices else None)
+            else:
+                # 실패 시 기본값 반환
+                default_choices = [
+                    ("기본 텍스트 청킹", "TEXT"),
+                    ("프로젝트 문서 특화 청킹", "PROJECT"),
+                    ("Q&A 문서 특화 청킹", "QA")
+                ]
+                return gr.update(choices=default_choices, value="TEXT")
+
+        except Exception as e:
+            logger.error(f"Error in handle_get_chunking_strategies: {e}")
+            # 에러 시 기본값 반환
+            default_choices = [
+                ("기본 텍스트 청킹", "TEXT"),
+                ("프로젝트 문서 특화 청킹", "PROJECT"),
+                ("Q&A 문서 특화 청킹", "QA")
+            ]
+            return gr.update(choices=default_choices, value="TEXT")
+
+    def handle_get_strategy_defaults(self, strategy_name: str) -> Tuple[Any, Any]:
+        """선택된 전략의 기본값 조회 이벤트 처리"""
+        try:
+            result = self.usecase_factory.get_usecase("GetChunkingStrategyDefaultsUseCase").execute(strategy_name)
+
+            if result["success"]:
+                defaults = result["data"]["defaults"]
+                return (
+                    gr.update(value=defaults.get("chunk_size", 500)),
+                    gr.update(value=defaults.get("chunk_overlap", 75))
+                )
+            else:
+                # 실패 시 기본값 반환
+                return gr.update(value=500), gr.update(value=75)
+
+        except Exception as e:
+            logger.error(f"Error in handle_get_strategy_defaults: {e}")
+            # 에러 시 기본값 반환
+            return gr.update(value=500), gr.update(value=75)
     
     def handle_chunk_document(self, document_id: str, chunking_strategy: str, 
                                   chunk_size: int, chunk_overlap: int, 
@@ -117,12 +165,12 @@ class ChunkingAdapter:
                 logger.warning(f"Failed to refresh document choices: {e}")
                 doc_choices = []
             
-            return success_html, chunks_html, stats_html, gr.update(choices=doc_choices, value=None), ""
+            return stats_html, chunks_html, gr.update(choices=doc_choices, value=None), "", success_html
         else:
             error_html = GradioCommonComponents.create_error_message(
                 result.get("error", "문서 청킹에 실패했습니다.")
             )
-            return error_html, "", "", gr.update(choices=[], value=None), ""
+            return "", "", gr.update(choices=[], value=None), "", error_html
     
     def _format_chunking_statistics_response(self, result: dict) -> str:
         """청킹 통계 응답 포맷팅"""
@@ -203,19 +251,19 @@ class ChunkingAdapter:
                 "📊"
             )
             
-            return success_html, empty_chunks_html, empty_stats_html, gr.update(choices=[], value=None), ""
+            return empty_stats_html, empty_chunks_html, gr.update(choices=[], value=None), "", success_html
         else:
             error_html = GradioCommonComponents.create_error_message(
                 result.get("error", "청크 삭제에 실패했습니다.")
             )
-            return error_html, "", "", gr.update(choices=[], value=None), ""
+            return "", "", gr.update(choices=[], value=None), "", error_html
     
     def _format_error_response(self, error_message: str) -> Tuple[str, str, str, Any, str]:
         """에러 응답 포맷팅"""
         from ..components.common.gradio_common_components import GradioCommonComponents
         
         error_html = GradioCommonComponents.create_error_message(error_message)
-        return error_html, "", "", gr.update(choices=[], value=None), ""
+        return "", "", gr.update(choices=[], value=None), "", error_html
     
     def _format_error_html(self, error_message: str) -> str:
         """에러 HTML 포맷팅"""

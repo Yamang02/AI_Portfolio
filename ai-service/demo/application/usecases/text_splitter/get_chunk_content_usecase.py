@@ -8,7 +8,6 @@ TextSplitter 탭에서 특정 청크의 전체 내용을 조회하는 Use Case�
 
 import logging
 from typing import Dict, Any
-from domain.services.chunking_service import ChunkingService
 from application.common import (
     handle_usecase_errors,
     validate_required_fields,
@@ -23,8 +22,7 @@ logger = logging.getLogger(__name__)
 class GetChunkContentUseCase:
     """청크 내용 조회 유스케이스"""
     
-    def __init__(self, chunking_service: ChunkingService):
-        self.chunking_service = chunking_service
+    def __init__(self):
         logger.info("✅ GetChunkContentUseCase initialized")
     
     @handle_usecase_errors(

@@ -8,7 +8,6 @@ Clear Vector Store Use Case
 
 import logging
 from typing import Dict, Any
-from domain.services.embedding_service import EmbeddingService
 from application.common import (
     handle_usecase_errors,
     ResponseFormatter,
@@ -21,8 +20,7 @@ logger = logging.getLogger(__name__)
 class ClearVectorStoreUseCase:
     """벡터스토어 초기화 유스케이스"""
     
-    def __init__(self, embedding_service: EmbeddingService):
-        self.embedding_service = embedding_service
+    def __init__(self):
         logger.info("✅ ClearVectorStoreUseCase initialized")
     
     @handle_usecase_errors(

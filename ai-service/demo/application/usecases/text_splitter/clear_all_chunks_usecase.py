@@ -8,7 +8,6 @@ TextSplitter 탭에서 모든 청크를 삭제하는 Use Case입니다.
 
 import logging
 from typing import Dict, Any
-from domain.services.chunking_service import ChunkingService
 from application.common import (
     handle_usecase_errors,
     ResponseFormatter,
@@ -21,8 +20,7 @@ logger = logging.getLogger(__name__)
 class ClearAllChunksUseCase:
     """모든 청크 삭제 유스케이스"""
     
-    def __init__(self, chunking_service: ChunkingService):
-        self.chunking_service = chunking_service
+    def __init__(self):
         logger.info("✅ ClearAllChunksUseCase initialized")
     
     @handle_usecase_errors(

@@ -8,10 +8,9 @@ RAG Query 실행 유스케이스
 
 import logging
 from typing import Dict, Any, Tuple, List
-from domain.services.retrieval_service import RetrievalService
-from domain.services.generation_service import GenerationService
-from domain.services.document_management_service import DocumentService
-from domain.services.query_template_service import QueryTemplateService
+from .search_similar_chunks_usecase import SearchSimilarChunksUseCase
+from .generate_rag_response_usecase import GenerateRAGResponseUseCase
+from domain.ports.outbound.document_repository_port import DocumentRepositoryPort
 from domain.entities.query import Query
 from application.common import (
     handle_usecase_errors,
@@ -29,15 +28,13 @@ class ExecuteRAGQueryUseCase:
     
     def __init__(
         self,
-        retrieval_service: RetrievalService,
-        generation_service: GenerationService,
-        document_service: DocumentService,
-        query_template_service: QueryTemplateService = None
+        search_usecase: SearchSimilarChunksUseCase,
+        generation_usecase: GenerateRAGResponseUseCase,
+        document_repository: DocumentRepositoryPort
     ):
-        self.retrieval_service = retrieval_service
-        self.generation_service = generation_service
-        self.document_service = document_service
-        self.query_template_service = query_template_service or QueryTemplateService()
+        self.search_usecase = search_usecase
+        self.generation_usecase = generation_usecase
+        self.document_repository = document_repository
         logger.info("✅ ExecuteRAGQueryUseCase initialized")
     
     @handle_usecase_errors(
@@ -64,7 +61,7 @@ class ExecuteRAGQueryUseCase:
         )
         
         # 벡터 검색 수행
-        search_results = self.retrieval_service.search_similar_chunks(
+        search_results = self.search_usecase.search_similar_chunks(
             query=query,
             top_k=max_sources,
             similarity_threshold=similarity_threshold
@@ -83,7 +80,7 @@ class ExecuteRAGQueryUseCase:
             )
         
         # RAG 응답 생성
-        rag_response = self.generation_service.generate_rag_response(
+        rag_response = self.generation_usecase.generate_rag_response(
             query=query,
             search_results=search_results,
             max_sources=max_sources

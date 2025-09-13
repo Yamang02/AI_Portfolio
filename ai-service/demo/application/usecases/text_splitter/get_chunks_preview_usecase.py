@@ -8,8 +8,8 @@ TextSplitter 탭에서 생성된 청크들의 미리보기를 생성하는 Use C
 
 import logging
 from typing import Dict, Any
-from domain.services.chunking_service import ChunkingService
-from domain.services.document_management_service import DocumentService
+from domain.ports.outbound.chunk_repository_port import ChunkRepositoryPort
+from domain.ports.outbound.document_repository_port import DocumentRepositoryPort
 from application.common import (
     handle_usecase_errors,
     ResponseFormatter,
@@ -22,9 +22,9 @@ logger = logging.getLogger(__name__)
 class GetChunksPreviewUseCase:
     """청크 미리보기 유스케이스"""
     
-    def __init__(self, chunking_service: ChunkingService, document_service: DocumentService):
-        self.chunking_service = chunking_service
-        self.document_service = document_service
+    def __init__(self, chunk_repository: ChunkRepositoryPort, document_repository: DocumentRepositoryPort):
+        self.chunk_repository = chunk_repository
+        self.document_repository = document_repository
         logger.info("✅ GetChunksPreviewUseCase initialized")
     
     @handle_usecase_errors(
@@ -34,7 +34,7 @@ class GetChunksPreviewUseCase:
     @log_usecase_execution("GetChunksPreviewUseCase")
     def execute(self) -> Dict[str, Any]:
         """청크 미리보기 생성 실행"""
-        all_chunks = self.chunking_service.get_all_chunks()
+        all_chunks = self.chunk_repository.get_all_chunks()
         
         if not all_chunks:
             return ResponseFormatter.success(
@@ -51,7 +51,7 @@ class GetChunksPreviewUseCase:
         chunk_summaries = []
         for i, chunk in enumerate(all_chunks):
             # 문서 정보 조회하여 제목 가져오기
-            document = self.document_service.get_document(str(chunk.document_id))
+            document = self.document_repository.get_document_by_id(str(chunk.document_id))
             document_title = document.source if document else f"문서 {str(chunk.document_id)[:8]}..."
             
             chunk_summaries.append({
@@ -68,7 +68,7 @@ class GetChunksPreviewUseCase:
             })
         
         # 통계 정보
-        stats = self.chunking_service.get_chunking_statistics()
+        stats = self.chunk_repository.get_chunking_statistics()
         
         logger.info(f"✅ 청크 미리보기 생성 완료: {len(all_chunks)}개")
         

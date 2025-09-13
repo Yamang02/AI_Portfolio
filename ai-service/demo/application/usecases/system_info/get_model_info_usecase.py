@@ -18,7 +18,7 @@ from application.common import (
     ResponseFormatter,
     log_usecase_execution
 )
-from infrastructure.outbound.config.demo_config_adapter import get_demo_config_adapter
+from config.demo_config_manager import get_demo_config_manager
 
 logger = logging.getLogger(__name__)
 
@@ -56,12 +56,12 @@ class GetModelInfoUseCase:
         self.embedding_service = embedding_service
         self.generation_service = generation_service
         
-        # DemoConfigAdapter 초기화
+        # DemoConfigManager 초기화
         try:
-            self.demo_config = get_demo_config_adapter()
-            logger.info("✅ GetModelInfoUseCase initialized with DemoConfigAdapter")
+            self.demo_config = get_demo_config_manager()
+            logger.info("✅ GetModelInfoUseCase initialized with DemoConfigManager")
         except Exception as e:
-            logger.error(f"❌ DemoConfigAdapter 초기화 실패: {e}")
+            logger.error(f"❌ DemoConfigManager 초기화 실패: {e}")
             raise RuntimeError("Demo 설정을 로드할 수 없습니다.")
     
     @handle_usecase_errors(
@@ -86,8 +86,7 @@ class GetModelInfoUseCase:
     def _get_embedding_model_info(self) -> Dict[str, Any]:
         """임베딩 모델 정보 조회 (설정 기반)"""
         # DemoConfigManager에서 모델 정보 로드
-        model_info = self.demo_config.get_model_info()
-        embedding_config = model_info["embedding_model"]
+        embedding_config = self.demo_config.get_embedding_config()
         
         # 서비스 통계 정보 추가 (있는 경우)
         stats = {}
@@ -100,14 +99,14 @@ class GetModelInfoUseCase:
         return {
             "status": "loaded",
             "primary_model": {
-                "name": embedding_config["model_name"],
-                "dimension": embedding_config["dimension"],
-                "type": embedding_config["provider"],
-                "device": embedding_config["device"],
-                "normalize": embedding_config["normalize"],
-                "batch_size": embedding_config["batch_size"],
+                "name": embedding_config.get("model_name", "sentence-transformers/all-MiniLM-L6-v2"),
+                "dimension": embedding_config.get("dimension", 384),
+                "type": embedding_config.get("provider", "sentence-transformers"),
+                "device": embedding_config.get("device", "cpu"),
+                "normalize": embedding_config.get("normalize", True),
+                "batch_size": embedding_config.get("batch_size", 32),
                 "loaded_at": datetime.now().isoformat(),
-                "memory_usage_mb": self._estimate_embedding_model_memory(embedding_config["dimension"])
+                "memory_usage_mb": self._estimate_embedding_model_memory(embedding_config.get("dimension", 384))
             },
             "statistics": {
                 "total_embeddings_created": stats.get("total_embeddings", 0),
@@ -116,10 +115,10 @@ class GetModelInfoUseCase:
                 "average_vector_size": self._calculate_average_vector_size(stats)
             },
             "configuration": {
-                "model_path": embedding_config["model_name"],
+                "model_path": embedding_config.get("model_name", "sentence-transformers/all-MiniLM-L6-v2"),
                 "max_sequence_length": 512,  # sentence-transformers 기본값
-                "normalize_embeddings": embedding_config["normalize"],
-                "batch_size": embedding_config["batch_size"]
+                "normalize_embeddings": embedding_config.get("normalize", True),
+                "batch_size": embedding_config.get("batch_size", 32)
             },
             "capabilities": [
                 "텍스트 임베딩 생성",
@@ -132,20 +131,19 @@ class GetModelInfoUseCase:
     def _get_llm_model_info(self) -> Dict[str, Any]:
         """LLM 모델 정보 조회 (설정 기반)"""
         # DemoConfigManager에서 LLM 모델 정보 로드
-        model_info = self.demo_config.get_model_info()
-        llm_models = model_info["llm_models"]
+        llm_config = self.demo_config.get_llm_config()
         
         return {
             "status": "active",
             "external_apis": [
-                llm_models["openai"],
-                llm_models["google"]
+                llm_config.get("openai", {}),
+                llm_config.get("google", {})
             ],
-            "mock_model": llm_models["mock"],
+            "mock_model": llm_config.get("mock", {}),
             "local_models": [],  # 현재는 외부 API만 사용
-            "fallback_strategy": model_info["fallback_strategy"],
-            "response_caching": model_info["response_caching"],
-            "content_filtering": model_info["content_filtering"]
+            "fallback_strategy": llm_config.get("fallback_strategy", "mock"),
+            "response_caching": llm_config.get("response_caching", False),
+            "content_filtering": llm_config.get("content_filtering", True)
         }
     
     def _get_api_status(self) -> List[Dict[str, Any]]:

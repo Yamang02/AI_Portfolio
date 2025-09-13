@@ -7,9 +7,7 @@ Chunk Document with Tracking Use Case
 
 import logging
 from typing import Dict, Any, Optional
-from domain.services.chunking_service import ChunkingService
-from domain.services.document_management_service import DocumentService
-from domain.services.processing_status_service import ProcessingStatusService
+from domain.ports.outbound.document_repository_port import DocumentRepositoryPort
 
 logger = logging.getLogger(__name__)
 
@@ -19,13 +17,9 @@ class ChunkDocumentWithTrackingUseCase:
     
     def __init__(
         self,
-        chunking_service: ChunkingService,
-        document_service: DocumentService,
-        processing_status_service: ProcessingStatusService
+        document_repository: DocumentRepositoryPort
     ):
-        self.chunking_service = chunking_service
-        self.document_service = document_service
-        self.processing_status_service = processing_status_service
+        self.document_repository = document_repository
         logger.info("✅ ChunkDocumentWithTrackingUseCase initialized")
     
     def execute(
@@ -38,7 +32,7 @@ class ChunkDocumentWithTrackingUseCase:
         """문서 청킹 실행 (상태 추적 포함)"""
         try:
             # 문서 조회
-            document = self.document_service.get_document(document_id)
+            document = self.document_repository.get_document_by_id(document_id)
             
             if not document:
                 return {

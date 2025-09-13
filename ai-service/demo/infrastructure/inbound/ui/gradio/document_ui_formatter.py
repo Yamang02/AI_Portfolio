@@ -8,13 +8,13 @@ DTO를 UI 표현 객체로 변환하는 책임을 집중합니다.
 
 import logging
 from typing import List
-from application.dto.document_dtos import (
+from application.model.dto.document_dtos import (
     DocumentListDto, DocumentContentDto, DocumentSummaryDto,
     LoadSampleDocumentsResponse, CreateDocumentResponse, GetDocumentContentResponse
 )
-from .document_ui_objects import (
-    DocumentListUI, DocumentContentUI, DocumentPreviewUI, 
-    DocumentSelectionUI, DocumentErrorUI
+from .model.ui_responses import (
+    DocumentListUIResponse, DocumentContentUIResponse, DocumentPreviewUIResponse, 
+    DocumentSelectionUIResponse, DocumentErrorUIResponse, UIResponseStatus
 )
 from .components.common.gradio_common_components import GradioCommonComponents
 import gradio as gr
@@ -25,12 +25,13 @@ logger = logging.getLogger(__name__)
 class DocumentUIFormatter:
     """문서 관련 UI 변환 전담 서비스"""
     
-    def format_document_list(self, response) -> DocumentListUI:
-        """LoadSampleDocumentsResponse 또는 CreateDocumentResponse를 DocumentListUI로 변환"""
+    def format_document_list(self, response) -> DocumentListUIResponse:
+        """Response DTO를 DocumentListUIResponse로 변환"""
         try:
-            if not response.success:
-                error_html = GradioCommonComponents.create_error_message(response.error)
-                return DocumentListUI(
+            if not response.is_success:
+                error_html = GradioCommonComponents.create_error_message(response.message)
+                return DocumentListUIResponse(
+                    status=UIResponseStatus.ERROR,
                     success_message=error_html,
                     preview_content="",
                     selection_options=[]
@@ -45,7 +46,8 @@ class DocumentUIFormatter:
             # 선택 옵션 생성
             selection_options = self._create_selection_options(response.documents)
             
-            return DocumentListUI(
+            return DocumentListUIResponse(
+                status=UIResponseStatus.SUCCESS,
                 success_message=success_message,
                 preview_content=preview_content,
                 selection_options=selection_options
@@ -53,16 +55,20 @@ class DocumentUIFormatter:
             
         except Exception as e:
             logger.error(f"문서 목록 UI 변환 중 오류: {e}")
-            return DocumentErrorUI(
+            return DocumentErrorUIResponse(
+                status=UIResponseStatus.ERROR,
                 error_message=GradioCommonComponents.create_error_message(f"UI 변환 중 오류: {str(e)}")
             )
     
-    def format_document_content(self, response: GetDocumentContentResponse) -> DocumentContentUI:
-        """GetDocumentContentResponse를 DocumentContentUI로 변환"""
+    def format_document_content(self, response) -> DocumentContentUIResponse:
+        """Response DTO를 DocumentContentUIResponse로 변환"""
         try:
-            if not response.success:
-                error_html = GradioCommonComponents.create_error_message(response.error)
-                return DocumentContentUI(content_display=error_html)
+            if not response.is_success:
+                error_html = GradioCommonComponents.create_error_message(response.message)
+                return DocumentContentUIResponse(
+                    status=UIResponseStatus.ERROR,
+                    content_display=error_html
+                )
             
             # 문서 내용 카드 생성
             content_display = GradioCommonComponents.create_document_detail_card(
@@ -78,19 +84,26 @@ class DocumentUIFormatter:
                 updated_at=response.document.updated_at
             )
             
-            return DocumentContentUI(content_display=content_display)
+            return DocumentContentUIResponse(
+                status=UIResponseStatus.SUCCESS,
+                content_display=content_display
+            )
             
         except Exception as e:
             logger.error(f"문서 내용 UI 변환 중 오류: {e}")
             error_html = GradioCommonComponents.create_error_message(f"문서 내용 표시 중 오류: {str(e)}")
-            return DocumentContentUI(content_display=error_html)
+            return DocumentContentUIResponse(
+                status=UIResponseStatus.ERROR,
+                content_display=error_html
+            )
     
-    def format_document_preview(self, response: LoadSampleDocumentsResponse) -> DocumentPreviewUI:
-        """LoadSampleDocumentsResponse를 DocumentPreviewUI로 변환"""
+    def format_document_preview(self, response) -> DocumentPreviewUIResponse:
+        """Response DTO를 DocumentPreviewUIResponse로 변환"""
         try:
             if not response.success:
                 error_html = GradioCommonComponents.create_error_message(response.error)
-                return DocumentPreviewUI(
+                return DocumentPreviewUIResponse(
+                    status=UIResponseStatus.ERROR,
                     preview_content=error_html,
                     selection_update=gr.update(choices=[], value=None)
                 )
@@ -102,33 +115,42 @@ class DocumentUIFormatter:
             selection_options = self._create_selection_options(response.documents)
             selection_update = gr.update(choices=selection_options, value=None)
             
-            return DocumentPreviewUI(
+            return DocumentPreviewUIResponse(
+                status=UIResponseStatus.SUCCESS,
                 preview_content=preview_content,
                 selection_update=selection_update
             )
             
         except Exception as e:
             logger.error(f"문서 미리보기 UI 변환 중 오류: {e}")
-            return DocumentErrorUI(
+            return DocumentErrorUIResponse(
+                status=UIResponseStatus.ERROR,
                 error_message=GradioCommonComponents.create_error_message(f"문서 미리보기 표시 중 오류: {str(e)}")
             )
     
-    def format_document_selection(self, response: LoadSampleDocumentsResponse) -> DocumentSelectionUI:
-        """LoadSampleDocumentsResponse를 DocumentSelectionUI로 변환"""
+    def format_document_selection(self, response) -> DocumentSelectionUIResponse:
+        """Response DTO를 DocumentSelectionUIResponse로 변환"""
         try:
             if not response.success:
                 error_html = GradioCommonComponents.create_error_message(response.error)
-                return DocumentSelectionUI(selection_update=gr.update(choices=[], value=None))
+                return DocumentSelectionUIResponse(
+                    status=UIResponseStatus.ERROR,
+                    selection_update=gr.update(choices=[], value=None)
+                )
             
             # 선택 옵션 생성
             selection_options = self._create_selection_options(response.documents)
             selection_update = gr.update(choices=selection_options, value=None)
             
-            return DocumentSelectionUI(selection_update=selection_update)
+            return DocumentSelectionUIResponse(
+                status=UIResponseStatus.SUCCESS,
+                selection_update=selection_update
+            )
             
         except Exception as e:
             logger.error(f"문서 선택 UI 변환 중 오류: {e}")
-            return DocumentErrorUI(
+            return DocumentErrorUIResponse(
+                status=UIResponseStatus.ERROR,
                 error_message=GradioCommonComponents.create_error_message(f"문서 선택 옵션 생성 중 오류: {str(e)}")
             )
     
@@ -169,3 +191,4 @@ class DocumentUIFormatter:
     def _create_selection_options(self, documents: List[DocumentSummaryDto]) -> List[str]:
         """문서 선택 옵션 생성"""
         return [f"{doc.title}|{doc.document_id}" for doc in documents if doc.document_id]
+    

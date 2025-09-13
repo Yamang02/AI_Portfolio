@@ -36,6 +36,11 @@ class MemoryDocumentRepositoryAdapter(DocumentRepositoryPort):
             document = self.documents.get(document_id)
             if document:
                 logger.info(f"✅ 문서 조회 완료: {document.source}")
+            else:
+                # 디버깅 정보 추가
+                logger.warning(f"⚠️ 문서를 찾을 수 없음: {document_id}")
+                logger.info(f"📊 현재 저장된 문서 수: {len(self.documents)}")
+                logger.info(f"📋 저장된 문서 ID 목록: {list(self.documents.keys())}")
             return document
         except Exception as e:
             logger.error(f"문서 조회 중 오류 발생: {e}")

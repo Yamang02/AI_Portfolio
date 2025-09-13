@@ -8,7 +8,6 @@ Vector Search 실행 유스케이스
 
 import logging
 from typing import Dict, Any, List
-from domain.services.retrieval_service import RetrievalService
 from domain.entities.query import Query
 from application.common import (
     handle_usecase_errors,
@@ -24,12 +23,7 @@ logger = logging.getLogger(__name__)
 class ExecuteVectorSearchUseCase:
     """Vector Search 실행 유스케이스"""
     
-    def __init__(
-        self,
-        retrieval_service: RetrievalService
-    ):
-        self.retrieval_service = retrieval_service
-        
+    def __init__(self):
         # ConfigManager를 통한 검색 품질 설정 로드
         try:
             from config.demo_config_manager import get_demo_config_manager

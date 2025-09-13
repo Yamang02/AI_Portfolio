@@ -320,13 +320,8 @@ def _format_error_for_interface(error_response: ErrorResponse, interface_type: I
         from infrastructure.inbound.ui.gradio.components.common.gradio_common_components import GradioCommonComponents
         error_html = GradioCommonComponents.create_error_message(error_response.error_message)
         
-        # 우아한 응답 객체로 반환
-        from infrastructure.inbound.ui.gradio.response_objects import GradioResponse, ResponseType
-        return GradioResponse.create_error_response(
-            error_response.error_message,
-            ResponseType.ERROR,
-            error_response.details
-        )
+        # 간단한 HTML 문자열로 반환
+        return error_html
     
     elif interface_type == InterfaceType.REST:
         # REST API용 JSON 에러 응답

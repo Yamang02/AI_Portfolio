@@ -9,10 +9,6 @@ Create Embedding Use Case
 
 import logging
 from typing import Dict, Any, List, Optional
-from domain.services.embedding_service import EmbeddingService
-from domain.services.chunking_service import ChunkingService
-from domain.services.processing_status_service import ProcessingStatusService
-from domain.services.validation_service import ValidationService
 from domain.entities.chunk import Chunk
 from application.common import (
     handle_usecase_errors,
@@ -26,17 +22,7 @@ logger = logging.getLogger(__name__)
 class CreateEmbeddingUseCase:
     """임베딩 생성 유스케이스"""
     
-    def __init__(
-        self,
-        embedding_service: EmbeddingService,
-        chunking_service: ChunkingService,
-        processing_status_service: Optional[ProcessingStatusService] = None,
-        validation_service: Optional[ValidationService] = None
-    ):
-        self.embedding_service = embedding_service
-        self.chunking_service = chunking_service
-        self.processing_status_service = processing_status_service
-        self.validation_service = validation_service
+    def __init__(self):
         logger.info("✅ CreateEmbeddingUseCase initialized")
     
     @handle_usecase_errors(

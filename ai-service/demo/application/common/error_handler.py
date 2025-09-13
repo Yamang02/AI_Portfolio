@@ -7,9 +7,10 @@ UseCase 레벨에서 일관된 오류 처리를 제공합니다.
 
 import logging
 import traceback
-from typing import Dict, Any, Callable, TypeVar, Union
+from typing import Dict, Any, Callable, TypeVar, Union, List
 from functools import wraps
 from datetime import datetime
+from application.model.application_responses import ApplicationResponseStatus
 
 logger = logging.getLogger(__name__)
 
@@ -47,7 +48,7 @@ def handle_usecase_errors(
     default_error_message: str = "처리 중 오류가 발생했습니다.",
     log_error: bool = True,
     include_traceback: bool = False,
-    return_dto: bool = True
+    return_dto: bool = True  # 기본값을 True로 변경하여 DTO 객체 반환
 ):
     """
     UseCase 오류 처리 데코레이터
@@ -72,8 +73,7 @@ def handle_usecase_errors(
                         error=e.message,
                         error_code=e.error_code,
                         error_type="validation",
-                        details=e.details,
-                        timestamp=datetime.now().isoformat()
+                        details=e.details
                     )
                 else:
                     error_response = {
@@ -98,8 +98,7 @@ def handle_usecase_errors(
                         error=e.message,
                         error_code=e.error_code,
                         error_type="service",
-                        details=e.details,
-                        timestamp=datetime.now().isoformat()
+                        details=e.details
                     )
                 else:
                     error_response = {
@@ -150,8 +149,7 @@ def handle_usecase_errors(
                         error=e.message,
                         error_code=e.error_code,
                         error_type="usecase",
-                        details=e.details,
-                        timestamp=datetime.now().isoformat()
+                        details=e.details
                     )
                 else:
                     error_response = {
@@ -175,8 +173,7 @@ def handle_usecase_errors(
                         success=False,
                         error=f"입력값 오류: {str(e)}",
                         error_code="VALUE_ERROR",
-                        error_type="validation",
-                        timestamp=datetime.now().isoformat()
+                        error_type="validation"
                     )
                 else:
                     error_response = {
@@ -199,8 +196,7 @@ def handle_usecase_errors(
                         success=False,
                         error=default_error_message,
                         error_code="UNEXPECTED_ERROR",
-                        error_type="system",
-                        timestamp=datetime.now().isoformat()
+                        error_type="system"
                     )
                     if include_traceback:
                         error_response.details = {"traceback": traceback.format_exc()}
@@ -300,71 +296,84 @@ def validate_list_not_empty(value: Any) -> bool:
 
 
 class ResponseFormatter:
-    """일관된 응답 형식 제공"""
+    """일관된 응답 형식 제공 - Application Response 객체 반환"""
     
     @staticmethod
-    def success(data: Any = None, message: str = "성공적으로 처리되었습니다.") -> Dict[str, Any]:
-        """성공 응답 형식"""
-        response = {
-            "success": True,
-            "message": message,
-            "timestamp": datetime.now().isoformat()
-        }
-        
-        if data is not None:
-            response["data"] = data
-            
-        return response
-    
-    @staticmethod
-    def error(
-        error_message: str,
-        error_code: str = "ERROR",
-        error_type: str = "system",
-        details: Dict[str, Any] = None
-    ) -> Dict[str, Any]:
-        """오류 응답 형식"""
-        response = {
-            "success": False,
-            "error": error_message,
-            "error_code": error_code,
-            "error_type": error_type,
-            "timestamp": datetime.now().isoformat()
-        }
-        
-        if details:
-            response["details"] = details
-            
-        return response
-    
-    @staticmethod
-    def validation_error(field: str, message: str, value: Any = None) -> Dict[str, Any]:
-        """검증 오류 응답 형식"""
-        return ResponseFormatter.error(
-            f"'{field}' 필드 검증 실패: {message}",
-            "VALIDATION_ERROR",
-            "validation",
-            {"field": field, "value": value}
+    def success_response(response_class, message: str = "성공적으로 처리되었습니다.", **kwargs):
+        """성공 응답 DTO 생성"""
+        return response_class(
+            status=ApplicationResponseStatus.SUCCESS,
+            message=message,
+            **kwargs
         )
     
     @staticmethod
-    def service_error(service_name: str, message: str) -> Dict[str, Any]:
-        """서비스 오류 응답 형식"""
-        return ResponseFormatter.error(
-            f"{service_name} 서비스 오류: {message}",
-            "SERVICE_ERROR",
-            "service",
-            {"service_name": service_name}
+    def error_response(response_class, error_message: str, error_code: str = "ERROR", **kwargs):
+        """오류 응답 DTO 생성"""
+        return response_class(
+            status=ApplicationResponseStatus.ERROR,
+            message=error_message,
+            error_code=error_code,
+            **kwargs
         )
     
     @staticmethod
-    def configuration_error(config_key: str, message: str) -> Dict[str, Any]:
-        """설정 오류 응답 형식"""
-        return ResponseFormatter.error(
-            f"설정 오류 ({config_key}): {message}",
-            "CONFIGURATION_ERROR",
-            "configuration",
-            {"config_key": config_key}
+    def validation_error_response(response_class, field: str, message: str, value: Any = None, **kwargs):
+        """검증 오류 응답 DTO 생성"""
+        return response_class(
+            status=ApplicationResponseStatus.VALIDATION_ERROR,
+            message=f"'{field}' 필드 검증 실패: {message}",
+            error_code="VALIDATION_ERROR",
+            error_type="validation",
+            details={"field": field, "value": value},
+            field=field,
+            value=value,
+            **kwargs
+        )
+    
+    @staticmethod
+    def not_found_error_response(response_class, resource_type: str, resource_id: str, suggestions: List[str] = None, **kwargs):
+        """리소스 없음 오류 응답 DTO 생성"""
+        return response_class(
+            status=ApplicationResponseStatus.NOT_FOUND,
+            message=f"{resource_type}을(를) 찾을 수 없습니다. ID: {resource_id}",
+            error_code="NOT_FOUND_ERROR",
+            error_type="not_found",
+            details={
+                "resource_type": resource_type,
+                "resource_id": resource_id,
+                "suggestions": suggestions or []
+            },
+            resource_type=resource_type,
+            resource_id=resource_id,
+            suggestions=suggestions or [],
+            **kwargs
+        )
+    
+    @staticmethod
+    def service_error_response(response_class, service_name: str, message: str, **kwargs):
+        """서비스 오류 응답 DTO 생성"""
+        return response_class(
+            status=ApplicationResponseStatus.SERVICE_ERROR,
+            message=f"{service_name} 서비스 오류: {message}",
+            error_code="SERVICE_ERROR",
+            error_type="service",
+            details={"service_name": service_name},
+            service_name=service_name,
+            **kwargs
+        )
+    
+    @staticmethod
+    def configuration_error_response(response_class, config_key: str, message: str, **kwargs):
+        """설정 오류 응답 DTO 생성"""
+        return response_class(
+            status=ApplicationResponseStatus.CONFIGURATION_ERROR,
+            message=f"설정 오류 ({config_key}): {message}",
+            error_code="CONFIGURATION_ERROR",
+            error_type="configuration",
+            details={"config_key": config_key},
+            config_key=config_key,
+            **kwargs
         )
 
 

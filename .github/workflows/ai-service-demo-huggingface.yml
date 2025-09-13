@@ -1,0 +1,244 @@
+name: "[Demo] AI Service → HuggingFace Spaces"
+
+on:
+  push:
+    branches: [ stage, main ]
+    paths:
+      - 'ai-service/demo/**'
+  pull_request:
+    branches: [ stage, main ]
+    paths:
+      - 'ai-service/demo/**'
+
+jobs:
+  test-and-deploy:
+    runs-on: ubuntu-latest
+    environment: demo ai rag
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+
+    - name: Install Python dependencies
+      run: |
+        cd ai-service/demo
+        pip install -r requirements.txt
+        pip install pytest pytest-cov pytest-mock
+        
+    - name: Install Playwright dependencies
+      run: |
+        cd ai-service/demo/tests/e2e
+        npm install
+        npx playwright install --with-deps chromium
+        
+    - name: Run Unit Tests
+      run: |
+        cd ai-service/demo
+        echo "🧪 Running Unit tests..."
+        python tests/scripts/run_unit_tests.py --coverage
+        
+    - name: Run Integration Tests
+      run: |
+        cd ai-service/demo
+        echo "🔗 Running Integration tests..."
+        python tests/scripts/run_basic_tests.py --coverage
+        
+    - name: Start Demo Application for E2E Tests
+      run: |
+        cd ai-service/demo
+        echo "🚀 Starting demo application for E2E tests..."
+        python main.py &
+        sleep 30  # 애플리케이션 시작 대기
+        
+    - name: Run Playwright E2E Tests
+      run: |
+        cd ai-service/demo/tests/e2e
+        echo "🎭 Running Playwright E2E tests..."
+        npx playwright test --reporter=html,json
+        
+    - name: Upload Test Coverage
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./ai-service/demo/htmlcov/coverage.xml
+        flags: production-tests
+        name: production-tests-coverage
+        fail_ci_if_error: false
+        
+    - name: Upload Playwright Test Results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: playwright-report
+        path: ai-service/demo/tests/e2e/reports/
+        retention-days: 30
+        
+    - name: Prepare HuggingFace Spaces files
+      run: |
+        cd ai-service/demo
+        
+        echo "📦 Preparing Hexagonal Architecture demo for HuggingFace Spaces..."
+        
+        # Create README for HuggingFace Spaces
+        cat > README.md << 'EOF'
+# AI Portfolio RAG Demo - Hexagonal Architecture
+
+## 🏗️ Architecture Overview
+
+This demo showcases a **Hexagonal Architecture (Ports & Adapters)** implementation for a RAG (Retrieval-Augmented Generation) system. The architecture ensures clean separation of concerns and high testability.
+
+## ✨ Features
+
+- **📚 Document Management**: Upload and process various document formats
+- **🔍 Advanced Chunking**: Intelligent text splitting with overlap
+- **🧠 Vector Embeddings**: Real-time embedding generation using sentence-transformers
+- **🔎 Vector Search**: Hybrid search combining similarity and filtering
+- **💬 RAG Query**: Interactive Q&A with source attribution
+- **🎯 Sample Data**: Pre-loaded sample documents for immediate testing
+
+## 🚀 Quick Start
+
+1. **Load Sample Data**: Click "Load Sample Data" to get started immediately
+2. **Upload Documents**: Add your own documents via the file upload
+3. **Process Documents**: Chunk and embed your documents
+4. **Ask Questions**: Use the RAG interface to query your documents
+
+## 🏛️ Architecture Benefits
+
+- **Clean Separation**: Domain, Application, and Infrastructure layers are clearly separated
+- **Testability**: Comprehensive test coverage with Unit, Integration, and E2E tests
+- **Maintainability**: Easy to modify and extend functionality
+- **Scalability**: Ready for production deployment
+
+## 🧪 Testing
+
+This application includes:
+- **Unit Tests**: 52+ tests covering core business logic
+- **Integration Tests**: Service integration and basic execution tests
+- **E2E Tests**: Playwright-based user scenario tests
+
+## 🔧 Technical Stack
+
+- **Backend**: Python, FastAPI, Gradio
+- **AI/ML**: sentence-transformers, LangChain
+- **Architecture**: Hexagonal Architecture (Ports & Adapters)
+- **Testing**: pytest, Playwright
+- **Deployment**: Docker, HuggingFace Spaces
+
+---
+
+*Built with ❤️ using Hexagonal Architecture principles*
+EOF
+        
+        # Validate all required files are present
+        echo "📋 Validating deployment files..."
+        for file in "main.py" "README.md" "Dockerfile" "requirements.txt"; do
+          if [ ! -f "$file" ]; then
+            echo "❌ Missing deployment file: $file"
+            exit 1
+          fi
+          echo "✅ Ready: $file"
+        done
+        
+        # Show directory structure for debugging
+        echo "📁 Final directory structure:"
+        find . -type f -name "*.py" | head -20
+        
+    - name: Deploy to HuggingFace Spaces
+      env:
+        HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        HF_USERNAME: ${{ secrets.HF_USERNAME }}
+      run: |
+        cd ai-service/demo
+        python -c "
+        from huggingface_hub import HfApi, create_repo
+        import os
+        
+        api = HfApi(token=os.environ['HF_TOKEN'])
+        repo_id = f\"{os.environ['HF_USERNAME']}/ai-portfolio-rag-demo\"
+        
+        print(f'🚀 Deploying Hexagonal Architecture RAG Demo to {repo_id}')
+        
+        try:
+            # Create space if it doesn't exist
+            create_repo(
+                repo_id=repo_id,
+                repo_type='space',
+                space_sdk='gradio',
+                token=os.environ['HF_TOKEN'],
+                exist_ok=True
+            )
+            print(f'✅ Space {repo_id} ready')
+            
+            # Upload Hexagonal Architecture files
+            api.upload_folder(
+                folder_path='.',
+                repo_id=repo_id,
+                repo_type='space',
+                token=os.environ['HF_TOKEN'],
+                ignore_patterns=[
+                    '__pycache__', 
+                    '*.pyc', 
+                    'docker-compose*', 
+                    'Dockerfile.dev*',
+                    'tests/',
+                    '.pytest_cache',
+                    'config.yaml',
+                    'test_*.py',
+                    'node_modules/',
+                    '*.log'
+                ]
+            )
+            print(f'✅ Hexagonal Architecture files uploaded to {repo_id}')
+            
+            # Verify key files were uploaded
+            files = api.list_repo_files(repo_id=repo_id, repo_type='space')
+            required_files = ['main.py', 'README.md', 'requirements.txt', 'Dockerfile']
+            
+            missing_files = [f for f in required_files if f not in files]
+            if missing_files:
+                raise Exception(f'Missing required files: {missing_files}')
+            
+            print(f'✅ All required files verified: {required_files}')
+            
+        except Exception as e:
+            print(f'❌ Deployment failed: {e}')
+            raise e
+        "
+        
+    - name: Verify Deployment
+      run: |
+        echo "🎉 Hexagonal Architecture RAG Demo deployed successfully!"
+        echo ""
+        echo "🔗 Demo URL: https://huggingface.co/spaces/${{ secrets.HF_USERNAME }}/ai-portfolio-rag-demo"
+        echo "⚙️  Settings: https://huggingface.co/spaces/${{ secrets.HF_USERNAME }}/ai-portfolio-rag-demo/settings"
+        echo "📊 Logs: https://huggingface.co/spaces/${{ secrets.HF_USERNAME }}/ai-portfolio-rag-demo/logs"
+        echo ""
+        echo "✨ Demo Features:"
+        echo "  • 🏗️ Hexagonal Architecture (Ports & Adapters)"
+        echo "  • 🧠 Real vector embeddings (sentence-transformers)"
+        echo "  • 📚 Interactive document processing"
+        echo "  • 🔍 Live RAG pipeline demonstration"
+        echo "  • 🧪 Comprehensive test coverage (Unit + Integration + E2E)"
+        echo "  • 🎭 Playwright E2E testing"
+        echo "  • 📊 Test coverage reporting"
+        echo "  • 🚀 CI/CD automated deployment"
+        echo "  • 🔒 Production-ready security"
+        echo ""
+        echo "🚀 The demo will be available in 2-3 minutes at the URL above!"
+        echo ""
+        echo "📈 Test Results Summary:"
+        echo "  • Unit Tests: ✅ Passed"
+        echo "  • Integration Tests: ✅ Passed" 
+        echo "  • E2E Tests: ✅ Passed"
+        echo "  • Coverage: Uploaded to Codecov"
+        echo "  • Playwright Reports: Uploaded as artifacts"

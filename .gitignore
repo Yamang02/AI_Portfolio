@@ -254,3 +254,13 @@ ai-service/run_dev.py
 
 
 .env.*
+
+# IDE and Editor files
+.cursor/
+.vscode/
+.idea/
+
+# Test results and reports
+test-results/
+ai-service/demo/tests/e2e/test-results/
+ai-service/demo/tests/e2e/reports/ 

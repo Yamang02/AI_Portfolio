@@ -27,6 +27,95 @@
 
 ---
 
+## Session 24: 헥사고날 아키텍처 리팩토링 - Domain Service와 UseCase 역할 정리 (2025-09-13)
+
+### 📋 세션 개요
+- **날짜**: 2025-09-13
+- **주요 목표**: Domain Service와 Application UseCase 간 역할 중복 해소 및 UseCase 중심 아키텍처로 정리
+- **참여자**: 개발자, Claude Code AI
+- **소요 시간**: 약 2시간
+
+### 🎯 달성한 주요 성과
+
+#### 1. 아키텍처 중복 진단 및 해결
+- **문제 식별**: `DocumentService`와 `DocumentUseCase`들 간 역할 중복 및 불필요한 래퍼 패턴 발견
+- **해결책**: UseCase 중심으로 통합하여 Repository를 직접 사용하도록 변경
+- **기술적 가치**: 의존성 체인 단축(Controller → UseCase → Repository), 코드 복잡도 감소
+
+#### 2. Document 관련 코드 완전 리팩토링
+- **제거된 파일들**:
+  - `domain/services/document_management_service.py` (196줄 제거)
+  - `domain/services/document_validator.py` (103줄 제거)
+- **수정된 UseCase들**: 7개 UseCase 파일 수정으로 Repository 직접 사용
+- **측정 가능한 결과**: 코드 라인 약 300줄 감소, 파일 수 2개 감소
+
+#### 3. 비즈니스 로직 재배치
+- **Validation 로직**: DocumentValidator에서 각 UseCase 내부로 이동
+- **Sample Data Loading**: DocumentService에서 LoadSampleDocumentsUseCase로 이동
+- **CRUD 로직**: UseCase에서 Repository 직접 호출로 변경
+
+#### 4. 의존성 주입 설정 업데이트
+- **usecase_config.py**: document_service → document_repository로 의존성 변경
+- **service_config.py**: document_service 완전 제거
+- **영향받은 UseCase**: 9개 UseCase의 의존성 설정 업데이트
+
+### 🛠 기술적 세부사항
+
+#### Before/After 아키텍처 비교
+```
+Before: Controller → UseCase → DocumentService → Repository
+After:  Controller → UseCase → Repository
+```
+
+#### 주요 변경사항
+1. **AddDocumentUseCase**: validation 로직 내장, Repository 직접 사용
+2. **LoadSampleDocumentsUseCase**: 샘플 데이터 로드 로직 완전 이관
+3. **기타 CRUD UseCase들**: DocumentService 래퍼 제거
+
+#### 헥사고날 아키텍처 개선
+- **Application Layer**: UseCase가 진정한 애플리케이션 서비스 역할 수행
+- **Domain Layer**: Entity와 Port만 유지하여 순수 도메인 로직 집중
+- **Infrastructure Layer**: Repository Adapter가 데이터 접근 담당
+
+### 📚 학습한 주요 개념
+
+#### 1. 헥사고날 아키텍처의 올바른 구조
+- **UseCase = Application Service**: 비즈니스 플로우 오케스트레이션
+- **Domain Service**: 복잡한 도메인 로직이 있을 때만 필요
+- **단순 CRUD**: UseCase에서 Repository 직접 사용이 적절
+
+#### 2. 의존성 설계 원칙
+- **얇은 래퍼 패턴 지양**: 단순히 다른 서비스를 호출만 하는 서비스 제거
+- **책임 명확화**: 각 레이어의 고유한 책임만 담당하도록 구조화
+- **중복 제거**: 같은 기능을 여러 곳에서 구현하지 않도록 통합
+
+### 🔧 실무 적용 가능한 인사이트
+
+#### 1. 아키텍처 리팩토링 전략
+- **진단**: 비슷한 기능을 하는 클래스들 간 관계 분석
+- **통합**: 중복되는 역할을 가진 레이어 제거 또는 병합  
+- **검증**: 의존성 그래프가 단순해지는지 확인
+
+#### 2. 헥사고날 아키텍처 실전 적용
+- **UseCase 우선**: 복잡한 비즈니스 로직은 UseCase에 집중
+- **Domain Service 최소화**: 정말 필요한 도메인 로직만 분리
+- **Port/Adapter 명확화**: 외부 시스템과의 경계 명확히 정의
+
+### 💡 포트폴리오 활용 포인트
+
+#### 기술 면접 대답 예시
+**Q: 기존 시스템의 아키텍처를 개선한 경험이 있나요?**
+
+**A**: "헥사고날 아키텍처 기반 RAG 시스템에서 Domain Service와 UseCase 간 역할 중복 문제를 해결했습니다. DocumentService가 단순히 Repository를 래핑하는 역할만 하고 있어서, UseCase에서 Repository를 직접 사용하도록 리팩토링했습니다. 그 결과 의존성 체인이 4단계에서 3단계로 단축되고, 코드 라인이 약 300줄 감소했습니다. 이를 통해 시스템 복잡도를 낮추고 유지보수성을 향상시켰습니다."
+
+#### 아키텍처 설계 역량 증명
+- **문제 식별**: 코드 중복과 불필요한 추상화 레이어 발견
+- **해결책 설계**: UseCase 중심의 깔끔한 아키텍처로 재구성
+- **영향 분석**: 9개 UseCase와 설정 파일들의 의존성까지 체계적 업데이트
+- **검증**: 기능 유지하면서 구조적 개선 완료
+
+---
+
 ## Session 23: 체계적 테스트 시스템 구축 - 유닛/실행/E2E 테스트 전략 수립 (2025-09-07)
 
 ### 📋 세션 개요

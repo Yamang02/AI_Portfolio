@@ -22,7 +22,18 @@ class TextSplitterTabComponent:
             gradio_adapter: Gradio 어댑터 (의존성 주입)
         """
         self.gradio_adapter = gradio_adapter
+        self._strategies_loaded = False  # 전략 로딩 상태 추적
         logger.info("✅ Text Splitter Tab Component initialized with Gradio Adapter")
+
+    def _load_strategies_on_tab_select(self):
+        """탭 선택 시 청킹 전략을 로드하는 헬퍼 메서드"""
+        # 이미 로딩되었으면 다시 로딩하지 않음
+        if self._strategies_loaded:
+            return gr.update()
+
+        # 최초 로딩 시에만 전략을 로드
+        self._strategies_loaded = True
+        return self.gradio_adapter.handle_get_chunking_strategies()
     
     def create_tab(self) -> gr.Tab:
         """텍스트 분할 탭 생성"""
@@ -49,22 +60,21 @@ class TextSplitterTabComponent:
             # 청킹 설정 섹션
             gr.Markdown("### ⚙️ 청킹 설정")
             with gr.Row():
+                refresh_strategies_btn = gr.Button("🔄 전략 목록 새로고침", size="sm")
+
+            with gr.Row():
                 with gr.Column(scale=1):
                     chunking_strategy = gr.Dropdown(
                         label="청킹 전략",
-                        choices=[
-                            ("기본 전략", "basic"),
-                            ("의미 단위", "semantic"),
-                            ("문단 단위", "paragraph"),
-                            ("문장 단위", "sentence")
-                        ],
-                        value="basic"
+                        choices=[],
+                        value=None,
+                        interactive=True
                     )
                     use_strategy_defaults = gr.Checkbox(
                         label="전략 기본값 사용",
                         value=True
                     )
-                
+
                 with gr.Column(scale=1):
                     chunk_size = gr.Slider(
                         minimum=100,
@@ -130,6 +140,28 @@ class TextSplitterTabComponent:
                 fn=self.gradio_adapter.handle_refresh_documents,
                 outputs=[documents_preview, document_select]
             )
+
+            refresh_strategies_btn.click(
+                fn=self.gradio_adapter.handle_get_chunking_strategies,
+                outputs=[chunking_strategy]
+            )
+
+            # 전략 선택 변경 시 기본값 업데이트
+            chunking_strategy.change(
+                fn=self.gradio_adapter.handle_get_strategy_defaults,
+                inputs=[chunking_strategy],
+                outputs=[chunk_size, chunk_overlap]
+            )
+
+            # 체크박스 상태에 따른 슬라이더 활성화/비활성화
+            def toggle_sliders(use_defaults):
+                return gr.update(interactive=not use_defaults), gr.update(interactive=not use_defaults)
+
+            use_strategy_defaults.change(
+                fn=toggle_sliders,
+                inputs=[use_strategy_defaults],
+                outputs=[chunk_size, chunk_overlap]
+            )
             
             chunk_btn.click(
                 fn=self.gradio_adapter.handle_chunk_document,
@@ -163,5 +195,11 @@ class TextSplitterTabComponent:
                 fn=self.gradio_adapter.handle_clear_all_chunks,
                 outputs=[chunk_stats, chunks_preview, chunk_select, chunk_content_output, documents_preview]
             )
-        
+
+            # 탭 선택 시 청킹 전략 로드 (최초 로딩용)
+            tab.select(
+                fn=self._load_strategies_on_tab_select,
+                outputs=[chunking_strategy]
+            )
+
         return tab

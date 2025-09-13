@@ -72,7 +72,8 @@ class GradioAdapter:
     
     def handle_refresh_documents(self) -> Tuple[str, Any]:
         """문서 목록 새로고침 이벤트 처리 (청킹 탭용)"""
-        return self.document_adapter.handle_refresh_documents()
+        result = self.document_adapter.handle_refresh_documents()
+        return result.to_gradio_outputs()
     
     def handle_delete_document(self, document_selection: str) -> Tuple[str, str, Any]:
         """개별 문서 삭제 이벤트 처리"""
@@ -109,6 +110,14 @@ class GradioAdapter:
     def handle_clear_all_chunks(self) -> Tuple[str, str, str, Any, str]:
         """모든 청크 삭제 이벤트 처리"""
         return self.chunking_adapter.handle_clear_all_chunks()
+
+    def handle_get_chunking_strategies(self) -> Any:
+        """청킹 전략 목록 조회 이벤트 처리"""
+        return self.chunking_adapter.handle_get_chunking_strategies()
+
+    def handle_get_strategy_defaults(self, strategy_name: str) -> Tuple[Any, Any]:
+        """선택된 전략의 기본값 조회 이벤트 처리"""
+        return self.chunking_adapter.handle_get_strategy_defaults(strategy_name)
     
     # ==================== Embedding 관련 이벤트 핸들러 (위임) ====================
     

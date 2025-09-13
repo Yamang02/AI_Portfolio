@@ -8,13 +8,11 @@ DocumentLoad 탭에서 로드된 문서들의 미리보기를 생성하는 Use C
 
 import logging
 from typing import Dict, Any
-from domain.services.document_management_service import DocumentService
-from application.dto.document_dtos import DocumentListDto, DocumentSummaryDto
+from domain.ports.outbound.document_repository_port import DocumentRepositoryPort
+from application.model.dto.document_dtos import DocumentListDto, DocumentSummaryDto
 from application.common import (
     handle_usecase_errors,
     ResponseFormatter,
-    ErrorCode,
-    ErrorType,
     log_usecase_execution
 )
 
@@ -24,8 +22,8 @@ logger = logging.getLogger(__name__)
 class GetDocumentsPreviewUseCase:
     """문서 미리보기 유스케이스"""
     
-    def __init__(self, document_service: DocumentService):
-        self.document_service = document_service
+    def __init__(self, document_repository: DocumentRepositoryPort):
+        self.document_repository = document_repository
         logger.info("✅ GetDocumentsPreviewUseCase initialized")
     
     @handle_usecase_errors(
@@ -35,8 +33,8 @@ class GetDocumentsPreviewUseCase:
     @log_usecase_execution("GetDocumentsPreviewUseCase")
     def execute(self) -> DocumentListDto:
         """문서 미리보기 생성 실행"""
-        # 도메인 서비스에서 모든 문서 조회
-        all_documents = self.document_service.list_documents()
+        # Repository에서 모든 문서 조회
+        all_documents = self.document_repository.get_all_documents()
         
         if not all_documents:
             return DocumentListDto(
