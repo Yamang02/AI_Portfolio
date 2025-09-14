@@ -13,12 +13,12 @@ import logging
 from unittest.mock import Mock, patch
 
 # 프로젝트 루트 경로 추가
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
-from ai_service.demo.application_bootstrap import ApplicationFactory
-from ai_service.demo.infrastructure.inbound.infrastructure_factory import InfrastructureFactory
-from ai_service.demo.application.factories.usecase_factory import UseCaseFactory
+from application_bootstrap import ApplicationFactory
+from infrastructure.inbound.infrastructure_factory import InfrastructureFactory
+from application.factories.usecase_factory import UseCaseFactory
 
 logger = logging.getLogger(__name__)
 

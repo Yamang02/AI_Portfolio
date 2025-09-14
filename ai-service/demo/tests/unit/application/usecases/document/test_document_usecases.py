@@ -14,25 +14,25 @@ from unittest.mock import Mock, patch, MagicMock
 from typing import Dict, Any, List
 
 # 프로젝트 루트 경로 추가
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', '..', '..', '..'))
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', '..', '..'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 
-from ai_service.demo.application.usecases.document import (
+from application.usecases.document import (
     AddDocumentUseCase,
     LoadSampleDocumentsUseCase,
     GetDocumentContentUseCase,
     DeleteDocumentUseCase,
     ClearAllDocumentsUseCase
 )
-from ai_service.demo.application.model.dto.document_dtos import (
+from application.model.dto.document_dtos import (
     CreateDocumentRequest,
     LoadSampleDocumentsRequest,
     GetDocumentContentRequest,
     DeleteDocumentRequest,
     ClearAllDocumentsRequest
 )
-from ai_service.demo.domain.entities.document import Document, DocumentType
-from ai_service.demo.domain.entities.document_id import DocumentId
+from domain.entities.document import Document, DocumentType
+from domain.entities.document_id import DocumentId
 
 logger = logging.getLogger(__name__)
 
