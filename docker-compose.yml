@@ -12,9 +12,8 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
-      - ./database/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql
-      - ./database/insert-data.sql:/docker-entrypoint-initdb.d/03-insert-data.sql
+      - ./database/create_tables.sql:/docker-entrypoint-initdb.d/01-create_tables.sql
+      - ./database/insert_real_data.sql:/docker-entrypoint-initdb.d/02-insert_real_data.sql
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U dev_user -d ai_portfolio"]

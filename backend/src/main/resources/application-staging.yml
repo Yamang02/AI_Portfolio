@@ -7,9 +7,9 @@ spring:
   
   # Railway PostgreSQL 설정 (POSTGRE_URL을 통해 DatabaseConfig에서 처리)
   datasource:
-    url: jdbc:postgresql://localhost:5432/ai_portfolio  # 기본값 (POSTGRE_URL이 없을 때 사용)
-    username: dev_user
-    password: dev_password
+    url: ${POSTGRE_URL:jdbc:postgresql://localhost:5432/ai_portfolio}  # Railway PostgreSQL URL 우선 사용
+    username: ${POSTGRES_USER:dev_user}
+    password: ${POSTGRES_PASSWORD:dev_password}
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 5  # Cloud Run 메모리 제한 고려
@@ -22,7 +22,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate  # 프로덕션 준비: 스키마 검증만 수행
-    show-sql: false     # 프로덕션 준비: SQL 로그 비활성화
+    show-sql: true      # 디버깅: SQL 로그 활성화
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
@@ -36,7 +36,7 @@ spring:
         - "http://localhost:3000"
         - "http://localhost:5173"
         - "https://ai-portfolio-chatbot-493721639129.asia-northeast3.run.app"
-        - "https://your-staging-domain.run.app"  # 스테이징 도메인
+        - "https://ai-portfolio-staging-493721639129.asia-northeast3.run.app"  # 실제 스테이징 도메인
       allowed-methods: 
         - GET
         - POST
@@ -63,12 +63,12 @@ management:
     health:
       show-details: never
 
-# 로깅 설정 (프로덕션 레벨)
+# 로깅 설정 (디버깅 레벨)
 logging:
   level:
-    com.aiportfolio.backend: INFO
-    org.springframework.web: WARN
-    org.hibernate.SQL: WARN
+    com.aiportfolio.backend: DEBUG
+    org.springframework.web: INFO
+    org.hibernate.SQL: DEBUG
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%level] %logger{36} - %msg%n"
 
