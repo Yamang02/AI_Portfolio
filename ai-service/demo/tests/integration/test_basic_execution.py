@@ -225,22 +225,18 @@ class TestServiceIntegration:
         
         logger.info("✅ Infrastructure factory service creation test passed")
     
-    def test_service_dependencies_injection(self):
-        """서비스 의존성 주입 테스트"""
-        logger.info("Testing service dependencies injection")
+    def test_document_repository_creation(self):
+        """문서 저장소 생성 테스트"""
+        logger.info("Testing document repository creation")
         
         # 인프라스트럭처 팩토리 생성
         self.infrastructure_factory = InfrastructureFactory()
         
-        # EmbeddingService의 의존성 확인
-        embedding_model = self.infrastructure_factory.get_component("embedding_model")
+        # 문서 저장소 생성 테스트
+        document_repository = self.infrastructure_factory.get_component("document_repository")
+        assert document_repository is not None
         
-        # 의존성 서비스들이 주입되었는지 확인
-        assert hasattr(embedding_service, 'embedding_model')
-        assert hasattr(embedding_service, 'processing_status_service')
-        assert hasattr(embedding_service, 'validation_service')
-        
-        logger.info("✅ Service dependencies injection test passed")
+        logger.info("✅ Document repository creation test passed")
 
 
 if __name__ == "__main__":

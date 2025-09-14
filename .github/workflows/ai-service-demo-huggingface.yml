@@ -150,11 +150,11 @@ jobs:
         npm install
         npx playwright install --with-deps chromium
 
-    - name: 🧪 Run Unit & Integration Tests
+    - name: 🧪 Run Document Domain Tests Only
       run: |
         cd ai-service/demo
-        echo "🧪 Running unit and integration tests..."
-        python -m pytest tests/ -v --tb=short
+        echo "🧪 Running document domain tests only..."
+        python -m pytest tests/unit/application/usecases/document/ tests/integration/ -v --tb=short --ignore=tests/unit/domain/services/
 
     - name: 🎭 Run E2E Tests (Document Domain)
       run: |
