@@ -76,52 +76,52 @@ jobs:
         cat > README.md << 'EOF'
 # AI Portfolio RAG Demo - Hexagonal Architecture
 
-## 🏗️ Architecture Overview
+## Architecture Overview
 
-This demo showcases a **Hexagonal Architecture (Ports & Adapters)** implementation for a RAG (Retrieval-Augmented Generation) system. The architecture ensures clean separation of concerns and high testability.
+This demo showcases a Hexagonal Architecture (Ports & Adapters) implementation for a RAG (Retrieval-Augmented Generation) system. The architecture ensures clean separation of concerns and high testability.
 
-## ✨ Features
+## Features
 
-- **📚 Document Management**: Upload and process various document formats
-- **🔍 Advanced Chunking**: Intelligent text splitting with overlap
-- **🧠 Vector Embeddings**: Real-time embedding generation using sentence-transformers
-- **🔎 Vector Search**: Hybrid search combining similarity and filtering
-- **💬 RAG Query**: Interactive Q&A with source attribution
-- **🎯 Sample Data**: Pre-loaded sample documents for immediate testing
+- Document Management: Upload and process various document formats
+- Advanced Chunking: Intelligent text splitting with overlap
+- Vector Embeddings: Real-time embedding generation using sentence-transformers
+- Vector Search: Hybrid search combining similarity and filtering
+- RAG Query: Interactive Q&A with source attribution
+- Sample Data: Pre-loaded sample documents for immediate testing
 
-## 🚀 Quick Start
+## Quick Start
 
-1. **Load Sample Data**: Click "Load Sample Data" to get started immediately
-2. **Upload Documents**: Add your own documents via the file upload
-3. **Process Documents**: Chunk and embed your documents
-4. **Ask Questions**: Use the RAG interface to query your documents
+1. Load Sample Data: Click "Load Sample Data" to get started immediately
+2. Upload Documents: Add your own documents via the file upload
+3. Process Documents: Chunk and embed your documents
+4. Ask Questions: Use the RAG interface to query your documents
 
-## 🏛️ Architecture Benefits
+## Architecture Benefits
 
-- **Clean Separation**: Domain, Application, and Infrastructure layers are clearly separated
-- **Testability**: Comprehensive test coverage with Unit, Integration, and E2E tests
-- **Maintainability**: Easy to modify and extend functionality
-- **Scalability**: Ready for production deployment
+- Clean Separation: Domain, Application, and Infrastructure layers are clearly separated
+- Testability: Comprehensive test coverage with Unit, Integration, and E2E tests
+- Maintainability: Easy to modify and extend functionality
+- Scalability: Ready for production deployment
 
-## 🧪 Testing
+## Testing
 
 This application includes:
-- **Unit Tests**: 52+ tests covering core business logic
-- **Integration Tests**: Service integration and basic execution tests
-- **E2E Tests**: Playwright-based user scenario tests
+- Unit Tests: 52+ tests covering core business logic
+- Integration Tests: Service integration and basic execution tests
+- E2E Tests: Playwright-based user scenario tests
 
-## 🔧 Technical Stack
+## Technical Stack
 
-- **Backend**: Python, FastAPI, Gradio
-- **AI/ML**: sentence-transformers, LangChain
-- **Architecture**: Hexagonal Architecture (Ports & Adapters)
-- **Testing**: pytest, Playwright
-- **Deployment**: Docker, HuggingFace Spaces
+- Backend: Python, FastAPI, Gradio
+- AI/ML: sentence-transformers, LangChain
+- Architecture: Hexagonal Architecture (Ports & Adapters)
+- Testing: pytest, Playwright
+- Deployment: Docker, HuggingFace Spaces
 
 ---
 
-*Built with ❤️ using Hexagonal Architecture principles*
-        EOF
+Built with Hexagonal Architecture principles
+EOF
         
         # Validate all required files are present
         echo "📋 Validating deployment files..."
