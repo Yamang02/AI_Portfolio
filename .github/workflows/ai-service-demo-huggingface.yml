@@ -2,12 +2,12 @@ name: "[Demo] AI Service → HuggingFace Spaces"
 
 on:
   push:
-    branches: [ stage, main ]
+    branches: [ staging, main ]
     paths:
       - 'ai-service/demo/**'
       - 'ai-service/common/**'
   pull_request:
-    branches: [ stage, main ]
+    branches: [ staging, main ]
     paths:
       - 'ai-service/demo/**'
       - 'ai-service/common/**'
