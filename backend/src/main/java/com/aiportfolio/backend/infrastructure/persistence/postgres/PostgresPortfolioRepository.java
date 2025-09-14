@@ -13,11 +13,8 @@ import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
-import com.aiportfolio.backend.infrastructure.cache.CacheService;
 
 // Java 표준 라이브러리 imports
 import java.time.LocalDateTime;
@@ -46,8 +43,6 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
     private final EducationMapper educationMapper;
     private final CertificationMapper certificationMapper;
 
-    // Redis 캐시 서비스 (선택적 의존성)
-    private final Optional<CacheService> cacheService;
 
     // 캐시 관련 필드
     private List<Project> cachedProjects;
@@ -60,7 +55,6 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
     // === 프로젝트 관련 구현 ===
 
     @Override
-    @Cacheable(cacheNames = "projects", key = "'all'")
     public List<Project> findAllProjects() {
         if (cachedProjects == null || !isCacheValid()) {
             log.info("PostgreSQL에서 프로젝트 데이터를 조회합니다.");
@@ -232,7 +226,6 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
     // === 캐시 관리 ===
 
     @Override
-    @CacheEvict(cacheNames = {"projects", "experiences", "educations", "certifications"}, allEntries = true)
     public void invalidateCache() {
         // 메모리 캐시 무효화
         cachedProjects = null;
@@ -241,10 +234,7 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
         cachedCertifications = null;
         lastCacheTime = null;
         
-        // Redis 캐시 무효화 (있는 경우)
-        cacheService.ifPresent(CacheService::invalidatePortfolioCache);
-        
-        log.info("모든 캐시(메모리 + Redis)가 무효화되었습니다.");
+        log.info("메모리 캐시가 무효화되었습니다.");
     }
 
     @Override
