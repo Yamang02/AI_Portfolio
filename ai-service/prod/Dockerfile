@@ -12,8 +12,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN pip install --no-cache-dir --upgrade pip
 
 # CloudRun 프로덕션 의존성 (경량화됨)
-COPY requirements-cloudrun.txt .
-RUN pip install --no-cache-dir -r requirements-cloudrun.txt
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
 # 애플리케이션 코드 (가장 마지막 - 자주 변경됨)
 COPY . .
