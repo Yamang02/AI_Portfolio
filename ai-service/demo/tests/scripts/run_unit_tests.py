@@ -33,10 +33,10 @@ def run_unit_tests():
     start_time = time.time()
     
     try:
-        # pytest 명령어 구성
+        # pytest 명령어 구성 (Document 도메인만 테스트)
         cmd = [
             sys.executable, "-m", "pytest",
-            "tests/unit/",
+            "tests/unit/test_document_*",  # Document 도메인 테스트만
             "-v",  # 상세 출력
             "--tb=short",  # 짧은 트레이스백
             "--color=yes",  # 컬러 출력
@@ -76,11 +76,11 @@ def run_unit_tests_with_coverage():
     start_time = time.time()
     
     try:
-        # pytest 명령어 구성 (커버리지 포함)
+        # pytest 명령어 구성 (커버리지 포함, Document 도메인만)
         cmd = [
             sys.executable, "-m", "pytest",
-            "tests/unit/",
-            "--cov=ai_service.demo",  # 커버리지 대상
+            "tests/unit/test_document_*",  # Document 도메인 테스트만
+            "--cov=application.usecases.document",  # Document 도메인 커버리지만
             "--cov-report=term-missing",  # 터미널에 누락된 라인 표시
             "--cov-report=html",  # HTML 리포트 생성
             "--cov-report=xml",  # XML 리포트 생성

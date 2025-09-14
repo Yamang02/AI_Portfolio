@@ -45,35 +45,45 @@ class ConfigurationError(UseCaseError):
 
 
 def handle_usecase_errors(
-    default_error_message: str = "처리 중 오류가 발생했습니다.",
+    default_error_message: str = "예상치 못한 오류가 발생했습니다.",
     log_error: bool = True,
     include_traceback: bool = False,
-    return_dto: bool = True  # 기본값을 True로 변경하여 DTO 객체 반환
+    return_dto: bool = False
 ):
     """
     UseCase 오류 처리 데코레이터
     
     Args:
-        default_error_message: 기본 오류 메시지
-        log_error: 오류 로깅 여부
-        include_traceback: 스택 트레이스 포함 여부
-        return_dto: DTO 형태로 반환할지 여부
+        default_error_message: 기본 오류 메시지 (필수)
+        log_error: 오류 로깅 여부 (필수)
+        include_traceback: 스택 트레이스 포함 여부 (필수)
+        return_dto: DTO 형태로 반환할지 여부 (필수)
     """
     def decorator(func: Callable[..., Union[Dict[str, Any], T]]) -> Callable[..., Union[Dict[str, Any], T]]:
         @wraps(func)
         def wrapper(*args, **kwargs) -> Union[Dict[str, Any], T]:
+            # 필수 파라미터 검증 (기본값이 설정되어 있으므로 검증 생략)
+            # _validate_required_params(
+            #     default_error_message=default_error_message,
+            #     log_error=log_error,
+            #     include_traceback=include_traceback,
+            #     return_dto=return_dto
+            # )
+            
             try:
                 return func(*args, **kwargs)
                 
             except ValidationError as e:
                 if return_dto:
-                    from application.dto.document_dtos import ErrorDto
-                    error_response = ErrorDto(
-                        success=False,
-                        error=e.message,
+                    from application.model.application_responses import ValidationErrorApplicationResponse, ApplicationResponseStatus
+                    error_response = ValidationErrorApplicationResponse(
+                        status=ApplicationResponseStatus.VALIDATION_ERROR,
+                        message=e.message,
                         error_code=e.error_code,
                         error_type="validation",
-                        details=e.details
+                        details=e.details,
+                        field=e.details.get('field', ''),
+                        value=e.details.get('value', None)
                     )
                 else:
                     error_response = {
@@ -92,10 +102,10 @@ def handle_usecase_errors(
                 
             except ServiceError as e:
                 if return_dto:
-                    from application.dto.document_dtos import ErrorDto
-                    error_response = ErrorDto(
-                        success=False,
-                        error=e.message,
+                    from application.model.application_responses import ApplicationErrorResponse, ApplicationResponseStatus
+                    error_response = ApplicationErrorResponse(
+                        status=ApplicationResponseStatus.ERROR,
+                        message=e.message,
                         error_code=e.error_code,
                         error_type="service",
                         details=e.details
@@ -117,14 +127,13 @@ def handle_usecase_errors(
                 
             except ConfigurationError as e:
                 if return_dto:
-                    from application.dto.document_dtos import ErrorDto
-                    error_response = ErrorDto(
-                        success=False,
-                        error=e.message,
+                    from application.model.application_responses import ApplicationErrorResponse, ApplicationResponseStatus
+                    error_response = ApplicationErrorResponse(
+                        status=ApplicationResponseStatus.ERROR,
+                        message=e.message,
                         error_code=e.error_code,
                         error_type="configuration",
-                        details=e.details,
-                        timestamp=datetime.now().isoformat()
+                        details=e.details
                     )
                 else:
                     error_response = {
@@ -143,10 +152,10 @@ def handle_usecase_errors(
                 
             except UseCaseError as e:
                 if return_dto:
-                    from application.dto.document_dtos import ErrorDto
-                    error_response = ErrorDto(
-                        success=False,
-                        error=e.message,
+                    from application.model.application_responses import ApplicationErrorResponse, ApplicationResponseStatus
+                    error_response = ApplicationErrorResponse(
+                        status=ApplicationResponseStatus.ERROR,
+                        message=e.message,
                         error_code=e.error_code,
                         error_type="usecase",
                         details=e.details
@@ -168,12 +177,14 @@ def handle_usecase_errors(
                 
             except ValueError as e:
                 if return_dto:
-                    from application.dto.document_dtos import ErrorDto
-                    error_response = ErrorDto(
-                        success=False,
-                        error=f"입력값 오류: {str(e)}",
+                    from application.model.application_responses import ValidationErrorApplicationResponse, ApplicationResponseStatus
+                    error_response = ValidationErrorApplicationResponse(
+                        status=ApplicationResponseStatus.VALIDATION_ERROR,
+                        message=f"입력값 오류: {str(e)}",
                         error_code="VALUE_ERROR",
-                        error_type="validation"
+                        error_type="validation",
+                        field="input",
+                        value=str(e)
                     )
                 else:
                     error_response = {
@@ -191,10 +202,10 @@ def handle_usecase_errors(
                 
             except Exception as e:
                 if return_dto:
-                    from application.dto.document_dtos import ErrorDto
-                    error_response = ErrorDto(
-                        success=False,
-                        error=default_error_message,
+                    from application.model.application_responses import ApplicationErrorResponse, ApplicationResponseStatus
+                    error_response = ApplicationErrorResponse(
+                        status=ApplicationResponseStatus.ERROR,
+                        message=default_error_message,
                         error_code="UNEXPECTED_ERROR",
                         error_type="system"
                     )
@@ -295,12 +306,21 @@ def validate_list_not_empty(value: Any) -> bool:
     return isinstance(value, list) and len(value) > 0
 
 
+def _validate_required_params(**params):
+    """필수 파라미터 검증 공통 함수"""
+    for param_name, param_value in params.items():
+        if param_value is None:
+            raise ValueError(f"{param_name}는 필수 파라미터입니다.")
+
+
 class ResponseFormatter:
     """일관된 응답 형식 제공 - Application Response 객체 반환"""
     
     @staticmethod
-    def success_response(response_class, message: str = "성공적으로 처리되었습니다.", **kwargs):
+    def success_response(response_class, message: str = None, **kwargs):
         """성공 응답 DTO 생성"""
+        _validate_required_params(response_class=response_class, message=message)
+        
         return response_class(
             status=ApplicationResponseStatus.SUCCESS,
             message=message,
@@ -308,8 +328,10 @@ class ResponseFormatter:
         )
     
     @staticmethod
-    def error_response(response_class, error_message: str, error_code: str = "ERROR", **kwargs):
+    def error_response(response_class, error_message: str = None, error_code: str = None, **kwargs):
         """오류 응답 DTO 생성"""
+        _validate_required_params(response_class=response_class, error_message=error_message, error_code=error_code)
+        
         return response_class(
             status=ApplicationResponseStatus.ERROR,
             message=error_message,
@@ -318,8 +340,10 @@ class ResponseFormatter:
         )
     
     @staticmethod
-    def validation_error_response(response_class, field: str, message: str, value: Any = None, **kwargs):
+    def validation_error_response(response_class, field: str = None, message: str = None, value: Any = None, **kwargs):
         """검증 오류 응답 DTO 생성"""
+        _validate_required_params(response_class=response_class, field=field, message=message)
+        
         return response_class(
             status=ApplicationResponseStatus.VALIDATION_ERROR,
             message=f"'{field}' 필드 검증 실패: {message}",
@@ -332,8 +356,10 @@ class ResponseFormatter:
         )
     
     @staticmethod
-    def not_found_error_response(response_class, resource_type: str, resource_id: str, suggestions: List[str] = None, **kwargs):
+    def not_found_error_response(response_class, resource_type: str = None, resource_id: str = None, suggestions: List[str] = None, **kwargs):
         """리소스 없음 오류 응답 DTO 생성"""
+        _validate_required_params(response_class=response_class, resource_type=resource_type, resource_id=resource_id)
+        
         return response_class(
             status=ApplicationResponseStatus.NOT_FOUND,
             message=f"{resource_type}을(를) 찾을 수 없습니다. ID: {resource_id}",
@@ -351,8 +377,10 @@ class ResponseFormatter:
         )
     
     @staticmethod
-    def service_error_response(response_class, service_name: str, message: str, **kwargs):
+    def service_error_response(response_class, service_name: str = None, message: str = None, **kwargs):
         """서비스 오류 응답 DTO 생성"""
+        _validate_required_params(response_class=response_class, service_name=service_name, message=message)
+        
         return response_class(
             status=ApplicationResponseStatus.SERVICE_ERROR,
             message=f"{service_name} 서비스 오류: {message}",
@@ -364,8 +392,10 @@ class ResponseFormatter:
         )
     
     @staticmethod
-    def configuration_error_response(response_class, config_key: str, message: str, **kwargs):
+    def configuration_error_response(response_class, config_key: str = None, message: str = None, **kwargs):
         """설정 오류 응답 DTO 생성"""
+        _validate_required_params(response_class=response_class, config_key=config_key, message=message)
+        
         return response_class(
             status=ApplicationResponseStatus.CONFIGURATION_ERROR,
             message=f"설정 오류 ({config_key}): {message}",
@@ -382,6 +412,7 @@ def log_usecase_execution(func_name: str = None):
     def decorator(func: Callable[..., Dict[str, Any]]) -> Callable[..., Dict[str, Any]]:
         @wraps(func)
         def wrapper(*args, **kwargs) -> Dict[str, Any]:
+            # func_name은 선택적 파라미터이므로 None 체크하지 않음
             usecase_name = func_name or func.__name__
             logger.info(f"🚀 {usecase_name} 실행 시작")
             

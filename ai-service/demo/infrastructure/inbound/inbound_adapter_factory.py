@@ -30,7 +30,7 @@ class InboundAdapterFactory:
         self._categories = adapter_config.get("categories", {})
         logger.info("✅ Inbound Adapter Factory initialized with Demo Config Manager")
     
-    def create_inbound_adapter(self, usecase_factory) -> Any:
+    def create_inbound_adapter(self, usecase_factory, infrastructure_factory):
         """인바운드 어댑터 동적 생성 - 헥사고널 아키텍처에 맞는 구조"""
         logger.info("🎨 Creating inbound adapter dynamically...")
         
@@ -40,10 +40,11 @@ class InboundAdapterFactory:
                 module = importlib.import_module(config["module"])
                 adapter_class = getattr(module, config["class"])
                 
-                # 의존성 주입 (UseCase Factory만 사용)
+                # 의존성 주입 (UseCase Factory와 Infrastructure Factory 사용)
                 dependencies = self._resolve_dependencies(
                     config["dependencies"], 
-                    usecase_factory
+                    usecase_factory,
+                    infrastructure_factory
                 )
                 
                 # 어댑터 인스턴스 생성
@@ -60,7 +61,7 @@ class InboundAdapterFactory:
         raise RuntimeError("인바운드 어댑터를 찾을 수 없습니다.")
     
     def _resolve_dependencies(self, dependencies_config: Dict[str, str], 
-                            usecase_factory) -> Dict[str, Any]:
+                            usecase_factory, infrastructure_factory) -> Dict[str, Any]:
         """의존성 해결 - 헥사고널 아키텍처에 맞는 구조"""
         dependencies = {}
         
@@ -70,6 +71,8 @@ class InboundAdapterFactory:
             elif dependency_type == "direct":
                 if param_name == "usecase_factory":
                     dependencies[param_name] = usecase_factory
+                elif param_name == "infrastructure_factory":
+                    dependencies[param_name] = infrastructure_factory
             else:
                 logger.warning(f"Unknown dependency type: {dependency_type}")
         
@@ -77,7 +80,7 @@ class InboundAdapterFactory:
     
     def get_available_adapters(self) -> list[str]:
         """사용 가능한 어댑터 목록 반환"""
-        return list(self._adapter_mapping.keys())
+        return list(self._main_adapter_mapping.keys())
     
     def get_adapters_by_category(self, category: str) -> list[str]:
         """카테고리별 어댑터 목록 반환"""
@@ -86,7 +89,7 @@ class InboundAdapterFactory:
     def register_adapter(self, adapter_name: str, module_path: str, class_name: str, 
                         dependencies: Dict[str, str]):
         """새로운 어댑터 등록 (런타임 확장)"""
-        self._adapter_mapping[adapter_name] = {
+        self._main_adapter_mapping[adapter_name] = {
             "module": module_path,
             "class": class_name,
             "dependencies": dependencies
@@ -99,7 +102,6 @@ class InboundAdapterFactory:
         self.config_manager.reload_config()
         adapter_config = self.config_manager.get_adapter_config()
         
-        self._adapter_mapping = adapter_config.get("tab_adapters", {})
         self._main_adapter_mapping = adapter_config.get("inbound_adapters", {})
         self._categories = adapter_config.get("categories", {})
         logger.info("✅ Adapter config reloaded via Demo Config Manager")

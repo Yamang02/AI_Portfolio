@@ -17,8 +17,8 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 
 from ai_service.demo.application_bootstrap import ApplicationFactory
-from ai_service.demo.infrastructure.inbound.service_factory import ServiceFactory
-from ai_service.demo.infrastructure.inbound.usecase_factory import UseCaseFactory
+from ai_service.demo.infrastructure.inbound.infrastructure_factory import InfrastructureFactory
+from ai_service.demo.application.factories.usecase_factory import UseCaseFactory
 
 logger = logging.getLogger(__name__)
 
@@ -46,54 +46,53 @@ class TestBasicExecution:
         
         # 초기화 상태 확인
         assert self.app_factory is not None
-        assert self.app_factory.service_factory is None  # 아직 초기화되지 않음
+        assert self.app_factory.infrastructure_factory is None  # 아직 초기화되지 않음
         assert self.app_factory.usecase_factory is None
         assert self.app_factory.inbound_adapter_factory is None
         assert self.app_factory.ui_composer is None
         
         logger.info("✅ Application factory initialization test passed")
     
-    def test_service_factory_initialization(self):
-        """서비스 팩토리 초기화 테스트"""
-        logger.info("Testing service factory initialization")
+    def test_infrastructure_factory_initialization(self):
+        """인프라스트럭처 팩토리 초기화 테스트"""
+        logger.info("Testing infrastructure factory initialization")
         
-        # 서비스 팩토리 생성
-        service_factory = ServiceFactory()
+        # 인프라스트럭처 팩토리 생성
+        infrastructure_factory = InfrastructureFactory()
         
         # 초기화 상태 확인
-        assert service_factory is not None
-        assert hasattr(service_factory, 'get_embedding_service')
-        assert hasattr(service_factory, 'get_chunking_service')
-        assert hasattr(service_factory, 'get_generation_service')
+        assert infrastructure_factory is not None
+        assert hasattr(infrastructure_factory, 'get_service')
+        assert hasattr(infrastructure_factory, 'get_available_services')
         
-        logger.info("✅ Service factory initialization test passed")
+        logger.info("✅ Infrastructure factory initialization test passed")
     
     def test_usecase_factory_initialization(self):
         """유스케이스 팩토리 초기화 테스트"""
         logger.info("Testing usecase factory initialization")
         
-        # Mock 서비스 팩토리 생성
-        mock_service_factory = Mock(spec=ServiceFactory)
+        # Mock 인프라스트럭처 팩토리 생성
+        mock_infrastructure_factory = Mock(spec=InfrastructureFactory)
         
         # 유스케이스 팩토리 생성
-        usecase_factory = UseCaseFactory(mock_service_factory)
+        usecase_factory = UseCaseFactory(mock_infrastructure_factory)
         
         # 초기화 상태 확인
         assert usecase_factory is not None
-        assert usecase_factory.service_factory == mock_service_factory
+        assert usecase_factory.infrastructure_factory == mock_infrastructure_factory
         
         logger.info("✅ Usecase factory initialization test passed")
     
-    @patch('ai_service.demo.infrastructure.inbound.service_factory.ServiceFactory')
+    @patch('ai_service.demo.infrastructure.infrastructure_factory.InfrastructureFactory')
     @patch('ai_service.demo.infrastructure.inbound.usecase_factory.UseCaseFactory')
-    @patch('ai_service.demo.infrastructure.inbound.adapter_factory.InboundAdapterFactory')
-    def test_application_creation_with_mocks(self, mock_adapter_factory, mock_usecase_factory, mock_service_factory):
+    @patch('ai_service.demo.infrastructure.inbound.inbound_adapter_factory.InboundAdapterFactory')
+    def test_application_creation_with_mocks(self, mock_adapter_factory, mock_usecase_factory, mock_infrastructure_factory):
         """Mock을 사용한 애플리케이션 생성 테스트"""
         logger.info("Testing application creation with mocks")
         
         # Mock 설정
-        mock_service_factory_instance = Mock()
-        mock_service_factory.return_value = mock_service_factory_instance
+        mock_infrastructure_factory_instance = Mock()
+        mock_infrastructure_factory.return_value = mock_infrastructure_factory_instance
         
         mock_usecase_factory_instance = Mock()
         mock_usecase_factory.return_value = mock_usecase_factory_instance
@@ -110,7 +109,7 @@ class TestBasicExecution:
         
         # 결과 확인
         assert ui_composer == mock_ui_composer
-        assert self.app_factory.service_factory == mock_service_factory_instance
+        assert self.app_factory.infrastructure_factory == mock_infrastructure_factory_instance
         assert self.app_factory.usecase_factory == mock_usecase_factory_instance
         assert self.app_factory.inbound_adapter_factory == mock_adapter_factory_instance
         
@@ -198,49 +197,43 @@ class TestServiceIntegration:
     
     def setup_method(self):
         """각 테스트 메서드 실행 전 설정"""
-        self.service_factory = None
+        self.infrastructure_factory = None
         logger.info("Setting up service integration test")
     
     def teardown_method(self):
         """각 테스트 메서드 실행 후 정리"""
-        if self.service_factory:
-            del self.service_factory
+        if self.infrastructure_factory:
+            del self.infrastructure_factory
         logger.info("Tearing down service integration test")
     
-    def test_service_factory_service_creation(self):
-        """서비스 팩토리의 서비스 생성 테스트"""
-        logger.info("Testing service factory service creation")
+    def test_infrastructure_factory_service_creation(self):
+        """인프라스트럭처 팩토리의 서비스 생성 테스트"""
+        logger.info("Testing infrastructure factory service creation")
         
-        # 서비스 팩토리 생성
-        self.service_factory = ServiceFactory()
+        # 인프라스트럭처 팩토리 생성
+        self.infrastructure_factory = InfrastructureFactory()
         
         # 각 서비스 생성 테스트
-        embedding_service = self.service_factory.get_embedding_service()
-        assert embedding_service is not None
+        document_repository = self.infrastructure_factory.get_component("document_repository")
+        assert document_repository is not None
         
-        chunking_service = self.service_factory.get_chunking_service()
-        assert chunking_service is not None
+        embedding_model = self.infrastructure_factory.get_component("embedding_model")
+        assert embedding_model is not None
         
-        generation_service = self.service_factory.get_generation_service()
-        assert generation_service is not None
+        mock_llm_service = self.infrastructure_factory.get_component("mock_llm_service")
+        assert mock_llm_service is not None
         
-        processing_status_service = self.service_factory.get_processing_status_service()
-        assert processing_status_service is not None
-        
-        validation_service = self.service_factory.get_validation_service()
-        assert validation_service is not None
-        
-        logger.info("✅ Service factory service creation test passed")
+        logger.info("✅ Infrastructure factory service creation test passed")
     
     def test_service_dependencies_injection(self):
         """서비스 의존성 주입 테스트"""
         logger.info("Testing service dependencies injection")
         
-        # 서비스 팩토리 생성
-        self.service_factory = ServiceFactory()
+        # 인프라스트럭처 팩토리 생성
+        self.infrastructure_factory = InfrastructureFactory()
         
         # EmbeddingService의 의존성 확인
-        embedding_service = self.service_factory.get_embedding_service()
+        embedding_model = self.infrastructure_factory.get_component("embedding_model")
         
         # 의존성 서비스들이 주입되었는지 확인
         assert hasattr(embedding_service, 'embedding_model')

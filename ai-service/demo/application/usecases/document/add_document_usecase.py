@@ -12,15 +12,9 @@ from typing import Dict, Any, List
 from domain.entities.document import Document, DocumentType
 from domain.ports.outbound.document_repository_port import DocumentRepositoryPort
 from application.model.dto.document_dtos import (
-    CreateDocumentRequest, CreateDocumentResponse, DocumentSummaryDto
+    CreateDocumentRequest, DocumentSummaryDto
 )
-from application.common import (
-    handle_usecase_errors,
-    validate_required_fields,
-    ResponseFormatter,
-    log_usecase_execution,
-    validate_string_not_empty
-)
+from application.model.application_responses import UseCaseResponse, ApplicationResponseStatus
 
 logger = logging.getLogger(__name__)
 
@@ -66,18 +60,27 @@ class AddDocumentUseCase:
         
         return errors
     
-    @handle_usecase_errors(
-        default_error_message="문서 추가 중 오류가 발생했습니다.",
-        log_error=True
-    )
-    @validate_required_fields(
-        content=validate_string_not_empty,
-        source=validate_string_not_empty
-    )
-    @log_usecase_execution("AddDocumentUseCase")
-    def execute(self, request: CreateDocumentRequest) -> Dict[str, Any]:
+    def execute(self, request: CreateDocumentRequest) -> UseCaseResponse:
         """문서 추가 실행 - 통일된 에러 처리 방식"""
-        # Request에서 데이터 추출
+        # Request에서 데이터 추출 및 검증
+        if not request.content:
+            return UseCaseResponse(
+                status=ApplicationResponseStatus.VALIDATION_ERROR,
+                message="필수 필드 'content'가 누락되었습니다.",
+                error_code="VALIDATION_ERROR",
+                error_type="validation",
+                data={"field": "content", "value": None}
+            )
+        
+        if not request.source:
+            return UseCaseResponse(
+                status=ApplicationResponseStatus.VALIDATION_ERROR,
+                message="필수 필드 'source'가 누락되었습니다.",
+                error_code="VALIDATION_ERROR",
+                error_type="validation",
+                data={"field": "source", "value": None}
+            )
+        
         content = request.content.strip()
         source = request.source.strip()
         
@@ -86,9 +89,12 @@ class AddDocumentUseCase:
         errors.extend(self._validate_source(source))
         
         if errors:
-            return ResponseFormatter.validation_error(
-                message="문서 추가 실패",
-                details={"validation_errors": errors}
+            return UseCaseResponse(
+                status=ApplicationResponseStatus.VALIDATION_ERROR,
+                message="; ".join(errors),
+                error_code="VALIDATION_ERROR",
+                error_type="validation",
+                data={"field": "content", "value": content}
             )
         
         # 문서 생성
@@ -106,18 +112,26 @@ class AddDocumentUseCase:
         # 전체 문서 목록 조회
         all_documents = self.document_repository.get_all_documents()
         
-        return ResponseFormatter.success_response(
-            CreateDocumentResponse,
+        # DocumentSummaryDto 객체들 생성
+        document_summaries = [
+            DocumentSummaryDto(
+                id=doc.document_id,
+                title=doc.title if doc.title else doc.source,
+                source=doc.source,
+                content_preview=doc.content[:200] + "..." if len(doc.content) > 200 else doc.content,
+                created_at=doc.created_at.isoformat() if hasattr(doc, 'created_at') and doc.created_at else "",
+                updated_at=doc.updated_at.isoformat() if hasattr(doc, 'updated_at') and doc.updated_at else "",
+                document_type=doc.document_type.value
+            )
+            for doc in all_documents
+        ]
+        
+        return UseCaseResponse(
+            status=ApplicationResponseStatus.SUCCESS,
             message=f"✅ 문서가 성공적으로 추가되었습니다: {document.title or document.source}",
-            document_id=document.document_id,
-            documents=[
-                {
-                    "document_id": doc.document_id,
-                    "title": doc.title if doc.title else doc.source,
-                    "source": doc.source,
-                    "content_length": len(doc.content),
-                    "document_type": doc.document_type.value
-                }
-                for doc in all_documents
-            ]
+            data={
+                "document_id": document.document_id,
+                "documents": [doc.__dict__ for doc in document_summaries],
+                "count": len(document_summaries)
+            }
         )

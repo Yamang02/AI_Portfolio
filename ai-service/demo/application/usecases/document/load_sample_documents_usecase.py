@@ -13,6 +13,7 @@ from pathlib import Path
 from domain.entities.document import Document, DocumentType
 from domain.ports.outbound.document_repository_port import DocumentRepositoryPort
 from application.model.dto.document_dtos import DocumentListDto, DocumentSummaryDto, LoadSampleDocumentsRequest, LoadSampleDocumentsResponse
+from application.model.application_responses import ApplicationResponseStatus
 # 에러 처리는 Infrastructure Layer에서 담당
 
 logger = logging.getLogger(__name__)
@@ -35,27 +36,31 @@ class LoadSampleDocumentsUseCase:
             
             document_summaries = [
                 DocumentSummaryDto(
-                    document_id=doc.document_id,
+                    id=doc.document_id,
                     title=doc.title if doc.title else doc.source,
                     source=doc.source,
-                    content_length=len(doc.content),
+                    content_preview=doc.content[:200] + "..." if len(doc.content) > 200 else doc.content,
+                    created_at=doc.created_at.isoformat() if hasattr(doc, 'created_at') and doc.created_at else "",
+                    updated_at=doc.updated_at.isoformat() if hasattr(doc, 'updated_at') and doc.updated_at else "",
                     document_type=doc.document_type.value
                 )
                 for doc in documents
             ]
             
             return LoadSampleDocumentsResponse(
-                success=True,
-                documents=document_summaries,
-                count=len(documents),
-                message=f"📚 {len(documents)}개의 샘플 문서가 성공적으로 로드되었습니다"
+                status=ApplicationResponseStatus.SUCCESS,
+                message=f"📚 {len(documents)}개의 샘플 문서가 성공적으로 로드되었습니다",
+                documents=[doc.__dict__ for doc in document_summaries],
+                count=len(documents)
             )
             
         except Exception as e:
             logger.error(f"❌ 샘플 문서 로드 실패: {e}")
             return LoadSampleDocumentsResponse(
-                success=False,
-                error=f"샘플 문서 로드 중 오류가 발생했습니다: {str(e)}"
+                status=ApplicationResponseStatus.ERROR,
+                message=f"샘플 문서 로드 중 오류가 발생했습니다: {str(e)}",
+                documents=[],
+                count=0
             )
     
     def _load_sample_documents(self) -> List[Document]:

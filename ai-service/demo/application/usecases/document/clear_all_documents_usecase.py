@@ -12,6 +12,7 @@ from domain.ports.outbound.document_repository_port import DocumentRepositoryPor
 from application.model.dto.document_dtos import (
     ClearAllDocumentsRequest, ClearAllDocumentsResponse, DocumentSummaryDto
 )
+from application.model.application_responses import ApplicationResponseStatus
 
 logger = logging.getLogger(__name__)
 
@@ -31,10 +32,10 @@ class ClearAllDocumentsUseCase:
             
             if count_before == 0:
                 return ClearAllDocumentsResponse(
-                    success=True,
-                    deleted_count=0,
+                    status=ApplicationResponseStatus.SUCCESS,
                     message="삭제할 문서가 없습니다.",
-                    documents=[]
+                    documents=[],
+                    count=0
                 )
             
             # Repository를 통한 모든 문서 삭제
@@ -45,16 +46,17 @@ class ClearAllDocumentsUseCase:
             
             # 삭제 후 문서 목록은 빈 목록
             return ClearAllDocumentsResponse(
-                success=True,
-                deleted_count=deleted_count,
+                status=ApplicationResponseStatus.SUCCESS,
                 message=f"모든 문서가 성공적으로 삭제되었습니다. ({deleted_count}개 삭제)",
-                documents=[]
+                documents=[],
+                count=0
             )
             
         except Exception as e:
             logger.error(f"❌ 모든 문서 삭제 실패: {e}")
             return ClearAllDocumentsResponse(
-                success=False,
-                error=f"모든 문서 삭제 중 오류가 발생했습니다: {str(e)}",
-                documents=[]
+                status=ApplicationResponseStatus.ERROR,
+                message=f"모든 문서 삭제 중 오류가 발생했습니다: {str(e)}",
+                documents=[],
+                count=0
             )

@@ -8,16 +8,16 @@ Gradio UI 기반의 데모 애플리케이션을 위한 독립적인 설정 관�
 구조:
 - core/: 핵심 설정 (demo.yaml, gradio.yaml)
 - strategies/: 전략 설정 (chunking_strategies.yaml)
-- factories/: 팩토리 설정 (usecase_config.py, service_config.py, adapter_config.py)
+- factories/: 팩토리 설정 (usecase_config.py, infrastructure_config.py, adapter_config.py)
 """
 
 from .demo_config_manager import DemoConfigManager, get_demo_config_manager
-from .factories import usecase_config, adapter_config, service_config
+from .factories import usecase_config, adapter_config, infrastructure_config
 
 __all__ = [
     "DemoConfigManager",
     "get_demo_config_manager",
     "usecase_config", 
     "adapter_config",
-    "service_config"
+    "infrastructure_config"
 ]

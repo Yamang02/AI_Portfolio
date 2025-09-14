@@ -46,7 +46,12 @@ class DocumentSummaryDto:
     content_preview: str
     created_at: str
     updated_at: str
+    document_type: str = None
     metadata: Optional[Dict[str, Any]] = None
+    
+    def __post_init__(self):
+        if self.document_type is None:
+            raise ValueError("document_type는 필수 파라미터입니다.")
 
 
 @dataclass
@@ -66,8 +71,14 @@ class DocumentListDto:
     """문서 목록 DTO"""
     documents: List[DocumentSummaryDto]
     total_count: int
-    page: int = 1
-    page_size: int = 10
+    page: int = None
+    page_size: int = None
+    
+    def __post_init__(self):
+        if self.page is None:
+            raise ValueError("page는 필수 파라미터입니다.")
+        if self.page_size is None:
+            raise ValueError("page_size는 필수 파라미터입니다.")
 
 
 @dataclass
@@ -75,5 +86,9 @@ class DocumentOperationResultDto:
     """문서 작업 결과 DTO"""
     success: bool
     document_id: Optional[str] = None
-    message: str = ""
+    message: str = None
     error_details: Optional[Dict[str, Any]] = None
+    
+    def __post_init__(self):
+        if self.message is None:
+            raise ValueError("message는 필수 파라미터입니다.")

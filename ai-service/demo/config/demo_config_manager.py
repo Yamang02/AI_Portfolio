@@ -186,12 +186,12 @@ class DemoConfigManager:
             logger.error(f"❌ Failed to load adapter_config: {e}")
             return {}
     
-    def get_service_config(self) -> Dict[str, Any]:
-        """Service 설정 반환"""
+    def get_infrastructure_config(self) -> Dict[str, Any]:
+        """Infrastructure 설정 반환"""
         if not self._loaded:
             self.load_config()
         
-        # Service 설정을 동적으로 로드
+        # Infrastructure 설정을 동적으로 로드
         try:
             import sys
             from pathlib import Path
@@ -201,13 +201,13 @@ class DemoConfigManager:
             if str(factories_dir) not in sys.path:
                 sys.path.insert(0, str(factories_dir))
             
-            from service_config import service_config
-            return service_config
+            from infrastructure_config import infrastructure_config
+            return infrastructure_config
         except ImportError as e:
-            logger.error(f"❌ Failed to load service_config: {e}")
+            logger.error(f"❌ Failed to load infrastructure_config: {e}")
             return {}
     
-    def get_config(self, key: str, default: Any = None) -> Any:
+    def get_config(self, key: str, default: Any = None):
         """일반 설정 값 반환"""
         if not self._loaded:
             self.load_config()

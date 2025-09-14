@@ -28,7 +28,9 @@ class GetDocumentsPreviewUseCase:
     
     @handle_usecase_errors(
         default_error_message="문서 미리보기 생성 중 오류가 발생했습니다.",
-        log_error=True
+        log_error=True,
+        include_traceback=False,
+        return_dto=True
     )
     @log_usecase_execution("GetDocumentsPreviewUseCase")
     def execute(self) -> DocumentListDto:
@@ -46,12 +48,13 @@ class GetDocumentsPreviewUseCase:
         # 문서 요약 정보 생성
         document_summaries = [
             DocumentSummaryDto(
-                document_id=doc.document_id,
+                id=doc.document_id,
                 title=doc.title if doc.title else doc.source,
                 source=doc.source,
-                content_length=len(doc.content),
-                document_type=doc.document_type.value,
-                preview=doc.content[:200] + "..." if len(doc.content) > 200 else doc.content
+                content_preview=doc.content[:200] + "..." if len(doc.content) > 200 else doc.content,
+                created_at=doc.created_at.isoformat() if hasattr(doc, 'created_at') and doc.created_at else "",
+                updated_at=doc.updated_at.isoformat() if hasattr(doc, 'updated_at') and doc.updated_at else "",
+                document_type=doc.document_type.value
             )
             for doc in all_documents
         ]

@@ -99,20 +99,20 @@ class DocumentTabComponent:
             
             # Event handlers - GradioAdapter에 위임 (객체 중심 처리)
             load_sample_btn.click(
-                fn=lambda: self.gradio_adapter.handle_load_sample_data().to_gradio_outputs(),
+                fn=lambda: self.gradio_adapter.handle_load_sample_data(),
                 outputs=[sample_status, preview_output, doc_select]
             )
             add_btn.click(
-                fn=lambda content, source: self.gradio_adapter.handle_add_document(content, source).to_gradio_outputs(),
+                fn=lambda content, source: self.gradio_adapter.handle_add_document(content, source),
                 inputs=[doc_input, source_input],
                 outputs=[add_output, preview_output, doc_select]
             )
             refresh_btn.click(
-                fn=lambda: self.gradio_adapter.handle_refresh_document_list().to_gradio_outputs(),
+                fn=lambda: self.gradio_adapter.handle_refresh_document_list(),
                 outputs=doc_select
             )
             view_content_btn.click(
-                fn=lambda doc_selection: self.gradio_adapter.handle_get_document_content(doc_selection).to_gradio_outputs(),
+                fn=lambda doc_selection: self.gradio_adapter.handle_get_document_content(doc_selection),
                 inputs=[doc_select],
                 outputs=[doc_content_output]
             )

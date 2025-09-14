@@ -12,7 +12,8 @@ adapter_config = {
             "module": "infrastructure.inbound.ui.gradio.gradio_adapter",
             "class": "GradioAdapter",
             "dependencies": {
-                "usecase_factory": "direct"
+                "usecase_factory": "direct",
+                "infrastructure_factory": "direct"
             },
             "description": "Gradio UI Coordinator (기능별 어댑터들을 조정하고 UI 생성)"
         }

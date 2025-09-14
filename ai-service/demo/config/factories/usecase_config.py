@@ -7,7 +7,7 @@ Gradio UI 기반의 데모 애플리케이션에 특화된 유스케이스 구�
 """
 
 usecase_config = {
-    "services": {
+    "components": {
         # Repository 서비스들 (메모리 기반) - 싱글톤 관리
         "document_repository": {
             "module": "infrastructure.outbound.repositories.document.memory_document_repository_adapter",
@@ -252,7 +252,7 @@ usecase_config = {
     },
     
     "categories": {
-        "services": [
+        "components": [
             "document_repository", "chunk_repository", "embedding_model", 
             "mock_llm_service", "demo_config_service"
         ],

@@ -29,15 +29,17 @@ logger = logging.getLogger(__name__)
 class GradioAdapter:
     """Gradio UI와 UseCase를 연결하는 메인 어댑터 (Coordinator 패턴)"""
     
-    def __init__(self, usecase_factory):
+    def __init__(self, usecase_factory, infrastructure_factory):
         """
         Args:
             usecase_factory: UseCase 팩토리 (의존성 주입)
+            infrastructure_factory: 인프라스트럭처 팩토리 (의존성 주입)
         """
         self.usecase_factory = usecase_factory
+        self.infrastructure_factory = infrastructure_factory
         
         # 기능별 어댑터들 초기화
-        self.document_adapter = DocumentAdapter(usecase_factory)
+        self.document_adapter = DocumentAdapter(usecase_factory, infrastructure_factory)
         self.chunking_adapter = ChunkingAdapter(usecase_factory)
         self.embedding_adapter = EmbeddingAdapter(usecase_factory)
         self.rag_adapter = RAGAdapter(usecase_factory)
@@ -62,7 +64,7 @@ class GradioAdapter:
         """문서 추가 이벤트 처리"""
         return self.document_adapter.handle_add_document(content, source)
     
-    def handle_refresh_document_list(self) -> Any:
+    def handle_refresh_document_list(self):
         """문서 목록 새로고침 이벤트 처리"""
         return self.document_adapter.handle_refresh_document_list()
     
@@ -72,18 +74,15 @@ class GradioAdapter:
     
     def handle_refresh_documents(self) -> Tuple[str, Any]:
         """문서 목록 새로고침 이벤트 처리 (청킹 탭용)"""
-        result = self.document_adapter.handle_refresh_documents()
-        return result.to_gradio_outputs()
+        return self.document_adapter.handle_refresh_documents()
     
     def handle_delete_document(self, document_selection: str) -> Tuple[str, str, Any]:
         """개별 문서 삭제 이벤트 처리"""
-        result = self.document_adapter.handle_delete_document(document_selection)
-        return result.to_gradio_outputs()
+        return self.document_adapter.handle_delete_document(document_selection)
     
     def handle_clear_all_documents(self) -> Tuple[str, str, Any]:
         """모든 문서 삭제 이벤트 처리"""
-        result = self.document_adapter.handle_clear_all_documents()
-        return result.to_gradio_outputs()
+        return self.document_adapter.handle_clear_all_documents()
     
     # ==================== Chunking 관련 이벤트 핸들러 (위임) ====================
     
@@ -111,7 +110,7 @@ class GradioAdapter:
         """모든 청크 삭제 이벤트 처리"""
         return self.chunking_adapter.handle_clear_all_chunks()
 
-    def handle_get_chunking_strategies(self) -> Any:
+    def handle_get_chunking_strategies(self):
         """청킹 전략 목록 조회 이벤트 처리"""
         return self.chunking_adapter.handle_get_chunking_strategies()
 

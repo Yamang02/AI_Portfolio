@@ -16,8 +16,8 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 
 from ai_service.demo.application_bootstrap import ApplicationFactory
-from ai_service.demo.infrastructure.inbound.service_factory import ServiceFactory
-from ai_service.demo.infrastructure.inbound.usecase_factory import UseCaseFactory
+from ai_service.demo.infrastructure.infrastructure_factory import InfrastructureFactory
+from ai_service.demo.application.factories.usecase_factory import UseCaseFactory
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +27,7 @@ class TestUseCaseIntegration:
     
     def setup_method(self):
         """각 테스트 메서드 실행 전 설정"""
-        self.service_factory = None
+        self.infrastructure_factory = None
         self.usecase_factory = None
         logger.info("Setting up usecase integration test")
     
@@ -35,8 +35,8 @@ class TestUseCaseIntegration:
         """각 테스트 메서드 실행 후 정리"""
         if self.usecase_factory:
             del self.usecase_factory
-        if self.service_factory:
-            del self.service_factory
+        if self.infrastructure_factory:
+            del self.infrastructure_factory
         logger.info("Tearing down usecase integration test")
     
     def test_document_usecase_integration(self):
@@ -44,10 +44,10 @@ class TestUseCaseIntegration:
         logger.info("Testing document usecase integration")
         
         # 서비스 팩토리 생성
-        self.service_factory = ServiceFactory()
+        self.infrastructure_factory = InfrastructureFactory()
         
         # 유스케이스 팩토리 생성
-        self.usecase_factory = UseCaseFactory(self.service_factory)
+        self.usecase_factory = UseCaseFactory(self.infrastructure_factory)
         
         # 문서 관련 유스케이스들 생성
         load_sample_documents_usecase = self.usecase_factory.get_usecase("LoadSampleDocumentsUseCase")
@@ -66,10 +66,10 @@ class TestUseCaseIntegration:
         logger.info("Testing chunking usecase integration")
         
         # 서비스 팩토리 생성
-        self.service_factory = ServiceFactory()
+        self.infrastructure_factory = InfrastructureFactory()
         
         # 유스케이스 팩토리 생성
-        self.usecase_factory = UseCaseFactory(self.service_factory)
+        self.usecase_factory = UseCaseFactory(self.infrastructure_factory)
         
         # 청킹 관련 유스케이스들 생성
         execute_chunking_usecase = self.usecase_factory.get_usecase("ExecuteChunkingUseCase")
@@ -86,10 +86,10 @@ class TestUseCaseIntegration:
         logger.info("Testing embedding usecase integration")
         
         # 서비스 팩토리 생성
-        self.service_factory = ServiceFactory()
+        self.infrastructure_factory = InfrastructureFactory()
         
         # 유스케이스 팩토리 생성
-        self.usecase_factory = UseCaseFactory(self.service_factory)
+        self.usecase_factory = UseCaseFactory(self.infrastructure_factory)
         
         # 임베딩 관련 유스케이스들 생성
         create_embedding_usecase = self.usecase_factory.get_usecase("CreateEmbeddingUseCase")
@@ -106,10 +106,10 @@ class TestUseCaseIntegration:
         logger.info("Testing RAG usecase integration")
         
         # 서비스 팩토리 생성
-        self.service_factory = ServiceFactory()
+        self.infrastructure_factory = InfrastructureFactory()
         
         # 유스케이스 팩토리 생성
-        self.usecase_factory = UseCaseFactory(self.service_factory)
+        self.usecase_factory = UseCaseFactory(self.infrastructure_factory)
         
         # RAG 관련 유스케이스들 생성
         execute_rag_query_usecase = self.usecase_factory.get_usecase("ExecuteRAGQueryUseCase")
@@ -126,10 +126,10 @@ class TestUseCaseIntegration:
         logger.info("Testing system info usecase integration")
         
         # 서비스 팩토리 생성
-        self.service_factory = ServiceFactory()
+        self.infrastructure_factory = InfrastructureFactory()
         
         # 유스케이스 팩토리 생성
-        self.usecase_factory = UseCaseFactory(self.service_factory)
+        self.usecase_factory = UseCaseFactory(self.infrastructure_factory)
         
         # 시스템 정보 관련 유스케이스들 생성
         get_system_status_usecase = self.usecase_factory.get_usecase("GetSystemStatusUseCase")
@@ -148,10 +148,10 @@ class TestUseCaseIntegration:
         logger.info("Testing usecase dependency injection")
         
         # 서비스 팩토리 생성
-        self.service_factory = ServiceFactory()
+        self.infrastructure_factory = InfrastructureFactory()
         
         # 유스케이스 팩토리 생성
-        self.usecase_factory = UseCaseFactory(self.service_factory)
+        self.usecase_factory = UseCaseFactory(self.infrastructure_factory)
         
         # 임베딩 유스케이스 생성 및 의존성 확인
         create_embedding_usecase = self.usecase_factory.get_usecase("CreateEmbeddingUseCase")
@@ -169,10 +169,10 @@ class TestUseCaseIntegration:
         logger.info("Testing usecase execution workflow")
         
         # 서비스 팩토리 생성
-        self.service_factory = ServiceFactory()
+        self.infrastructure_factory = InfrastructureFactory()
         
         # 유스케이스 팩토리 생성
-        self.usecase_factory = UseCaseFactory(self.service_factory)
+        self.usecase_factory = UseCaseFactory(self.infrastructure_factory)
         
         # 전체 워크플로우 테스트
         # 1. 샘플 문서 로드
@@ -205,13 +205,13 @@ class TestServiceIntegration:
     
     def setup_method(self):
         """각 테스트 메서드 실행 전 설정"""
-        self.service_factory = None
+        self.infrastructure_factory = None
         logger.info("Setting up service integration test")
     
     def teardown_method(self):
         """각 테스트 메서드 실행 후 정리"""
-        if self.service_factory:
-            del self.service_factory
+        if self.infrastructure_factory:
+            del self.infrastructure_factory
         logger.info("Tearing down service integration test")
     
     def test_service_factory_service_creation(self):
@@ -219,7 +219,7 @@ class TestServiceIntegration:
         logger.info("Testing service factory service creation")
         
         # 서비스 팩토리 생성
-        self.service_factory = ServiceFactory()
+        self.infrastructure_factory = InfrastructureFactory()
         
         # 각 서비스 생성 테스트
         embedding_service = self.service_factory.get_embedding_service()
@@ -244,7 +244,7 @@ class TestServiceIntegration:
         logger.info("Testing service dependencies injection")
         
         # 서비스 팩토리 생성
-        self.service_factory = ServiceFactory()
+        self.infrastructure_factory = InfrastructureFactory()
         
         # EmbeddingService의 의존성 확인
         embedding_service = self.service_factory.get_embedding_service()

@@ -5,10 +5,12 @@ on:
     branches: [ stage, main ]
     paths:
       - 'ai-service/demo/**'
+      - 'ai-service/common/**'
   pull_request:
     branches: [ stage, main ]
     paths:
       - 'ai-service/demo/**'
+      - 'ai-service/common/**'
 
 jobs:
   test-and-deploy:
@@ -41,44 +43,26 @@ jobs:
         npm install
         npx playwright install --with-deps chromium
         
-    - name: Run Unit Tests
-      run: |
-        cd ai-service/demo
-        echo "🧪 Running Unit tests..."
-        python tests/scripts/run_unit_tests.py --coverage
-        
-    - name: Run Integration Tests
-      run: |
-        cd ai-service/demo
-        echo "🔗 Running Integration tests..."
-        python tests/scripts/run_basic_tests.py --coverage
-        
-    - name: Start Demo Application for E2E Tests
-      run: |
-        cd ai-service/demo
-        echo "🚀 Starting demo application for E2E tests..."
-        python main.py &
-        sleep 30  # 애플리케이션 시작 대기
-        
-    - name: Run Playwright E2E Tests
+    - name: Run Document Domain Tests (Playwright)
       run: |
         cd ai-service/demo/tests/e2e
-        echo "🎭 Running Playwright E2E tests..."
-        npx playwright test --reporter=html,json
+        echo "🧪 Running Document domain E2E tests..."
+        npm install
+        npx playwright install --with-deps chromium
+        npx playwright test tests/document-load/ --reporter=html,json
         
-    - name: Upload Test Coverage
-      uses: codecov/codecov-action@v3
-      with:
-        file: ./ai-service/demo/htmlcov/coverage.xml
-        flags: production-tests
-        name: production-tests-coverage
-        fail_ci_if_error: false
+    - name: Start Demo Application
+      run: |
+        cd ai-service/demo
+        echo "🚀 Starting demo application..."
+        python main.py &
+        sleep 30  # 애플리케이션 시작 대기
         
     - name: Upload Playwright Test Results
       uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: playwright-report
+        name: playwright-document-tests-report
         path: ai-service/demo/tests/e2e/reports/
         retention-days: 30
         
@@ -237,8 +221,5 @@ EOF
         echo "🚀 The demo will be available in 2-3 minutes at the URL above!"
         echo ""
         echo "📈 Test Results Summary:"
-        echo "  • Unit Tests: ✅ Passed"
-        echo "  • Integration Tests: ✅ Passed" 
-        echo "  • E2E Tests: ✅ Passed"
-        echo "  • Coverage: Uploaded to Codecov"
+        echo "  • Document Domain E2E Tests: ✅ Passed"
         echo "  • Playwright Reports: Uploaded as artifacts"

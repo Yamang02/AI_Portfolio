@@ -283,8 +283,56 @@ class CommonErrorHandler(ErrorHandlerInterface):
 common_error_handler = CommonErrorHandler()
 
 
+def _create_error_response_by_type(return_type, error_message: str, interface_type: InterfaceType):
+    """반환 타입에 따라 적절한 에러 응답 생성"""
+    if interface_type == InterfaceType.GRADIO:
+        from infrastructure.inbound.ui.gradio.components.common.gradio_common_components import GradioCommonComponents
+        import gradio as gr
+        
+        error_html = GradioCommonComponents.create_error_message(error_message)
+        
+        # 반환 타입에 따라 다른 에러 응답 생성
+        if hasattr(return_type, '__origin__'):
+            # Generic 타입 (예: Tuple[str, str, Any])
+            if return_type.__origin__ is tuple:
+                if len(return_type.__args__) == 3:
+                    # Tuple[str, str, Any] 형식
+                    return error_html, "", gr.update(choices=[], value=None)
+                elif len(return_type.__args__) == 2:
+                    # Tuple[str, Any] 형식
+                    return error_html, gr.update(choices=[], value=None)
+                else:
+                    # 기타 튜플 형식
+                    return (error_html,) * len(return_type.__args__)
+            else:
+                # 기타 Generic 타입
+                return error_html
+        elif return_type == str:
+            # 단일 문자열 반환
+            return error_html
+        elif return_type == type(None) or return_type is None:
+            # None 반환
+            return None
+        else:
+            # 기타 타입 (Any, gr.update 등)
+            return gr.update(choices=[], value=None)
+    
+    elif interface_type == InterfaceType.REST:
+        # REST API용 JSON 에러 응답
+        return {
+            "success": False,
+            "error": error_message,
+            "error_code": "INFRASTRUCTURE_ERROR",
+            "error_type": "infrastructure"
+        }
+    
+    else:
+        # 기본 에러 응답
+        return {"error": error_message}
+
+
 def handle_infrastructure_error(interface_type: InterfaceType = InterfaceType.GRADIO):
-    """인프라시스템별 에러 처리 데코레이터 - ENUM 기반"""
+    """스마트 인프라시스템별 에러 처리 데코레이터 - 반환 타입 자동 감지"""
     def decorator(func):
         def wrapper(*args, **kwargs):
             try:
@@ -305,23 +353,26 @@ def handle_infrastructure_error(interface_type: InterfaceType = InterfaceType.GR
                 logger.error(f"   심각도: {error_response.severity.value}")
                 logger.error(f"   카테고리: {error_response.category.value}")
                 
-                # 에러 응답 반환 (인터페이스별로 다르게 처리)
-                return _format_error_for_interface(error_response, interface_type)
+                # 반환 타입을 동적으로 감지하고 적절한 에러 응답 생성
+                return_type = func.__annotations__.get('return', type(None))
+                return _create_error_response_by_type(return_type, error_response.error_message, interface_type)
         
         return wrapper
     return decorator
 
 
-def _format_error_for_interface(error_response: ErrorResponse, interface_type: InterfaceType) -> Any:
+def _format_error_for_interface(error_response: ErrorResponse, interface_type: InterfaceType):
     """인터페이스별 에러 응답 형식 변환 - ENUM 기반"""
     
     if interface_type == InterfaceType.GRADIO:
-        # Gradio용 HTML 에러 메시지
+        # Gradio용 에러 응답 - 직접 반환
         from infrastructure.inbound.ui.gradio.components.common.gradio_common_components import GradioCommonComponents
+        import gradio as gr
+        
         error_html = GradioCommonComponents.create_error_message(error_response.error_message)
         
-        # 간단한 HTML 문자열로 반환
-        return error_html
+        # Gradio 형식으로 직접 반환 (UI Response 객체 없이)
+        return error_html, "", gr.update(choices=[], value=None)
     
     elif interface_type == InterfaceType.REST:
         # REST API용 JSON 에러 응답

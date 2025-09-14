@@ -7,9 +7,9 @@ Application Factory
 """
 
 import logging
-from infrastructure.inbound.service_factory import ServiceFactory
-from infrastructure.inbound.usecase_factory import UseCaseFactory
-from infrastructure.inbound.adapter_factory import InboundAdapterFactory
+from infrastructure.infrastructure_factory import InfrastructureFactory
+from application.factories.usecase_factory import UseCaseFactory
+from infrastructure.inbound.inbound_adapter_factory import InboundAdapterFactory
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +18,7 @@ class ApplicationFactory:
     """애플리케이션 팩토리 - 완전한 애플리케이션 인스턴스 생성"""
     
     def __init__(self):
-        self.service_factory = None
+        self.infrastructure_factory = None
         self.usecase_factory = None
         self.inbound_adapter_factory = None
         self.ui_composer = None
@@ -34,7 +34,7 @@ class ApplicationFactory:
             
             # 2. 인바운드 어댑터 초기화 (GradioAdapter)
             self.ui_composer = self.inbound_adapter_factory.create_inbound_adapter(
-                self.usecase_factory
+                self.usecase_factory, self.infrastructure_factory
             )
             
             logger.info("✅ Complete application instance created successfully")
@@ -48,15 +48,15 @@ class ApplicationFactory:
         """팩토리들 초기화"""
         logger.info("🏭 Initializing factories...")
         
-        self.service_factory = ServiceFactory()
-        self.usecase_factory = UseCaseFactory(self.service_factory)
+        self.infrastructure_factory = InfrastructureFactory()
+        self.usecase_factory = UseCaseFactory(self.infrastructure_factory)
         self.inbound_adapter_factory = InboundAdapterFactory()
         
         logger.info("✅ Factories initialized")
     
-    def get_service_factory(self) -> ServiceFactory:
-        """서비스 팩토리 조회"""
-        return self.service_factory
+    def get_infrastructure_factory(self) -> InfrastructureFactory:
+        """인프라스트럭처 팩토리 조회"""
+        return self.infrastructure_factory
     
     def get_usecase_factory(self) -> UseCaseFactory:
         """UseCase 팩토리 조회"""

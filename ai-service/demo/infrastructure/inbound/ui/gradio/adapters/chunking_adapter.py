@@ -23,7 +23,7 @@ class ChunkingAdapter:
     
     # ==================== Chunking 관련 이벤트 핸들러 ====================
 
-    def handle_get_chunking_strategies(self) -> Any:
+    def handle_get_chunking_strategies(self):
         """청킹 전략 목록 조회 이벤트 처리"""
         try:
             result = self.usecase_factory.get_usecase("GetChunkingStrategiesUseCase").execute()

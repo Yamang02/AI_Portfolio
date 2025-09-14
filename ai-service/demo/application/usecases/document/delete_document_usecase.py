@@ -12,6 +12,7 @@ from domain.ports.outbound.document_repository_port import DocumentRepositoryPor
 from application.model.dto.document_dtos import (
     DeleteDocumentRequest, DeleteDocumentResponse, DocumentSummaryDto
 )
+from application.model.application_responses import ApplicationResponseStatus
 
 logger = logging.getLogger(__name__)
 
@@ -32,18 +33,20 @@ class DeleteDocumentUseCase:
             # 입력값 검증
             if not document_id or not isinstance(document_id, str) or not document_id.strip():
                 return DeleteDocumentResponse(
-                    success=False,
-                    error="문서 ID가 필요합니다.",
-                    documents=[]
+                    status=ApplicationResponseStatus.ERROR,
+                    message="문서 ID가 필요합니다.",
+                    documents=[],
+                    count=0
                 )
             
             # 삭제할 문서 정보 조회 (삭제 전)
             document_to_delete = self.document_repository.get_document_by_id(document_id)
             if not document_to_delete:
                 return DeleteDocumentResponse(
-                    success=False,
-                    error=f"문서를 찾을 수 없습니다: {document_id}",
-                    documents=[]
+                    status=ApplicationResponseStatus.ERROR,
+                    message=f"문서를 찾을 수 없습니다: {document_id}",
+                    documents=[],
+                    count=0
                 )
             
             # Repository를 통한 문서 삭제
@@ -51,9 +54,10 @@ class DeleteDocumentUseCase:
             
             if not success:
                 return DeleteDocumentResponse(
-                    success=False,
-                    error=f"문서 삭제에 실패했습니다: {document_id}",
-                    documents=[]
+                    status=ApplicationResponseStatus.ERROR,
+                    message=f"문서 삭제에 실패했습니다: {document_id}",
+                    documents=[],
+                    count=0
                 )
             
             logger.info(f"✅ 문서 삭제 완료: {document_id}")
@@ -62,26 +66,29 @@ class DeleteDocumentUseCase:
             all_documents = self.document_repository.get_all_documents()
             document_summaries = [
                 DocumentSummaryDto(
-                    document_id=doc.document_id,
+                    id=doc.document_id,
                     title=doc.title if doc.title else doc.source,
                     source=doc.source,
-                    content_length=len(doc.content),
+                    content_preview=doc.content[:200] + "..." if len(doc.content) > 200 else doc.content,
+                    created_at=doc.created_at.isoformat() if hasattr(doc, 'created_at') and doc.created_at else "",
+                    updated_at=doc.updated_at.isoformat() if hasattr(doc, 'updated_at') and doc.updated_at else "",
                     document_type=doc.document_type.value
                 )
                 for doc in all_documents
             ]
             
             return DeleteDocumentResponse(
-                success=True,
-                deleted_document_id=document_id,
-                message=f"문서가 성공적으로 삭제되었습니다: {document_to_delete.title}",
-                documents=document_summaries
+                status=ApplicationResponseStatus.SUCCESS,
+                message=f"문서가 성공적으로 삭제되었습니다: {document_to_delete.title or document_to_delete.source}",
+                documents=[doc.__dict__ for doc in document_summaries],
+                count=len(document_summaries)
             )
             
         except Exception as e:
             logger.error(f"❌ 문서 삭제 실패: {e}")
             return DeleteDocumentResponse(
-                success=False,
-                error=f"문서 삭제 중 오류가 발생했습니다: {str(e)}",
-                documents=[]
+                status=ApplicationResponseStatus.ERROR,
+                message=f"문서 삭제 중 오류가 발생했습니다: {str(e)}",
+                documents=[],
+                count=0
             )
