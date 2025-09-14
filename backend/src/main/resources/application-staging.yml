@@ -5,8 +5,11 @@ spring:
   application:
     name: ai-portfolio-backend-staging
   
-  # Railway PostgreSQL 설정 (URL 변환 처리)
+  # Railway PostgreSQL 설정 (POSTGRE_URL을 통해 DatabaseConfig에서 처리)
   datasource:
+    url: jdbc:postgresql://localhost:5432/ai_portfolio  # 기본값 (POSTGRE_URL이 없을 때 사용)
+    username: dev_user
+    password: dev_password
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 10

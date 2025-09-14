@@ -21,7 +21,7 @@ public class DatabaseConfig {
 
     @Bean
     @Primary
-    @ConditionalOnProperty(name = "POSTGRE_URL")
+    @ConditionalOnProperty(name = "POSTGRE_URL", matchIfMissing = false)
     public DataSource railwayDataSource() {
         log.info("Configuring Railway PostgreSQL DataSource");
         
