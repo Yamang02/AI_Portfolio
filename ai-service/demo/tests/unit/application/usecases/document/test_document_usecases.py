@@ -17,22 +17,22 @@ from typing import Dict, Any, List
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', '..', '..'))
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 
-from application.usecases.document import (
+from ai_service.demo.application.usecases.document import (
     AddDocumentUseCase,
     LoadSampleDocumentsUseCase,
     GetDocumentContentUseCase,
     DeleteDocumentUseCase,
     ClearAllDocumentsUseCase
 )
-from application.model.dto.document_dtos import (
+from ai_service.demo.application.model.dto.document_dtos import (
     CreateDocumentRequest,
     LoadSampleDocumentsRequest,
     GetDocumentContentRequest,
     DeleteDocumentRequest,
     ClearAllDocumentsRequest
 )
-from domain.entities.document import Document, DocumentType
-from domain.entities.document_id import DocumentId
+from ai_service.demo.domain.entities.document import Document, DocumentType
+from ai_service.demo.domain.entities.document_id import DocumentId
 
 logger = logging.getLogger(__name__)
 
