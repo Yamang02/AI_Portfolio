@@ -9,11 +9,12 @@ spring:
   datasource:
     driver-class-name: org.postgresql.Driver
     hikari:
-      maximum-pool-size: 10
-      minimum-idle: 2
-      connection-timeout: 30000
+      maximum-pool-size: 5  # Cloud Run 메모리 제한 고려
+      minimum-idle: 1
+      connection-timeout: 60000  # 연결 타임아웃 증가
       idle-timeout: 600000
       max-lifetime: 1800000
+      leak-detection-threshold: 60000
   
   jpa:
     hibernate:
@@ -24,23 +25,6 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
 
-  # Redis Cloud 설정 (스테이징)
-  data:
-    redis:
-      host: ${REDIS_HOST}
-      port: ${REDIS_PORT:6379}
-      password: ${REDIS_PASSWORD:}
-      database: ${REDIS_DB_IDX:0}
-      timeout: ${REDIS_TIMEOUT:2000}ms
-      ssl:
-        enabled: ${REDIS_SSL:false}
-      lettuce:
-        pool:
-          max-active: ${REDIS_MAX_ACTIVE:8}
-          max-idle: ${REDIS_MAX_IDLE:8}
-          min-idle: 0
-          max-wait: -1ms
-        shutdown-timeout: 100ms
   
   # CORS 설정 (스테이징 도메인 추가)
   web:
@@ -66,23 +50,15 @@ springdoc:
   swagger-ui:
     enabled: false
 
-# Actuator 설정 (Health Check용)
+# Actuator 설정 (Health Check용) - Production과 동일
 management:
   endpoints:
     web:
       exposure:
-        include: health,info,readiness,liveness
-      base-path: /actuator
+        include: health
   endpoint:
     health:
-      show-details: always
-      probes:
-        enabled: true
-  health:
-    readiness-state:
-      enabled: true
-    liveness-state:
-      enabled: true
+      show-details: never
 
 # 로깅 설정 (프로덕션 레벨)
 logging:
