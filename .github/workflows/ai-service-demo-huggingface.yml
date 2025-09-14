@@ -121,7 +121,7 @@ This application includes:
 ---
 
 *Built with ❤️ using Hexagonal Architecture principles*
-EOF
+        EOF
         
         # Validate all required files are present
         echo "📋 Validating deployment files..."
