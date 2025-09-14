@@ -43,7 +43,7 @@ class TestUseCaseIntegration:
         """문서 관련 유스케이스 통합 테스트"""
         logger.info("Testing document usecase integration")
         
-        # 서비스 팩토리 생성
+        # 인프라스트럭처 팩토리 생성
         self.infrastructure_factory = InfrastructureFactory()
         
         # 유스케이스 팩토리 생성
@@ -52,12 +52,16 @@ class TestUseCaseIntegration:
         # 문서 관련 유스케이스들 생성
         load_sample_documents_usecase = self.usecase_factory.get_usecase("LoadSampleDocumentsUseCase")
         add_document_usecase = self.usecase_factory.get_usecase("AddDocumentUseCase")
-        get_documents_usecase = self.usecase_factory.get_usecase("GetDocumentsUseCase")
+        get_document_content_usecase = self.usecase_factory.get_usecase("GetDocumentContentUseCase")
+        delete_document_usecase = self.usecase_factory.get_usecase("DeleteDocumentUseCase")
+        clear_all_documents_usecase = self.usecase_factory.get_usecase("ClearAllDocumentsUseCase")
         
         # 유스케이스들이 정상적으로 생성되었는지 확인
         assert load_sample_documents_usecase is not None
         assert add_document_usecase is not None
-        assert get_documents_usecase is not None
+        assert get_document_content_usecase is not None
+        assert delete_document_usecase is not None
+        assert clear_all_documents_usecase is not None
         
         logger.info("✅ Document usecase integration test passed")
     
@@ -214,47 +218,47 @@ class TestServiceIntegration:
             del self.infrastructure_factory
         logger.info("Tearing down service integration test")
     
-    def test_service_factory_service_creation(self):
-        """서비스 팩토리의 서비스 생성 테스트"""
-        logger.info("Testing service factory service creation")
+    def test_infrastructure_factory_component_creation(self):
+        """인프라스트럭처 팩토리의 컴포넌트 생성 테스트"""
+        logger.info("Testing infrastructure factory component creation")
         
-        # 서비스 팩토리 생성
+        # 인프라스트럭처 팩토리 생성
         self.infrastructure_factory = InfrastructureFactory()
         
-        # 각 서비스 생성 테스트
-        embedding_service = self.service_factory.get_embedding_service()
+        # 각 컴포넌트 생성 테스트
+        embedding_service = self.infrastructure_factory.get_component("embedding_service")
         assert embedding_service is not None
         
-        chunking_service = self.service_factory.get_chunking_service()
+        chunking_service = self.infrastructure_factory.get_component("chunking_service")
         assert chunking_service is not None
         
-        generation_service = self.service_factory.get_generation_service()
+        generation_service = self.infrastructure_factory.get_component("generation_service")
         assert generation_service is not None
         
-        processing_status_service = self.service_factory.get_processing_status_service()
+        processing_status_service = self.infrastructure_factory.get_component("processing_status_service")
         assert processing_status_service is not None
         
-        validation_service = self.service_factory.get_validation_service()
+        validation_service = self.infrastructure_factory.get_component("validation_service")
         assert validation_service is not None
         
-        logger.info("✅ Service factory service creation test passed")
+        logger.info("✅ Infrastructure factory component creation test passed")
     
-    def test_service_dependencies_injection(self):
-        """서비스 의존성 주입 테스트"""
-        logger.info("Testing service dependencies injection")
+    def test_component_dependencies_injection(self):
+        """컴포넌트 의존성 주입 테스트"""
+        logger.info("Testing component dependencies injection")
         
-        # 서비스 팩토리 생성
+        # 인프라스트럭처 팩토리 생성
         self.infrastructure_factory = InfrastructureFactory()
         
         # EmbeddingService의 의존성 확인
-        embedding_service = self.service_factory.get_embedding_service()
+        embedding_service = self.infrastructure_factory.get_component("embedding_service")
         
         # 의존성 서비스들이 주입되었는지 확인
         assert hasattr(embedding_service, 'embedding_model')
         assert hasattr(embedding_service, 'processing_status_service')
         assert hasattr(embedding_service, 'validation_service')
         
-        logger.info("✅ Service dependencies injection test passed")
+        logger.info("✅ Component dependencies injection test passed")
 
 
 if __name__ == "__main__":
