@@ -1,5 +1,13 @@
 # AI Portfolio
 
+Live URL
+www.yamang02.com
+
+AI RAG DEMO
+https://huggingface.co/spaces/Yamang02/ai-portfolio-rag-demo
+
+
+
 AI 포트폴리오는 Google Gemini API를 활용한 개발자 포트폴리오 AI 챗봇입니다.
 
 ## 🏗️ 서비스 구조
