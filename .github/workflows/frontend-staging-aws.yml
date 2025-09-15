@@ -2,7 +2,7 @@ name: "[Staging] Frontend → AWS S3 + CloudFront"
 
 on:
   push:
-    branches: [ staging, main ]
+    branches: [ staging ]
     paths:
       - 'frontend/**'
       - '.github/workflows/frontend-staging-aws.yml'

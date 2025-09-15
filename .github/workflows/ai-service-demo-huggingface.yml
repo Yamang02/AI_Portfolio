@@ -2,13 +2,13 @@ name: "[Demo] AI Service → HuggingFace Spaces"
 
 on:
   push:
-    branches: [ staging, main ]
+    branches: [ staging ]
     paths:
       - 'ai-service/demo/**'
       - 'ai-service/common/**'
       - '.github/workflows/ai-service-demo-huggingface.yml'
   pull_request:
-    branches: [ staging, main ]
+    branches: [ staging ]
     paths:
       - 'ai-service/demo/**'
       - 'ai-service/common/**'

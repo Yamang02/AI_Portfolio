@@ -1,17 +1,15 @@
-name: "[Staging] Backend API → Google Cloud Run"
+name: "[Production] Backend API → Google Cloud Run"
 
 on:
-  push:
-    branches: [ staging ]
-    paths:
-      - 'backend/**' 
-      - 'Dockerfile'
-      - '.github/workflows/backend-staging-cloudrun.yml'
-  pull_request:
-    branches: [ main ]
-    paths:
-      - 'backend/**'
-      - 'Dockerfile'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
 
 env:
   GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
@@ -46,7 +44,7 @@ jobs:
   deploy:
     needs: test
     runs-on: ubuntu-latest
-    environment: staging  # GitHub Environment 사용
+    environment: production  # GitHub Environment 사용
     
     steps:
     - uses: actions/checkout@v4
@@ -79,16 +77,15 @@ jobs:
           -t gcr.io/$GCP_PROJECT_ID/$GCP_MAIN_SERVICE_NAME:$GITHUB_SHA .
         docker push gcr.io/$GCP_PROJECT_ID/$GCP_MAIN_SERVICE_NAME:$GITHUB_SHA
     
-    - name: Deploy to staging environment
+    - name: Deploy to production environment
       run: |
         gcloud run deploy $GCP_MAIN_SERVICE_NAME \
           --image gcr.io/$GCP_PROJECT_ID/$GCP_MAIN_SERVICE_NAME:$GITHUB_SHA \
           --platform managed \
           --region $GCP_MAIN_REGION \
           --allow-unauthenticated \
-          --set-env-vars="SPRING_PROFILES_ACTIVE=staging" \
+          --set-env-vars="SPRING_PROFILES_ACTIVE=production" \
           --set-env-vars="POSTGRE_URL=${{ secrets.POSTGRE_URL }}" \
-          --set-env-vars="AI_SERVICE_URL=${{ vars.GCP_AI_SERVICE_URL }}" \
           --set-env-vars="GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" \
           --set-env-vars="JAVA_OPTS=-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -Djava.security.egd=file:/dev/./urandom" \
           --memory 1Gi \
