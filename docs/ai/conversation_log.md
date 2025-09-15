@@ -27,7 +27,7 @@
 
 ---
 
-## Session 26: FE/BE 분리 배포 및 AWS CI/CD 문제 해결 - CloudFront OAC 설정과 Route53 도메인 연결 (2025-01-15)
+## Session 26: FE/BE 분리 배포 및 AWS CI/CD 문제 해결 - CloudFront OAC 설정과 Route53 도메인 연결 (2025-09-15)
 
 ### 📋 세션 개요
 - **날짜**: 2025-01-15
