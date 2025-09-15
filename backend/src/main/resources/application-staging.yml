@@ -29,14 +29,15 @@ spring:
         format_sql: true
 
   
-  # CORS 설정 (스테이징 도메인 추가)
+  # CORS 설정 (FE 분리 후 CloudFront 도메인 추가)
   web:
     cors:
       allowed-origins: 
         - "http://localhost:3000"
         - "http://localhost:5173"
         - "https://ai-portfolio-chatbot-493721639129.asia-northeast3.run.app"
-        - "https://ai-portfolio-staging-493721639129.asia-northeast3.run.app"  # 실제 스테이징 도메인
+        - "https://ai-portfolio-staging-493721639129.asia-northeast3.run.app"  # 기존 스테이징 도메인
+        - "https://${CLOUDFRONT_DOMAIN:ai-portfolio-frontend-staging.cloudfront.net}"  # 새로운 CloudFront 도메인
       allowed-methods: 
         - GET
         - POST

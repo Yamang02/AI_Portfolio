@@ -23,10 +23,8 @@ spring:
         format_sql: true
   
 
-  # 웹 설정 (CORS + 정적 파일)
+  # 웹 설정 (CORS만 - 정적 파일 서빙 제거)
   web:
-    resources:
-      static-locations: file:/app/static/
     cors:
       allowed-origins: 
         - "http://localhost:3000"
@@ -40,8 +38,6 @@ spring:
         - OPTIONS
       allowed-headers: "*"
       allow-credentials: true
-  mvc:
-    static-path-pattern: /**
 
 # Swagger 설정
 springdoc:

@@ -1,26 +1,22 @@
-name: "[Production] Main App → Google Cloud Run"
+name: "[Staging] Backend API → Google Cloud Run"
 
 on:
   push:
-    branches: [ main ]
+    branches: [ develop, staging ]
     paths:
-      - 'frontend/**'
-      - 'backend/**'
-      - 'Dockerfile'  
-      - '.github/workflows/deploy-production.yml'
+      - 'backend/**' 
+      - 'Dockerfile.backend'
+      - '.github/workflows/main-app-staging-cloudrun.yml'
   pull_request:
     branches: [ main ]
     paths:
-      - 'frontend/**'
       - 'backend/**'
-      - 'Dockerfile'
-
+      - 'Dockerfile.backend'
 
 env:
   GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
   GCP_MAIN_SERVICE_NAME: ${{ vars.GCP_MAIN_SERVICE_NAME }}
   GCP_MAIN_REGION: ${{ vars.GCP_MAIN_REGION }}
-  VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
 
 jobs:
   test:
@@ -50,7 +46,7 @@ jobs:
   deploy:
     needs: test
     runs-on: ubuntu-latest
-    environment: production  # GitHub Environment 사용
+    environment: staging  # GitHub Environment 사용
     
     steps:
     - uses: actions/checkout@v4
@@ -79,27 +75,21 @@ jobs:
     
     - name: Build and push container image
       run: |
-        docker build \
-          --build-arg VITE_API_BASE_URL=$VITE_API_BASE_URL \
+        docker build -f Dockerfile.backend \
           -t gcr.io/$GCP_PROJECT_ID/$GCP_MAIN_SERVICE_NAME:$GITHUB_SHA .
         docker push gcr.io/$GCP_PROJECT_ID/$GCP_MAIN_SERVICE_NAME:$GITHUB_SHA
     
-    - name: Deploy to production environment
+    - name: Deploy to staging environment
       run: |
         gcloud run deploy $GCP_MAIN_SERVICE_NAME \
           --image gcr.io/$GCP_PROJECT_ID/$GCP_MAIN_SERVICE_NAME:$GITHUB_SHA \
           --platform managed \
           --region $GCP_MAIN_REGION \
           --allow-unauthenticated \
-          --set-env-vars="SPRING_PROFILES_ACTIVE=${{ vars.SPRING_PROFILES_ACTIVE }}" \
+          --set-env-vars="SPRING_PROFILES_ACTIVE=staging" \
           --set-env-vars="POSTGRE_URL=${{ secrets.POSTGRE_URL }}" \
           --set-env-vars="AI_SERVICE_URL=${{ vars.GCP_AI_SERVICE_URL }}" \
-          --set-env-vars="REDIS_HOST=${{ vars.REDIS_HOST }}" \
-          --set-env-vars="REDIS_PORT=${{ vars.REDIS_PORT }}" \
-          --set-env-vars="REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}" \
-          --set-env-vars="REDIS_DB_IDX=0" \
-          --set-env-vars="REDIS_KEY_PREFIX=main-prod:" \
-          --set-env-vars="REDIS_SSL=${{ vars.REDIS_SSL }}" \
+          --set-env-vars="JAVA_OPTS=-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -Djava.security.egd=file:/dev/./urandom" \
           --memory 1Gi \
           --cpu 1 \
           --max-instances 20 \
@@ -107,5 +97,4 @@ jobs:
           --cpu-boost \
           --startup-probe="httpGet.path=/actuator/health,httpGet.port=8080,initialDelaySeconds=30,timeoutSeconds=5,periodSeconds=10,failureThreshold=6"
 
-  # 프론트엔드 배포는 백엔드 Docker에서 통합 처리하므로 제거
-  # 백엔드 Docker 이미지에 프론트엔드 정적 파일이 포함됨
+  # 백엔드 API 서버만 배포 (프론트엔드는 별도 S3+CloudFront 배포)
