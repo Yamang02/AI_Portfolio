@@ -1,0 +1,77 @@
+# Pre-commit hooks for AI Service
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+
+repos:
+  # 기본 Git 훅들
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace
+        description: "Remove trailing whitespace"
+      - id: end-of-file-fixer
+        description: "Ensure files end with newline"
+      - id: check-yaml
+        description: "Check YAML syntax"
+        args: ['--unsafe']
+      - id: check-json
+        description: "Check JSON syntax"
+      - id: check-toml
+        description: "Check TOML syntax"
+      - id: check-merge-conflict
+        description: "Check for merge conflict markers"
+      - id: check-added-large-files
+        description: "Check for large files"
+        args: ['--maxkb=1000']
+      - id: debug-statements
+        description: "Check for debug statements (pdb, ipdb, etc.)"
+      - id: check-docstring-first
+        description: "Check that docstrings are at the beginning of functions"
+
+  # Python 코드 포맷팅 및 린팅 (통합)
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.9.3
+    hooks:
+      - id: ruff
+        description: "Fast Python linter (flake8 + isort + bandit 통합)"
+        args: ['--fix', '--exit-non-zero-on-fix']
+      - id: ruff-format
+        description: "Fast Python formatter (black 대체)"
+
+  # 타입 체크 (선택적)
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.13.0
+    hooks:
+      - id: mypy
+        description: "Static type checking"
+        additional_dependencies: [types-all]
+        args: ['--ignore-missing-imports', '--no-strict-optional']
+        exclude: '^tests/'
+
+  # 커밋 메시지 검사
+  - repo: https://github.com/commitizen-tools/commitizen
+    rev: v3.30.0
+    hooks:
+      - id: commitizen
+        description: "Check commit message format"
+
+  # 의존성 보안 검사
+  - repo: https://github.com/Lucas-C/pre-commit-hooks-safety
+    rev: v1.3.2
+    hooks:
+      - id: python-safety-dependencies-check
+        description: "Check for known security vulnerabilities"
+        files: requirements\.txt$
+
+# CI에서 실행할 때는 일부 훅을 건너뛰기
+ci:
+  autofix_commit_msg: |
+    [pre-commit.ci] auto fixes from pre-commit.com hooks
+
+    for more information, see https://pre-commit.ci
+  autofix_prs: true
+  autoupdate_branch: ''
+  autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
+  autoupdate_schedule: weekly
+  skip: [mypy]  # CI에서는 타입 체크만 실행 (ruff가 모든 검사 통합)
+  submodules: false

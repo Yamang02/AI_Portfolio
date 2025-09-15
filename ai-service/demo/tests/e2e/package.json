@@ -1,0 +1,33 @@
+{
+  "name": "ai-portfolio-e2e-tests",
+  "version": "1.0.0",
+  "description": "E2E tests for AI Portfolio DocumentLoad functionality",
+  "main": "playwright.config.ts",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "test:ui": "playwright test --ui",
+    "test:report": "playwright show-report",
+    "test:document-load": "playwright test tests/document-load",
+    "test:sample-data": "playwright test tests/document-load/sample-data-load.spec.ts",
+    "test:document-add": "playwright test tests/document-load/document-add.spec.ts",
+    "test:document-preview": "playwright test tests/document-load/document-preview.spec.ts",
+    "test:document-content": "playwright test tests/document-load/document-content-view.spec.ts",
+    "test:document-delete": "playwright test tests/document-load/document-delete.spec.ts",
+    "install-browsers": "playwright install"
+  },
+  "keywords": [
+    "playwright",
+    "e2e",
+    "testing",
+    "document-load",
+    "ai-portfolio"
+  ],
+  "author": "AI Portfolio Team",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.40.0",
+    "typescript": "^5.0.0"
+  }
+}

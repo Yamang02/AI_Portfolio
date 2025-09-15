@@ -1,0 +1,42 @@
+# CloudRun 프로덕션 배포용 의존성
+# API 호출 기반, 로컬 ML 모델 제외
+
+# ===== 웹 서버 및 API =====
+fastapi==0.116.1
+uvicorn[standard]==0.35.0
+gunicorn==23.0.0
+pydantic==2.11.7
+pydantic-settings==2.10.1
+
+# ===== 데이터베이스 =====
+asyncpg==0.30.0
+sqlalchemy[asyncio]==2.0.43
+alembic==1.16.4
+
+# ===== 벡터 데이터베이스 =====
+qdrant-client==1.15.1
+
+# ===== 캐시 시스템 =====
+redis==6.4.0
+
+# ===== RAG 파이프라인 =====
+# LangChain (문서 처리, 텍스트 분할, RAG 체인 구성)
+langchain==0.3.27
+langchain-community==0.3.28
+
+# ===== 기본 유틸리티 =====
+numpy==2.3.2
+scikit-learn==1.5.2
+# NOTE: gradio는 demo.py에서만 필요하므로 requirements-demo.txt로 이동
+python-multipart>=0.0.18
+python-dotenv==1.1.1
+pyyaml==6.0.2
+httpx==0.28.1
+
+# ===== 로깅 및 모니터링 =====
+structlog==25.4.0
+
+# ===== 개발 및 테스트 도구 =====
+pytest==8.4.1
+pytest-asyncio==1.1.0
+pytest-mock==3.14.1

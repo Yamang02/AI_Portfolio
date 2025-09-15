@@ -1,0 +1,27 @@
+# AI Portfolio Demo Environment - Standalone Service
+services:
+  # Gradio Demo Service (완전 독립 서비스)
+  demo:
+    build:
+      context: ./ai-service/demo
+      dockerfile: Dockerfile
+    container_name: ai-portfolio-demo
+    ports:
+      - "7860:7860"
+    environment:
+      - PYTHONPATH=/app
+      - PYTHONUNBUFFERED=1
+      - HF_HOME=/app/model_cache/huggingface
+      - TRANSFORMERS_CACHE=/app/model_cache/huggingface
+      - DEMO_CONFIG_DIR=/app/config
+    volumes:
+      - ./ai-service/demo:/app
+      - ./model_cache:/app/model_cache
+    command: ["python", "main.py"]
+    restart: unless-stopped
+    networks:
+      - demo-network
+
+networks:
+  demo-network:
+    driver: bridge

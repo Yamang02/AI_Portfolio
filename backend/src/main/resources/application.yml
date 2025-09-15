@@ -5,7 +5,25 @@ spring:
   application:
     name: ai-portfolio-backend
   
-  # CORS 설정
+  
+  # PostgreSQL 데이터베이스 설정
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:ai_portfolio}
+    username: ${DB_USER:dev_user}
+    password: ${DB_PASSWORD:dev_password}
+    driver-class-name: org.postgresql.Driver
+  
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+  
+
+  # 웹 설정 (CORS만 - 정적 파일 서빙 제거)
   web:
     cors:
       allowed-origins: 
@@ -39,9 +57,9 @@ logging:
 
 # 환경변수 설정
 app:
-  gemini:
-    api-key: ${GEMINI_API_KEY:}
-    model-name: gemini-2.5-flash
+  ai-service:
+    url: ${AI_SERVICE_URL:http://localhost:8000}
+    timeout: ${AI_SERVICE_TIMEOUT:30000}
   github:
     username: Yamang02
   contact:

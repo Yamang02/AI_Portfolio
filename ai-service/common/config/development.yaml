@@ -1,0 +1,166 @@
+# AI Portfolio Service - Development Environment Configuration
+# Docker Compose 로컬 개발 환경용 (Demo + Production 기능 모두 포함)
+
+# =============================================================================
+# LLM Configuration (Development - 모든 Provider 지원)
+# =============================================================================
+llm:
+  provider: "openai"  # 기본 프로바이더 (환경변수로 변경 가능)
+  
+  # OpenAI 설정
+  openai:
+    model_name: "gpt-3.5-turbo"
+    temperature: 0.7
+    max_tokens: 1000
+    api_key: "${OPENAI_API_KEY}"
+  
+  # Google 설정
+  google:
+    model_name: "gemini-pro"
+    temperature: 0.7
+    max_output_tokens: 1000
+    api_key: "${GEMINI_API_KEY}"
+  
+  # Mock LLM 설정 (테스트용)
+  mock:
+    model_name: "mock-gpt-3.5-turbo"
+    temperature: 0.7
+    max_tokens: 1000
+    response_delay: 0.5
+
+# =============================================================================
+# Database Configuration (Development - Docker Compose)
+# =============================================================================
+database:
+  host: "${DB_HOST:-postgres}"  # Docker Compose 서비스명
+  port: "${DB_PORT:-5432}"
+  database: "${DB_NAME:-ai_portfolio}"
+  username: "${DB_USERNAME:-dev_user}"
+  password: "${DB_PASSWORD:-dev_password}"
+  pool_size: 10
+  max_overflow: 20
+  pool_timeout: 30
+  pool_recycle: 3600
+
+# =============================================================================
+# Cache Configuration (Development - Redis)
+# =============================================================================
+cache:
+  host: "${REDIS_HOST:-redis}"  # Docker Compose 서비스명
+  port: "${REDIS_PORT:-6379}"
+  password: "${REDIS_PASSWORD:-}"
+  database: "${REDIS_DB:-0}"
+  key_prefix: "dev_ai_service:"
+  default_ttl: 3600
+  context_ttl: 7200
+
+# =============================================================================
+# Vector Store & Embedding Configuration (Development - 모든 옵션 지원)
+# =============================================================================
+adapters:
+  # 벡터 저장소 어댑터 설정 (Qdrant + Memory 모두 지원)
+  vector:
+    # Memory Vector Store (빠른 테스트용)
+    memory:
+      model_name: "sentence-transformers/all-MiniLM-L6-v2"
+      similarity_threshold: 0.7
+      max_results: 10
+      hybrid_weight: 0.7
+    
+    # Qdrant Vector Store (실제 환경 시뮬레이션)
+    qdrant:
+      url: "${QDRANT_URL:-http://qdrant:6333}"  # Docker Compose 서비스명
+      api_key: "${QDRANT_API_KEY:-}"
+      collection_name: "${QDRANT_COLLECTION:-ai_portfolio_dev}"
+      vector_size: 768
+      distance_metric: "cosine"
+      similarity_threshold: 0.7
+      max_results: 10
+  
+  # 임베딩 어댑터 설정 (API + Local 모두 지원)
+  embedding:
+    provider: "huggingface"  # 기본값: 로컬 모델 (비용 절약)
+    model_name: "sentence-transformers/all-MiniLM-L6-v2"
+    batch_size: 20
+    normalize: true
+    device: "cpu"
+
+# =============================================================================
+# Embedding Configuration (Development)
+# =============================================================================
+embedding:
+  provider: "huggingface"  # 개발시에는 로컬 모델 우선
+  model_name: "sentence-transformers/all-MiniLM-L6-v2"
+  batch_size: 20
+  normalize: true
+  device: "cpu"
+
+# =============================================================================
+# RAG Configuration (Development)
+# =============================================================================
+rag:
+  chunk_size: 500
+  chunk_overlap: 75
+  top_k: 5
+  similarity_threshold: 0.7
+  max_context_length: 8000
+  project_priority_boost: true
+  include_metadata: true
+
+# =============================================================================
+# Logging Configuration (Development)
+# =============================================================================
+logging:
+  level: "${LOG_LEVEL:-DEBUG}"  # 개발시에는 상세 로그
+  format: "text"  # 개발시에는 가독성 우선
+  include_request_id: true
+
+# =============================================================================
+# Performance Configuration (Development)
+# =============================================================================
+performance:
+  max_concurrent_requests: 20  # 적당한 동시성
+  request_timeout_seconds: 30
+  db_connection_timeout: 10
+  
+  # Mock 서비스 설정
+  mock_llm:
+    response_delay: 0.5
+    
+  # 메트릭 수집 설정
+  metrics:
+    collection_interval: 30  # 개발시에는 빈번한 수집
+    
+  # 헬스체크 설정
+  health_check:
+    interval: 15
+    timeout: 5
+
+# =============================================================================
+# Development 특화 설정
+# =============================================================================
+development:
+  # 개발 편의 기능
+  features:
+    hot_reload: true
+    debug_mode: true
+    auto_migration: true
+    mock_external_apis: false  # 실제 API 호출로 테스트
+    
+  # 테스트 데이터
+  test_data:
+    load_on_startup: true
+    documents_path: "./data/test-documents"
+    reset_on_restart: false  # 개발시 데이터 보존
+    
+  # 개발자 도구
+  tools:
+    enable_profiler: true
+    enable_query_debugger: true
+    log_sql_queries: true
+    
+  # API 설정
+  api:
+    cors_origins: ["http://localhost:3000", "http://localhost:8080"]
+    enable_docs: true
+    enable_redoc: true

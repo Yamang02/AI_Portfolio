@@ -101,6 +101,22 @@ temp/
 ehthumbs.db
 Thumbs.db
 
+# Model Cache (대용량 모델 파일들)
+model_cache/
+*.bin
+*.safetensors
+*.ckpt
+*.pth
+*.h5
+*.hdf5
+
+# HuggingFace Cache
+.cache/
+huggingface_cache/
+
+# KoNLPy Cache
+konlpy_cache/
+
 # Docker
 .dockerignore
 
@@ -148,3 +164,103 @@ buildNumber.properties
 
 # 환경설정 파일 무시
 backend/src/main/resources/application.properties
+
+# 테스트파일 모두 무시
+backend/src/test/*
+
+# 빌드 결과물 모두 무시
+backend/target/*
+
+# Claude Code
+.claude/
+
+# Database files
+database/
+
+# Railway environment (actual config)
+.env.railway
+
+# Kiro project management files
+.kiro/
+
+# Python AI Service
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Python distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Python virtual environments
+venv/
+env/
+.venv/
+.env/
+
+# Python testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+
+# Python AI models and data
+*.bin
+*.safetensors
+*.onnx
+*.pb
+*.pkl
+*.joblib
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Python logs
+*.log
+logs/
+
+# AI Service specific
+ai-service/.env
+ai-service/logs/
+ai-service/data/
+ai-service/models/
+ai-service/.cache/
+ai-service/cache/
+ai-service/test_*.py
+ai-service/run_dev.py
+
+
+.env.*
+
+# IDE and Editor files
+.cursor/
+.vscode/
+.idea/
+
+# Test results and reports
+test-results/
+ai-service/demo/tests/e2e/test-results/
+ai-service/demo/tests/e2e/reports/ 

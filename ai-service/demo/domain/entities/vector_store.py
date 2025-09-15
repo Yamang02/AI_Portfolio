@@ -1,0 +1,180 @@
+"""
+VectorStore Entity - Demo Domain Layer
+데모 도메인 벡터스토어 엔티티
+
+이 엔티티는 벡터스토어의 상태와 메타데이터를 관리합니다.
+"""
+
+from typing import Dict, Any, Optional, List
+from .embedding import Embedding
+from datetime import datetime
+import uuid
+
+
+class VectorStoreId:
+    """벡터스토어 ID 값 객체"""
+    
+    def __init__(self, value: Optional[str] = None):
+        self.value = value or str(uuid.uuid4())
+    
+    def __str__(self) -> str:
+        return self.value
+    
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, VectorStoreId):
+            return False
+        return self.value == other.value
+
+
+class VectorStore:
+    """데모 도메인 벡터스토어 엔티티"""
+    
+    def __init__(
+        self,
+        store_name: str = "MemoryVectorStore",
+        store_type: str = "MEMORY",
+        vector_store_id: Optional[VectorStoreId] = None,
+        embeddings: Optional[List[Embedding]] = None,
+        model_name: str = "sentence-transformers/all-MiniLM-L6-v2",
+        dimension: int = 384,
+        created_at: Optional[datetime] = None,
+        last_updated: Optional[datetime] = None
+    ):
+        self.vector_store_id = vector_store_id or VectorStoreId()
+        self.store_name = store_name
+        self.store_type = store_type
+        self.embeddings = embeddings or []
+        self.model_name = model_name
+        self.dimension = dimension
+        self.created_at = created_at or datetime.now()
+        self.last_updated = last_updated or datetime.now()
+    
+    def add_embedding(self, embedding: Embedding) -> None:
+        """임베딩 추가 (중복 확인 포함)"""
+        # 중복 확인: 같은 chunk_id를 가진 임베딩이 이미 있는지 확인
+        if self.validate_embedding_by_chunk_id(str(embedding.chunk_id)):
+            return  # 이미 존재하면 추가하지 않음
+        
+        self.embeddings.append(embedding)
+        self.last_updated = datetime.now()
+    
+    def get_embeddings_count(self) -> int:
+        """저장된 임베딩 수 반환"""
+        return len(self.embeddings)
+    
+    def get_total_vectors_size(self) -> int:
+        """총 벡터 크기 반환 (바이트)"""
+        return sum(len(emb.vector) * 8 for emb in self.embeddings)  # float64 기준
+    
+    def is_empty(self) -> bool:
+        """벡터스토어가 비어있는지 확인"""
+        return len(self.embeddings) == 0
+    
+    def get_statistics(self) -> Dict[str, Any]:
+        """벡터스토어 통계 반환"""
+        return {
+            "total_embeddings": len(self.embeddings),
+            "total_vectors_size_bytes": self.get_total_vectors_size(),
+            "model_name": self.model_name,
+            "dimension": self.dimension,
+            "store_type": self.store_type,
+            "created_at": self.created_at.isoformat(),
+            "last_updated": self.last_updated.isoformat()
+        }
+    
+    def validate_embedding_exists(self, embedding_id: str) -> bool:
+        """임베딩 존재 여부 검증"""
+        return any(str(emb.embedding_id) == embedding_id for emb in self.embeddings)
+    
+    def validate_embedding_by_chunk_id(self, chunk_id: str) -> bool:
+        """청크 ID로 임베딩 존재 여부 검증"""
+        return any(str(emb.chunk_id) == chunk_id for emb in self.embeddings)
+    
+    def get_embedding_by_chunk_id(self, chunk_id: str) -> Optional['Embedding']:
+        """청크 ID로 임베딩 조회"""
+        for emb in self.embeddings:
+            if str(emb.chunk_id) == chunk_id:
+                return emb
+        return None
+    
+    def validate_data_consistency(self, expected_chunk_ids: List[str]) -> Dict[str, Any]:
+        """데이터 일치성 검증"""
+        stored_chunk_ids = [str(emb.chunk_id) for emb in self.embeddings]
+        
+        missing_embeddings = set(expected_chunk_ids) - set(stored_chunk_ids)
+        extra_embeddings = set(stored_chunk_ids) - set(expected_chunk_ids)
+        
+        return {
+            "expected_count": len(expected_chunk_ids),
+            "stored_count": len(stored_chunk_ids),
+            "missing_embeddings": list(missing_embeddings),
+            "extra_embeddings": list(extra_embeddings),
+            "is_consistent": len(missing_embeddings) == 0 and len(extra_embeddings) == 0
+        }
+    
+    def get_validation_summary(self) -> str:
+        """검증 요약 반환"""
+        if self.is_empty():
+            return "벡터스토어가 비어있습니다"
+        
+        consistency_check = self.validate_data_consistency([])
+        return f"저장된 임베딩: {len(self.embeddings)}개, 크기: {self.get_total_vectors_size() / 1024 / 1024:.1f}MB"
+    
+    def remove_duplicates(self) -> int:
+        """중복 임베딩 제거 후 제거된 개수 반환"""
+        seen_chunk_ids = set()
+        unique_embeddings = []
+        duplicates_count = 0
+        
+        for embedding in self.embeddings:
+            chunk_id_str = str(embedding.chunk_id)
+            if chunk_id_str not in seen_chunk_ids:
+                seen_chunk_ids.add(chunk_id_str)
+                unique_embeddings.append(embedding)
+            else:
+                duplicates_count += 1
+        
+        self.embeddings = unique_embeddings
+        self.last_updated = datetime.now()
+        return duplicates_count
+    
+    def clear(self) -> None:
+        """벡터스토어 초기화"""
+        self.embeddings.clear()
+        self.last_updated = datetime.now()
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """딕셔너리로 변환"""
+        return {
+            "vector_store_id": str(self.vector_store_id),
+            "store_name": self.store_name,
+            "store_type": self.store_type,
+            "embeddings": [emb.to_dict() for emb in self.embeddings],
+            "model_name": self.model_name,
+            "dimension": self.dimension,
+            "created_at": self.created_at.isoformat(),
+            "last_updated": self.last_updated.isoformat()
+        }
+    
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'VectorStore':
+        """딕셔너리에서 생성"""
+        from .embedding import Embedding
+        return cls(
+            store_name=data["store_name"],
+            store_type=data["store_type"],
+            vector_store_id=VectorStoreId(data["vector_store_id"]),
+            embeddings=[Embedding.from_dict(emb) for emb in data["embeddings"]],
+            model_name=data["model_name"],
+            dimension=data["dimension"],
+            created_at=datetime.fromisoformat(data["created_at"]),
+            last_updated=datetime.fromisoformat(data["last_updated"])
+        )
+    
+    def __str__(self) -> str:
+        return f"VectorStore(id={self.vector_store_id}, name={self.store_name}, embeddings={len(self.embeddings)})"
+    
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, VectorStore):
+            return False
+        return self.vector_store_id == other.vector_store_id

@@ -1,0 +1,88 @@
+server:
+  port: ${PORT:8080}  # Cloud Run이 제공하는 동적 포트 사용
+
+spring:
+  application:
+    name: ai-portfolio-backend-staging
+  
+  # Railway PostgreSQL 설정 (POSTGRE_URL을 통해 DatabaseConfig에서 처리)
+  datasource:
+    url: ${POSTGRE_URL:jdbc:postgresql://localhost:5432/ai_portfolio}  # Railway PostgreSQL URL 우선 사용
+    username: ${POSTGRES_USER:dev_user}
+    password: ${POSTGRES_PASSWORD:dev_password}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 5  # Cloud Run 메모리 제한 고려
+      minimum-idle: 1
+      connection-timeout: 60000  # 연결 타임아웃 증가
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      leak-detection-threshold: 60000
+  
+  jpa:
+    hibernate:
+      ddl-auto: validate  # 프로덕션 준비: 스키마 검증만 수행
+    show-sql: true      # 디버깅: SQL 로그 활성화
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+  
+  # CORS 설정 (FE 분리 후 CloudFront 도메인 추가)
+  web:
+    cors:
+      allowed-origins: 
+        - "http://localhost:3000"
+        - "http://localhost:5173"
+        - "https://ai-portfolio-chatbot-493721639129.asia-northeast3.run.app"
+        - "https://ai-portfolio-staging-493721639129.asia-northeast3.run.app"  # 기존 스테이징 도메인
+        - "https://${CLOUDFRONT_DOMAIN:ai-portfolio-frontend-staging.cloudfront.net}"  # 새로운 CloudFront 도메인
+      allowed-methods: 
+        - GET
+        - POST
+        - PUT
+        - DELETE
+        - OPTIONS
+      allowed-headers: "*"
+      allow-credentials: true
+
+# Swagger 비활성화 (스테이징에서는 선택적)
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+
+# Actuator 설정 (Health Check용) - Production과 동일
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+
+# 로깅 설정 (디버깅 레벨)
+logging:
+  level:
+    com.aiportfolio.backend: DEBUG
+    org.springframework.web: INFO
+    org.hibernate.SQL: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%level] %logger{36} - %msg%n"
+
+# 환경변수 설정 (기존 패턴 유지)
+app:
+  gemini:
+    api-key: ${GEMINI_API_KEY}
+    model-name: gemini-2.5-flash
+  github:
+    username: Yamang02  # 하드코딩
+  contact:
+    email: ljj0210@gmail.com  # 하드코딩
+  security:
+    rate-limit:
+      window: 60000
+      max-requests: 50  # 스테이징에서는 더 제한적

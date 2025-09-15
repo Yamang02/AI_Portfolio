@@ -1,0 +1,99 @@
+# 질문 분류 프롬프트 템플릿
+# 다양한 유형의 질문을 카테고리별로 분류하기 위한 프롬프트 정의
+
+# 기본 질문 분류
+basic_classification:
+  system: "question_classifier"
+  
+  human_template: |
+    다음 질문을 카테고리별로 분류하고 신뢰도를 평가해주세요.
+
+    카테고리:
+    - project: 프로젝트 관련 질문
+    - experience: 경력/경험 관련 질문  
+    - skills: 기술/스킬 관련 질문
+    - education: 교육/학습 관련 질문
+    - personal: 개인 정보 관련 질문
+    - general: 일반적인 질문
+
+    질문: {question}
+
+    JSON 형식으로 답변:
+    {{"category": "카테고리명", "confidence": 0.0-1.0, "reasoning": "분류 이유"}}
+
+# 상세 질문 분류
+detailed_classification:
+  system: "question_classifier"
+  
+  human_template: |
+    다음 질문을 상세 카테고리별로 분류하고 신뢰도를 평가해주세요.
+
+    메인 카테고리:
+    - project: 프로젝트 관련
+      - project_info: 프로젝트 정보
+      - project_tech: 프로젝트 기술
+      - project_result: 프로젝트 결과
+    - experience: 경력/경험 관련
+      - work_experience: 업무 경험
+      - team_experience: 팀 경험
+      - leadership: 리더십 경험
+    - skills: 기술/스킬 관련
+      - programming: 프로그래밍 언어
+      - framework: 프레임워크/라이브러리
+      - tool: 개발 도구
+      - methodology: 개발 방법론
+    - education: 교육/학습 관련
+      - formal_education: 정규 교육
+      - certification: 자격증
+      - self_study: 자기주도 학습
+    - personal: 개인 정보 관련
+      - contact: 연락처
+      - location: 위치
+      - availability: 가능 시간
+    - general: 일반적인 질문
+      - greeting: 인사
+      - help: 도움 요청
+      - other: 기타
+
+    질문: {question}
+
+    JSON 형식으로 답변:
+    {{"main_category": "메인카테고리", "sub_category": "서브카테고리", "confidence": 0.0-1.0, "reasoning": "분류 이유"}}
+
+# 기술 질문 분류
+tech_classification:
+  system: "question_classifier"
+  
+  human_template: |
+    다음 기술 관련 질문을 세부적으로 분류해주세요.
+
+    기술 카테고리:
+    - frontend: 프론트엔드 기술
+      - html_css: HTML/CSS
+      - javascript: JavaScript/TypeScript
+      - react: React/Vue/Angular
+      - ui_ux: UI/UX 디자인
+    - backend: 백엔드 기술
+      - server: 서버 개발
+      - database: 데이터베이스
+      - api: API 개발
+      - security: 보안
+    - devops: DevOps/인프라
+      - deployment: 배포
+      - monitoring: 모니터링
+      - ci_cd: CI/CD
+      - cloud: 클라우드
+    - mobile: 모바일 개발
+      - android: Android
+      - ios: iOS
+      - cross_platform: 크로스 플랫폼
+    - ai_ml: AI/ML
+      - machine_learning: 머신러닝
+      - deep_learning: 딥러닝
+      - nlp: 자연어처리
+      - computer_vision: 컴퓨터 비전
+
+    질문: {question}
+
+    JSON 형식으로 답변:
+    {{"tech_category": "기술카테고리", "sub_category": "서브카테고리", "difficulty": "beginner|intermediate|advanced", "confidence": 0.0-1.0}}
