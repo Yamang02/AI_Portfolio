@@ -126,10 +126,10 @@ jobs:
     - name: Invalidate CloudFront cache
       run: |
         aws cloudfront create-invalidation \
-          --distribution-id ${{ vars.AWS_CLOUDFRONT_DISTRIBUTION_ID_PRODUCTION }} \
+          --distribution-id ${{ vars.AWS_CLOUDFRONT_DISTRIBUTION_ID }} \
           --paths "/*"
           
     - name: Output deployment URL
       run: |
-        echo "Production Frontend deployed to: https://${{ vars.AWS_CLOUDFRONT_DISTRIBUTION_ID_PRODUCTION }}.cloudfront.net"
+        echo "Production Frontend deployed to: https://${{ vars.AWS_CLOUDFRONT_DISTRIBUTION_ID }}.cloudfront.net"
         echo "S3 Bucket: s3://${{ vars.AWS_S3_NAME }}"
