@@ -5,7 +5,7 @@ on:
     branches: [ staging, main ]
     paths:
       - 'frontend/**'
-      - '.github/workflows/deploy-frontend-s3.yml'
+      - '.github/workflows/frontend-staging-aws.yml'
   workflow_dispatch:
     inputs:
       environment:

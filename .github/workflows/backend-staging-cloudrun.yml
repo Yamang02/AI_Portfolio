@@ -5,13 +5,13 @@ on:
     branches: [ develop, staging ]
     paths:
       - 'backend/**' 
-      - 'Dockerfile.backend'
-      - '.github/workflows/main-app-staging-cloudrun.yml'
+      - 'Dockerfile'
+      - '.github/workflows/backend-staging-cloudrun.yml'
   pull_request:
     branches: [ main ]
     paths:
       - 'backend/**'
-      - 'Dockerfile.backend'
+      - 'Dockerfile'
 
 env:
   GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
@@ -75,7 +75,7 @@ jobs:
     
     - name: Build and push container image
       run: |
-        docker build -f Dockerfile.backend \
+        docker build \
           -t gcr.io/$GCP_PROJECT_ID/$GCP_MAIN_SERVICE_NAME:$GITHUB_SHA .
         docker push gcr.io/$GCP_PROJECT_ID/$GCP_MAIN_SERVICE_NAME:$GITHUB_SHA
     
