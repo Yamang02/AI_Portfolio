@@ -89,6 +89,7 @@ jobs:
           --set-env-vars="SPRING_PROFILES_ACTIVE=staging" \
           --set-env-vars="POSTGRE_URL=${{ secrets.POSTGRE_URL }}" \
           --set-env-vars="AI_SERVICE_URL=${{ vars.GCP_AI_SERVICE_URL }}" \
+          --set-env-vars="GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" \
           --set-env-vars="JAVA_OPTS=-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -Djava.security.egd=file:/dev/./urandom" \
           --memory 1Gi \
           --cpu 1 \
