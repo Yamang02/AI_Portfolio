@@ -17,8 +17,7 @@ on:
           - staging
           - production
 
-env:
-  AWS_REGION: ${{ vars.AWS_REGION }}
+# 환경별 설정은 각 job에서 개별 설정
 
 jobs:
   deploy-staging:
@@ -55,12 +54,12 @@ jobs:
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ env.AWS_REGION }}
+        aws-region: ${{ vars.AWS_REGION }}
         
     - name: Create S3 bucket if not exists
       run: |
         aws s3api head-bucket --bucket ${{ vars.AWS_S3_NAME }} 2>/dev/null || \
-        aws s3 mb s3://${{ vars.AWS_S3_NAME }} --region ${{ env.AWS_REGION }}
+        aws s3 mb s3://${{ vars.AWS_S3_NAME }} --region ${{ vars.AWS_REGION }}
         
     - name: Upload to S3
       run: |
@@ -112,12 +111,12 @@ jobs:
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ env.AWS_REGION }}
+        aws-region: ${{ vars.AWS_REGION }}
         
     - name: Create S3 bucket if not exists
       run: |
         aws s3api head-bucket --bucket ${{ vars.AWS_S3_NAME }} 2>/dev/null || \
-        aws s3 mb s3://${{ vars.AWS_S3_NAME }} --region ${{ env.AWS_REGION }}
+        aws s3 mb s3://${{ vars.AWS_S3_NAME }} --region ${{ vars.AWS_REGION }}
         
     - name: Upload to S3
       run: |

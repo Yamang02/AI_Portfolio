@@ -39,5 +39,8 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/Yamang02/AI_Portfolio"
+  },
+  "dependencies": {
+    "aws": "^0.0.3-2"
   }
 }
