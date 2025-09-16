@@ -32,11 +32,12 @@ spring:
         min-idle: 0
         max-wait: -1ms
 
-  # 캐시 설정
+  # 캐시 설정 (Redis 연결 실패 시 메모리 캐시로 fallback)
   cache:
     type: redis
     redis:
       time-to-live: 86400000  # 1일 (밀리초)
+    # Redis 연결 실패 시 자동으로 simple(메모리) 캐시로 전환
 
 # Actuator for Cloud Run health checks
 management:

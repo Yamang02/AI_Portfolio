@@ -1,10 +1,13 @@
 package com.aiportfolio.backend.config;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -22,7 +25,9 @@ import java.util.Map;
 public class CacheConfig {
 
     @Bean
-    public CacheManager cacheManager(RedisConnectionFactory connectionFactory) {
+    @Primary
+    @ConditionalOnProperty(name = "spring.cache.type", havingValue = "redis")
+    public CacheManager redisCacheManager(RedisConnectionFactory connectionFactory) {
         log.info("Redis Cache Manager 설정 중...");
         
         // 기본 캐시 설정
@@ -55,6 +60,19 @@ public class CacheConfig {
             .build();
 
         log.info("Redis Cache Manager 설정 완료 - 포트폴리오: 1일, GitHub: 30분, AI서비스: 5분");
+        return cacheManager;
+    }
+
+    @Bean
+    @Primary
+    @ConditionalOnProperty(name = "spring.cache.type", havingValue = "simple", matchIfMissing = true)
+    public CacheManager memoryCacheManager() {
+        log.info("메모리 Cache Manager 설정 중...");
+        
+        ConcurrentMapCacheManager cacheManager = new ConcurrentMapCacheManager();
+        cacheManager.setCacheNames("portfolio", "github", "ai-service");
+        
+        log.info("메모리 Cache Manager 설정 완료");
         return cacheManager;
     }
 }
