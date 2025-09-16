@@ -16,6 +16,7 @@ import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -70,7 +71,7 @@ public class CacheConfig {
         log.info("메모리 Cache Manager 설정 중...");
         
         ConcurrentMapCacheManager cacheManager = new ConcurrentMapCacheManager();
-        cacheManager.setCacheNames("portfolio", "github", "ai-service");
+        cacheManager.setCacheNames(Arrays.asList("portfolio", "github", "ai-service"));
         
         log.info("메모리 Cache Manager 설정 완료");
         return cacheManager;
