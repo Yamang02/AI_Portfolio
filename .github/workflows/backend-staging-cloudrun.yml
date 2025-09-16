@@ -90,6 +90,11 @@ jobs:
           --set-env-vars="POSTGRE_URL=${{ secrets.POSTGRE_URL }}" \
           --set-env-vars="AI_SERVICE_URL=${{ vars.GCP_AI_SERVICE_URL }}" \
           --set-env-vars="GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" \
+          --set-env-vars="REDIS_HOST=${{ vars.REDIS_HOST }}" \
+          --set-env-vars="REDIS_PORT=${{ vars.REDIS_PORT }}" \
+          --set-env-vars="REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}" \
+          --set-env-vars="REDIS_DATABASE=${{ vars.REDIS_DATABASE }}" \
+          --set-env-vars="REDIS_SSL=${{ vars.REDIS_SSL }}" \
           --set-env-vars="JAVA_OPTS=-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -Djava.security.egd=file:/dev/./urandom" \
           --memory 1Gi \
           --cpu 1 \
