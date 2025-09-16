@@ -17,6 +17,11 @@ env:
   GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
   GCP_MAIN_SERVICE_NAME: ${{ vars.GCP_MAIN_SERVICE_NAME }}
   GCP_MAIN_REGION: ${{ vars.GCP_MAIN_REGION }}
+  REDIS_HOST: ${{ vars.REDIS_HOST }}
+  REDIS_PORT: ${{ vars.REDIS_PORT }}
+  REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
+  REDIS_DATABASE: ${{ vars.REDIS_DATABASE }}
+  REDIS_SSL: ${{ vars.REDIS_SSL }}
 
 jobs:
   test:
@@ -90,6 +95,12 @@ jobs:
           --set-env-vars="POSTGRE_URL=${{ secrets.POSTGRE_URL }}" \
           --set-env-vars="AI_SERVICE_URL=${{ vars.GCP_AI_SERVICE_URL }}" \
           --set-env-vars="GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" \
+          --set-env-vars="REDIS_HOST=${{ vars.REDIS_HOST }}" \
+          --set-env-vars="REDIS_PORT=${{ vars.REDIS_PORT }}" \
+          --set-env-vars="REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}" \
+          --set-env-vars="REDIS_DATABASE=${{ vars.REDIS_DATABASE }}" \
+          --set-env-vars="REDIS_SSL=${{ vars.REDIS_SSL }}" \
+          --set-env-vars="CACHE_TYPE=redis" \
           --set-env-vars="JAVA_OPTS=-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -Djava.security.egd=file:/dev/./urandom" \
           --memory 1Gi \
           --cpu 1 \
