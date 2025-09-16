@@ -47,6 +47,9 @@ management:
   endpoint:
     health:
       show-details: never
+  health:
+    redis:
+      enabled: false  # Redis 헬스체크 비활성화
 
 # Production logging
 logging:

@@ -74,15 +74,20 @@ springdoc:
   swagger-ui:
     enabled: false
 
-# Actuator 설정 (Health Check용) - Production과 동일
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health
-  endpoint:
+  # Actuator 설정 (Health Check용) - Production과 동일
+  management:
+    endpoints:
+      web:
+        exposure:
+          include: health
+    endpoint:
+      health:
+        show-details: never
     health:
-      show-details: never
+      redis:
+        enabled: false  # Redis 헬스체크 비활성화
+      defaults:
+        enabled: true
 
 # 로깅 설정 (디버깅 레벨)
 logging:
