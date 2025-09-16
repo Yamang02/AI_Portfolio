@@ -4,6 +4,7 @@ import com.aiportfolio.backend.config.AppConfig;
 import com.aiportfolio.backend.domain.portfolio.model.Project;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -20,6 +21,7 @@ public class GitHubIntegrationService {
     
     private static final String GITHUB_API_BASE = "https://api.github.com";
     
+    @Cacheable(value = "github", key = "'projects'")
     public List<Project> getPortfolioProjects() {
         try {
             String username = appConfig.getGitHub().getUsername();
@@ -50,6 +52,7 @@ public class GitHubIntegrationService {
         }
     }
     
+    @Cacheable(value = "github", key = "'project:' + #repoName")
     public Project getProjectInfo(String repoName) {
         try {
             String username = appConfig.getGitHub().getUsername();
