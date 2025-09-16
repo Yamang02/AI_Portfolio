@@ -2,7 +2,9 @@
 spring:
   # Railway PostgreSQL Configuration (URL 변환 처리)
   datasource:
-    # DatabaseConfig에서 Railway URL을 자동으로 JDBC 형식으로 변환
+    url: ${POSTGRE_URL:jdbc:postgresql://localhost:5432/ai_portfolio}  # Railway PostgreSQL URL 우선 사용
+    username: ${POSTGRES_USER:dev_user}
+    password: ${POSTGRES_PASSWORD:dev_password}
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 5  # Cloud Run 메모리 제한 고려
