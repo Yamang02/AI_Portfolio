@@ -2,18 +2,35 @@
  * 날짜 유틸리티 함수들
  */
 
+import { safeSplit, safeIncludes } from './safeStringUtils';
+
 /**
  * YYYY-MM 형식의 날짜 문자열을 Date 객체로 변환
- * @param dateString - YYYY-MM 또는 YYYY-MM-DD 형식의 날짜 문자열
+ * @param dateString - YYYY-MM 또는 YYYY-MM-DD 형식의 날짜 문자열 또는 배열 [YYYY, MM, DD]
  * @returns Date 객체
  */
-export const parseDate = (dateString: string): Date => {
+export const parseDate = (dateString: string | any): Date => {
   if (!dateString) {
     throw new Error('Date string is required');
   }
   
+  // 배열 형태의 날짜 처리 [YYYY, MM, DD]
+  if (Array.isArray(dateString)) {
+    if (dateString.length >= 2 && typeof dateString[0] === 'number' && typeof dateString[1] === 'number') {
+      const year = dateString[0];
+      const month = dateString[1];
+      return new Date(year, month - 1, 1);
+    }
+    throw new Error(`Invalid date array format: ${JSON.stringify(dateString)}`);
+  }
+  
+  // 문자열 형태의 날짜 처리
+  if (typeof dateString !== 'string') {
+    throw new Error(`Invalid date string type: ${typeof dateString}`);
+  }
+  
   // YYYY-MM 형식을 YYYY-MM-01로 변환
-  const normalizedDate = dateString.includes('-') && dateString.split('-').length === 2 
+  const normalizedDate = safeIncludes(dateString, '-') && safeSplit(dateString, '-').length === 2 
     ? `${dateString}-01` 
     : dateString;
     

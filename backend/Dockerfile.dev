@@ -1,10 +1,9 @@
 # Development Dockerfile for Spring Boot Backend
 FROM openjdk:17-jdk-slim
 
-# Install Maven
+# Install Maven and curl
 RUN apt-get update && \
-    apt-get install -y maven && \
-    apt-get install -y curl && \
+    apt-get install -y maven curl && \
     rm -rf /var/lib/apt/lists/*
 
 # Set working directory
@@ -20,5 +19,9 @@ COPY src ./src
 # Expose port
 EXPOSE 8080
 
-# Development command with hot reload
-CMD ["mvn", "spring-boot:run", "-Dspring-boot.run.jvmArguments=-Dspring.devtools.restart.enabled=true"]
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+  CMD curl -f http://localhost:8080/health || exit 1
+
+# Development command with hot reload and proper profile
+CMD ["mvn", "spring-boot:run", "-Dspring-boot.run.profiles=local", "-Dspring-boot.run.jvmArguments=-Dspring.devtools.restart.enabled=true"]

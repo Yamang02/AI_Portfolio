@@ -1,5 +1,6 @@
 import React from 'react';
 import { Project, Experience, Education, HistoryItem } from '../types';
+import { safeSplit, safeIncludes } from '../../../shared/utils/safeStringUtils';
 
 interface HistoryPanelProps {
   projects: Project[];
@@ -30,12 +31,37 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
   ];
 
   // 날짜를 Date 객체로 변환하는 헬퍼 함수
-  const parseDate = (dateStr: string): Date => {
-    if (dateStr.includes('-')) {
-      const [year, month] = dateStr.split('-');
-      return new Date(parseInt(year), parseInt(month) - 1, 1);
+  const parseDate = (dateStr: string | any): Date => {
+    // 타입 안전성 검증
+    if (!dateStr) {
+      console.warn('Invalid date string: empty input');
+      return new Date(); // 기본값으로 현재 날짜 반환
     }
-    return new Date(dateStr);
+    
+    // 배열 형태의 날짜 처리 [YYYY, MM, DD]
+    if (Array.isArray(dateStr)) {
+      if (dateStr.length >= 2 && typeof dateStr[0] === 'number' && typeof dateStr[1] === 'number') {
+        const year = dateStr[0];
+        const month = dateStr[1];
+        return new Date(year, month - 1, 1);
+      }
+      console.warn('Invalid date array format:', dateStr);
+      return new Date();
+    }
+    
+    // 문자열 형태의 날짜 처리
+    if (typeof dateStr === 'string') {
+      if (safeIncludes(dateStr, '-')) {
+        const parts = safeSplit(dateStr, '-');
+        if (parts.length >= 2) {
+          return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, 1);
+        }
+      }
+      return new Date(dateStr);
+    }
+    
+    console.warn('Invalid date string:', dateStr);
+    return new Date(); // 기본값으로 현재 날짜 반환
   };
 
   // 모든 날짜를 수집하여 범위 계산

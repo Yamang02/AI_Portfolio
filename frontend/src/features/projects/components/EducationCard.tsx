@@ -1,5 +1,6 @@
 import React from 'react';
 import { Education } from '../types';
+import { safeFormatDate } from '../../../shared/utils/safeStringUtils';
 
 interface EducationCardProps {
   education: Education;
@@ -31,8 +32,7 @@ const EducationCard: React.FC<EducationCardProps> = ({
   };
 
   const formatDate = (date: string) => {
-    const [year, month] = date.split('-');
-    return `${year}.${month}`;
+    return safeFormatDate(date);
   };
 
   const formatDateRange = () => {

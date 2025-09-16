@@ -1,5 +1,6 @@
 import React from 'react';
 import { Experience } from '../types';
+import { safeFormatDate } from '../../../shared/utils/safeStringUtils';
 
 interface ExperienceCardProps {
   experience: Experience;
@@ -25,8 +26,7 @@ const ExperienceCard: React.FC<ExperienceCardProps> = ({ experience, onMouseEnte
   };
 
   const formatDate = (date: string) => {
-    const [year, month] = date.split('-');
-    return `${year}.${month}`;
+    return safeFormatDate(date);
   };
 
   const formatDateRange = () => {

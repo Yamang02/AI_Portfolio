@@ -1,5 +1,6 @@
 import React from 'react';
 import { Project } from '../types';
+import { safeFormatDate } from '../../../shared/utils/safeStringUtils';
 import {
   DefaultProjectIcon,
   CodeIcon,
@@ -13,6 +14,7 @@ import {
   ExperienceBadge,
   ExperienceSmallIcon
 } from '../../../shared/components/icons/ProjectIcons';
+import { safeSplit, safeToLowerCase, safeIncludes } from '../../../shared/utils/safeStringUtils';
 
 interface ProjectCardProps {
   project: Project;
@@ -47,15 +49,15 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
 
   // 프로젝트 타입에 따른 아이콘 선택
   const getProjectIcon = () => {
-    const title = project.title.toLowerCase();
-    const description = project.description.toLowerCase();
-    if (title.includes('ai') || title.includes('챗봇') || title.includes('chatbot') || description.includes('ai') || description.includes('gemini')) {
+    const title = safeToLowerCase(project.title);
+    const description = safeToLowerCase(project.description);
+    if (safeIncludes(title, 'ai') || safeIncludes(title, '챗봇') || safeIncludes(title, 'chatbot') || safeIncludes(description, 'ai') || safeIncludes(description, 'gemini')) {
       return <AIIcon />;
-    } else if (title.includes('pyqt') || title.includes('파일') || title.includes('file') || description.includes('데스크톱') || description.includes('gui')) {
+    } else if (safeIncludes(title, 'pyqt') || safeIncludes(title, '파일') || safeIncludes(title, 'file') || safeIncludes(description, '데스크톱') || safeIncludes(description, 'gui')) {
       return <DesktopIcon />;
-    } else if (title.includes('갤러리') || title.includes('전시') || title.includes('art') || description.includes('전시')) {
+    } else if (safeIncludes(title, '갤러리') || safeIncludes(title, '전시') || safeIncludes(title, 'art') || safeIncludes(description, '전시')) {
       return <DefaultProjectIcon />;
-    } else if (title.includes('웹') || title.includes('web') || title.includes('사이트') || description.includes('웹')) {
+    } else if (safeIncludes(title, '웹') || safeIncludes(title, 'web') || safeIncludes(title, '사이트') || safeIncludes(description, '웹')) {
       return <WebIcon />;
     } else {
       return <CodeIcon />;
@@ -64,7 +66,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
 
   // 프로젝트명 줄바꿈 처리
   const formatTitle = (title: string) => {
-    const parts = title.split(/[()]/);
+    const parts = safeSplit(title, /[()]/);
     if (parts.length > 1) {
       return (
         <>
@@ -76,7 +78,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         </>
       );
     }
-    return title;
+    return title || '';
   };
 
   // 프로젝트 타입에 따른 배지
@@ -177,7 +179,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         {/* 하단 정보 */}
         <div className="pt-4 border-t border-gray-200 mt-auto flex items-center justify-between gap-6">
           <span className="text-xs text-gray-500">
-            {project.startDate} ~ {project.endDate || '현재'}
+            {safeFormatDate(project.startDate)} ~ {project.endDate ? safeFormatDate(project.endDate) : '현재'}
           </span>
           <div className="flex items-center space-x-2">
             {project.githubUrl && project.githubUrl !== '#' && (

@@ -1,0 +1,107 @@
+# Local Development Environment
+server:
+  port: 8080
+
+spring:
+  application:
+    name: ai-portfolio-backend-local
+  
+  # PostgreSQL 설정 (Docker Compose)
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:postgres}:${DB_PORT:5432}/${DB_NAME:ai_portfolio}
+    username: ${DB_USER:dev_user}
+    password: ${DB_PASSWORD:dev_password}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      leak-detection-threshold: 60000
+  
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        jdbc:
+          batch_size: 20
+        order_inserts: true
+        order_updates: true
+        batch_versioned_data: true
+
+  # Redis 캐싱 설정 (Docker Compose)
+  redis:
+    host: ${REDIS_HOST:redis}
+    port: ${REDIS_PORT:6379}
+    password: 
+    database: 0
+    ssl: false
+    timeout: 2000ms
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 0
+        max-wait: -1ms
+
+  # 캐시 설정
+  cache:
+    type: redis
+    redis:
+      time-to-live: 3600000  # 1시간 (밀리초)
+
+  # CORS 설정
+  web:
+    cors:
+      allowed-origins: 
+        - "http://localhost:3000"
+        - "http://127.0.0.1:3000"
+      allowed-methods: 
+        - GET
+        - POST
+        - PUT
+        - DELETE
+        - OPTIONS
+      allowed-headers: "*"
+      allow-credentials: true
+
+# Actuator 설정
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+  health:
+    redis:
+      enabled: true
+
+# 로깅 설정
+logging:
+  level:
+    com.aiportfolio.backend: DEBUG
+    org.springframework.web: INFO
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
+# 앱 설정
+app:
+  ai-service:
+    url: http://localhost:8001
+    timeout: 30000
+  github:
+    username: yamang02
+  contact:
+    email: yamang02@gmail.com
+  security:
+    rate-limit:
+      enabled: true
+      max-requests: 100
+      window-minutes: 60
