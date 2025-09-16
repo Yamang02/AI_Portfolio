@@ -5,7 +5,7 @@ on:
     branches: [ staging ]
     paths: 
       - 'ai-service/**'
-      - '.github/workflows/ai-service/staging-cloudrun.yml'
+      - '.github/workflows/ai-service-staging-cloudrun.yml'
   pull_request:
     branches: [ staging ]
     paths: 

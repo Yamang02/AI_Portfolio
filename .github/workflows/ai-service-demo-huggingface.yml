@@ -6,13 +6,13 @@ on:
     paths:
       - 'ai-service/demo/**'
       - 'ai-service/common/**'
-      - '.github/workflows/ai-service/demo-huggingface.yml'
+      - '.github/workflows/ai-service-demo-huggingface.yml'
   pull_request:
     branches: [ staging ]
     paths:
       - 'ai-service/demo/**'
       - 'ai-service/common/**'
-      - '.github/workflows/ai-service/demo-huggingface.yml'
+      - '.github/workflows/ai-service-demo-huggingface.yml'
   workflow_dispatch:
 
 jobs:
