@@ -61,7 +61,7 @@ public class PortfolioQueryTest {
             
             // 캐시 상태 확인
             System.out.println("\n--- 캐시 상태 ---");
-            System.out.println("캐시 유효: " + repository.isCacheValid());
+            System.out.println("Redis 캐시 사용 중 (TTL로 자동 관리)");
             
         } catch (Exception e) {
             System.err.println("테스트 실행 중 오류 발생: " + e.getMessage());

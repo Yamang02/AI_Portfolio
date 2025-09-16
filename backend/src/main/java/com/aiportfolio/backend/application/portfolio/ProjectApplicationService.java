@@ -6,6 +6,7 @@ import com.aiportfolio.backend.domain.portfolio.port.out.PortfolioRepositoryPort
 import com.aiportfolio.backend.domain.portfolio.model.Project;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -74,14 +75,15 @@ public class ProjectApplicationService implements GetProjectsUseCase, ManageProj
     }
     
     @Override
+    @CacheEvict(value = {"portfolio", "github"}, allEntries = true)
     public void refreshCache() {
         log.info("프로젝트 캐시 무효화 요청");
-        portfolioRepositoryPort.invalidateCache();
         log.info("프로젝트 캐시가 무효화되었습니다");
     }
     
     @Override
     public boolean isCacheValid() {
-        return portfolioRepositoryPort.isCacheValid();
+        // Redis 캐시에서는 항상 유효하다고 간주 (TTL로 자동 관리)
+        return true;
     }
 }
