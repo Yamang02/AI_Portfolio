@@ -6,7 +6,7 @@ on:
     paths:
       - 'backend/**' 
       - 'Dockerfile'
-      - '.github/workflows/backend-staging-cloudrun.yml'
+      - '.github/workflows/backend/staging-cloudrun.yml'
   pull_request:
     branches: [ main ]
     paths:
