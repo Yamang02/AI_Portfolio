@@ -1,7 +1,7 @@
 package com.aiportfolio.backend.config;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
@@ -14,6 +14,8 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import java.time.Duration;
 import java.util.Arrays;
@@ -27,17 +29,18 @@ public class CacheConfig {
 
     @Bean
     @Primary
-    @ConditionalOnProperty(name = "spring.cache.type", havingValue = "redis")
     public CacheManager redisCacheManager(RedisConnectionFactory connectionFactory) {
-        log.info("Redis Cache Manager 설정 중...");
-        
         // 기본 캐시 설정
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        GenericJackson2JsonRedisSerializer serializer = new GenericJackson2JsonRedisSerializer(objectMapper);
+        
         RedisCacheConfiguration defaultConfig = RedisCacheConfiguration.defaultCacheConfig()
             .entryTtl(Duration.ofHours(1)) // 기본 1시간
             .serializeKeysWith(RedisSerializationContext.SerializationPair
                 .fromSerializer(new StringRedisSerializer()))
             .serializeValuesWith(RedisSerializationContext.SerializationPair
-                .fromSerializer(new GenericJackson2JsonRedisSerializer()))
+                .fromSerializer(serializer))
             .disableCachingNullValues();
 
         // 캐시별 TTL 설정
@@ -55,25 +58,17 @@ public class CacheConfig {
         cacheConfigurations.put("ai-service", defaultConfig
             .entryTtl(Duration.ofMinutes(5)));
 
-        RedisCacheManager cacheManager = RedisCacheManager.builder(connectionFactory)
+        return RedisCacheManager.builder(connectionFactory)
             .cacheDefaults(defaultConfig)
             .withInitialCacheConfigurations(cacheConfigurations)
             .build();
-
-        log.info("Redis Cache Manager 설정 완료 - 포트폴리오: 1일, GitHub: 30분, AI서비스: 5분");
-        return cacheManager;
     }
 
     @Bean
-    @Primary
-    @ConditionalOnProperty(name = "spring.cache.type", havingValue = "simple", matchIfMissing = true)
+    @ConditionalOnMissingBean(CacheManager.class)
     public CacheManager memoryCacheManager() {
-        log.info("메모리 Cache Manager 설정 중...");
-        
         ConcurrentMapCacheManager cacheManager = new ConcurrentMapCacheManager();
         cacheManager.setCacheNames(Arrays.asList("portfolio", "github", "ai-service"));
-        
-        log.info("메모리 Cache Manager 설정 완료");
         return cacheManager;
     }
 }
