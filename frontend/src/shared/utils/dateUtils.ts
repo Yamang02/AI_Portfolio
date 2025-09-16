@@ -2,6 +2,8 @@
  * 날짜 유틸리티 함수들
  */
 
+import { safeSplit, safeIncludes } from './safeStringUtils';
+
 /**
  * YYYY-MM 형식의 날짜 문자열을 Date 객체로 변환
  * @param dateString - YYYY-MM 또는 YYYY-MM-DD 형식의 날짜 문자열
@@ -12,8 +14,13 @@ export const parseDate = (dateString: string): Date => {
     throw new Error('Date string is required');
   }
   
+  // 타입 안전성 검증
+  if (typeof dateString !== 'string') {
+    throw new Error(`Invalid date string type: ${typeof dateString}`);
+  }
+  
   // YYYY-MM 형식을 YYYY-MM-01로 변환
-  const normalizedDate = dateString.includes('-') && dateString.split('-').length === 2 
+  const normalizedDate = safeIncludes(dateString, '-') && safeSplit(dateString, '-').length === 2 
     ? `${dateString}-01` 
     : dateString;
     

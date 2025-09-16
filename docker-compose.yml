@@ -65,6 +65,9 @@ services:
       - DB_PASSWORD=dev_password
       - REDIS_HOST=redis
       - REDIS_PORT=6379
+      - POSTGRES_DB=ai_portfolio
+      - POSTGRES_USER=dev_user
+      - POSTGRES_PASSWORD=dev_password
     volumes:
       - ./backend/src:/app/src
       - ./backend/pom.xml:/app/pom.xml

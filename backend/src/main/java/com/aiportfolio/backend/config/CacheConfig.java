@@ -33,6 +33,10 @@ public class CacheConfig {
         // 기본 캐시 설정
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
+        
+        // 날짜 직렬화 설정 개선
+        objectMapper.disable(com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        objectMapper.setDateFormat(new java.text.SimpleDateFormat("yyyy-MM"));
         GenericJackson2JsonRedisSerializer serializer = new GenericJackson2JsonRedisSerializer(objectMapper);
         
         RedisCacheConfiguration defaultConfig = RedisCacheConfiguration.defaultCacheConfig()
