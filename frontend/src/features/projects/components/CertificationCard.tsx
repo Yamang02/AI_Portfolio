@@ -1,5 +1,6 @@
 import React from 'react';
 import { Certification } from '../types';
+import { safeFormatDate } from '../../../shared/utils/safeStringUtils';
 
 interface CertificationCardProps {
   certification: Certification;
@@ -9,8 +10,7 @@ interface CertificationCardProps {
 
 const CertificationCard: React.FC<CertificationCardProps> = ({ certification, onMouseEnter, onMouseLeave }) => {
   const formatDate = (date: string) => {
-    const [year, month] = date.split('-');
-    return `${year}.${month}`;
+    return safeFormatDate(date);
   };
 
   const formatAcquisitionDate = () => {

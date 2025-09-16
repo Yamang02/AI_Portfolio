@@ -12,6 +12,7 @@ const App: React.FC = () => {
     educations,
     certifications,
     isLoading,
+    loadingStates,
     isChatbotOpen,
     isHistoryPanelOpen,
     isWideScreen,
@@ -29,12 +30,19 @@ const App: React.FC = () => {
     setHistoryPanelOpen((prev) => !prev);
   };
 
-  if (isLoading) {
+  // 전체 로딩 상태 (모든 데이터가 로드되지 않았을 때만)
+  const isInitialLoading = isLoading && 
+    loadingStates.projects && 
+    loadingStates.experiences && 
+    loadingStates.educations && 
+    loadingStates.certifications;
+
+  if (isInitialLoading) {
     return (
       <div className="min-h-screen bg-white text-gray-700 font-sans flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
-          <p className="text-gray-600">데이터를 불러오는 중...</p>
+          <p className="text-gray-600">포트폴리오를 불러오는 중...</p>
         </div>
       </div>
     );
@@ -50,10 +58,9 @@ const App: React.FC = () => {
           experiences={experiences}
           educations={educations}
           certifications={certifications}
+          loadingStates={loadingStates}
           isHistoryPanelOpen={isHistoryPanelOpen}
           onHistoryPanelToggle={handleHistoryPanelToggle}
-          isChatbotOpen={isChatbotOpen}
-          onChatbotToggle={handleChatbotToggle}
         />
       </main>
       <Chatbot isOpen={isChatbotOpen} onToggle={handleChatbotToggle} showProjectButtons={isWideScreen} />

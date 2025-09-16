@@ -8,6 +8,13 @@ interface AppState {
   educations: Education[];
   certifications: Certification[];
   isLoading: boolean;
+  // 개별 로딩 상태 추가
+  loadingStates: {
+    projects: boolean;
+    experiences: boolean;
+    educations: boolean;
+    certifications: boolean;
+  };
 }
 
 interface AppContextValue extends AppState {
@@ -57,22 +64,72 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const [educations, setEducations] = useState<Education[]>([]);
   const [certifications, setCertifications] = useState<Certification[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  
+  // 개별 로딩 상태
+  const [loadingStates, setLoadingStates] = useState({
+    projects: true,
+    experiences: true,
+    educations: true,
+    certifications: true,
+  });
 
-  // 데이터 로드
+  // 데이터 로드 - 점진적 로딩 방식
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [backendProjectsData, experiencesData, educationsData, certificationsData] = await Promise.all([
-          apiClient.getProjects(),
-          apiClient.getExperiences(),
-          apiClient.getEducation(),
-          apiClient.getCertifications()
+        // 각 API를 개별적으로 호출하여 점진적 로딩
+        const loadProjects = async () => {
+          try {
+            const data = await apiClient.getProjects();
+            setProjects(data);
+            setLoadingStates(prev => ({ ...prev, projects: false }));
+          } catch (error) {
+            console.error('프로젝트 데이터 로드 오류:', error);
+            setLoadingStates(prev => ({ ...prev, projects: false }));
+          }
+        };
+
+        const loadExperiences = async () => {
+          try {
+            const data = await apiClient.getExperiences();
+            setExperiences(data);
+            setLoadingStates(prev => ({ ...prev, experiences: false }));
+          } catch (error) {
+            console.error('경험 데이터 로드 오류:', error);
+            setLoadingStates(prev => ({ ...prev, experiences: false }));
+          }
+        };
+
+        const loadEducations = async () => {
+          try {
+            const data = await apiClient.getEducation();
+            setEducations(data);
+            setLoadingStates(prev => ({ ...prev, educations: false }));
+          } catch (error) {
+            console.error('교육 데이터 로드 오류:', error);
+            setLoadingStates(prev => ({ ...prev, educations: false }));
+          }
+        };
+
+        const loadCertifications = async () => {
+          try {
+            const data = await apiClient.getCertifications();
+            setCertifications(data);
+            setLoadingStates(prev => ({ ...prev, certifications: false }));
+          } catch (error) {
+            console.error('자격증 데이터 로드 오류:', error);
+            setLoadingStates(prev => ({ ...prev, certifications: false }));
+          }
+        };
+
+        // 병렬로 모든 데이터 로드 시작
+        await Promise.allSettled([
+          loadProjects(),
+          loadExperiences(),
+          loadEducations(),
+          loadCertifications()
         ]);
 
-        setProjects(backendProjectsData);
-        setExperiences(experiencesData);
-        setEducations(educationsData);
-        setCertifications(certificationsData);
       } catch (error) {
         console.error('데이터 로드 오류:', error);
       } finally {
@@ -99,6 +156,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     educations,
     certifications,
     isLoading,
+    loadingStates,
     
     // UI state
     isChatbotOpen,

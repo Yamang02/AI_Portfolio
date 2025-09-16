@@ -7,16 +7,21 @@ import CertificationCard from './CertificationCard';
 import HistoryPanel from './HistoryPanel';
 import PanelToggle from './PanelToggle';
 import { ProjectModal } from '../../../shared/components/Modal';
+import { SkeletonSection } from '../../../shared/components/SkeletonCard';
 
 interface PortfolioSectionProps {
   projects: Project[];
   experiences: Experience[];
   educations: Education[];
   certifications: Certification[];
+  loadingStates: {
+    projects: boolean;
+    experiences: boolean;
+    educations: boolean;
+    certifications: boolean;
+  };
   isHistoryPanelOpen: boolean;
   onHistoryPanelToggle: () => void;
-  isChatbotOpen: boolean;
-  onChatbotToggle: () => void;
 }
 
 const PortfolioSection: React.FC<PortfolioSectionProps> = ({
@@ -24,10 +29,9 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
   experiences,
   educations,
   certifications,
+  loadingStates,
   isHistoryPanelOpen,
-  onHistoryPanelToggle,
-  isChatbotOpen,
-  onChatbotToggle
+  onHistoryPanelToggle
 }) => {
   const [highlightedItemId, setHighlightedItemId] = React.useState<string | undefined>();
   const [longHoveredItemId, setLongHoveredItemId] = React.useState<string | undefined>();
@@ -68,7 +72,9 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
       {/* 프로젝트 영역 */}
       <div id="project" className="mb-12 scroll-mt-20">
         <h3 className="text-[1.95rem] font-semibold text-black mb-[2.25rem]">프로젝트</h3>
-        {projects.length === 0 ? (
+        {loadingStates.projects ? (
+          <SkeletonSection title="" count={3} />
+        ) : projects.length === 0 ? (
           <div className="text-center py-12">
             <div className="text-gray-400 text-6xl mb-4">📁</div>
             <p className="text-gray-500 text-lg">프로젝트가 없습니다.</p>
@@ -93,7 +99,9 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
       {/* 경력 영역 */}
       <div id="experience" className="mt-6 mb-12 scroll-mt-20">
         <h3 className="text-[1.95rem] font-semibold text-black mb-[2.25rem]">경력</h3>
-        {experiences.length === 0 ? (
+        {loadingStates.experiences ? (
+          <SkeletonSection title="" count={2} />
+        ) : experiences.length === 0 ? (
           <div className="text-center py-12">
             <div className="text-gray-400 text-6xl mb-4">💼</div>
             <p className="text-gray-500 text-lg">경력 정보가 없습니다.</p>
@@ -117,7 +125,9 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
       {/* 교육 영역 */}
       <div id="education" className="mt-6 mb-12 scroll-mt-20">
         <h3 className="text-[1.95rem] font-semibold text-black mb-[2.25rem]">교육</h3>
-        {educations.length === 0 ? (
+        {loadingStates.educations ? (
+          <SkeletonSection title="" count={2} />
+        ) : educations.length === 0 ? (
           <div className="text-center py-12">
             <div className="text-gray-400 text-6xl mb-4">🎓</div>
             <p className="text-gray-500 text-lg">교육 정보가 없습니다.</p>
@@ -141,7 +151,9 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
       {/* 자격증 영역 */}
       <div id="certification" className="mt-6 mb-12 scroll-mt-20">
         <h3 className="text-[1.95rem] font-semibold text-black mb-[2.25rem]">자격증</h3>
-        {certifications.length === 0 ? (
+        {loadingStates.certifications ? (
+          <SkeletonSection title="" count={2} />
+        ) : certifications.length === 0 ? (
           <div className="text-center py-12">
             <div className="text-gray-400 text-6xl mb-4">🏆</div>
             <p className="text-gray-500 text-lg">자격증이 없습니다.</p>
