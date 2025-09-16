@@ -25,21 +25,37 @@ export const safeSplit = (str: unknown, separator: string | RegExp): string[] =>
 
 /**
  * 안전하게 날짜 문자열을 포맷팅합니다
- * @param dateStr - 날짜 문자열 (YYYY-MM 형식)
+ * @param dateStr - 날짜 문자열 (YYYY-MM 형식) 또는 배열 [YYYY, MM, DD]
  * @returns 포맷된 날짜 문자열 (YYYY.MM) 또는 'N/A'
  */
 export const safeFormatDate = (dateStr: unknown): string => {
-  if (!dateStr || typeof dateStr !== 'string') {
-    console.warn('safeFormatDate: Invalid date input', typeof dateStr, dateStr);
+  if (!dateStr) {
+    console.warn('safeFormatDate: Empty date input');
     return 'N/A';
   }
   
-  const parts = safeSplit(dateStr, '-');
-  if (parts.length >= 2) {
-    return `${parts[0]}.${parts[1]}`;
+  // 배열 형태의 날짜 처리 [YYYY, MM, DD]
+  if (Array.isArray(dateStr)) {
+    if (dateStr.length >= 2 && typeof dateStr[0] === 'number' && typeof dateStr[1] === 'number') {
+      const year = dateStr[0];
+      const month = dateStr[1];
+      return `${year}.${month.toString().padStart(2, '0')}`;
+    }
+    console.warn('safeFormatDate: Invalid date array format', dateStr);
+    return 'N/A';
   }
   
-  console.warn('safeFormatDate: Invalid date format', dateStr);
+  // 문자열 형태의 날짜 처리
+  if (typeof dateStr === 'string') {
+    const parts = safeSplit(dateStr, '-');
+    if (parts.length >= 2) {
+      return `${parts[0]}.${parts[1]}`;
+    }
+    console.warn('safeFormatDate: Invalid date string format', dateStr);
+    return 'N/A';
+  }
+  
+  console.warn('safeFormatDate: Invalid date input type', typeof dateStr, dateStr);
   return 'N/A';
 };
 
