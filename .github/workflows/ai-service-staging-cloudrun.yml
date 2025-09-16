@@ -4,12 +4,14 @@ on:
   push:
     branches: [ staging ]
     paths: 
-      - 'ai-service/**'
+      - 'ai-service/prod/**'
+      - 'ai-service/common/**'
       - '.github/workflows/ai-service-staging-cloudrun.yml'
   pull_request:
     branches: [ staging ]
     paths: 
-      - 'ai-service/**'
+      - 'ai-service/prod/**'
+      - 'ai-service/common/**'
 
 env:
   GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
@@ -30,12 +32,12 @@ jobs:
         
     - name: Install dependencies
       run: |
-        cd ai-service
-        pip install -r requirements-cloudrun.txt
+        cd ai-service/prod
+        pip install -r requirements.txt
         
     - name: Run tests
       run: |
-        cd ai-service
+        cd ai-service/prod
         # pytest tests/ --cov=app/
         echo "Run tests (coming soon)"
   
@@ -64,8 +66,8 @@ jobs:
     - name: Build and push container image
       uses: docker/build-push-action@v5
       with:
-        context: ./ai-service
-        file: ./ai-service/deployment/Dockerfile
+        context: ./ai-service/prod
+        file: ./ai-service/prod/Dockerfile
         push: true
         tags: gcr.io/${{ env.GCP_PROJECT_ID }}/${{ env.GCP_AI_SERVICE_NAME }}:${{ github.sha }}
         build-args: |
