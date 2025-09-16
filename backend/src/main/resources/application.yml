@@ -24,11 +24,11 @@ spring:
 
   # Redis 캐싱 설정
   redis:
-    host: ${REDIS_HOST:localhost}
-    port: ${REDIS_PORT:6379}
-    password: ${REDIS_PASSWORD:}
-    database: ${REDIS_DATABASE:0}
-    ssl: ${REDIS_SSL:false}
+    host: ${REDIS_HOST}
+    port: ${REDIS_PORT}
+    password: ${REDIS_PASSWORD}
+    database: ${REDIS_DATABASE}
+    ssl: ${REDIS_SSL}
     timeout: 2000ms
     lettuce:
       pool:

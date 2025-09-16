@@ -17,6 +17,27 @@ spring:
       ddl-auto: none  # 운영환경에서는 스키마 변경 금지
     show-sql: false
 
+  # Redis 캐싱 설정
+  redis:
+    host: ${REDIS_HOST}
+    port: ${REDIS_PORT}
+    password: ${REDIS_PASSWORD}
+    database: ${REDIS_DATABASE}
+    ssl: ${REDIS_SSL}
+    timeout: 2000ms
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 0
+        max-wait: -1ms
+
+  # 캐시 설정
+  cache:
+    type: redis
+    redis:
+      time-to-live: 86400000  # 1일 (밀리초)
+
 # Actuator for Cloud Run health checks
 management:
   endpoints:

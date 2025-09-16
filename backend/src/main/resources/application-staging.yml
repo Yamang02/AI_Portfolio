@@ -28,7 +28,27 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
 
-  
+  # Redis 캐싱 설정
+  redis:
+    host: ${REDIS_HOST}
+    port: ${REDIS_PORT}
+    password: ${REDIS_PASSWORD}
+    database: ${REDIS_DATABASE}
+    ssl: ${REDIS_SSL}
+    timeout: 2000ms
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 0
+        max-wait: -1ms
+
+  # 캐시 설정
+  cache:
+    type: redis
+    redis:
+      time-to-live: 86400000  # 1일 (밀리초)
+
   # CORS 설정 (FE 분리 후 CloudFront 도메인 추가)
   web:
     cors:
