@@ -1,5 +1,6 @@
 import React from 'react';
 import { Project } from '../types';
+import { safeFormatDate } from '../../../shared/utils/safeStringUtils';
 import {
   DefaultProjectIcon,
   CodeIcon,
@@ -178,7 +179,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         {/* 하단 정보 */}
         <div className="pt-4 border-t border-gray-200 mt-auto flex items-center justify-between gap-6">
           <span className="text-xs text-gray-500">
-            {project.startDate} ~ {project.endDate || '현재'}
+            {safeFormatDate(project.startDate)} ~ {project.endDate ? safeFormatDate(project.endDate) : '현재'}
           </span>
           <div className="flex items-center space-x-2">
             {project.githubUrl && project.githubUrl !== '#' && (
