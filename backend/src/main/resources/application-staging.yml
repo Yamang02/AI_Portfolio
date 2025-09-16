@@ -22,13 +22,33 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate  # 프로덕션 준비: 스키마 검증만 수행
-    show-sql: true      # 디버깅: SQL 로그 활성화
+    show-sql: false      # SQL 로그 비활성화
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-        format_sql: true
+        format_sql: false
 
-  
+  # Redis 캐싱 설정
+  redis:
+    host: ${REDIS_HOST:localhost}
+    port: ${REDIS_PORT:6379}
+    password: ${REDIS_PASSWORD:}
+    database: ${REDIS_DATABASE:0}
+    ssl: ${REDIS_SSL:false}
+    timeout: 2000ms
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 0
+        max-wait: -1ms
+
+  # 캐시 설정
+  cache:
+    type: redis
+    redis:
+      time-to-live: 86400000  # 1일 (밀리초)
+
   # CORS 설정 (FE 분리 후 CloudFront 도메인 추가)
   web:
     cors:
@@ -54,22 +74,29 @@ springdoc:
   swagger-ui:
     enabled: false
 
-# Actuator 설정 (Health Check용) - Production과 동일
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health
-  endpoint:
+  # Actuator 설정 (Health Check용) - Production과 동일
+  management:
+    endpoints:
+      web:
+        exposure:
+          include: health
+    endpoint:
+      health:
+        show-details: never
     health:
-      show-details: never
+      redis:
+        enabled: false  # Redis 헬스체크 비활성화
+      defaults:
+        enabled: true
 
-# 로깅 설정 (디버깅 레벨)
+# 로깅 설정 (운영 레벨)
 logging:
   level:
-    com.aiportfolio.backend: DEBUG
-    org.springframework.web: INFO
-    org.hibernate.SQL: DEBUG
+    com.aiportfolio.backend: INFO
+    org.springframework.web: WARN
+    org.hibernate.SQL: WARN
+    org.springframework.data.redis: WARN
+    org.springframework.boot.autoconfigure: WARN
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%level] %logger{36} - %msg%n"
 

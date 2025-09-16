@@ -13,11 +13,11 @@ import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 
 // Java 표준 라이브러리 imports
-import java.time.LocalDateTime;
 import java.util.*;
 
 /**
@@ -43,32 +43,21 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
     private final EducationMapper educationMapper;
     private final CertificationMapper certificationMapper;
 
-
-    // 캐시 관련 필드
-    private List<Project> cachedProjects;
-    private List<Experience> cachedExperiences;
-    private List<Education> cachedEducations;
-    private List<Certification> cachedCertifications;
-    private LocalDateTime lastCacheTime;
-    private static final long CACHE_DURATION_MINUTES = 60; // 1시간 캐시
-
     // === 프로젝트 관련 구현 ===
 
     @Override
+    @Cacheable(value = "portfolio", key = "'projects'")
     public List<Project> findAllProjects() {
-        if (cachedProjects == null || !isCacheValid()) {
-            log.info("PostgreSQL에서 프로젝트 데이터를 조회합니다.");
-            try {
-                List<ProjectJpaEntity> jpaEntities = projectJpaRepository.findAllOrderedBySortOrderAndStartDate();
-                cachedProjects = projectMapper.toDomainList(jpaEntities);
-                updateCacheTime();
-                log.info("프로젝트 {} 개를 성공적으로 조회했습니다.", cachedProjects.size());
-            } catch (Exception e) {
-                log.error("프로젝트 조회 중 오류 발생", e);
-                cachedProjects = new ArrayList<>();
-            }
+        log.info("PostgreSQL에서 프로젝트 데이터를 조회합니다.");
+        try {
+            List<ProjectJpaEntity> jpaEntities = projectJpaRepository.findAllOrderedBySortOrderAndStartDate();
+            List<Project> projects = projectMapper.toDomainList(jpaEntities);
+            log.info("프로젝트 {} 개를 성공적으로 조회했습니다.", projects.size());
+            return projects;
+        } catch (Exception e) {
+            log.error("프로젝트 조회 중 오류 발생", e);
+            return new ArrayList<>();
         }
-        return cachedProjects;
     }
 
     @Override
@@ -135,20 +124,18 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
     // === 경력 관련 구현 ===
 
     @Override
+    @Cacheable(value = "portfolio", key = "'experiences'")
     public List<Experience> findAllExperiences() {
-        if (cachedExperiences == null || !isCacheValid()) {
-            log.info("PostgreSQL에서 경력 데이터를 조회합니다.");
-            try {
-                List<ExperienceJpaEntity> jpaEntities = experienceJpaRepository.findAllOrderedBySortOrderAndStartDate();
-                cachedExperiences = experienceMapper.toDomainList(jpaEntities);
-                updateCacheTime();
-                log.info("경력 {} 개를 성공적으로 조회했습니다.", cachedExperiences.size());
-            } catch (Exception e) {
-                log.error("경력 조회 중 오류 발생", e);
-                cachedExperiences = new ArrayList<>();
-            }
+        log.info("PostgreSQL에서 경력 데이터를 조회합니다.");
+        try {
+            List<ExperienceJpaEntity> jpaEntities = experienceJpaRepository.findAllOrderedBySortOrderAndStartDate();
+            List<Experience> experiences = experienceMapper.toDomainList(jpaEntities);
+            log.info("경력 {} 개를 성공적으로 조회했습니다.", experiences.size());
+            return experiences;
+        } catch (Exception e) {
+            log.error("경력 조회 중 오류 발생", e);
+            return new ArrayList<>();
         }
-        return cachedExperiences;
     }
 
     @Override
@@ -165,20 +152,18 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
     // === 교육 관련 구현 ===
 
     @Override
+    @Cacheable(value = "portfolio", key = "'educations'")
     public List<Education> findAllEducations() {
-        if (cachedEducations == null || !isCacheValid()) {
-            log.info("PostgreSQL에서 교육 데이터를 조회합니다.");
-            try {
-                List<EducationJpaEntity> jpaEntities = educationJpaRepository.findAllOrderedBySortOrderAndStartDate();
-                cachedEducations = educationMapper.toDomainList(jpaEntities);
-                updateCacheTime();
-                log.info("교육 {} 개를 성공적으로 조회했습니다.", cachedEducations.size());
-            } catch (Exception e) {
-                log.error("교육 조회 중 오류 발생", e);
-                cachedEducations = new ArrayList<>();
-            }
+        log.info("PostgreSQL에서 교육 데이터를 조회합니다.");
+        try {
+            List<EducationJpaEntity> jpaEntities = educationJpaRepository.findAllOrderedBySortOrderAndStartDate();
+            List<Education> educations = educationMapper.toDomainList(jpaEntities);
+            log.info("교육 {} 개를 성공적으로 조회했습니다.", educations.size());
+            return educations;
+        } catch (Exception e) {
+            log.error("교육 조회 중 오류 발생", e);
+            return new ArrayList<>();
         }
-        return cachedEducations;
     }
 
     @Override
@@ -195,21 +180,19 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
     // === 자격증 관련 구현 ===
 
     @Override
+    @Cacheable(value = "portfolio", key = "'certifications'")
     public List<Certification> findAllCertifications() {
-        if (cachedCertifications == null || !isCacheValid()) {
-            log.info("PostgreSQL에서 자격증 데이터를 조회합니다.");
-            try {
-                List<CertificationJpaEntity> jpaEntities = certificationJpaRepository
-                        .findAllOrderedBySortOrderAndDate();
-                cachedCertifications = certificationMapper.toDomainList(jpaEntities);
-                updateCacheTime();
-                log.info("자격증 {} 개를 성공적으로 조회했습니다.", cachedCertifications.size());
-            } catch (Exception e) {
-                log.error("자격증 조회 중 오류 발생", e);
-                cachedCertifications = new ArrayList<>();
-            }
+        log.info("PostgreSQL에서 자격증 데이터를 조회합니다.");
+        try {
+            List<CertificationJpaEntity> jpaEntities = certificationJpaRepository
+                    .findAllOrderedBySortOrderAndDate();
+            List<Certification> certifications = certificationMapper.toDomainList(jpaEntities);
+            log.info("자격증 {} 개를 성공적으로 조회했습니다.", certifications.size());
+            return certifications;
+        } catch (Exception e) {
+            log.error("자격증 조회 중 오류 발생", e);
+            return new ArrayList<>();
         }
-        return cachedCertifications;
     }
 
     @Override
@@ -221,31 +204,5 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
             log.error("자격증 ID로 조회 중 오류 발생: {}", id, e);
             return Optional.empty();
         }
-    }
-
-    // === 캐시 관리 ===
-
-    @Override
-    public void invalidateCache() {
-        // 메모리 캐시 무효화
-        cachedProjects = null;
-        cachedExperiences = null;
-        cachedEducations = null;
-        cachedCertifications = null;
-        lastCacheTime = null;
-        
-        log.info("메모리 캐시가 무효화되었습니다.");
-    }
-
-    @Override
-    public boolean isCacheValid() {
-        if (lastCacheTime == null) {
-            return false;
-        }
-        return LocalDateTime.now().minusMinutes(CACHE_DURATION_MINUTES).isBefore(lastCacheTime);
-    }
-
-    private void updateCacheTime() {
-        lastCacheTime = LocalDateTime.now();
     }
 }

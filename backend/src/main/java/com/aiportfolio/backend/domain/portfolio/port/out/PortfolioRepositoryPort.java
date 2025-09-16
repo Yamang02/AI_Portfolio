@@ -78,15 +78,4 @@ public interface PortfolioRepositoryPort {
      * ID로 특정 자격증을 조회합니다
      */
     Optional<Certification> findCertificationById(String id);
-    
-    // === 캐시 관리 ===
-    /**
-     * 캐시를 무효화하고 데이터를 다시 로드합니다
-     */
-    void invalidateCache();
-    
-    /**
-     * 캐시가 유효한지 확인합니다
-     */
-    boolean isCacheValid();
 }
