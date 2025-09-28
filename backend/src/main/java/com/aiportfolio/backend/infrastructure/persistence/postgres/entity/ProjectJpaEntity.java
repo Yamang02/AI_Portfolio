@@ -102,6 +102,13 @@ public class ProjectJpaEntity {
     @JdbcTypeCode(SqlTypes.ARRAY)
     private List<String> myContributions; // PostgreSQL TEXT[] 배열
     
+    @Column(name = "role", length = 255)
+    private String role; // 팀 프로젝트에서의 역할
+    
+    @Column(name = "screenshots", columnDefinition = "text[]")
+    @JdbcTypeCode(SqlTypes.ARRAY)
+    private List<String> screenshots; // 추가 스크린샷 URL 배열
+    
     @Column(name = "created_at")
     private LocalDateTime createdAt;
     

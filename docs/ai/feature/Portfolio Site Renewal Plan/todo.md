@@ -3,18 +3,18 @@
 ## 웹 UI 구현을 위한 데이터베이스 스키마 수정
 
 ### 🔧 필수 DB 필드 추가
-- [ ] **projects 테이블에 `role` 필드 추가**
+- [x] **projects 테이블에 `role` 필드 추가**
   - 타입: VARCHAR(255)
   - 용도: 팀 프로젝트에서 내 역할 표시 (카드/모달 UI용)
   - 예시: "Frontend Developer", "Full Stack Developer", "Team Lead"
 
-- [ ] **projects 테이블에 `screenshots` 필드 추가**
+- [x] **projects 테이블에 `screenshots` 필드 추가**
   - 타입: TEXT[] (PostgreSQL 배열)
   - 용도: 모달 이미지 갤러리용 추가 스크린샷 URL들
   - 예시: ["url1.jpg", "url2.jpg", "url3.jpg"]
 
 ### 📋 데이터 매핑 검증
-- [ ] **기존 필드 매핑 재확인**
+- [x] **기존 필드 매핑 재확인**
   - project.readme → DB.readme (이미 존재 확인됨)
   - 모든 PRD 요구사항과 DB 필드 일치성 검증
 
