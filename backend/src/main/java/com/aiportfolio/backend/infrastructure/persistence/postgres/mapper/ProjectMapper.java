@@ -47,6 +47,8 @@ public class ProjectMapper {
                 .isTeam(jpaEntity.getIsTeam() != null ? jpaEntity.getIsTeam() : false)
                 .externalUrl(jpaEntity.getExternalUrl())
                 .myContributions(jpaEntity.getMyContributions())
+                .role(jpaEntity.getRole())
+                .screenshots(jpaEntity.getScreenshots())
                 .build();
     }
     
@@ -76,6 +78,8 @@ public class ProjectMapper {
                 .isTeam(domainModel.isTeam())
                 .externalUrl(domainModel.getExternalUrl())
                 .myContributions(domainModel.getMyContributions())
+                .role(domainModel.getRole())
+                .screenshots(domainModel.getScreenshots())
                 .status("completed") // 기본값
                 .sortOrder(0) // 기본값
                 .build();

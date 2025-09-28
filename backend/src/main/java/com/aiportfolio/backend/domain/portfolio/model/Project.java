@@ -66,7 +66,12 @@ public class Project {
     private String externalUrl;
     
     private List<String> myContributions;
-    
+
+    @Size(max = 255, message = "역할은 255자를 초과할 수 없습니다")
+    private String role; // 팀 프로젝트에서의 역할
+
+    private List<@URL(message = "올바른 스크린샷 URL 형식이어야 합니다") String> screenshots; // 추가 스크린샷 URL 배열
+
     /**
      * 프로젝트가 진행중인지 확인
      */
