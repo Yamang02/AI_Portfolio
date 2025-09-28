@@ -6,6 +6,7 @@ import EducationCard from './EducationCard';
 import CertificationCard from './CertificationCard';
 import HistoryPanel from './HistoryPanel';
 import PanelToggle from './PanelToggle';
+import ProjectFilter from './ProjectFilter';
 import { ProjectModal } from '../../../shared/components/Modal';
 import { SkeletonSection } from '../../../shared/components/SkeletonCard';
 
@@ -37,6 +38,12 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
   const [longHoveredItemId, setLongHoveredItemId] = React.useState<string | undefined>();
   const [selectedProject, setSelectedProject] = React.useState<Project | null>(null);
   const [isProjectModalOpen, setIsProjectModalOpen] = React.useState(false);
+  const [filteredProjects, setFilteredProjects] = React.useState<Project[]>(projects);
+
+  // projects가 변경될 때 filteredProjects 초기화
+  React.useEffect(() => {
+    setFilteredProjects(projects);
+  }, [projects]);
 
   // 아이템 하이라이트 처리
   const handleItemHover = (itemId?: string) => {
@@ -80,8 +87,22 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
             <p className="text-gray-500 text-lg">프로젝트가 없습니다.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {projects.map(project => (
+          <>
+            {/* 필터링 컴포넌트 */}
+            <ProjectFilter
+              projects={projects}
+              onFilteredProjectsChange={setFilteredProjects}
+            />
+
+            {/* 프로젝트 그리드 */}
+            {filteredProjects.length === 0 ? (
+              <div className="text-center py-12">
+                <div className="text-gray-400 text-6xl mb-4">🔍</div>
+                <p className="text-gray-500 text-lg">필터 조건에 맞는 프로젝트가 없습니다.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {filteredProjects.map(project => (
               <ProjectCard
                 key={project.id}
                 project={project}
@@ -93,6 +114,8 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
               />
             ))}
           </div>
+            )}
+          </>
         )}
       </div>
 

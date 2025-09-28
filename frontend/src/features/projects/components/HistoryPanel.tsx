@@ -210,12 +210,33 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
   }, [scrollToItemId]);
 
   // 바 아이템 렌더링 (px 단위)
+  // 프로젝트 상태에 따른 바 너비 계산 (간단)
+  const getBarWidth = (item: any, type: 'project' | 'experience' | 'education') => {
+    if (type !== 'project') {
+      return 'w-8'; // 경험, 교육은 기본 너비
+    }
+
+    const status = item.status; // 기본값 제거
+
+    // 상태별 너비 구분 (기본값 없이)
+    if (status === 'in_progress') {
+      return 'w-2'; // 진행중: 얇은 선
+    } else if (status === 'completed') {
+      return 'w-8'; // 완료: 굵은 선
+    } else {
+      // status가 null/undefined인 경우 디버깅을 위해 다른 스타일
+      console.warn('Project status is missing:', item.id, item.title);
+      return 'w-4 bg-yellow-400'; // 중간 너비, 노란색으로 디버깅
+    }
+  };
+
   const renderBarItem = (item: any, type: 'project' | 'experience' | 'education', index: number) => {
     const startDate = parseDate(item.startDate);
     const endDate = item.endDate ? parseDate(item.endDate) : timelineEnd;
     const startPx = getPxPosition(startDate);
     const endPx = getPxPosition(endDate);
     const barHeight = Math.max(Math.abs(endPx - startPx), 20);
+    const barWidthClass = getBarWidth(item, type);
     const isHighlighted = highlightedItemId === item.id;
     const isOngoing = !item.endDate;
     const cardId = type === 'project' ? `project-${item.id}` : type === 'experience' ? `experience-${item.id}` : `education-${item.id}`;
@@ -254,7 +275,7 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
             <div
               className={`w-1 h-full transition-all duration-200 ${
                 isHighlighted ? (
-                  type === 'project' ? 'bg-blue-400' : 
+                  type === 'project' ? 'bg-blue-400' :
                   type === 'experience' ? 'bg-orange-400' : 'bg-green-400'
                 ) : 'bg-gray-300 hover:bg-gray-500'
               }`}
@@ -302,7 +323,7 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
         >
           <div
             id={`history-bar-${item.id}`}
-            className={`w-8 mx-auto transition-all duration-300 cursor-pointer ${
+            className={`${barWidthClass} mx-auto transition-all duration-300 cursor-pointer ${
               isHighlighted ? (
                 type === 'project'
                   ? 'bg-blue-600 shadow-lg'

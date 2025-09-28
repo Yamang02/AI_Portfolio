@@ -28,8 +28,86 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ isOpen, onClose, project })
           ×
         </button>
         <div className="p-10 flex flex-col items-center max-w-2xl mx-auto">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4 text-center break-words leading-tight">{project.title}</h2>
+          {/* 헤더: 제목, 기간, 카테고리, 상태 */}
+          <div className="w-full mb-6">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4 text-center break-words leading-tight">{project.title}</h2>
+            <div className="flex flex-wrap justify-center gap-4 mb-4 text-sm text-gray-600">
+              <span>📅 {project.startDate} ~ {project.endDate || '현재'}</span>
+              <span className={`px-2 py-1 rounded-full text-xs font-medium ${project.isTeam ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'}`}>
+                {project.isTeam ? '팀 프로젝트' : '개인 프로젝트'}
+              </span>
+              {project.status && (
+                <span className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                  {project.status === 'completed' ? '완료' :
+                   project.status === 'in_progress' ? '진행중' :
+                   project.status === 'maintenance' ? '유지보수' : project.status}
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* 이미지 갤러리: 메인 이미지 + screenshots 배열 */}
+          {(project.imageUrl || (project.screenshots && project.screenshots.length > 0)) && (
+            <div className="w-full mb-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {project.imageUrl && project.imageUrl !== '#' && (
+                  <div className="col-span-1 md:col-span-2">
+                    <img
+                      src={project.imageUrl}
+                      alt={`${project.title} 메인 이미지`}
+                      className="w-full h-64 object-cover rounded-lg shadow-md"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                      }}
+                    />
+                  </div>
+                )}
+                {project.screenshots && project.screenshots.map((screenshot, index) => (
+                  <div key={index} className="col-span-1">
+                    <img
+                      src={screenshot}
+                      alt={`${project.title} 스크린샷 ${index + 1}`}
+                      className="w-full h-32 object-cover rounded-lg shadow-md"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           <p className="text-gray-600 text-center mb-8 text-base max-w-xl">{project.description}</p>
+
+          {/* 팀 프로젝트인 경우 역할/기여도 표시 */}
+          {project.isTeam && (project.role || (project.myContributions && project.myContributions.length > 0)) && (
+            <div className="w-full mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <h3 className="text-lg font-semibold text-blue-900 mb-3 text-center">🤝 팀 프로젝트 기여도</h3>
+              {project.role && (
+                <div className="mb-3 text-center">
+                  <span className="text-sm font-medium text-blue-700">담당 역할: </span>
+                  <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
+                    {project.role}
+                  </span>
+                </div>
+              )}
+              {project.myContributions && project.myContributions.length > 0 && (
+                <div>
+                  <div className="text-sm font-medium text-blue-700 mb-2 text-center">주요 기여:</div>
+                  <ul className="space-y-1">
+                    {project.myContributions.map((contribution, index) => (
+                      <li key={index} className="text-sm text-blue-800 text-center">
+                        • {contribution}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          )}
           {project.technologies && project.technologies.length > 0 && (
             <div className="flex flex-wrap justify-center gap-2 mb-8">
               {project.technologies.map(tech => (

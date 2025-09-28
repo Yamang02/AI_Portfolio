@@ -135,7 +135,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         {/* 팀/개인 배지 */}
         <span
           className={`absolute top-3 right-3 px-3 py-1 text-sm font-bold rounded-md shadow z-10 ${project.isTeam ? 'bg-blue-600 text-white' : 'bg-primary-600 text-white'}`}
-          title={project.isTeam ? '팀 프로젝트' : '개인 프로젝트'}
+          title={project.isTeam ? `팀 프로젝트${project.role ? ` - ${project.role}` : ''}` : '개인 프로젝트'}
         >
           {project.isTeam ? '팀' : '개인'}
         </span>
@@ -176,6 +176,14 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         <div className="mb-4 flex flex-wrap gap-2">
           {renderTechStack()}
         </div>
+        {/* 역할 정보 (팀 프로젝트인 경우) */}
+        {project.isTeam && project.role && (
+          <div className="mb-4">
+            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
+              🏆 {project.role}
+            </span>
+          </div>
+        )}
         {/* 하단 정보 */}
         <div className="pt-4 border-t border-gray-200 mt-auto flex items-center justify-between gap-6">
           <span className="text-xs text-gray-500">

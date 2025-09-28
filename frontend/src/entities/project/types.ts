@@ -19,6 +19,8 @@ export interface Project extends BaseItem {
   imageUrl: string;
   source: 'github' | 'local' | 'certification';
   type: 'project' | 'certification';
+  status?: string; // 프로젝트 상태 (completed, in_progress, maintenance 등)
+  sortOrder?: number; // 정렬 순서
   // 자격증 전용 필드들
   issuer?: string;
   externalUrl?: string;
@@ -27,4 +29,5 @@ export interface Project extends BaseItem {
   myContributions?: string[]; // 내가 맡은 역할/기여
   teamSize?: number; // 팀원 수(선택)
   role?: string; // 내 역할(선택)
+  screenshots?: string[]; // 추가 스크린샷 URL 배열
 }

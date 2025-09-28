@@ -2,7 +2,6 @@ package com.aiportfolio.backend.infrastructure.persistence.postgres.mapper;
 
 // 도메인 모델 imports
 import com.aiportfolio.backend.domain.portfolio.model.Project;
-import com.aiportfolio.backend.domain.portfolio.model.enums.ProjectType;
 
 // 인프라 레이어 imports
 import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.ProjectJpaEntity;
@@ -40,8 +39,10 @@ public class ProjectMapper {
                 .liveUrl(jpaEntity.getLiveUrl())
                 .imageUrl(jpaEntity.getImageUrl())
                 .readme(jpaEntity.getReadme())
-                .type(parseProjectType(jpaEntity.getType()))
+                .type(jpaEntity.getType())
                 .source(jpaEntity.getSource())
+                .status(jpaEntity.getStatus())
+                .sortOrder(jpaEntity.getSortOrder())
                 .startDate(jpaEntity.getStartDate())
                 .endDate(jpaEntity.getEndDate())
                 .isTeam(jpaEntity.getIsTeam() != null ? jpaEntity.getIsTeam() : false)
@@ -71,8 +72,10 @@ public class ProjectMapper {
                 .liveUrl(domainModel.getLiveUrl())
                 .imageUrl(domainModel.getImageUrl())
                 .readme(domainModel.getReadme())
-                .type(domainModel.getType() != null ? domainModel.getType().name() : null)
+                .type(domainModel.getType())
                 .source(domainModel.getSource())
+                .status(domainModel.getStatus() != null ? domainModel.getStatus() : "completed")
+                .sortOrder(domainModel.getSortOrder() != null ? domainModel.getSortOrder() : 0)
                 .startDate(domainModel.getStartDate())
                 .endDate(domainModel.getEndDate())
                 .isTeam(domainModel.isTeam())
@@ -80,8 +83,6 @@ public class ProjectMapper {
                 .myContributions(domainModel.getMyContributions())
                 .role(domainModel.getRole())
                 .screenshots(domainModel.getScreenshots())
-                .status("completed") // 기본값
-                .sortOrder(0) // 기본값
                 .build();
     }
     
@@ -115,21 +116,4 @@ public class ProjectMapper {
                 .collect(Collectors.toList());
     }
     
-    /**
-     * 문자열을 ProjectType enum으로 변환
-     * @param typeString 타입 문자열
-     * @return ProjectType enum
-     */
-    private ProjectType parseProjectType(String typeString) {
-        if (typeString == null || typeString.trim().isEmpty()) {
-            return null;
-        }
-        
-        try {
-            return ProjectType.valueOf(typeString.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            // 알 수 없는 타입인 경우 기본값 반환 또는 null
-            return null;
-        }
-    }
 }

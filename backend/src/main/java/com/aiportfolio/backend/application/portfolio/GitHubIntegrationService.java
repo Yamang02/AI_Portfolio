@@ -87,7 +87,7 @@ public class GitHubIntegrationService {
                 .githubUrl((String) repo.get("html_url"))
                 .technologies(List.of()) // GitHub API에서는 기술 스택 정보를 제공하지 않음
                 .isTeam(false)
-                .type(com.aiportfolio.backend.domain.portfolio.model.enums.ProjectType.PERSONAL)
+                .type("project")
                 .source("github")
                 .build();
     }
