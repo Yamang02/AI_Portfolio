@@ -39,6 +39,7 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
   const [selectedProject, setSelectedProject] = React.useState<Project | null>(null);
   const [isProjectModalOpen, setIsProjectModalOpen] = React.useState(false);
   const [filteredProjects, setFilteredProjects] = React.useState<Project[]>(projects);
+  const [isFilterSectionOpen, setIsFilterSectionOpen] = React.useState(false); // 기본값: 닫힘
 
   // projects가 변경될 때 filteredProjects 초기화
   React.useEffect(() => {
@@ -78,7 +79,37 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
 
       {/* 프로젝트 영역 */}
       <div id="project" className="mb-12 scroll-mt-20">
-        <h3 className="text-[1.95rem] font-semibold text-black mb-[2.25rem]">프로젝트</h3>
+        <div className="flex items-center gap-3 mb-[2.25rem]">
+          <h3 className="text-[1.95rem] font-semibold text-black">프로젝트</h3>
+          <button
+            onClick={() => setIsFilterSectionOpen(!isFilterSectionOpen)}
+            className={`p-2 border rounded-md transition-all duration-200 ${
+              isFilterSectionOpen 
+                ? 'bg-blue-50 border-blue-300 text-blue-600 shadow-sm' 
+                : 'bg-white border-gray-300 text-gray-500 hover:text-gray-700 hover:bg-gray-50 hover:border-gray-400'
+            }`}
+            title={isFilterSectionOpen ? '필터 섹션 닫기' : '필터 섹션 열기'}
+          >
+            <svg 
+              className="w-5 h-5" 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+            </svg>
+          </button>
+        </div>
+        
+        {/* 필터링 컴포넌트 - 조건부 렌더링 */}
+        {isFilterSectionOpen && (
+          <ProjectFilter
+            projects={projects}
+            onFilteredProjectsChange={setFilteredProjects}
+          />
+        )}
+
+        {/* 프로젝트 그리드 - 항상 렌더링 */}
         {loadingStates.projects ? (
           <SkeletonSection title="" count={3} />
         ) : projects.length === 0 ? (
@@ -88,11 +119,6 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
           </div>
         ) : (
           <>
-            {/* 필터링 컴포넌트 */}
-            <ProjectFilter
-              projects={projects}
-              onFilteredProjectsChange={setFilteredProjects}
-            />
 
             {/* 프로젝트 그리드 */}
             {filteredProjects.length === 0 ? (
@@ -103,17 +129,17 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {filteredProjects.map(project => (
-              <ProjectCard
-                key={project.id}
-                project={project}
-                onMouseEnter={() => handleItemHover(project.id)}
-                onMouseLeave={() => handleItemHover(undefined)}
-                isHighlighted={highlightedItemId === project.id}
-                onLongHover={handleLongHover}
-                onClick={handleProjectCardClick}
-              />
-            ))}
-          </div>
+                  <ProjectCard
+                    key={project.id}
+                    project={project}
+                    onMouseEnter={() => handleItemHover(project.id)}
+                    onMouseLeave={() => handleItemHover(undefined)}
+                    isHighlighted={highlightedItemId === project.id}
+                    onLongHover={handleLongHover}
+                    onClick={handleProjectCardClick}
+                  />
+                ))}
+              </div>
             )}
           </>
         )}

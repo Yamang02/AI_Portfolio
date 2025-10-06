@@ -1,8 +1,9 @@
 import React from 'react';
 import { Project } from '../types';
-import { TechStackMetadata, TechStackFilterState } from '../../../entities/techstack';
+import { TechStackMetadata, TechStackLevel } from '../../../entities/techstack';
 import { TechStackApi } from '../../../shared/services/techStackApi';
-import { TechStackBadge } from '../../../shared/components/TechStackBadge';
+import { TechStackBadge } from '../../../shared/components/TechStackBadge/TechStackBadge';
+import { createTechStackGroups } from '../../../shared/utils/techStackCategorizer';
 
 interface ProjectFilterProps {
   projects: Project[];
@@ -41,7 +42,12 @@ const ProjectFilter: React.FC<ProjectFilterProps> = ({
       try {
         setTechStackLoading(true);
         const data = await TechStackApi.getTechnologiesUsedInProjects();
-        setAvailableTechs(data);
+        // 데이터 유효성 검증
+        if (data && Array.isArray(data)) {
+          setAvailableTechs(data);
+        } else {
+          throw new Error('Invalid data format received from API');
+        }
       } catch (error) {
         console.error('기술 스택 메타데이터 로드 실패:', error);
         // 폴백: 기존 방식으로 기술 스택 추출
@@ -53,7 +59,7 @@ const ProjectFilter: React.FC<ProjectFilterProps> = ({
           name: tech,
           displayName: tech,
           category: 'other' as const,
-          level: 'intermediate' as const,
+          level: 'intermediate' as TechStackLevel,
           isCore: false,
           isActive: true,
           sortOrder: 0,
@@ -80,11 +86,10 @@ const ProjectFilter: React.FC<ProjectFilterProps> = ({
       );
     }
 
-    // 상태 필터 - null/undefined 처리 및 대소문자 구분 없이 비교
+    // 상태 필터 - 대소문자 구분 없이 비교
     if (filterOptions.status !== 'all') {
       filtered = filtered.filter(project => {
-        const projectStatus = project.status || 'completed'; // 기본값으로 'completed' 설정
-        return projectStatus.toLowerCase() === filterOptions.status.toLowerCase();
+        return project.status?.toLowerCase() === filterOptions.status.toLowerCase();
       });
     }
 
@@ -146,7 +151,7 @@ const ProjectFilter: React.FC<ProjectFilterProps> = ({
 
   // 잘못된 sortBy 값 보정
   React.useEffect(() => {
-    if (filters.sortBy === 'date' || filters.sortBy === 'type' || !['startDate', 'endDate', 'title', 'status', 'sortOrder'].includes(filters.sortBy as string)) {
+    if (!['startDate', 'endDate', 'title', 'status', 'sortOrder'].includes(filters.sortBy as string)) {
       setFilters(prev => ({ ...prev, sortBy: 'startDate' }));
     }
   }, [filters.sortBy]);
@@ -177,19 +182,9 @@ const ProjectFilter: React.FC<ProjectFilterProps> = ({
 
   return (
     <div className={`bg-white rounded-lg shadow-md p-6 mb-6 ${className}`}>
-      <div className="flex flex-wrap items-center gap-4 mb-4">
-        <h3 className="text-lg font-semibold text-gray-900">필터 & 정렬</h3>
-        <button
-          onClick={resetFilters}
-          className="text-sm text-blue-600 hover:text-blue-800 underline"
-        >
-          초기화
-        </button>
-      </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* 프로젝트 타입 필터 */}
-        <div>
+        <div className="lg:col-span-1">
           <label className="block text-sm font-medium text-gray-700 mb-2">
             프로젝트 타입
           </label>
@@ -205,7 +200,7 @@ const ProjectFilter: React.FC<ProjectFilterProps> = ({
         </div>
 
         {/* 상태 필터 */}
-        <div>
+        <div className="lg:col-span-1">
           <label className="block text-sm font-medium text-gray-700 mb-2">
             상태
           </label>
@@ -222,34 +217,51 @@ const ProjectFilter: React.FC<ProjectFilterProps> = ({
         </div>
 
         {/* 정렬 */}
-        <div>
+        <div className="lg:col-span-1">
           <label className="block text-sm font-medium text-gray-700 mb-2">
             정렬
           </label>
-          <div className="flex gap-2">
-            <select
-              value={filters.sortBy}
-              onChange={(e) => updateFilter('sortBy', e.target.value)}
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            >
-              <option value="startDate">시작일</option>
-              <option value="endDate">종료일</option>
-              <option value="title">제목</option>
-              <option value="status">상태</option>
-              <option value="sortOrder">우선순위</option>
-            </select>
+          <select
+            value={filters.sortBy}
+            onChange={(e) => updateFilter('sortBy', e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="startDate">시작일</option>
+            <option value="endDate">종료일</option>
+            <option value="title">제목</option>
+            <option value="status">상태</option>
+            <option value="sortOrder">우선순위</option>
+          </select>
+        </div>
+
+        {/* 정렬 방향 및 초기화 버튼 */}
+        <div className="lg:col-span-1">
+          <div className="h-6"></div> {/* 라벨 공간 확보 */}
+          <div className="flex items-center gap-2">
             <button
               onClick={() => updateFilter('sortOrder', filters.sortOrder === 'asc' ? 'desc' : 'asc')}
-              className="px-3 py-2 border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-10 h-10 flex items-center justify-center border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               title={filters.sortOrder === 'asc' ? '오름차순' : '내림차순'}
             >
               {filters.sortOrder === 'asc' ? '↑' : '↓'}
             </button>
+            <button
+              onClick={resetFilters}
+              className="w-10 h-10 flex items-center justify-center border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              title="필터 초기화"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+            </button>
+            <span className="text-sm text-blue-600 ml-2">
+              총 {projects.length}개 중 {applyFilters(filters).length}개 표시
+            </span>
           </div>
         </div>
       </div>
 
-      {/* 기술 스택 필터 (배지 방식) */}
+      {/* 기술 스택 필터 (분야별 배지 방식) */}
       <div className="mt-6">
         <div className="flex items-center justify-between mb-4">
           <label className="block text-sm font-medium text-gray-700">
@@ -271,33 +283,52 @@ const ProjectFilter: React.FC<ProjectFilterProps> = ({
         </div>
         
         {techStackLoading ? (
-          <div className="flex flex-wrap gap-2">
-            {[...Array(8)].map((_, index) => (
-              <div key={index} className="tech-badge tech-badge--loading">
-                <div className="tech-badge__skeleton"></div>
+          <div className="space-y-4">
+            {[...Array(4)].map((_, index) => (
+              <div key={index} className="space-y-2">
+                <div className="h-4 bg-gray-200 rounded w-32 animate-pulse"></div>
+                <div className="flex flex-wrap gap-2">
+                  {[...Array(6)].map((_, badgeIndex) => (
+                    <div key={badgeIndex} className="tech-badge tech-badge--loading">
+                      <div className="tech-badge__skeleton"></div>
+                    </div>
+                  ))}
+                </div>
               </div>
             ))}
           </div>
         ) : (
-          <div className="flex flex-wrap gap-2">
-            {availableTechs.map((tech) => (
-              <TechStackBadge
-                key={tech.name}
-                tech={tech}
-                variant="filter"
-                size="sm"
-                selected={filters.selectedTechs.includes(tech.name)}
-                onClick={() => handleTechStackToggle(tech.name)}
-              />
+          <div className="space-y-6">
+            {createTechStackGroups(availableTechs).map((group) => (
+              <div key={group.id} className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <h4 className="text-sm font-semibold text-gray-800">
+                    {group.name}
+                  </h4>
+                  <span className="text-xs text-gray-500">
+                    ({group.count}개)
+                  </span>
+                  <div className="flex-1 h-px bg-gray-200"></div>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {group.techs.map((tech) => (
+                    <TechStackBadge
+                      key={tech.name}
+                      tech={tech}
+                      variant="filter"
+                      size="sm"
+                      selected={filters.selectedTechs.includes(tech.name)}
+                      onClick={() => handleTechStackToggle(tech.name)}
+                    />
+                  ))}
+                </div>
+              </div>
             ))}
           </div>
         )}
       </div>
 
-      {/* 필터 결과 요약 */}
-      <div className="mt-4 text-sm text-gray-600">
-        {projects.length}개 프로젝트 중 필터링된 결과를 표시합니다.
-      </div>
+
     </div>
   );
 };
