@@ -65,9 +65,7 @@ public class ExperienceJpaEntity {
     @Column(name = "type", length = 50)
     private String type; // ExperienceType enum을 String으로 저장
     
-    @Column(name = "technologies", columnDefinition = "text[]")
-    @JdbcTypeCode(SqlTypes.ARRAY)
-    private List<String> technologies; // PostgreSQL TEXT[] 배열
+    // 기존 technologies 배열 필드 제거됨 - techStackMetadata 관계 필드로 대체
     
     @Column(name = "main_responsibilities", columnDefinition = "text[]")
     @JdbcTypeCode(SqlTypes.ARRAY)
@@ -80,6 +78,10 @@ public class ExperienceJpaEntity {
     @Column(name = "projects", columnDefinition = "text[]")
     @JdbcTypeCode(SqlTypes.ARRAY)
     private List<String> projects; // PostgreSQL TEXT[] 배열
+    
+    // 기술 스택 메타데이터 관계 (완전 통합용 - One-to-Many)
+    @OneToMany(mappedBy = "experience", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ExperienceTechStackJpaEntity> experienceTechStacks;
     
     @Column(name = "sort_order")
     @Builder.Default

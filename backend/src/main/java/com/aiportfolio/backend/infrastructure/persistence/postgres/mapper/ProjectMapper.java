@@ -2,9 +2,12 @@ package com.aiportfolio.backend.infrastructure.persistence.postgres.mapper;
 
 // 도메인 모델 imports
 import com.aiportfolio.backend.domain.portfolio.model.Project;
+import com.aiportfolio.backend.domain.portfolio.model.TechStackMetadata;
 
 // 인프라 레이어 imports
 import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.ProjectJpaEntity;
+import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.TechStackMetadataJpaEntity;
+import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.ProjectTechStackJpaEntity;
 
 // 외부 라이브러리 imports
 import org.springframework.stereotype.Component;
@@ -20,6 +23,12 @@ import java.util.stream.Collectors;
 @Component
 public class ProjectMapper {
     
+    private final TechStackMetadataMapper techStackMetadataMapper;
+    
+    public ProjectMapper(TechStackMetadataMapper techStackMetadataMapper) {
+        this.techStackMetadataMapper = techStackMetadataMapper;
+    }
+    
     /**
      * JPA 엔티티를 도메인 모델로 변환
      * @param jpaEntity JPA 엔티티
@@ -34,7 +43,13 @@ public class ProjectMapper {
                 .id(jpaEntity.getBusinessId()) // business_id → domain.id
                 .title(jpaEntity.getTitle())
                 .description(jpaEntity.getDescription())
-                .technologies(jpaEntity.getTechnologies())
+                .techStackMetadata(techStackMetadataMapper.toDomainList(
+                    jpaEntity.getProjectTechStacks() != null ? 
+                    jpaEntity.getProjectTechStacks().stream()
+                        .map(ProjectTechStackJpaEntity::getTechStack)
+                        .collect(java.util.stream.Collectors.toList()) : 
+                    new java.util.ArrayList<>()
+                ))
                 .githubUrl(jpaEntity.getGithubUrl())
                 .liveUrl(jpaEntity.getLiveUrl())
                 .imageUrl(jpaEntity.getImageUrl())
@@ -67,7 +82,7 @@ public class ProjectMapper {
                 .businessId(domainModel.getId()) // domain.id → business_id
                 .title(domainModel.getTitle())
                 .description(domainModel.getDescription())
-                .technologies(domainModel.getTechnologies())
+                .projectTechStacks(new java.util.ArrayList<>()) // 관계 테이블은 별도로 관리
                 .githubUrl(domainModel.getGithubUrl())
                 .liveUrl(domainModel.getLiveUrl())
                 .imageUrl(domainModel.getImageUrl())

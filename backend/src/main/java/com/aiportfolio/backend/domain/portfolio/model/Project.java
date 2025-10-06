@@ -31,9 +31,8 @@ public class Project {
     @Size(max = 2000, message = "프로젝트 설명은 2000자를 초과할 수 없습니다")
     private String description;
     
-    @NotNull(message = "기술 스택은 필수입니다")
-    @Size(min = 1, message = "최소 1개 이상의 기술 스택이 필요합니다")
-    private List<String> technologies;
+    // 기존 technologies 필드 제거됨 - techStackMetadata 관계 필드로 대체
+    private List<TechStackMetadata> techStackMetadata;
     
     @URL(message = "올바른 GitHub URL 형식이어야 합니다")
     private String githubUrl;
@@ -99,9 +98,31 @@ public class Project {
      * 프로젝트가 특정 기술을 사용하는지 확인
      */
     public boolean usesTechnology(String technology) {
-        return technologies != null && 
-               technologies.stream()
-                   .anyMatch(tech -> tech.toLowerCase().contains(technology.toLowerCase()));
+        return techStackMetadata != null && 
+               techStackMetadata.stream()
+                   .anyMatch(tech -> tech.getName().toLowerCase().contains(technology.toLowerCase()));
+    }
+    
+    /**
+     * 기술 스택 이름 리스트 반환 (호환성용)
+     */
+    public List<String> getTechnologies() {
+        return techStackMetadata != null ? 
+               techStackMetadata.stream()
+                   .map(TechStackMetadata::getName)
+                   .collect(java.util.stream.Collectors.toList()) : 
+               new java.util.ArrayList<>();
+    }
+    
+    /**
+     * 핵심 기술 스택만 반환
+     */
+    public List<TechStackMetadata> getCoreTechnologies() {
+        return techStackMetadata != null ? 
+               techStackMetadata.stream()
+                   .filter(TechStackMetadata::isCoreTechnology)
+                   .collect(java.util.stream.Collectors.toList()) : 
+               new java.util.ArrayList<>();
     }
 }
 

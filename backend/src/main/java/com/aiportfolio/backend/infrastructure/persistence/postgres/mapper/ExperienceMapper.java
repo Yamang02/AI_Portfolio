@@ -2,10 +2,13 @@ package com.aiportfolio.backend.infrastructure.persistence.postgres.mapper;
 
 // 도메인 모델 imports
 import com.aiportfolio.backend.domain.portfolio.model.Experience;
+import com.aiportfolio.backend.domain.portfolio.model.TechStackMetadata;
 import com.aiportfolio.backend.domain.portfolio.model.enums.ExperienceType;
 
 // 인프라 레이어 imports
 import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.ExperienceJpaEntity;
+import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.TechStackMetadataJpaEntity;
+import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.ExperienceTechStackJpaEntity;
 
 // 외부 라이브러리 imports
 import org.springframework.stereotype.Component;
@@ -20,6 +23,12 @@ import java.util.stream.Collectors;
  */
 @Component
 public class ExperienceMapper {
+    
+    private final TechStackMetadataMapper techStackMetadataMapper;
+    
+    public ExperienceMapper(TechStackMetadataMapper techStackMetadataMapper) {
+        this.techStackMetadataMapper = techStackMetadataMapper;
+    }
     
     /**
      * JPA 엔티티를 도메인 모델로 변환
@@ -40,7 +49,13 @@ public class ExperienceMapper {
                 .startDate(jpaEntity.getStartDate())
                 .endDate(jpaEntity.getEndDate())
                 .type(parseExperienceType(jpaEntity.getType()))
-                .technologies(jpaEntity.getTechnologies())
+                .techStackMetadata(techStackMetadataMapper.toDomainList(
+                    jpaEntity.getExperienceTechStacks() != null ? 
+                    jpaEntity.getExperienceTechStacks().stream()
+                        .map(ExperienceTechStackJpaEntity::getTechStack)
+                        .collect(java.util.stream.Collectors.toList()) : 
+                    new java.util.ArrayList<>()
+                ))
                 .mainResponsibilities(jpaEntity.getMainResponsibilities())
                 .achievements(jpaEntity.getAchievements())
                 .projects(jpaEntity.getProjects())
@@ -66,7 +81,7 @@ public class ExperienceMapper {
                 .startDate(domainModel.getStartDate())
                 .endDate(domainModel.getEndDate())
                 .type(domainModel.getType() != null ? domainModel.getType().name() : null)
-                .technologies(domainModel.getTechnologies())
+                .experienceTechStacks(new java.util.ArrayList<>()) // 관계 테이블은 별도로 관리
                 .mainResponsibilities(domainModel.getMainResponsibilities())
                 .achievements(domainModel.getAchievements())
                 .projects(domainModel.getProjects())

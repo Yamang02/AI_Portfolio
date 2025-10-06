@@ -224,9 +224,9 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
     } else if (status === 'completed') {
       return 'w-8'; // 완료: 굵은 선
     } else {
-      // status가 null/undefined인 경우 디버깅을 위해 다른 스타일
+      // status가 null/undefined인 경우 기본 스타일
       console.warn('Project status is missing:', item.id, item.title);
-      return 'w-4 bg-yellow-400'; // 중간 너비, 노란색으로 디버깅
+      return 'w-4'; // 중간 너비, 기본 회색
     }
   };
 

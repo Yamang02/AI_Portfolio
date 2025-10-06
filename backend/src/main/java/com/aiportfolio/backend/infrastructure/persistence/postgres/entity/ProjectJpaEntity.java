@@ -50,10 +50,7 @@ public class ProjectJpaEntity {
     @Column(name = "detailed_description", columnDefinition = "TEXT")
     private String detailedDescription;
     
-    @Column(name = "technologies", nullable = false, columnDefinition = "text[]")
-    @JdbcTypeCode(SqlTypes.ARRAY)
-    @NotNull(message = "기술 스택은 필수입니다")
-    private List<String> technologies; // PostgreSQL TEXT[] 배열
+    // 기존 technologies 배열 필드 제거됨 - techStackMetadata 관계 필드로 대체
     
     @Column(name = "start_date")
     private LocalDate startDate;
@@ -108,6 +105,10 @@ public class ProjectJpaEntity {
     @Column(name = "screenshots", columnDefinition = "text[]")
     @JdbcTypeCode(SqlTypes.ARRAY)
     private List<String> screenshots; // 추가 스크린샷 URL 배열
+    
+    // 기술 스택 메타데이터 관계 (완전 통합용 - One-to-Many)
+    @OneToMany(mappedBy = "project", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProjectTechStackJpaEntity> projectTechStacks;
     
     @Column(name = "created_at")
     private LocalDateTime createdAt;

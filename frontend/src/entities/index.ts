@@ -10,6 +10,9 @@ export type { Education } from './education';
 // Certification
 export type { Certification } from './certification';
 
+// TechStack
+export * from './techstack';
+
 // Legacy types for backward compatibility
 export type ProjectType = 'project' | 'experience' | 'certification';
 export type ProjectSource = 'github' | 'local' | 'experience' | 'certification';

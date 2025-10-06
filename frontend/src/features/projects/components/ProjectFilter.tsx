@@ -1,5 +1,8 @@
 import React from 'react';
 import { Project } from '../types';
+import { TechStackMetadata, TechStackFilterState } from '../../../entities/techstack';
+import { TechStackApi } from '../../../shared/services/techStackApi';
+import { TechStackBadge } from '../../../shared/components/TechStackBadge';
 
 interface ProjectFilterProps {
   projects: Project[];
@@ -10,7 +13,7 @@ interface ProjectFilterProps {
 export interface FilterOptions {
   isTeam: 'all' | 'team' | 'individual';
   status: 'all' | 'completed' | 'in_progress' | 'maintenance';
-  technology: string;
+  selectedTechs: string[]; // 기술 스택 배열로 변경
   sortBy: 'startDate' | 'endDate' | 'title' | 'status' | 'sortOrder';
   sortOrder: 'asc' | 'desc';
 }
@@ -23,18 +26,47 @@ const ProjectFilter: React.FC<ProjectFilterProps> = ({
   const [filters, setFilters] = React.useState<FilterOptions>({
     isTeam: 'all',
     status: 'all',
-    technology: '',
+    selectedTechs: [],
     sortBy: 'startDate',
     sortOrder: 'desc'
   });
 
-  // 고유한 기술 스택 목록 추출
-  const allTechnologies = React.useMemo(() => {
-    const techSet = new Set<string>();
-    projects.forEach(project => {
-      project.technologies?.forEach(tech => techSet.add(tech));
-    });
-    return Array.from(techSet).sort();
+  // 기술 스택 메타데이터 상태
+  const [availableTechs, setAvailableTechs] = React.useState<TechStackMetadata[]>([]);
+  const [techStackLoading, setTechStackLoading] = React.useState(true);
+
+  // 기술 스택 메타데이터 로드
+  React.useEffect(() => {
+    const fetchTechStackMetadata = async () => {
+      try {
+        setTechStackLoading(true);
+        const data = await TechStackApi.getTechnologiesUsedInProjects();
+        setAvailableTechs(data);
+      } catch (error) {
+        console.error('기술 스택 메타데이터 로드 실패:', error);
+        // 폴백: 기존 방식으로 기술 스택 추출
+        const techSet = new Set<string>();
+        projects.forEach(project => {
+          project.technologies?.forEach(tech => techSet.add(tech));
+        });
+        const fallbackTechs: TechStackMetadata[] = Array.from(techSet).map(tech => ({
+          name: tech,
+          displayName: tech,
+          category: 'other' as const,
+          level: 'intermediate' as const,
+          isCore: false,
+          isActive: true,
+          sortOrder: 0,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        }));
+        setAvailableTechs(fallbackTechs);
+      } finally {
+        setTechStackLoading(false);
+      }
+    };
+
+    fetchTechStackMetadata();
   }, [projects]);
 
   // 필터링 및 정렬 로직
@@ -56,11 +88,13 @@ const ProjectFilter: React.FC<ProjectFilterProps> = ({
       });
     }
 
-    // 기술 스택 필터
-    if (filterOptions.technology) {
+    // 기술 스택 필터 (배열 기반)
+    if (filterOptions.selectedTechs.length > 0) {
       filtered = filtered.filter(project =>
-        project.technologies?.some(tech =>
-          tech.toLowerCase().includes(filterOptions.technology.toLowerCase())
+        filterOptions.selectedTechs.some(selectedTech =>
+          project.technologies?.some(tech =>
+            tech.toLowerCase().includes(selectedTech.toLowerCase())
+          )
         )
       );
     }
@@ -125,10 +159,20 @@ const ProjectFilter: React.FC<ProjectFilterProps> = ({
     setFilters({
       isTeam: 'all',
       status: 'all',
-      technology: '',
+      selectedTechs: [],
       sortBy: 'startDate',
       sortOrder: 'desc'
     });
+  };
+
+  // 기술 스택 선택/해제 핸들러
+  const handleTechStackToggle = (techName: string) => {
+    setFilters(prev => ({
+      ...prev,
+      selectedTechs: prev.selectedTechs.includes(techName)
+        ? prev.selectedTechs.filter(tech => tech !== techName)
+        : [...prev.selectedTechs, techName]
+    }));
   };
 
   return (
@@ -177,23 +221,6 @@ const ProjectFilter: React.FC<ProjectFilterProps> = ({
           </select>
         </div>
 
-        {/* 기술 스택 필터 */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            기술 스택
-          </label>
-          <select
-            value={filters.technology}
-            onChange={(e) => updateFilter('technology', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          >
-            <option value="">전체</option>
-            {allTechnologies.map(tech => (
-              <option key={tech} value={tech}>{tech}</option>
-            ))}
-          </select>
-        </div>
-
         {/* 정렬 */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -222,6 +249,50 @@ const ProjectFilter: React.FC<ProjectFilterProps> = ({
         </div>
       </div>
 
+      {/* 기술 스택 필터 (배지 방식) */}
+      <div className="mt-6">
+        <div className="flex items-center justify-between mb-4">
+          <label className="block text-sm font-medium text-gray-700">
+            기술 스택 필터
+            {filters.selectedTechs.length > 0 && (
+              <span className="ml-2 text-xs text-blue-600">
+                ({filters.selectedTechs.length}개 선택됨)
+              </span>
+            )}
+          </label>
+          {filters.selectedTechs.length > 0 && (
+            <button
+              onClick={() => setFilters(prev => ({ ...prev, selectedTechs: [] }))}
+              className="text-xs text-gray-500 hover:text-gray-700 underline"
+            >
+              선택 해제
+            </button>
+          )}
+        </div>
+        
+        {techStackLoading ? (
+          <div className="flex flex-wrap gap-2">
+            {[...Array(8)].map((_, index) => (
+              <div key={index} className="tech-badge tech-badge--loading">
+                <div className="tech-badge__skeleton"></div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-wrap gap-2">
+            {availableTechs.map((tech) => (
+              <TechStackBadge
+                key={tech.name}
+                tech={tech}
+                variant="filter"
+                size="sm"
+                selected={filters.selectedTechs.includes(tech.name)}
+                onClick={() => handleTechStackToggle(tech.name)}
+              />
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* 필터 결과 요약 */}
       <div className="mt-4 text-sm text-gray-600">

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ContactModal } from '../../../shared/components/Modal';
+import { CoreTechStackSection } from '../../../features/introduction';
 
 const HeroSection: React.FC = () => {
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
@@ -24,6 +25,11 @@ const HeroSection: React.FC = () => {
             <span className="sr-only">Email</span>
             <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="5" rx="2"/><path d="m22 7-8.97 6.48a2 2 0 0 1-2.06 0L2 7"/></svg>
           </button>
+        </div>
+
+        {/* 핵심 기술 스택 섹션 */}
+        <div className="mt-12">
+          <CoreTechStackSection />
         </div>
       </div>
 

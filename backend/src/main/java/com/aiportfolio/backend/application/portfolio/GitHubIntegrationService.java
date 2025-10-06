@@ -85,7 +85,7 @@ public class GitHubIntegrationService {
                 .title((String) repo.get("name"))
                 .description((String) repo.get("description"))
                 .githubUrl((String) repo.get("html_url"))
-                .technologies(List.of()) // GitHub API에서는 기술 스택 정보를 제공하지 않음
+                .techStackMetadata(List.of()) // GitHub API에서는 기술 스택 정보를 제공하지 않음
                 .isTeam(false)
                 .type("project")
                 .source("github")
