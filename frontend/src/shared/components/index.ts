@@ -5,4 +5,7 @@ export * from './icons/ProjectIcons';
 export * from './Modal';
 
 // TechStackBadge
-export * from './TechStackBadge'; 
+export * from './TechStackBadge';
+
+// Markdown
+export * from './Markdown'; 

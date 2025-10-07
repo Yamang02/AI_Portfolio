@@ -4,6 +4,9 @@ export { default as PortfolioSection } from './components/PortfolioSection';
 export { default as HistoryPanel } from './components/HistoryPanel';
 export { default as PanelToggle } from './components/PanelToggle';
 
+// Hooks
+export * from './hooks';
+
 // Types
 export type { 
   Experience,

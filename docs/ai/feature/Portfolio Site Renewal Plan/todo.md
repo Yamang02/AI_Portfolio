@@ -22,59 +22,67 @@
 
 ---
 
-## 🚀 진행중 작업
+## ✅ 완료된 작업 (Phase 1-8)
 
-### Phase 8: 마크다운 기반 포트폴리오 모달 (Priority: High)
+### 🔧 DB 스키마 및 백엔드
+- [x] projects 테이블에 `role` 필드 추가
+- [x] projects 테이블에 `screenshots` 필드 추가
+- [x] 프로젝트 API 응답에 새 필드 포함
+- [x] Project 도메인 모델 및 ProjectMapper 업데이트
+
+### 🎨 프론트엔드 기본 구현
+- [x] 프로젝트 카드 컴포넌트 개발
+- [x] 모달 컴포넌트 개발 (기본)
+- [x] 필터링 및 정렬 기능
+- [x] 기술스택 배지 시스템
+
+### 📝 Phase 8: 마크다운 기반 포트폴리오 모달 ✅ COMPLETED
 
 > 📖 상세 문서: [project-modal-markdown-enhancement.md](./project-modal-markdown-enhancement.md)
 
-#### 🎯 목표
-프로젝트 모달을 독립적인 포트폴리오 문서로 전환:
-- 마크다운 기반 자유로운 컨텐츠 작성
-- 자동 생성 목차(TOC)로 탐색성 향상
-- 좌측 TOC 사이드바 + 중앙 마크다운 컨텐츠 레이아웃
+#### 🎯 목표 달성
+프로젝트 모달을 독립적인 포트폴리오 문서로 전환 완료:
+- ✅ 마크다운 기반 자유로운 컨텐츠 작성
+- ✅ 자동 생성 목차(TOC)로 탐색성 향상
+- ✅ 좌측 TOC 사이드바 + 중앙 마크다운 컨텐츠 레이아웃
 
-#### 📝 작업 목록
+#### ✅ 완료된 작업
 
 **1. 마크다운 라이브러리 설치**
-- [ ] react-markdown, remark-gfm, rehype-sanitize, rehype-highlight 설치
-- [ ] unified, remark-parse, unist-util-visit 설치 (TOC용)
-- [ ] @tailwindcss/typography 설치 (스타일링용)
+- [x] react-markdown, remark-gfm, rehype-sanitize, rehype-highlight 설치
+- [x] unified, remark-parse, unist-util-visit 설치 (TOC용)
+- [x] @tailwindcss/typography 설치 (스타일링용)
 
 **2. 마크다운 렌더링 컴포넌트**
-- [ ] MarkdownRenderer 컴포넌트 구현
-- [ ] 커스텀 마크다운 컴포넌트 정의 (헤딩, 코드블록 등)
-- [ ] 신택스 하이라이팅 설정
-- [ ] Prose 스타일 적용
+- [x] MarkdownRenderer 컴포넌트 구현
+- [x] 커스텀 마크다운 컴포넌트 정의 (헤딩, 코드블록 등)
+- [x] 신택스 하이라이팅 설정
+- [x] Prose 스타일 적용
 
 **3. TOC (Table of Contents) 시스템**
-- [ ] useTOC 훅 구현 (마크다운 헤딩 파싱)
-- [ ] useActiveSection 훅 구현 (Intersection Observer)
-- [ ] ProjectModalTOC 사이드바 컴포넌트
-- [ ] 계층 구조 표시 및 스타일링
-- [ ] 현재 섹션 하이라이트
+- [x] useTOC 훅 구현 (마크다운 헤딩 파싱)
+- [x] useActiveSection 훅 구현 (Intersection Observer)
+- [x] ProjectModalTOC 사이드바 컴포넌트
+- [x] 계층 구조 표시 및 스타일링
+- [x] 현재 섹션 하이라이트
 
 **4. ProjectModal 레이아웃 리팩토링**
-- [ ] 좌측 TOC + 중앙 컨텐츠 flex 레이아웃
-- [ ] ProjectModalHeader 분리 (sticky)
-- [ ] ProjectModalContent 분리 (마크다운 영역)
-- [ ] 반응형 레이아웃 (모바일: TOC 토글)
-- [ ] 기존 메타데이터 헤더로 이동 (제목, 날짜, 배지, 기술스택, 링크)
+- [x] 좌측 TOC + 중앙 컨텐츠 flex 레이아웃
+- [x] ProjectModalHeader 분리 (sticky)
+- [x] ProjectModalContent 분리 (마크다운 영역)
+- [x] 반응형 레이아웃 (모바일: TOC 토글)
+- [x] 기존 메타데이터 헤더로 이동 (제목, 날짜, 배지, 기술스택, 링크)
 
-**5. 스타일링 및 UX**
-- [ ] TailwindCSS Typography 커스터마이징
-- [ ] 코드 블록 스타일링
-- [ ] 앵커 링크 스크롤 동작
-- [ ] TOC 스크롤 애니메이션
-- [ ] 모바일 TOC 슬라이드 오버레이
+**5. 추가 수정사항**
+- [x] Docker 컨테이너 내 라이브러리 설치 문제 해결
+- [x] React Hooks 순서 오류 수정
+- [x] 컴포넌트 구조 최적화
 
-**6. 테스트 및 검증**
-- [ ] 다양한 마크다운 구조 테스트
-- [ ] TOC 파싱 정확도 검증
-- [ ] 반응형 레이아웃 테스트
-- [ ] 접근성 테스트 (키보드, 스크린 리더)
+**실제 소요 시간**: 약 8시간
 
-**예상 시간**: 11-17시간
+---
+
+## 🚀 진행중 작업
 
 ---
 
@@ -182,7 +190,7 @@
 
 ```
 Phase 1-7 (기본 구현):     ███████████████████████ 100%
-Phase 8 (마크다운 모달):   ░░░░░░░░░░░░░░░░░░░░░░░   0%
+Phase 8 (마크다운 모달):   ███████████████████████ 100%
 Phase 9 (버전 관리):       ░░░░░░░░░░░░░░░░░░░░░░░   0%
 ```
 

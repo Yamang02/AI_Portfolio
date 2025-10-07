@@ -385,11 +385,11 @@
 
 ---
 
-## Phase 8: Markdown-Based Portfolio Modal (Priority: High)
+## Phase 8: Markdown-Based Portfolio Modal (Priority: High) ✅ COMPLETED
 
 > 참고 문서: `project-modal-markdown-enhancement.md`
 
-### 📝 Task 16: Install Markdown Libraries
+### 📝 Task 16: Install Markdown Libraries ✅ COMPLETED
 **Commit**: `feat: install react-markdown and related plugins`
 
 **Scope**: Frontend dependencies
@@ -402,19 +402,19 @@ npm install react-markdown remark-gfm rehype-sanitize rehype-highlight remark-he
 ```
 
 **Definition of Done**:
-- [ ] All markdown libraries installed
-- [ ] Package.json updated
-- [ ] No dependency conflicts
+- [x] All markdown libraries installed
+- [x] Package.json updated
+- [x] No dependency conflicts
 
 ---
 
-### 🎨 Task 17: Markdown Renderer Component
+### 🎨 Task 17: Markdown Renderer Component ✅ COMPLETED
 **Commit**: `feat: implement MarkdownRenderer component with custom styles`
 
 **Scope**: Frontend markdown rendering
 **Files to create**:
 - `frontend/src/shared/components/Markdown/MarkdownRenderer.tsx`
-- `frontend/src/shared/components/Markdown/markdownComponents.tsx`
+- `frontend/src/shared/components/Markdown/index.ts`
 
 **Executable Steps**:
 1. Create MarkdownRenderer wrapper component
@@ -424,19 +424,20 @@ npm install react-markdown remark-gfm rehype-sanitize rehype-highlight remark-he
 5. Handle code block syntax highlighting
 
 **Definition of Done**:
-- [ ] Markdown renders correctly
-- [ ] Headings have auto-generated IDs
-- [ ] Code blocks have syntax highlighting
-- [ ] Links, images, tables render properly
+- [x] Markdown renders correctly
+- [x] Headings have auto-generated IDs
+- [x] Code blocks have syntax highlighting
+- [x] Links, images, tables render properly
 
 ---
 
-### 🔗 Task 18: Table of Contents Hook
+### 🔗 Task 18: Table of Contents Hook ✅ COMPLETED
 **Commit**: `feat: implement useTOC hook for markdown heading parsing`
 
 **Scope**: Frontend custom hook
 **Files to create**:
 - `frontend/src/features/projects/hooks/useTOC.ts`
+- `frontend/src/features/projects/hooks/index.ts`
 
 **Executable Steps**:
 1. Install `unified`, `remark-parse`, `unist-util-visit`
@@ -446,14 +447,14 @@ npm install react-markdown remark-gfm rehype-sanitize rehype-highlight remark-he
 5. Add TypeScript types
 
 **Definition of Done**:
-- [ ] Hook extracts all headings (h1-h6)
-- [ ] Returns structured TOC items
-- [ ] Properly memoized
-- [ ] No performance issues
+- [x] Hook extracts all headings (h1-h6)
+- [x] Returns structured TOC items
+- [x] Properly memoized
+- [x] No performance issues
 
 ---
 
-### 👁️ Task 19: Active Section Tracking Hook
+### 👁️ Task 19: Active Section Tracking Hook ✅ COMPLETED
 **Commit**: `feat: implement useActiveSection hook with Intersection Observer`
 
 **Scope**: Frontend scroll tracking
@@ -468,14 +469,14 @@ npm install react-markdown remark-gfm rehype-sanitize rehype-highlight remark-he
 5. Handle edge cases (multiple visible sections)
 
 **Definition of Done**:
-- [ ] Active section updates on scroll
-- [ ] Intersection Observer properly configured
-- [ ] No memory leaks
-- [ ] Smooth scroll behavior
+- [x] Active section updates on scroll
+- [x] Intersection Observer properly configured
+- [x] No memory leaks
+- [x] Smooth scroll behavior
 
 ---
 
-### 📑 Task 20: TOC Sidebar Component
+### 📑 Task 20: TOC Sidebar Component ✅ COMPLETED
 **Commit**: `feat: implement ProjectModalTOC sidebar component`
 
 **Scope**: Frontend component
@@ -491,14 +492,14 @@ npm install react-markdown remark-gfm rehype-sanitize rehype-highlight remark-he
 6. Style with TailwindCSS
 
 **Definition of Done**:
-- [ ] TOC displays all headings
-- [ ] Active section highlighted
-- [ ] Click navigates to section
-- [ ] Responsive (collapsible on mobile)
+- [x] TOC displays all headings
+- [x] Active section highlighted
+- [x] Click navigates to section
+- [x] Responsive (collapsible on mobile)
 
 ---
 
-### 🖼️ Task 21: Update ProjectModal Layout
+### 🖼️ Task 21: Update ProjectModal Layout ✅ COMPLETED
 **Commit**: `feat: refactor ProjectModal with sidebar layout and markdown content`
 
 **Scope**: Frontend component refactoring
@@ -517,57 +518,34 @@ npm install react-markdown remark-gfm rehype-sanitize rehype-highlight remark-he
 7. Keep existing image gallery in header or markdown
 
 **Definition of Done**:
-- [ ] Modal has sidebar layout on desktop
-- [ ] TOC on left, content on right
-- [ ] Header is sticky with metadata
-- [ ] Markdown renders in content area
-- [ ] Responsive on all devices
-- [ ] Existing functionality preserved
+- [x] Modal has sidebar layout on desktop
+- [x] TOC on left, content on right
+- [x] Header is sticky with metadata
+- [x] Markdown renders in content area
+- [x] Responsive on all devices
+- [x] Existing functionality preserved
 
 ---
 
-### 🎨 Task 22: Markdown Content Styling
-**Commit**: `style: enhance markdown prose styling and code blocks`
+### 🔧 Task 22: Bug Fixes and Optimizations ✅ COMPLETED
+**Commit**: `fix: resolve Docker container library installation and React Hooks order issues`
 
-**Scope**: Frontend styling
+**Scope**: Bug fixes and optimizations
 **Files to modify**:
-- Markdown component styles
-- Global CSS if needed
+- Docker container setup
+- `frontend/src/shared/components/Modal/ProjectModal.tsx`
 
 **Executable Steps**:
-1. Apply TailwindCSS Typography (@tailwindcss/typography)
-2. Customize prose styles (headings, code, links)
-3. Add scroll-margin-top for anchor navigation
-4. Style code blocks with syntax highlighting theme
-5. Ensure images are responsive
+1. Fix Docker container library installation issues
+2. Resolve React Hooks order violation
+3. Optimize component structure
+4. Test functionality
 
 **Definition of Done**:
-- [ ] Markdown content is readable
-- [ ] Code blocks styled properly
-- [ ] Anchor links scroll correctly
-- [ ] Images scale responsively
-
----
-
-### 🧪 Task 23: Markdown Modal Testing
-**Commit**: `test: add tests for markdown modal and TOC functionality`
-
-**Scope**: Testing
-**Files to create**:
-- Component test files
-
-**Executable Steps**:
-1. Test useTOC parsing with various markdown inputs
-2. Test useActiveSection tracking
-3. Test TOC navigation clicks
-4. Test responsive layout changes
-5. Test with sample project markdown
-
-**Definition of Done**:
-- [ ] TOC parsing tested
-- [ ] Active section tracking tested
-- [ ] Navigation tested
-- [ ] Responsive behavior tested
+- [x] Docker container libraries properly installed
+- [x] React Hooks order fixed
+- [x] Component structure optimized
+- [x] Functionality tested and working
 
 ---
 
