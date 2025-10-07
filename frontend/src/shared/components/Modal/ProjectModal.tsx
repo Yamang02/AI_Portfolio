@@ -36,6 +36,12 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ isOpen, onClose, project })
               <span className={`px-2 py-1 rounded-full text-xs font-medium ${project.isTeam ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'}`}>
                 {project.isTeam ? '팀 프로젝트' : '개인 프로젝트'}
               </span>
+              <span className="px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                {project.type === 'BUILD' ? 'BUILD' :
+                 project.type === 'LAB' ? 'LAB' :
+                 project.type === 'MAINTENANCE' ? 'MAINTENANCE' :
+                 project.type === 'certification' ? '자격증' : project.type}
+              </span>
               {project.status && (
                 <span className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
                   {project.status === 'completed' ? '완료' :
@@ -85,7 +91,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ isOpen, onClose, project })
           {/* 팀 프로젝트인 경우 역할/기여도 표시 */}
           {project.isTeam && (project.role || (project.myContributions && project.myContributions.length > 0)) && (
             <div className="w-full mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-              <h3 className="text-lg font-semibold text-blue-900 mb-3 text-center">🤝 팀 프로젝트 기여도</h3>
+              <h3 className="text-lg font-semibold text-blue-900 mb-3 text-center">팀 프로젝트 기여도</h3>
               {project.role && (
                 <div className="mb-3 text-center">
                   <span className="text-sm font-medium text-blue-700">담당 역할: </span>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Project } from '../types';
+import { Project, ProjectCategory } from '../../../entities';
 import { TechStackMetadata, TechStackLevel } from '../../../entities/techstack';
 import { TechStackApi } from '../../../shared/services/techStackApi';
 import { TechStackBadge } from '../../../shared/components/TechStackBadge/TechStackBadge';
@@ -7,30 +7,30 @@ import { createTechStackGroups } from '../../../shared/utils/techStackCategorize
 
 interface ProjectFilterProps {
   projects: Project[];
-  onFilteredProjectsChange: (filteredProjects: Project[]) => void;
   className?: string;
+  // Controlled component props
+  filterOptions: FilterOptions;
+  onFilterOptionsChange: (options: FilterOptions) => void;
 }
 
 export interface FilterOptions {
+  searchQuery: string; // 검색어
   isTeam: 'all' | 'team' | 'individual';
+  projectType: 'all' | ProjectCategory;
   status: 'all' | 'completed' | 'in_progress' | 'maintenance';
   selectedTechs: string[]; // 기술 스택 배열로 변경
-  sortBy: 'startDate' | 'endDate' | 'title' | 'status' | 'sortOrder';
+  sortBy: 'startDate' | 'endDate' | 'title' | 'status' | 'sortOrder' | 'type';
   sortOrder: 'asc' | 'desc';
 }
 
 const ProjectFilter: React.FC<ProjectFilterProps> = ({
   projects,
-  onFilteredProjectsChange,
-  className = ''
+  className = '',
+  filterOptions,
+  onFilterOptionsChange
 }) => {
-  const [filters, setFilters] = React.useState<FilterOptions>({
-    isTeam: 'all',
-    status: 'all',
-    selectedTechs: [],
-    sortBy: 'startDate',
-    sortOrder: 'desc'
-  });
+  // Controlled component이므로 내부 상태 제거
+  const filters = filterOptions;
 
   // 기술 스택 메타데이터 상태
   const [availableTechs, setAvailableTechs] = React.useState<TechStackMetadata[]>([]);
@@ -75,94 +75,24 @@ const ProjectFilter: React.FC<ProjectFilterProps> = ({
     fetchTechStackMetadata();
   }, [projects]);
 
-  // 필터링 및 정렬 로직
-  const applyFilters = React.useCallback((filterOptions: FilterOptions) => {
-    let filtered = [...projects];
-
-    // 팀/개인 필터
-    if (filterOptions.isTeam !== 'all') {
-      filtered = filtered.filter(project =>
-        filterOptions.isTeam === 'team' ? project.isTeam : !project.isTeam
-      );
-    }
-
-    // 상태 필터 - 대소문자 구분 없이 비교
-    if (filterOptions.status !== 'all') {
-      filtered = filtered.filter(project => {
-        return project.status?.toLowerCase() === filterOptions.status.toLowerCase();
-      });
-    }
-
-    // 기술 스택 필터 (배열 기반)
-    if (filterOptions.selectedTechs.length > 0) {
-      filtered = filtered.filter(project =>
-        filterOptions.selectedTechs.some(selectedTech =>
-          project.technologies?.some(tech =>
-            tech.toLowerCase().includes(selectedTech.toLowerCase())
-          )
-        )
-      );
-    }
-
-    // 정렬
-    filtered.sort((a, b) => {
-      let compareValue = 0;
-
-      switch (filterOptions.sortBy) {
-        case 'startDate':
-          const startDateA = new Date(a.startDate);
-          const startDateB = new Date(b.startDate);
-          compareValue = startDateA.getTime() - startDateB.getTime();
-          break;
-        case 'endDate':
-          // 종료일 기준 정렬 - null인 경우(진행중) 현재 날짜로 처리
-          const endDateA = a.endDate ? new Date(a.endDate) : new Date();
-          const endDateB = b.endDate ? new Date(b.endDate) : new Date();
-          compareValue = endDateA.getTime() - endDateB.getTime();
-          break;
-        case 'title':
-          compareValue = a.title.localeCompare(b.title);
-          break;
-        case 'status':
-          const statusA = a.status || 'completed';
-          const statusB = b.status || 'completed';
-          compareValue = statusA.localeCompare(statusB);
-          break;
-        case 'sortOrder':
-          const orderA = a.sortOrder || 0;
-          const orderB = b.sortOrder || 0;
-          compareValue = orderA - orderB;
-          break;
-        default:
-          compareValue = 0;
-      }
-
-      return filterOptions.sortOrder === 'asc' ? compareValue : -compareValue;
-    });
-
-    return filtered;
-  }, [projects]);
-
-  // 필터 변경 시 결과 업데이트
-  React.useEffect(() => {
-    const filteredProjects = applyFilters(filters);
-    onFilteredProjectsChange(filteredProjects);
-  }, [filters, applyFilters, onFilteredProjectsChange]);
+  // 필터링 로직은 상위 컴포넌트에서 처리하므로 제거
 
   // 잘못된 sortBy 값 보정
   React.useEffect(() => {
-    if (!['startDate', 'endDate', 'title', 'status', 'sortOrder'].includes(filters.sortBy as string)) {
-      setFilters(prev => ({ ...prev, sortBy: 'startDate' }));
+    if (!['startDate', 'endDate', 'title', 'status', 'sortOrder', 'type'].includes(filters.sortBy as string)) {
+      onFilterOptionsChange({ ...filters, sortBy: 'startDate' });
     }
-  }, [filters.sortBy]);
+  }, [filters.sortBy, filters, onFilterOptionsChange]);
 
   const updateFilter = (key: keyof FilterOptions, value: any) => {
-    setFilters(prev => ({ ...prev, [key]: value }));
+    onFilterOptionsChange({ ...filters, [key]: value });
   };
 
   const resetFilters = () => {
-    setFilters({
+    onFilterOptionsChange({
+      searchQuery: '',
       isTeam: 'all',
+      projectType: 'all',
       status: 'all',
       selectedTechs: [],
       sortBy: 'startDate',
@@ -172,21 +102,35 @@ const ProjectFilter: React.FC<ProjectFilterProps> = ({
 
   // 기술 스택 선택/해제 핸들러
   const handleTechStackToggle = (techName: string) => {
-    setFilters(prev => ({
-      ...prev,
-      selectedTechs: prev.selectedTechs.includes(techName)
-        ? prev.selectedTechs.filter(tech => tech !== techName)
-        : [...prev.selectedTechs, techName]
-    }));
+    onFilterOptionsChange({
+      ...filters,
+      selectedTechs: filters.selectedTechs.includes(techName)
+        ? filters.selectedTechs.filter(tech => tech !== techName)
+        : [...filters.selectedTechs, techName]
+    });
   };
 
   return (
     <div className={`bg-white rounded-lg shadow-md p-6 mb-6 ${className}`}>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* 프로젝트 타입 필터 */}
+      {/* 검색 기능 */}
+      <div className="mb-6">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          프로젝트 검색
+        </label>
+        <input
+          type="text"
+          value={filters.searchQuery}
+          onChange={(e) => updateFilter('searchQuery', e.target.value)}
+          placeholder="프로젝트명을 입력하세요..."
+          className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+        {/* 팀/개인 필터 */}
         <div className="lg:col-span-1">
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            프로젝트 타입
+            팀/개인
           </label>
           <select
             value={filters.isTeam}
@@ -196,6 +140,24 @@ const ProjectFilter: React.FC<ProjectFilterProps> = ({
             <option value="all">전체</option>
             <option value="team">팀 프로젝트</option>
             <option value="individual">개인 프로젝트</option>
+          </select>
+        </div>
+
+        {/* 프로젝트 타입 필터 */}
+        <div className="lg:col-span-1">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            프로젝트 타입
+          </label>
+          <select
+            value={filters.projectType}
+            onChange={(e) => updateFilter('projectType', e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="all">전체</option>
+            <option value="BUILD">BUILD</option>
+            <option value="LAB">LAB</option>
+            <option value="MAINTENANCE">MAINTENANCE</option>
+            <option value="certification">자격증</option>
           </select>
         </div>
 
@@ -229,6 +191,7 @@ const ProjectFilter: React.FC<ProjectFilterProps> = ({
             <option value="startDate">시작일</option>
             <option value="endDate">종료일</option>
             <option value="title">제목</option>
+            <option value="type">프로젝트 타입</option>
             <option value="status">상태</option>
             <option value="sortOrder">우선순위</option>
           </select>
@@ -255,7 +218,7 @@ const ProjectFilter: React.FC<ProjectFilterProps> = ({
               </svg>
             </button>
             <span className="text-sm text-blue-600 ml-2">
-              총 {projects.length}개 중 {applyFilters(filters).length}개 표시
+              총 {projects.length}개 프로젝트
             </span>
           </div>
         </div>
@@ -274,7 +237,7 @@ const ProjectFilter: React.FC<ProjectFilterProps> = ({
           </label>
           {filters.selectedTechs.length > 0 && (
             <button
-              onClick={() => setFilters(prev => ({ ...prev, selectedTechs: [] }))}
+              onClick={() => onFilterOptionsChange({ ...filters, selectedTechs: [] })}
               className="text-xs text-gray-500 hover:text-gray-700 underline"
             >
               선택 해제

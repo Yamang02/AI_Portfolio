@@ -176,14 +176,6 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         <div className="mb-4 flex flex-wrap gap-2">
           {renderTechStack()}
         </div>
-        {/* 역할 정보 (팀 프로젝트인 경우) */}
-        {project.isTeam && project.role && (
-          <div className="mb-4">
-            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
-              🏆 {project.role}
-            </span>
-          </div>
-        )}
         {/* 하단 정보 */}
         <div className="pt-4 border-t border-gray-200 mt-auto flex items-center justify-between gap-6">
           <span className="text-xs text-gray-500">

@@ -6,7 +6,7 @@ import EducationCard from './EducationCard';
 import CertificationCard from './CertificationCard';
 import HistoryPanel from './HistoryPanel';
 import PanelToggle from './PanelToggle';
-import ProjectFilter from './ProjectFilter';
+import ProjectFilter, { FilterOptions } from './ProjectFilter';
 import { ProjectModal } from '../../../shared/components/Modal';
 import { SkeletonSection } from '../../../shared/components/SkeletonCard';
 
@@ -40,11 +40,111 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
   const [isProjectModalOpen, setIsProjectModalOpen] = React.useState(false);
   const [filteredProjects, setFilteredProjects] = React.useState<Project[]>(projects);
   const [isFilterSectionOpen, setIsFilterSectionOpen] = React.useState(false); // 기본값: 닫힘
+  
+  // 필터 상태를 상위 컴포넌트에서 관리
+  const [filterOptions, setFilterOptions] = React.useState<FilterOptions>({
+    searchQuery: '',
+    isTeam: 'all',
+    projectType: 'all',
+    status: 'all',
+    selectedTechs: [],
+    sortBy: 'startDate',
+    sortOrder: 'desc'
+  });
 
-  // projects가 변경될 때 filteredProjects 초기화
-  React.useEffect(() => {
-    setFilteredProjects(projects);
+  // 필터링 및 정렬 로직
+  const applyFilters = React.useCallback((filterOptions: FilterOptions) => {
+    let filtered = [...projects];
+
+    // 검색 필터 (프로젝트명 기반)
+    if (filterOptions.searchQuery.trim()) {
+      const query = filterOptions.searchQuery.toLowerCase().trim();
+      filtered = filtered.filter(project =>
+        project.title.toLowerCase().includes(query)
+      );
+    }
+
+    // 팀/개인 필터
+    if (filterOptions.isTeam !== 'all') {
+      filtered = filtered.filter(project =>
+        filterOptions.isTeam === 'team' ? project.isTeam : !project.isTeam
+      );
+    }
+
+    // 프로젝트 타입 필터
+    if (filterOptions.projectType !== 'all') {
+      filtered = filtered.filter(project =>
+        project.type === filterOptions.projectType
+      );
+    }
+
+    // 상태 필터 - 대소문자 구분 없이 비교
+    if (filterOptions.status !== 'all') {
+      filtered = filtered.filter(project => {
+        return project.status?.toLowerCase() === filterOptions.status.toLowerCase();
+      });
+    }
+
+    // 기술 스택 필터 (배열 기반)
+    if (filterOptions.selectedTechs.length > 0) {
+      filtered = filtered.filter(project =>
+        filterOptions.selectedTechs.some(selectedTech =>
+          project.technologies?.some(tech =>
+            tech.toLowerCase().includes(selectedTech.toLowerCase())
+          )
+        )
+      );
+    }
+
+    // 정렬
+    filtered.sort((a, b) => {
+      let compareValue = 0;
+
+      switch (filterOptions.sortBy) {
+        case 'startDate':
+          const startDateA = new Date(a.startDate);
+          const startDateB = new Date(b.startDate);
+          compareValue = startDateA.getTime() - startDateB.getTime();
+          break;
+        case 'endDate':
+          // 종료일 기준 정렬 - null인 경우(진행중) 현재 날짜로 처리
+          const endDateA = a.endDate ? new Date(a.endDate) : new Date();
+          const endDateB = b.endDate ? new Date(b.endDate) : new Date();
+          compareValue = endDateA.getTime() - endDateB.getTime();
+          break;
+        case 'title':
+          compareValue = a.title.localeCompare(b.title);
+          break;
+        case 'status':
+          const statusA = a.status || 'completed';
+          const statusB = b.status || 'completed';
+          compareValue = statusA.localeCompare(statusB);
+          break;
+        case 'sortOrder':
+          const orderA = a.sortOrder || 0;
+          const orderB = b.sortOrder || 0;
+          compareValue = orderA - orderB;
+          break;
+        case 'type':
+          const typeA = a.type || '';
+          const typeB = b.type || '';
+          compareValue = typeA.localeCompare(typeB);
+          break;
+        default:
+          compareValue = 0;
+      }
+
+      return filterOptions.sortOrder === 'asc' ? compareValue : -compareValue;
+    });
+
+    return filtered;
   }, [projects]);
+
+  // 필터 옵션이 변경될 때 필터링 적용
+  React.useEffect(() => {
+    const filteredProjects = applyFilters(filterOptions);
+    setFilteredProjects(filteredProjects);
+  }, [filterOptions, applyFilters]);
 
   // 아이템 하이라이트 처리
   const handleItemHover = (itemId?: string) => {
@@ -105,7 +205,8 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
         {isFilterSectionOpen && (
           <ProjectFilter
             projects={projects}
-            onFilteredProjectsChange={setFilteredProjects}
+            filterOptions={filterOptions}
+            onFilterOptionsChange={setFilterOptions}
           />
         )}
 
