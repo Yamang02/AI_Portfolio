@@ -13,7 +13,7 @@ interface ProjectModalProps {
 }
 
 const ProjectModal: React.FC<ProjectModalProps> = ({ isOpen, onClose, project }) => {
-  const [isTOCOpen, setIsTOCOpen] = useState(true);
+  const [isTOCOpen, setIsTOCOpen] = useState(false); // 모바일에서만 사용
   const [isInfoOpen, setIsInfoOpen] = useState(false);
   
   // 마크다운 컨텐츠 결정 (readme 우선, 없으면 description)
@@ -49,43 +49,53 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ isOpen, onClose, project })
     setIsInfoOpen(true);
   };
 
+
   return (
     <div 
       className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40" 
       onClick={handleOverlayClick}
     >
-      <div className="bg-white rounded-lg shadow-lg w-full min-w-[320px] max-w-7xl mx-4 h-[90vh] relative animate-fadeIn flex overflow-hidden border-2 border-gray-200 p-4">
+      <div className="bg-white rounded-lg shadow-lg w-full min-w-[320px] max-w-7xl mx-4 h-[90vh] relative animate-fadeIn flex overflow-hidden p-4">
+        {/* 닫기 버튼 - 패딩 경계선에 걸치도록 */}
+        <button
+          onClick={onClose}
+          className="absolute -top-3 right-4 z-30 bg-black bg-opacity-60 hover:bg-opacity-80 text-white p-2 rounded-full shadow-lg transition-all duration-200"
+          aria-label="닫기"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+
         {/* 내부 컨테이너 - 패딩된 영역에 테두리 적용 */}
         <div className="flex-1 flex border border-gray-200 rounded-lg overflow-hidden">
-          {/* TOC 사이드바 (데스크톱) */}
-          {isTOCOpen && (
-            <div className="hidden lg:block">
-              <ProjectModalTOC
-                items={tocItems}
-                activeId={activeSection}
-                onClose={handleTOCClose}
-              />
-            </div>
-          )}
+          {/* TOC 사이드바 (고정) */}
+          <div className="hidden lg:block flex-shrink-0">
+            <ProjectModalTOC
+              items={tocItems}
+              activeId={activeSection}
+              project={project}
+            />
+          </div>
 
           {/* 메인 컨텐츠 영역 */}
           <div className="flex-1 flex flex-col min-w-0">
             {/* 헤더 */}
             <ProjectModalHeader 
               project={project} 
-              onClose={onClose}
               className="flex-shrink-0"
             />
             
             {/* 컨텐츠 */}
             <ProjectModalContent 
               content={markdownContent}
+              project={project}
               className="flex-1"
             />
           </div>
 
-          {/* 오른쪽 정보 사이드바 (데스크톱) */}
-          <div className="hidden xl:block">
+          {/* 오른쪽 정보 사이드바 (고정) */}
+          <div className="hidden xl:block flex-shrink-0">
             <ProjectModalInfoSidebar 
               project={project}
               className="flex-shrink-0"
@@ -101,6 +111,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ isOpen, onClose, project })
                 items={tocItems}
                 activeId={activeSection}
                 onClose={handleTOCClose}
+                project={project}
               />
             </div>
           </div>

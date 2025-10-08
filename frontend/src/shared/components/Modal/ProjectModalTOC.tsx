@@ -1,12 +1,14 @@
 import React from 'react';
 import { TOCItem, flattenTOCItems } from '../../../features/projects/hooks/useTOC';
 import { scrollToSection } from '../../../features/projects/hooks/useActiveSection';
+import { Project } from '../../../features/projects/types';
 
 interface ProjectModalTOCProps {
   items: TOCItem[];
   activeId: string | null;
   onClose?: () => void;
   className?: string;
+  project?: Project;
 }
 
 interface TOCItemComponentProps {
@@ -54,7 +56,8 @@ const ProjectModalTOC: React.FC<ProjectModalTOCProps> = ({
   items,
   activeId,
   onClose,
-  className = ''
+  className = '',
+  project
 }) => {
   const flattenedItems = flattenTOCItems(items);
 
@@ -70,6 +73,44 @@ const ProjectModalTOC: React.FC<ProjectModalTOCProps> = ({
   if (items.length === 0) {
     return (
       <aside className={`w-60 h-full overflow-y-auto border-r border-gray-200 bg-gray-50 p-4 ${className}`}>
+        {/* 프로젝트 메타데이터 */}
+        {project && (
+          <div className="mb-6">
+            <div className="flex flex-wrap gap-2 items-center mb-3">
+              <span className="text-sm text-gray-600 flex items-center">
+                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                {project.startDate} ~ {project.endDate || '현재'}
+              </span>
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                project.isTeam ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'
+              }`}>
+                {project.isTeam ? '팀 프로젝트' : '개인 프로젝트'}
+              </span>
+              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                project.type === 'BUILD' ? 'bg-red-100 text-red-800' :
+                project.type === 'LAB' ? 'bg-orange-100 text-orange-800' :
+                project.type === 'MAINTENANCE' ? 'bg-green-100 text-green-800' :
+                project.type === 'certification' ? 'bg-indigo-100 text-indigo-800' : 'bg-gray-100 text-gray-800'
+              }`}>
+                {project.type === 'BUILD' ? 'BUILD' :
+                 project.type === 'LAB' ? 'LAB' :
+                 project.type === 'MAINTENANCE' ? 'MAINTENANCE' :
+                 project.type === 'certification' ? '자격증' : project.type}
+              </span>
+              {project.status && (
+                <span className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                  {project.status === 'completed' ? '완료' :
+                   project.status === 'in_progress' ? '진행중' :
+                   project.status === 'maintenance' ? '유지보수' : project.status}
+                </span>
+              )}
+            </div>
+          </div>
+        )}
         <div className="text-center text-gray-500 text-sm py-8">
           목차가 없습니다
         </div>
@@ -79,7 +120,48 @@ const ProjectModalTOC: React.FC<ProjectModalTOCProps> = ({
 
   return (
     <aside className={`w-60 h-full overflow-y-auto border-r border-gray-200 bg-gray-50 p-4 ${className}`}>
-      <nav className="sticky top-0 bg-gray-50 pb-4">
+      {/* 프로젝트 메타데이터 */}
+      {project && (
+        <div className="mb-6">
+          <div className="flex flex-wrap gap-2 items-center mb-3">
+            <span className="text-sm text-gray-600 flex items-center">
+              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              {project.startDate} ~ {project.endDate || '현재'}
+            </span>
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+              project.isTeam ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'
+            }`}>
+              {project.isTeam ? '팀 프로젝트' : '개인 프로젝트'}
+            </span>
+            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+              project.type === 'BUILD' ? 'bg-red-100 text-red-800' :
+              project.type === 'LAB' ? 'bg-orange-100 text-orange-800' :
+              project.type === 'MAINTENANCE' ? 'bg-green-100 text-green-800' :
+              project.type === 'certification' ? 'bg-indigo-100 text-indigo-800' : 'bg-gray-100 text-gray-800'
+            }`}>
+              {project.type === 'BUILD' ? 'BUILD' :
+               project.type === 'LAB' ? 'LAB' :
+               project.type === 'MAINTENANCE' ? 'MAINTENANCE' :
+               project.type === 'certification' ? '자격증' : project.type}
+            </span>
+            {project.status && (
+              <span className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                {project.status === 'completed' ? '완료' :
+                 project.status === 'in_progress' ? '진행중' :
+                 project.status === 'maintenance' ? '유지보수' : project.status}
+              </span>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* TOC 카드 */}
+      <div className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
+        <nav className="pb-4">
         {/* 헤더 */}
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-semibold text-gray-900">
@@ -117,7 +199,8 @@ const ProjectModalTOC: React.FC<ProjectModalTOCProps> = ({
             총 {flattenedItems.length}개 섹션
           </div>
         </div>
-      </nav>
+        </nav>
+      </div>
     </aside>
   );
 };

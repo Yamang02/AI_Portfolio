@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Project } from '../types';
 import { safeFormatDate } from '../../../shared/utils/safeStringUtils';
 import {
@@ -29,10 +30,11 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
   project, 
   onMouseEnter, 
   onMouseLeave, 
-  isHighlighted,
+  isHighlighted, 
   onLongHover,
-  onClick
+  onClick 
 }) => {
+  const navigate = useNavigate();
   const timerRef = React.useRef<NodeJS.Timeout | null>(null);
 
   const handleMouseEnter = () => {
@@ -127,7 +129,13 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
       className={`bg-white rounded-lg shadow-md overflow-hidden transform transition-all duration-300 hover:scale-105 flex flex-col border border-gray-100 hover:shadow-blue-200 ${isHighlighted ? 'ring-4 ring-blue-200 shadow-blue-200' : ''}`}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      onClick={() => onClick?.(project)}
+      onClick={() => {
+        if (onClick) {
+          onClick(project);
+        } else {
+          navigate(`/projects/${project.id}`);
+        }
+      }}
       style={{ cursor: onClick ? 'pointer' : undefined }}
     >
       {/* 상단 이미지/아이콘 영역 */}

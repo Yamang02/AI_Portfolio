@@ -7,7 +7,6 @@ import CertificationCard from './CertificationCard';
 import HistoryPanel from './HistoryPanel';
 import PanelToggle from './PanelToggle';
 import ProjectFilter, { FilterOptions } from './ProjectFilter';
-import { ProjectModal } from '../../../shared/components/Modal';
 import { SkeletonSection } from '../../../shared/components/SkeletonCard';
 
 interface PortfolioSectionProps {
@@ -36,8 +35,6 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
 }) => {
   const [highlightedItemId, setHighlightedItemId] = React.useState<string | undefined>();
   const [longHoveredItemId, setLongHoveredItemId] = React.useState<string | undefined>();
-  const [selectedProject, setSelectedProject] = React.useState<Project | null>(null);
-  const [isProjectModalOpen, setIsProjectModalOpen] = React.useState(false);
   const [filteredProjects, setFilteredProjects] = React.useState<Project[]>(projects);
   const [isFilterSectionOpen, setIsFilterSectionOpen] = React.useState(false); // 기본값: 닫힘
   
@@ -156,17 +153,6 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
     setLongHoveredItemId(itemId);
   };
 
-  // 프로젝트 카드 클릭 시
-  const handleProjectCardClick = (project: Project) => {
-    setSelectedProject(project);
-    setIsProjectModalOpen(true);
-  };
-
-  // 모달 닫기
-  const handleProjectModalClose = () => {
-    setIsProjectModalOpen(false);
-    setSelectedProject(null);
-  };
 
   return (
     <section id="portfolio">
@@ -237,7 +223,6 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
                     onMouseLeave={() => handleItemHover(undefined)}
                     isHighlighted={highlightedItemId === project.id}
                     onLongHover={handleLongHover}
-                    onClick={handleProjectCardClick}
                   />
                 ))}
               </div>
@@ -338,11 +323,6 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
       <PanelToggle
         isOpen={isHistoryPanelOpen}
         onToggle={onHistoryPanelToggle}
-      />
-      <ProjectModal
-        isOpen={isProjectModalOpen}
-        onClose={handleProjectModalClose}
-        project={selectedProject}
       />
     </section>
   );
