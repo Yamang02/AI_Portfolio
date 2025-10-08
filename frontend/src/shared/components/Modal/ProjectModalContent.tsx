@@ -15,8 +15,8 @@ const ProjectModalContent: React.FC<ProjectModalContentProps> = ({
   
   if (!hasMarkdown) {
     return (
-      <div className={`flex-1 p-8 ${className}`}>
-        <div className="text-center text-gray-500 py-12">
+      <div className={`flex-1 px-6 py-4 ${className}`}>
+        <div className="text-center text-gray-500 py-8">
           <div className="text-lg mb-2">📝</div>
           <p>프로젝트 상세 내용이 없습니다.</p>
           <p className="text-sm mt-2">곧 추가될 예정입니다.</p>
@@ -27,7 +27,7 @@ const ProjectModalContent: React.FC<ProjectModalContentProps> = ({
 
   return (
     <div className={`flex-1 overflow-y-auto ${className}`}>
-      <div className="p-8">
+      <div className="px-6 py-4">
         <MarkdownRenderer 
           content={content}
           className="max-w-none"
