@@ -5,7 +5,7 @@ import HeroSection from './HeroSection';
 import { PortfolioSection } from '../../../features/projects';
 import { Chatbot } from '../../../features/chatbot';
 import { useApp } from '../../providers';
-import ProjectDetailPage from '../../../pages/ProjectDetailPage';
+import ProjectDetailPage from '../../../pages/ProjectDetail/ProjectDetailPage';
 
 const App: React.FC = () => {
   const {
