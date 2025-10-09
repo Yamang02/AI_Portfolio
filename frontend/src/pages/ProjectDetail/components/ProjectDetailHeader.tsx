@@ -137,13 +137,13 @@ const ProjectDetailHeader: React.FC<ProjectDetailHeaderProps> = ({
         </button>
 
         {/* 제목과 메타데이터 */}
-        <div>
-          <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-3 break-words">
+        <div className="text-center">
+          <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-6 break-words">
             {project.title}
           </h1>
           
           {/* 메타데이터 배지들 */}
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 justify-center">
             <ProjectMetaBadge 
               type={project.isTeam ? 'team' : 'individual'}
               value={project.isTeam ? '팀 프로젝트' : '개인 프로젝트'}

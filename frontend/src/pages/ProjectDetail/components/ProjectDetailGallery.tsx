@@ -132,7 +132,7 @@ const ProjectDetailGallery: React.FC<ProjectDetailGalleryProps> = React.memo(({
   };
 
   return (
-    <section className={`${className}`}>
+    <section id="gallery" className={`${className}`}>
       <div className="flex items-center gap-3 mb-6">
         <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
           <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">

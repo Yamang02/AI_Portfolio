@@ -2,6 +2,7 @@ import React, { Suspense, useState } from 'react';
 import { useProjectDetail } from './hooks/useProjectDetail';
 import ProjectDetailHeader from './components/ProjectDetailHeader';
 import ProjectDetailContent from './components/ProjectDetailContent';
+import ProjectDetailOverview from './components/ProjectDetailOverview';
 import ProjectDetailTechStack from './components/ProjectDetailTechStack';
 import ProjectDetailContribution from './components/ProjectDetailContribution';
 import ProjectDetailGallery from './components/ProjectDetailGallery';
@@ -107,16 +108,36 @@ const ProjectDetailPage: React.FC = () => {
       
       {/* 메인 컨텐츠 영역 - 헤더와 동일한 너비 */}
       <main className="max-w-4xl mx-auto px-6 py-8">
+        {/* 썸네일 이미지 */}
+        {project.imageUrl && project.imageUrl !== '#' && (
+          <div className="mb-8">
+            <img
+              src={project.imageUrl}
+              alt={`${project.title} 메인 이미지`}
+              className="w-full h-64 object-cover rounded-lg shadow-md"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.style.display = 'none';
+              }}
+            />
+          </div>
+        )}
+        
+        {/* 개요 섹션 */}
+        <section id="overview" className="mb-8">
+          <ProjectDetailOverview description={project.description} />
+        </section>
+        
         {/* 기술 스택 섹션 */}
         {project.technologies && project.technologies.length > 0 && (
-          <section className="mb-8">
+          <section id="tech-stack" className="mb-8">
             <ProjectDetailTechStack technologies={project.technologies} />
           </section>
         )}
         
         {/* 스크린샷 갤러리 */}
         {project.screenshots && project.screenshots.length > 0 && (
-          <section className="mb-8">
+          <section id="gallery" className="mb-8">
             <ProjectDetailGallery 
               screenshots={project.screenshots}
               projectTitle={project.title}
@@ -131,8 +152,8 @@ const ProjectDetailPage: React.FC = () => {
           </section>
         )}
         
-        {/* 프로젝트 소개 섹션 */}
-        <section className="mb-8">
+        {/* 프로젝트 상세설명 섹션 */}
+        <section id="detail" className="mb-8">
           <ProjectDetailContent 
             content={markdownContent}
             project={project}

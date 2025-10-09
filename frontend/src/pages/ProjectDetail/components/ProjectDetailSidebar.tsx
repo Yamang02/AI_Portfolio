@@ -12,6 +12,65 @@ interface ProjectDetailSidebarProps {
   className?: string;
 }
 
+// 정적 섹션 정의
+interface StaticSection {
+  id: string;
+  title: string;
+  level: number;
+}
+
+// 전체 TOC 아이템 생성 함수
+const createFullTOCItems = (project: Project, markdownTOCItems: TOCItem[]): TOCItem[] => {
+  const staticSections: StaticSection[] = [
+    { id: 'overview', title: '개요', level: 1 },
+  ];
+
+  // 기술스택이 있는 경우 추가
+  if (project.technologies && project.technologies.length > 0) {
+    staticSections.push({ id: 'tech-stack', title: '기술 스택', level: 1 });
+  }
+
+  // 스크린샷이 있는 경우 추가
+  if (project.screenshots && project.screenshots.length > 0) {
+    staticSections.push({ id: 'gallery', title: '스크린샷 갤러리', level: 1 });
+  }
+
+  // 상세설명이 있는 경우 추가
+  if (markdownTOCItems.length > 0) {
+    staticSections.push({ id: 'detail', title: '상세 설명', level: 1 });
+  }
+
+  // 정적 섹션을 TOCItem 형태로 변환
+  const staticTOCItems: TOCItem[] = staticSections.map(section => ({
+    id: section.id,
+    text: section.title,
+    level: section.level,
+    children: []
+  }));
+
+  // 마크다운 헤딩들을 상세설명 섹션의 하위 항목으로 추가
+  const detailTOCItems = markdownTOCItems.map(item => ({
+    ...item,
+    level: item.level + 1 // 상세설명의 하위 레벨로 설정
+  }));
+
+  // 정적 섹션과 마크다운 헤딩들을 결합
+  const allTOCItems = [...staticTOCItems];
+  
+  // 상세설명이 있으면 마크다운 헤딩들을 추가
+  if (detailTOCItems.length > 0) {
+    const detailSectionIndex = allTOCItems.findIndex(item => item.id === 'detail');
+    if (detailSectionIndex !== -1) {
+      allTOCItems[detailSectionIndex] = {
+        ...allTOCItems[detailSectionIndex],
+        children: detailTOCItems
+      };
+    }
+  }
+
+  return allTOCItems;
+};
+
 interface TOCItemComponentProps {
   item: TOCItem;
   isActive: boolean;
@@ -146,7 +205,9 @@ const ProjectDetailSidebar: React.FC<ProjectDetailSidebarProps> = React.memo(({
   onToggle,
   className = ''
 }) => {
-  const flattenedItems = flattenTOCItems(tocItems);
+  // 전체 TOC 아이템 생성 (정적 섹션 + 마크다운 헤딩)
+  const fullTOCItems = createFullTOCItems(project, tocItems);
+  const flattenedItems = flattenTOCItems(fullTOCItems);
 
   const handleItemClick = (id: string) => {
     scrollToSection(id, 100, 'smooth');
