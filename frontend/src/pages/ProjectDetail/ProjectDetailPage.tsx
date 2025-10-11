@@ -1,4 +1,4 @@
-import React, { Suspense, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useProjectDetail } from './hooks/useProjectDetail';
 import ProjectDetailHeader from './components/ProjectDetailHeader';
 import ProjectDetailContent from './components/ProjectDetailContent';
@@ -6,7 +6,6 @@ import ProjectDetailOverview from './components/ProjectDetailOverview';
 import ProjectDetailTechStack from './components/ProjectDetailTechStack';
 import ProjectDetailContribution from './components/ProjectDetailContribution';
 import ProjectDetailGallery from './components/ProjectDetailGallery';
-import ProjectDetailTOC from './components/ProjectDetailTOC';
 import ProjectDetailSidebar from './components/ProjectDetailSidebar';
 import ProjectDetailSidebarToggle from './components/ProjectDetailSidebarToggle';
 import { useTOC, useActiveSection } from '../../features/projects/hooks';
@@ -65,10 +64,15 @@ const ProjectDetailError: React.FC<{ error: string; onRetry: () => void }> = ({ 
 const ProjectDetailPage: React.FC = () => {
   const { project, loading, error, markdownContent, handleBack } = useProjectDetail();
   const { isChatbotOpen, setChatbotOpen, isWideScreen } = useApp();
-  
+
   // 사이드바 상태 관리
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  
+
+  // 프로젝트 상세 페이지는 항상 최상단으로
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   // TOC 생성 (마크다운이 있을 때만)
   const tocItems = useTOC(markdownContent);
   const activeSection = useActiveSection(tocItems);

@@ -65,7 +65,8 @@ export const useProjectDetail = (): UseProjectDetailReturn => {
 
   // 뒤로가기 핸들러
   const handleBack = useMemo(() => () => {
-    navigate('/');
+    // 스크롤 위치를 유지하면서 네비게이션 (fromProject 플래그 전달)
+    navigate('/', { state: { fromProject: true }, replace: false });
   }, [navigate]);
 
   return {

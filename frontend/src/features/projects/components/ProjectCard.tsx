@@ -17,6 +17,13 @@ interface ProjectCardProps {
   onClick?: (project: Project) => void;
 }
 
+// 홈페이지 스크롤 위치 저장 (HomePage와 공유)
+declare global {
+  interface Window {
+    __homeScrollPosition?: number;
+  }
+}
+
 const ProjectCard: React.FC<ProjectCardProps> = ({
   project,
   onMouseEnter,
@@ -65,6 +72,8 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         if (onClick) {
           onClick(project);
         } else {
+          // navigate 전에 스크롤 위치를 전역 변수에 저장
+          window.__homeScrollPosition = window.pageYOffset;
           navigate(`/projects/${project.id}`);
         }
       }}
