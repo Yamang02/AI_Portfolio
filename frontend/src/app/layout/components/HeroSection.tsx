@@ -8,6 +8,10 @@ import { TechStackMetadata } from '../../../entities/techstack';
 const HeroSection: React.FC = () => {
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [techs, setTechs] = useState<TechStackMetadata[]>([]);
+  const [clickCount, setClickCount] = useState(0);
+  const [lastClickTime, setLastClickTime] = useState(0);
+  const [giantBlockTrigger, setGiantBlockTrigger] = useState(0);
+  const [isAnimationEnabled, setIsAnimationEnabled] = useState(true);
 
   useEffect(() => {
     const fetchTechs = async () => {
@@ -21,10 +25,41 @@ const HeroSection: React.FC = () => {
     fetchTechs();
   }, []);
 
+  // 이스터에그: 이정준 이름 클릭 핸들러
+  const handleNameClick = () => {
+    const currentTime = Date.now();
+    
+    // 3초 내에 연속 클릭인지 확인
+    if (currentTime - lastClickTime > 3000) {
+      setClickCount(0); // 3초 지나면 카운터 리셋
+    }
+    
+    const newClickCount = clickCount + 1;
+    setClickCount(newClickCount);
+    setLastClickTime(currentTime);
+    
+    // 3번 클릭할 때마다 초거대 블록 생성
+    if (newClickCount % 3 === 0) {
+      setGiantBlockTrigger(prev => prev + 1);
+    }
+  };
+
+  // 애니메이션 토글 핸들러
+  const handleAnimationToggle = () => {
+    setIsAnimationEnabled(prev => !prev);
+  };
+
   return (
     <section className="w-full py-16 bg-white relative overflow-hidden">
       {/* 테트리스 애니메이션 배경 - 데이터 로딩 후 표시 */}
-      {techs.length > 0 && <TechStackTetris techs={techs} />}
+      {techs.length > 0 && (
+        <TechStackTetris 
+          techs={techs} 
+          giantBlockTrigger={giantBlockTrigger}
+          isAnimationEnabled={isAnimationEnabled}
+          onAnimationToggle={handleAnimationToggle}
+        />
+      )}
 
       <div className="max-w-4xl mx-auto text-center relative z-10">
         {/* 글라스모피즘 카드 컨테이너 - 버튼까지 포함 */}
@@ -36,7 +71,12 @@ const HeroSection: React.FC = () => {
           <div className="absolute inset-0 rounded-2xl border border-white/20"></div>
           {/* 컨텐츠 영역 */}
           <div className="relative z-10">
-          <h2 className="text-3xl md:text-4xl font-extrabold text-black mb-3 tracking-wider drop-shadow-lg">이정준</h2>
+          <h2 
+            className="text-3xl md:text-4xl font-extrabold text-black mb-3 tracking-wider drop-shadow-lg select-none"
+            onClick={handleNameClick}
+          >
+            이정준
+          </h2>
           <div className="text-2xl md:text-3xl font-bold text-black mb-3 drop-shadow-md">Software Engineer</div>
           <p className="text-gray-700 text-base drop-shadow-sm mb-6">
             도전을 두려워하지 않는 개발자 이정준입니다.

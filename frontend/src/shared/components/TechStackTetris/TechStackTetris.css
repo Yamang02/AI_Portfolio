@@ -12,13 +12,13 @@
 
 /* 배경 캔버스 - 일반 블록 (글라스모피즘 뒤) */
 .tech-stack-tetris-background {
-  opacity: 0.25;
+  opacity: 0.35; /* 투명도 증가 (0.25 → 0.35) */
   z-index: 1;
 }
 
 /* 전경 캔버스 - 초거대 블록 (글라스모피즘 앞) */
 .tech-stack-tetris-foreground {
-  opacity: 0.4; /* 초거대 블록은 약간 흐리게 */
-  z-index: 11;
-  filter: blur(1px); /* 살짝 흐린 느낌 */
+  opacity: 1.0; /* 초거대 블록은 완전 불투명 (z-index 10 내용을 가림) */
+  z-index: 15; /* z-index 10보다 높게 설정하여 내용을 완전히 가림 */
+  filter: none; /* 폭발 시에는 blur 제거하여 선명하게 */
 }
