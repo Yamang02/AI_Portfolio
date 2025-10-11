@@ -83,13 +83,11 @@ const ProjectDetailTOC: React.FC<ProjectDetailTOCProps> = ({
             <span className={`px-2 py-1 rounded-full text-xs font-medium ${
               project.type === 'BUILD' ? 'bg-red-100 text-red-800' :
               project.type === 'LAB' ? 'bg-orange-100 text-orange-800' :
-              project.type === 'MAINTENANCE' ? 'bg-green-100 text-green-800' :
-              project.type === 'certification' ? 'bg-indigo-100 text-indigo-800' : 'bg-gray-100 text-gray-800'
+              project.type === 'MAINTENANCE' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
             }`}>
               {project.type === 'BUILD' ? 'BUILD' :
                project.type === 'LAB' ? 'LAB' :
-               project.type === 'MAINTENANCE' ? 'MAINTENANCE' :
-               project.type === 'certification' ? '자격증' : project.type}
+               project.type === 'MAINTENANCE' ? 'MAINTENANCE' : project.type}
             </span>
             {project.status && (
               <span className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
@@ -132,13 +130,11 @@ const ProjectDetailTOC: React.FC<ProjectDetailTOCProps> = ({
           <span className={`px-2 py-1 rounded-full text-xs font-medium ${
             project.type === 'BUILD' ? 'bg-red-100 text-red-800' :
             project.type === 'LAB' ? 'bg-orange-100 text-orange-800' :
-            project.type === 'MAINTENANCE' ? 'bg-green-100 text-green-800' :
-            project.type === 'certification' ? 'bg-indigo-100 text-indigo-800' : 'bg-gray-100 text-gray-800'
+            project.type === 'MAINTENANCE' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
           }`}>
             {project.type === 'BUILD' ? 'BUILD' :
              project.type === 'LAB' ? 'LAB' :
-             project.type === 'MAINTENANCE' ? 'MAINTENANCE' :
-             project.type === 'certification' ? '자격증' : project.type}
+             project.type === 'MAINTENANCE' ? 'MAINTENANCE' : project.type}
           </span>
           {project.status && (
             <span className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
