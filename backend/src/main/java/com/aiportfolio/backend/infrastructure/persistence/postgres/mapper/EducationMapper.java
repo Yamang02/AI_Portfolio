@@ -2,10 +2,13 @@ package com.aiportfolio.backend.infrastructure.persistence.postgres.mapper;
 
 // 도메인 모델 imports
 import com.aiportfolio.backend.domain.portfolio.model.Education;
+import com.aiportfolio.backend.domain.portfolio.model.TechStackMetadata;
 import com.aiportfolio.backend.domain.portfolio.model.enums.EducationType;
 
 // 인프라 레이어 imports
 import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.EducationJpaEntity;
+import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.TechStackMetadataJpaEntity;
+import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.EducationTechStackJpaEntity;
 
 // 외부 라이브러리 imports
 import org.springframework.stereotype.Component;
@@ -19,6 +22,12 @@ import java.util.stream.Collectors;
  */
 @Component
 public class EducationMapper {
+    
+    private final TechStackMetadataMapper techStackMetadataMapper;
+    
+    public EducationMapper(TechStackMetadataMapper techStackMetadataMapper) {
+        this.techStackMetadataMapper = techStackMetadataMapper;
+    }
     
     /**
      * JPA 엔티티를 도메인 모델로 변환
@@ -36,7 +45,13 @@ public class EducationMapper {
                 .startDate(jpaEntity.getStartDate())
                 .endDate(jpaEntity.getEndDate())
                 .type(parseEducationType(jpaEntity.getType()))
-                .technologies(jpaEntity.getTechnologies())
+                .techStackMetadata(techStackMetadataMapper.toDomainList(
+                    jpaEntity.getEducationTechStacks() != null ? 
+                    jpaEntity.getEducationTechStacks().stream()
+                        .map(EducationTechStackJpaEntity::getTechStack)
+                        .collect(java.util.stream.Collectors.toList()) : 
+                    new java.util.ArrayList<>()
+                ))
                 .projects(jpaEntity.getProjects())
                 .build();
     }
@@ -57,7 +72,7 @@ public class EducationMapper {
                 .startDate(domainModel.getStartDate())
                 .endDate(domainModel.getEndDate())
                 .type(domainModel.getType() != null ? domainModel.getType().name() : null)
-                .technologies(domainModel.getTechnologies())
+                .educationTechStacks(new java.util.ArrayList<>()) // 관계 테이블은 별도로 관리
                 .projects(domainModel.getProjects())
                 .sortOrder(0) // 기본값
                 .build();

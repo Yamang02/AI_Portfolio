@@ -1,5 +1,5 @@
 import React from 'react';
-import { Project, Experience, Education, HistoryItem } from '../types';
+import { Project, Experience, Education } from '../types';
 import { safeSplit, safeIncludes } from '../../../shared/utils/safeStringUtils';
 
 interface HistoryPanelProps {
@@ -96,13 +96,6 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
     return `${year}.${month}`;
   };
 
-  // 타임라인 위치 계산 (상단이 최신)
-  const getPosition = (date: Date): number => {
-    const totalDuration = timelineEndExtended.getTime() - timelineStart.getTime();
-    const position = date.getTime() - timelineStart.getTime();
-    // 상단이 최신이 되도록 역순으로 계산
-    return 100 - (position / totalDuration) * 100;
-  };
 
   // 타임라인에 표시할 날짜들 생성 (3개월 간격)
   const generateTimelineDates = (): Date[] => {
@@ -154,7 +147,7 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
   };
 
   // 스마트 title 위치 조정
-  const getSmartTitleOffset = (itemId: string, centerY: number, type: 'project' | 'experience' | 'education') => {
+  const getSmartTitleOffset = (itemId: string) => {
     // 모든 title 위치를 수집
     const allTitlePositions: Array<{id: string, y: number, type: string}> = [];
     
@@ -210,12 +203,33 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
   }, [scrollToItemId]);
 
   // 바 아이템 렌더링 (px 단위)
-  const renderBarItem = (item: any, type: 'project' | 'experience' | 'education', index: number) => {
+  // 프로젝트 상태에 따른 바 너비 계산 (간단)
+  const getBarWidth = (item: any, type: 'project' | 'experience' | 'education') => {
+    if (type !== 'project') {
+      return 'w-8'; // 경험, 교육은 기본 너비
+    }
+
+    const status = item.status || 'completed'; // 기본값으로 'completed' 설정
+
+    // 상태별 너비 구분
+    if (status === 'in_progress') {
+      return 'w-2'; // 진행중: 얇은 선
+    } else if (status === 'completed') {
+      return 'w-8'; // 완료: 굵은 선
+    } else if (status === 'maintenance') {
+      return 'w-4'; // 유지보수: 중간 너비
+    } else {
+      return 'w-4'; // 기타 상태: 중간 너비
+    }
+  };
+
+  const renderBarItem = (item: any, type: 'project' | 'experience' | 'education') => {
     const startDate = parseDate(item.startDate);
     const endDate = item.endDate ? parseDate(item.endDate) : timelineEnd;
     const startPx = getPxPosition(startDate);
     const endPx = getPxPosition(endDate);
     const barHeight = Math.max(Math.abs(endPx - startPx), 20);
+    const barWidthClass = getBarWidth(item, type);
     const isHighlighted = highlightedItemId === item.id;
     const isOngoing = !item.endDate;
     const cardId = type === 'project' ? `project-${item.id}` : type === 'experience' ? `experience-${item.id}` : `education-${item.id}`;
@@ -228,7 +242,7 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
     };
     
     const barLeft = getBarLeft(type);
-    const titleOffset = getSmartTitleOffset(item.id, isOngoing ? startPx / 2 : (startPx + endPx) / 2, type);
+    const titleOffset = getSmartTitleOffset(item.id);
 
     if (isOngoing) {
       // 진행 중: 바 대신 색이 있는 선 (top: 0, height: startPx)
@@ -254,7 +268,7 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
             <div
               className={`w-1 h-full transition-all duration-200 ${
                 isHighlighted ? (
-                  type === 'project' ? 'bg-blue-400' : 
+                  type === 'project' ? 'bg-blue-400' :
                   type === 'experience' ? 'bg-orange-400' : 'bg-green-400'
                 ) : 'bg-gray-300 hover:bg-gray-500'
               }`}
@@ -302,7 +316,7 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
         >
           <div
             id={`history-bar-${item.id}`}
-            className={`w-8 mx-auto transition-all duration-300 cursor-pointer ${
+            className={`${barWidthClass} mx-auto transition-all duration-300 cursor-pointer ${
               isHighlighted ? (
                 type === 'project'
                   ? 'bg-blue-600 shadow-lg'
@@ -378,19 +392,19 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
                 );
               })}
               {/* 바 렌더링 순서: 교육 → 경력 → 프로젝트 */}
-              {educations.map((education, index) => (
+              {educations.map((education) => (
                 <React.Fragment key={`education-${education.id}`}>
-                  {renderBarItem(education, 'education', index)}
+                  {renderBarItem(education, 'education')}
                 </React.Fragment>
               ))}
-              {experiences.map((experience, index) => (
+              {experiences.map((experience) => (
                 <React.Fragment key={`experience-${experience.id}`}>
-                  {renderBarItem(experience, 'experience', index)}
+                  {renderBarItem(experience, 'experience')}
                 </React.Fragment>
               ))}
-              {projects.map((project, index) => (
+              {projects.map((project) => (
                 <React.Fragment key={`project-${project.id}`}>
-                  {renderBarItem(project, 'project', index)}
+                  {renderBarItem(project, 'project')}
                 </React.Fragment>
               ))}
             </div>

@@ -6,7 +6,7 @@ import EducationCard from './EducationCard';
 import CertificationCard from './CertificationCard';
 import HistoryPanel from './HistoryPanel';
 import PanelToggle from './PanelToggle';
-import { ProjectModal } from '../../../shared/components/Modal';
+import ProjectFilter, { FilterOptions } from './ProjectFilter';
 import { SkeletonSection } from '../../../shared/components/SkeletonCard';
 
 interface PortfolioSectionProps {
@@ -35,8 +35,114 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
 }) => {
   const [highlightedItemId, setHighlightedItemId] = React.useState<string | undefined>();
   const [longHoveredItemId, setLongHoveredItemId] = React.useState<string | undefined>();
-  const [selectedProject, setSelectedProject] = React.useState<Project | null>(null);
-  const [isProjectModalOpen, setIsProjectModalOpen] = React.useState(false);
+  const [filteredProjects, setFilteredProjects] = React.useState<Project[]>(projects);
+  const [isFilterSectionOpen, setIsFilterSectionOpen] = React.useState(false); // 기본값: 닫힘
+  
+  // 필터 상태를 상위 컴포넌트에서 관리
+  const [filterOptions, setFilterOptions] = React.useState<FilterOptions>({
+    searchQuery: '',
+    isTeam: 'all',
+    projectType: 'all',
+    status: 'all',
+    selectedTechs: [],
+    sortBy: 'startDate',
+    sortOrder: 'desc'
+  });
+
+  // 필터링 및 정렬 로직
+  const applyFilters = React.useCallback((filterOptions: FilterOptions) => {
+    // 자격증을 제외하고 프로젝트만 필터링
+    let filtered = [...projects].filter(project => project.type !== 'certification');
+
+    // 검색 필터 (프로젝트명 기반)
+    if (filterOptions.searchQuery.trim()) {
+      const query = filterOptions.searchQuery.toLowerCase().trim();
+      filtered = filtered.filter(project =>
+        project.title.toLowerCase().includes(query)
+      );
+    }
+
+    // 팀/개인 필터
+    if (filterOptions.isTeam !== 'all') {
+      filtered = filtered.filter(project =>
+        filterOptions.isTeam === 'team' ? project.isTeam : !project.isTeam
+      );
+    }
+
+    // 프로젝트 타입 필터
+    if (filterOptions.projectType !== 'all') {
+      filtered = filtered.filter(project =>
+        project.type === filterOptions.projectType
+      );
+    }
+
+    // 상태 필터 - 대소문자 구분 없이 비교
+    if (filterOptions.status !== 'all') {
+      filtered = filtered.filter(project => {
+        return project.status?.toLowerCase() === filterOptions.status.toLowerCase();
+      });
+    }
+
+    // 기술 스택 필터 (배열 기반)
+    if (filterOptions.selectedTechs.length > 0) {
+      filtered = filtered.filter(project =>
+        filterOptions.selectedTechs.some(selectedTech =>
+          project.technologies?.some(tech =>
+            tech.toLowerCase().includes(selectedTech.toLowerCase())
+          )
+        )
+      );
+    }
+
+    // 정렬
+    filtered.sort((a, b) => {
+      let compareValue = 0;
+
+      switch (filterOptions.sortBy) {
+        case 'startDate':
+          const startDateA = new Date(a.startDate);
+          const startDateB = new Date(b.startDate);
+          compareValue = startDateA.getTime() - startDateB.getTime();
+          break;
+        case 'endDate':
+          // 종료일 기준 정렬 - null인 경우(진행중) 현재 날짜로 처리
+          const endDateA = a.endDate ? new Date(a.endDate) : new Date();
+          const endDateB = b.endDate ? new Date(b.endDate) : new Date();
+          compareValue = endDateA.getTime() - endDateB.getTime();
+          break;
+        case 'title':
+          compareValue = a.title.localeCompare(b.title);
+          break;
+        case 'status':
+          const statusA = a.status || 'completed';
+          const statusB = b.status || 'completed';
+          compareValue = statusA.localeCompare(statusB);
+          break;
+        case 'sortOrder':
+          const orderA = a.sortOrder || 0;
+          const orderB = b.sortOrder || 0;
+          compareValue = orderA - orderB;
+          break;
+        case 'type':
+          const typeA = a.type || '';
+          const typeB = b.type || '';
+          compareValue = typeA.localeCompare(typeB);
+          break;
+        default:
+          compareValue = 0;
+      }
+
+      return filterOptions.sortOrder === 'asc' ? compareValue : -compareValue;
+    });
+
+    return filtered;
+  }, [projects]);
+
+  // 필터 옵션이 변경될 때 필터링 적용
+  React.useEffect(() => {
+    const filteredProjects = applyFilters(filterOptions);
+    setFilteredProjects(filteredProjects);
+  }, [filterOptions, applyFilters]);
 
   // 아이템 하이라이트 처리
   const handleItemHover = (itemId?: string) => {
@@ -48,17 +154,6 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
     setLongHoveredItemId(itemId);
   };
 
-  // 프로젝트 카드 클릭 시
-  const handleProjectCardClick = (project: Project) => {
-    setSelectedProject(project);
-    setIsProjectModalOpen(true);
-  };
-
-  // 모달 닫기
-  const handleProjectModalClose = () => {
-    setIsProjectModalOpen(false);
-    setSelectedProject(null);
-  };
 
   return (
     <section id="portfolio">
@@ -71,7 +166,38 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
 
       {/* 프로젝트 영역 */}
       <div id="project" className="mb-12 scroll-mt-20">
-        <h3 className="text-[1.95rem] font-semibold text-black mb-[2.25rem]">프로젝트</h3>
+        <div className="flex items-center gap-3 mb-[2.25rem]">
+          <h3 className="text-[1.95rem] font-semibold text-black">프로젝트</h3>
+          <button
+            onClick={() => setIsFilterSectionOpen(!isFilterSectionOpen)}
+            className={`p-2 border rounded-md transition-all duration-200 ${
+              isFilterSectionOpen 
+                ? 'bg-blue-50 border-blue-300 text-blue-600 shadow-sm' 
+                : 'bg-white border-gray-300 text-gray-500 hover:text-gray-700 hover:bg-gray-50 hover:border-gray-400'
+            }`}
+            title={isFilterSectionOpen ? '필터 섹션 닫기' : '필터 섹션 열기'}
+          >
+            <svg 
+              className="w-5 h-5" 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+            </svg>
+          </button>
+        </div>
+        
+        {/* 필터링 컴포넌트 - 조건부 렌더링 */}
+        {isFilterSectionOpen && (
+          <ProjectFilter
+            projects={projects}
+            filterOptions={filterOptions}
+            onFilterOptionsChange={setFilterOptions}
+          />
+        )}
+
+        {/* 프로젝트 그리드 - 항상 렌더링 */}
         {loadingStates.projects ? (
           <SkeletonSection title="" count={3} />
         ) : projects.length === 0 ? (
@@ -80,19 +206,43 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
             <p className="text-gray-500 text-lg">프로젝트가 없습니다.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {projects.map(project => (
-              <ProjectCard
-                key={project.id}
-                project={project}
-                onMouseEnter={() => handleItemHover(project.id)}
-                onMouseLeave={() => handleItemHover(undefined)}
-                isHighlighted={highlightedItemId === project.id}
-                onLongHover={handleLongHover}
-                onClick={handleProjectCardClick}
-              />
-            ))}
-          </div>
+          <>
+
+            {/* 프로젝트 그리드 */}
+            {filteredProjects.length === 0 ? (
+              <div className="text-center py-12">
+                <div className="text-gray-400 text-6xl mb-4">🔍</div>
+                <p className="text-gray-500 text-lg">필터 조건에 맞는 프로젝트가 없습니다.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {/* 필터링된 프로젝트들 */}
+                {filteredProjects.map(project => (
+                  <ProjectCard
+                    key={project.id}
+                    project={project}
+                    onMouseEnter={() => handleItemHover(project.id)}
+                    onMouseLeave={() => handleItemHover(undefined)}
+                    isHighlighted={highlightedItemId === project.id}
+                    onLongHover={handleLongHover}
+                  />
+                ))}
+                {/* 자격증들은 필터와 관계없이 항상 표시 */}
+                {projects
+                  .filter(project => project.type === 'certification')
+                  .map(project => (
+                    <ProjectCard
+                      key={project.id}
+                      project={project}
+                      onMouseEnter={() => handleItemHover(project.id)}
+                      onMouseLeave={() => handleItemHover(undefined)}
+                      isHighlighted={highlightedItemId === project.id}
+                      onLongHover={handleLongHover}
+                    />
+                  ))}
+              </div>
+            )}
+          </>
         )}
       </div>
 
@@ -188,11 +338,6 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
       <PanelToggle
         isOpen={isHistoryPanelOpen}
         onToggle={onHistoryPanelToggle}
-      />
-      <ProjectModal
-        isOpen={isProjectModalOpen}
-        onClose={handleProjectModalClose}
-        project={selectedProject}
       />
     </section>
   );

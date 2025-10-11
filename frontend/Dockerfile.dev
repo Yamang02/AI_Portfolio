@@ -1,5 +1,5 @@
 # Development Dockerfile for React Frontend
-FROM node:18-alpine
+FROM node:20-alpine
 
 # Set working directory
 WORKDIR /app
@@ -16,5 +16,5 @@ COPY . .
 # Expose port
 EXPOSE 3000
 
-# Development command with hot reload
-CMD ["npm", "run", "dev"]
+# Development command with dependency check and hot reload
+CMD sh -c "npm install && npm run dev"

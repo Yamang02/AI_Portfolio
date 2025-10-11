@@ -6,20 +6,20 @@
   "scripts": {
     "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
     "dev:frontend": "cd frontend && npm run dev",
-    "dev:backend": "dotenv -e backend/.env.local -- mvn -f backend/pom.xml compile exec:java -Dexec.mainClass=com.aiportfolio.backend.BackendApplication",
+    "dev:backend": "dotenv -e backend/.env.local -- mvnd -f backend/pom.xml compile exec:java -Dexec.mainClass=com.aiportfolio.backend.BackendApplication",
     "build": "npm run build:frontend && npm run build:backend",
     "build:frontend": "cd frontend && npm run build",
-    "build:backend": "cd backend && mvn clean package",
+    "build:backend": "cd backend && mvnd clean package",
     "start": "concurrently \"npm run start:frontend\" \"npm run start:backend\"",
     "start:frontend": "cd frontend && npm run preview",
     "start:backend": "cd backend && java -jar target/ai-portfolio-backend-1.0.0.jar",
-    "install:all": "npm install && cd frontend && npm install && cd ../backend && mvn clean install",
+    "install:all": "npm install && cd frontend && npm install && cd ../backend && mvnd clean install",
     "clean": "npm run clean:frontend && npm run clean:backend",
     "clean:frontend": "cd frontend && rm -rf dist node_modules",
-    "clean:backend": "cd backend && mvn clean",
+    "clean:backend": "cd backend && mvnd clean",
     "test": "npm run test:frontend && npm run test:backend",
     "test:frontend": "cd frontend && npm run test",
-    "test:backend": "cd backend && mvn test"
+    "test:backend": "cd backend && mvnd test"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",

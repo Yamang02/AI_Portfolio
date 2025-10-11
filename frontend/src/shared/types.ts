@@ -5,5 +5,6 @@ export type {
   Education, 
   Certification,
   ProjectType,
+  ProjectCategory,
   ProjectSource 
 } from '../entities'; 

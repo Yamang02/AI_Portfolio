@@ -11,6 +11,9 @@ export interface BaseItem {
   };
 }
 
+// 프로젝트 구체적 타입 정의
+export type ProjectCategory = 'BUILD' | 'LAB' | 'MAINTENANCE';
+
 // 프로젝트 인터페이스 (GitHub + 로컬 + 자격증 통합)
 export interface Project extends BaseItem {
   githubUrl?: string;
@@ -18,7 +21,9 @@ export interface Project extends BaseItem {
   readme: string;
   imageUrl: string;
   source: 'github' | 'local' | 'certification';
-  type: 'project' | 'certification';
+  type: ProjectCategory;
+  status?: string; // 프로젝트 상태 (completed, in_progress, maintenance 등)
+  sortOrder?: number; // 정렬 순서
   // 자격증 전용 필드들
   issuer?: string;
   externalUrl?: string;
@@ -27,4 +32,5 @@ export interface Project extends BaseItem {
   myContributions?: string[]; // 내가 맡은 역할/기여
   teamSize?: number; // 팀원 수(선택)
   role?: string; // 내 역할(선택)
+  screenshots?: string[]; // 추가 스크린샷 URL 배열
 }

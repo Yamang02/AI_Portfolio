@@ -1,10 +1,8 @@
 import React from 'react';
-import Header from './Header';
-import HeroSection from './HeroSection';
-import { PortfolioSection } from '../../../features/projects';
-import { Chatbot } from '../../../features/chatbot';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import HomePage from './HomePage';
+import ProjectDetailPage from '../../../pages/ProjectDetail/ProjectDetailPage';
 import { useApp } from '../../providers';
-
 const App: React.FC = () => {
   const {
     projects,
@@ -19,6 +17,13 @@ const App: React.FC = () => {
     setChatbotOpen,
     setHistoryPanelOpen
   } = useApp();
+
+  // React Router의 기본 스크롤 복원 비활성화
+  React.useEffect(() => {
+    if ('scrollRestoration' in history) {
+      history.scrollRestoration = 'manual';
+    }
+  }, []);
 
   // 챗봇 토글
   const handleChatbotToggle = () => {
@@ -49,22 +54,31 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white text-gray-700 font-sans">
-      <Header />
-      <HeroSection />
-      <main className="container mx-auto px-4 py-8 md:py-12">
-        <PortfolioSection 
-          projects={projects} 
-          experiences={experiences}
-          educations={educations}
-          certifications={certifications}
-          loadingStates={loadingStates}
-          isHistoryPanelOpen={isHistoryPanelOpen}
-          onHistoryPanelToggle={handleHistoryPanelToggle}
-        />
-      </main>
-      <Chatbot isOpen={isChatbotOpen} onToggle={handleChatbotToggle} showProjectButtons={isWideScreen} />
-    </div>
+    <Router>
+      <div className="min-h-screen bg-white text-gray-700 font-sans">
+        <Routes>
+          {/* 홈 페이지 */}
+          <Route path="/" element={
+            <HomePage
+              projects={projects}
+              experiences={experiences}
+              educations={educations}
+              certifications={certifications}
+              isLoading={isLoading}
+              loadingStates={loadingStates}
+              isChatbotOpen={isChatbotOpen}
+              isHistoryPanelOpen={isHistoryPanelOpen}
+              isWideScreen={isWideScreen}
+              onChatbotToggle={handleChatbotToggle}
+              onHistoryPanelToggle={handleHistoryPanelToggle}
+            />
+          } />
+          
+          {/* 프로젝트 상세 페이지 */}
+          <Route path="/projects/:id" element={<ProjectDetailPage />} />
+        </Routes>
+      </div>
+    </Router>
   );
 };
 

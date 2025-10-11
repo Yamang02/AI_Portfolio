@@ -183,6 +183,27 @@ class ApiClient {
     }>('/api/chat/status');
     return response.data || { dailyCount: 0, hourlyCount: 0, timeUntilReset: 0, isBlocked: false };
   }
+
+  // 기술 스택 API
+  async getTechStacks(): Promise<any[]> {
+    const response = await this.request<any[]>('/api/tech-stack');
+    return response.data || [];
+  }
+
+  async getCoreTechStacks(): Promise<any[]> {
+    const response = await this.request<any[]>('/api/tech-stack/core');
+    return response.data || [];
+  }
+
+  async getTechStackByName(name: string): Promise<any> {
+    const response = await this.request<any>(`/api/tech-stack/${name}`);
+    return response.data;
+  }
+
+  async getTechStacksByCategory(category: string): Promise<any[]> {
+    const response = await this.request<any[]>(`/api/tech-stack/category/${category}`);
+    return response.data || [];
+  }
 }
 
 // 싱글톤 인스턴스 생성

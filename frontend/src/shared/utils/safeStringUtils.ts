@@ -87,13 +87,31 @@ export const safeToLowerCase = (str: unknown): string => {
   if (!str || typeof str !== 'string') {
     return String(str || '');
   }
-  
+
   try {
     return str.toLowerCase();
   } catch (error) {
     console.error('safeToLowerCase: Error converting to lowercase', error);
     return String(str);
   }
+};
+
+/**
+ * 시작일과 종료일을 포맷팅하여 범위 문자열을 반환합니다
+ * @param startDate - 시작일 (YYYY-MM 형식)
+ * @param endDate - 종료일 (YYYY-MM 형식, null이면 '현재')
+ * @param separator - 구분자 (기본값: ' ~ ')
+ * @returns 포맷된 날짜 범위 문자열 (예: '2023.01 ~ 2024.03' 또는 '2023.01 ~ 현재')
+ */
+export const formatDateRange = (
+  startDate: unknown,
+  endDate?: unknown | null,
+  separator: string = ' ~ '
+): string => {
+  const formattedStart = safeFormatDate(startDate);
+  const formattedEnd = endDate ? safeFormatDate(endDate) : '현재';
+
+  return `${formattedStart}${separator}${formattedEnd}`;
 };
 
 

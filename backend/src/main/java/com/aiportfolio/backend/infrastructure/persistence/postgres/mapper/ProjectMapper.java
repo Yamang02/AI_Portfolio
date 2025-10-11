@@ -2,10 +2,12 @@ package com.aiportfolio.backend.infrastructure.persistence.postgres.mapper;
 
 // 도메인 모델 imports
 import com.aiportfolio.backend.domain.portfolio.model.Project;
-import com.aiportfolio.backend.domain.portfolio.model.enums.ProjectType;
+import com.aiportfolio.backend.domain.portfolio.model.TechStackMetadata;
 
 // 인프라 레이어 imports
 import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.ProjectJpaEntity;
+import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.TechStackMetadataJpaEntity;
+import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.ProjectTechStackJpaEntity;
 
 // 외부 라이브러리 imports
 import org.springframework.stereotype.Component;
@@ -21,6 +23,12 @@ import java.util.stream.Collectors;
 @Component
 public class ProjectMapper {
     
+    private final TechStackMetadataMapper techStackMetadataMapper;
+    
+    public ProjectMapper(TechStackMetadataMapper techStackMetadataMapper) {
+        this.techStackMetadataMapper = techStackMetadataMapper;
+    }
+    
     /**
      * JPA 엔티티를 도메인 모델로 변환
      * @param jpaEntity JPA 엔티티
@@ -35,18 +43,28 @@ public class ProjectMapper {
                 .id(jpaEntity.getBusinessId()) // business_id → domain.id
                 .title(jpaEntity.getTitle())
                 .description(jpaEntity.getDescription())
-                .technologies(jpaEntity.getTechnologies())
+                .techStackMetadata(techStackMetadataMapper.toDomainList(
+                    jpaEntity.getProjectTechStacks() != null ? 
+                    jpaEntity.getProjectTechStacks().stream()
+                        .map(ProjectTechStackJpaEntity::getTechStack)
+                        .collect(java.util.stream.Collectors.toList()) : 
+                    new java.util.ArrayList<>()
+                ))
                 .githubUrl(jpaEntity.getGithubUrl())
                 .liveUrl(jpaEntity.getLiveUrl())
                 .imageUrl(jpaEntity.getImageUrl())
                 .readme(jpaEntity.getReadme())
-                .type(parseProjectType(jpaEntity.getType()))
+                .type(jpaEntity.getType())
                 .source(jpaEntity.getSource())
+                .status(jpaEntity.getStatus())
+                .sortOrder(jpaEntity.getSortOrder())
                 .startDate(jpaEntity.getStartDate())
                 .endDate(jpaEntity.getEndDate())
                 .isTeam(jpaEntity.getIsTeam() != null ? jpaEntity.getIsTeam() : false)
                 .externalUrl(jpaEntity.getExternalUrl())
                 .myContributions(jpaEntity.getMyContributions())
+                .role(jpaEntity.getRole())
+                .screenshots(jpaEntity.getScreenshots())
                 .build();
     }
     
@@ -64,20 +82,22 @@ public class ProjectMapper {
                 .businessId(domainModel.getId()) // domain.id → business_id
                 .title(domainModel.getTitle())
                 .description(domainModel.getDescription())
-                .technologies(domainModel.getTechnologies())
+                .projectTechStacks(new java.util.ArrayList<>()) // 관계 테이블은 별도로 관리
                 .githubUrl(domainModel.getGithubUrl())
                 .liveUrl(domainModel.getLiveUrl())
                 .imageUrl(domainModel.getImageUrl())
                 .readme(domainModel.getReadme())
-                .type(domainModel.getType() != null ? domainModel.getType().name() : null)
+                .type(domainModel.getType())
                 .source(domainModel.getSource())
+                .status(domainModel.getStatus() != null ? domainModel.getStatus() : "completed")
+                .sortOrder(domainModel.getSortOrder() != null ? domainModel.getSortOrder() : 0)
                 .startDate(domainModel.getStartDate())
                 .endDate(domainModel.getEndDate())
                 .isTeam(domainModel.isTeam())
                 .externalUrl(domainModel.getExternalUrl())
                 .myContributions(domainModel.getMyContributions())
-                .status("completed") // 기본값
-                .sortOrder(0) // 기본값
+                .role(domainModel.getRole())
+                .screenshots(domainModel.getScreenshots())
                 .build();
     }
     
@@ -111,21 +131,4 @@ public class ProjectMapper {
                 .collect(Collectors.toList());
     }
     
-    /**
-     * 문자열을 ProjectType enum으로 변환
-     * @param typeString 타입 문자열
-     * @return ProjectType enum
-     */
-    private ProjectType parseProjectType(String typeString) {
-        if (typeString == null || typeString.trim().isEmpty()) {
-            return null;
-        }
-        
-        try {
-            return ProjectType.valueOf(typeString.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            // 알 수 없는 타입인 경우 기본값 반환 또는 null
-            return null;
-        }
-    }
 }

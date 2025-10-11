@@ -1,6 +1,8 @@
 import React from 'react';
 import { Experience } from '../types';
-import { safeFormatDate } from '../../../shared/utils/safeStringUtils';
+import { formatDateRange } from '../../../shared/utils/safeStringUtils';
+import { SimpleTechStackList } from '../../../shared/components/TechStack';
+import { useCardHover } from '../../../shared/hooks';
 
 interface ExperienceCardProps {
   experience: Experience;
@@ -10,36 +12,26 @@ interface ExperienceCardProps {
   onLongHover?: (id: string) => void;
 }
 
-const ExperienceCard: React.FC<ExperienceCardProps> = ({ experience, onMouseEnter, onMouseLeave, isHighlighted, onLongHover }) => {
-  const timerRef = React.useRef<NodeJS.Timeout | null>(null);
-
-                const handleMouseEnter = () => {
-                onMouseEnter?.();
-                timerRef.current = setTimeout(() => {
-                  onLongHover?.(experience.id);
-                }, 500);
-              };
-
-  const handleMouseLeave = () => {
-    onMouseLeave?.();
-    if (timerRef.current) clearTimeout(timerRef.current);
-  };
-
-  const formatDate = (date: string) => {
-    return safeFormatDate(date);
-  };
-
-  const formatDateRange = () => {
-    const startDate = formatDate(experience.startDate);
-    const endDate = experience.endDate ? formatDate(experience.endDate) : '현재';
-    return `${startDate} - ${endDate}`;
-  };
+const ExperienceCard: React.FC<ExperienceCardProps> = ({
+  experience,
+  onMouseEnter,
+  onMouseLeave,
+  isHighlighted,
+  onLongHover
+}) => {
+  // 공통 hover 로직 사용
+  const { handleMouseEnter, handleMouseLeave } = useCardHover(
+    experience.id,
+    onMouseEnter,
+    onMouseLeave,
+    onLongHover
+  );
 
   return (
-    <div 
+    <div
       id={`experience-${experience.id}`}
       className={`
-        bg-white rounded-lg shadow-md p-6 border border-gray-200 
+        bg-white rounded-lg shadow-md p-6 border border-gray-200
         transition-all duration-200 hover:shadow-lg hover:scale-105 hover:shadow-orange-200
         ${isHighlighted ? 'ring-2 ring-orange-400 shadow-lg scale-105' : ''}
       `}
@@ -63,7 +55,7 @@ const ExperienceCard: React.FC<ExperienceCardProps> = ({ experience, onMouseEnte
         </div>
         <div className="flex flex-col items-end">
           <span className="text-xs text-gray-500">
-            {formatDateRange()}
+            {formatDateRange(experience.startDate, experience.endDate, ' - ')}
           </span>
         </div>
       </div>
@@ -75,16 +67,10 @@ const ExperienceCard: React.FC<ExperienceCardProps> = ({ experience, onMouseEnte
 
       {/* 기술 스택 */}
       {experience.technologies && experience.technologies.length > 0 && (
-        <div className="flex flex-wrap gap-1 mb-4">
-          {experience.technologies.map((tech, index) => (
-            <span 
-              key={index}
-              className="inline-block bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded border border-gray-200"
-            >
-              {tech}
-            </span>
-          ))}
-        </div>
+        <SimpleTechStackList
+          technologies={experience.technologies}
+          className="mb-4"
+        />
       )}
 
       {/* 위치 정보 */}
@@ -100,4 +86,4 @@ const ExperienceCard: React.FC<ExperienceCardProps> = ({ experience, onMouseEnte
   );
 };
 
-export default ExperienceCard; 
+export default ExperienceCard;

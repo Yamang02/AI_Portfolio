@@ -1,0 +1,1 @@
+export { TechStackBadge } from './TechStackBadge';

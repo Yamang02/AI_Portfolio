@@ -1,5 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Project } from '../../../features/projects/types';
+import { useTOC, useActiveSection } from '../../../features/projects/hooks';
+import ProjectModalTOC from './ProjectModalTOC';
+import ProjectModalHeader from './ProjectModalHeader';
+import ProjectModalContent from './ProjectModalContent';
+import ProjectModalInfoSidebar from './ProjectModalInfoSidebar';
 
 interface ProjectModalProps {
   isOpen: boolean;
@@ -8,6 +13,18 @@ interface ProjectModalProps {
 }
 
 const ProjectModal: React.FC<ProjectModalProps> = ({ isOpen, onClose, project }) => {
+  const [isTOCOpen, setIsTOCOpen] = useState(false); // 모바일에서만 사용
+  const [isInfoOpen, setIsInfoOpen] = useState(false);
+  
+  // 마크다운 컨텐츠 결정 (readme 우선, 없으면 description)
+  const markdownContent = project?.readme || project?.description || '';
+  
+  // TOC 생성 (항상 호출되어야 함)
+  const tocItems = useTOC(markdownContent);
+  
+  // 현재 활성 섹션 추적 (항상 호출되어야 함)
+  const activeSection = useActiveSection(tocItems);
+  
   if (!isOpen || !project) return null;
 
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -16,68 +33,138 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ isOpen, onClose, project })
     }
   };
 
+  const handleTOCClose = () => {
+    setIsTOCOpen(false);
+  };
+
+  const handleTOCOpen = () => {
+    setIsTOCOpen(true);
+  };
+
+  const handleInfoClose = () => {
+    setIsInfoOpen(false);
+  };
+
+  const handleInfoOpen = () => {
+    setIsInfoOpen(true);
+  };
+
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40" onClick={handleOverlayClick}>
-      <div className="bg-white rounded-lg shadow-lg w-full min-w-[320px] max-w-3xl mx-4 relative animate-fadeIn">
-        {/* 닫기 버튼 */}
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40" 
+      onClick={handleOverlayClick}
+    >
+      <div className="bg-white rounded-lg shadow-lg w-full min-w-[320px] max-w-7xl mx-4 h-[90vh] relative animate-fadeIn flex overflow-hidden p-4">
+        {/* 닫기 버튼 - 패딩 경계선에 걸치도록 */}
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-xl"
+          className="absolute -top-3 right-4 z-30 bg-black bg-opacity-60 hover:bg-opacity-80 text-white p-2 rounded-full shadow-lg transition-all duration-200"
           aria-label="닫기"
         >
-          ×
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
         </button>
-        <div className="p-10 flex flex-col items-center max-w-2xl mx-auto">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4 text-center break-words leading-tight">{project.title}</h2>
-          <p className="text-gray-600 text-center mb-8 text-base max-w-xl">{project.description}</p>
-          {project.technologies && project.technologies.length > 0 && (
-            <div className="flex flex-wrap justify-center gap-2 mb-8">
-              {project.technologies.map(tech => (
-                <span key={tech} className="px-3 py-1.5 min-w-[70px] rounded-full border bg-gray-100 text-gray-800 border-gray-200 text-xs font-medium text-center">
-                  {tech}
-                </span>
-              ))}
-            </div>
-          )}
-          <div className="flex justify-center gap-4 mt-4">
-            {/* 사이트 바로가기(liveUrl) */}
-            <a
-              href={project.liveUrl && project.liveUrl !== '#' ? project.liveUrl : undefined}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`inline-flex items-center px-4 py-2 rounded transition-colors text-sm font-medium ${project.liveUrl && project.liveUrl !== '#' ? 'bg-primary-600 text-white hover:bg-primary-700' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}
-              tabIndex={project.liveUrl && project.liveUrl !== '#' ? 0 : -1}
-              aria-disabled={!(project.liveUrl && project.liveUrl !== '#')}
-              title={project.liveUrl && project.liveUrl !== '#' ? '배포된 사이트로 이동' : '미배포 프로젝트 또는 liveUrl이 없는 프로젝트'}
-            >
-              사이트 바로가기
-            </a>
-            {/* GitHub */}
-            <a
-              href={project.githubUrl && project.githubUrl !== '#' ? project.githubUrl : undefined}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`inline-flex items-center px-4 py-2 rounded transition-colors text-sm font-medium ${project.githubUrl && project.githubUrl !== '#' ? 'bg-gray-900 text-white hover:bg-black' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}
-              tabIndex={project.githubUrl && project.githubUrl !== '#' ? 0 : -1}
-              aria-disabled={!(project.githubUrl && project.githubUrl !== '#')}
-              title={project.githubUrl && project.githubUrl !== '#' ? 'GitHub 저장소로 이동' : 'GitHub URL이 없는 프로젝트'}
-            >
-              GitHub
-            </a>
-            {/* Portfolio (externalUrl) */}
-            <a
-              href={project.externalUrl && project.externalUrl !== '#' ? project.externalUrl : undefined}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`inline-flex items-center px-4 py-2 rounded transition-colors text-sm font-medium ${project.externalUrl && project.externalUrl !== '#' ? 'bg-indigo-600 text-white hover:bg-indigo-700' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}
-              tabIndex={project.externalUrl && project.externalUrl !== '#' ? 0 : -1}
-              aria-disabled={!(project.externalUrl && project.externalUrl !== '#')}
-              title={project.externalUrl && project.externalUrl !== '#' ? '외부 포트폴리오로 이동' : '외부 포트폴리오가 없습니다. 궁금한 점은 AI 챗봇에게 문의하거나, 개발자에게 메일로 문의해 주세요.'}
-            >
-              Portfolio
-            </a>
+
+        {/* 내부 컨테이너 - 패딩된 영역에 테두리 적용 */}
+        <div className="flex-1 flex border border-gray-200 rounded-lg overflow-hidden">
+          {/* TOC 사이드바 (고정) */}
+          <div className="hidden lg:block flex-shrink-0">
+            <ProjectModalTOC
+              items={tocItems}
+              activeId={activeSection}
+              project={project}
+            />
+          </div>
+
+          {/* 메인 컨텐츠 영역 */}
+          <div className="flex-1 flex flex-col min-w-0">
+            {/* 헤더 */}
+            <ProjectModalHeader 
+              project={project} 
+              className="flex-shrink-0"
+            />
+            
+            {/* 컨텐츠 */}
+            <ProjectModalContent 
+              content={markdownContent}
+              project={project}
+              className="flex-1"
+            />
+          </div>
+
+          {/* 오른쪽 정보 사이드바 (고정) */}
+          <div className="hidden xl:block flex-shrink-0">
+            <ProjectModalInfoSidebar 
+              project={project}
+              className="flex-shrink-0"
+            />
           </div>
         </div>
+
+        {/* TOC 오버레이 (모바일/태블릿) */}
+        {isTOCOpen && (
+          <div className="lg:hidden fixed inset-0 z-60 bg-black bg-opacity-50">
+            <div className="absolute left-0 top-0 h-full w-80 max-w-[80vw]">
+              <ProjectModalTOC
+                items={tocItems}
+                activeId={activeSection}
+                onClose={handleTOCClose}
+                project={project}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* 정보 오버레이 (모바일/태블릿) */}
+        {isInfoOpen && (
+          <div className="xl:hidden fixed inset-0 z-60 bg-black bg-opacity-50">
+            <div className="absolute right-0 top-0 h-full w-80 max-w-[80vw]">
+              <div className="relative h-full">
+                <ProjectModalInfoSidebar 
+                  project={project}
+                  className="h-full"
+                />
+                <button
+                  onClick={handleInfoClose}
+                  className="absolute top-4 right-4 z-10 bg-white shadow-lg rounded-full p-2 text-gray-600 hover:text-gray-800 transition-colors"
+                  aria-label="정보 패널 닫기"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TOC 토글 버튼 (모바일/태블릿) */}
+        {!isTOCOpen && (
+          <button
+            onClick={handleTOCOpen}
+            className="lg:hidden fixed top-4 left-4 z-50 bg-white shadow-lg rounded-full p-3 text-gray-600 hover:text-gray-800 transition-colors"
+            aria-label="목차 열기"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+        )}
+
+        {/* 정보 토글 버튼 (모바일/태블릿) */}
+        {!isInfoOpen && (
+          <button
+            onClick={handleInfoOpen}
+            className="xl:hidden fixed top-4 right-4 z-50 bg-white shadow-lg rounded-full p-3 text-gray-600 hover:text-gray-800 transition-colors"
+            aria-label="프로젝트 정보 열기"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </button>
+        )}
       </div>
     </div>
   );
