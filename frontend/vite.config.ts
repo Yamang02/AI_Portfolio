@@ -28,7 +28,6 @@ export default defineConfig(({ mode }) => {
             // 청크 분리 최적화
             manualChunks: {
               'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-              'ui-vendor': ['framer-motion'],
             }
           }
         }

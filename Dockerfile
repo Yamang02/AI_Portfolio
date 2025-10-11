@@ -5,8 +5,7 @@ FROM maven:3.8.4-openjdk-17 AS backend-builder
 WORKDIR /app/backend
 
 # Maven 파일만 먼저 복사하여 의존성 캐싱
-COPY backend/pom.xml backend/mvnw ./
-COPY backend/.mvn .mvn
+COPY backend/pom.xml ./
 
 # 의존성 미리 다운로드 (Docker 레이어 캐싱 활용)
 RUN mvn dependency:go-offline -B
