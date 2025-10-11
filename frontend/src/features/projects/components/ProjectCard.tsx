@@ -1,22 +1,12 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Project } from '../types';
-import { safeFormatDate } from '../../../shared/utils/safeStringUtils';
-import {
-  DefaultProjectIcon,
-  CodeIcon,
-  WebIcon,
-  DesktopIcon,
-  AIIcon,
-  ExperienceIcon,
-  GithubIcon,
-  ExternalLinkIcon,
-  ProjectBadge,
-  ExperienceBadge,
-  ExperienceSmallIcon
-} from '../../../shared/components/icons/ProjectIcons';
-import { TechStackBadge } from '../../../shared/components/TechStackBadge/TechStackBadge';
-import { safeSplit, safeToLowerCase, safeIncludes } from '../../../shared/utils/safeStringUtils';
+import { formatDateRange } from '../../../shared/utils/safeStringUtils';
+import { getProjectIcon } from '../../../shared/utils/projectIconMapper';
+import { GithubIcon, ExternalLinkIcon } from '../../../shared/components/icons/ProjectIcons';
+import { TechStackList } from '../../../shared/components/TechStack';
+import { useCardHover } from '../../../shared/hooks';
+import { safeSplit } from '../../../shared/utils/safeStringUtils';
 
 interface ProjectCardProps {
   project: Project;
@@ -27,45 +17,23 @@ interface ProjectCardProps {
   onClick?: (project: Project) => void;
 }
 
-const ProjectCard: React.FC<ProjectCardProps> = ({ 
-  project, 
-  onMouseEnter, 
-  onMouseLeave, 
-  isHighlighted, 
+const ProjectCard: React.FC<ProjectCardProps> = ({
+  project,
+  onMouseEnter,
+  onMouseLeave,
+  isHighlighted,
   onLongHover,
-  onClick 
+  onClick
 }) => {
   const navigate = useNavigate();
-  const timerRef = React.useRef<NodeJS.Timeout | null>(null);
 
-  const handleMouseEnter = () => {
-    onMouseEnter?.();
-    timerRef.current = setTimeout(() => {
-      onLongHover?.(project.id);
-    }, 500);
-  };
-
-  const handleMouseLeave = () => {
-    onMouseLeave?.();
-    if (timerRef.current) clearTimeout(timerRef.current);
-  };
-
-  // 프로젝트 타입에 따른 아이콘 선택
-  const getProjectIcon = () => {
-    const title = safeToLowerCase(project.title);
-    const description = safeToLowerCase(project.description);
-    if (safeIncludes(title, 'ai') || safeIncludes(title, '챗봇') || safeIncludes(title, 'chatbot') || safeIncludes(description, 'ai') || safeIncludes(description, 'gemini')) {
-      return <AIIcon />;
-    } else if (safeIncludes(title, 'pyqt') || safeIncludes(title, '파일') || safeIncludes(title, 'file') || safeIncludes(description, '데스크톱') || safeIncludes(description, 'gui')) {
-      return <DesktopIcon />;
-    } else if (safeIncludes(title, '갤러리') || safeIncludes(title, '전시') || safeIncludes(title, 'art') || safeIncludes(description, '전시')) {
-      return <DefaultProjectIcon />;
-    } else if (safeIncludes(title, '웹') || safeIncludes(title, 'web') || safeIncludes(title, '사이트') || safeIncludes(description, '웹')) {
-      return <WebIcon />;
-    } else {
-      return <CodeIcon />;
-    }
-  };
+  // 공통 hover 로직 사용
+  const { handleMouseEnter, handleMouseLeave } = useCardHover(
+    project.id,
+    onMouseEnter,
+    onMouseLeave,
+    onLongHover
+  );
 
   // 프로젝트명 줄바꿈 처리
   const formatTitle = (title: string) => {
@@ -82,85 +50,6 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
       );
     }
     return title || '';
-  };
-
-  // 프로젝트 타입에 따른 배지
-  const getProjectBadge = () => {
-    return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-200 text-gray-700">프로젝트</span>;
-  };
-
-  // 프로젝트 타입에 따른 기술 스택 스타일
-  const getTechStackStyle = () => {
-    return 'bg-gray-100 text-gray-800 border-gray-200';
-  };
-
-  // 프로젝트 타입에 따른 링크 스타일
-  const getLinkStyle = () => {
-    return 'text-gray-800 hover:text-black';
-  };
-
-  // 기술스택을 TechStackMetadata 형태로 변환하는 함수
-  const convertToTechStackMetadata = (tech: string) => {
-    const lowerTech = tech.toLowerCase();
-    
-    // 카테고리 결정
-    let category: 'language' | 'framework' | 'database' | 'tool' | 'other' = 'other';
-    if (['java', 'javascript', 'python', 'c#', 'typescript'].includes(lowerTech)) {
-      category = 'language';
-    } else if (['spring boot', 'react', 'express.js', 'pyqt5', 'phaser.js', 'jsp', 'servlet'].includes(lowerTech)) {
-      category = 'framework';
-    } else if (['oracle', 'mysql', 'mongodb', 'redis', 'mssql'].includes(lowerTech)) {
-      category = 'database';
-    } else if (['git', 'docker', 'github actions', 'maven', 'cursor', 'selenium', 'beautifulsoup', 'yt-dlp', 'cloudinary', 'ejs', 'jquery', 'daypilot', 'chromedriver', 'pl/sql', 'svn', 'gitlab', 'sap', 'oracle forms', 'file system', 'gemini cli', 'cli', 'json', 'web scraping', 'requests', 'github pages'].includes(lowerTech)) {
-      category = 'tool';
-    }
-    
-    // 레벨 결정
-    let level: 'core' | 'general' | 'learning' = 'learning';
-    if (['java', 'spring boot', 'react', 'git', 'javascript'].includes(lowerTech)) {
-      level = 'core';
-    } else if (['python', 'mysql', 'docker', 'maven'].includes(lowerTech)) {
-      level = 'general';
-    }
-    
-    return {
-      name: tech,
-      displayName: tech,
-      category,
-      level,
-      isCore: level === 'core',
-      isActive: true,
-      colorHex: '#6b7280',
-      description: '',
-      sortOrder: 0,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-  };
-
-  // 기술스택 축약 로직
-  const renderTechStack = () => {
-    const max = 3;
-    const techs = project.technologies;
-    const shown = techs.slice(0, max);
-    const hiddenCount = techs.length - max;
-    return (
-      <>
-        {shown.map((tech, idx) => (
-          <TechStackBadge
-            key={tech}
-            tech={convertToTechStackMetadata(tech)}
-            variant="default"
-            size="sm"
-          />
-        ))}
-        {hiddenCount > 0 && (
-          <span className="inline-block text-xs font-medium px-3 py-1.5 rounded-full border bg-gray-200 text-gray-600 border-gray-300">
-            +{hiddenCount}
-          </span>
-        )}
-      </>
-    );
   };
 
   // 이미지 URL이 유효한지 확인
@@ -264,11 +153,11 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         {/* 아이콘 (이미지가 없거나 로드 실패 시 표시) */}
         <div className={`fallback-icon ${hasValidImage ? 'hidden' : ''} absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100`}>
           <span className="inline-block w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center text-gray-600 text-3xl font-bold shadow">
-            {getProjectIcon()}
+            {getProjectIcon(project.title, project.description)}
           </span>
         </div>
       </div>
-      
+
       {/* 본문 */}
       <div className="p-6 flex-grow flex flex-col">
         <h3 className="text-2xl font-extrabold text-gray-900 mb-4 leading-tight truncate" title={project.title}>
@@ -276,21 +165,28 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         </h3>
         <div className="border-b border-gray-200 mb-6"></div>
         <p className="text-gray-600 mb-6 text-sm flex-grow leading-relaxed min-h-[72px]">{project.description}</p>
-        <div className="mb-4 flex flex-wrap gap-2">
-          {renderTechStack()}
-        </div>
+
+        {/* 기술 스택 (TechStackList 컴포넌트 사용) */}
+        <TechStackList
+          technologies={project.technologies}
+          maxVisible={3}
+          variant="default"
+          size="sm"
+          className="mb-4"
+        />
+
         {/* 하단 정보 */}
         <div className="pt-4 border-t border-gray-200 mt-auto flex items-center justify-between">
           <span className="text-xs text-gray-500">
-            {safeFormatDate(project.startDate)} ~ {project.endDate ? safeFormatDate(project.endDate) : '현재'}
+            {formatDateRange(project.startDate, project.endDate)}
           </span>
           <div className="flex items-center gap-2">
             {project.githubUrl && project.githubUrl !== '#' && (
-              <a 
-                href={project.githubUrl} 
-                target="_blank" 
+              <a
+                href={project.githubUrl}
+                target="_blank"
                 rel="noopener noreferrer"
-                className="w-8 h-8 rounded-md bg-purple-100 hover:bg-purple-200 flex items-center justify-center transition-colors duration-200 shadow-sm"
+                className="w-8 h-8 rounded-md bg-white group-hover:bg-purple-100 hover:!bg-purple-200 flex items-center justify-center transition-colors duration-200 text-gray-400 group-hover:text-purple-600"
                 title="GitHub 저장소"
                 onClick={(e) => e.stopPropagation()}
               >
@@ -298,11 +194,11 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
               </a>
             )}
             {project.liveUrl && project.liveUrl !== '#' && (
-              <a 
-                href={project.liveUrl} 
-                target="_blank" 
+              <a
+                href={project.liveUrl}
+                target="_blank"
                 rel="noopener noreferrer"
-                className="w-8 h-8 rounded-md bg-green-100 hover:bg-green-200 flex items-center justify-center transition-colors duration-200 shadow-sm"
+                className="w-8 h-8 rounded-md bg-white group-hover:bg-green-100 hover:!bg-green-200 flex items-center justify-center transition-colors duration-200 text-gray-400 group-hover:text-green-600"
                 title="Live 서비스"
                 onClick={(e) => e.stopPropagation()}
               >

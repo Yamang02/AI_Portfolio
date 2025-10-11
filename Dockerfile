@@ -4,11 +4,18 @@ FROM maven:3.8.4-openjdk-17 AS backend-builder
 # 작업 디렉토리 설정
 WORKDIR /app/backend
 
+# Maven 파일만 먼저 복사하여 의존성 캐싱
+COPY backend/pom.xml backend/mvnw ./
+COPY backend/.mvn .mvn
+
+# 의존성 미리 다운로드 (Docker 레이어 캐싱 활용)
+RUN mvn dependency:go-offline -B
+
 # Backend 소스 코드 복사
-COPY backend/ ./
+COPY backend/src ./src
 
 # Backend 빌드
-RUN mvn clean package -DskipTests
+RUN mvn clean package -DskipTests -B
 
 # 프로덕션 단계
 FROM eclipse-temurin:17-jre-alpine

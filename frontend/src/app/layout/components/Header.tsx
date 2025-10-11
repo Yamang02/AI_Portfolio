@@ -13,7 +13,7 @@ const Header: React.FC = () => {
             window.scrollTo({ top: 0, behavior: 'smooth' });
           }}
         >
-          이정준's portfolio
+          Yamang02's Portfolio Site
         </a>
         {/* 우측: 네비게이션 */}
         <div className="flex items-center gap-6">

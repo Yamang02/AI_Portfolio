@@ -1,0 +1,1 @@
+export { TechStackTetris } from './TechStackTetris';

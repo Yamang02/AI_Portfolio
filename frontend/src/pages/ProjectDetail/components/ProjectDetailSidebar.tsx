@@ -215,35 +215,42 @@ const ProjectDetailSidebar: React.FC<ProjectDetailSidebarProps> = React.memo(({
 
   return (
     <div className={`w-80 ${className}`}>
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        {/* 링크 버튼들 */}
-        <div className="space-y-3 mb-6">
-          <ExternalLinkButton
-            type="live"
-            url={project.liveUrl}
-            title="운영 중인 서비스로 이동"
-          />
-          <ExternalLinkButton
-            type="github"
-            url={project.githubUrl}
-            title="GitHub 저장소로 이동"
-          />
-          <ExternalLinkButton
-            type="notion"
-            url={project.externalUrl}
-            title="Notion 문서로 이동"
-          />
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 max-h-[calc(100vh-8rem)] flex flex-col group">
+        {/* 링크 버튼들 - 고정 영역 */}
+        <div className="p-6 pb-4 flex-shrink-0">
+          <div className="space-y-3">
+            <ExternalLinkButton
+              type="live"
+              url={project.liveUrl}
+              title="운영 중인 서비스로 이동"
+            />
+            <ExternalLinkButton
+              type="github"
+              url={project.githubUrl}
+              title="GitHub 저장소로 이동"
+            />
+            <ExternalLinkButton
+              type="notion"
+              url={project.externalUrl}
+              title="Notion 문서로 이동"
+            />
+          </div>
         </div>
 
-        {/* TOC 섹션 */}
-        <div className="border-t border-gray-200 pt-6">
-          <h3 className="text-sm font-semibold text-gray-900 flex items-center mb-4">
-            <svg className="w-4 h-4 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-            </svg>
-            목차
-          </h3>
-          
+        {/* TOC 헤더 - 고정 영역 */}
+        <div className="px-6 pb-4 flex-shrink-0">
+          <div className="border-t border-gray-200 pt-4">
+            <h3 className="text-sm font-semibold text-gray-900 flex items-center">
+              <svg className="w-4 h-4 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+              </svg>
+              목차
+            </h3>
+          </div>
+        </div>
+
+        {/* TOC 아이템들 - 스크롤 가능한 영역 */}
+        <div className="px-6 pb-6 flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent hover:scrollbar-thumb-gray-400">
           {flattenedItems.length > 0 ? (
             <nav>
               <ul className="space-y-1">

@@ -1,6 +1,8 @@
 import React from 'react';
 import { Education } from '../types';
-import { safeFormatDate } from '../../../shared/utils/safeStringUtils';
+import { formatDateRange } from '../../../shared/utils/safeStringUtils';
+import { SimpleTechStackList } from '../../../shared/components/TechStack';
+import { useCardHover } from '../../../shared/hooks';
 
 interface EducationCardProps {
   education: Education;
@@ -10,42 +12,26 @@ interface EducationCardProps {
   onLongHover?: (id: string) => void;
 }
 
-const EducationCard: React.FC<EducationCardProps> = ({ 
-  education, 
-  onMouseEnter, 
+const EducationCard: React.FC<EducationCardProps> = ({
+  education,
+  onMouseEnter,
   onMouseLeave,
   isHighlighted = false,
   onLongHover
 }) => {
-  const timerRef = React.useRef<NodeJS.Timeout | null>(null);
-
-                const handleMouseEnter = () => {
-                onMouseEnter?.();
-                timerRef.current = setTimeout(() => {
-                  onLongHover?.(education.id);
-                }, 500);
-              };
-
-  const handleMouseLeave = () => {
-    onMouseLeave?.();
-    if (timerRef.current) clearTimeout(timerRef.current);
-  };
-
-  const formatDate = (date: string) => {
-    return safeFormatDate(date);
-  };
-
-  const formatDateRange = () => {
-    const startDate = formatDate(education.startDate);
-    const endDate = education.endDate ? formatDate(education.endDate) : '현재';
-    return `${startDate} - ${endDate}`;
-  };
+  // 공통 hover 로직 사용
+  const { handleMouseEnter, handleMouseLeave } = useCardHover(
+    education.id,
+    onMouseEnter,
+    onMouseLeave,
+    onLongHover
+  );
 
   return (
-    <div 
+    <div
       id={`education-${education.id}`}
       className={`
-        bg-white rounded-lg shadow-md p-6 border border-gray-200 
+        bg-white rounded-lg shadow-md p-6 border border-gray-200
         transition-all duration-200 hover:shadow-lg hover:scale-105 hover:shadow-green-200
         ${isHighlighted ? 'ring-2 ring-green-400 shadow-lg scale-105' : ''}
       `}
@@ -69,7 +55,7 @@ const EducationCard: React.FC<EducationCardProps> = ({
         </div>
         <div className="flex flex-col items-end">
           <span className="text-xs text-gray-500">
-            {formatDateRange()}
+            {formatDateRange(education.startDate, education.endDate, ' - ')}
           </span>
         </div>
       </div>
@@ -81,16 +67,10 @@ const EducationCard: React.FC<EducationCardProps> = ({
 
       {/* 기술 스택 */}
       {education.technologies && education.technologies.length > 0 && (
-        <div className="flex flex-wrap gap-1 mb-4">
-          {education.technologies.map((tech, index) => (
-            <span 
-              key={index}
-              className="inline-block bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded border border-gray-200"
-            >
-              {tech}
-            </span>
-          ))}
-        </div>
+        <SimpleTechStackList
+          technologies={education.technologies}
+          className="mb-4"
+        />
       )}
 
       {/* 위치 정보 */}
@@ -106,4 +86,4 @@ const EducationCard: React.FC<EducationCardProps> = ({
   );
 };
 
-export default EducationCard; 
+export default EducationCard;

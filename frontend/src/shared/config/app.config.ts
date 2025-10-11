@@ -31,8 +31,8 @@ const loadConfig = (): AppConfig => {
       description: '개발자 포트폴리오 AI 챗봇',
       contactEmail: 'ljj0210@gmail.com',
       version: '1.0.0',
-      developerName: '이정준',
-      developerTitle: 'Here Comes New Challenger!!',
+      developerName: 'Software Engineer 이정준',
+      developerTitle: 'Yamang02\'s Portfolio Site',
     },
     
     api: {

@@ -96,25 +96,18 @@ export const TechStackBadge: React.FC<TechStackBadgeProps> = ({
       <span className="tech-badge__name">
         {tech.displayName}
       </span>
-      
+
       {/* 레벨 표시 (core variant인 경우) */}
       {variant === 'core' && (
         <span className="tech-badge__level">
           {tech.level}
         </span>
       )}
-      
+
       {/* 카운트 표시 (filter variant인 경우) */}
       {showCount && count !== undefined && (
         <span className="tech-badge__count">
           {count}
-        </span>
-      )}
-      
-      {/* 핵심 기술 표시 */}
-      {tech.isCore && variant !== 'core' && (
-        <span className="tech-badge__core-indicator">
-          ⭐
         </span>
       )}
     </div>

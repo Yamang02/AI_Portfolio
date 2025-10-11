@@ -12,7 +12,7 @@ export interface BaseItem {
 }
 
 // 프로젝트 구체적 타입 정의
-export type ProjectCategory = 'BUILD' | 'LAB' | 'MAINTENANCE' | 'certification';
+export type ProjectCategory = 'BUILD' | 'LAB' | 'MAINTENANCE' | 'CERTIFICATION';
 
 // 프로젝트 인터페이스 (GitHub + 로컬 + 자격증 통합)
 export interface Project extends BaseItem {

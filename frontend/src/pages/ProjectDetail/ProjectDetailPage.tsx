@@ -162,16 +162,18 @@ const ProjectDetailPage: React.FC = () => {
       </main>
       
       {/* 토글 가능한 플로팅 사이드바 - 왼쪽에서 슬라이드 */}
-      <div className={`fixed left-6 top-1/2 transform -translate-y-1/2 z-40 transition-transform duration-300 ease-in-out ${
+      <div className={`fixed left-6 top-24 z-40 transition-transform duration-300 ease-in-out ${
         isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
       }`}>
-        <ProjectDetailSidebar 
-          project={project}
-          tocItems={tocItems}
-          activeSection={activeSection}
-          isOpen={isSidebarOpen}
-          onToggle={handleSidebarToggle}
-        />
+        <div className={`transition-opacity duration-300 ${isSidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+          <ProjectDetailSidebar 
+            project={project}
+            tocItems={tocItems}
+            activeSection={activeSection}
+            isOpen={isSidebarOpen}
+            onToggle={handleSidebarToggle}
+          />
+        </div>
       </div>
       
       {/* 사이드바 토글 버튼 */}

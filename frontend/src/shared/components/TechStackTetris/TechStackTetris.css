@@ -1,0 +1,24 @@
+.tech-stack-tetris {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80%;
+  max-width: 800px;
+  height: 400px; /* 고정 높이 */
+  min-height: 400px;
+  pointer-events: none;
+}
+
+/* 배경 캔버스 - 일반 블록 (글라스모피즘 뒤) */
+.tech-stack-tetris-background {
+  opacity: 0.25;
+  z-index: 1;
+}
+
+/* 전경 캔버스 - 초거대 블록 (글라스모피즘 앞) */
+.tech-stack-tetris-foreground {
+  opacity: 0.4; /* 초거대 블록은 약간 흐리게 */
+  z-index: 11;
+  filter: blur(1px); /* 살짝 흐린 느낌 */
+}
