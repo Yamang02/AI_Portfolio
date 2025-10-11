@@ -92,16 +92,7 @@ export const TechStackBadge: React.FC<TechStackBadgeProps> = ({
       onClick={handleClick}
       title={tech.description || `${tech.displayName} (${tech.level})`}
     >
-      {/* 기술 아이콘 (있는 경우) */}
-      {tech.iconUrl && (
-        <img 
-          src={tech.iconUrl} 
-          alt={tech.displayName}
-          className="tech-badge__icon"
-        />
-      )}
-      
-      {/* 기술명 */}
+      {/* 기술명 (텍스트만 표시) */}
       <span className="tech-badge__name">
         {tech.displayName}
       </span>

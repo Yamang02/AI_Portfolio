@@ -15,6 +15,7 @@ import {
   ExperienceBadge,
   ExperienceSmallIcon
 } from '../../../shared/components/icons/ProjectIcons';
+import { TechStackBadge } from '../../../shared/components/TechStackBadge/TechStackBadge';
 import { safeSplit, safeToLowerCase, safeIncludes } from '../../../shared/utils/safeStringUtils';
 
 interface ProjectCardProps {
@@ -98,6 +99,45 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
     return 'text-gray-800 hover:text-black';
   };
 
+  // 기술스택을 TechStackMetadata 형태로 변환하는 함수
+  const convertToTechStackMetadata = (tech: string) => {
+    const lowerTech = tech.toLowerCase();
+    
+    // 카테고리 결정
+    let category: 'language' | 'framework' | 'database' | 'tool' | 'other' = 'other';
+    if (['java', 'javascript', 'python', 'c#', 'typescript'].includes(lowerTech)) {
+      category = 'language';
+    } else if (['spring boot', 'react', 'express.js', 'pyqt5', 'phaser.js', 'jsp', 'servlet'].includes(lowerTech)) {
+      category = 'framework';
+    } else if (['oracle', 'mysql', 'mongodb', 'redis', 'mssql'].includes(lowerTech)) {
+      category = 'database';
+    } else if (['git', 'docker', 'github actions', 'maven', 'cursor', 'selenium', 'beautifulsoup', 'yt-dlp', 'cloudinary', 'ejs', 'jquery', 'daypilot', 'chromedriver', 'pl/sql', 'svn', 'gitlab', 'sap', 'oracle forms', 'file system', 'gemini cli', 'cli', 'json', 'web scraping', 'requests', 'github pages'].includes(lowerTech)) {
+      category = 'tool';
+    }
+    
+    // 레벨 결정
+    let level: 'core' | 'general' | 'learning' = 'learning';
+    if (['java', 'spring boot', 'react', 'git', 'javascript'].includes(lowerTech)) {
+      level = 'core';
+    } else if (['python', 'mysql', 'docker', 'maven'].includes(lowerTech)) {
+      level = 'general';
+    }
+    
+    return {
+      name: tech,
+      displayName: tech,
+      category,
+      level,
+      isCore: level === 'core',
+      isActive: true,
+      colorHex: '#6b7280',
+      description: '',
+      sortOrder: 0,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+  };
+
   // 기술스택 축약 로직
   const renderTechStack = () => {
     const max = 3;
@@ -107,9 +147,12 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
     return (
       <>
         {shown.map((tech, idx) => (
-          <span key={tech} className="inline-block text-xs font-medium px-3 py-1.5 rounded-full border bg-gray-100 text-gray-800 border-gray-200">
-            {tech}
-          </span>
+          <TechStackBadge
+            key={tech}
+            tech={convertToTechStackMetadata(tech)}
+            variant="default"
+            size="sm"
+          />
         ))}
         {hiddenCount > 0 && (
           <span className="inline-block text-xs font-medium px-3 py-1.5 rounded-full border bg-gray-200 text-gray-600 border-gray-300">
@@ -124,9 +167,9 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
   const hasValidImage = project.imageUrl && project.imageUrl !== '#' && project.imageUrl !== '';
 
   return (
-    <div 
+    <div
       id={`project-${project.id}`}
-      className={`bg-white rounded-lg shadow-md overflow-hidden transform transition-all duration-300 hover:scale-105 flex flex-col border border-gray-100 hover:shadow-blue-200 ${isHighlighted ? 'ring-4 ring-blue-200 shadow-blue-200' : ''}`}
+      className={`group bg-white rounded-lg shadow-md overflow-hidden transform transition-all duration-300 hover:scale-105 flex flex-col border border-gray-100 hover:shadow-blue-200 cursor-pointer ${isHighlighted ? 'ring-4 ring-blue-200 shadow-blue-200' : ''}`}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onClick={() => {
@@ -136,17 +179,69 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
           navigate(`/projects/${project.id}`);
         }
       }}
-      style={{ cursor: onClick ? 'pointer' : undefined }}
+      style={{ cursor: onClick ? 'pointer' : undefined, backgroundColor: '#ffffff' }}
     >
       {/* 상단 이미지/아이콘 영역 */}
       <div className="h-48 w-full bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center relative overflow-hidden">
-        {/* 팀/개인 배지 */}
-        <span
-          className={`absolute top-3 right-3 px-3 py-1 text-sm font-bold rounded-md shadow z-10 ${project.isTeam ? 'bg-blue-600 text-white' : 'bg-primary-600 text-white'}`}
-          title={project.isTeam ? `팀 프로젝트${project.role ? ` - ${project.role}` : ''}` : '개인 프로젝트'}
-        >
-          {project.isTeam ? '팀' : '개인'}
-        </span>
+        {/* 배지들 */}
+        <div className="absolute top-3 right-3 flex flex-col gap-2 z-10 items-end">
+          {/* 팀/개인 배지 */}
+          <div
+            className={`px-1.5 py-1 rounded-md shadow text-xs font-medium flex items-center gap-1.5 transition-all duration-200 overflow-hidden ${project.isTeam ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'} w-auto max-w-[24px] group-hover:max-w-[56px]`}
+          >
+            <div className="flex-shrink-0 w-3 h-3">
+              {project.isTeam ? (
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+              ) : (
+                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                </svg>
+              )}
+            </div>
+            <span className="opacity-0 transition-opacity duration-200 whitespace-nowrap group-hover:opacity-100">
+              {project.isTeam ? '팀' : '개인'}
+            </span>
+          </div>
+
+          {/* 프로젝트 타입 배지 */}
+          {project.type && (
+            <div
+              className={`px-1.5 py-1 rounded-md shadow text-xs font-medium flex items-center gap-1.5 transition-all duration-200 overflow-hidden ${
+                project.type === 'BUILD' ? 'bg-red-100 text-red-800' :
+                project.type === 'LAB' ? 'bg-orange-100 text-orange-800' :
+                project.type === 'MAINTENANCE' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+              } w-auto max-w-[24px] group-hover:max-w-[120px]`}
+            >
+              <div className="flex-shrink-0 w-3 h-3">
+                {project.type === 'BUILD' ? (
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  </svg>
+                ) : project.type === 'LAB' ? (
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                  </svg>
+                ) : project.type === 'MAINTENANCE' ? (
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                ) : (
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                  </svg>
+                )}
+              </div>
+              <span className="opacity-0 transition-opacity duration-200 whitespace-nowrap group-hover:opacity-100">
+                {project.type === 'BUILD' ? 'BUILD' :
+                 project.type === 'LAB' ? 'LAB' :
+                 project.type === 'MAINTENANCE' ? 'MAINTENANCE' : project.type}
+              </span>
+            </div>
+          )}
+        </div>
         
         {/* 이미지가 있으면 이미지 표시, 없으면 아이콘 표시 */}
         {hasValidImage ? (
@@ -185,20 +280,21 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
           {renderTechStack()}
         </div>
         {/* 하단 정보 */}
-        <div className="pt-4 border-t border-gray-200 mt-auto flex items-center justify-between gap-6">
+        <div className="pt-4 border-t border-gray-200 mt-auto flex items-center justify-between">
           <span className="text-xs text-gray-500">
             {safeFormatDate(project.startDate)} ~ {project.endDate ? safeFormatDate(project.endDate) : '현재'}
           </span>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center gap-2">
             {project.githubUrl && project.githubUrl !== '#' && (
               <a 
                 href={project.githubUrl} 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className={`flex items-center space-x-1 ${getLinkStyle()} hover:underline`}
+                className="w-8 h-8 rounded-md bg-purple-100 hover:bg-purple-200 flex items-center justify-center transition-colors duration-200 shadow-sm"
+                title="GitHub 저장소"
+                onClick={(e) => e.stopPropagation()}
               >
                 <GithubIcon />
-                <span>GitHub</span>
               </a>
             )}
             {project.liveUrl && project.liveUrl !== '#' && (
@@ -206,10 +302,11 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
                 href={project.liveUrl} 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className={`flex items-center space-x-1 ${getLinkStyle()} hover:underline`}
+                className="w-8 h-8 rounded-md bg-green-100 hover:bg-green-200 flex items-center justify-center transition-colors duration-200 shadow-sm"
+                title="Live 서비스"
+                onClick={(e) => e.stopPropagation()}
               >
                 <ExternalLinkIcon />
-                <span>Live</span>
               </a>
             )}
           </div>

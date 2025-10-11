@@ -51,7 +51,8 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
 
   // 필터링 및 정렬 로직
   const applyFilters = React.useCallback((filterOptions: FilterOptions) => {
-    let filtered = [...projects];
+    // 자격증을 제외하고 프로젝트만 필터링
+    let filtered = [...projects].filter(project => project.type !== 'certification');
 
     // 검색 필터 (프로젝트명 기반)
     if (filterOptions.searchQuery.trim()) {
@@ -215,6 +216,7 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {/* 필터링된 프로젝트들 */}
                 {filteredProjects.map(project => (
                   <ProjectCard
                     key={project.id}
@@ -225,6 +227,19 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
                     onLongHover={handleLongHover}
                   />
                 ))}
+                {/* 자격증들은 필터와 관계없이 항상 표시 */}
+                {projects
+                  .filter(project => project.type === 'certification')
+                  .map(project => (
+                    <ProjectCard
+                      key={project.id}
+                      project={project}
+                      onMouseEnter={() => handleItemHover(project.id)}
+                      onMouseLeave={() => handleItemHover(undefined)}
+                      isHighlighted={highlightedItemId === project.id}
+                      onLongHover={handleLongHover}
+                    />
+                  ))}
               </div>
             )}
           </>

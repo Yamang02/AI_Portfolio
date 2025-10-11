@@ -157,7 +157,6 @@ const ProjectFilter: React.FC<ProjectFilterProps> = ({
             <option value="BUILD">BUILD</option>
             <option value="LAB">LAB</option>
             <option value="MAINTENANCE">MAINTENANCE</option>
-            <option value="certification">자격증</option>
           </select>
         </div>
 
