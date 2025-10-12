@@ -106,6 +106,9 @@ public class ProjectJpaEntity {
     @JdbcTypeCode(SqlTypes.ARRAY)
     private List<String> screenshots; // 추가 스크린샷 URL 배열
     
+    @Column(name = "team_size")
+    private Integer teamSize; // 팀 크기
+    
     // 기술 스택 메타데이터 관계 (완전 통합용 - One-to-Many)
     @OneToMany(mappedBy = "project", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProjectTechStackJpaEntity> projectTechStacks;

@@ -43,6 +43,7 @@ public class ProjectMapper {
                 .id(jpaEntity.getBusinessId()) // business_id → domain.id
                 .title(jpaEntity.getTitle())
                 .description(jpaEntity.getDescription())
+                .detailedDescription(jpaEntity.getDetailedDescription())
                 .techStackMetadata(techStackMetadataMapper.toDomainList(
                     jpaEntity.getProjectTechStacks() != null ? 
                     jpaEntity.getProjectTechStacks().stream()
@@ -65,6 +66,9 @@ public class ProjectMapper {
                 .myContributions(jpaEntity.getMyContributions())
                 .role(jpaEntity.getRole())
                 .screenshots(jpaEntity.getScreenshots())
+                .teamSize(jpaEntity.getTeamSize())
+                .createdAt(jpaEntity.getCreatedAt())
+                .updatedAt(jpaEntity.getUpdatedAt())
                 .build();
     }
     
@@ -82,6 +86,7 @@ public class ProjectMapper {
                 .businessId(domainModel.getId()) // domain.id → business_id
                 .title(domainModel.getTitle())
                 .description(domainModel.getDescription())
+                .detailedDescription(domainModel.getDetailedDescription())
                 .projectTechStacks(new java.util.ArrayList<>()) // 관계 테이블은 별도로 관리
                 .githubUrl(domainModel.getGithubUrl())
                 .liveUrl(domainModel.getLiveUrl())
@@ -98,6 +103,9 @@ public class ProjectMapper {
                 .myContributions(domainModel.getMyContributions())
                 .role(domainModel.getRole())
                 .screenshots(domainModel.getScreenshots())
+                .teamSize(domainModel.getTeamSize())
+                .createdAt(domainModel.getCreatedAt())
+                .updatedAt(domainModel.getUpdatedAt())
                 .build();
     }
     

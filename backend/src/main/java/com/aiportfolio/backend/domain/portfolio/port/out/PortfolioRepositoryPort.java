@@ -46,6 +46,16 @@ public interface PortfolioRepositoryPort {
      */
     List<Project> findProjectsByTeamStatus(boolean isTeam);
     
+    /**
+     * 프로젝트를 저장합니다 (Admin Dashboard용)
+     */
+    Project saveProject(Project project);
+    
+    /**
+     * 프로젝트를 삭제합니다 (Admin Dashboard용)
+     */
+    void deleteProject(String id);
+    
     // === 경력 관련 ===
     /**
      * 모든 경력 정보를 조회합니다

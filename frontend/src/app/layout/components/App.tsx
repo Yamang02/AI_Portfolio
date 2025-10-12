@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import HomePage from './HomePage';
 import ProjectDetailPage from '../../../pages/ProjectDetail/ProjectDetailPage';
+import AdminApp from '../../../admin/App';
 import { useApp } from '../../providers';
 const App: React.FC = () => {
   const {
@@ -57,6 +58,9 @@ const App: React.FC = () => {
     <Router>
       <div className="min-h-screen bg-white text-gray-700 font-sans">
         <Routes>
+          {/* 관리자 대시보드 */}
+          <Route path="/admin/*" element={<AdminApp />} />
+          
           {/* 홈 페이지 */}
           <Route path="/" element={
             <HomePage

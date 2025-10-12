@@ -12,6 +12,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import org.hibernate.validator.constraints.URL;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -30,6 +31,9 @@ public class Project {
     @NotBlank(message = "프로젝트 설명은 필수입니다")
     @Size(max = 2000, message = "프로젝트 설명은 2000자를 초과할 수 없습니다")
     private String description;
+    
+    @Size(max = 5000, message = "상세 설명은 5000자를 초과할 수 없습니다")
+    private String detailedDescription;
     
     // 기존 technologies 필드 제거됨 - techStackMetadata 관계 필드로 대체
     private List<TechStackMetadata> techStackMetadata;
@@ -74,6 +78,12 @@ public class Project {
     private String role; // 팀 프로젝트에서의 역할
 
     private List<@URL(message = "올바른 스크린샷 URL 형식이어야 합니다") String> screenshots; // 추가 스크린샷 URL 배열
+    
+    private Integer teamSize; // 팀 크기
+    
+    private LocalDateTime createdAt; // 생성일시
+    
+    private LocalDateTime updatedAt; // 수정일시
 
     /**
      * 프로젝트가 진행중인지 확인

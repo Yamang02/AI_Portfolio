@@ -205,4 +205,30 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
             return Optional.empty();
         }
     }
+    
+    // === Admin Dashboard용 메서드 ===
+    
+    @Override
+    public Project saveProject(Project project) {
+        try {
+            // Project를 JPA Entity로 변환하여 저장
+            ProjectJpaEntity jpaEntity = projectMapper.toJpaEntity(project);
+            ProjectJpaEntity savedEntity = projectJpaRepository.save(jpaEntity);
+            return projectMapper.toDomain(savedEntity);
+        } catch (Exception e) {
+            log.error("프로젝트 저장 중 오류 발생: {}", project.getTitle(), e);
+            throw new RuntimeException("프로젝트 저장에 실패했습니다", e);
+        }
+    }
+    
+    @Override
+    public void deleteProject(String id) {
+        try {
+            projectJpaRepository.deleteByBusinessId(id);
+            log.info("프로젝트 삭제 완료: {}", id);
+        } catch (Exception e) {
+            log.error("프로젝트 삭제 중 오류 발생: {}", id, e);
+            throw new RuntimeException("프로젝트 삭제에 실패했습니다", e);
+        }
+    }
 }

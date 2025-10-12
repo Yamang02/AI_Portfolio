@@ -97,4 +97,10 @@ public interface ProjectJpaRepository extends JpaRepository<ProjectJpaEntity, Lo
      */
     @Query("SELECT p FROM ProjectJpaEntity p WHERE p.liveUrl IS NOT NULL AND p.liveUrl != ''")
     List<ProjectJpaEntity> findProjectsWithLiveUrl();
+    
+    /**
+     * 비즈니스 ID로 프로젝트 삭제 (Admin Dashboard용)
+     * @param businessId 비즈니스 ID
+     */
+    void deleteByBusinessId(String businessId);
 }
