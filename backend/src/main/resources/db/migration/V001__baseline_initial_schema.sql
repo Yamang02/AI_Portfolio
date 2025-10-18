@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS projects (
     type VARCHAR(100),
     source VARCHAR(100),
     is_team BOOLEAN DEFAULT FALSE,
+    team_size INTEGER,
     status VARCHAR(50) DEFAULT 'completed',
     sort_order INTEGER DEFAULT 0,
     external_url VARCHAR(500),
@@ -133,19 +134,6 @@ CREATE TABLE IF NOT EXISTS education_tech_stack (
     UNIQUE(education_id, tech_name)
 );
 
--- Admin 사용자 테이블
-CREATE TABLE IF NOT EXISTS admin_users (
-    id BIGSERIAL PRIMARY KEY,
-    username VARCHAR(50) UNIQUE NOT NULL,
-    password VARCHAR(255) NOT NULL,
-    role VARCHAR(50) NOT NULL DEFAULT 'ROLE_ADMIN',
-    last_login TIMESTAMP,
-    login_attempts INTEGER DEFAULT 0,
-    locked_until TIMESTAMP,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
 -- 인덱스 생성
 CREATE INDEX IF NOT EXISTS idx_projects_business_id ON projects(business_id);
 CREATE INDEX IF NOT EXISTS idx_projects_sort_order ON projects(sort_order);
@@ -182,10 +170,3 @@ CREATE INDEX IF NOT EXISTS idx_experience_tech_stack_is_primary ON experience_te
 CREATE INDEX IF NOT EXISTS idx_education_tech_stack_education_id ON education_tech_stack(education_id);
 CREATE INDEX IF NOT EXISTS idx_education_tech_stack_tech_name ON education_tech_stack(tech_name);
 CREATE INDEX IF NOT EXISTS idx_education_tech_stack_is_primary ON education_tech_stack(is_primary);
-
-CREATE INDEX IF NOT EXISTS idx_admin_users_username ON admin_users(username);
-
--- 기본 관리자 계정 생성 (비밀번호: admin123)
-INSERT INTO admin_users (username, password, role) VALUES 
-('admin', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iKyVqk6nQZ8gJ8qJ8qJ8qJ8qJ8qJ', 'ROLE_ADMIN')
-ON CONFLICT (username) DO NOTHING;

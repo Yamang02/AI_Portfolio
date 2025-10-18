@@ -6,7 +6,15 @@ export default defineConfig(({ mode }) => {
     return {
       server: {
         port: 3000,
-        host: '0.0.0.0'
+        host: '0.0.0.0',
+        proxy: {
+          '/api': {
+            target: env.VITE_API_BASE_URL || 'http://localhost:8080',
+            changeOrigin: true,
+            secure: false,
+            ws: true,
+          }
+        }
       },
       resolve: {
         alias: {

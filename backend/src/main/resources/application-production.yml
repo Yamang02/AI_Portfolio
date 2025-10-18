@@ -13,15 +13,23 @@ spring:
       idle-timeout: 600000
       max-lifetime: 1800000
   
-  # JPA Configuration for Production  
+  # JPA Configuration for Production
   jpa:
     hibernate:
-      ddl-auto: none  # 운영환경에서는 스키마 변경 금지
+      ddl-auto: validate  # 스키마 검증만 수행
     show-sql: false
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: false
+
+  # Flyway 마이그레이션 설정 (프로덕션 - 수동 마이그레이션)
+  flyway:
+    enabled: false  # 프로덕션은 수동으로 마이그레이션 수행
+    # 수동 마이그레이션 방법:
+    # 1. Railway CLI로 DB 접속
+    # 2. 마이그레이션 SQL 파일을 직접 실행
+    # 또는 필요 시 enabled: true로 변경 후 배포
 
   # Redis 캐싱 설정
   redis:

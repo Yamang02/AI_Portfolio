@@ -66,7 +66,6 @@ public class ProjectMapper {
                 .myContributions(jpaEntity.getMyContributions())
                 .role(jpaEntity.getRole())
                 .screenshots(jpaEntity.getScreenshots())
-                .teamSize(jpaEntity.getTeamSize())
                 .createdAt(jpaEntity.getCreatedAt())
                 .updatedAt(jpaEntity.getUpdatedAt())
                 .build();
@@ -103,7 +102,6 @@ public class ProjectMapper {
                 .myContributions(domainModel.getMyContributions())
                 .role(domainModel.getRole())
                 .screenshots(domainModel.getScreenshots())
-                .teamSize(domainModel.getTeamSize())
                 .createdAt(domainModel.getCreatedAt())
                 .updatedAt(domainModel.getUpdatedAt())
                 .build();

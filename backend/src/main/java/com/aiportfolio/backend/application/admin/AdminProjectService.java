@@ -108,7 +108,6 @@ public class AdminProjectService {
                 .type(request.getType())
                 .status(request.getStatus())
                 .isTeam(request.getIsTeam())
-                .teamSize(request.getTeamSize())
                 .role(request.getRole())
                 .myContributions(request.getMyContributions())
                 .startDate(request.getStartDate())
@@ -144,7 +143,6 @@ public class AdminProjectService {
         if (request.getType() != null) project.setType(request.getType());
         if (request.getStatus() != null) project.setStatus(request.getStatus());
         if (request.getIsTeam() != null) project.setTeam(request.getIsTeam());
-        if (request.getTeamSize() != null) project.setTeamSize(request.getTeamSize());
         if (request.getRole() != null) project.setRole(request.getRole());
         if (request.getMyContributions() != null) project.setMyContributions(request.getMyContributions());
         if (request.getStartDate() != null) project.setStartDate(request.getStartDate());
@@ -228,7 +226,6 @@ public class AdminProjectService {
                 .type(project.getType())
                 .status(project.getStatus())
                 .isTeam(project.isTeam())
-                .teamSize(project.getTeamSize())
                 .role(project.getRole())
                 .myContributions(project.getMyContributions())
                 .startDate(project.getStartDate())

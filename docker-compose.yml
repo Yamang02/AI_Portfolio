@@ -5,15 +5,13 @@ services:
     image: postgres:15-alpine
     container_name: ai-portfolio-postgres
     environment:
-      POSTGRES_DB: ai_portfolio
-      POSTGRES_USER: dev_user
-      POSTGRES_PASSWORD: dev_password
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./database/create_tables.sql:/docker-entrypoint-initdb.d/01-create_tables.sql
-      - ./database/insert_data.sql:/docker-entrypoint-initdb.d/02-insert_data.sql
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U dev_user -d ai_portfolio"]
@@ -57,20 +55,21 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - SPRING_PROFILES_ACTIVE=local
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - DB_NAME=ai_portfolio
-      - DB_USER=dev_user
-      - DB_PASSWORD=dev_password
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - POSTGRES_DB=ai_portfolio
-      - POSTGRES_USER=dev_user
-      - POSTGRES_PASSWORD=dev_password
-      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME:-}
-      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY:-}
-      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET:-}
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
     volumes:
       - ./backend/src:/app/src
       - ./backend/pom.xml:/app/pom.xml
@@ -164,8 +163,8 @@ services:
     image: dpage/pgadmin4:latest
     container_name: ai-portfolio-pgadmin
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@localhost.com
-      PGADMIN_DEFAULT_PASSWORD: admin123
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
     ports:
       - "5050:80"
     volumes:
