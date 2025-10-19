@@ -17,26 +17,26 @@
   - Remove detailedDescription from frontend types ✅
   - Update documentation ✅
 
-- [ ] **feat: Add project_screenshots table for image management** ❌
-  - Add project_screenshots table with project_id, image_url, display_order, cloudinary_public_id
-  - Add foreign key constraint to projects table
-  - Add index on project_id
+- [x] **feat: Add project_screenshots table for image management** ✅
+  - Add project_screenshots table with project_id, image_url, display_order, cloudinary_public_id ✅
+  - Add foreign key constraint to projects table ✅
+  - Add index on project_id ✅
 
 ### Phase 1.2: 백엔드 의존성 및 설정 ✅ **완료**
 - [x] **feat: Add Spring Security dependencies** ✅
   - Add spring-boot-starter-security to pom.xml ✅
   - Add spring-session-data-redis for session management ✅
-  - Add cloudinary-java for image upload ❌
+  - Add cloudinary-java for image upload ✅
 
-- [ ] **feat: Add Redis configuration for session storage** ❌
-  - Create RedisConfig.java
-  - Configure Redis connection for session storage
-  - Add Redis properties to application-local.yml
+- [x] **feat: Add Redis configuration for session storage** ✅
+  - Create RedisConfig.java ✅
+  - Configure Redis connection for session storage ✅
+  - Add Redis properties to application-local.yml ✅
 
-- [ ] **feat: Add Cloudinary configuration** ❌
-  - Create CloudinaryConfig.java
-  - Add Cloudinary properties to application-local.yml
-  - Add environment variables for Cloudinary credentials
+- [x] **feat: Add Cloudinary configuration** ✅
+  - Create CloudinaryConfig.java ✅
+  - Add Cloudinary properties to application-local.yml ✅
+  - Add environment variables for Cloudinary credentials ✅
 
 ### Phase 1.3: Spring Security 설정 ✅ **완료**
 - [x] **feat: Configure Spring Security for admin authentication** ✅
@@ -77,7 +77,7 @@
 ### Phase 1.5: 프론트엔드 기본 구조 ✅ **완료**
 - [x] **feat: Add Ant Design dependencies** ✅
   - Add antd to package.json ✅
-  - Add @uiw/react-md-editor for markdown editing ❌
+  - Add @uiw/react-md-editor for markdown editing ✅
   - Add @tanstack/react-query for server state management ✅
 
 - [x] **feat: Create admin routing structure** ✅
@@ -90,6 +90,7 @@
   - Add sidebar navigation menu ✅
   - Add header with user info and logout ✅
   - Apply custom theme (Pretendard font, purple primary color) ✅
+  - Add "Back to Main App" button in header ❌
 
 - [x] **feat: Create admin login page** ✅
   - Create AdminLoginForm.tsx ✅
@@ -98,6 +99,25 @@
   - Connect to authentication API ✅
 
 ## Sprint 2: 프로젝트 관리 🔄 **진행 중**
+
+### Phase 2.0: 즉시 구현 필요한 기능 ❌ **우선순위 높음**
+- [ ] **feat: Add "Back to Main App" button**
+  - Update AdminLayout.tsx header
+  - Add button with home icon
+  - Navigate to "/" route
+  - Add proper styling and positioning
+
+- [ ] **feat: Implement Redis cache flush API**
+  - Create AdminCacheController.java
+  - Implement POST /api/admin/cache/flush endpoint
+  - Add RedisTemplate integration
+  - Add proper error handling and logging
+
+- [ ] **feat: Add cache management UI**
+  - Create CacheManagement.tsx component
+  - Add flush cache button with confirmation modal
+  - Add success/error notifications
+  - Integrate with admin API
 
 ### Phase 2.1: 프로젝트 관리 API ✅ **완료**
 - [x] **feat: Create project management DTOs** ✅
@@ -314,6 +334,12 @@
   - Cache user sessions
   - Cache project lists and filters
 
+- [ ] **feat: Add Redis cache management**
+  - Create AdminCacheController.java
+  - Implement POST /api/admin/cache/flush endpoint
+  - Add cache statistics endpoint
+  - Add cache key pattern management
+
 - [ ] **feat: Optimize frontend performance**
   - Add React.memo for expensive components
   - Implement lazy loading for images
@@ -371,6 +397,12 @@
   - Add skill distribution charts
   - Add recent activity feed
 
+- [ ] **feat: Add cache management UI**
+  - Create CacheManagement.tsx
+  - Add cache flush button with confirmation
+  - Add cache statistics display
+  - Add cache key pattern management
+
 ### Phase 5.2: 고급 기능
 - [ ] **feat: Add bulk operations**
   - Implement bulk delete for projects
@@ -425,14 +457,15 @@ chore: Build process or auxiliary tool changes
   - 프론트엔드 라우팅 완전 구현
 
 ### 진행 중인 Sprint
-- 🔄 **Sprint 2: 프로젝트 관리** (약 60% 완료)
+- 🔄 **Sprint 2: 프로젝트 관리** (약 50% 완료)
   - 프로젝트 관리 API 완전 구현
   - 프로젝트 목록 페이지 기본 구조만 구현
   - 프로젝트 편집 페이지 미구현
   - Cloudinary 통합 미구현
+  - **새로 추가**: MainApp 돌아가기 버튼, Redis 캐시 관리 기능
 
 ### 미구현 Sprint
 - ❌ **Sprint 3: 스킬 및 경력 관리** (0% 완료)
 - ❌ **Sprint 4: 최적화 및 배포** (0% 완료)
 
-**예상 완료일**: 2024-12-26 (1주 후) - 프로젝트 관리 UI 완성 목표
+**예상 완료일**: 2024-12-26 (1주 후) - 프로젝트 관리 UI 완성 및 즉시 필요 기능 구현 목표

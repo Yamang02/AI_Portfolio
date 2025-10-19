@@ -34,8 +34,44 @@ export default defineConfig(({ mode }) => {
           },
           output: {
             // 청크 분리 최적화
-            manualChunks: {
-              'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+            manualChunks: (id) => {
+              // React 관련 라이브러리
+              if (id.includes('node_modules/react') ||
+                  id.includes('node_modules/react-dom') ||
+                  id.includes('node_modules/react-router-dom')) {
+                return 'react-vendor';
+              }
+
+              // Ant Design UI 라이브러리
+              if (id.includes('node_modules/antd') ||
+                  id.includes('node_modules/@ant-design')) {
+                return 'antd-vendor';
+              }
+
+              // 마크다운 관련 (에디터, 렌더러, 플러그인)
+              if (id.includes('node_modules/react-markdown') ||
+                  id.includes('node_modules/@uiw/react-md-editor') ||
+                  id.includes('node_modules/remark-') ||
+                  id.includes('node_modules/rehype-') ||
+                  id.includes('node_modules/unified') ||
+                  id.includes('node_modules/unist-util')) {
+                return 'markdown-vendor';
+              }
+
+              // 코드 하이라이팅
+              if (id.includes('node_modules/highlight.js')) {
+                return 'highlight-vendor';
+              }
+
+              // React Query
+              if (id.includes('node_modules/@tanstack/react-query')) {
+                return 'react-query-vendor';
+              }
+
+              // 나머지 node_modules는 공통 vendor로
+              if (id.includes('node_modules')) {
+                return 'common-vendor';
+              }
             }
           }
         }

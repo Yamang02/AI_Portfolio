@@ -26,6 +26,5 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
   CMD curl -f http://localhost:8080/health || exit 1
 
 # Development command with optimized settings
-# -o: offline mode (의존성 다운로드 스킵, 이미 캐시된 것 사용)
 # -T 1C: 병렬 빌드 (CPU 코어 수만큼)
-CMD ["mvn", "spring-boot:run", "-o", "-T", "1C", "-Dspring-boot.run.profiles=local", "-Dspring-boot.run.jvmArguments=-Dspring.devtools.restart.enabled=true"]
+CMD ["mvn", "spring-boot:run", "-T", "1C", "-Dspring-boot.run.profiles=local", "-Dspring-boot.run.jvmArguments=-Dspring.devtools.restart.enabled=true"]

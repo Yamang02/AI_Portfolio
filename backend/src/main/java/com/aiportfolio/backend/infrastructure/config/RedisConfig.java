@@ -1,5 +1,6 @@
 package com.aiportfolio.backend.infrastructure.config;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -8,6 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 
@@ -20,6 +22,29 @@ import java.text.SimpleDateFormat;
 @Configuration
 @EnableRedisHttpSession(maxInactiveIntervalInSeconds = 1800) // 30분 세션 타임아웃
 public class RedisConfig {
+
+    /**
+     * Spring Session 전용 직렬화 빈을 생성합니다.
+     * 프로젝트의 다른 Redis 설정과 동일한 GenericJackson2JsonRedisSerializer를 사용합니다.
+     */
+    @Bean
+    public RedisSerializer<Object> springSessionDefaultRedisSerializer() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        
+        // 날짜 직렬화 설정
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        objectMapper.setDateFormat(new SimpleDateFormat("yyyy-MM"));
+        
+        // Spring Security 객체들을 위한 설정 추가
+        objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+        objectMapper.configure(SerializationFeature.FAIL_ON_SELF_REFERENCES, false);
+        
+        // 다형성 타입 정보는 비활성화 (Spring Security 객체들과 충돌 방지)
+        // objectMapper.activateDefaultTyping(...) 제거
+        
+        return new GenericJackson2JsonRedisSerializer(objectMapper);
+    }
 
     /**
      * Redis 템플릿 빈을 생성합니다.

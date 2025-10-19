@@ -51,12 +51,13 @@ class ApiClient {
     options: RequestInit = {}
   ): Promise<ApiResponse<T>> {
     const url = `${this.baseURL}${endpoint}`;
-    
+
     const defaultOptions: RequestInit = {
       headers: {
         'Content-Type': 'application/json',
         ...options.headers,
       },
+      credentials: 'include', // 쿠키 포함 (세션 인증에 필요)
     };
 
     try {

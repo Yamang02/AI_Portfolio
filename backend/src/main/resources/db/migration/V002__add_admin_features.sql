@@ -60,11 +60,29 @@ CREATE TRIGGER update_admin_users_updated_at
 -- 5. detailed_description 컬럼 제거 (사용되지 않음)
 ALTER TABLE projects DROP COLUMN IF EXISTS detailed_description;
 
--- 6. 기본 관리자 계정 생성 (비밀번호: admin123)
-INSERT INTO admin_users (username, password, role) VALUES
-('admin', '$2a$10$p3IjolvysoWDmfuZ5B5PSO7T4wsNWMSyXJuInvYSbu4vJV3r1Wn1i', 'ROLE_ADMIN')
-ON CONFLICT (username) DO NOTHING;
+-- 6. 프로젝트 스크린샷 테이블 생성
+CREATE TABLE project_screenshots (
+    id BIGSERIAL PRIMARY KEY,
+    project_id BIGINT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+    image_url VARCHAR(500) NOT NULL,
+    cloudinary_public_id VARCHAR(255),
+    display_order INTEGER DEFAULT 0,
+    alt_text VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
--- 7. 테이블 코멘트 추가
+-- 7. 프로젝트 스크린샷 테이블 인덱스 생성
+CREATE INDEX idx_project_screenshots_project_id ON project_screenshots(project_id);
+CREATE INDEX idx_project_screenshots_display_order ON project_screenshots(display_order);
+
+-- 8. 프로젝트 스크린샷 테이블 트리거 적용
+CREATE TRIGGER update_project_screenshots_updated_at
+    BEFORE UPDATE ON project_screenshots
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+-- 9. 테이블 코멘트 추가
 COMMENT ON TABLE admin_users IS 'Admin Dashboard 사용자 테이블';
 COMMENT ON TABLE projects IS 'Projects table - detailed_description column removed as it was unused';
+COMMENT ON TABLE project_screenshots IS '프로젝트 스크린샷 이미지 관리 테이블';

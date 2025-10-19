@@ -33,9 +33,15 @@ public class SecurityConfig {
             
             // 인증 요구사항 설정
             .authorizeHttpRequests(auth -> auth
+                // Admin 인증 API는 누구나 접근 가능 (로그인, 로그아웃, 세션 체크)
                 .requestMatchers("/api/admin/auth/**").permitAll()
+                // Admin 관리 API는 인증 필요 (캐시, 프로젝트 관리 등)
+                .requestMatchers("/api/admin/**").authenticated()
+                // Public API
                 .requestMatchers("/api/public/**").permitAll()
                 .requestMatchers("/actuator/**").permitAll()
+                .requestMatchers("/api/data/**", "/api/chat/**", "/api/github/**", "/api/tech-stack/**").permitAll()
+                // 나머지는 모두 허용
                 .anyRequest().permitAll()
             )
             
@@ -48,9 +54,9 @@ public class SecurityConfig {
             // CSRF 비활성화
             .csrf(csrf -> csrf.disable())
             
-            // 세션 관리 설정 - 필요 시 세션 생성
+            // 세션 관리 설정 - 항상 세션 생성
             .sessionManagement(session -> session
-                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
                 .maximumSessions(1) // 동시 세션 1개로 제한
                 .maxSessionsPreventsLogin(false) // 새 로그인 시 이전 세션 무효화
             );

@@ -67,6 +67,14 @@ public class AdminAuthService {
         // 세션에 사용자 정보 저장
         session.setAttribute(SESSION_ADMIN_KEY, userInfo);
         log.info("Login successful for user: {}, session ID: {}", username, session.getId());
+        
+        // 세션 저장 확인 로그 추가
+        Object storedUserInfo = session.getAttribute(SESSION_ADMIN_KEY);
+        if (storedUserInfo != null) {
+            log.info("Session attribute '{}' successfully stored for user: {}", SESSION_ADMIN_KEY, username);
+        } else {
+            log.error("Failed to store session attribute '{}' for user: {}", SESSION_ADMIN_KEY, username);
+        }
 
         return userInfo;
     }
@@ -88,15 +96,22 @@ public class AdminAuthService {
     public AdminUserInfo checkSession(HttpSession session) {
         log.debug("Session check request received, session ID: {}", session.getId());
 
-        // 세션에서 사용자 정보 조회
-        AdminUserInfo userInfo = (AdminUserInfo) session.getAttribute(SESSION_ADMIN_KEY);
+        try {
+            // 세션에서 사용자 정보 조회
+            AdminUserInfo userInfo = (AdminUserInfo) session.getAttribute(SESSION_ADMIN_KEY);
+            
+            log.debug("Retrieved userInfo from session: {}", userInfo);
 
-        if (userInfo == null) {
-            log.warn("No admin user found in session");
-            throw new IllegalArgumentException("세션이 만료되었습니다");
+            if (userInfo == null) {
+                log.warn("No admin user found in session, session ID: {}", session.getId());
+                throw new IllegalArgumentException("세션이 만료되었습니다");
+            }
+
+            log.debug("Session valid for user: {}", userInfo.getUsername());
+            return userInfo;
+        } catch (Exception e) {
+            log.error("Error during session check, session ID: {}", session.getId(), e);
+            throw new IllegalArgumentException("세션 확인 중 오류가 발생했습니다: " + e.getMessage());
         }
-
-        log.debug("Session valid for user: {}", userInfo.getUsername());
-        return userInfo;
     }
 }

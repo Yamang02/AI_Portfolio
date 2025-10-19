@@ -1,8 +1,22 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, createContext, useContext, ReactNode } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { adminAuthApi, AdminUserInfo } from '../api/adminAuthApi';
 
-export const useAuth = () => {
+// AuthContext 타입 정의
+interface AuthContextType {
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  error: any;
+  sessionData: AdminUserInfo | undefined;
+  login: (username: string, password: string) => Promise<{ success: boolean; user?: AdminUserInfo; message?: string }>;
+  logout: () => Promise<{ success: boolean }>;
+}
+
+// AuthContext 생성
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+// AuthProvider 컴포넌트
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const queryClient = useQueryClient();
 
@@ -65,7 +79,7 @@ export const useAuth = () => {
     }
   };
 
-  return {
+  const value: AuthContextType = {
     isAuthenticated,
     isLoading,
     error,
@@ -73,5 +87,20 @@ export const useAuth = () => {
     login,
     logout,
   };
+
+  return React.createElement(
+    AuthContext.Provider,
+    { value },
+    children
+  );
+};
+
+// useAuth 훅
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
 };
 
