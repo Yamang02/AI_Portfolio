@@ -11,9 +11,8 @@ import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
 } from '@ant-design/icons';
-import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import ProjectList from '../projects/ProjectList';
 
 const { Header, Sider, Content } = Layout;
 const { Text } = Typography;
@@ -140,11 +139,15 @@ const AdminLayout: React.FC = () => {
           minHeight: 'calc(100vh - 112px)',
         }}>
           <Routes>
-            <Route path="/dashboard" element={<DashboardPlaceholder />} />
-            <Route path="/projects" element={<ProjectList />} />
-            <Route path="/skills" element={<SkillsPlaceholder />} />
-            <Route path="/experiences" element={<ExperiencesPlaceholder />} />
-            <Route path="/certifications" element={<CertificationsPlaceholder />} />
+            <Route path="/" element={<Navigate to="/admin/dashboard" replace />} />
+            <Route path="dashboard" element={<DashboardPlaceholder />} />
+            <Route path="projects" element={<ProjectListPlaceholder />} />
+            <Route path="projects/new" element={<ProjectEditPlaceholder />} />
+            <Route path="projects/:id/edit" element={<ProjectEditPlaceholder />} />
+            <Route path="skills" element={<SkillsPlaceholder />} />
+            <Route path="experiences" element={<ExperiencesPlaceholder />} />
+            <Route path="education" element={<EducationPlaceholder />} />
+            <Route path="certifications" element={<CertificationsPlaceholder />} />
           </Routes>
         </Content>
       </Layout>
@@ -160,6 +163,19 @@ const DashboardPlaceholder: React.FC = () => (
   </div>
 );
 
+const ProjectListPlaceholder: React.FC = () => (
+  <div style={{ textAlign: 'center', padding: '50px' }}>
+    <h2>프로젝트 관리</h2>
+    <p>프로젝트 목록 및 관리 기능을 제공합니다.</p>
+  </div>
+);
+
+const ProjectEditPlaceholder: React.FC = () => (
+  <div style={{ textAlign: 'center', padding: '50px' }}>
+    <h2>프로젝트 편집</h2>
+    <p>프로젝트 정보를 편집할 수 있습니다.</p>
+  </div>
+);
 
 const SkillsPlaceholder: React.FC = () => (
   <div style={{ textAlign: 'center', padding: '50px' }}>
@@ -172,6 +188,13 @@ const ExperiencesPlaceholder: React.FC = () => (
   <div style={{ textAlign: 'center', padding: '50px' }}>
     <h2>경력 관리</h2>
     <p>경력 정보 관리 기능을 제공합니다.</p>
+  </div>
+);
+
+const EducationPlaceholder: React.FC = () => (
+  <div style={{ textAlign: 'center', padding: '50px' }}>
+    <h2>교육 관리</h2>
+    <p>교육 정보 관리 기능을 제공합니다.</p>
   </div>
 );
 
