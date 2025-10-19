@@ -1282,76 +1282,93 @@ const MediaUploader = ({ form }) => (
 
 ---
 
-## 7. 구현 계획
+## 7. 구현 계획 및 현재 진행 상황
 
-### 7.1 Phase 1: 인증 및 기본 구조 (1주)
-- [ ] Spring Security 세션 기반 인증 구현
-- [ ] 관리자 계정 테이블 생성 및 초기 데이터
-- [ ] 로그인/로그아웃 API
-- [ ] 프론트엔드 라우팅 설정 (/admin/*)
-- [ ] 관리자 레이아웃 (사이드바, 헤더)
-- [ ] 인증 가드 (ProtectedRoute)
+### 7.1 Phase 1: 인증 및 기본 구조 ✅ **완료**
+- [x] Spring Security 세션 기반 인증 구현
+- [x] 관리자 계정 테이블 생성 및 초기 데이터 (V002__create_admin_users.sql)
+- [x] 로그인/로그아웃 API (AdminAuthController, AdminAuthService)
+- [x] 프론트엔드 라우팅 설정 (/admin/*)
+- [x] 관리자 레이아웃 (사이드바, 헤더) - AdminLayout 컴포넌트
+- [x] 인증 가드 (ProtectedRoute)
 
-### 7.2 Phase 2: 프로젝트 관리 (1주)
-- [ ] 프로젝트 CRUD API
-- [ ] 프로젝트 목록 페이지
+**구현된 컴포넌트:**
+- `AdminUser` 엔티티, `AdminAuthService`, `AdminAuthController`
+- `AdminLoginForm`, `AdminLayout`, `ProtectedRoute`, `useAuth` 훅
+
+### 7.2 Phase 2: 프로젝트 관리 🔄 **진행 중**
+- [x] 프로젝트 CRUD API (AdminProjectController, AdminProjectService)
+- [x] 프로젝트 필터링 로직 구현
+- [ ] 프로젝트 목록 페이지 UI 완성
 - [ ] 프로젝트 편집 페이지 (기본 정보)
 - [ ] 마크다운 에디터 통합
 - [ ] 폼 Validation
 
-### 7.3 Phase 3: 스킬 및 경력 관리 (1주)
+**구현된 컴포넌트:**
+- `AdminProjectController`, `AdminProjectService`
+- `ProjectCreateRequest`, `ProjectUpdateRequest`, `ProjectResponse` DTO
+- `ProjectList` 컴포넌트 (기본 구조만)
+
+### 7.3 Phase 3: 데이터베이스 확장 및 이미지 관리 ❌ **미구현**
+- [ ] project_screenshots 테이블 생성 (별도 테이블로 관리)
+- [x] projects 테이블 확장 (readme, is_team, team_size, role, my_contributions) ✅ **이미 완료됨**
+- [ ] Cloudinary 통합 및 설정
+- [ ] 이미지 업로드 API 구현
+- [ ] 이미지 미리보기 및 삭제 기능
+
+### 7.4 Phase 4: 스킬 및 경력 관리 ❌ **미구현**
 - [ ] 스킬 CRUD API 및 UI
 - [ ] 경력 CRUD API 및 UI
 - [ ] 교육/자격증 CRUD API 및 UI
 - [ ] 정렬 순서 관리 (Drag & Drop)
 
-### 7.4 Phase 4: 파일 업로드 및 미디어 관리 (3일)
-- [ ] 이미지 업로드 API
-- [ ] 파일 저장 전략 (로컬 or S3)
-- [ ] 이미지 미리보기 및 삭제
-- [ ] 다중 이미지 업로드 (스크린샷)
-
-### 7.5 Phase 5: 보안 강화 및 최적화 (3일)
+### 7.5 Phase 5: 보안 강화 및 최적화 ❌ **미구현**
 - [ ] Rate Limiting (로그인 시도 제한)
 - [ ] CSRF 토큰 검증
 - [ ] IP 화이트리스트 (옵션)
 - [ ] API 응답 최적화
 - [ ] 에러 핸들링 개선
 
-### 7.6 Phase 6: 대시보드 및 모니터링 (향후)
+### 7.6 Phase 6: 대시보드 및 모니터링 ❌ **미구현**
 - [ ] 대시보드 통계 표시
 - [ ] API 호출 로깅
 - [ ] 에러 로그 확인
 - [ ] 트래픽 분석
+
+### 현재 진행률: **약 30% 완료**
+- ✅ 인증 시스템 완전 구현
+- ✅ 기본 레이아웃 완전 구현  
+- 🔄 프로젝트 관리 API 구현 (UI 부분 완성 필요)
+- ❌ 나머지 기능들 미구현
 
 ---
 
 ## 8. 보안 체크리스트
 
 ### 8.1 인증 보안
-- [x] 비밀번호 BCrypt 해싱
-- [x] 로그인 시도 제한 (5회)
-- [x] 계정 잠금 메커니즘 (30분)
-- [x] 세션 타임아웃 설정 (30분)
-- [x] HttpOnly, Secure 쿠키
-- [x] 동시 세션 제한 (1개)
-- [ ] 비밀번호 강도 검증
-- [ ] 초기 비밀번호 변경 강제
+- [x] 비밀번호 BCrypt 해싱 ✅ **구현됨** (AdminUser 엔티티)
+- [x] 로그인 시도 제한 (5회) ✅ **구현됨** (AdminAuthenticationProvider)
+- [x] 계정 잠금 메커니즘 (30분) ✅ **구현됨** (AdminUser.isLocked())
+- [x] 세션 타임아웃 설정 (30분) ✅ **구현됨** (SecurityConfig)
+- [x] HttpOnly, Secure 쿠키 ✅ **구현됨** (Spring Security 기본)
+- [x] 동시 세션 제한 (1개) ✅ **구현됨** (SecurityConfig)
+- [ ] 비밀번호 강도 검증 ❌ **미구현**
+- [ ] 초기 비밀번호 변경 강제 ❌ **미구현**
 
 ### 8.2 API 보안
-- [x] CSRF 토큰 검증
-- [ ] Rate Limiting (전역)
-- [ ] Input Validation (Bean Validation)
-- [ ] SQL Injection 방지 (JPA 사용)
-- [ ] XSS 방지 (React 자동 이스케이프)
-- [ ] CORS 설정 (Same-Origin)
+- [x] CSRF 토큰 검증 ✅ **구현됨** (SecurityConfig)
+- [ ] Rate Limiting (전역) ❌ **미구현**
+- [x] Input Validation (Bean Validation) ✅ **구현됨** (@Valid 어노테이션)
+- [x] SQL Injection 방지 (JPA 사용) ✅ **구현됨** (JPA Repository)
+- [x] XSS 방지 (React 자동 이스케이프) ✅ **구현됨** (React 기본)
+- [x] CORS 설정 (Same-Origin) ✅ **구현됨** (Spring Security 기본)
 
 ### 8.3 인프라 보안
-- [ ] HTTPS 강제 (프로덕션)
-- [ ] 환경 변수로 민감 정보 관리
-- [ ] DB 접근 제한 (화이트리스트 IP)
-- [ ] 정기적 백업
-- [ ] 로그 모니터링
+- [ ] HTTPS 강제 (프로덕션) ❌ **미구현**
+- [x] 환경 변수로 민감 정보 관리 ✅ **구현됨** (application.yml)
+- [ ] DB 접근 제한 (화이트리스트 IP) ❌ **미구현**
+- [ ] 정기적 백업 ❌ **미구현**
+- [ ] 로그 모니터링 ❌ **미구현**
 
 ---
 
@@ -1395,32 +1412,77 @@ const MediaUploader = ({ form }) => (
 
 ## 11. 다음 액션 아이템
 
-### 백엔드 개발
-- [ ] V002 마이그레이션 스크립트 (admin_users 테이블)
-- [ ] Spring Security 설정 (세션 기반 인증)
-- [ ] 관리자 인증 API 구현
-- [ ] 프로젝트 관리 API 구현
+### 우선순위 1: 프로젝트 관리 UI 완성 (1주)
+- [ ] **프로젝트 목록 페이지 완성**
+  - ProjectList 컴포넌트 실제 구현
+  - 프로젝트 카드 그리드 레이아웃
+  - 필터링 UI (검색, 타입, 상태, 기술 스택)
+  - 정렬 옵션
+
+- [ ] **프로젝트 편집 페이지 구현**
+  - ProjectEdit 컴포넌트 생성
+  - 탭 기반 인터페이스 (기본 정보, 컨텐츠, 기술 스택, 미디어, 링크)
+  - 폼 Validation 및 에러 핸들링
+
+- [ ] **마크다운 에디터 통합**
+  - @uiw/react-md-editor 설치 및 설정
+  - 실시간 미리보기 기능
+  - 이미지 드래그앤드롭 지원
+
+### 우선순위 2: 데이터베이스 확장 (3일)
+- [ ] **V003__extend_projects_table.sql 생성**
+  - project_screenshots 테이블 추가
+  - projects 테이블 확장 컬럼 추가 (readme, is_team, team_size, role, my_contributions)
+
+- [ ] **Cloudinary 통합**
+  - Cloudinary 의존성 추가
+  - CloudinaryConfig 설정
+  - 이미지 업로드 API 구현
+
+### 우선순위 3: 스킬 및 경력 관리 (1주)
+- [ ] **스킬 관리 API 및 UI**
+  - AdminSkillController, AdminSkillService 구현
+  - 스킬 목록/편집 페이지 구현
+
+- [ ] **경력 관리 API 및 UI**
+  - AdminExperienceController, AdminExperienceService 구현
+  - 경력 목록/편집 페이지 구현
+
+### 우선순위 4: 보안 강화 (2일)
+- [ ] **Rate Limiting 구현**
+  - 로그인 시도 제한 강화
+  - API 엔드포인트별 Rate Limiting
+
+- [ ] **비밀번호 정책 강화**
+  - 비밀번호 강도 검증
+  - 초기 비밀번호 변경 강제
+
+### 백엔드 개발 (완료된 항목들)
+- [x] V002 마이그레이션 스크립트 (admin_users 테이블) ✅
+- [x] Spring Security 설정 (세션 기반 인증) ✅
+- [x] 관리자 인증 API 구현 ✅
+- [x] 프로젝트 관리 API 구현 ✅
 - [ ] Cloudinary 의존성 추가 및 설정
 - [ ] 이미지 업로드 API 구현
 
-### 프론트엔드 개발
-- [ ] 관리자 페이지 라우팅 설정 (/admin/*)
-- [ ] Ant Design 기반 로그인 페이지 UI
-- [ ] 관리자 레이아웃 (사이드바, 헤더)
-- [ ] 프로젝트 목록 및 편집 페이지
+### 프론트엔드 개발 (완료된 항목들)
+- [x] 관리자 페이지 라우팅 설정 (/admin/*) ✅
+- [x] Ant Design 기반 로그인 페이지 UI ✅
+- [x] 관리자 레이아웃 (사이드바, 헤더) ✅
+- [ ] 프로젝트 목록 및 편집 페이지 완성
 - [ ] 마크다운 에디터 통합
 - [ ] Ant Design Upload 컴포넌트 구현
 
-### 보안 설정
-- [ ] 관리자 계정 스키마 생성 (직접 생성 방식)
+### 보안 설정 (완료된 항목들)
+- [x] 관리자 계정 스키마 생성 ✅
 - [ ] HTTPS 인증서 설정 (프로덕션)
-- [ ] CSRF 토큰 설정
+- [x] CSRF 토큰 설정 ✅
 - [ ] Rate Limiting 적용
 - [ ] Cloudinary 환경 변수 설정
 
 ---
 
 **문서 작성일**: 2024-10-12
-**최종 수정일**: 2024-10-12
+**최종 수정일**: 2024-12-19 (현재 구현 상황 반영)
 **작성자**: AI Agent (Claude)
 **검토자**: TBD

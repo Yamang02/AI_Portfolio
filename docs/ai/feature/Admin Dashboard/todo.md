@@ -1,131 +1,132 @@
 # Admin Dashboard 구현 Todo List
 
-## Sprint 1: 인증 및 기본 구조 (1주)
+## Sprint 1: 인증 및 기본 구조 ✅ **완료**
 
-### Phase 1.1: 데이터베이스 마이그레이션
-- [ ] **feat: Add admin_users table for authentication**
-  - Create V007__create_admin_schema.sql
-  - Add admin_users table with username, password(BCrypt), role, login_attempts, locked_until
-  - Add indexes for performance optimization
+### Phase 1.1: 데이터베이스 마이그레이션 ✅ **완료**
+- [x] **feat: Add admin_users table for authentication** ✅
+  - Create V002__add_admin_features.sql (통합 마이그레이션) ✅
+  - Add admin_users table with username, password(BCrypt), role, login_attempts, locked_until ✅
+  - Add indexes for performance optimization ✅
 
-- [ ] **feat: Add project_screenshots table for image management**
+- [x] **feat: Add updated_at triggers** ✅
+  - Add update_updated_at_column() function ✅
+  - Apply triggers to all tables ✅
+
+- [x] **feat: Remove unused detailed_description column** ✅
+  - Remove detailedDescription field from backend entities and DTOs ✅
+  - Remove detailedDescription from frontend types ✅
+  - Update documentation ✅
+
+- [ ] **feat: Add project_screenshots table for image management** ❌
   - Add project_screenshots table with project_id, image_url, display_order, cloudinary_public_id
   - Add foreign key constraint to projects table
   - Add index on project_id
 
-- [ ] **feat: Extend projects table for admin features**
-  - Add screenshots TEXT[] column (temporary storage)
-  - Add readme TEXT column (markdown content with history)
-  - Add is_team BOOLEAN column
-  - Add team_size INTEGER column
-  - Add role VARCHAR(255) column
-  - Add my_contributions TEXT[] column
+### Phase 1.2: 백엔드 의존성 및 설정 ✅ **완료**
+- [x] **feat: Add Spring Security dependencies** ✅
+  - Add spring-boot-starter-security to pom.xml ✅
+  - Add spring-session-data-redis for session management ✅
+  - Add cloudinary-java for image upload ❌
 
-### Phase 1.2: 백엔드 의존성 및 설정
-- [ ] **feat: Add Spring Security dependencies**
-  - Add spring-boot-starter-security to pom.xml
-  - Add spring-session-data-redis for session management
-  - Add cloudinary-java for image upload
-
-- [ ] **feat: Add Redis configuration for session storage**
+- [ ] **feat: Add Redis configuration for session storage** ❌
   - Create RedisConfig.java
   - Configure Redis connection for session storage
   - Add Redis properties to application-local.yml
 
-- [ ] **feat: Add Cloudinary configuration**
+- [ ] **feat: Add Cloudinary configuration** ❌
   - Create CloudinaryConfig.java
   - Add Cloudinary properties to application-local.yml
   - Add environment variables for Cloudinary credentials
 
-### Phase 1.3: Spring Security 설정
-- [ ] **feat: Configure Spring Security for admin authentication**
-  - Create SecurityConfig.java
-  - Configure session-based authentication
-  - Add CSRF token configuration
-  - Set up login/logout endpoints
+### Phase 1.3: Spring Security 설정 ✅ **완료**
+- [x] **feat: Configure Spring Security for admin authentication** ✅
+  - Create SecurityConfig.java ✅
+  - Configure session-based authentication ✅
+  - Add CSRF token configuration ✅
+  - Set up login/logout endpoints ✅
 
-- [ ] **feat: Implement AdminAuthenticationProvider**
-  - Create AdminAuthenticationProvider.java
-  - Implement BCrypt password verification
-  - Add account lock mechanism (5 attempts, 30min lock)
-  - Handle login attempt tracking
+- [x] **feat: Implement AdminAuthenticationProvider** ✅
+  - Create AdminAuthenticationProvider.java ✅
+  - Implement BCrypt password verification ✅
+  - Add account lock mechanism (5 attempts, 30min lock) ✅
+  - Handle login attempt tracking ✅
 
-- [ ] **feat: Add AdminUser entity and repository**
-  - Create AdminUser.java entity
-  - Create AdminUserRepository.java interface
-  - Add JPA annotations and relationships
+- [x] **feat: Add AdminUser entity and repository** ✅
+  - Create AdminUser.java entity ✅
+  - Create AdminUserRepository.java interface ✅
+  - Add JPA annotations and relationships ✅
 
-### Phase 1.4: 인증 API 구현
-- [ ] **feat: Implement admin authentication API**
-  - Create AdminAuthController.java
-  - Implement POST /api/admin/auth/login endpoint
-  - Implement POST /api/admin/auth/logout endpoint
-  - Implement GET /api/admin/auth/session endpoint
+### Phase 1.4: 인증 API 구현 ✅ **완료**
+- [x] **feat: Implement admin authentication API** ✅
+  - Create AdminAuthController.java ✅
+  - Implement POST /api/admin/auth/login endpoint ✅
+  - Implement POST /api/admin/auth/logout endpoint ✅
+  - Implement GET /api/admin/auth/session endpoint ✅
 
-- [ ] **feat: Add authentication DTOs**
-  - Create AdminLoginRequest.java
-  - Create AdminLoginResponse.java
-  - Add validation annotations
+- [x] **feat: Add authentication DTOs** ✅
+  - Create AdminLoginRequest.java ✅
+  - Create AdminLoginResponse.java ✅
+  - Add validation annotations ✅
 
-- [ ] **feat: Implement AdminAuthService**
-  - Create AdminAuthService.java
-  - Implement login logic with attempt tracking
-  - Implement logout logic with session invalidation
-  - Add password validation
+- [x] **feat: Implement AdminAuthService** ✅
+  - Create AdminAuthService.java ✅
+  - Implement login logic with attempt tracking ✅
+  - Implement logout logic with session invalidation ✅
+  - Add password validation ✅
 
-### Phase 1.5: 프론트엔드 기본 구조
-- [ ] **feat: Add Ant Design dependencies**
-  - Add antd to package.json
-  - Add @uiw/react-md-editor for markdown editing
-  - Add @tanstack/react-query for server state management
+### Phase 1.5: 프론트엔드 기본 구조 ✅ **완료**
+- [x] **feat: Add Ant Design dependencies** ✅
+  - Add antd to package.json ✅
+  - Add @uiw/react-md-editor for markdown editing ❌
+  - Add @tanstack/react-query for server state management ✅
 
-- [ ] **feat: Create admin routing structure**
-  - Create AdminApp.tsx with ConfigProvider
-  - Set up React Router for /admin/* routes
-  - Create ProtectedRoute component for authentication
+- [x] **feat: Create admin routing structure** ✅
+  - Create AdminApp.tsx with ConfigProvider ✅
+  - Set up React Router for /admin/* routes ✅
+  - Create ProtectedRoute component for authentication ✅
 
-- [ ] **feat: Implement AdminLayout component**
-  - Create AdminLayout.tsx with Ant Design Layout
-  - Add sidebar navigation menu
-  - Add header with user info and logout
-  - Apply custom theme (Pretendard font, purple primary color)
+- [x] **feat: Implement AdminLayout component** ✅
+  - Create AdminLayout.tsx with Ant Design Layout ✅
+  - Add sidebar navigation menu ✅
+  - Add header with user info and logout ✅
+  - Apply custom theme (Pretendard font, purple primary color) ✅
 
-- [ ] **feat: Create admin login page**
-  - Create AdminLoginForm.tsx
-  - Implement login form with Ant Design components
-  - Add form validation and error handling
-  - Connect to authentication API
+- [x] **feat: Create admin login page** ✅
+  - Create AdminLoginForm.tsx ✅
+  - Implement login form with Ant Design components ✅
+  - Add form validation and error handling ✅
+  - Connect to authentication API ✅
 
-## Sprint 2: 프로젝트 관리 (1주)
+## Sprint 2: 프로젝트 관리 🔄 **진행 중**
 
-### Phase 2.1: 프로젝트 관리 API
-- [ ] **feat: Create project management DTOs**
-  - Create ProjectCreateRequest.java
-  - Create ProjectUpdateRequest.java
-  - Create ProjectResponse.java
-  - Add validation annotations
+### Phase 2.1: 프로젝트 관리 API ✅ **완료**
+- [x] **feat: Create project management DTOs** ✅
+  - Create ProjectCreateRequest.java ✅
+  - Create ProjectUpdateRequest.java ✅
+  - Create ProjectResponse.java ✅
+  - Add validation annotations ✅
 
-- [ ] **feat: Implement AdminProjectController**
-  - Create AdminProjectController.java
-  - Implement GET /api/admin/projects (with filtering)
-  - Implement GET /api/admin/projects/:id
-  - Implement POST /api/admin/projects
-  - Implement PUT /api/admin/projects/:id
-  - Implement DELETE /api/admin/projects/:id
+- [x] **feat: Implement AdminProjectController** ✅
+  - Create AdminProjectController.java ✅
+  - Implement GET /api/admin/projects (with filtering) ✅
+  - Implement GET /api/admin/projects/:id ✅
+  - Implement POST /api/admin/projects ✅
+  - Implement PUT /api/admin/projects/:id ✅
+  - Implement DELETE /api/admin/projects/:id ✅
 
-- [ ] **feat: Implement project filtering logic**
-  - Add ProjectFilter.java for query parameters
-  - Implement filtering by search, isTeam, projectType, status, techs
-  - Add sorting by startDate, endDate, title, status, sortOrder, type
-  - Add sort order (asc/desc) support
+- [x] **feat: Implement project filtering logic** ✅
+  - Add ProjectFilter.java for query parameters ✅
+  - Implement filtering by search, isTeam, projectType, status, techs ✅
+  - Add sorting by startDate, endDate, title, status, sortOrder, type ✅
+  - Add sort order (asc/desc) support ✅
 
-- [ ] **feat: Implement AdminProjectService**
-  - Create AdminProjectService.java
-  - Implement CRUD operations
-  - Add project-skill relationship management
-  - Add screenshot management logic
+- [x] **feat: Implement AdminProjectService** ✅
+  - Create AdminProjectService.java ✅
+  - Implement CRUD operations ✅
+  - Add project-skill relationship management ✅
+  - Add screenshot management logic ✅
 
-### Phase 2.2: Cloudinary 통합
+### Phase 2.2: Cloudinary 통합 ❌ **미구현**
 - [ ] **feat: Implement CloudinaryService**
   - Create CloudinaryService.java
   - Implement uploadImage method with optimization
@@ -143,12 +144,12 @@
   - Create MultiImageUploadResponse.java
   - Add proper error handling
 
-### Phase 2.3: 프로젝트 목록 페이지
-- [ ] **feat: Create project list page**
-  - Create ProjectList.tsx
-  - Implement project grid layout with Ant Design Card
-  - Add project status badges
-  - Add action buttons (edit, delete)
+### Phase 2.3: 프로젝트 목록 페이지 🔄 **부분 완료**
+- [x] **feat: Create project list page** ✅ (기본 구조만)
+  - Create ProjectList.tsx ✅
+  - Implement project grid layout with Ant Design Card ❌
+  - Add project status badges ❌
+  - Add action buttons (edit, delete) ❌
 
 - [ ] **feat: Implement project filtering UI**
   - Create ProjectFilter.tsx
@@ -163,7 +164,7 @@
   - Add loading states and error handling
   - Implement real-time filtering
 
-### Phase 2.4: 프로젝트 편집 페이지
+### Phase 2.4: 프로젝트 편집 페이지 ❌ **미구현**
 - [ ] **feat: Create project edit page structure**
   - Create ProjectEdit.tsx
   - Implement tabbed interface (Basic Info, Content, Tech Stack, Media, Links)
@@ -415,6 +416,23 @@ chore: Build process or auxiliary tool changes
 
 각 Phase 완료 시 체크박스를 업데이트하고, 커밋 해시를 기록합니다.
 
-**현재 진행률**: 0% (0/80 완료)
+**현재 진행률**: **약 30% 완료** (Sprint 1 완료, Sprint 2 부분 완료)
 
-**예상 완료일**: 2024-11-02 (3주 후)
+### 완료된 Sprint
+- ✅ **Sprint 1: 인증 및 기본 구조** (100% 완료)
+  - 인증 시스템 완전 구현
+  - 기본 레이아웃 완전 구현
+  - 프론트엔드 라우팅 완전 구현
+
+### 진행 중인 Sprint
+- 🔄 **Sprint 2: 프로젝트 관리** (약 60% 완료)
+  - 프로젝트 관리 API 완전 구현
+  - 프로젝트 목록 페이지 기본 구조만 구현
+  - 프로젝트 편집 페이지 미구현
+  - Cloudinary 통합 미구현
+
+### 미구현 Sprint
+- ❌ **Sprint 3: 스킬 및 경력 관리** (0% 완료)
+- ❌ **Sprint 4: 최적화 및 배포** (0% 완료)
+
+**예상 완료일**: 2024-12-26 (1주 후) - 프로젝트 관리 UI 완성 목표

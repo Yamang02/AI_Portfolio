@@ -103,7 +103,6 @@ public class AdminProjectService {
         Project project = Project.builder()
                 .title(request.getTitle())
                 .description(request.getDescription())
-                .detailedDescription(request.getDetailedDescription())
                 .readme(request.getReadme())
                 .type(request.getType())
                 .status(request.getStatus())
@@ -138,7 +137,6 @@ public class AdminProjectService {
         // 필드 업데이트
         if (request.getTitle() != null) project.setTitle(request.getTitle());
         if (request.getDescription() != null) project.setDescription(request.getDescription());
-        if (request.getDetailedDescription() != null) project.setDetailedDescription(request.getDetailedDescription());
         if (request.getReadme() != null) project.setReadme(request.getReadme());
         if (request.getType() != null) project.setType(request.getType());
         if (request.getStatus() != null) project.setStatus(request.getStatus());
@@ -221,7 +219,6 @@ public class AdminProjectService {
                 .id(Long.parseLong(project.getId()))
                 .title(project.getTitle())
                 .description(project.getDescription())
-                .detailedDescription(project.getDetailedDescription())
                 .readme(project.getReadme())
                 .type(project.getType())
                 .status(project.getStatus())

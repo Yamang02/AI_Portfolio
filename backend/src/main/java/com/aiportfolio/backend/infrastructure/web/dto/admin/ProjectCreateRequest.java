@@ -21,7 +21,6 @@ public class ProjectCreateRequest {
     @NotBlank(message = "프로젝트 설명은 필수입니다")
     private String description;
 
-    private String detailedDescription;
 
     private String readme;
 

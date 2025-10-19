@@ -47,8 +47,6 @@ public class ProjectJpaEntity {
     @NotBlank(message = "프로젝트 설명은 필수입니다")
     private String description;
     
-    @Column(name = "detailed_description", columnDefinition = "TEXT")
-    private String detailedDescription;
     
     // 기존 technologies 배열 필드 제거됨 - techStackMetadata 관계 필드로 대체
     

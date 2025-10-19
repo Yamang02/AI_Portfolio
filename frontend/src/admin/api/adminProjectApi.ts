@@ -4,7 +4,6 @@ export interface Project {
   id: number;
   title: string;
   description: string;
-  detailedDescription?: string;
   readme?: string;
   type: 'BUILD' | 'LAB' | 'MAINTENANCE';
   status: 'completed' | 'in_progress' | 'maintenance';
@@ -42,7 +41,6 @@ export interface Technology {
 export interface ProjectCreateRequest {
   title: string;
   description: string;
-  detailedDescription?: string;
   readme?: string;
   type: 'BUILD' | 'LAB' | 'MAINTENANCE';
   status: 'completed' | 'in_progress' | 'maintenance';

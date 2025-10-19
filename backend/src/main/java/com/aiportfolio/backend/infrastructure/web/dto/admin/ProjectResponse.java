@@ -21,7 +21,6 @@ public class ProjectResponse {
     private Long id;
     private String title;
     private String description;
-    private String detailedDescription;
     private String readme;
     private String type;
     private String status;

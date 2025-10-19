@@ -32,8 +32,6 @@ public class Project {
     @Size(max = 2000, message = "프로젝트 설명은 2000자를 초과할 수 없습니다")
     private String description;
     
-    @Size(max = 5000, message = "상세 설명은 5000자를 초과할 수 없습니다")
-    private String detailedDescription;
     
     // 기존 technologies 필드 제거됨 - techStackMetadata 관계 필드로 대체
     private List<TechStackMetadata> techStackMetadata;
