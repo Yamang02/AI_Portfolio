@@ -27,24 +27,31 @@ public interface AdminUserJpaRepository extends JpaRepository<AdminUser, Long> {
     boolean existsByUsername(String username);
 
     /**
-     * 로그인 시도 증가
+     * 로그인 시도 증가 (updatedAt 자동)
      */
     @Modifying
-    @Query("UPDATE AdminUser u SET u.loginAttempts = u.loginAttempts + 1, u.updatedAt = :updatedAt WHERE u.username = :username")
-    void incrementLoginAttempts(@Param("username") String username, @Param("updatedAt") LocalDateTime updatedAt);
+    @Query("UPDATE AdminUser u SET u.loginAttempts = u.loginAttempts + 1 WHERE u.username = :username")
+    void incrementLoginAttempts(@Param("username") String username);
 
     /**
-     * 로그인 성공 시 초기화
+     * 성공적인 로그인 후 상태 업데이트
      */
     @Modifying
-    @Query("UPDATE AdminUser u SET u.loginAttempts = 0, u.lockedUntil = null, u.lastLogin = :lastLogin, u.updatedAt = :updatedAt WHERE u.username = :username")
-    void resetLoginAttempts(@Param("username") String username, @Param("lastLogin") LocalDateTime lastLogin, @Param("updatedAt") LocalDateTime updatedAt);
+    @Query("UPDATE AdminUser u SET u.lastLogin = :lastLogin, u.loginAttempts = 0, u.lockedUntil = null WHERE u.username = :username")
+    void updateSuccessfulLogin(@Param("username") String username, @Param("lastLogin") LocalDateTime lastLogin);
 
     /**
-     * 계정 잠금 설정
+     * 계정 잠금 설정 (updatedAt 자동)
      */
     @Modifying
-    @Query("UPDATE AdminUser u SET u.lockedUntil = :lockedUntil, u.updatedAt = :updatedAt WHERE u.username = :username")
-    void lockAccount(@Param("username") String username, @Param("lockedUntil") LocalDateTime lockedUntil, @Param("updatedAt") LocalDateTime updatedAt);
+    @Query("UPDATE AdminUser u SET u.lockedUntil = :lockedUntil WHERE u.username = :username")
+    void lockAccount(@Param("username") String username, @Param("lockedUntil") LocalDateTime lockedUntil);
+
+    /**
+     * 계정 잠금 해제
+     */
+    @Modifying
+    @Query("UPDATE AdminUser u SET u.lockedUntil = null, u.loginAttempts = 0 WHERE u.username = :username")
+    void unlockAccount(@Param("username") String username);
 }
 

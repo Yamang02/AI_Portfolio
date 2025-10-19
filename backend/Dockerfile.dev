@@ -1,4 +1,4 @@
-# Development Dockerfile for Spring Boot Backend
+# Development Dockerfile for Spring Boot Backend with optimized caching
 FROM openjdk:17-jdk-slim
 
 # Install Maven and curl
@@ -9,11 +9,13 @@ RUN apt-get update && \
 # Set working directory
 WORKDIR /app
 
-# Copy Maven files for dependency caching
+# Copy Maven files for dependency caching (레이어 캐싱 최적화)
 COPY pom.xml .
-RUN mvn dependency:go-offline -B
 
-# Copy source code
+# Download dependencies only when pom.xml changes
+RUN mvn dependency:go-offline -B || true
+
+# Copy source code (소스 변경 시에만 이 레이어 이후가 재빌드됨)
 COPY src ./src
 
 # Expose port
@@ -23,5 +25,7 @@ EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
   CMD curl -f http://localhost:8080/health || exit 1
 
-# Development command with hot reload and proper profile
-CMD ["mvn", "spring-boot:run", "-Dspring-boot.run.profiles=local", "-Dspring-boot.run.jvmArguments=-Dspring.devtools.restart.enabled=true"]
+# Development command with optimized settings
+# -o: offline mode (의존성 다운로드 스킵, 이미 캐시된 것 사용)
+# -T 1C: 병렬 빌드 (CPU 코어 수만큼)
+CMD ["mvn", "spring-boot:run", "-o", "-T", "1C", "-Dspring-boot.run.profiles=local", "-Dspring-boot.run.jvmArguments=-Dspring.devtools.restart.enabled=true"]

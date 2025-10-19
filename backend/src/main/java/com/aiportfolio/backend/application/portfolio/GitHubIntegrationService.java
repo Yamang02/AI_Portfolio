@@ -1,6 +1,6 @@
 package com.aiportfolio.backend.application.portfolio;
 
-import com.aiportfolio.backend.config.AppConfig;
+import com.aiportfolio.backend.infrastructure.config.AppConfig;
 import com.aiportfolio.backend.domain.portfolio.model.Project;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

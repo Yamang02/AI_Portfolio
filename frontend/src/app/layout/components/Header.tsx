@@ -1,4 +1,5 @@
 import React from 'react';
+import { SettingOutlined } from '@ant-design/icons';
 
 const Header: React.FC = () => {
   return (
@@ -68,6 +69,16 @@ const Header: React.FC = () => {
             }}
           >
             Certification
+          </a>
+          
+          {/* 어드민 진입점 */}
+          <a 
+            href="/admin/login" 
+            className="text-sm text-gray-600 hover:text-gray-800 transition-colors cursor-pointer flex items-center gap-1"
+            title="관리자 로그인"
+          >
+            <SettingOutlined className="text-base" />
+            <span className="hidden sm:inline">Admin</span>
           </a>
         </div>
       </nav>

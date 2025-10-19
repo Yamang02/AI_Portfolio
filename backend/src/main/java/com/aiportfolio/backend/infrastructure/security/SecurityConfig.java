@@ -1,18 +1,12 @@
 package com.aiportfolio.backend.infrastructure.security;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.session.SessionRegistry;
-import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -20,75 +14,53 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.Arrays;
 
 /**
- * Spring Security 설정
- * 관리자 대시보드 인증 및 세션 관리
+ * Spring Security 설정 클래스
+ * Admin Dashboard 인증 및 보안 설정을 담당합니다.
  */
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-@RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final AdminAuthenticationProvider adminAuthenticationProvider;
-
+    /**
+     * 보안 필터 체인을 구성합니다.
+     */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+            // CORS 설정
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            
+            // 인증 요구사항 설정
             .authorizeHttpRequests(auth -> auth
-                // 관리자 페이지 및 API는 인증 필요
-                .requestMatchers("/admin/**").authenticated()
-                .requestMatchers("/api/admin/**").authenticated()
-                // 공개 API는 허용
+                .requestMatchers("/api/admin/auth/**").permitAll()
                 .requestMatchers("/api/public/**").permitAll()
-                .requestMatchers("/api/chat/**").permitAll()
-                .requestMatchers("/api/data/**").permitAll()
-                .requestMatchers("/api/github/**").permitAll()
-                .requestMatchers("/api/tech-stack/**").permitAll()
                 .requestMatchers("/actuator/**").permitAll()
-                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                .requestMatchers("/").permitAll()
                 .anyRequest().permitAll()
             )
-            .formLogin(form -> form
-                .loginPage("/admin/login")
-                .loginProcessingUrl("/api/admin/auth/login")
-                .defaultSuccessUrl("/admin/dashboard", true)
-                .failureUrl("/admin/login?error=true")
-                .permitAll()
-            )
-            .logout(logout -> logout
-                .logoutUrl("/api/admin/auth/logout")
-                .logoutSuccessUrl("/")
-                .invalidateHttpSession(true)
-                .deleteCookies("JSESSIONID")
-                .permitAll()
-            )
+            
+            // 폼 로그인 비활성화
+            .formLogin(form -> form.disable())
+            
+            // HTTP Basic 인증 비활성화
+            .httpBasic(basic -> basic.disable())
+            
+            // CSRF 비활성화
+            .csrf(csrf -> csrf.disable())
+            
+            // 세션 관리 설정 - 필요 시 세션 생성
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-                .maximumSessions(1)
-                .maxSessionsPreventsLogin(false)
-                .sessionRegistry(sessionRegistry())
-            )
-            .csrf(csrf -> csrf
-                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                .ignoringRequestMatchers("/api/public/**", "/api/chat/**", "/api/data/**", "/api/github/**", "/api/tech-stack/**")
-            )
-            .authenticationProvider(adminAuthenticationProvider);
+                .maximumSessions(1) // 동시 세션 1개로 제한
+                .maxSessionsPreventsLogin(false) // 새 로그인 시 이전 세션 무효화
+            );
 
         return http.build();
     }
 
-    @Bean
-    public SessionRegistry sessionRegistry() {
-        return new SessionRegistryImpl();
-    }
-
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
-    }
-
+    /**
+     * CORS 설정을 구성합니다.
+     */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();

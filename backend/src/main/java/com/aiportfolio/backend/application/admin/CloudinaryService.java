@@ -14,27 +14,33 @@ import java.util.Map;
 
 /**
  * Cloudinary 이미지 업로드 서비스
+ * 이미지 업로드, 삭제, 최적화를 담당합니다.
  */
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class CloudinaryService {
-    
+
     private final Cloudinary cloudinary;
-    
+
     /**
-     * 단일 이미지 업로드
+     * 단일 이미지를 업로드합니다.
      */
     public String uploadImage(MultipartFile file, String folder) throws IOException {
-        if (cloudinary == null) {
-            throw new IllegalStateException("Cloudinary is not configured");
-        }
+        log.debug("Uploading image to folder: {}", folder);
         
+        @SuppressWarnings("unchecked")
         Map<String, Object> params = ObjectUtils.asMap(
             "folder", folder,
             "resource_type", "image",
             "transformation", Arrays.asList(
-                ObjectUtils.asMap("width", 1000, "height", 1000, "crop", "limit")
+                ObjectUtils.asMap(
+                    "width", 1000,
+                    "height", 1000,
+                    "crop", "limit",
+                    "quality", "auto",
+                    "format", "auto"
+                )
             )
         );
         
@@ -45,59 +51,91 @@ public class CloudinaryService {
         log.info("Image uploaded successfully: {} -> {}", publicId, url);
         return url;
     }
-    
+
     /**
-     * 다중 이미지 업로드
+     * 다중 이미지를 업로드합니다.
      */
     public List<String> uploadImages(List<MultipartFile> files, String folder) throws IOException {
-        if (cloudinary == null) {
-            throw new IllegalStateException("Cloudinary is not configured");
-        }
+        log.debug("Uploading {} images to folder: {}", files.size(), folder);
         
         return files.stream()
-                .map(file -> {
-                    try {
-                        return uploadImage(file, folder);
-                    } catch (IOException e) {
-                        log.error("Failed to upload image: {}", file.getOriginalFilename(), e);
-                        throw new RuntimeException("Failed to upload image: " + file.getOriginalFilename(), e);
-                    }
-                })
-                .toList();
+            .map(file -> {
+                try {
+                    return uploadImage(file, folder);
+                } catch (IOException e) {
+                    log.error("Failed to upload image: {}", file.getOriginalFilename(), e);
+                    throw new RuntimeException("이미지 업로드 실패: " + file.getOriginalFilename(), e);
+                }
+            })
+            .toList();
     }
-    
+
     /**
-     * 이미지 삭제
+     * 이미지를 삭제합니다.
      */
     public void deleteImage(String publicId) throws Exception {
-        if (cloudinary == null) {
-            throw new IllegalStateException("Cloudinary is not configured");
-        }
+        log.debug("Deleting image: {}", publicId);
         
         Map<?, ?> result = cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
-        log.info("Image deleted successfully: {}", publicId);
+        String resultStatus = (String) result.get("result");
+        
+        if ("ok".equals(resultStatus)) {
+            log.info("Image deleted successfully: {}", publicId);
+        } else {
+            log.warn("Image deletion result: {} for {}", resultStatus, publicId);
+        }
     }
-    
+
     /**
-     * Public ID 추출 (URL에서)
+     * URL에서 public ID를 추출합니다.
      */
-    public String extractPublicId(String imageUrl) {
-        if (imageUrl == null || !imageUrl.contains("cloudinary.com")) {
+    public String extractPublicId(String url) {
+        if (url == null || !url.contains("cloudinary.com")) {
             return null;
         }
         
         try {
-            // URL에서 public_id 추출
-            String[] parts = imageUrl.split("/");
-            if (parts.length >= 2) {
+            // URL에서 public ID 추출
+            // 예: https://res.cloudinary.com/cloud/image/upload/v1234567890/folder/image.jpg
+            // -> folder/image
+            String[] parts = url.split("/");
+            if (parts.length >= 8) {
+                String folder = parts[parts.length - 2];
                 String filename = parts[parts.length - 1];
-                return filename.substring(0, filename.lastIndexOf('.'));
+                String nameWithoutExtension = filename.substring(0, filename.lastIndexOf('.'));
+                return folder + "/" + nameWithoutExtension;
             }
         } catch (Exception e) {
-            log.warn("Failed to extract public ID from URL: {}", imageUrl);
+            log.warn("Failed to extract public ID from URL: {}", url, e);
         }
         
         return null;
     }
-}
 
+    /**
+     * 이미지 URL을 최적화된 형태로 변환합니다.
+     */
+    public String optimizeImageUrl(String url, int width, int height) {
+        if (url == null || !url.contains("cloudinary.com")) {
+            return url;
+        }
+        
+        try {
+            String publicId = extractPublicId(url);
+            if (publicId != null) {
+                return cloudinary.url()
+                    .transformation(new com.cloudinary.Transformation()
+                        .width(width)
+                        .height(height)
+                        .crop("limit")
+                        .quality("auto")
+                        .fetchFormat("auto"))
+                    .generate(publicId);
+            }
+        } catch (Exception e) {
+            log.warn("Failed to optimize image URL: {}", url, e);
+        }
+        
+        return url;
+    }
+}

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Form, Input, Button, Card, Typography, message, Space } from 'antd';
+import { Form, Input, Button, Card, Typography, Space, App } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useAuth } from '../../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
@@ -16,20 +16,27 @@ const AdminLoginForm: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
+  const { message } = App.useApp();
 
   const handleSubmit = async (values: LoginFormData) => {
+    console.log('로그인 시도:', values);
     setLoading(true);
     
     try {
+      console.log('API 호출 시작...');
       const result = await login(values.username, values.password);
+      console.log('API 응답:', result);
       
       if (result.success) {
+        console.log('로그인 성공!');
         message.success('로그인 성공');
         navigate('/admin/dashboard');
       } else {
+        console.log('로그인 실패:', result.message);
         message.error(result.message || '로그인 실패');
       }
     } catch (error: any) {
+      console.error('로그인 오류:', error);
       message.error(error.message || '로그인 중 오류가 발생했습니다');
     } finally {
       setLoading(false);
@@ -52,7 +59,7 @@ const AdminLoginForm: React.FC = () => {
           boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
           borderRadius: '12px',
         }}
-        bodyStyle={{ padding: '40px' }}
+        styles={{ body: { padding: '40px' } }}
       >
         <Space direction="vertical" size="large" style={{ width: '100%' }}>
           <div style={{ textAlign: 'center' }}>
@@ -122,7 +129,7 @@ const AdminLoginForm: React.FC = () => {
 
           <div style={{ textAlign: 'center' }}>
             <Text type="secondary" style={{ fontSize: '12px' }}>
-              기본 계정: admin / admin123
+              관리자 계정으로 로그인하세요
             </Text>
           </div>
         </Space>

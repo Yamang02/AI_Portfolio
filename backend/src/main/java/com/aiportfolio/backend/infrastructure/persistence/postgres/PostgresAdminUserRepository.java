@@ -35,17 +35,22 @@ public class PostgresAdminUserRepository implements AdminUserRepository {
 
     @Override
     public void incrementLoginAttempts(String username) {
-        adminUserJpaRepository.incrementLoginAttempts(username, LocalDateTime.now());
+        adminUserJpaRepository.incrementLoginAttempts(username);
     }
 
     @Override
-    public void resetLoginAttempts(String username) {
-        adminUserJpaRepository.resetLoginAttempts(username, LocalDateTime.now(), LocalDateTime.now());
+    public void lockAccount(String username, LocalDateTime lockedUntil) {
+        adminUserJpaRepository.lockAccount(username, lockedUntil);
     }
 
     @Override
-    public void lockAccount(String username) {
-        adminUserJpaRepository.lockAccount(username, LocalDateTime.now().plusMinutes(30), LocalDateTime.now());
+    public void updateSuccessfulLogin(String username, LocalDateTime lastLogin) {
+        adminUserJpaRepository.updateSuccessfulLogin(username, lastLogin);
+    }
+
+    @Override
+    public void unlockAccount(String username) {
+        adminUserJpaRepository.unlockAccount(username);
     }
 }
 

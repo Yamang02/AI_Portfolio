@@ -1,4 +1,4 @@
-package com.aiportfolio.backend.config;
+package com.aiportfolio.backend.infrastructure.config;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;

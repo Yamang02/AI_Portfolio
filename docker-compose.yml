@@ -73,6 +73,8 @@ services:
     volumes:
       - ./backend/src:/app/src
       - ./backend/pom.xml:/app/pom.xml
+      - maven_cache:/root/.m2  # Maven 의존성 캐시
+      - ./backend/target:/app/target  # 빌드 결과물 캐시
     depends_on:
       postgres:
         condition: service_healthy
@@ -181,6 +183,7 @@ volumes:
   redis_data:
   # qdrant_data:  # AI 서비스용 - 불필요
   pgadmin_data:
+  maven_cache:  # Maven 의존성 캐시용
 
 networks:
   ai-portfolio-network:

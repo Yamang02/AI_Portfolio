@@ -5,21 +5,10 @@ export interface AdminLoginRequest {
   password: string;
 }
 
-export interface AdminLoginResponse {
-  success: boolean;
-  message: string;
-  user?: {
-    username: string;
-    role: string;
-    lastLogin: string;
-  };
-}
-
-export interface SessionInfo {
-  authenticated: boolean;
-  username?: string;
-  role?: string;
-  lastLogin?: string;
+export interface AdminUserInfo {
+  username: string;
+  role: string;
+  lastLogin: string;
 }
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
@@ -27,7 +16,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080
 class AdminAuthApi {
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
     const url = `${API_BASE_URL}${endpoint}`;
-    
+
     const defaultOptions: RequestInit = {
       headers: {
         'Content-Type': 'application/json',
@@ -37,17 +26,21 @@ class AdminAuthApi {
     };
 
     const response = await fetch(url, { ...defaultOptions, ...options });
-    
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || `HTTP ${response.status}`);
+
+    // 응답이 실패 상태코드여도 ApiResponse 형식일 수 있으므로 JSON 파싱 시도
+    const data: ApiResponse<T> = await response.json();
+
+    // HTTP 에러 상태이면서 ApiResponse가 아닌 경우에만 에러 throw
+    if (!response.ok && !data.hasOwnProperty('success')) {
+      throw new Error(data.message || `HTTP ${response.status}`);
     }
 
-    return response.json();
+    return data;
   }
 
-  async login(credentials: AdminLoginRequest): Promise<ApiResponse<AdminLoginResponse>> {
-    return this.request<AdminLoginResponse>('/api/admin/auth/login', {
+  async login(credentials: AdminLoginRequest): Promise<ApiResponse<AdminUserInfo>> {
+    // 평문 비밀번호를 그대로 전송 (백엔드에서 해시 비교)
+    return this.request<AdminUserInfo>('/api/admin/auth/login', {
       method: 'POST',
       body: JSON.stringify(credentials),
     });
@@ -59,8 +52,8 @@ class AdminAuthApi {
     });
   }
 
-  async getSession(): Promise<ApiResponse<SessionInfo>> {
-    return this.request<SessionInfo>('/api/admin/auth/session');
+  async getSession(): Promise<ApiResponse<AdminUserInfo>> {
+    return this.request<AdminUserInfo>('/api/admin/auth/session');
   }
 }
 

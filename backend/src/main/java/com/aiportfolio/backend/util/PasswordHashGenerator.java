@@ -1,4 +1,4 @@
-package com.portfolio.util;
+package com.aiportfolio.backend.util;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 

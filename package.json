@@ -7,6 +7,8 @@
     "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
     "dev:frontend": "cd frontend && npm run dev",
     "dev:backend": "dotenv -e backend/.env.local -- mvnd -f backend/pom.xml compile exec:java -Dexec.mainClass=com.aiportfolio.backend.BackendApplication",
+    "dev:backend:local": "cd backend && ./mvnw spring-boot:run -Dspring-boot.run.profiles=local",
+    "dev:backend:fast": "cd backend && ./mvnw spring-boot:run -o -T 1C -Dspring-boot.run.profiles=local",
     "build": "npm run build:frontend && npm run build:backend",
     "build:frontend": "cd frontend && npm run build",
     "build:backend": "cd backend && mvnd clean package",

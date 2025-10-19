@@ -46,19 +46,21 @@ spring:
     ignore-missing-migrations: true  # 누락된 마이그레이션 무시
 
   # Redis 캐싱 설정 (Docker Compose)
-  redis:
-    host: ${REDIS_HOST:redis}
-    port: ${REDIS_PORT:6379}
-    password: 
-    database: 0
-    ssl: false
-    timeout: 2000ms
-    lettuce:
-      pool:
-        max-active: 8
-        max-idle: 8
-        min-idle: 0
-        max-wait: -1ms
+  data:
+    redis:
+      host: ${REDIS_HOST:redis}
+      port: ${REDIS_PORT:6379}
+      password:
+      database: 0
+      ssl:
+        enabled: false
+      timeout: 2000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+          max-wait: -1ms
 
   # 캐시 설정
   cache:
@@ -104,6 +106,7 @@ management:
   endpoint:
     health:
       show-details: always
+      check-interval: 60s  # 헬스체크 주기를 60초로 늘림
   health:
     redis:
       enabled: true

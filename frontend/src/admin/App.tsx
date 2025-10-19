@@ -1,7 +1,7 @@
 import React from 'react';
-import { ConfigProvider } from 'antd';
+import { ConfigProvider, App as AntdApp } from 'antd';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import AdminLayout from './components/layout/AdminLayout';
 import AdminLoginForm from './components/auth/AdminLoginForm';
 import ProtectedRoute from './components/common/ProtectedRoute';
@@ -37,25 +37,21 @@ const AdminApp: React.FC = () => {
         },
       }}
     >
-      <QueryClientProvider client={queryClient}>
-        <Router>
+      <AntdApp>
+        <QueryClientProvider client={queryClient}>
           <Routes>
             {/* 로그인 페이지 */}
-            <Route path="/admin/login" element={<AdminLoginForm />} />
-            
+            <Route path="login" element={<AdminLoginForm />} />
+
             {/* 보호된 관리자 라우트 */}
-            <Route path="/admin/*" element={
+            <Route path="*" element={
               <ProtectedRoute>
                 <AdminLayout />
               </ProtectedRoute>
             } />
-            
-            {/* 기본 리다이렉션 */}
-            <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
-            <Route path="*" element={<Navigate to="/admin/login" replace />} />
           </Routes>
-        </Router>
-      </QueryClientProvider>
+        </QueryClientProvider>
+      </AntdApp>
     </ConfigProvider>
   );
 };

@@ -1,19 +1,13 @@
 import { useState, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { adminAuthApi } from '../api/adminAuthApi';
-
-interface SessionInfo {
-  authenticated: boolean;
-  username?: string;
-  role?: string;
-  lastLogin?: string;
-}
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { adminAuthApi, AdminUserInfo } from '../api/adminAuthApi';
 
 export const useAuth = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const queryClient = useQueryClient();
 
   // 세션 상태 확인
-  const { data: sessionData, isLoading, error } = useQuery({
+  const { data: sessionData, isLoading, error, refetch } = useQuery({
     queryKey: ['admin-session'],
     queryFn: adminAuthApi.getSession,
     retry: false,
@@ -21,8 +15,9 @@ export const useAuth = () => {
   });
 
   useEffect(() => {
-    if (sessionData?.data) {
-      setIsAuthenticated(sessionData.data.authenticated);
+    // ApiResponse<AdminUserInfo> 구조에서 data가 있으면 인증됨
+    if (sessionData?.success && sessionData?.data) {
+      setIsAuthenticated(true);
     } else {
       setIsAuthenticated(false);
     }
@@ -31,16 +26,26 @@ export const useAuth = () => {
   const login = async (username: string, password: string) => {
     try {
       const response = await adminAuthApi.login({ username, password });
-      if (response.data?.success) {
+      console.log('Login API response:', response);
+
+      // ApiResponse<AdminUserInfo> 구조: { success, message, data: AdminUserInfo }
+      if (response.success && response.data) {
+        // 인증 상태를 먼저 설정
         setIsAuthenticated(true);
-        return { success: true };
+        // 세션 쿼리 업데이트 (백그라운드에서 처리)
+        queryClient.setQueryData(['admin-session'], response);
+        return { success: true, user: response.data };
       } else {
-        return { success: false, message: response.data?.message || '로그인 실패' };
+        return {
+          success: false,
+          message: response.error || response.message || '로그인 실패'
+        };
       }
     } catch (error: any) {
-      return { 
-        success: false, 
-        message: error.response?.data?.message || '로그인 중 오류가 발생했습니다' 
+      console.error('Login error:', error);
+      return {
+        success: false,
+        message: error.message || '로그인 중 오류가 발생했습니다'
       };
     }
   };
@@ -49,10 +54,13 @@ export const useAuth = () => {
     try {
       await adminAuthApi.logout();
       setIsAuthenticated(false);
+      // 로그아웃 후 세션 쿼리 무효화
+      await queryClient.invalidateQueries({ queryKey: ['admin-session'] });
       return { success: true };
     } catch (error) {
       console.error('Logout error:', error);
       setIsAuthenticated(false);
+      await queryClient.invalidateQueries({ queryKey: ['admin-session'] });
       return { success: true }; // 로그아웃은 항상 성공으로 처리
     }
   };
