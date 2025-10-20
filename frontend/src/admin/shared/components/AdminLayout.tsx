@@ -10,6 +10,7 @@ import {
   UserOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
+  HomeOutlined,
 } from '@ant-design/icons';
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../features/auth/model/useAuth';
@@ -122,9 +123,6 @@ const AdminLayout: React.FC = () => {
           />
 
           <Space>
-            <Text type="secondary">
-              안녕하세요, {sessionData?.username}님
-            </Text>
             <Dropdown
               menu={{ items: userMenuItems }}
               placement="bottomRight"
@@ -135,6 +133,15 @@ const AdminLayout: React.FC = () => {
                 style={{ cursor: 'pointer' }}
               />
             </Dropdown>
+            <Text type="secondary">
+              안녕하세요, {sessionData?.username}님
+            </Text>
+            <Button
+              type="text"
+              icon={<HomeOutlined />}
+              aria-label="메인으로"
+              onClick={() => navigate('/')}
+            />
           </Space>
         </Header>
 
