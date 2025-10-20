@@ -13,6 +13,13 @@ import {
 } from '@ant-design/icons';
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../features/auth/model/useAuth';
+import Dashboard from '../../pages/Dashboard';
+import ProjectList from '../../pages/ProjectList';
+import ProjectEdit from '../../pages/ProjectEdit';
+import SkillList from '../../pages/SkillList';
+import ExperienceList from '../../pages/ExperienceList';
+import EducationList from '../../pages/EducationList';
+import CertificationList from '../../pages/CertificationList';
 
 const { Header, Sider, Content } = Layout;
 const { Text } = Typography;
@@ -140,69 +147,19 @@ const AdminLayout: React.FC = () => {
         }}>
           <Routes>
             <Route path="/" element={<Navigate to="/admin/dashboard" replace />} />
-            <Route path="dashboard" element={<DashboardPlaceholder />} />
-            <Route path="projects" element={<ProjectListPlaceholder />} />
-            <Route path="projects/new" element={<ProjectEditPlaceholder />} />
-            <Route path="projects/:id/edit" element={<ProjectEditPlaceholder />} />
-            <Route path="skills" element={<SkillsPlaceholder />} />
-            <Route path="experiences" element={<ExperiencesPlaceholder />} />
-            <Route path="education" element={<EducationPlaceholder />} />
-            <Route path="certifications" element={<CertificationsPlaceholder />} />
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="projects" element={<ProjectList />} />
+            <Route path="projects/new" element={<ProjectEdit />} />
+            <Route path="projects/:id/edit" element={<ProjectEdit />} />
+            <Route path="skills" element={<SkillList />} />
+            <Route path="experiences" element={<ExperienceList />} />
+            <Route path="education" element={<EducationList />} />
+            <Route path="certifications" element={<CertificationList />} />
           </Routes>
         </Content>
       </Layout>
     </Layout>
   );
 };
-
-// 임시 플레이스홀더 컴포넌트들
-const DashboardPlaceholder: React.FC = () => (
-  <div style={{ textAlign: 'center', padding: '50px' }}>
-    <h2>대시보드</h2>
-    <p>프로젝트 통계 및 최근 활동을 표시합니다.</p>
-  </div>
-);
-
-const ProjectListPlaceholder: React.FC = () => (
-  <div style={{ textAlign: 'center', padding: '50px' }}>
-    <h2>프로젝트 관리</h2>
-    <p>프로젝트 목록 및 관리 기능을 제공합니다.</p>
-  </div>
-);
-
-const ProjectEditPlaceholder: React.FC = () => (
-  <div style={{ textAlign: 'center', padding: '50px' }}>
-    <h2>프로젝트 편집</h2>
-    <p>프로젝트 정보를 편집할 수 있습니다.</p>
-  </div>
-);
-
-const SkillsPlaceholder: React.FC = () => (
-  <div style={{ textAlign: 'center', padding: '50px' }}>
-    <h2>스킬 관리</h2>
-    <p>기술 스택 관리 기능을 제공합니다.</p>
-  </div>
-);
-
-const ExperiencesPlaceholder: React.FC = () => (
-  <div style={{ textAlign: 'center', padding: '50px' }}>
-    <h2>경력 관리</h2>
-    <p>경력 정보 관리 기능을 제공합니다.</p>
-  </div>
-);
-
-const EducationPlaceholder: React.FC = () => (
-  <div style={{ textAlign: 'center', padding: '50px' }}>
-    <h2>교육 관리</h2>
-    <p>교육 정보 관리 기능을 제공합니다.</p>
-  </div>
-);
-
-const CertificationsPlaceholder: React.FC = () => (
-  <div style={{ textAlign: 'center', padding: '50px' }}>
-    <h2>자격증 관리</h2>
-    <p>자격증 및 교육 정보 관리 기능을 제공합니다.</p>
-  </div>
-);
 
 export default AdminLayout;

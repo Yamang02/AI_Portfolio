@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, Typography, Button, Space } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { ProjectList } from '../../features/project-list';
-import { useAdminProjectsQuery } from '../../entities/project';
+import { useAdminProjectsQuery } from '../../../../main/entities/project';
 
 const { Title } = Typography;
 

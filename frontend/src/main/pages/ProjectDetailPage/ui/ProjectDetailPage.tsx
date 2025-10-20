@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useProjectQuery } from '../../entities/project';
-import { ChatbotWidget } from '../../widgets/chatbot';
-import { useApp } from '../../main/providers';
+import { useProjectQuery } from '../../../entities/project';
+import { ChatbotWidget } from '../../../widgets/chatbot';
+import { useApp } from '../../../shared/providers/AppProvider';
 
 // 로딩 스켈레톤 컴포넌트
 const ProjectDetailSkeleton: React.FC = () => (

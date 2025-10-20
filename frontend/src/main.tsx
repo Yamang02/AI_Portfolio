@@ -1,6 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import AppRouter from './router/AppRouter';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import MainApp from './main/app/MainApp';
+import AdminApp from './admin/app/AdminApp';
 import './index.css';
 
 const rootElement = document.getElementById('root');
@@ -11,6 +13,14 @@ if (!rootElement) {
 const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>
-    <AppRouter />
+    <Router>
+      <Routes>
+        {/* Admin 앱 - /admin/* 경로 */}
+        <Route path="/admin/*" element={<AdminApp />} />
+
+        {/* 일반 사용자 앱 - 홈페이지 및 프로젝트 상세 */}
+        <Route path="/*" element={<MainApp />} />
+      </Routes>
+    </Router>
   </React.StrictMode>
 ); 

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { HomePage } from '../pages/HomePage';
 import { ProjectDetailPage } from '../pages/ProjectDetailPage';
@@ -35,13 +36,21 @@ const MainAppContent: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-white text-gray-700 font-sans">
-      <HomePage
-        isChatbotOpen={isChatbotOpen}
-        isHistoryPanelOpen={isHistoryPanelOpen}
-        isWideScreen={isWideScreen}
-        onChatbotToggle={handleChatbotToggle}
-        onHistoryPanelToggle={handleHistoryPanelToggle}
-      />
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <HomePage
+              isChatbotOpen={isChatbotOpen}
+              isHistoryPanelOpen={isHistoryPanelOpen}
+              isWideScreen={isWideScreen}
+              onChatbotToggle={handleChatbotToggle}
+              onHistoryPanelToggle={handleHistoryPanelToggle}
+            />
+          }
+        />
+        <Route path="/projects/:id" element={<ProjectDetailPage />} />
+      </Routes>
     </div>
   );
 };
