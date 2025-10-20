@@ -45,12 +45,12 @@ public class AdminAuthController {
                 new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
             );
 
-            // SecurityContext에 인증 정보 설정
+            // SecurityContext에 인증 정보 설정 (Spring Security가 자동으로 세션에 저장)
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
             // 세션 생성 (Spring Security가 자동으로 처리)
             HttpSession session = httpRequest.getSession(true);
-            log.info("Session created: {}", session.getId());
+            log.info("Session created: {} with SecurityContext", session.getId());
 
             // 현재 사용자 정보 반환
             AdminUserInfo userInfo = adminAuthService.getCurrentUserInfo();
