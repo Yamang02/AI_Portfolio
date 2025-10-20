@@ -2,6 +2,8 @@ package com.aiportfolio.backend.infrastructure.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -10,6 +12,8 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import com.aiportfolio.backend.infrastructure.security.provider.AdminAuthenticationProvider;
 
 import java.util.Arrays;
 
@@ -22,6 +26,12 @@ import java.util.Arrays;
 @EnableMethodSecurity
 public class SecurityConfig {
 
+    private final AdminAuthenticationProvider adminAuthenticationProvider;
+
+    public SecurityConfig(AdminAuthenticationProvider adminAuthenticationProvider) {
+        this.adminAuthenticationProvider = adminAuthenticationProvider;
+    }
+
     /**
      * 보안 필터 체인을 구성합니다.
      */
@@ -30,7 +40,7 @@ public class SecurityConfig {
         http
             // CORS 설정
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            
+
             // 인증 요구사항 설정
             .authorizeHttpRequests(auth -> auth
                 // Admin 인증 API는 누구나 접근 가능 (로그인, 로그아웃, 세션 체크)
@@ -44,16 +54,21 @@ public class SecurityConfig {
                 // 나머지는 모두 허용
                 .anyRequest().permitAll()
             )
-            
+
             // 폼 로그인 비활성화
             .formLogin(form -> form.disable())
-            
+
             // HTTP Basic 인증 비활성화
             .httpBasic(basic -> basic.disable())
-            
+
             // CSRF 비활성화
             .csrf(csrf -> csrf.disable())
-            
+
+            // SecurityContext를 세션에 저장하도록 명시적으로 설정
+            .securityContext(context -> context
+                .requireExplicitSave(false)  // SecurityContext 자동 저장 활성화
+            )
+
             // 세션 관리 설정 - 항상 세션 생성
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
@@ -79,5 +94,14 @@ public class SecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
+    }
+
+    /**
+     * AuthenticationManager 빈을 생성합니다.
+     * AdminAuthenticationProvider를 사용합니다.
+     */
+    @Bean
+    public AuthenticationManager authenticationManager() {
+        return new ProviderManager(adminAuthenticationProvider);
     }
 }

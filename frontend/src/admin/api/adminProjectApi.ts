@@ -73,7 +73,10 @@ export interface ProjectFilter {
   size?: number;
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+// 개발 환경에서는 상대 경로로 호출하여 Vite 프록시를 통해 동일 출처 쿠키를 사용
+const API_BASE_URL = typeof import.meta !== 'undefined' && import.meta.env?.DEV
+  ? (import.meta.env.VITE_API_BASE_URL || '')  // 빈 문자열 = 상대 경로 사용
+  : (import.meta.env?.VITE_API_BASE_URL || '');
 
 class AdminProjectApi {
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> {

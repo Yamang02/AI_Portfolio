@@ -93,6 +93,7 @@ spring:
   security:
     session:
       cookie:
+        name: JSESSIONID  # 기본 세션 쿠키 이름 사용
         http-only: true
         secure: false  # local에서는 false
         same-site: lax

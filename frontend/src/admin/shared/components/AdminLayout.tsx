@@ -13,9 +13,9 @@ import {
   HomeOutlined,
 } from '@ant-design/icons';
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../../features/auth/model/useAuth';
+import { useAuth } from '../../hooks/useAuth';
 import Dashboard from '../../pages/Dashboard';
-import ProjectList from '../../pages/ProjectList';
+import ProjectList from '../../components/projects/ProjectList';
 import ProjectEdit from '../../pages/ProjectEdit';
 import SkillList from '../../pages/SkillList';
 import ExperienceList from '../../pages/ExperienceList';

@@ -12,6 +12,7 @@ import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSeriali
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
+import org.springframework.session.web.http.DefaultCookieSerializer;
 
 import java.text.SimpleDateFormat;
 
@@ -20,8 +21,24 @@ import java.text.SimpleDateFormat;
  * 세션 저장소와 캐싱을 위한 Redis 템플릿을 구성합니다.
  */
 @Configuration
-@EnableRedisHttpSession(maxInactiveIntervalInSeconds = 1800) // 30분 세션 타임아웃
+@EnableRedisHttpSession(
+    maxInactiveIntervalInSeconds = 1800,  // 30분 세션 타임아웃
+    redisNamespace = "admin:session"
+)
 public class RedisConfig {
+
+    /**
+     * Spring Session 쿠키 이름을 JSESSIONID로 설정합니다.
+     */
+    @Bean
+    public DefaultCookieSerializer cookieSerializer() {
+        DefaultCookieSerializer serializer = new DefaultCookieSerializer();
+        serializer.setCookieName("JSESSIONID");
+        serializer.setCookiePath("/");
+        // 도메인 패턴은 프로덕션 환경에서만 필요 (localhost에서는 작동하지 않음)
+        // serializer.setDomainNamePattern("^.+?\\.(\\w+\\.[a-z]+)$");
+        return serializer;
+    }
 
     /**
      * Spring Session 전용 직렬화 빈을 생성합니다.

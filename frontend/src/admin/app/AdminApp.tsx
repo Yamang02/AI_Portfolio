@@ -2,7 +2,7 @@ import React from 'react';
 import { ConfigProvider, App as AntdApp } from 'antd';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Routes, Route } from 'react-router-dom';
-import { AuthProvider } from '../features/auth';
+import { AuthProvider } from '../hooks/useAuth';
 import { DashboardPage } from '../pages/DashboardPage';
 import { ProjectListPage } from '../pages/ProjectListPage';
 import { ProjectEditPage } from '../pages/ProjectEditPage';

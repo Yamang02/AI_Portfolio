@@ -14,6 +14,7 @@ import {
   Popconfirm,
   Tooltip,
   Image,
+  Alert,
 } from 'antd';
 import {
   PlusOutlined,
@@ -34,7 +35,7 @@ const ProjectList: React.FC = () => {
   const [filter, setFilter] = useState<ProjectFilter>({});
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
-  const { data: projects = [], isLoading } = useProjects(filter);
+  const { data: projects = [], isLoading, isError, error } = useProjects(filter);
   const deleteProjectMutation = useDeleteProject();
 
   const handleDelete = async (id: number) => {
@@ -210,6 +211,15 @@ const ProjectList: React.FC = () => {
 
   return (
     <div>
+      {isError && (
+        <Alert
+          message="프로젝트 목록을 불러오지 못했습니다."
+          description={error?.message || "알 수 없는 오류가 발생했습니다."}
+          type="error"
+          showIcon
+          style={{ marginBottom: 24 }}
+        />
+      )}
       <div style={{ marginBottom: 24 }}>
         <Row justify="space-between" align="middle">
           <Col>
