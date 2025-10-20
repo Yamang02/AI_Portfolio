@@ -1,11 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { adminProjectApi, Project, ProjectCreateRequest, ProjectUpdateRequest, ProjectFilter } from '../api/adminProjectApi';
+import { adminProjectApi, ProjectCreateRequest, ProjectUpdateRequest, ProjectFilter } from '../api/adminProjectApi';
 
 export const useProjects = (filter: ProjectFilter = {}) => {
   return useQuery({
     queryKey: ['admin-projects', filter],
     queryFn: () => adminProjectApi.getProjects(filter),
-    select: (response) => response.data || [],
+    select: (response) => response.data,
   });
 };
 
