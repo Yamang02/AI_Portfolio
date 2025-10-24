@@ -11,9 +11,10 @@ export interface AdminUserInfo {
   lastLogin: string;
 }
 
-// 개발 환경에서는 상대 경로로 호출하여 Vite 프록시를 통해 동일 출처 쿠키를 사용
-const API_BASE_URL = typeof import.meta !== 'undefined' && import.meta.env?.DEV
-  ? (import.meta.env.VITE_API_BASE_URL || '')
+// 개발 환경: 빈 문자열 사용하여 Vite 프록시로 same-origin 쿠키 전송
+// 프로덕션: 실제 API 서버 URL 사용
+const API_BASE_URL = import.meta.env?.DEV
+  ? ''
   : (import.meta.env?.VITE_API_BASE_URL || '');
 
 class AdminAuthApi {
@@ -61,4 +62,3 @@ class AdminAuthApi {
 }
 
 export const adminAuthApi = new AdminAuthApi();
-

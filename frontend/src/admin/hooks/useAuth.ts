@@ -25,7 +25,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     queryKey: ['admin-session'],
     queryFn: adminAuthApi.getSession,
     retry: false,
-    refetchOnWindowFocus: false,
+    staleTime: 0, // 항상 최신 세션 상태 확인
+    refetchOnWindowFocus: true, // 브라우저 포커스 시 재검증
+    refetchOnMount: true, // 컴포넌트 마운트 시 재검증
   });
 
   useEffect(() => {
@@ -40,7 +42,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const login = async (username: string, password: string) => {
     try {
       const response = await adminAuthApi.login({ username, password });
-      console.log('Login API response:', response);
 
       // ApiResponse<AdminUserInfo> 구조: { success, message, data: AdminUserInfo }
       if (response.success && response.data) {
@@ -103,4 +104,3 @@ export const useAuth = () => {
   }
   return context;
 };
-

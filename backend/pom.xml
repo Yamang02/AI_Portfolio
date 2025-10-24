@@ -110,6 +110,12 @@
             <artifactId>spring-boot-starter-cache</artifactId>
         </dependency>
 
+        <!-- Spring Session Redis (세션을 Redis에 저장) -->
+        <dependency>
+            <groupId>org.springframework.session</groupId>
+            <artifactId>spring-session-data-redis</artifactId>
+        </dependency>
+
         <!-- BCrypt for password hashing (Spring Security 없이 직접 사용) -->
         <dependency>
             <groupId>org.mindrot</groupId>

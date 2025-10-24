@@ -14,7 +14,9 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: 1,
-      refetchOnWindowFocus: false,
+      refetchOnWindowFocus: true, // 브라우저 포커스 시 재검증
+      refetchOnMount: true, // 마운트 시 재검증
+      staleTime: 0, // 항상 최신 데이터 확인
     },
   },
 });

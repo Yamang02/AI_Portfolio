@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Form, Input, Button, Card, Typography, Space, App } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Form, Input, Button, Card, Typography, Space, App, Spin } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useAuth } from '../../../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
@@ -14,25 +14,42 @@ interface LoginFormData {
 const LoginForm: React.FC = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const { login, isAuthenticated, isLoading } = useAuth();
   const navigate = useNavigate();
   const { message } = App.useApp();
 
+  // 이미 로그인된 사용자인 경우 대시보드로 리다이렉트
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+      navigate('/admin/dashboard', { replace: true });
+    }
+  }, [isAuthenticated, isLoading, navigate]);
+
+  // 로딩 중이거나 인증 상태 확인 중일 때 로딩 스피너 표시
+  if (isLoading) {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      }}>
+        <Spin size="large" />
+      </div>
+    );
+  }
+
   const handleSubmit = async (values: LoginFormData) => {
-    console.log('로그인 시도:', values);
     setLoading(true);
-    
+
     try {
-      console.log('API 호출 시작...');
       const result = await login(values.username, values.password);
-      console.log('API 응답:', result);
-      
+
       if (result.success) {
-        console.log('로그인 성공!');
         message.success('로그인 성공');
         navigate('/admin/dashboard');
       } else {
-        console.log('로그인 실패:', result.message);
         message.error(result.message || '로그인 실패');
       }
     } catch (error: any) {
@@ -52,9 +69,9 @@ const LoginForm: React.FC = () => {
       background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
       padding: '20px'
     }}>
-      <Card 
-        style={{ 
-          width: '100%', 
+      <Card
+        style={{
+          width: '100%',
           maxWidth: 400,
           boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
           borderRadius: '12px'
