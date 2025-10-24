@@ -2,12 +2,16 @@ package com.aiportfolio.backend.application.admin;
 
 import com.aiportfolio.backend.domain.portfolio.model.Project;
 import com.aiportfolio.backend.domain.portfolio.port.out.PortfolioRepositoryPort;
+import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.ProjectJpaEntity;
+import com.aiportfolio.backend.infrastructure.persistence.postgres.mapper.ProjectMapper;
+import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.ProjectJpaRepository;
 import com.aiportfolio.backend.infrastructure.web.dto.admin.ProjectCreateRequest;
 import com.aiportfolio.backend.infrastructure.web.dto.admin.ProjectFilter;
 import com.aiportfolio.backend.infrastructure.web.dto.admin.ProjectResponse;
 import com.aiportfolio.backend.infrastructure.web.dto.admin.ProjectUpdateRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,15 +28,20 @@ import java.util.stream.Collectors;
 public class AdminProjectService {
 
     private final PortfolioRepositoryPort portfolioRepositoryPort;
+    private final ProjectJpaRepository projectJpaRepository;
+    private final ProjectMapper projectMapper;
 
     /**
      * 필터링된 프로젝트 목록 조회
      */
     @Transactional(readOnly = true)
+    @CacheEvict(value = "portfolio", allEntries = true)
     public List<ProjectResponse> getProjects(ProjectFilter filter) {
         log.debug("Getting projects with filter: {}", filter);
         
-        List<Project> projects = portfolioRepositoryPort.findAllProjects();
+        // 캐시를 우회하고 직접 JPA Repository에서 조회
+        List<ProjectJpaEntity> jpaEntities = projectJpaRepository.findAllOrderedBySortOrderAndStartDate();
+        List<Project> projects = projectMapper.toDomainList(jpaEntities);
         
         // 필터링 적용
         List<Project> filteredProjects = projects.stream()
@@ -85,13 +94,13 @@ public class AdminProjectService {
      * 프로젝트 상세 조회
      */
     @Transactional(readOnly = true)
-    public ProjectResponse getProjectById(Long id) {
+    public ProjectResponse getProjectById(String id) {
         log.debug("Getting project by id: {}", id);
-        
-        Project project = portfolioRepositoryPort.findProjectById(String.valueOf(id))
+
+        Project project = portfolioRepositoryPort.findProjectById(id)
                 .orElseThrow(() -> new IllegalArgumentException("프로젝트를 찾을 수 없습니다: " + id));
-        
-        return convertToResponse(project);
+
+        return convertToResponseWithDetails(project);
     }
 
     /**
@@ -128,10 +137,10 @@ public class AdminProjectService {
     /**
      * 프로젝트 수정
      */
-    public ProjectResponse updateProject(Long id, ProjectUpdateRequest request) {
+    public ProjectResponse updateProject(String id, ProjectUpdateRequest request) {
         log.info("Updating project: {}", id);
-        
-        Project project = portfolioRepositoryPort.findProjectById(String.valueOf(id))
+
+        Project project = portfolioRepositoryPort.findProjectById(id)
                 .orElseThrow(() -> new IllegalArgumentException("프로젝트를 찾을 수 없습니다: " + id));
 
         // 필드 업데이트
@@ -164,14 +173,16 @@ public class AdminProjectService {
     /**
      * 프로젝트 삭제
      */
-    public void deleteProject(Long id) {
+    public void deleteProject(String id) {
         log.info("Deleting project: {}", id);
-        
-        Project project = portfolioRepositoryPort.findProjectById(String.valueOf(id))
-                .orElseThrow(() -> new IllegalArgumentException("프로젝트를 찾을 수 없습니다: " + id));
-        
-        portfolioRepositoryPort.deleteProject(String.valueOf(id));
-        
+
+        // 프로젝트 존재 여부 확인
+        if (!portfolioRepositoryPort.findProjectById(id).isPresent()) {
+            throw new IllegalArgumentException("프로젝트를 찾을 수 없습니다: " + id);
+        }
+
+        portfolioRepositoryPort.deleteProject(id);
+
         log.info("Project deleted successfully: {}", id);
     }
 
@@ -216,7 +227,7 @@ public class AdminProjectService {
 
     private ProjectResponse convertToResponse(Project project) {
         return ProjectResponse.builder()
-                .id(Long.parseLong(project.getId()))
+                .id(project.getId())
                 .title(project.getTitle())
                 .description(project.getDescription())
                 .readme(project.getReadme())
@@ -228,6 +239,73 @@ public class AdminProjectService {
                 .startDate(project.getStartDate())
                 .endDate(project.getEndDate())
                 .imageUrl(project.getImageUrl())
+                .githubUrl(project.getGithubUrl())
+                .liveUrl(project.getLiveUrl())
+                .externalUrl(project.getExternalUrl())
+                .sortOrder(project.getSortOrder())
+                .createdAt(project.getCreatedAt())
+                .updatedAt(project.getUpdatedAt())
+                .build();
+    }
+    
+    private ProjectResponse convertToResponseWithDetails(Project project) {
+        // 기술 스택 매핑
+        List<ProjectResponse.TechnologyResponse> technologies = project.getTechStackMetadata() != null ?
+                project.getTechStackMetadata().stream()
+                        .map(tech -> {
+                            // level 문자열을 proficiencyLevel 숫자로 변환
+                            Integer proficiencyLevel = null;
+                            if (tech.getLevel() != null) {
+                                switch (tech.getLevel().toLowerCase()) {
+                                    case "expert":
+                                        proficiencyLevel = 5;
+                                        break;
+                                    case "intermediate":
+                                        proficiencyLevel = 3;
+                                        break;
+                                    case "beginner":
+                                        proficiencyLevel = 1;
+                                        break;
+                                    default:
+                                        proficiencyLevel = 1;
+                                }
+                            }
+                            return ProjectResponse.TechnologyResponse.builder()
+                                    .id(null) // TechStackMetadata에는 id가 없음
+                                    .name(tech.getName())
+                                    .category(tech.getCategory())
+                                    .proficiencyLevel(proficiencyLevel)
+                                    .build();
+                        })
+                        .collect(Collectors.toList()) :
+                new java.util.ArrayList<>();
+        
+        // 스크린샷 매핑 (String -> ProjectScreenshotResponse)
+        List<ProjectResponse.ProjectScreenshotResponse> screenshots = project.getScreenshots() != null ?
+                java.util.stream.IntStream.range(0, project.getScreenshots().size())
+                        .mapToObj(index -> ProjectResponse.ProjectScreenshotResponse.builder()
+                                .id((long) index)
+                                .imageUrl(project.getScreenshots().get(index))
+                                .displayOrder(index)
+                                .build())
+                        .collect(Collectors.toList()) :
+                new java.util.ArrayList<>();
+        
+        return ProjectResponse.builder()
+                .id(project.getId())
+                .title(project.getTitle())
+                .description(project.getDescription())
+                .readme(project.getReadme())
+                .type(project.getType())
+                .status(project.getStatus())
+                .isTeam(project.isTeam())
+                .role(project.getRole())
+                .myContributions(project.getMyContributions())
+                .startDate(project.getStartDate())
+                .endDate(project.getEndDate())
+                .imageUrl(project.getImageUrl())
+                .screenshots(screenshots)
+                .technologies(technologies)
                 .githubUrl(project.getGithubUrl())
                 .liveUrl(project.getLiveUrl())
                 .externalUrl(project.getExternalUrl())

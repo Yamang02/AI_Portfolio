@@ -83,21 +83,6 @@ spring:
       allowed-headers: "*"
       allow-credentials: true
 
-  # Spring Security 세션 설정
-  session:
-    store-type: redis
-    redis:
-      namespace: admin:session
-    timeout: 1800  # 30분
-
-  security:
-    session:
-      cookie:
-        name: JSESSIONID  # 기본 세션 쿠키 이름 사용
-        http-only: true
-        secure: false  # local에서는 false
-        same-site: lax
-
 # Actuator 설정
 management:
   endpoints:

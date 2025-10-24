@@ -88,3 +88,6 @@ export type Theme = 'light' | 'dark';
 // 언어 타입
 export type Language = 'ko' | 'en';
 
+
+
+

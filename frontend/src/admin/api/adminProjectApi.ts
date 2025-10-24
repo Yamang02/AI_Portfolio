@@ -1,7 +1,7 @@
 import { ApiResponse } from '../../shared/types/api';
 
 export interface Project {
-  id: number;
+  id: string;
   title: string;
   description: string;
   readme?: string;
@@ -119,7 +119,7 @@ class AdminProjectApi {
     return this.request<Project[]>(endpoint);
   }
 
-  async getProject(id: number): Promise<ApiResponse<Project>> {
+  async getProject(id: string): Promise<ApiResponse<Project>> {
     return this.request<Project>(`/api/admin/projects/${id}`);
   }
 
@@ -130,14 +130,14 @@ class AdminProjectApi {
     });
   }
 
-  async updateProject(id: number, project: ProjectUpdateRequest): Promise<ApiResponse<Project>> {
+  async updateProject(id: string, project: ProjectUpdateRequest): Promise<ApiResponse<Project>> {
     return this.request<Project>(`/api/admin/projects/${id}`, {
       method: 'PUT',
       body: JSON.stringify(project),
     });
   }
 
-  async deleteProject(id: number): Promise<ApiResponse<void>> {
+  async deleteProject(id: string): Promise<ApiResponse<void>> {
     return this.request<void>(`/api/admin/projects/${id}`, {
       method: 'DELETE',
     });

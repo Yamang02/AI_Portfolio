@@ -8,50 +8,20 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
-import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
-import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
-import org.springframework.session.web.http.DefaultCookieSerializer;
-import org.springframework.session.FlushMode;
 
 import java.text.SimpleDateFormat;
 
 /**
  * Redis 설정 클래스
- * 세션 저장소와 캐싱을 위한 Redis 템플릿을 구성합니다.
+ * 캐싱을 위한 Redis 템플릿을 구성합니다.
  */
 @Configuration
-@EnableRedisHttpSession(
-    maxInactiveIntervalInSeconds = 1800, // 30분 세션 타임아웃
-    redisNamespace = "admin:session",
-    flushMode = FlushMode.IMMEDIATE
-)
 public class RedisConfig {
 
     /**
-     * Spring Session 쿠키 이름을 JSESSIONID로 설정합니다.
-     */
-    @Bean
-    public DefaultCookieSerializer cookieSerializer() {
-        DefaultCookieSerializer serializer = new DefaultCookieSerializer();
-        serializer.setCookieName("JSESSIONID");
-        serializer.setCookiePath("/");
-        return serializer;
-    }
-
-    /**
-     * Spring Session이 사용할 직렬화기를 기본 설정으로 사용합니다.
-     */
-    @Bean
-    public RedisSerializer<Object> springSessionDefaultRedisSerializer() {
-        // Spring Session의 기본 GenericJackson2JsonRedisSerializer 사용
-        // Spring Security 객체들을 자동으로 처리합니다.
-        return new GenericJackson2JsonRedisSerializer();
-    }
-
-    /**
      * Redis 템플릿 빈을 생성합니다.
-     * 세션 데이터와 캐시 데이터를 위한 직렬화 설정을 포함합니다.
+     * 캐시 데이터를 위한 직렬화 설정을 포함합니다.
      */
     @Bean
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {

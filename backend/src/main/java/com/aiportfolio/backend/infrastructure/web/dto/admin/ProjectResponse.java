@@ -18,7 +18,7 @@ import java.util.List;
 @AllArgsConstructor
 public class ProjectResponse {
 
-    private Long id;
+    private String id;
     private String title;
     private String description;
     private String readme;

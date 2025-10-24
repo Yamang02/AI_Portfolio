@@ -1,12 +1,11 @@
 package com.aiportfolio.backend.util;
 
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.mindrot.jbcrypt.BCrypt;
 
 public class PasswordHashGenerator {
     public static void main(String[] args) {
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         String password = "admin123";
-        String hashedPassword = encoder.encode(password);
+        String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
 
         System.out.println("Original Password: " + password);
         System.out.println("BCrypt Hash: " + hashedPassword);

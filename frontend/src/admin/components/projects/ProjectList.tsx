@@ -12,16 +12,12 @@ import {
   Select,
   message,
   Popconfirm,
-  Tooltip,
   Image,
   Alert,
 } from 'antd';
 import {
   PlusOutlined,
-  EditOutlined,
-  DeleteOutlined,
   SearchOutlined,
-  EyeOutlined,
 } from '@ant-design/icons';
 import { useProjects, useDeleteProject } from '../../hooks/useProjects';
 import { Project, ProjectFilter } from '../../api/adminProjectApi';
@@ -63,6 +59,7 @@ const ProjectList: React.FC = () => {
       dataIndex: 'imageUrl',
       key: 'imageUrl',
       width: 80,
+      fixed: 'left' as const,
       render: (imageUrl: string) => (
         imageUrl ? (
           <Image
@@ -82,13 +79,10 @@ const ProjectList: React.FC = () => {
       title: '제목',
       dataIndex: 'title',
       key: 'title',
-      render: (title: string, record: Project) => (
-        <div>
-          <div style={{ fontWeight: 500 }}>{title}</div>
-          <div style={{ fontSize: 12, color: '#666' }}>
-            {record.description?.substring(0, 50)}...
-          </div>
-        </div>
+      width: 300,
+      ellipsis: true,
+      render: (title: string) => (
+        <div style={{ fontWeight: 500 }}>{title}</div>
       ),
     },
     {
@@ -96,6 +90,7 @@ const ProjectList: React.FC = () => {
       dataIndex: 'type',
       key: 'type',
       width: 100,
+      align: 'center' as const,
       render: (type: string) => {
         const colors = {
           BUILD: 'blue',
@@ -109,7 +104,8 @@ const ProjectList: React.FC = () => {
       title: '상태',
       dataIndex: 'status',
       key: 'status',
-      width: 100,
+      width: 110,
+      align: 'center' as const,
       render: (status: string) => {
         const colors = {
           completed: 'green',
@@ -120,10 +116,11 @@ const ProjectList: React.FC = () => {
       },
     },
     {
-      title: '팀 프로젝트',
+      title: '팀/개인',
       dataIndex: 'isTeam',
       key: 'isTeam',
-      width: 100,
+      width: 90,
+      align: 'center' as const,
       render: (isTeam: boolean) => (
         <Tag color={isTeam ? 'purple' : 'default'}>
           {isTeam ? '팀' : '개인'}
@@ -131,76 +128,28 @@ const ProjectList: React.FC = () => {
       ),
     },
     {
-      title: '기술 스택',
-      dataIndex: 'technologies',
-      key: 'technologies',
-      render: (technologies: any[]) => (
-        <div>
-          {technologies?.slice(0, 3).map((tech, index) => (
-            <Tag key={index} size="small" style={{ marginBottom: 2 }}>
-              {typeof tech === 'string' ? tech : tech.name}
-            </Tag>
-          ))}
-          {technologies && technologies.length > 3 && (
-            <Tag size="small" style={{ marginBottom: 2 }}>
-              +{technologies.length - 3}
-            </Tag>
-          )}
-        </div>
-      ),
-    },
-    {
       title: '시작일',
       dataIndex: 'startDate',
       key: 'startDate',
-      width: 100,
+      width: 120,
+      align: 'center' as const,
       render: (date: string) => date ? new Date(date).toLocaleDateString() : '-',
     },
     {
-      title: '정렬 순서',
-      dataIndex: 'sortOrder',
-      key: 'sortOrder',
-      width: 80,
-      sorter: (a: Project, b: Project) => (a.sortOrder || 0) - (b.sortOrder || 0),
+      title: '완료일',
+      dataIndex: 'endDate',
+      key: 'endDate',
+      width: 120,
+      align: 'center' as const,
+      render: (date: string) => date ? new Date(date).toLocaleDateString() : '-',
     },
     {
-      title: '작업',
-      key: 'actions',
-      width: 120,
-      render: (_: any, record: Project) => (
-        <Space size="small">
-          <Tooltip title="상세 보기">
-            <Button
-              type="text"
-              icon={<EyeOutlined />}
-              onClick={() => navigate(`/admin/projects/${record.id}`)}
-            />
-          </Tooltip>
-          <Tooltip title="수정">
-            <Button
-              type="text"
-              icon={<EditOutlined />}
-              onClick={() => navigate(`/admin/projects/${record.id}/edit`)}
-            />
-          </Tooltip>
-          <Popconfirm
-            title="프로젝트를 삭제하시겠습니까?"
-            description="이 작업은 되돌릴 수 없습니다."
-            onConfirm={() => handleDelete(record.id)}
-            okText="삭제"
-            cancelText="취소"
-          >
-            <Tooltip title="삭제">
-              <Button
-                type="text"
-                danger
-                icon={<DeleteOutlined />}
-                loading={deleteProjectMutation.isPending}
-              />
-            </Tooltip>
-          </Popconfirm>
-        </Space>
-      ),
+      title: '순서',
+      dataIndex: 'sortOrder',
+      key: 'sortOrder',
+      width: 70,
+      align: 'center' as const,
+      sorter: (a: Project, b: Project) => (a.sortOrder || 0) - (b.sortOrder || 0),
     },
   ];
 
@@ -337,6 +286,10 @@ const ProjectList: React.FC = () => {
           rowKey="id"
           loading={isLoading}
           rowSelection={rowSelection}
+          onRow={(record) => ({
+            onClick: () => navigate(`/admin/projects/${record.id}`),
+            style: { cursor: 'pointer' },
+          })}
           pagination={{
             total: projects.length,
             pageSize: 20,
