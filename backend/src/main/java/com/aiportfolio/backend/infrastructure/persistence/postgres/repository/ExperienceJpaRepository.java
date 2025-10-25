@@ -27,7 +27,13 @@ public interface ExperienceJpaRepository extends JpaRepository<ExperienceJpaEnti
      * @return 경력 엔티티
      */
     Optional<ExperienceJpaEntity> findByBusinessId(String businessId);
-    
+
+    /**
+     * 비즈니스 ID로 경력 삭제
+     * @param businessId 비즈니스 ID
+     */
+    void deleteByBusinessId(String businessId);
+
     /**
      * 조직명으로 경력 조회
      * @param organization 조직명

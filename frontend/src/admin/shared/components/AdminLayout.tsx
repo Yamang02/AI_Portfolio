@@ -46,14 +46,9 @@ const AdminLayout: React.FC = () => {
       label: '기술스택 관리',
     },
     {
-      key: '/admin/skills',
-      icon: <ToolOutlined />,
-      label: '스킬 관리',
-    },
-    {
-      key: '/admin/experiences',
+      key: '/admin/career',
       icon: <BookOutlined />,
-      label: '경력 관리',
+      label: '학력 및 경력',
     },
     {
       key: '/admin/certifications',

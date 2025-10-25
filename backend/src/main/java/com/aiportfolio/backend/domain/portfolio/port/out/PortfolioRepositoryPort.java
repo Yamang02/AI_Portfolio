@@ -72,22 +72,42 @@ public interface PortfolioRepositoryPort {
      * 모든 경력 정보를 조회합니다
      */
     List<Experience> findAllExperiences();
-    
+
     /**
      * ID로 특정 경력을 조회합니다
      */
     Optional<Experience> findExperienceById(String id);
+
+    /**
+     * Experience를 저장합니다 (생성/수정 공통)
+     */
+    Experience saveExperience(Experience experience);
+
+    /**
+     * Experience를 삭제합니다
+     */
+    void deleteExperience(String id);
     
     // === 교육 관련 ===
     /**
      * 모든 교육 정보를 조회합니다
      */
     List<Education> findAllEducations();
-    
+
     /**
      * ID로 특정 교육을 조회합니다
      */
     Optional<Education> findEducationById(String id);
+
+    /**
+     * Education을 저장합니다 (생성/수정 공통)
+     */
+    Education saveEducation(Education education);
+
+    /**
+     * Education을 삭제합니다
+     */
+    void deleteEducation(String id);
     
     // === 자격증 관련 ===
     /**

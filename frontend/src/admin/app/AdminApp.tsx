@@ -9,10 +9,8 @@ import { Dashboard } from '../pages/Dashboard';
 import { ProjectList } from '../components/projects/ProjectList';
 import { ProjectEdit } from '../pages/ProjectEdit';
 import { TechStackManagement } from '../pages/TechStackManagement';
-import { SkillList } from '../pages/SkillList';
-import { ExperienceList } from '../pages/ExperienceList';
-import { EducationList } from '../pages/EducationList';
-import { CertificationList } from '../pages/CertificationList';
+import { CareerManagement } from '../pages/CareerManagement';
+import { CertificationManagement } from '../pages/CertificationList';
 
 // React Query 클라이언트 설정
 const queryClient = new QueryClient({
@@ -66,10 +64,8 @@ const AdminApp: React.FC = () => {
                 <Route path="projects/new" element={<ProjectEdit />} />
                 <Route path="projects/:id" element={<ProjectEdit />} />
                 <Route path="tech-stacks" element={<TechStackManagement />} />
-                <Route path="skills" element={<SkillList />} />
-                <Route path="experiences" element={<ExperienceList />} />
-                <Route path="education" element={<EducationList />} />
-                <Route path="certifications" element={<CertificationList />} />
+                <Route path="career" element={<CareerManagement />} />
+                <Route path="certifications" element={<CertificationManagement />} />
               </Route>
             </Routes>
           </AuthProvider>

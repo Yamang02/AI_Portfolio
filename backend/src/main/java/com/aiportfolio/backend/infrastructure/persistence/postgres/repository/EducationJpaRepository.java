@@ -19,7 +19,12 @@ public interface EducationJpaRepository extends JpaRepository<EducationJpaEntity
      * 비즈니스 ID로 교육 조회
      */
     Optional<EducationJpaEntity> findByBusinessId(String businessId);
-    
+
+    /**
+     * 비즈니스 ID로 교육 삭제
+     */
+    void deleteByBusinessId(String businessId);
+
     /**
      * 교육기관명으로 조회
      */

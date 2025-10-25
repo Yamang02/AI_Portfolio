@@ -1,0 +1,38 @@
+/**
+ * Experience 통계 카드 컴포넌트
+ */
+
+import React from 'react';
+import { Card, Statistic, Row, Col } from 'antd';
+import type { ExperienceStats } from '@/admin/entities/experience';
+
+interface ExperienceStatsCardsProps {
+  stats: ExperienceStats;
+}
+
+export const ExperienceStatsCards: React.FC<ExperienceStatsCardsProps> = ({ stats }) => {
+  return (
+    <Row gutter={16} style={{ marginBottom: 24 }}>
+      <Col span={6}>
+        <Card>
+          <Statistic title="전체 경력" value={stats.total} />
+        </Card>
+      </Col>
+      <Col span={6}>
+        <Card>
+          <Statistic title="진행중" value={stats.ongoing} />
+        </Card>
+      </Col>
+      <Col span={6}>
+        <Card>
+          <Statistic title="정규직" value={stats.byType.FULL_TIME} />
+        </Card>
+      </Col>
+      <Col span={6}>
+        <Card>
+          <Statistic title="인턴" value={stats.byType.INTERNSHIP} />
+        </Card>
+      </Col>
+    </Row>
+  );
+};

@@ -152,6 +152,30 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
         }
     }
 
+    @Override
+    public Experience saveExperience(Experience experience) {
+        try {
+            ExperienceJpaEntity jpaEntity = experienceMapper.toJpaEntity(experience);
+            ExperienceJpaEntity savedEntity = experienceJpaRepository.save(jpaEntity);
+            log.info("경력 저장 완료: {}", experience.getTitle());
+            return experienceMapper.toDomain(savedEntity);
+        } catch (Exception e) {
+            log.error("경력 저장 중 오류 발생: {}", experience.getTitle(), e);
+            throw new RuntimeException("경력 저장에 실패했습니다", e);
+        }
+    }
+
+    @Override
+    public void deleteExperience(String id) {
+        try {
+            experienceJpaRepository.deleteByBusinessId(id);
+            log.info("경력 삭제 완료: {}", id);
+        } catch (Exception e) {
+            log.error("경력 삭제 중 오류 발생: {}", id, e);
+            throw new RuntimeException("경력 삭제에 실패했습니다", e);
+        }
+    }
+
     // === 교육 관련 구현 ===
 
     @Override
@@ -177,6 +201,30 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
         } catch (Exception e) {
             log.error("교육 ID로 조회 중 오류 발생: {}", id, e);
             return Optional.empty();
+        }
+    }
+
+    @Override
+    public Education saveEducation(Education education) {
+        try {
+            EducationJpaEntity jpaEntity = educationMapper.toJpaEntity(education);
+            EducationJpaEntity savedEntity = educationJpaRepository.save(jpaEntity);
+            log.info("교육 저장 완료: {}", education.getTitle());
+            return educationMapper.toDomain(savedEntity);
+        } catch (Exception e) {
+            log.error("교육 저장 중 오류 발생: {}", education.getTitle(), e);
+            throw new RuntimeException("교육 저장에 실패했습니다", e);
+        }
+    }
+
+    @Override
+    public void deleteEducation(String id) {
+        try {
+            educationJpaRepository.deleteByBusinessId(id);
+            log.info("교육 삭제 완료: {}", id);
+        } catch (Exception e) {
+            log.error("교육 삭제 중 오류 발생: {}", id, e);
+            throw new RuntimeException("교육 삭제에 실패했습니다", e);
         }
     }
 
