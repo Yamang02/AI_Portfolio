@@ -1,6 +1,6 @@
 # 백엔드 CRUD 템플릿 가이드
 
-**작성일**: 2025-01-25  
+**작성일**: 2025-10-25  
 **목적**: Hexagonal Architecture 기반 CRUD 템플릿 제공  
 **대상**: 백엔드 개발자
 
@@ -1079,8 +1079,277 @@ backend/src/main/java/com/aiportfolio/backend/
 
 ---
 
-**작성일**: 2025-01-25  
-**버전**: 1.0  
+## Admin 도메인 패턴
+
+Admin 도메인은 관리자 전용 기능(캐시 관리, 인증 등)을 위한 특수 패턴입니다.
+
+### 디렉토리 구조
+
+```
+backend/src/main/java/com/aiportfolio/backend/
+
+├── domain/admin/                        # Admin 도메인 계층
+│   ├── port/                           # 포트 (인터페이스)
+│   │   ├── in/                         # Use Case 인터페이스
+│   │   │   ├── ManageCacheUseCase.java
+│   │   │   └── AuthenticateUserUseCase.java
+│   │   └── out/                        # Port Out
+│   │       ├── CacheManagementPort.java
+│   │       └── UserAuthenticationPort.java
+│   └── model/                          # Admin 도메인 모델 (선택적)
+
+├── application/admin/                   # Admin 애플리케이션 계층
+│   └── service/
+│       ├── CacheManagementService.java
+│       └── AuthService.java
+
+└── infrastructure/
+    ├── persistence/redis/adapter/      # Redis 어댑터
+    │   └── RedisCacheManagementAdapter.java
+    └── web/admin/controller/           # Admin 전용 Controller
+        └── AdminCacheController.java
+```
+
+### Admin UseCase 예시: 캐시 관리
+
+#### 1. UseCase 인터페이스 (Port In)
+
+```java
+// domain/admin/port/in/ManageCacheUseCase.java
+package com.aiportfolio.backend.domain.admin.port.in;
+
+import java.util.List;
+import java.util.Map;
+
+public interface ManageCacheUseCase {
+
+    /**
+     * 모든 캐시를 초기화합니다.
+     */
+    void flushAllCache();
+
+    /**
+     * 캐시 통계를 조회합니다.
+     */
+    Map<String, Object> getCacheStats();
+
+    /**
+     * 특정 패턴의 캐시를 삭제합니다.
+     */
+    void evictCacheByPattern(String pattern);
+
+    /**
+     * 모든 캐시 키 목록을 조회합니다.
+     */
+    List<String> getAllCacheKeys();
+
+    /**
+     * 특정 패턴과 일치하는 캐시 키 목록을 조회합니다.
+     */
+    List<String> getCacheKeysByPattern(String pattern);
+}
+```
+
+#### 2. Port Out 인터페이스
+
+```java
+// domain/admin/port/out/CacheManagementPort.java
+package com.aiportfolio.backend.domain.admin.port.out;
+
+import java.util.Map;
+import java.util.Set;
+
+public interface CacheManagementPort {
+
+    void flushAll();
+    void evictByPattern(String pattern);
+    void evict(String cacheName, String key);
+    Map<String, Object> getStatistics();
+    long getKeyCount(String pattern);
+    Map<String, Object> getCacheStatus();
+    Set<String> getKeysByPattern(String pattern);
+}
+```
+
+#### 3. Service 구현 (Application Layer)
+
+```java
+// application/admin/service/CacheManagementService.java
+package com.aiportfolio.backend.application.admin.service;
+
+import com.aiportfolio.backend.domain.admin.port.in.ManageCacheUseCase;
+import com.aiportfolio.backend.domain.admin.port.out.CacheManagementPort;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
+
+@Service
+@RequiredArgsConstructor
+@Slf4j
+public class CacheManagementService implements ManageCacheUseCase {
+
+    private final CacheManagementPort cacheManagementPort;
+
+    @Override
+    public void flushAllCache() {
+        log.info("Starting cache flush operation");
+        try {
+            cacheManagementPort.flushAll();
+            log.info("Cache flush completed successfully");
+        } catch (Exception e) {
+            log.error("Error during cache flush", e);
+            throw new RuntimeException("캐시 초기화 중 오류가 발생했습니다", e);
+        }
+    }
+
+    @Override
+    public Map<String, Object> getCacheStats() {
+        log.info("Retrieving cache statistics");
+        try {
+            return cacheManagementPort.getStatistics();
+        } catch (Exception e) {
+            log.error("Error retrieving cache stats", e);
+            throw new RuntimeException("캐시 통계 조회 중 오류가 발생했습니다", e);
+        }
+    }
+
+    @Override
+    public List<String> getAllCacheKeys() {
+        log.info("Retrieving all cache keys");
+        try {
+            Set<String> keys = cacheManagementPort.getKeysByPattern("*");
+            List<String> sortedKeys = new ArrayList<>(keys);
+            Collections.sort(sortedKeys);
+            return sortedKeys;
+        } catch (Exception e) {
+            log.error("Error retrieving cache keys", e);
+            throw new RuntimeException("캐시 키 목록 조회 중 오류가 발생했습니다", e);
+        }
+    }
+}
+```
+
+#### 4. Redis Adapter (Infrastructure Layer)
+
+```java
+// infrastructure/persistence/redis/adapter/RedisCacheManagementAdapter.java
+package com.aiportfolio.backend.infrastructure.persistence.redis.adapter;
+
+import com.aiportfolio.backend.domain.admin.port.out.CacheManagementPort;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Component;
+
+import java.util.*;
+
+@Component
+@RequiredArgsConstructor
+@Slf4j
+public class RedisCacheManagementAdapter implements CacheManagementPort {
+
+    private final RedisTemplate<String, Object> redisTemplate;
+
+    @Override
+    public void flushAll() {
+        Set<String> keys = redisTemplate.keys("*");
+        if (keys != null && !keys.isEmpty()) {
+            redisTemplate.delete(keys);
+        }
+    }
+
+    @Override
+    public Set<String> getKeysByPattern(String pattern) {
+        Set<String> keys = redisTemplate.keys(pattern);
+        return keys != null ? keys : Set.of();
+    }
+
+    @Override
+    public Map<String, Object> getStatistics() {
+        Map<String, Object> stats = new HashMap<>();
+        Set<String> allKeys = redisTemplate.keys("*");
+        stats.put("totalKeys", allKeys != null ? allKeys.size() : 0);
+        // 추가 통계 정보...
+        return stats;
+    }
+}
+```
+
+#### 5. Admin Controller
+
+```java
+// infrastructure/web/admin/controller/AdminCacheController.java
+package com.aiportfolio.backend.infrastructure.web.admin.controller;
+
+import com.aiportfolio.backend.domain.admin.port.in.ManageCacheUseCase;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
+
+@RestController
+@RequestMapping("/api/admin/cache")
+@RequiredArgsConstructor
+@Slf4j
+public class AdminCacheController {
+
+    private final ManageCacheUseCase manageCacheUseCase;
+
+    @PostMapping("/flush")
+    public ResponseEntity<Map<String, Object>> flushCache() {
+        manageCacheUseCase.flushAllCache();
+        return ResponseEntity.ok(Map.of(
+            "success", true,
+            "message", "캐시가 성공적으로 초기화되었습니다."
+        ));
+    }
+
+    @GetMapping("/stats")
+    public ResponseEntity<Map<String, Object>> getCacheStats() {
+        Map<String, Object> stats = manageCacheUseCase.getCacheStats();
+        return ResponseEntity.ok(Map.of(
+            "success", true,
+            "data", stats
+        ));
+    }
+
+    @GetMapping("/keys")
+    public ResponseEntity<Map<String, Object>> getAllCacheKeys() {
+        List<String> keys = manageCacheUseCase.getAllCacheKeys();
+        return ResponseEntity.ok(Map.of(
+            "success", true,
+            "data", keys,
+            "count", keys.size()
+        ));
+    }
+}
+```
+
+### Admin 패턴 특징
+
+1. **도메인 모델 없음**: Admin 기능은 주로 인프라 관리이므로 도메인 모델이 없을 수 있음
+2. **Port Out 중심**: Redis, 외부 시스템과의 통신을 Port Out으로 추상화
+3. **관리자 전용 엔드포인트**: `/api/admin/*` 경로 사용
+4. **응답 형식 통일**: `{ success, data, message }` 구조 사용
+
+### Admin 패턴 적용 대상
+
+- 캐시 관리 (Redis)
+- 인증/인가 관리
+- 시스템 모니터링
+- 설정 관리
+- 로그 관리
+
+---
+
+**작성일**: 2025-01-26
+**버전**: 1.1
 **작성자**: AI Agent (Claude)
+**변경사항**: Admin 도메인 패턴 추가
 
 

@@ -11,6 +11,7 @@ import { ProjectEdit } from '../pages/ProjectEdit';
 import { TechStackManagement } from '../pages/TechStackManagement';
 import { CareerManagement } from '../pages/CareerManagement';
 import { CertificationManagement } from '../pages/CertificationList';
+import { Settings } from '../pages/Settings';
 
 // React Query 클라이언트 설정
 const queryClient = new QueryClient({
@@ -66,6 +67,7 @@ const AdminApp: React.FC = () => {
                 <Route path="tech-stacks" element={<TechStackManagement />} />
                 <Route path="career" element={<CareerManagement />} />
                 <Route path="certifications" element={<CertificationManagement />} />
+                <Route path="settings" element={<Settings />} />
               </Route>
             </Routes>
           </AuthProvider>

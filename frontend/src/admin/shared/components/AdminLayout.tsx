@@ -11,6 +11,7 @@ import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   HomeOutlined,
+  SettingOutlined,
 } from '@ant-design/icons';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
@@ -54,6 +55,11 @@ const AdminLayout: React.FC = () => {
       key: '/admin/certifications',
       icon: <TrophyOutlined />,
       label: '자격증 관리',
+    },
+    {
+      key: '/admin/settings',
+      icon: <SettingOutlined />,
+      label: '시스템 설정',
     },
   ];
 

@@ -59,6 +59,9 @@ public class ExperienceMapper {
                 .mainResponsibilities(jpaEntity.getMainResponsibilities())
                 .achievements(jpaEntity.getAchievements())
                 .projects(jpaEntity.getProjects())
+                .sortOrder(jpaEntity.getSortOrder())
+                .createdAt(jpaEntity.getCreatedAt())
+                .updatedAt(jpaEntity.getUpdatedAt())
                 .build();
     }
     
@@ -85,7 +88,9 @@ public class ExperienceMapper {
                 .mainResponsibilities(domainModel.getMainResponsibilities())
                 .achievements(domainModel.getAchievements())
                 .projects(domainModel.getProjects())
-                .sortOrder(0) // 기본값
+                .sortOrder(domainModel.getSortOrder() != null ? domainModel.getSortOrder() : 0)
+                .createdAt(domainModel.getCreatedAt())
+                .updatedAt(domainModel.getUpdatedAt())
                 .build();
     }
     

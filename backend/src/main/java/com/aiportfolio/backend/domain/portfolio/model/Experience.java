@@ -57,6 +57,10 @@ public class Experience {
     @Size(max = 20, message = "관련 프로젝트는 최대 20개까지 가능합니다")
     private List<String> projects;
     
+    private Integer sortOrder;
+    private java.time.LocalDateTime createdAt;
+    private java.time.LocalDateTime updatedAt;
+    
     /**
      * 현재 재직중인지 확인
      */

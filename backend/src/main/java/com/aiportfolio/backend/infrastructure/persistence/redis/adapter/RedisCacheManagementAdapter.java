@@ -139,9 +139,9 @@ public class RedisCacheManagementAdapter implements CacheManagementPort {
     @Override
     public Map<String, Object> getCacheStatus() {
         log.debug("Getting cache status");
-        
+
         Map<String, Object> status = new HashMap<>();
-        
+
         try {
             // Redis 연결 상태 확인
             var connectionFactory = redisTemplate.getConnectionFactory();
@@ -149,22 +149,37 @@ public class RedisCacheManagementAdapter implements CacheManagementPort {
                 String pingResult = connectionFactory
                     .getConnection()
                     .ping();
-                
+
                 status.put("status", "connected");
                 status.put("ping", pingResult);
             } else {
                 status.put("status", "no_connection_factory");
             }
             status.put("timestamp", System.currentTimeMillis());
-            
+
         } catch (Exception e) {
             log.error("Error getting cache status", e);
             status.put("status", "error");
             status.put("error", e.getMessage());
             status.put("timestamp", System.currentTimeMillis());
         }
-        
+
         return status;
+    }
+
+    @Override
+    public Set<String> getKeysByPattern(String pattern) {
+        log.debug("Getting keys by pattern: {}", pattern);
+
+        try {
+            Set<String> keys = redisTemplate.keys(pattern);
+            log.debug("Found {} keys matching pattern: {}", keys != null ? keys.size() : 0, pattern);
+            return keys != null ? keys : Set.of();
+
+        } catch (Exception e) {
+            log.error("Error getting keys by pattern: {}", pattern, e);
+            return Set.of();
+        }
     }
     
     /**
