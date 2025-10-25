@@ -41,6 +41,11 @@ const AdminLayout: React.FC = () => {
       label: '프로젝트 관리',
     },
     {
+      key: '/admin/tech-stacks',
+      icon: <ToolOutlined />,
+      label: '기술스택 관리',
+    },
+    {
       key: '/admin/skills',
       icon: <ToolOutlined />,
       label: '스킬 관리',

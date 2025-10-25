@@ -64,10 +64,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       // ApiResponse<AdminUserInfo> 구조: { success, message, data: AdminUserInfo }
       if (response.success && response.data) {
-        // 인증 상태를 먼저 설정
-        setIsAuthenticated(true);
-        // 세션 쿼리 업데이트 (백그라운드에서 처리)
+        // 1. 먼저 기존 캐시를 완전히 제거
+        await queryClient.invalidateQueries({ queryKey: ['admin-session'] });
+
+        // 2. 새로운 세션 데이터를 캐시에 설정
         queryClient.setQueryData(['admin-session'], response);
+
+        // 3. 인증 상태 설정
+        setIsAuthenticated(true);
+
+        console.log('[AuthProvider] Login successful, cache updated');
         return { success: true, user: response.data };
       } else {
         return {

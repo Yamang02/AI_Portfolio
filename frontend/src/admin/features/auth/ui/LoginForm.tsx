@@ -33,7 +33,7 @@ const LoginForm: React.FC = () => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        background: '#ffffff',
       }}>
         <Spin size="large" />
       </div>
@@ -66,17 +66,18 @@ const LoginForm: React.FC = () => {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      background: '#ffffff',
       padding: '20px'
     }}>
       <Card
         style={{
           width: '100%',
           maxWidth: 400,
-          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-          borderRadius: '12px'
+          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+          borderRadius: '8px',
+          border: '1px solid #e5e7eb'
         }}
-        bodyStyle={{ padding: '40px' }}
+        styles={{ body: { padding: '40px' } }}
       >
         <Space direction="vertical" size="large" style={{ width: '100%' }}>
           <div style={{ textAlign: 'center' }}>
@@ -122,6 +123,7 @@ const LoginForm: React.FC = () => {
                 prefix={<LockOutlined style={{ color: '#9ca3af' }} />}
                 placeholder="비밀번호를 입력하세요"
                 style={{ borderRadius: '8px' }}
+                autoComplete="current-password"
               />
             </Form.Item>
 
@@ -136,9 +138,9 @@ const LoginForm: React.FC = () => {
                   borderRadius: '8px',
                   fontSize: '16px',
                   fontWeight: '600',
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  background: '#1f2937',
                   border: 'none',
-                  boxShadow: '0 4px 12px rgba(102, 126, 234, 0.4)'
+                  boxShadow: 'none'
                 }}
               >
                 {loading ? '로그인 중...' : '로그인'}

@@ -9,12 +9,12 @@ export const useProjects = (filter: ProjectFilter = {}) => {
   });
 };
 
-export const useProject = (id: number) => {
+export const useProject = (id: string, options?: { enabled?: boolean }) => {
   return useQuery({
     queryKey: ['admin-project', id],
     queryFn: () => adminProjectApi.getProject(id),
     select: (response) => response.data,
-    enabled: !!id,
+    enabled: options?.enabled !== undefined ? options.enabled : !!id,
   });
 };
 
@@ -33,7 +33,7 @@ export const useUpdateProject = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, project }: { id: number; project: ProjectUpdateRequest }) =>
+    mutationFn: ({ id, project }: { id: string; project: ProjectUpdateRequest }) =>
       adminProjectApi.updateProject(id, project),
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: ['admin-projects'] });
@@ -46,7 +46,7 @@ export const useDeleteProject = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: number) => adminProjectApi.deleteProject(id),
+    mutationFn: (id: string) => adminProjectApi.deleteProject(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-projects'] });
     },

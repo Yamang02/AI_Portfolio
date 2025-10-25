@@ -1,9 +1,9 @@
-// 기술 스택 분류를 위한 상수 정의
+// 기술 스택 분류를 위한 상수 정의 (심플화)
 const TECH_CATEGORIES = {
-  language: ['java', 'javascript', 'python', 'c#', 'typescript'],
-  framework: ['spring boot', 'react', 'express.js', 'pyqt5', 'phaser.js', 'jsp', 'servlet'],
-  database: ['oracle', 'mysql', 'mongodb', 'redis', 'mssql'],
-  tool: ['git', 'docker', 'github actions', 'maven', 'cursor', 'selenium', 'beautifulsoup', 'yt-dlp', 'cloudinary', 'ejs', 'jquery', 'daypilot', 'chromedriver', 'pl/sql', 'svn', 'gitlab', 'sap', 'oracle forms', 'file system', 'gemini cli', 'cli', 'json', 'web scraping', 'requests', 'github pages']
+  language: ['java', 'javascript', 'python', 'c#', 'typescript', 'c', 'c++', 'go', 'rust', 'kotlin', 'swift'],
+  framework: ['spring boot', 'react', 'express.js', 'pyqt5', 'phaser.js', 'jsp', 'servlet', 'vue.js', 'angular', 'next.js', 'django', 'flask', 'fastapi', 'nest.js', 'asp.net', '.net', 'laravel', 'spring', 'node.js'],
+  database: ['oracle', 'mysql', 'mongodb', 'redis', 'mssql', 'postgresql', 'sqlite'],
+  tool: ['git', 'docker', 'github actions', 'maven', 'cursor', 'selenium', 'beautifulsoup', 'yt-dlp', 'cloudinary', 'ejs', 'jquery', 'daypilot', 'chromedriver', 'pl/sql', 'svn', 'gitlab', 'sap', 'oracle forms', 'file system', 'gemini cli', 'cli', 'json', 'web scraping', 'requests', 'github pages', 'testing', 'ai_ml', 'api', 'service', 'library', 'utility', 'hosting', 'runtime', 'platform', 'web', 'template', 'vcs', 'erp', 'system', 'data', 'technique', 'scraping']
 } as const;
 
 const TECH_LEVELS = {

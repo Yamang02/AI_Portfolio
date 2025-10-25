@@ -34,7 +34,7 @@ const ProjectList: React.FC = () => {
   const { data: projects = [], isLoading, isError, error } = useProjects(filter);
   const deleteProjectMutation = useDeleteProject();
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     try {
       await deleteProjectMutation.mutateAsync(id);
       message.success('프로젝트가 삭제되었습니다');
@@ -45,7 +45,7 @@ const ProjectList: React.FC = () => {
 
   const handleBulkDelete = async () => {
     try {
-      await Promise.all(selectedRowKeys.map(id => deleteProjectMutation.mutateAsync(Number(id))));
+      await Promise.all(selectedRowKeys.map(id => deleteProjectMutation.mutateAsync(String(id))));
       message.success(`${selectedRowKeys.length}개 프로젝트가 삭제되었습니다`);
       setSelectedRowKeys([]);
     } catch (error: any) {

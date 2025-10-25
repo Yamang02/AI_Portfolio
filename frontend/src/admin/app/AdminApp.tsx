@@ -8,6 +8,7 @@ import AdminLayout from '../shared/components/AdminLayout';
 import Dashboard from '../pages/Dashboard';
 import ProjectList from '../components/projects/ProjectList';
 import ProjectEdit from '../pages/ProjectEdit';
+import TechStackManagement from '../pages/TechStackManagement';
 import SkillList from '../pages/SkillList';
 import ExperienceList from '../pages/ExperienceList';
 import EducationList from '../pages/EducationList';
@@ -64,6 +65,7 @@ const AdminApp: React.FC = () => {
                 <Route path="projects" element={<ProjectList />} />
                 <Route path="projects/new" element={<ProjectEdit />} />
                 <Route path="projects/:id" element={<ProjectEdit />} />
+                <Route path="tech-stacks" element={<TechStackManagement />} />
                 <Route path="skills" element={<SkillList />} />
                 <Route path="experiences" element={<ExperienceList />} />
                 <Route path="education" element={<EducationList />} />

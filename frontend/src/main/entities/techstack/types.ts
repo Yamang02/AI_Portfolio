@@ -14,29 +14,12 @@ export interface TechStackMetadata {
   updatedAt: string;
 }
 
-// 기술 스택 카테고리
+// 기술 스택 카테고리 (심플화)
 export type TechStackCategory = 
   | 'language'      // 언어
   | 'framework'     // 프레임워크
-  | 'runtime'       // 런타임
-  | 'platform'      // 플랫폼
   | 'database'      // 데이터베이스
   | 'tool'          // 도구
-  | 'web'           // 웹 기술
-  | 'api'           // API/서비스
-  | 'ai_ml'         // AI/ML 라이브러리
-  | 'testing'       // 테스팅
-  | 'scraping'      // 스크래핑
-  | 'utility'       // 유틸리티
-  | 'service'       // 서비스
-  | 'template'      // 템플릿
-  | 'library'       // 라이브러리
-  | 'vcs'           // 버전 관리
-  | 'erp'           // ERP
-  | 'system'        // 시스템
-  | 'data'          // 데이터
-  | 'technique'     // 기술
-  | 'hosting'       // 호스팅
   | 'other';        // 기타
 
 // 기술 스택 레벨 (단순화)

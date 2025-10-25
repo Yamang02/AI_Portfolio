@@ -58,7 +58,7 @@ const loadCoreTechnologies = async (): Promise<Set<string>> => {
 const convertToTechStackMetadata = (tech: string, coreTechnologies: Set<string>): TechStackMetadata => {
   const lowerTech = tech.toLowerCase();
 
-  // 카테고리 결정
+  // 카테고리 결정 (심플화)
   let category: TechStackMetadata['category'] = 'other';
   if (['java', 'javascript', 'python', 'c#', 'typescript', 'c', 'c++', 'go', 'rust', 'kotlin', 'swift'].includes(lowerTech)) {
     category = 'language';
@@ -66,7 +66,7 @@ const convertToTechStackMetadata = (tech: string, coreTechnologies: Set<string>)
     category = 'framework';
   } else if (['oracle', 'mysql', 'mongodb', 'redis', 'mssql', 'postgresql', 'sqlite'].includes(lowerTech)) {
     category = 'database';
-  } else if (['git', 'docker', 'github actions', 'maven', 'cursor', 'selenium', 'beautifulsoup', 'yt-dlp', 'cloudinary', 'ejs', 'jquery', 'daypilot', 'chromedriver', 'pl/sql', 'svn', 'gitlab', 'sap', 'oracle forms', 'file system', 'gemini cli', 'cli', 'json', 'web scraping', 'requests', 'github pages'].includes(lowerTech)) {
+  } else if (['git', 'docker', 'github actions', 'maven', 'cursor', 'selenium', 'beautifulsoup', 'yt-dlp', 'cloudinary', 'ejs', 'jquery', 'daypilot', 'chromedriver', 'pl/sql', 'svn', 'gitlab', 'sap', 'oracle forms', 'file system', 'gemini cli', 'cli', 'json', 'web scraping', 'requests', 'github pages', 'testing', 'ai_ml', 'api', 'service', 'library', 'utility', 'hosting', 'runtime', 'platform', 'web', 'template', 'vcs', 'erp', 'system', 'data', 'technique', 'scraping'].includes(lowerTech)) {
     category = 'tool';
   }
 
