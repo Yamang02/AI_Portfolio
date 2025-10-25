@@ -67,6 +67,18 @@ spring:
       allowed-headers: "*"
       allow-credentials: true
 
+# Swagger/OpenAPI 설정 (프로덕션 - API 문서화용)
+springdoc:
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    operationsSorter: method
+    tagsSorter: alpha
+    tryItOutEnabled: false  # 프로덕션에서는 Try it out 비활성화
+
 # Actuator for Cloud Run health checks
 management:
   endpoints:

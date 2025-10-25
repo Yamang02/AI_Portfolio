@@ -78,14 +78,19 @@ spring:
       allowed-headers: "*"
       allow-credentials: true
 
-# Swagger 비활성화 (스테이징에서는 선택적)
+# Swagger/OpenAPI 설정 (스테이징 - 개발자 테스트용)
 springdoc:
   api-docs:
-    enabled: false
+    enabled: true
+    path: /v3/api-docs
   swagger-ui:
-    enabled: false
+    enabled: true
+    path: /swagger-ui.html
+    operationsSorter: method
+    tagsSorter: alpha
+    tryItOutEnabled: true
 
-  # Actuator 설정 (Health Check용) - Production과 동일
+# Actuator 설정 (Health Check용) - Production과 동일
   management:
     endpoints:
       web:
