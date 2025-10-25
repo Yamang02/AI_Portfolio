@@ -20,6 +20,7 @@ const API_BASE_URL = import.meta.env?.DEV
 class AdminAuthApi {
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
     const url = `${API_BASE_URL}${endpoint}`;
+    console.log(`[AdminAuthApi] Request to: ${url}`, options);
 
     const defaultOptions: RequestInit = {
       headers: {
@@ -30,12 +31,15 @@ class AdminAuthApi {
     };
 
     const response = await fetch(url, { ...defaultOptions, ...options });
+    console.log(`[AdminAuthApi] Response status: ${response.status}`, response.headers);
 
     // 응답이 실패 상태코드여도 ApiResponse 형식일 수 있으므로 JSON 파싱 시도
     const data: ApiResponse<T> = await response.json();
+    console.log(`[AdminAuthApi] Response data:`, data);
 
     // HTTP 에러 상태이면서 ApiResponse가 아닌 경우에만 에러 throw
     if (!response.ok && !data.hasOwnProperty('success')) {
+      console.error(`[AdminAuthApi] Request failed:`, data);
       throw new Error(data.message || `HTTP ${response.status}`);
     }
 

@@ -17,27 +17,46 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // AuthProvider 컴포넌트
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const queryClient = useQueryClient();
 
   // 세션 상태 확인
   const { data: sessionData, isLoading, error, refetch } = useQuery({
     queryKey: ['admin-session'],
-    queryFn: adminAuthApi.getSession,
+    queryFn: async () => {
+      console.log('[AuthProvider] Fetching session...');
+      try {
+        const result = await adminAuthApi.getSession();
+        console.log('[AuthProvider] Session fetch result:', result);
+        return result;
+      } catch (err) {
+        console.error('[AuthProvider] Session fetch error:', err);
+        throw err;
+      }
+    },
     retry: false,
-    staleTime: 0, // 항상 최신 세션 상태 확인
-    refetchOnWindowFocus: true, // 브라우저 포커스 시 재검증
-    refetchOnMount: true, // 컴포넌트 마운트 시 재검증
+    staleTime: 0, // 캐시 사용 안함 - 항상 최신 상태 확인
+    gcTime: 0, // 가비지 컬렉션 즉시 (이전 cacheTime)
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+    refetchOnReconnect: true,
   });
 
   useEffect(() => {
-    // ApiResponse<AdminUserInfo> 구조에서 data가 있으면 인증됨
-    if (sessionData?.success && sessionData?.data) {
-      setIsAuthenticated(true);
-    } else {
-      setIsAuthenticated(false);
+    console.log('[AuthProvider] State update - isLoading:', isLoading, 'sessionData:', sessionData, 'error:', error);
+
+    // 로딩 중이 아닐 때만 인증 상태 업데이트
+    if (!isLoading) {
+      // ApiResponse<AdminUserInfo> 구조에서 data가 있으면 인증됨
+      if (sessionData?.success && sessionData?.data) {
+        console.log('[AuthProvider] User authenticated:', sessionData.data.username);
+        setIsAuthenticated(true);
+      } else {
+        console.log('[AuthProvider] User not authenticated');
+        setIsAuthenticated(false);
+      }
     }
-  }, [sessionData]);
+  }, [sessionData, isLoading, error]);
 
   const login = async (username: string, password: string) => {
     try {
@@ -81,8 +100,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const value: AuthContextType = {
-    isAuthenticated,
-    isLoading,
+    isAuthenticated: isAuthenticated === true,
+    isLoading: isLoading || isAuthenticated === null,
     error,
     sessionData: sessionData?.data,
     login,

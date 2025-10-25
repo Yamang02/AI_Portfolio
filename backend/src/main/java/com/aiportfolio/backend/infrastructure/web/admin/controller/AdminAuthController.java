@@ -77,13 +77,34 @@ public class AdminAuthController {
      */
     @GetMapping("/session")
     public ResponseEntity<ApiResponse<AdminUserInfo>> checkSession(HttpServletRequest httpRequest) {
-        log.debug("Session check request received");
+        log.debug("=== Session check request received ===");
+
+        // 디버깅을 위한 상세 로그 추가
+        HttpSession session = httpRequest.getSession(false);
+        log.debug("Session exists: {}", session != null);
+        if (session != null) {
+            log.debug("Session ID: {}", session.getId());
+            log.debug("Session creation time: {}", session.getCreationTime());
+            log.debug("Session last accessed time: {}", session.getLastAccessedTime());
+            log.debug("Session max inactive interval: {}", session.getMaxInactiveInterval());
+        }
+
+        // 쿠키 확인
+        if (httpRequest.getCookies() != null) {
+            for (var cookie : httpRequest.getCookies()) {
+                log.debug("Cookie: name={}, value={}, path={}, maxAge={}",
+                    cookie.getName(), cookie.getValue(), cookie.getPath(), cookie.getMaxAge());
+            }
+        } else {
+            log.warn("No cookies found in request");
+        }
 
         try {
-            HttpSession session = httpRequest.getSession(false);
             AdminUserInfo userInfo = authService.getCurrentUser(session);
+            log.info("Session check successful for user: {}", userInfo.getUsername());
             return ResponseEntity.ok(ApiResponse.success(userInfo, "세션이 유효합니다"));
         } catch (IllegalArgumentException e) {
+            log.warn("Session check failed: {}", e.getMessage());
             return ResponseEntity.status(401)
                     .body(ApiResponse.error(e.getMessage(), "인증되지 않음"));
         }

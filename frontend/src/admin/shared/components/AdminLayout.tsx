@@ -12,15 +12,8 @@ import {
   MenuUnfoldOutlined,
   HomeOutlined,
 } from '@ant-design/icons';
-import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import Dashboard from '../../pages/Dashboard';
-import ProjectList from '../../components/projects/ProjectList';
-import ProjectEdit from '../../pages/ProjectEdit';
-import SkillList from '../../pages/SkillList';
-import ExperienceList from '../../pages/ExperienceList';
-import EducationList from '../../pages/EducationList';
-import CertificationList from '../../pages/CertificationList';
 
 const { Header, Sider, Content } = Layout;
 const { Text } = Typography;
@@ -152,17 +145,8 @@ const AdminLayout: React.FC = () => {
           borderRadius: '8px',
           minHeight: 'calc(100vh - 112px)',
         }}>
-          <Routes>
-            <Route path="/" element={<Navigate to="/admin/dashboard" replace />} />
-            <Route path="dashboard" element={<Dashboard />} />
-            <Route path="projects" element={<ProjectList />} />
-            <Route path="projects/new" element={<ProjectEdit />} />
-            <Route path="projects/:id/edit" element={<ProjectEdit />} />
-            <Route path="skills" element={<SkillList />} />
-            <Route path="experiences" element={<ExperienceList />} />
-            <Route path="education" element={<EducationList />} />
-            <Route path="certifications" element={<CertificationList />} />
-          </Routes>
+          {/* Outlet을 사용하여 중첩 라우트 렌더링 */}
+          <Outlet />
         </Content>
       </Layout>
     </Layout>

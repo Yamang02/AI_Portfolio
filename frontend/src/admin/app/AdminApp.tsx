@@ -1,13 +1,17 @@
 import React from 'react';
 import { ConfigProvider, App as AntdApp } from 'antd';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from '../hooks/useAuth';
-import { DashboardPage } from '../pages/DashboardPage';
-import { ProjectListPage } from '../pages/ProjectListPage';
-import { ProjectEditPage } from '../pages/ProjectEditPage';
 import { LoginForm, ProtectedRoute } from '../features/auth';
 import AdminLayout from '../shared/components/AdminLayout';
+import Dashboard from '../pages/Dashboard';
+import ProjectList from '../components/projects/ProjectList';
+import ProjectEdit from '../pages/ProjectEdit';
+import SkillList from '../pages/SkillList';
+import ExperienceList from '../pages/ExperienceList';
+import EducationList from '../pages/EducationList';
+import CertificationList from '../pages/CertificationList';
 
 // React Query 클라이언트 설정
 const queryClient = new QueryClient({
@@ -48,12 +52,23 @@ const AdminApp: React.FC = () => {
               {/* 로그인 페이지 */}
               <Route path="login" element={<LoginForm />} />
 
-              {/* 보호된 관리자 라우트 */}
-              <Route path="*" element={
+              {/* 보호된 관리자 라우트 - 단일 Routes 구조로 변경 */}
+              <Route path="/" element={
                 <ProtectedRoute>
                   <AdminLayout />
                 </ProtectedRoute>
-              } />
+              }>
+                {/* AdminLayout 내부의 중첩 라우트 */}
+                <Route index element={<Navigate to="/admin/dashboard" replace />} />
+                <Route path="dashboard" element={<Dashboard />} />
+                <Route path="projects" element={<ProjectList />} />
+                <Route path="projects/new" element={<ProjectEdit />} />
+                <Route path="projects/:id" element={<ProjectEdit />} />
+                <Route path="skills" element={<SkillList />} />
+                <Route path="experiences" element={<ExperienceList />} />
+                <Route path="education" element={<EducationList />} />
+                <Route path="certifications" element={<CertificationList />} />
+              </Route>
             </Routes>
           </AuthProvider>
         </QueryClientProvider>
