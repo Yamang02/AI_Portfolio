@@ -1,0 +1,187 @@
+package com.aiportfolio.backend.infrastructure.web.admin.controller;
+
+import com.aiportfolio.backend.domain.admin.port.in.ManageProjectUseCase;
+import com.aiportfolio.backend.domain.admin.port.in.SearchProjectsUseCase;
+import com.aiportfolio.backend.infrastructure.web.admin.util.AdminAuthChecker;
+import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;
+import com.aiportfolio.backend.domain.admin.dto.request.ProjectCreateRequest;
+import com.aiportfolio.backend.domain.admin.model.vo.ProjectFilter;
+import com.aiportfolio.backend.domain.admin.dto.response.ProjectResponse;
+import com.aiportfolio.backend.domain.admin.dto.request.ProjectUpdateRequest;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+/**
+ * 관리자 프로젝트 컨트롤러
+ * 관리자 권한이 필요한 프로젝트 관리 기능을 제공합니다.
+ */
+@RestController
+@RequestMapping("/api/admin/projects")
+@RequiredArgsConstructor
+@Slf4j
+public class AdminProjectController {
+
+    private final ManageProjectUseCase manageProjectUseCase;
+    private final SearchProjectsUseCase searchProjectsUseCase;
+    private final AdminAuthChecker adminAuthChecker;
+
+    /**
+     * 프로젝트 목록 조회 (필터링 지원)
+     */
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<ProjectResponse>>> getProjects(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String isTeam,
+            @RequestParam(required = false) String projectType,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) List<String> techs,
+            @RequestParam(required = false, defaultValue = "sortOrder") String sortBy,
+            @RequestParam(required = false, defaultValue = "asc") String sortOrder,
+            @RequestParam(required = false, defaultValue = "0") Integer page,
+            @RequestParam(required = false, defaultValue = "20") Integer size,
+            HttpServletRequest request) {
+        
+        try {
+            adminAuthChecker.requireAuthentication(request);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(401)
+                    .body(ApiResponse.error(e.getMessage(), "인증 필요"));
+        }
+        
+        log.debug("Getting projects with filters - search: {}, isTeam: {}, type: {}, status: {}", 
+                search, isTeam, projectType, status);
+
+        ProjectFilter filter = ProjectFilter.builder()
+                .searchQuery(search)
+                .isTeam(isTeam)
+                .projectType(projectType)
+                .status(status)
+                .selectedTechs(techs)
+                .sortBy(sortBy)
+                .sortOrder(sortOrder)
+                .page(page)
+                .size(size)
+                .build();
+
+        List<ProjectResponse> projects = searchProjectsUseCase.searchProjects(filter);
+        
+        return ResponseEntity.ok(ApiResponse.success(projects, "프로젝트 목록 조회 성공"));
+    }
+
+    /**
+     * 프로젝트 상세 조회
+     */
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<ProjectResponse>> getProject(
+            @PathVariable String id,
+            HttpServletRequest request) {
+        
+        try {
+            adminAuthChecker.requireAuthentication(request);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(401)
+                    .body(ApiResponse.error(e.getMessage(), "인증 필요"));
+        }
+        
+        log.debug("Getting project by id: {}", id);
+        
+        try {
+            ProjectResponse project = searchProjectsUseCase.getProjectById(id);
+            return ResponseEntity.ok(ApiResponse.success(project, "프로젝트 조회 성공"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    /**
+     * 프로젝트 생성
+     */
+    @PostMapping
+    public ResponseEntity<ApiResponse<ProjectResponse>> createProject(
+            @Valid @RequestBody ProjectCreateRequest request,
+            HttpServletRequest httpRequest) {
+        
+        try {
+            adminAuthChecker.requireAuthentication(httpRequest);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(401)
+                    .body(ApiResponse.error(e.getMessage(), "인증 필요"));
+        }
+        
+        log.info("Creating new project: {}", request.getTitle());
+        
+        try {
+            ProjectResponse project = manageProjectUseCase.createProject(request);
+            return ResponseEntity.ok(ApiResponse.success(project, "프로젝트 생성 성공"));
+        } catch (Exception e) {
+            log.error("Failed to create project", e);
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error("프로젝트 생성 중 오류가 발생했습니다: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * 프로젝트 수정
+     */
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<ProjectResponse>> updateProject(
+            @PathVariable String id,
+            @Valid @RequestBody ProjectUpdateRequest request,
+            HttpServletRequest httpRequest) {
+        
+        try {
+            adminAuthChecker.requireAuthentication(httpRequest);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(401)
+                    .body(ApiResponse.error(e.getMessage(), "인증 필요"));
+        }
+        
+        log.info("Updating project: {}", id);
+        
+        try {
+            ProjectResponse project = manageProjectUseCase.updateProject(id, request);
+            return ResponseEntity.ok(ApiResponse.success(project, "프로젝트 수정 성공"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            log.error("Failed to update project: {}", id, e);
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error("프로젝트 수정 중 오류가 발생했습니다: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * 프로젝트 삭제
+     */
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Void>> deleteProject(
+            @PathVariable String id,
+            HttpServletRequest request) {
+        
+        try {
+            adminAuthChecker.requireAuthentication(request);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(401)
+                    .body(ApiResponse.error(e.getMessage(), "인증 필요"));
+        }
+        
+        log.info("Deleting project: {}", id);
+        
+        try {
+            manageProjectUseCase.deleteProject(id);
+            return ResponseEntity.ok(ApiResponse.success(null, "프로젝트 삭제 성공"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            log.error("Failed to delete project: {}", id, e);
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error("프로젝트 삭제 중 오류가 발생했습니다: " + e.getMessage()));
+        }
+    }
+}

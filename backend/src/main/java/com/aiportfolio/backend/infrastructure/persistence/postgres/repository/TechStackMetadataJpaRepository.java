@@ -3,7 +3,6 @@ package com.aiportfolio.backend.infrastructure.persistence.postgres.repository;
 import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.TechStackMetadataJpaEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -15,6 +14,11 @@ import java.util.Optional;
  */
 @Repository
 public interface TechStackMetadataJpaRepository extends JpaRepository<TechStackMetadataJpaEntity, Long> {
+    
+    /**
+     * 모든 기술 스택 메타데이터 조회 (정렬 순서로 정렬)
+     */
+    List<TechStackMetadataJpaEntity> findAllByOrderBySortOrderAsc();
     
     /**
      * 기술명으로 기술 스택 메타데이터 조회

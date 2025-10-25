@@ -103,4 +103,11 @@ public interface ProjectJpaRepository extends JpaRepository<ProjectJpaEntity, Lo
      * @param businessId 비즈니스 ID
      */
     void deleteByBusinessId(String businessId);
+    
+    /**
+     * 비즈니스 ID로 프로젝트 존재 여부 확인 (Admin Dashboard용)
+     * @param businessId 비즈니스 ID
+     * @return 존재 여부
+     */
+    boolean existsByBusinessId(String businessId);
 }

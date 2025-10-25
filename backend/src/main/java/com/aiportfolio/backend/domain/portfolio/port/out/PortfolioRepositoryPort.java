@@ -4,6 +4,7 @@ import com.aiportfolio.backend.domain.portfolio.model.Project;
 import com.aiportfolio.backend.domain.portfolio.model.Experience;
 import com.aiportfolio.backend.domain.portfolio.model.Education;
 import com.aiportfolio.backend.domain.portfolio.model.Certification;
+import com.aiportfolio.backend.domain.admin.model.vo.ProjectFilter;
 
 import java.util.List;
 import java.util.Optional;
@@ -56,6 +57,16 @@ public interface PortfolioRepositoryPort {
      */
     void deleteProject(String id);
     
+    /**
+     * 특정 기술스택을 사용하는 프로젝트 목록 조회
+     */
+    List<Project> findProjectsByTechStack(String techStackName);
+    
+    /**
+     * 여러 기술스택을 사용하는 프로젝트 목록 조회
+     */
+    List<Project> findProjectsByTechStacks(List<String> techStackNames);
+    
     // === 경력 관련 ===
     /**
      * 모든 경력 정보를 조회합니다
@@ -88,4 +99,20 @@ public interface PortfolioRepositoryPort {
      * ID로 특정 자격증을 조회합니다
      */
     Optional<Certification> findCertificationById(String id);
+    
+    // === 관리자 기능 추가 ===
+    /**
+     * 필터 조건에 따라 프로젝트 목록을 조회합니다 (관리자용)
+     */
+    List<Project> findByFilter(ProjectFilter filter);
+    
+    /**
+     * 프로젝트 존재 여부를 확인합니다 (관리자용)
+     */
+    boolean existsProjectById(String id);
+    
+    /**
+     * 프로젝트를 업데이트합니다 (관리자용)
+     */
+    Project updateProject(Project project);
 }

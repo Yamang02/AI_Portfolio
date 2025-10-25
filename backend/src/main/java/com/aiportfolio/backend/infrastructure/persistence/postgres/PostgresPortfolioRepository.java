@@ -3,6 +3,7 @@ package com.aiportfolio.backend.infrastructure.persistence.postgres;
 // 도메인 모델 imports
 import com.aiportfolio.backend.domain.portfolio.port.out.PortfolioRepositoryPort;
 import com.aiportfolio.backend.domain.portfolio.model.*;
+import com.aiportfolio.backend.domain.admin.model.vo.ProjectFilter;
 
 // 인프라 레이어 imports (와일드카드 사용)
 import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.*;
@@ -12,13 +13,13 @@ import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.*;
 // 외부 라이브러리 imports
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 
 // Java 표준 라이브러리 imports
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * PostgreSQL 기반 PortfolioRepository 구현체
@@ -36,6 +37,7 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
     private final ExperienceJpaRepository experienceJpaRepository;
     private final EducationJpaRepository educationJpaRepository;
     private final CertificationJpaRepository certificationJpaRepository;
+    private final ProjectTechStackJpaRepository projectTechStackJpaRepository;
 
     // 매퍼들 (도메인 ↔ JPA 엔티티 변환)
     private final ProjectMapper projectMapper;
@@ -229,6 +231,103 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
         } catch (Exception e) {
             log.error("프로젝트 삭제 중 오류 발생: {}", id, e);
             throw new RuntimeException("프로젝트 삭제에 실패했습니다", e);
+        }
+    }
+    
+    @Override
+    public List<Project> findProjectsByTechStack(String techStackName) {
+        log.debug("기술스택 '{}'을 사용하는 프로젝트 조회", techStackName);
+        try {
+            // ProjectTechStackJpaRepository를 통해 기술스택별 프로젝트 매핑 조회
+            List<ProjectTechStackJpaEntity> mappings = projectTechStackJpaRepository.findByTechStackName(techStackName);
+            
+            // 매핑에서 프로젝트 ID 추출
+            List<Long> projectIds = mappings.stream()
+                .map(mapping -> mapping.getProject().getId())
+                .toList();
+            
+            if (projectIds.isEmpty()) {
+                log.debug("기술스택 '{}'을 사용하는 프로젝트가 없습니다", techStackName);
+                return List.of();
+            }
+            
+            // 프로젝트 ID로 프로젝트 엔티티 조회
+            List<ProjectJpaEntity> projectEntities = projectJpaRepository.findAllById(projectIds);
+            List<Project> projects = projectMapper.toDomainList(projectEntities);
+            
+            log.info("기술스택 '{}'을 사용하는 프로젝트 {} 개 조회 완료", techStackName, projects.size());
+            return projects;
+        } catch (Exception e) {
+            log.error("기술스택별 프로젝트 조회 중 오류 발생: {}", techStackName, e);
+            return List.of();
+        }
+    }
+    
+    @Override
+    public List<Project> findProjectsByTechStacks(List<String> techStackNames) {
+        log.debug("기술스택 목록 {} 을 사용하는 프로젝트 조회", techStackNames);
+        try {
+            // 각 기술스택별로 프로젝트 조회 후 중복 제거
+            List<Project> allProjects = techStackNames.stream()
+                .flatMap(techStackName -> findProjectsByTechStack(techStackName).stream())
+                .distinct() // 중복 제거 (Project의 equals/hashCode 구현 필요)
+                .toList();
+            
+            log.info("기술스택 목록 {} 을 사용하는 프로젝트 {} 개 조회 완료", techStackNames, allProjects.size());
+            return allProjects;
+        } catch (Exception e) {
+            log.error("기술스택 목록별 프로젝트 조회 중 오류 발생: {}", techStackNames, e);
+            return List.of();
+        }
+    }
+    
+    // === 관리자 기능 구현 ===
+    
+    @Override
+    public List<Project> findByFilter(ProjectFilter filter) {
+        log.debug("Finding projects by filter: {}", filter);
+        
+        try {
+            // 모든 프로젝트를 조회한 후 메모리에서 필터링
+            // TODO: 향후 JPA Specification을 사용하여 DB 레벨에서 필터링 개선
+            List<ProjectJpaEntity> entities = projectJpaRepository.findAllOrderedBySortOrderAndStartDate();
+            
+            return entities.stream()
+                .map(projectMapper::toDomain)
+                .filter(filter::matches)
+                .sorted(filter.getSortCriteria())
+                .collect(Collectors.toList());
+        } catch (Exception e) {
+            log.error("프로젝트 필터링 조회 중 오류 발생", e);
+            return List.of();
+        }
+    }
+    
+    @Override
+    public boolean existsProjectById(String id) {
+        log.debug("Checking if project exists: {}", id);
+        
+        try {
+            return projectJpaRepository.existsByBusinessId(id);
+        } catch (Exception e) {
+            log.error("프로젝트 존재 여부 확인 중 오류 발생: {}", id, e);
+            return false;
+        }
+    }
+    
+    @Override
+    public Project updateProject(Project project) {
+        log.debug("Updating project: {}", project.getId());
+        
+        try {
+            ProjectJpaEntity entity = projectMapper.toJpaEntity(project);
+            ProjectJpaEntity savedEntity = projectJpaRepository.save(entity);
+            
+            log.debug("Project updated successfully: {}", savedEntity.getId());
+            return projectMapper.toDomain(savedEntity);
+        } catch (Exception e) {
+            log.error("프로젝트 업데이트 중 오류 발생: {}", project.getId(), e);
+            throw new RuntimeException("프로젝트 업데이트에 실패했습니다", e);
         }
     }
 }

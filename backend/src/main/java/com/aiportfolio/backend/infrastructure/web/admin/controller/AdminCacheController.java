@@ -1,6 +1,6 @@
-package com.aiportfolio.backend.infrastructure.web.controller;
+package com.aiportfolio.backend.infrastructure.web.admin.controller;
 
-import com.aiportfolio.backend.application.admin.AdminCacheService;
+import com.aiportfolio.backend.domain.admin.port.in.ManageCacheUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 /**
- * Admin Cache Management Controller
- * Redis 캐시 관리 기능을 제공합니다.
+ * 관리자 캐시 관리 컨트롤러
+ * 관리자 권한이 필요한 Redis 캐시 관리 기능을 제공합니다.
  */
 @RestController
 @RequestMapping("/api/admin/cache")
@@ -18,7 +18,7 @@ import java.util.Map;
 @Slf4j
 public class AdminCacheController {
 
-    private final AdminCacheService adminCacheService;
+    private final ManageCacheUseCase manageCacheUseCase;
 
     /**
      * Redis 캐시 전체 flush
@@ -28,7 +28,7 @@ public class AdminCacheController {
         log.info("Admin cache flush requested");
         
         try {
-            adminCacheService.flushAllCache();
+            manageCacheUseCase.flushAllCache();
             log.info("Cache flush completed successfully");
             
             return ResponseEntity.ok(Map.of(
@@ -55,7 +55,7 @@ public class AdminCacheController {
         log.info("Admin cache stats requested");
         
         try {
-            Map<String, Object> stats = adminCacheService.getCacheStats();
+            Map<String, Object> stats = manageCacheUseCase.getCacheStats();
             log.info("Cache stats retrieved successfully");
             
             return ResponseEntity.ok(Map.of(

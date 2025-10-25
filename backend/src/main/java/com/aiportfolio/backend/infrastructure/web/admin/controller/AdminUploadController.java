@@ -1,6 +1,6 @@
 package com.aiportfolio.backend.infrastructure.web.admin.controller;
 
-import com.aiportfolio.backend.application.admin.CloudinaryService;
+import com.aiportfolio.backend.domain.admin.port.in.UploadImageUseCase;
 import com.aiportfolio.backend.domain.admin.model.dto.ImageUploadResponse;
 import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -9,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -22,7 +21,7 @@ import java.util.List;
 @Slf4j
 public class AdminUploadController {
 
-    private final CloudinaryService cloudinaryService;
+    private final UploadImageUseCase uploadImageUseCase;
 
     /**
      * 단일 이미지 업로드
@@ -50,8 +49,8 @@ public class AdminUploadController {
             String folder = getFolderPath(type);
 
             // 이미지 업로드
-            String url = cloudinaryService.uploadImage(file, folder);
-            String publicId = cloudinaryService.extractPublicId(url);
+            String url = uploadImageUseCase.uploadImage(file, folder);
+            String publicId = extractPublicIdFromUrl(url);
 
             log.info("Image uploaded successfully: {} -> {}", publicId, url);
 
@@ -62,14 +61,10 @@ public class AdminUploadController {
 
             return ResponseEntity.ok(ApiResponse.success(response, "이미지 업로드 성공"));
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             log.error("Image upload failed: {}", file.getOriginalFilename(), e);
             return ResponseEntity.internalServerError()
                 .body(ApiResponse.error("이미지 업로드 중 오류가 발생했습니다", "업로드 실패"));
-        } catch (Exception e) {
-            log.error("Unexpected error during image upload: {}", file.getOriginalFilename(), e);
-            return ResponseEntity.internalServerError()
-                .body(ApiResponse.error("예상치 못한 오류가 발생했습니다", "서버 오류"));
         }
     }
 
@@ -101,20 +96,16 @@ public class AdminUploadController {
             String folder = getFolderPath(type);
 
             // 이미지 업로드
-            List<String> urls = cloudinaryService.uploadImages(files, folder);
+            List<String> urls = uploadImageUseCase.uploadImages(files, folder);
 
             log.info("Multiple images uploaded successfully: {} files", files.size());
 
             return ResponseEntity.ok(ApiResponse.success(urls, "이미지 업로드 성공"));
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             log.error("Multiple image upload failed", e);
             return ResponseEntity.internalServerError()
                 .body(ApiResponse.error("이미지 업로드 중 오류가 발생했습니다", "업로드 실패"));
-        } catch (Exception e) {
-            log.error("Unexpected error during multiple image upload", e);
-            return ResponseEntity.internalServerError()
-                .body(ApiResponse.error("예상치 못한 오류가 발생했습니다", "서버 오류"));
         }
     }
 
@@ -126,7 +117,7 @@ public class AdminUploadController {
         log.debug("Image deletion request: {}", publicId);
 
         try {
-            cloudinaryService.deleteImage(publicId);
+            uploadImageUseCase.deleteImage(publicId);
 
             log.info("Image deleted successfully: {}", publicId);
 
@@ -145,6 +136,32 @@ public class AdminUploadController {
     private boolean isValidImageFile(MultipartFile file) {
         String contentType = file.getContentType();
         return contentType != null && contentType.startsWith("image/");
+    }
+
+    /**
+     * URL에서 public ID를 추출합니다.
+     */
+    private String extractPublicIdFromUrl(String url) {
+        if (url == null || !url.contains("cloudinary.com")) {
+            return null;
+        }
+        
+        try {
+            // URL에서 public ID 추출
+            // 예: https://res.cloudinary.com/cloud/image/upload/v1234567890/folder/image.jpg
+            // -> folder/image
+            String[] parts = url.split("/");
+            if (parts.length >= 8) {
+                String folder = parts[parts.length - 2];
+                String filename = parts[parts.length - 1];
+                String nameWithoutExtension = filename.substring(0, filename.lastIndexOf('.'));
+                return folder + "/" + nameWithoutExtension;
+            }
+        } catch (Exception e) {
+            log.warn("Failed to extract public ID from URL: {}", url, e);
+        }
+        
+        return null;
     }
 
     /**

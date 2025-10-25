@@ -1,4 +1,4 @@
-package com.aiportfolio.backend.infrastructure.web.dto.admin;
+package com.aiportfolio.backend.domain.admin.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,6 +11,7 @@ import java.util.List;
 
 /**
  * 프로젝트 응답 DTO
+ * 도메인 계층에서 사용되는 프로젝트 응답 데이터 전송 객체
  */
 @Data
 @Builder
@@ -62,4 +63,3 @@ public class ProjectResponse {
         private Integer proficiencyLevel;
     }
 }
-

@@ -418,47 +418,620 @@ Response 200:
 
 ## 4. 백엔드 아키텍처
 
-### 4.1 패키지 구조
+### 4.1 현재 구조 분석 및 문제점
+
+#### 현재 디렉토리 구조 (실제 분석 결과)
+```
+backend/src/main/java/com/aiportfolio/backend/
+├── domain
+│   ├── admin
+│   │   ├── model
+│   │   │   ├── AdminUser.java                    // ✅ 도메인 모델
+│   │   │   └── dto
+│   │   │       ├── AdminLoginRequest.java        // ✅ 도메인 DTO
+│   │   │       ├── AdminUserInfo.java            // ✅ 도메인 DTO
+│   │   │       └── ImageUploadResponse.java      // ✅ 도메인 DTO
+│   │   └── port
+│   │       └── out
+│   │           └── AdminUserRepository.java      // ✅ 포트 인터페이스
+│   └── portfolio (기존 잘 설계된 구조)
+│       ├── model
+│       ├── port.in (Use Case 인터페이스)
+│       └── port.out (Repository 포트)
+├── application
+│   ├── admin
+│   │   ├── AdminProjectService.java              // ❌ 문제: 포트 없이 직접 JPA 의존
+│   │   ├── AuthService.java                      // ✅ 인증 서비스 (적절)
+│   │   ├── CloudinaryService.java                // ❌ 문제: 인프라 서비스가 application에 위치
+│   │   └── AdminCacheService.java                // ❌ 문제: 인프라 서비스가 application에 위치
+│   └── portfolio (기존 Use Case 구현들)
+└── infrastructure
+    ├── web
+    │   ├── controller
+    │   │   ├── AdminProjectController.java       // ✅ 컨트롤러
+    │   │   └── AdminCacheController.java         // ✅ 컨트롤러
+    │   └── dto.admin
+    │       ├── ProjectCreateRequest.java         // ❌ 문제: 도메인 DTO가 인프라에 위치
+    │       ├── ProjectUpdateRequest.java         // ❌ 문제: 도메인 DTO가 인프라에 위치
+    │       ├── ProjectResponse.java              // ❌ 문제: 도메인 DTO가 인프라에 위치
+    │       └── ProjectFilter.java                // ❌ 문제: 도메인 객체가 인프라에 위치
+    └── persistence
+        └── postgres (JPA 구현체들)
+```
+
+#### 주요 문제점 (실제 코드 분석 결과)
+1. **포트 인터페이스 우회**: `AdminProjectService`가 `PortfolioRepositoryPort`와 `ProjectJpaRepository`를 동시에 의존
+2. **DTO 위치 문제**: 도메인 DTO들이 `infrastructure.web.dto.admin`에 위치
+3. **인프라 서비스 위치 문제**: `CloudinaryService`, `AdminCacheService`가 application에 위치
+4. **비즈니스 로직 분산**: 필터링, 정렬 로직이 Service에 직접 구현
+5. **계층 분리 원칙 위반**: 애플리케이션 계층이 인프라 계층을 직접 의존
+
+### 4.2 개선된 패키지 구조 (Hexagonal Architecture)
 
 ```
 com.aiportfolio.backend
-├── domain.admin
-│   ├── model
-│   │   ├── AdminUser.java
-│   │   ├── ProjectManagement.java
-│   │   └── dto
-│   │       ├── AdminLoginRequest.java
-│   │       ├── AdminLoginResponse.java
-│   │       ├── ProjectCreateRequest.java
-│   │       ├── ProjectUpdateRequest.java
-│   │       └── ProjectResponse.java
-│   └── port
-│       ├── in
-│       │   ├── AdminAuthUseCase.java
-│       │   ├── AdminProjectUseCase.java
-│       │   └── CloudinaryUseCase.java
-│       └── out
-│           ├── AdminUserRepository.java
-│           ├── ProjectManagementRepository.java
-│           └── CloudinaryRepository.java
-├── application.admin
-│   ├── AdminAuthService.java
-│   ├── AdminProjectService.java
-│   └── CloudinaryService.java
-├── infrastructure.web.admin
-│   └── controller
-│       ├── AdminAuthController.java
-│       ├── AdminProjectController.java
-│       └── AdminUploadController.java
-└── infrastructure.security
-    ├── SecurityConfig.java
-    ├── AdminAuthenticationProvider.java
-    └── AdminSecurityFilter.java
+├── domain
+│   ├── admin
+│   │   ├── model                                  // 도메인 모델
+│   │   │   ├── AdminUser.java                    // 관리자 사용자 엔티티
+│   │   │   ├── AdminSession.java                 // 세션 도메인 모델 (NEW)
+│   │   │   └── vo                                // 값 객체 (NEW)
+│   │   │       ├── ProjectFilter.java           // 프로젝트 필터 값 객체
+│   │   │       └── SortCriteria.java            // 정렬 기준 값 객체
+│   │   ├── dto                                   // 도메인 DTO (infrastructure에서 이동)
+│   │   │   ├── request
+│   │   │   │   ├── AdminLoginRequest.java
+│   │   │   │   ├── ProjectCreateRequest.java
+│   │   │   │   ├── ProjectUpdateRequest.java
+│   │   │   │   └── ImageUploadRequest.java
+│   │   │   └── response
+│   │   │       ├── AdminUserInfo.java
+│   │   │       ├── ProjectResponse.java
+│   │   │       └── ImageUploadResponse.java
+│   │   └── port
+│   │       ├── in                                // Use Case 인터페이스
+│   │       │   ├── auth
+│   │       │   │   ├── LoginUseCase.java
+│   │       │   │   ├── LogoutUseCase.java
+│   │       │   │   └── ValidateSessionUseCase.java
+│   │       │   ├── project
+│   │       │   │   ├── ManageProjectUseCase.java         // CRUD 통합
+│   │       │   │   ├── SearchProjectsUseCase.java        // 조회/필터링
+│   │       │   │   └── UpdateProjectSortOrderUseCase.java
+│   │       │   ├── cache
+│   │       │   │   ├── ManageCacheUseCase.java
+│   │       │   │   └── GetCacheStatsUseCase.java
+│   │       │   └── media
+│   │       │       ├── UploadImageUseCase.java
+│   │       │       └── DeleteImageUseCase.java
+│   │       └── out                               // Repository 포트
+│   │           ├── AdminUserRepositoryPort.java
+│   │           ├── AdminSessionRepositoryPort.java
+│   │           ├── ProjectManagementPort.java            // 프로젝트 관리 전용
+│   │           ├── CacheManagementPort.java              // 캐시 관리 포트
+│   │           └── ImageStoragePort.java                 // 이미지 저장소 포트
+│   └── portfolio                                 // 기존 구조 유지
+│       ├── model
+│       ├── port.in
+│       └── port.out
+│
+├── application
+│   ├── admin                                     // Use Case 구현
+│   │   ├── auth
+│   │   │   ├── LoginService.java                       // LoginUseCase 구현
+│   │   │   ├── LogoutService.java                      // LogoutUseCase 구현
+│   │   │   └── SessionValidationService.java           // ValidateSessionUseCase 구현
+│   │   ├── project
+│   │   │   ├── ProjectManagementService.java           // ManageProjectUseCase 구현
+│   │   │   ├── ProjectSearchService.java               // SearchProjectsUseCase 구현
+│   │   │   └── ProjectSortOrderService.java            // UpdateProjectSortOrderUseCase 구현
+│   │   ├── cache
+│   │   │   └── CacheManagementService.java             // ManageCacheUseCase 구현
+│   │   └── media
+│   │       └── ImageUploadService.java                  // UploadImageUseCase 구현
+│   └── portfolio
+│       └── (기존 서비스들)
+│
+├── infrastructure
+│   ├── persistence                               // Repository 구현 (Out Port)
+│   │   ├── postgres
+│   │   │   ├── adapter
+│   │   │   │   ├── PostgresAdminUserRepository.java   // AdminUserRepositoryPort 구현
+│   │   │   │   └── PostgresProjectManagementAdapter.java // ProjectManagementPort 구현
+│   │   │   ├── entity
+│   │   │   │   └── (JPA 엔티티들)
+│   │   │   ├── repository
+│   │   │   │   └── (Spring Data JPA Repository들)
+│   │   │   └── mapper
+│   │   │       └── (엔티티 <-> 도메인 모델 매퍼)
+│   │   └── redis
+│   │       └── adapter
+│   │           ├── RedisSessionRepository.java         // AdminSessionRepositoryPort 구현
+│   │           └── RedisCacheManagementAdapter.java    // CacheManagementPort 구현
+│   ├── external                                  // 외부 서비스 어댑터
+│   │   └── cloudinary
+│   │       └── CloudinaryImageStorageAdapter.java      // ImageStoragePort 구현
+│   └── web                                       // 컨트롤러 (In Port)
+│       ├── controller
+│       │   └── admin
+│       │       ├── AdminAuthController.java
+│       │       ├── AdminProjectController.java
+│       │       ├── AdminCacheController.java
+│       │       └── AdminImageController.java
+│       ├── dto                                   // Web 계층 전용 DTO (필요시)
+│       │   └── (API 응답 래퍼 등)
+│       └── util
+│           └── AdminAuthChecker.java
+│
+└── common                                        // 공통 유틸리티
+    ├── exception
+    │   ├── AdminAuthenticationException.java
+    │   ├── ProjectNotFoundException.java
+    │   └── ImageUploadException.java
+    └── validation
+        └── (공통 Validation 로직)
 ```
 
-### 4.2 Spring Security 설정
+### 4.3 아키텍처 개선 포인트
 
-#### SecurityConfig.java
+#### 1️⃣ **도메인 계층 강화**
+```java
+// domain/admin/model/vo/ProjectFilter.java
+@Value
+public class ProjectFilter {
+    String searchQuery;
+    Boolean isTeam;
+    ProjectType projectType;
+    String status;
+    List<String> selectedTechs;
+    SortCriteria sortCriteria;
+
+    // 비즈니스 로직: 필터 적용 여부 판단
+    public boolean hasSearchFilter() { ... }
+    public boolean hasTypeFilter() { ... }
+}
+
+// domain/admin/model/vo/SortCriteria.java
+@Value
+public class SortCriteria {
+    SortField field;
+    SortOrder order;
+
+    public enum SortField {
+        START_DATE, END_DATE, TITLE, STATUS, SORT_ORDER, TYPE
+    }
+
+    public enum SortOrder {
+        ASC, DESC
+    }
+}
+```
+
+#### 2️⃣ **Use Case 인터페이스 정의**
+```java
+// domain/admin/port/in/project/ManageProjectUseCase.java
+public interface ManageProjectUseCase {
+    ProjectResponse createProject(ProjectCreateRequest request);
+    ProjectResponse updateProject(String id, ProjectUpdateRequest request);
+    void deleteProject(String id);
+}
+
+// domain/admin/port/in/project/SearchProjectsUseCase.java
+public interface SearchProjectsUseCase {
+    List<ProjectResponse> searchProjects(ProjectFilter filter);
+    ProjectResponse getProjectById(String id);
+}
+
+// domain/admin/port/in/media/UploadImageUseCase.java
+public interface UploadImageUseCase {
+    ImageUploadResponse uploadImage(MultipartFile file, String folder);
+    List<ImageUploadResponse> uploadImages(List<MultipartFile> files, String folder);
+}
+```
+
+#### 3️⃣ **Repository 포트 정의**
+```java
+// domain/admin/port/out/ProjectManagementPort.java
+public interface ProjectManagementPort {
+    Project save(Project project);
+    Optional<Project> findById(String id);
+    List<Project> findByFilter(ProjectFilter filter);
+    void delete(String id);
+}
+
+// domain/admin/port/out/ImageStoragePort.java
+public interface ImageStoragePort {
+    String uploadImage(byte[] imageData, String folder, ImageMetadata metadata);
+    List<String> uploadImages(List<byte[]> imagesData, String folder, ImageMetadata metadata);
+    void deleteImage(String publicId);
+    String extractPublicId(String url);
+}
+
+// domain/admin/port/out/CacheManagementPort.java
+public interface CacheManagementPort {
+    void flushAll();
+    Map<String, Object> getStatistics();
+    void evict(String cacheName, String key);
+}
+```
+
+#### 4️⃣ **Application 서비스 구현**
+```java
+// application/admin/project/ProjectManagementService.java
+@Service
+@RequiredArgsConstructor
+public class ProjectManagementService implements ManageProjectUseCase {
+
+    private final ProjectManagementPort projectManagementPort;  // 포트 의존
+
+    @Override
+    public ProjectResponse createProject(ProjectCreateRequest request) {
+        Project project = Project.from(request);
+        Project saved = projectManagementPort.save(project);
+        return ProjectResponse.from(saved);
+    }
+
+    @Override
+    public ProjectResponse updateProject(String id, ProjectUpdateRequest request) {
+        Project project = projectManagementPort.findById(id)
+            .orElseThrow(() -> new ProjectNotFoundException(id));
+        project.update(request);
+        Project updated = projectManagementPort.save(project);
+        return ProjectResponse.from(updated);
+    }
+}
+
+// application/admin/project/ProjectSearchService.java
+@Service
+@RequiredArgsConstructor
+public class ProjectSearchService implements SearchProjectsUseCase {
+
+    private final ProjectManagementPort projectManagementPort;
+
+    @Override
+    public List<ProjectResponse> searchProjects(ProjectFilter filter) {
+        List<Project> projects = projectManagementPort.findByFilter(filter);
+        return projects.stream()
+            .map(ProjectResponse::from)
+            .collect(Collectors.toList());
+    }
+}
+```
+
+#### 5️⃣ **Infrastructure 어댑터 구현**
+```java
+// infrastructure/persistence/postgres/adapter/PostgresProjectManagementAdapter.java
+@Component
+@RequiredArgsConstructor
+public class PostgresProjectManagementAdapter implements ProjectManagementPort {
+
+    private final ProjectJpaRepository jpaRepository;
+    private final ProjectMapper mapper;
+
+    @Override
+    public List<Project> findByFilter(ProjectFilter filter) {
+        List<ProjectJpaEntity> entities = jpaRepository.findAllOrderedBySortOrderAndStartDate();
+        return entities.stream()
+            .map(mapper::toDomain)
+            .filter(p -> applyFilters(p, filter))
+            .sorted(filter.getSortCriteria().getComparator())
+            .collect(Collectors.toList());
+    }
+
+    private boolean applyFilters(Project project, ProjectFilter filter) {
+        return filter.matches(project);  // 필터링 로직을 도메인 객체에 위임
+    }
+}
+
+// infrastructure/external/cloudinary/CloudinaryImageStorageAdapter.java
+@Component
+@RequiredArgsConstructor
+public class CloudinaryImageStorageAdapter implements ImageStoragePort {
+
+    private final Cloudinary cloudinary;
+
+    @Override
+    public String uploadImage(byte[] imageData, String folder, ImageMetadata metadata) {
+        Map<String, Object> params = buildUploadParams(folder, metadata);
+        Map<?, ?> result = cloudinary.uploader().upload(imageData, params);
+        return (String) result.get("secure_url");
+    }
+}
+
+// infrastructure/persistence/redis/adapter/RedisCacheManagementAdapter.java
+@Component
+@RequiredArgsConstructor
+public class RedisCacheManagementAdapter implements CacheManagementPort {
+
+    private final RedisTemplate<String, Object> redisTemplate;
+
+    @Override
+    public void flushAll() {
+        Set<String> keys = redisTemplate.keys("*");
+        if (keys != null && !keys.isEmpty()) {
+            redisTemplate.delete(keys);
+        }
+    }
+
+    @Override
+    public Map<String, Object> getStatistics() {
+        // 캐시 통계 로직
+    }
+}
+```
+
+#### 6️⃣ **컨트롤러 계층**
+```java
+// infrastructure/web/controller/admin/AdminProjectController.java
+@RestController
+@RequestMapping("/api/admin/projects")
+@RequiredArgsConstructor
+public class AdminProjectController {
+
+    private final ManageProjectUseCase manageProjectUseCase;
+    private final SearchProjectsUseCase searchProjectsUseCase;
+    private final AdminAuthChecker adminAuthChecker;
+
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<ProjectResponse>>> getProjects(
+            @ModelAttribute ProjectFilterRequest filterRequest,
+            HttpServletRequest request) {
+
+        adminAuthChecker.requireAuthentication(request);
+
+        ProjectFilter filter = ProjectFilter.from(filterRequest);
+        List<ProjectResponse> projects = searchProjectsUseCase.searchProjects(filter);
+
+        return ResponseEntity.ok(ApiResponse.success(projects));
+    }
+
+    @PostMapping
+    public ResponseEntity<ApiResponse<ProjectResponse>> createProject(
+            @Valid @RequestBody ProjectCreateRequest request,
+            HttpServletRequest httpRequest) {
+
+        adminAuthChecker.requireAuthentication(httpRequest);
+
+        ProjectResponse project = manageProjectUseCase.createProject(request);
+        return ResponseEntity.ok(ApiResponse.success(project));
+    }
+}
+```
+
+### 4.4 마이그레이션 계획 (실제 리팩토링 로드맵)
+
+현재 코드를 새로운 구조로 점진적 이동:
+
+#### Phase 1: 포트 인터페이스 도입 (우선순위: 높음, 예상 소요시간: 2-3일)
+1. **ProjectManagementPort** 생성
+   ```java
+   // domain/admin/port/out/ProjectManagementPort.java
+   public interface ProjectManagementPort {
+       List<Project> findByFilter(ProjectFilter filter);
+       Project save(Project project);
+       Optional<Project> findById(String id);
+       void delete(String id);
+   }
+   ```
+
+2. **ImageStoragePort** 생성
+   ```java
+   // domain/admin/port/out/ImageStoragePort.java
+   public interface ImageStoragePort {
+       String uploadImage(byte[] imageData, String folder, ImageMetadata metadata);
+       List<String> uploadImages(List<byte[]> imagesData, String folder, ImageMetadata metadata);
+       void deleteImage(String publicId);
+       String extractPublicId(String url);
+   }
+   ```
+
+3. **CacheManagementPort** 생성
+   ```java
+   // domain/admin/port/out/CacheManagementPort.java
+   public interface CacheManagementPort {
+       void flushAll();
+       Map<String, Object> getStatistics();
+       void evict(String cacheName, String key);
+   }
+   ```
+
+#### Phase 2: DTO 이동 (우선순위: 높음, 예상 소요시간: 1-2일)
+1. **DTO 이동**: `infrastructure.web.dto.admin` → `domain.admin.dto`
+   - `ProjectCreateRequest.java` 이동
+   - `ProjectUpdateRequest.java` 이동
+   - `ProjectResponse.java` 이동
+   - `ProjectFilter.java` 이동
+
+2. **값 객체 추출**:
+   ```java
+   // domain/admin/model/vo/ProjectFilter.java
+   @Value
+   public class ProjectFilter {
+       String searchQuery;
+       Boolean isTeam;
+       ProjectType projectType;
+       String status;
+       List<String> selectedTechs;
+       SortCriteria sortCriteria;
+       
+       // 비즈니스 로직 포함
+       public boolean matches(Project project) { ... }
+       public Comparator<Project> getComparator() { ... }
+   }
+   
+   // domain/admin/model/vo/SortCriteria.java
+   @Value
+   public class SortCriteria {
+       SortField field;
+       SortOrder order;
+       
+       public Comparator<Project> getComparator() { ... }
+   }
+   ```
+
+#### Phase 3: 어댑터 구현 (우선순위: 중간, 예상 소요시간: 3-4일)
+1. **PostgresProjectManagementAdapter** 구현
+   ```java
+   // infrastructure/persistence/postgres/adapter/PostgresProjectManagementAdapter.java
+   @Component
+   public class PostgresProjectManagementAdapter implements ProjectManagementPort {
+       private final ProjectJpaRepository jpaRepository;
+       private final ProjectMapper mapper;
+       
+       @Override
+       public List<Project> findByFilter(ProjectFilter filter) {
+           // 필터링 로직을 도메인 객체에 위임
+           List<ProjectJpaEntity> entities = jpaRepository.findAllOrderedBySortOrderAndStartDate();
+           return entities.stream()
+               .map(mapper::toDomain)
+               .filter(filter::matches)
+               .sorted(filter.getComparator())
+               .collect(Collectors.toList());
+       }
+   }
+   ```
+
+2. **CloudinaryImageStorageAdapter** 구현
+   ```java
+   // infrastructure/external/cloudinary/CloudinaryImageStorageAdapter.java
+   @Component
+   public class CloudinaryImageStorageAdapter implements ImageStoragePort {
+       private final Cloudinary cloudinary;
+       
+       @Override
+       public String uploadImage(byte[] imageData, String folder, ImageMetadata metadata) {
+           // Cloudinary 구현
+       }
+   }
+   ```
+
+3. **RedisCacheManagementAdapter** 구현
+   ```java
+   // infrastructure/persistence/redis/adapter/RedisCacheManagementAdapter.java
+   @Component
+   public class RedisCacheManagementAdapter implements CacheManagementPort {
+       private final RedisTemplate<String, Object> redisTemplate;
+       
+       @Override
+       public void flushAll() {
+           // Redis 구현
+       }
+   }
+   ```
+
+#### Phase 4: Use Case 분리 (우선순위: 중간, 예상 소요시간: 2-3일)
+1. **Use Case 인터페이스 정의**:
+   ```java
+   // domain/admin/port/in/project/ManageProjectUseCase.java
+   public interface ManageProjectUseCase {
+       ProjectResponse createProject(ProjectCreateRequest request);
+       ProjectResponse updateProject(String id, ProjectUpdateRequest request);
+       void deleteProject(String id);
+   }
+   
+   // domain/admin/port/in/project/SearchProjectsUseCase.java
+   public interface SearchProjectsUseCase {
+       List<ProjectResponse> searchProjects(ProjectFilter filter);
+       ProjectResponse getProjectById(String id);
+   }
+   ```
+
+2. **서비스 분리**:
+   - `AdminProjectService` → `ProjectManagementService` + `ProjectSearchService`로 분리
+   - 각 서비스가 해당 Use Case 인터페이스 구현
+   - 포트에만 의존하도록 리팩토링
+
+3. **컨트롤러 업데이트**:
+   ```java
+   // infrastructure/web/controller/admin/AdminProjectController.java
+   @RestController
+   public class AdminProjectController {
+       private final ManageProjectUseCase manageProjectUseCase;
+       private final SearchProjectsUseCase searchProjectsUseCase;
+       
+       // Use Case 인터페이스에만 의존
+   }
+   ```
+
+#### Phase 5: 테스트 및 검증 (우선순위: 낮음, 예상 소요시간: 1-2일)
+1. **단위 테스트 작성**
+2. **통합 테스트 작성**
+3. **성능 테스트**
+4. **코드 리뷰**
+
+### 총 예상 소요시간: 9-14일 (약 2-3주)
+
+### 4.5 디렉토리 구조 권장사항 요약
+
+#### 🎯 핵심 원칙
+1. **도메인 계층**: 비즈니스 로직과 규칙 (DTO, 값 객체, 포트 인터페이스)
+2. **애플리케이션 계층**: Use Case 구현 (도메인 포트에만 의존)
+3. **인프라 계층**: 기술적 구현 (DB, 외부 API, 웹 컨트롤러)
+
+#### 📂 권장 파일 배치
+
+**도메인 계층 (domain/admin/)**
+```
+domain/admin/
+├── model/                        // 도메인 모델
+│   ├── AdminUser.java
+│   └── vo/                      // 값 객체
+│       ├── ProjectFilter.java
+│       └── SortCriteria.java
+├── dto/                         // 도메인 DTO (infrastructure에서 이동)
+│   ├── request/
+│   │   ├── ProjectCreateRequest.java
+│   │   └── ProjectUpdateRequest.java
+│   └── response/
+│       └── ProjectResponse.java
+└── port/
+    ├── in/                      // Use Case 인터페이스
+    │   ├── auth/
+    │   ├── project/
+    │   ├── cache/
+    │   └── media/
+    └── out/                     // Repository 포트
+        ├── ProjectManagementPort.java
+        ├── ImageStoragePort.java
+        └── CacheManagementPort.java
+```
+
+**애플리케이션 계층 (application/admin/)**
+```
+application/admin/
+├── auth/
+│   ├── LoginService.java           // LoginUseCase 구현
+│   └── SessionValidationService.java
+├── project/
+│   ├── ProjectManagementService.java
+│   └── ProjectSearchService.java
+├── cache/
+│   └── CacheManagementService.java
+└── media/
+    └── ImageUploadService.java
+```
+
+**인프라 계층 (infrastructure/)**
+```
+infrastructure/
+├── persistence/
+│   ├── postgres/adapter/
+│   │   └── PostgresProjectManagementAdapter.java  // ProjectManagementPort 구현
+│   └── redis/adapter/
+│       └── RedisCacheManagementAdapter.java       // CacheManagementPort 구현
+├── external/cloudinary/
+│   └── CloudinaryImageStorageAdapter.java         // ImageStoragePort 구현
+└── web/controller/admin/
+    ├── AdminProjectController.java
+    ├── AdminCacheController.java
+    └── AdminImageController.java
+```
+
+### 4.6 Spring Security 설정
+
+현재 구현되어 있는 SecurityConfig는 유지하되, 필요시 개선:
+
+#### SecurityConfig.java (기존 유지)
 ```java
 @Configuration
 @EnableWebSecurity
@@ -510,22 +1083,24 @@ public class SecurityConfig {
 }
 ```
 
-### 4.3 Cloudinary 설정
+### 4.7 Cloudinary 설정
 
-#### CloudinaryConfig.java
+Cloudinary는 인프라 계층의 외부 서비스 어댑터로 관리:
+
+#### CloudinaryConfig.java (기존 유지)
 ```java
 @Configuration
 public class CloudinaryConfig {
-    
+
     @Value("${cloudinary.cloud-name}")
     private String cloudName;
-    
+
     @Value("${cloudinary.api-key}")
     private String apiKey;
-    
+
     @Value("${cloudinary.api-secret}")
     private String apiSecret;
-    
+
     @Bean
     public Cloudinary cloudinary() {
         return new Cloudinary(ObjectUtils.asMap(
@@ -537,34 +1112,45 @@ public class CloudinaryConfig {
 }
 ```
 
-#### CloudinaryService.java
+#### CloudinaryImageStorageAdapter.java (개선안)
 ```java
-@Service
-public class CloudinaryService {
-    
-    @Autowired
-    private Cloudinary cloudinary;
-    
-    public String uploadImage(MultipartFile file, String folder) throws IOException {
+// infrastructure/external/cloudinary/CloudinaryImageStorageAdapter.java
+@Component
+@RequiredArgsConstructor
+public class CloudinaryImageStorageAdapter implements ImageStoragePort {
+
+    private final Cloudinary cloudinary;
+
+    @Override
+    public String uploadImage(byte[] imageData, String folder, ImageMetadata metadata) {
         Map<String, Object> params = ObjectUtils.asMap(
             "folder", folder,
             "resource_type", "image",
             "transformation", Arrays.asList(
-                ObjectUtils.asMap("width", 1000, "height", 1000, "crop", "limit")
+                ObjectUtils.asMap(
+                    "width", metadata.getMaxWidth(),
+                    "height", metadata.getMaxHeight(),
+                    "crop", "limit",
+                    "quality", "auto",
+                    "format", "auto"
+                )
             )
         );
-        
-        Map<?, ?> result = cloudinary.uploader().upload(file.getBytes(), params);
+
+        Map<?, ?> result = cloudinary.uploader().upload(imageData, params);
         return (String) result.get("secure_url");
     }
-    
+
+    @Override
     public void deleteImage(String publicId) throws Exception {
         cloudinary.uploader().destroy(publicId);
     }
 }
 ```
 
-### 4.4 인증 플로우
+### 4.8 인증 플로우
+
+현재 구현된 인증 플로우 (기존 유지):
 
 ```
 1. 로그인 시도 → Spring Security AuthenticationFilter
