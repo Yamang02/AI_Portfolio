@@ -31,8 +31,15 @@ public class AdminUser {
     @Column(name = "username", unique = true, nullable = false, length = 50)
     private String username;
     
+    @Column(name = "email", unique = true, nullable = false, length = 255)
+    private String email;
+    
     @Column(name = "password", nullable = false)
     private String password; // BCrypt 해시
+    
+    @Column(name = "auth_provider", nullable = false, length = 50)
+    @Builder.Default
+    private String authProvider = "LOCAL";
     
     @Column(name = "role", nullable = false, length = 50)
     @Builder.Default

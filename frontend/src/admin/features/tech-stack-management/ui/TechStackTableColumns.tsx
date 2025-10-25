@@ -3,15 +3,12 @@
  */
 
 import { Tag } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
 import type { TechStackMetadata } from '../../entities/tech-stack';
 import { categoryNames, levelMapping, getCategoryColor } from '../lib/techStackMappings';
 import styles from './TechStackTableColumns.module.css';
 
-export const createTechStackColumns = (
-  onEdit: (tech: TechStackMetadata) => void,
-  onDelete: (name: string) => void,
-  onViewProjects: (tech: TechStackMetadata) => void
-) => [
+export const createTechStackColumns = (): ColumnsType<TechStackMetadata> => [
   {
     title: '정렬 순서',
     dataIndex: 'sortOrder',
@@ -47,7 +44,7 @@ export const createTechStackColumns = (
       text: categoryNames[cat as keyof typeof categoryNames],
       value: cat,
     })),
-    onFilter: (value: string, record: TechStackMetadata) => record.category === value,
+    onFilter: (value: boolean | React.Key, record: TechStackMetadata) => record.category === String(value),
   },
   {
     title: '레벨',
@@ -81,17 +78,5 @@ export const createTechStackColumns = (
     dataIndex: 'description',
     key: 'description',
     ellipsis: true,
-  },
-  {
-    title: '작업',
-    key: 'actions',
-    width: 150,
-    render: (_: any, record: TechStackMetadata) => (
-      <div className={styles.actionButtons}>
-        <button onClick={() => onEdit(record)}>수정</button>
-        <button onClick={() => onViewProjects(record)}>프로젝트</button>
-        <button onClick={() => onDelete(record.name)}>삭제</button>
-      </div>
-    ),
   },
 ];

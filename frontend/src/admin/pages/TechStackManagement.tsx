@@ -8,10 +8,8 @@ import {
   Card, 
   Table, 
   Button, 
-  Space, 
   Modal, 
   Form, 
-  message, 
   Row,
   Col,
   Select,
@@ -19,19 +17,19 @@ import {
   Tabs,
   List,
   Avatar,
-  Empty
+  Empty,
+  App,
+  Typography
 } from 'antd';
 import { 
   PlusOutlined, 
-  EditOutlined, 
-  DeleteOutlined, 
   ProjectOutlined
 } from '@ant-design/icons';
 import { Form as AntForm } from 'antd';
 import styles from './TechStackManagement.module.css';
 
 // Entities 계층에서 타입과 훅 import
-import type { TechStackMetadata, TechStackFormData } from '../entities/tech-stack';
+import type { TechStackMetadata } from '../entities/tech-stack';
 import { 
   useAdminTechStacksQuery,
   useTechStackProjectsQuery,
@@ -47,17 +45,19 @@ import {
   createTechStackColumns,
   useTechStackFilter,
   useTechStackStats,
-  categoryNames,
-  levelMapping
+  categoryNames
 } from '../features/tech-stack-management';
 
 const { Option } = Select;
-const { TabPane } = Tabs;
+const { Title } = Typography;
 
 const TechStackManagement: React.FC = () => {
+  const { message, modal } = App.useApp();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingTech, setEditingTech] = useState<TechStackMetadata | null>(null);
   const [selectedTechStack, setSelectedTechStack] = useState<TechStackMetadata | null>(null);
+  const [modalLoading, setModalLoading] = useState(false);
+  const [pageSize, setPageSize] = useState(20);
   const [form] = AntForm.useForm();
 
   // Entities 계층의 훅 사용
@@ -65,7 +65,7 @@ const TechStackManagement: React.FC = () => {
   const { data: projects, isLoading: projectsLoading } = useTechStackProjectsQuery(selectedTechStack?.name || null);
   
   const createOrUpdateMutation = useTechStackMutation();
-  const deleteMutation = useDeleteTechStackMutation();
+  const deleteTechStackMutation = useDeleteTechStackMutation();
   const updateSortOrderMutation = useUpdateSortOrderMutation();
 
   // Features 계층의 훅 사용
@@ -86,29 +86,72 @@ const TechStackManagement: React.FC = () => {
     setIsModalVisible(true);
   };
 
-  const handleEdit = (tech: TechStackMetadata) => {
-    setEditingTech(tech);
-    form.setFieldsValue({
-      ...tech,
-      colorHex: tech.colorHex || '#8c8c8c'
-    });
-    setIsModalVisible(true);
-  };
 
-  const handleDelete = (name: string) => {
-    deleteMutation.mutate(name, {
-      onSuccess: () => {
-        message.success('기술스택이 삭제되었습니다.');
-      },
-      onError: (error: Error) => {
-        message.error(error.message || '삭제 중 오류가 발생했습니다.');
+  // 프론트엔드 검증 함수
+  const validateTechStackData = (values: any): string | null => {
+    // 기술명 검증
+    if (!values.name || values.name.trim() === '') {
+      return '기술명을 입력해주세요.';
+    }
+    
+    
+    // 표시명 검증
+    if (!values.displayName || values.displayName.trim() === '') {
+      return '표시명을 입력해주세요.';
+    }
+    
+    // 카테고리 검증
+    if (!values.category) {
+      return '카테고리를 선택해주세요.';
+    }
+    
+    // 레벨 검증
+    if (!values.level) {
+      return '레벨을 선택해주세요.';
+    }
+    
+    // 정렬 순서 검증 (수정 시에만)
+    if (editingTech && (values.sortOrder === undefined || values.sortOrder === null || values.sortOrder < 1)) {
+      return '정렬 순서는 1 이상의 숫자여야 합니다.';
+    }
+    
+    // 색상 코드 검증
+    if (values.colorHex && !/^#[0-9A-Fa-f]{6}$/.test(values.colorHex)) {
+      return '색상 코드는 #RRGGBB 형식이어야 합니다.';
+    }
+    
+    // URL 검증 (아이콘 URL이 있는 경우)
+    if (values.iconUrl && values.iconUrl.trim() !== '') {
+      try {
+        new URL(values.iconUrl);
+      } catch {
+        return '올바른 URL 형식을 입력해주세요.';
       }
-    });
+    }
+    
+    return null; // 검증 통과
   };
 
   const handleModalOk = async () => {
     try {
+      setModalLoading(true);
       const values = await form.validateFields();
+      
+      // 프론트엔드 1차 검증
+      const validationError = validateTechStackData(values);
+      if (validationError) {
+        message.error(validationError);
+        return;
+      }
+      
+      // 중복 기술명 검증 (생성 시에만)
+      if (!editingTech && techStacks) {
+        const existingTech = techStacks.find(tech => tech.name === values.name);
+        if (existingTech) {
+          message.error('이미 존재하는 기술명입니다. 다른 이름을 사용해주세요.');
+          return;
+        }
+      }
       
       // 정렬 순서가 변경된 경우 별도 처리
       if (editingTech && values.sortOrder !== editingTech.sortOrder) {
@@ -117,19 +160,33 @@ const TechStackManagement: React.FC = () => {
           newSortOrder: values.sortOrder
         });
         
-        const { sortOrder, ...updateData } = values;
-        createOrUpdateMutation.mutate({ 
+        const { sortOrder, name, ...updateData } = values; // name과 sortOrder 제외
+        await createOrUpdateMutation.mutateAsync({ 
           data: updateData, 
           editingTech: editingTech.name 
         });
       } else {
-        createOrUpdateMutation.mutate({ 
-          data: values, 
+        // 새로 생성하는 경우 sortOrder 제거 (백엔드에서 자동 할당)
+        const { sortOrder, ...createData } = values;
+        await createOrUpdateMutation.mutateAsync({ 
+          data: createData, // sortOrder 제외
           editingTech: editingTech?.name || null 
         });
       }
+      
+      // 성공 메시지 표시
+      message.success(editingTech ? '기술스택이 성공적으로 수정되었습니다.' : '기술스택이 성공적으로 추가되었습니다.');
+      
+      // 모달 닫기
+      setIsModalVisible(false);
+      setEditingTech(null);
+      setSelectedTechStack(null);
+      form.resetFields();
+      
     } catch (error) {
-      console.error('Form validation failed:', error);
+      message.error(error instanceof Error ? error.message : '작업 중 오류가 발생했습니다.');
+    } finally {
+      setModalLoading(false);
     }
   };
 
@@ -140,9 +197,35 @@ const TechStackManagement: React.FC = () => {
     form.resetFields();
   };
 
-  const handleViewProjects = (tech: TechStackMetadata) => {
-    setSelectedTechStack(tech);
+  const handleDelete = async () => {
+    if (!editingTech) return;
+    
+    // 삭제 확인창 표시
+    modal.confirm({
+      title: '기술스택 삭제',
+      content: `'${editingTech.displayName}' 기술스택을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`,
+      okText: '삭제',
+      cancelText: '취소',
+      okType: 'danger',
+      onOk: async () => {
+        try {
+          setModalLoading(true);
+          await deleteTechStackMutation.mutateAsync(editingTech.name);
+          
+          message.success('기술스택이 성공적으로 삭제되었습니다.');
+          setIsModalVisible(false);
+          setEditingTech(null);
+          setSelectedTechStack(null);
+          form.resetFields();
+        } catch (error) {
+          message.error(error instanceof Error ? error.message : '삭제 중 오류가 발생했습니다.');
+        } finally {
+          setModalLoading(false);
+        }
+      }
+    });
   };
+
 
   const handleRowClick = (tech: TechStackMetadata) => {
     setEditingTech(tech);
@@ -155,11 +238,29 @@ const TechStackManagement: React.FC = () => {
   };
 
   // 테이블 컬럼 생성
-  const columns = createTechStackColumns(handleEdit, handleDelete, handleViewProjects);
+  const columns = createTechStackColumns();
 
   return (
-    <div className={styles.pageContainer}>
-      <h1>기술 스택 관리</h1>
+    <div>
+      {/* 페이지 헤더 */}
+      <div style={{ marginBottom: 24 }}>
+        <Row justify="space-between" align="middle">
+          <Col>
+            <Title level={2} style={{ margin: 0 }}>
+              기술스택 관리
+            </Title>
+          </Col>
+          <Col>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={handleCreate}
+            >
+              기술스택 추가
+            </Button>
+          </Col>
+        </Row>
+      </div>
       
       {/* 통계 카드 */}
       <TechStackStatsCards stats={stats} />
@@ -174,16 +275,6 @@ const TechStackManagement: React.FC = () => {
 
       {/* 메인 테이블 */}
       <Card>
-        <div className={styles.buttonContainer}>
-          <Button 
-            type="primary" 
-            icon={<PlusOutlined />} 
-            onClick={handleCreate}
-          >
-            기술스택 추가
-          </Button>
-        </div>
-
         <Table
           columns={columns}
           dataSource={filteredTechStacks}
@@ -194,11 +285,15 @@ const TechStackManagement: React.FC = () => {
             className: styles.clickableRow
           })}
           pagination={{
-            pageSize: 20,
+            pageSize: pageSize,
+            pageSizeOptions: ['10', '20', '50', '100'],
             showSizeChanger: true,
             showQuickJumper: true,
             showTotal: (total, range) => 
               `${range[0]}-${range[1]} / ${total}개`,
+            onShowSizeChange: (_, size) => {
+              setPageSize(size);
+            },
           }}
         />
       </Card>
@@ -212,17 +307,33 @@ const TechStackManagement: React.FC = () => {
         width={800}
         okText="저장"
         cancelText="취소"
+        confirmLoading={modalLoading}
+        footer={editingTech ? [
+          <Button key="delete" danger onClick={handleDelete} loading={modalLoading}>
+            삭제
+          </Button>,
+          <Button key="cancel" onClick={handleModalCancel}>
+            취소
+          </Button>,
+          <Button key="save" type="primary" onClick={handleModalOk} loading={modalLoading}>
+            저장
+          </Button>
+        ] : undefined}
       >
-        <Tabs defaultActiveKey="basic">
-          <TabPane tab="기본 정보" key="basic">
+        <Tabs 
+          defaultActiveKey="basic"
+          items={[
+            {
+              key: 'basic',
+              label: '기본 정보',
+              children: (
             <Form
               form={form}
               layout="vertical"
               initialValues={{
                 isCore: false,
                 isActive: true,
-                colorHex: '#8c8c8c',
-                sortOrder: 1
+                colorHex: '#8c8c8c'
               }}
             >
               <Row gutter={16}>
@@ -230,16 +341,24 @@ const TechStackManagement: React.FC = () => {
                   <Form.Item
                     name="name"
                     label="기술명 (영문)"
-                    rules={[{ required: true, message: '기술명을 입력해주세요.' }]}
+                    rules={[
+                      { required: true, message: '기술명을 입력해주세요.' },
+                      { min: 1, message: '기술명은 최소 1자 이상이어야 합니다.' },
+                      { max: 50, message: '기술명은 최대 50자까지 입력할 수 있습니다.' }
+                    ]}
                   >
-                    <Input placeholder="예: react, nodejs" />
+                    <Input placeholder="예: react, nodejs" disabled={!!editingTech} />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
                   <Form.Item
                     name="displayName"
                     label="표시명 (한글)"
-                    rules={[{ required: true, message: '표시명을 입력해주세요.' }]}
+                    rules={[
+                      { required: true, message: '표시명을 입력해주세요.' },
+                      { min: 1, message: '표시명은 최소 1자 이상이어야 합니다.' },
+                      { max: 100, message: '표시명은 최대 100자까지 입력할 수 있습니다.' }
+                    ]}
                   >
                     <Input placeholder="예: React, Node.js" />
                   </Form.Item>
@@ -280,21 +399,34 @@ const TechStackManagement: React.FC = () => {
               <Row gutter={16}>
                 <Col span={8}>
                   <Form.Item name="isCore" valuePropName="checked">
-                    <input type="checkbox" /> 핵심 기술
+                    <input type="checkbox" />
                   </Form.Item>
+                  <span>핵심 기술</span>
                 </Col>
                 <Col span={8}>
                   <Form.Item name="isActive" valuePropName="checked">
-                    <input type="checkbox" /> 활성 상태
+                    <input type="checkbox" />
                   </Form.Item>
+                  <span>활성 상태</span>
                 </Col>
                 <Col span={8}>
                   <Form.Item
                     name="sortOrder"
                     label="정렬 순서"
-                    rules={[{ required: true, message: '정렬 순서를 입력해주세요.' }]}
+                    rules={editingTech ? [
+                      { required: true, message: '정렬 순서를 입력해주세요.' },
+                      { type: 'number', min: 1, message: '정렬 순서는 1 이상의 숫자여야 합니다.' },
+                      { type: 'number', max: 9999, message: '정렬 순서는 9999 이하여야 합니다.' }
+                    ] : []}
                   >
-                    <Input type="number" min={1} />
+                    <Input 
+                      type="number" 
+                      min={1} 
+                      max={9999} 
+                      placeholder={editingTech ? "정렬 순서" : "자동 할당"} 
+                      disabled={!editingTech}
+                      addonAfter={!editingTech ? "자동 할당" : undefined}
+                    />
                   </Form.Item>
                 </Col>
               </Row>
@@ -302,22 +434,47 @@ const TechStackManagement: React.FC = () => {
               <Form.Item
                 name="colorHex"
                 label="색상"
-                rules={[{ required: true, message: '색상을 선택해주세요.' }]}
+                rules={[
+                  { required: true, message: '색상을 선택해주세요.' },
+                  { 
+                    pattern: /^#[0-9A-Fa-f]{6}$/, 
+                    message: '올바른 색상 코드 형식(#RRGGBB)을 입력해주세요.' 
+                  }
+                ]}
               >
                 <Input type="color" />
               </Form.Item>
 
               <Form.Item
+                name="iconUrl"
+                label="아이콘 URL"
+                rules={[
+                  { 
+                    type: 'url', 
+                    message: '올바른 URL 형식을 입력해주세요.' 
+                  },
+                  { max: 500, message: 'URL은 최대 500자까지 입력할 수 있습니다.' }
+                ]}
+              >
+                <Input placeholder="https://example.com/icon.png" />
+              </Form.Item>
+
+              <Form.Item
                 name="description"
                 label="설명"
+                rules={[
+                  { max: 500, message: '설명은 최대 500자까지 입력할 수 있습니다.' }
+                ]}
               >
                 <Input.TextArea rows={3} placeholder="기술에 대한 설명을 입력해주세요." />
               </Form.Item>
             </Form>
-          </TabPane>
-          
-          {editingTech && (
-            <TabPane tab="사용 프로젝트" key="projects">
+              )
+            },
+            ...(editingTech ? [{
+              key: 'projects',
+              label: '사용 프로젝트',
+              children: (
               <div className={styles.modalContent}>
                 {projectsLoading ? (
                   <div className={styles.loadingContainer}>로딩 중...</div>
@@ -354,9 +511,10 @@ const TechStackManagement: React.FC = () => {
                   />
                 )}
               </div>
-            </TabPane>
-          )}
-        </Tabs>
+              )
+            }] : [])
+          ]}
+        />
       </Modal>
     </div>
   );

@@ -85,5 +85,10 @@ public interface TechStackMetadataRepositoryPort {
      * 기술 스택 메타데이터 존재 여부 확인
      */
     boolean existsByName(String name);
+    
+    /**
+     * 최대 정렬 순서 조회
+     */
+    int findMaxSortOrder();
 }
 

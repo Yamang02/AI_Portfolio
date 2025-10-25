@@ -38,6 +38,7 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
     private final EducationJpaRepository educationJpaRepository;
     private final CertificationJpaRepository certificationJpaRepository;
     private final ProjectTechStackJpaRepository projectTechStackJpaRepository;
+    private final TechStackMetadataJpaRepository techStackMetadataJpaRepository;
 
     // 매퍼들 (도메인 ↔ JPA 엔티티 변환)
     private final ProjectMapper projectMapper;
@@ -238,8 +239,17 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
     public List<Project> findProjectsByTechStack(String techStackName) {
         log.debug("기술스택 '{}'을 사용하는 프로젝트 조회", techStackName);
         try {
-            // ProjectTechStackJpaRepository를 통해 기술스택별 프로젝트 매핑 조회
-            List<ProjectTechStackJpaEntity> mappings = projectTechStackJpaRepository.findByTechStackName(techStackName);
+            // 먼저 기술스택 이름으로 ID 조회
+            Optional<TechStackMetadataJpaEntity> techStackEntity = techStackMetadataJpaRepository.findByName(techStackName);
+            if (techStackEntity.isEmpty()) {
+                log.debug("기술스택 '{}'을 찾을 수 없습니다", techStackName);
+                return List.of();
+            }
+            
+            Long techStackId = techStackEntity.get().getId();
+            
+            // ProjectTechStackJpaRepository를 통해 기술스택 ID별 프로젝트 매핑 조회
+            List<ProjectTechStackJpaEntity> mappings = projectTechStackJpaRepository.findByTechStackId(techStackId);
             
             // 매핑에서 프로젝트 ID 추출
             List<Long> projectIds = mappings.stream()

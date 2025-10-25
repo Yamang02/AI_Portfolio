@@ -22,9 +22,19 @@ public interface AdminUserJpaRepository extends JpaRepository<AdminUser, Long> {
     Optional<AdminUser> findByUsername(String username);
 
     /**
+     * 이메일로 관리자 사용자 조회
+     */
+    Optional<AdminUser> findByEmail(String email);
+
+    /**
      * 사용자명 존재 여부 확인
      */
     boolean existsByUsername(String username);
+
+    /**
+     * 이메일 존재 여부 확인
+     */
+    boolean existsByEmail(String email);
 
     /**
      * 로그인 시도 증가 (updatedAt 자동)

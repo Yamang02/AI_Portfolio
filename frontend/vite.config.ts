@@ -7,12 +7,15 @@ export default defineConfig(({ mode }) => {
       server: {
         port: 3000,
         host: '0.0.0.0',
+        hmr: {
+          port: 3001, // HMR WebSocket을 다른 포트로 분리
+        },
         proxy: {
           '/api': {
             target: env.VITE_API_BASE_URL || 'http://localhost:8080',
             changeOrigin: true,
             secure: false,
-            ws: true,
+            ws: false, // 백엔드에 WebSocket 서버가 없으므로 false로 설정
           }
         }
       },

@@ -101,4 +101,10 @@ public interface TechStackMetadataJpaRepository extends JpaRepository<TechStackM
            "WHERE t.isActive = true " +
            "ORDER BY t.sortOrder ASC")
     List<TechStackMetadataJpaEntity> findTechnologiesWithUsageCount();
+    
+    /**
+     * 최대 정렬 순서 조회
+     */
+    @Query("SELECT COALESCE(MAX(t.sortOrder), 0) FROM TechStackMetadataJpaEntity t")
+    Integer findMaxSortOrder();
 }

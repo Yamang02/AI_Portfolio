@@ -25,7 +25,24 @@ public class ManageTechStackMetadataService implements ManageTechStackMetadataUs
         // 도메인 서비스를 통한 비즈니스 로직 검증
         techStackDomainService.validateForCreation(techStackMetadata);
         
-        return techStackMetadataRepositoryPort.save(techStackMetadata);
+        // 새로 생성하는 기술스택은 항상 마지막 순서에 배치
+        int maxSortOrder = techStackMetadataRepositoryPort.findMaxSortOrder();
+        TechStackMetadata techStackWithSortOrder = TechStackMetadata.builder()
+            .name(techStackMetadata.getName())
+            .displayName(techStackMetadata.getDisplayName())
+            .category(techStackMetadata.getCategory())
+            .level(techStackMetadata.getLevel())
+            .isCore(techStackMetadata.getIsCore())
+            .isActive(techStackMetadata.getIsActive())
+            .iconUrl(techStackMetadata.getIconUrl())
+            .colorHex(techStackMetadata.getColorHex())
+            .description(techStackMetadata.getDescription())
+            .sortOrder(maxSortOrder + 1) // 자동으로 마지막 순서에 배치
+            .createdAt(techStackMetadata.getCreatedAt())
+            .updatedAt(techStackMetadata.getUpdatedAt())
+            .build();
+        
+        return techStackMetadataRepositoryPort.save(techStackWithSortOrder);
     }
     
     @Override

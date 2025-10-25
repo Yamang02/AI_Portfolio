@@ -53,7 +53,6 @@ const LoginForm: React.FC = () => {
         message.error(result.message || '로그인 실패');
       }
     } catch (error: any) {
-      console.error('로그인 오류:', error);
       message.error(error.message || '로그인 중 오류가 발생했습니다');
     } finally {
       setLoading(false);

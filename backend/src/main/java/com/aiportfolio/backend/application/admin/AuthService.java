@@ -27,29 +27,30 @@ public class AuthService {
     private static final int LOCK_DURATION_MINUTES = 30;
 
     /**
-     * 로그인 처리
+     * 로그인 처리 (사용자명 또는 이메일로 로그인 가능)
      */
     @Transactional(readOnly = true)
-    public AdminUserInfo login(String username, String password, HttpSession session) {
-        log.debug("Login attempt for user: {}", username);
+    public AdminUserInfo login(String usernameOrEmail, String password, HttpSession session) {
+        log.debug("Login attempt for user: {}", usernameOrEmail);
 
-        // 사용자 조회
-        AdminUser adminUser = adminUserRepository.findByUsername(username)
+        // 사용자 조회 (사용자명 또는 이메일로)
+        AdminUser adminUser = adminUserRepository.findByUsername(usernameOrEmail)
+            .or(() -> adminUserRepository.findByEmail(usernameOrEmail))
             .orElseThrow(() -> {
-                log.warn("Login failed: User not found - {}", username);
+                log.warn("Login failed: User not found - {}", usernameOrEmail);
                 return new IllegalArgumentException("사용자명 또는 비밀번호가 올바르지 않습니다.");
             });
 
         // 계정 잠금 확인
         if (adminUser.isLocked()) {
-            log.warn("Login failed: Account locked - {}", username);
+            log.warn("Login failed: Account locked - {}", usernameOrEmail);
             throw new IllegalArgumentException("계정이 잠겨있습니다. 잠시 후 다시 시도해주세요.");
         }
 
         // 비밀번호 검증
         if (!BCrypt.checkpw(password, adminUser.getPassword())) {
             handleFailedLogin(adminUser);
-            log.warn("Login failed: Invalid password - {}", username);
+            log.warn("Login failed: Invalid password - {}", usernameOrEmail);
             throw new IllegalArgumentException("사용자명 또는 비밀번호가 올바르지 않습니다.");
         }
 
@@ -59,6 +60,8 @@ public class AuthService {
         // 세션에 사용자 정보 저장
         AdminUserInfo userInfo = AdminUserInfo.builder()
                 .username(adminUser.getUsername())
+                .email(adminUser.getEmail())
+                .authProvider(adminUser.getAuthProvider())
                 .role(adminUser.getRole())
                 .lastLogin(adminUser.getLastLogin())
                 .build();
@@ -66,7 +69,7 @@ public class AuthService {
         session.setAttribute(SESSION_USER_KEY, userInfo);
         session.setMaxInactiveInterval(30 * 60); // 30분 세션 타임아웃
 
-        log.info("Login successful for user: {}", username);
+        log.info("Login successful for user: {}", usernameOrEmail);
         return userInfo;
     }
 

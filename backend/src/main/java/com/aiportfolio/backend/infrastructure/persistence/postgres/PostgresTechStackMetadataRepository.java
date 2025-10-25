@@ -95,8 +95,8 @@ public class PostgresTechStackMetadataRepository implements TechStackMetadataRep
         TechStackMetadataJpaEntity existingEntity = jpaRepository.findByName(name)
             .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 기술명입니다: " + name));
         
-        // 기존 엔티티의 필드들을 새로운 데이터로 업데이트
-        existingEntity.setName(techStackMetadata.getName());
+        // 기존 엔티티의 필드들을 새로운 데이터로 업데이트 (name 필드는 제외)
+        // existingEntity.setName(techStackMetadata.getName()); // name 필드는 변경하지 않음
         existingEntity.setDisplayName(techStackMetadata.getDisplayName());
         existingEntity.setCategory(techStackMetadata.getCategory());
         existingEntity.setLevel(techStackMetadata.getLevel());
@@ -128,6 +128,12 @@ public class PostgresTechStackMetadataRepository implements TechStackMetadataRep
     @Override
     public boolean existsByName(String name) {
         return jpaRepository.findByName(name).isPresent();
+    }
+    
+    @Override
+    public int findMaxSortOrder() {
+        Integer maxSortOrder = jpaRepository.findMaxSortOrder();
+        return maxSortOrder != null ? maxSortOrder : 0;
     }
 }
 

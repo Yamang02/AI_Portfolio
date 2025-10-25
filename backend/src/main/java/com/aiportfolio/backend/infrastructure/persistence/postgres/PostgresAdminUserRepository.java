@@ -24,6 +24,11 @@ public class PostgresAdminUserRepository implements AdminUserRepository {
     }
 
     @Override
+    public Optional<AdminUser> findByEmail(String email) {
+        return adminUserJpaRepository.findByEmail(email);
+    }
+
+    @Override
     public AdminUser save(AdminUser adminUser) {
         return adminUserJpaRepository.save(adminUser);
     }
@@ -31,6 +36,11 @@ public class PostgresAdminUserRepository implements AdminUserRepository {
     @Override
     public boolean existsByUsername(String username) {
         return adminUserJpaRepository.existsByUsername(username);
+    }
+
+    @Override
+    public boolean existsByEmail(String email) {
+        return adminUserJpaRepository.existsByEmail(email);
     }
 
     @Override

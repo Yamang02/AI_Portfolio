@@ -33,7 +33,7 @@ public class ExperienceTechStackJpaEntity {
     private ExperienceJpaEntity experience;
     
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tech_name", referencedColumnName = "name", nullable = false)
+    @JoinColumn(name = "tech_stack_id", nullable = false)
     @NotNull(message = "기술 스택은 필수입니다")
     private TechStackMetadataJpaEntity techStack;
     
@@ -47,9 +47,18 @@ public class ExperienceTechStackJpaEntity {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
     
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+    
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+    }
+    
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
     }
 }
 

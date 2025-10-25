@@ -22,9 +22,19 @@ public interface AdminUserRepository {
     Optional<AdminUser> findByUsername(String username);
     
     /**
+     * 이메일로 관리자 사용자를 조회합니다.
+     */
+    Optional<AdminUser> findByEmail(String email);
+    
+    /**
      * 사용자명이 존재하는지 확인합니다.
      */
     boolean existsByUsername(String username);
+    
+    /**
+     * 이메일이 존재하는지 확인합니다.
+     */
+    boolean existsByEmail(String email);
     
     /**
      * 관리자 사용자를 저장합니다.

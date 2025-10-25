@@ -217,7 +217,6 @@ const Chatbot: React.FC<ChatbotProps> = ({ isOpen, onToggle, showProjectButtons 
         loadUsageStatus();
       }
     } catch (error) {
-      console.error('프로젝트 질문 처리 오류:', error);
       const errorMessage: ChatMessageType = {
         id: (Date.now() + 1).toString(),
         content: '죄송합니다. 응답을 생성하는 중에 오류가 발생했습니다.',

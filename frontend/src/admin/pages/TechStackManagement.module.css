@@ -14,13 +14,6 @@
   color: #666;
 }
 
-.pageContainer {
-  padding: 24px;
-}
-
-.buttonContainer {
-  margin-bottom: 16px;
-}
 
 .clickableRow {
   cursor: pointer;

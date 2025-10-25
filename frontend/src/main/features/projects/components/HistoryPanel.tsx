@@ -34,7 +34,6 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
   const parseDate = (dateStr: string | any): Date => {
     // 타입 안전성 검증
     if (!dateStr) {
-      console.warn('Invalid date string: empty input');
       return new Date(); // 기본값으로 현재 날짜 반환
     }
     
@@ -45,7 +44,6 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
         const month = dateStr[1];
         return new Date(year, month - 1, 1);
       }
-      console.warn('Invalid date array format:', dateStr);
       return new Date();
     }
     
@@ -60,7 +58,6 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
       return new Date(dateStr);
     }
     
-    console.warn('Invalid date string:', dateStr);
     return new Date(); // 기본값으로 현재 날짜 반환
   };
 
