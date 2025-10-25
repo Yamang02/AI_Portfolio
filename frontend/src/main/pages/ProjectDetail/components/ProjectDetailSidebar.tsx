@@ -279,4 +279,4 @@ const ProjectDetailSidebar: React.FC<ProjectDetailSidebarProps> = React.memo(({
 
 ProjectDetailSidebar.displayName = 'ProjectDetailSidebar';
 
-export default ProjectDetailSidebar;
+export { ProjectDetailSidebar };

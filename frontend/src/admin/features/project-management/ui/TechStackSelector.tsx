@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Tag, Checkbox, Input, Select, Row, Col, Card, Empty } from 'antd';
 import { useQuery } from '@tanstack/react-query';
-import { SearchOutlined, PlusOutlined } from '@ant-design/icons';
+import { SearchOutlined } from '@ant-design/icons';
 
 const { Option } = Select;
 
@@ -255,4 +255,4 @@ const TechStackSelector: React.FC<TechStackSelectorProps> = ({ value = [], onCha
   );
 };
 
-export default TechStackSelector;
+export { TechStackSelector };

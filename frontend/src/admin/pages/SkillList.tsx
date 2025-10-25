@@ -21,4 +21,4 @@ const SkillList: React.FC = () => {
     );
 };
 
-export default SkillList;
+export { SkillList };

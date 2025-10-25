@@ -10,4 +10,4 @@ const AppRoot: React.FC = () => {
   );
 };
 
-export default AppRoot;
+export { AppRoot };

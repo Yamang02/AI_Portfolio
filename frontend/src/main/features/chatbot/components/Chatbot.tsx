@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChatMessage as ChatMessageType } from '../types';
 import { apiClient } from '../../../../shared/services/apiClient';
-import ChatMessage from './ChatMessage';
+import { ChatMessage } from './ChatMessage';
 import { ContactModal } from '../../../components/common/Modal';
 import { processQuestion } from '../utils/questionValidator';
 
@@ -489,5 +489,5 @@ const Chatbot: React.FC<ChatbotProps> = ({ isOpen, onToggle, showProjectButtons 
   );
 };
 
-export default Chatbot;
+export { Chatbot };
 export type { ChatbotProps }; 

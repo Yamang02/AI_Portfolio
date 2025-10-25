@@ -20,11 +20,11 @@ import {
 import { SaveOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 import { useProject, useUpdateProject, useCreateProject } from '../hooks/useProjects';
 import { ProjectUpdateRequest, ProjectCreateRequest } from '../api/adminProjectApi';
-import ProjectThumbnailUpload from '../features/project-management/ui/ProjectThumbnailUpload';
-import ProjectScreenshotsUpload from '../features/project-management/ui/ProjectScreenshotsUpload';
-import ProjectMarkdownEditor from '../features/project-management/ui/ProjectMarkdownEditor';
-import TechStackSelector from '../features/project-management/ui/TechStackSelector';
-import ProjectLinksForm from '../features/project-management/ui/ProjectLinksForm';
+import { ProjectThumbnailUpload } from '../features/project-management/ui/ProjectThumbnailUpload';
+import { ProjectScreenshotsUpload } from '../features/project-management/ui/ProjectScreenshotsUpload';
+import { ProjectMarkdownEditor } from '../features/project-management/ui/ProjectMarkdownEditor';
+import { TechStackSelector } from '../features/project-management/ui/TechStackSelector';
+import { ProjectLinksForm } from '../features/project-management/ui/ProjectLinksForm';
 import dayjs from 'dayjs';
 
 const { Title } = Typography;
@@ -347,4 +347,4 @@ const ProjectEdit: React.FC = () => {
   );
 };
 
-export default ProjectEdit;
+export { ProjectEdit };

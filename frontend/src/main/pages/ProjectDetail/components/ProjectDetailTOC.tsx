@@ -106,4 +106,4 @@ const ProjectDetailTOC: React.FC<ProjectDetailTOCProps> = React.memo(({
 
 ProjectDetailTOC.displayName = 'ProjectDetailTOC';
 
-export default ProjectDetailTOC;
+export { ProjectDetailTOC };

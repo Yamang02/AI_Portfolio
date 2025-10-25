@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useProjectDetail } from './hooks/useProjectDetail';
-import ProjectDetailHeader from './components/ProjectDetailHeader';
-import ProjectDetailContent from './components/ProjectDetailContent';
-import ProjectDetailOverview from './components/ProjectDetailOverview';
-import ProjectDetailTechStack from './components/ProjectDetailTechStack';
-import ProjectDetailContribution from './components/ProjectDetailContribution';
-import ProjectDetailGallery from './components/ProjectDetailGallery';
-import ProjectDetailSidebar from './components/ProjectDetailSidebar';
-import ProjectDetailSidebarToggle from './components/ProjectDetailSidebarToggle';
+import { ProjectDetailHeader } from './components/ProjectDetailHeader';
+import { ProjectDetailContent } from './components/ProjectDetailContent';
+import { ProjectDetailOverview } from './components/ProjectDetailOverview';
+import { ProjectDetailTechStack } from './components/ProjectDetailTechStack';
+import { ProjectDetailContribution } from './components/ProjectDetailContribution';
+import { ProjectDetailGallery } from './components/ProjectDetailGallery';
+import { ProjectDetailSidebar } from './components/ProjectDetailSidebar';
+import { ProjectDetailSidebarToggle } from './components/ProjectDetailSidebarToggle';
 import { useTOC, useActiveSection } from '../../features/projects/hooks';
 import { Chatbot } from '../../features/chatbot';
 import { useApp } from '../../providers';
@@ -196,4 +196,4 @@ const ProjectDetailPage: React.FC = () => {
   );
 };
 
-export default ProjectDetailPage;
+export { ProjectDetailPage };

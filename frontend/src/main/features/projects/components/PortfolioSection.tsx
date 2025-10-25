@@ -1,12 +1,12 @@
 import React from 'react';
 import { Project, Experience, Education, Certification } from '../types';
-import ProjectCard from './ProjectCard';
-import ExperienceCard from './ExperienceCard';
-import EducationCard from './EducationCard';
-import CertificationCard from './CertificationCard';
-import HistoryPanel from './HistoryPanel';
-import PanelToggle from './PanelToggle';
-import ProjectFilter, { FilterOptions } from './ProjectFilter';
+import { ProjectCard } from './ProjectCard';
+import { ExperienceCard } from './ExperienceCard';
+import { EducationCard } from './EducationCard';
+import { CertificationCard } from './CertificationCard';
+import { HistoryPanel } from './HistoryPanel';
+import { PanelToggle } from './PanelToggle';
+import { ProjectFilter, FilterOptions } from './ProjectFilter';
 import { SkeletonSection } from '../../../components/common/SkeletonCard';
 
 interface PortfolioSectionProps {
@@ -343,4 +343,4 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
   );
 };
 
-export default PortfolioSection; 
+export { PortfolioSection }; 

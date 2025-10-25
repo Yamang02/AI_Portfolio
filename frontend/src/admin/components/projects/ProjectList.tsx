@@ -305,5 +305,5 @@ const ProjectList: React.FC = () => {
   );
 };
 
-export default ProjectList;
+export { ProjectList };
 

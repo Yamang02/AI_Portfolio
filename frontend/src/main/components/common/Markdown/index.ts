@@ -1,1 +1,1 @@
-export { default as MarkdownRenderer } from './MarkdownRenderer';
+export { MarkdownRenderer } from './MarkdownRenderer';

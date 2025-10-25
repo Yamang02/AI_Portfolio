@@ -49,4 +49,4 @@ const ProjectLinksForm: React.FC<ProjectLinksFormProps> = ({ form }) => {
   );
 };
 
-export default ProjectLinksForm;
+export { ProjectLinksForm };

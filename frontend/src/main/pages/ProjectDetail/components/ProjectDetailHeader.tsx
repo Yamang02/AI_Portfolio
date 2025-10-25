@@ -183,4 +183,4 @@ const ProjectDetailHeader: React.FC<ProjectDetailHeaderProps> = ({
   );
 };
 
-export default ProjectDetailHeader;
+export { ProjectDetailHeader };

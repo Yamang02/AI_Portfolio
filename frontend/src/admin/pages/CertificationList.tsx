@@ -21,4 +21,4 @@ const CertificationList: React.FC = () => {
     );
 };
 
-export default CertificationList;
+export { CertificationList };

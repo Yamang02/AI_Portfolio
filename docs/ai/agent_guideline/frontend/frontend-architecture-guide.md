@@ -137,47 +137,47 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 #### 디렉토리 구조
 ```
 pages/
-├── ProjectDetail/
-│   ├── ProjectDetailPage.tsx      // 메인 페이지 컴포넌트
+├── SomeDetail/
+│   ├── SomeDetailPage.tsx      // 메인 페이지 컴포넌트
 │   ├── components/                // 페이지 전용 컴포넌트
-│   │   ├── ProjectDetailHeader.tsx
-│   │   ├── ProjectDetailContent.tsx
-│   │   └── ProjectDetailSidebar.tsx
+│   │   ├── SomeDetailHeader.tsx
+│   │   ├── SomeDetailContent.tsx
+│   │   └── SomeDetailSidebar.tsx
 │   ├── hooks/                     // 페이지 전용 훅
-│   │   └── useProjectDetail.ts
+│   │   └── useSomeDetail.ts
 │   └── index.ts
 └── index.ts
 ```
 
 #### 예시
 ```tsx
-// ✅ Good: pages/ProjectDetail/ProjectDetailPage.tsx
-import { ProjectDetailHeader } from './components/ProjectDetailHeader';
-import { ProjectDetailContent } from './components/ProjectDetailContent';
-import { useProjectDetail } from './hooks/useProjectDetail';
+// ✅ Good: pages/SomeDetail/SomeDetailPage.tsx
+import { SomeDetailHeader } from './components/SomeDetailHeader';
+import { SomeDetailContent } from './components/SomeDetailContent';
+import { useSomeDetail } from './hooks/useSomeDetail';
 
-export const ProjectDetailPage: React.FC = () => {
-  const { project, isLoading } = useProjectDetail();
+export const SomeDetailPage: React.FC = () => {
+  const { data, isLoading } = useSomeDetail();
 
   if (isLoading) return <Skeleton />;
 
   return (
     <div>
-      <ProjectDetailHeader project={project} />
-      <ProjectDetailContent project={project} />
+      <SomeDetailHeader data={data} />
+      <SomeDetailContent data={data} />
     </div>
   );
 };
 
 // ❌ Bad: 비즈니스 로직이 페이지에 포함
-export const ProjectDetailPage: React.FC = () => {
-  const [project, setProject] = useState<Project | null>(null);
+export const SomeDetailPage: React.FC = () => {
+  const [data, setData] = useState<SomeData | null>(null);
 
   useEffect(() => {
     // API 호출 로직이 페이지에 직접 존재 ❌
-    fetch(`/api/projects/${id}`)
+    fetch(`/api/some-data/${id}`)
       .then(res => res.json())
-      .then(data => setProject(data));
+      .then(data => setData(data));
   }, [id]);
 
   return <div>{/* ... */}</div>;
@@ -253,7 +253,7 @@ export const useAuth = () => {
 };
 
 // ❌ Bad: Feature 간 직접 의존
-import { ProjectCard } from '../../project-management/ui/ProjectCard'; // ❌
+import { SomeComponent } from '../../other-feature/ui/SomeComponent'; // ❌
 ```
 
 ---
@@ -479,42 +479,42 @@ import { Project } from '@/entities/project/model/project.types';
 ```
 ✅ Good
 PascalCase: 컴포넌트, 타입 정의
-  - ProjectCard.tsx
-  - project.types.ts
+  - SomeComponent.tsx
+  - someEntity.types.ts
 
 camelCase: 함수, 훅, 유틸
-  - useProjects.ts
+  - useSomeFeature.ts
   - formatDate.ts
-  - projectApi.ts
+  - someApi.ts
 
 kebab-case: 일반 파일 (선택)
-  - project-card.tsx
+  - some-component.tsx
 
 ❌ Bad
-project_card.tsx          // snake_case 지양
-ProjectCard.ts            // 컴포넌트는 .tsx
-useprojects.ts            // 첫 글자는 소문자
+some_component.tsx          // snake_case 지양
+SomeComponent.ts            // 컴포넌트는 .tsx
+usesomefeature.ts           // 첫 글자는 소문자
 ```
 
 #### 컴포넌트명
 ```
 ✅ Good
-export const ProjectCard: React.FC<ProjectCardProps> = ({ ... }) => { ... };
+export const SomeComponent: React.FC<SomeComponentProps> = ({ ... }) => { ... };
 
 ❌ Bad
-export default function ProjectCard() { ... }  // default export 지양
-export const ProjectCardComponent = () => { ... };  // Component 접미사 불필요
+export default function SomeComponent() { ... }  // default export 지양
+export const SomeComponentComponent = () => { ... };  // Component 접미사 불필요
 ```
 
 #### 훅명
 ```
 ✅ Good
-export const useProjects = () => { ... };
-export const useProjectsQuery = () => { ... };
+export const useSomeFeature = () => { ... };
+export const useSomeFeatureQuery = () => { ... };
 
 ❌ Bad
-export const getProjects = () => { ... };  // use 접두사 필수
-export const projectsHook = () => { ... };  // Hook 접미사 지양
+export const getSomeFeature = () => { ... };  // use 접두사 필수
+export const someFeatureHook = () => { ... };  // Hook 접미사 지양
 ```
 
 ### 규칙 4: Import 순서
@@ -531,11 +531,11 @@ import { Project } from '@/entities/project';
 import { formatDate } from '@/shared/lib/date';
 
 // 3. 상대 경로
-import { ProjectCard } from './components/ProjectCard';
-import styles from './ProjectList.module.css';
+import { SomeComponent } from './components/SomeComponent';
+import styles from './SomeList.module.css';
 
 // ❌ Bad: 뒤섞인 Import
-import { ProjectCard } from './components/ProjectCard';
+import { SomeComponent } from './components/SomeComponent';
 import React from 'react';
 import { formatDate } from '@/shared/lib/date';
 import { Button } from 'antd';
@@ -566,29 +566,29 @@ export const useProjectQuery = (id: string) => {
   });
 };
 
-// features/project-list/ui/ProjectList.tsx
-export const ProjectList: React.FC = () => {
-  const { data: projects, isLoading } = useProjectsQuery();
+// features/some-list/ui/SomeList.tsx
+export const SomeList: React.FC = () => {
+  const { data: items, isLoading } = useSomeItemsQuery();
 
   if (isLoading) return <Skeleton />;
 
   return (
     <div>
-      {projects?.map(project => (
-        <ProjectCard key={project.id} project={project} />
+      {items?.map(item => (
+        <SomeCard key={item.id} item={item} />
       ))}
     </div>
   );
 };
 
 // ❌ Bad: 컴포넌트에서 직접 fetch
-export const ProjectList: React.FC = () => {
-  const [projects, setProjects] = useState<Project[]>([]);
+export const SomeList: React.FC = () => {
+  const [items, setItems] = useState<SomeItem[]>([]);
 
   useEffect(() => {
-    fetch('/api/projects')
+    fetch('/api/some-items')
       .then(res => res.json())
-      .then(data => setProjects(data));
+      .then(data => setItems(data));
   }, []);
 
   return <div>{/* ... */}</div>;
@@ -1129,23 +1129,94 @@ export const ProjectCard: React.FC = () => {
 
 ```tsx
 // ❌ Bad: key에 index 사용
-export const ProjectList: React.FC<{ projects: Project[] }> = ({ projects }) => {
+export const SomeList: React.FC<{ items: SomeItem[] }> = ({ items }) => {
   return (
     <div>
-      {projects.map((project, index) => (
-        <ProjectCard key={index} project={project} /> // ❌
+      {items.map((item, index) => (
+        <SomeCard key={index} item={item} /> // ❌
       ))}
     </div>
   );
 };
 
 // ✅ Good: 고유한 ID 사용
-export const ProjectList: React.FC<{ projects: Project[] }> = ({ projects }) => {
+export const SomeList: React.FC<{ items: SomeItem[] }> = ({ items }) => {
   return (
     <div>
-      {projects.map(project => (
-        <ProjectCard key={project.id} project={project} />
+      {items.map(item => (
+        <SomeCard key={item.id} item={item} />
       ))}
+    </div>
+  );
+};
+```
+
+### Anti-Pattern 8: Default Export 남용
+
+```tsx
+// ❌ Bad: default export 사용
+export default function SomeComponent() {
+  return <div>Some Component</div>;
+}
+
+// ✅ Good: named export 사용
+export const SomeComponent: React.FC = () => {
+  return <div>Some Component</div>;
+};
+```
+
+### Anti-Pattern 9: 인라인 스타일 남용
+
+```tsx
+// ❌ Bad: 인라인 스타일 과다 사용
+export const SomeComponent: React.FC = () => {
+  return (
+    <div
+      style={{
+        padding: '20px',
+        margin: '10px',
+        backgroundColor: '#fff',
+        borderRadius: '8px',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+      }}
+    >
+      <h3
+        style={{
+          fontSize: '18px',
+          fontWeight: 'bold',
+          marginBottom: '12px',
+        }}
+      >
+        Title
+      </h3>
+      {/* ... */}
+    </div>
+  );
+};
+
+// ✅ Good: CSS 모듈 또는 styled-components
+// SomeComponent.module.css
+.card {
+  padding: 20px;
+  margin: 10px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.title {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 12px;
+}
+
+// SomeComponent.tsx
+import styles from './SomeComponent.module.css';
+
+export const SomeComponent: React.FC = () => {
+  return (
+    <div className={styles.card}>
+      <h3 className={styles.title}>Title</h3>
     </div>
   );
 };
@@ -1394,6 +1465,8 @@ export const ProjectListPage: React.FC = () => {
 - [ ] 컴포넌트가 100줄 이하인가?
 - [ ] useEffect가 필요 이상으로 복잡하지 않은가?
 - [ ] key prop이 적절하게 사용되었는가?
+- [ ] default export 대신 named export를 사용하는가?
+- [ ] 인라인 스타일 대신 CSS 모듈을 사용하는가?
 
 ### 기존 코드 리팩토링 시
 

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
-import Header from './Header';
-import HeroSection from './HeroSection';
+import { Header } from './Header';
+import { HeroSection } from './HeroSection';
 import { PortfolioSection } from '../../features/projects';
 import { Chatbot } from '../../features/chatbot';
 
@@ -92,4 +92,4 @@ const HomePage: React.FC<HomePageProps> = ({
   );
 };
 
-export default HomePage;
+export { HomePage };

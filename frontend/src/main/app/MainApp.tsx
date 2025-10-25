@@ -1,8 +1,8 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { AppProvider, useApp } from '../providers/AppProvider';
-import HomePage from '../layout/components/HomePage';
-import ProjectDetailPage from '../pages/ProjectDetail/ProjectDetailPage';
+import { HomePage } from '../layout/components/HomePage';
+import { ProjectDetailPage } from '../pages/ProjectDetail/ProjectDetailPage';
 
 const MainAppContent: React.FC = () => {
   const {
@@ -89,4 +89,4 @@ const MainApp: React.FC = () => {
   );
 };
 
-export default MainApp;
+export { MainApp };

@@ -183,4 +183,4 @@ const ProjectDetailGallery: React.FC<ProjectDetailGalleryProps> = React.memo(({
 
 ProjectDetailGallery.displayName = 'ProjectDetailGallery';
 
-export default ProjectDetailGallery;
+export { ProjectDetailGallery };

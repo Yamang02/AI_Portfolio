@@ -152,4 +152,4 @@ const ProjectScreenshotsUpload: React.FC<ProjectScreenshotsUploadProps> = ({ val
   );
 };
 
-export default ProjectScreenshotsUpload;
+export { ProjectScreenshotsUpload };

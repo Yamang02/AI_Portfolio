@@ -21,4 +21,4 @@ const ExperienceList: React.FC = () => {
     );
 };
 
-export default ExperienceList;
+export { ExperienceList };

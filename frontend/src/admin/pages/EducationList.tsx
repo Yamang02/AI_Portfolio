@@ -21,4 +21,4 @@ const EducationList: React.FC = () => {
     );
 };
 
-export default EducationList;
+export { EducationList };

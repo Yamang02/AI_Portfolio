@@ -65,4 +65,4 @@ const CertificationCard: React.FC<CertificationCardProps> = ({ certification, on
   );
 };
 
-export default CertificationCard; 
+export { CertificationCard }; 

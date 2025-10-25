@@ -32,4 +32,4 @@ const ProjectDetailSidebarToggle: React.FC<ProjectDetailSidebarToggleProps> = ({
   );
 };
 
-export default ProjectDetailSidebarToggle;
+export { ProjectDetailSidebarToggle };

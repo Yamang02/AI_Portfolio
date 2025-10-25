@@ -125,4 +125,4 @@ const ProjectThumbnailUpload: React.FC<ProjectThumbnailUploadProps> = ({ value, 
   );
 };
 
-export default ProjectThumbnailUpload;
+export { ProjectThumbnailUpload };

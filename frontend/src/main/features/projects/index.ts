@@ -1,8 +1,8 @@
 // Components
-export { default as ProjectCard } from './components/ProjectCard';
-export { default as PortfolioSection } from './components/PortfolioSection';
-export { default as HistoryPanel } from './components/HistoryPanel';
-export { default as PanelToggle } from './components/PanelToggle';
+export { ProjectCard } from './components/ProjectCard';
+export { PortfolioSection } from './components/PortfolioSection';
+export { HistoryPanel } from './components/HistoryPanel';
+export { PanelToggle } from './components/PanelToggle';
 
 // Hooks
 export * from './hooks';

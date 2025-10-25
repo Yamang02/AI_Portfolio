@@ -10,7 +10,6 @@ interface ProjectDetailContentProps {
 
 const ProjectDetailContent: React.FC<ProjectDetailContentProps> = ({
   content,
-  project,
   className = ''
 }) => {
   // 마크다운 컨텐츠가 있는지 확인
@@ -41,4 +40,4 @@ const ProjectDetailContent: React.FC<ProjectDetailContentProps> = ({
   );
 };
 
-export default ProjectDetailContent;
+export { ProjectDetailContent };

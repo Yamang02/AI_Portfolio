@@ -86,4 +86,4 @@ const EducationCard: React.FC<EducationCardProps> = ({
   );
 };
 
-export default EducationCard;
+export { EducationCard };

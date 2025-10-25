@@ -1,7 +1,7 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import HomePage from './layout/components/HomePage';
-import ProjectDetailPage from './pages/ProjectDetail/ProjectDetailPage';
+import { HomePage } from './layout/components/HomePage';
+import { ProjectDetailPage } from './pages/ProjectDetail/ProjectDetailPage';
 import { useApp } from './providers';
 
 const App: React.FC = () => {
@@ -81,4 +81,4 @@ const App: React.FC = () => {
   );
 };
 
-export default App;
+export { App };

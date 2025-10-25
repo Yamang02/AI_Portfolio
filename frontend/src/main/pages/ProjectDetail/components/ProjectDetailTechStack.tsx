@@ -80,4 +80,4 @@ const ProjectDetailTechStack: React.FC<ProjectDetailTechStackProps> = React.memo
 
 ProjectDetailTechStack.displayName = 'ProjectDetailTechStack';
 
-export default ProjectDetailTechStack;
+export { ProjectDetailTechStack };

@@ -60,6 +60,3 @@ export const SkeletonSection: React.FC<SkeletonSectionProps> = ({ title, count =
   );
 };
 
-export default SkeletonCard;
-
-

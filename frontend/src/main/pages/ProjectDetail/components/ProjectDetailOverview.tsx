@@ -35,4 +35,4 @@ const ProjectDetailOverview: React.FC<ProjectDetailOverviewProps> = React.memo((
 
 ProjectDetailOverview.displayName = 'ProjectDetailOverview';
 
-export default ProjectDetailOverview;
+export { ProjectDetailOverview };

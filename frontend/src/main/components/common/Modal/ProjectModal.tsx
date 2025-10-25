@@ -1,10 +1,6 @@
 import React, { useState } from 'react';
 import { Project } from '../../../features/projects/types';
 import { useTOC, useActiveSection } from '../../../features/projects/hooks';
-import ProjectModalTOC from './ProjectModalTOC';
-import ProjectModalHeader from './ProjectModalHeader';
-import ProjectModalContent from './ProjectModalContent';
-import ProjectModalInfoSidebar from './ProjectModalInfoSidebar';
 
 interface ProjectModalProps {
   isOpen: boolean;
@@ -170,4 +166,4 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ isOpen, onClose, project })
   );
 };
 
-export default ProjectModal; 
+export { ProjectModal }; 

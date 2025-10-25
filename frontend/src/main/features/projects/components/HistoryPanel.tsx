@@ -441,4 +441,4 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
   );
 };
 
-export default HistoryPanel; 
+export { HistoryPanel }; 

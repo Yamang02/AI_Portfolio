@@ -299,4 +299,4 @@ const ProjectFilter: React.FC<ProjectFilterProps> = ({
   );
 };
 
-export default ProjectFilter;
+export { ProjectFilter };

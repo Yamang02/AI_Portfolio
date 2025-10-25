@@ -72,4 +72,4 @@ const ProjectDetailContribution: React.FC<ProjectDetailContributionProps> = Reac
 
 ProjectDetailContribution.displayName = 'ProjectDetailContribution';
 
-export default ProjectDetailContribution;
+export { ProjectDetailContribution };

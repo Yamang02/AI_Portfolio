@@ -4,15 +4,15 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from '../hooks/useAuth';
 import { LoginForm, ProtectedRoute } from '../features/auth';
-import AdminLayout from '../shared/components/AdminLayout';
-import Dashboard from '../pages/Dashboard';
-import ProjectList from '../components/projects/ProjectList';
-import ProjectEdit from '../pages/ProjectEdit';
-import TechStackManagement from '../pages/TechStackManagement';
-import SkillList from '../pages/SkillList';
-import ExperienceList from '../pages/ExperienceList';
-import EducationList from '../pages/EducationList';
-import CertificationList from '../pages/CertificationList';
+import { AdminLayout } from '../shared/components/AdminLayout';
+import { Dashboard } from '../pages/Dashboard';
+import { ProjectList } from '../components/projects/ProjectList';
+import { ProjectEdit } from '../pages/ProjectEdit';
+import { TechStackManagement } from '../pages/TechStackManagement';
+import { SkillList } from '../pages/SkillList';
+import { ExperienceList } from '../pages/ExperienceList';
+import { EducationList } from '../pages/EducationList';
+import { CertificationList } from '../pages/CertificationList';
 
 // React Query 클라이언트 설정
 const queryClient = new QueryClient({
@@ -79,5 +79,5 @@ const AdminApp: React.FC = () => {
   );
 };
 
-export default AdminApp;
+export { AdminApp };
 

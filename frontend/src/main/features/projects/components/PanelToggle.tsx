@@ -29,4 +29,4 @@ const PanelToggle: React.FC<PanelToggleProps> = ({ isOpen, onToggle }) => {
   );
 };
 
-export default PanelToggle; 
+export { PanelToggle }; 

@@ -21,4 +21,4 @@ const ProjectMarkdownEditor: React.FC<ProjectMarkdownEditorProps> = ({ value, on
   );
 };
 
-export default ProjectMarkdownEditor;
+export { ProjectMarkdownEditor };
