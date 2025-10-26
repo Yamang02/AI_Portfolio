@@ -13,8 +13,8 @@ import {
   Select,
   Input,
   App,
-  DatePicker,
-  InputNumber,
+  Typography,
+  Modal as AntdModal,
 } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
@@ -36,10 +36,11 @@ import {
 } from '../features/education-management';
 
 // Shared 컴포넌트 import
-import { Table, Modal, SearchFilter } from '../shared/ui';
+import { Table, SearchFilter } from '../shared/ui';
+import { DateRangeWithOngoing } from '../../shared/ui/date-range';
 
 const { Option } = Select;
-const { RangePicker } = DatePicker;
+const { Title } = Typography;
 
 const educationTypeOptions: { value: EducationType; label: string }[] = [
   { value: 'UNIVERSITY', label: '대학교' },
@@ -50,9 +51,10 @@ const educationTypeOptions: { value: EducationType; label: string }[] = [
 ];
 
 const EducationManagement: React.FC = () => {
-  const { modal } = App.useApp();
+  const { modal, message } = App.useApp();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingEducation, setEditingEducation] = useState<Education | null>(null);
+  const [modalLoading, setModalLoading] = useState(false);
   const [form] = Form.useForm();
 
   // Entities 계층의 훅 사용
@@ -80,23 +82,25 @@ const EducationManagement: React.FC = () => {
 
   const handleModalOk = async () => {
     try {
+      setModalLoading(true);
       const values = await form.validateFields();
 
-      // 날짜 변환
+      // 날짜 변환 (endDate가 null이면 undefined로 변환)
       const formData: EducationFormData = {
         ...values,
-        startDate: values.dateRange?.[0]?.format('YYYY-MM-DD'),
-        endDate: values.dateRange?.[1]?.format('YYYY-MM-DD') || undefined,
+        startDate: values.startDate?.format('YYYY-MM-DD'),
+        endDate: values.endDate?.format('YYYY-MM-DD') || undefined,
       };
 
-      // dateRange 제거
-      delete (formData as any).dateRange;
-
       await createOrUpdateMutation.mutateAsync(formData);
+      message.success(editingEducation ? '학력이 성공적으로 수정되었습니다.' : '학력이 성공적으로 추가되었습니다.');
       setIsModalVisible(false);
       form.resetFields();
+      setEditingEducation(null);
     } catch (error) {
-      console.error('Validation failed:', error);
+      message.error(error instanceof Error ? error.message : '작업 중 오류가 발생했습니다.');
+    } finally {
+      setModalLoading(false);
     }
   };
 
@@ -106,28 +110,40 @@ const EducationManagement: React.FC = () => {
     form.resetFields();
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async () => {
+    if (!editingEducation) return;
+    
+    // 삭제 확인창 표시
     modal.confirm({
-      title: '정말 삭제하시겠습니까?',
-      content: '이 작업은 되돌릴 수 없습니다.',
+      title: '학력 삭제',
+      content: `'${editingEducation.title}' 학력을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`,
       okText: '삭제',
-      okType: 'danger',
       cancelText: '취소',
-      onOk: () => {
-        deleteEducationMutation.mutate(id);
-      },
+      okType: 'danger',
+      onOk: async () => {
+        try {
+          setModalLoading(true);
+          await deleteEducationMutation.mutateAsync(editingEducation.id);
+          message.success('학력이 성공적으로 삭제되었습니다.');
+          setIsModalVisible(false);
+          setEditingEducation(null);
+          form.resetFields();
+        } catch (error) {
+          message.error(error instanceof Error ? error.message : '삭제 중 오류가 발생했습니다.');
+        } finally {
+          setModalLoading(false);
+        }
+      }
     });
   };
 
   const handleRowClick = (education: Education) => {
     setEditingEducation(education);
+    
     form.setFieldsValue({
       ...education,
-      dateRange: education.startDate && education.endDate
-        ? [dayjs(education.startDate), dayjs(education.endDate)]
-        : education.startDate
-        ? [dayjs(education.startDate), null]
-        : undefined,
+      startDate: education.startDate ? dayjs(education.startDate) : undefined,
+      endDate: education.endDate ? dayjs(education.endDate) : undefined,
     });
     setIsModalVisible(true);
   };
@@ -140,6 +156,11 @@ const EducationManagement: React.FC = () => {
       {/* 페이지 헤더 */}
       <div style={{ marginBottom: 24 }}>
         <Row justify="space-between" align="middle">
+          <Col>
+            <Title level={4} style={{ margin: 0 }}>
+              학력 관리
+            </Title>
+          </Col>
           <Col>
             <Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>
               교육 추가
@@ -182,15 +203,28 @@ const EducationManagement: React.FC = () => {
       </Card>
 
       {/* 생성/수정 모달 */}
-      <Modal
-        title={editingEducation ? 'Education 수정' : 'Education 추가'}
+      <AntdModal
+        title={editingEducation ? '학력 수정' : '학력 추가'}
         open={isModalVisible}
         onOk={handleModalOk}
         onCancel={handleModalCancel}
-        loading={createOrUpdateMutation.isPending}
-        form={form}
         width={800}
+        okText="저장"
+        cancelText="취소"
+        confirmLoading={modalLoading}
+        footer={editingEducation ? [
+          <Button key="delete" danger onClick={handleDelete} loading={modalLoading}>
+            삭제
+          </Button>,
+          <Button key="cancel" onClick={handleModalCancel}>
+            취소
+          </Button>,
+          <Button key="save" type="primary" onClick={handleModalOk} loading={modalLoading}>
+            저장
+          </Button>
+        ] : undefined}
       >
+        <Form form={form} layout="vertical">
           <Form.Item
             name="title"
             label="제목"
@@ -199,28 +233,16 @@ const EducationManagement: React.FC = () => {
             <Input placeholder="예: 컴퓨터공학 학사" />
           </Form.Item>
 
-          <Form.Item
-            name="organization"
-            label="교육기관"
-            rules={[{ required: true, message: '교육기관을 입력하세요' }]}
-          >
-            <Input placeholder="예: 서울대학교" />
-          </Form.Item>
-
           <Row gutter={16}>
             <Col span={12}>
-              <Form.Item name="degree" label="학위">
-                <Input placeholder="예: 학사" />
+              <Form.Item
+                name="organization"
+                label="교육기관"
+                rules={[{ required: true, message: '교육기관을 입력하세요' }]}
+              >
+                <Input placeholder="예: 서울대학교" />
               </Form.Item>
             </Col>
-            <Col span={12}>
-              <Form.Item name="major" label="전공">
-                <Input placeholder="예: 컴퓨터공학" />
-              </Form.Item>
-            </Col>
-          </Row>
-
-          <Row gutter={16}>
             <Col span={12}>
               <Form.Item
                 name="type"
@@ -236,35 +258,54 @@ const EducationManagement: React.FC = () => {
                 </Select>
               </Form.Item>
             </Col>
-            <Col span={12}>
-              <Form.Item name="gpa" label="학점">
-                <InputNumber
-                  min={0}
-                  max={4.5}
-                  step={0.01}
-                  style={{ width: '100%' }}
-                  placeholder="예: 3.8"
-                />
-              </Form.Item>
-            </Col>
           </Row>
 
-          <Form.Item name="dateRange" label="교육 기간">
-            <RangePicker style={{ width: '100%' }} />
-          </Form.Item>
+          <DateRangeWithOngoing
+            startDateName="startDate"
+            endDateName="endDate"
+            startDateLabel="시작일"
+            endDateLabel="종료일"
+            ongoingLabel="진행중"
+            defaultOngoing={editingEducation ? !editingEducation.endDate : false}
+          />
 
           <Form.Item name="description" label="설명">
             <Input.TextArea rows={3} placeholder="교육에 대한 설명을 입력하세요" />
           </Form.Item>
 
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name="sortOrder"
+                label="정렬 순서"
+                rules={editingEducation ? [
+                  { required: true, message: '정렬 순서를 입력해주세요.' },
+                  {
+                    validator: (_, value) => {
+                      const numValue = Number(value);
+                      if (!value || isNaN(numValue) || numValue < 1) {
+                        return Promise.reject(new Error('정렬 순서는 1 이상의 숫자여야 합니다.'));
+                      }
+                      return Promise.resolve();
+                    }
+                  }
+                ] : []}
+              >
+                <Input 
+                  type="number" 
+                  min={1} 
+                  placeholder={editingEducation ? "정렬 순서" : "자동 할당"} 
+                  disabled={!editingEducation}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+
           <Form.Item name="technologies" label="기술 스택">
             <Select mode="tags" placeholder="기술 스택을 입력하세요" />
           </Form.Item>
-
-          <Form.Item name="projects" label="프로젝트">
-            <Select mode="tags" placeholder="관련 프로젝트를 입력하세요" />
-          </Form.Item>
-      </Modal>
+        </Form>
+      </AntdModal>
     </div>
   );
 };

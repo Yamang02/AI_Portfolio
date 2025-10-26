@@ -119,6 +119,16 @@ public interface PortfolioRepositoryPort {
      */
     void deleteEducation(String id);
     
+    /**
+     * Experience의 최대 정렬 순서를 조회합니다
+     */
+    int findMaxExperienceSortOrder();
+    
+    /**
+     * Education의 최대 정렬 순서를 조회합니다
+     */
+    int findMaxEducationSortOrder();
+    
     // === 자격증 관련 ===
     /**
      * 모든 자격증 정보를 조회합니다

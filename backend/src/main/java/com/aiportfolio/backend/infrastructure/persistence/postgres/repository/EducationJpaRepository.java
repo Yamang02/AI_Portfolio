@@ -46,4 +46,11 @@ public interface EducationJpaRepository extends JpaRepository<EducationJpaEntity
      */
     @Query("SELECT DISTINCT e FROM EducationJpaEntity e LEFT JOIN FETCH e.educationTechStacks et LEFT JOIN FETCH et.techStack ORDER BY e.sortOrder ASC, e.startDate DESC")
     List<EducationJpaEntity> findAllOrderedBySortOrderAndStartDate();
+    
+    /**
+     * 최대 정렬 순서 조회
+     * @return 최대 정렬 순서
+     */
+    @Query("SELECT COALESCE(MAX(e.sortOrder), 0) FROM EducationJpaEntity e")
+    Integer findMaxSortOrder();
 }

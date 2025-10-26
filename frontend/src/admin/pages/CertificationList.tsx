@@ -14,10 +14,12 @@ import {
   Input,
   App,
   Typography,
-  DatePicker,
 } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
+
+// Shared 컴포넌트 import
+import { DateRangeWithOngoing } from '../../shared/ui/date-range';
 
 // Entities 계층에서 타입과 훅 import
 import type { Certification, CertificationFormData, CertificationCategory } from '../entities/certification';
@@ -127,7 +129,7 @@ const CertificationManagement: React.FC = () => {
       const formData: CertificationFormData = {
         ...values,
         date: values.date?.format('YYYY-MM-DD'),
-        expiryDate: values.expiryDate?.format('YYYY-MM-DD'),
+        expiryDate: values.expiryDate?.format('YYYY-MM-DD') || undefined,
       };
 
       // await createOrUpdateMutation.mutateAsync(formData);
@@ -280,18 +282,14 @@ const CertificationManagement: React.FC = () => {
           </Col>
         </Row>
 
-        <Row gutter={16}>
-          <Col span={12}>
-            <Form.Item name="date" label="취득일">
-              <DatePicker style={{ width: '100%' }} />
-            </Form.Item>
-          </Col>
-          <Col span={12}>
-            <Form.Item name="expiryDate" label="만료일">
-              <DatePicker style={{ width: '100%' }} />
-            </Form.Item>
-          </Col>
-        </Row>
+        <DateRangeWithOngoing
+          startDateName="date"
+          endDateName="expiryDate"
+          startDateLabel="취득일"
+          endDateLabel="만료일"
+          ongoingLabel="유효기간 없음"
+          defaultOngoing={editingCertification ? !editingCertification.expiryDate : false}
+        />
 
         <Form.Item name="credentialUrl" label="확인 URL">
           <Input placeholder="https://example.com/verification" />

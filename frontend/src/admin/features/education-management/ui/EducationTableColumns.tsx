@@ -27,6 +27,13 @@ const getTypeColor = (type: EducationType): string => {
 
 export const createEducationColumns = (): ColumnsType<Education> => [
   {
+    title: '정렬 순서',
+    dataIndex: 'sortOrder',
+    key: 'sortOrder',
+    width: 100,
+    fixed: 'left',
+  },
+  {
     title: '제목',
     dataIndex: 'title',
     key: 'title',
@@ -37,17 +44,6 @@ export const createEducationColumns = (): ColumnsType<Education> => [
     dataIndex: 'organization',
     key: 'organization',
     width: 150,
-  },
-  {
-    title: '전공/학위',
-    key: 'major',
-    width: 150,
-    render: (_: any, record: Education) => {
-      if (record.major && record.degree) {
-        return `${record.major} (${record.degree})`;
-      }
-      return record.major || record.degree || '-';
-    },
   },
   {
     title: '타입',
@@ -66,23 +62,24 @@ export const createEducationColumns = (): ColumnsType<Education> => [
     onFilter: (value, record) => record.type === value,
   },
   {
-    title: '기간',
-    key: 'period',
-    width: 200,
-    render: (_: any, record: Education) => {
-      const start = new Date(record.startDate).toLocaleDateString('ko-KR');
-      const end = record.endDate
-        ? new Date(record.endDate).toLocaleDateString('ko-KR')
-        : '진행중';
-      return `${start} ~ ${end}`;
-    },
+    title: '시작일',
+    dataIndex: 'startDate',
+    key: 'startDate',
+    width: 130,
+    render: (date: string) => new Date(date).toLocaleDateString('ko-KR'),
+    sorter: (a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime(),
   },
   {
-    title: '학점',
-    dataIndex: 'gpa',
-    key: 'gpa',
-    width: 80,
-    render: (gpa?: number) => gpa ? `${gpa}/4.0` : '-',
+    title: '종료일',
+    dataIndex: 'endDate',
+    key: 'endDate',
+    width: 130,
+    render: (date?: string) => date ? new Date(date).toLocaleDateString('ko-KR') : '진행중',
+    sorter: (a, b) => {
+      if (!a.endDate) return 1;
+      if (!b.endDate) return -1;
+      return new Date(a.endDate).getTime() - new Date(b.endDate).getTime();
+    },
   },
   {
     title: '기술스택',
@@ -99,29 +96,5 @@ export const createEducationColumns = (): ColumnsType<Education> => [
         )}
       </div>
     ),
-  },
-  {
-    title: '관련 프로젝트',
-    dataIndex: 'projects',
-    key: 'projects',
-    width: 200,
-    render: (projects: string[]) => (
-      <div>
-        {projects?.slice(0, 2).map((item, index) => (
-          <Tag key={index} color="purple" style={{ marginBottom: 4 }}>
-            {item.length > 30 ? `${item.substring(0, 30)}...` : item}
-          </Tag>
-        ))}
-        {projects?.length > 2 && (
-          <Tag color="purple">+{projects.length - 2}</Tag>
-        )}
-      </div>
-    ),
-  },
-  {
-    title: '정렬 순서',
-    dataIndex: 'sortOrder',
-    key: 'sortOrder',
-    width: 100,
   },
 ];

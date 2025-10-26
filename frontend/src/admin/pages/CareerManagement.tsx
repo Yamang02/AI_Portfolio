@@ -4,10 +4,12 @@
  */
 
 import React, { useState } from 'react';
-import { Tabs } from 'antd';
+import { Tabs, Typography } from 'antd';
 import { ReadOutlined, BankOutlined } from '@ant-design/icons';
 import { EducationManagement } from './EducationManagement';
 import { ExperienceManagement } from './ExperienceManagement';
+
+const { Title } = Typography;
 
 /**
  * 경력 및 학력 관리 페이지
@@ -31,7 +33,7 @@ const CareerManagement: React.FC = () => {
       label: (
         <span>
           <ReadOutlined />
-          교육 이력
+          학력
         </span>
       ),
       children: <EducationManagement />,
@@ -40,11 +42,18 @@ const CareerManagement: React.FC = () => {
 
   return (
     <div>
+      {/* 페이지 헤더 - 탭 위에 배치 */}
+      <div style={{ marginBottom: 24 }}>
+        <Title level={2} style={{ margin: 0 }}>
+          경력 및 학력 관리
+        </Title>
+      </div>
+
+      {/* 탭 */}
       <Tabs
         activeKey={activeTab}
         onChange={setActiveTab}
         items={tabItems}
-        style={{ marginTop: '16px' }}
       />
     </div>
   );

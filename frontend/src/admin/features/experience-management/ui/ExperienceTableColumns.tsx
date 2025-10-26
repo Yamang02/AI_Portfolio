@@ -4,21 +4,23 @@
 
 import { Tag } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import type { Experience, ExperienceType } from '@/admin/entities/experience';
+import type { Experience, ExperienceTypeString } from '../../../entities/experience';
 
-const experienceTypeNames: Record<ExperienceType, string> = {
+const experienceTypeNames: Record<ExperienceTypeString, string> = {
   FULL_TIME: '정규직',
-  PART_TIME: '파트타임',
+  CONTRACT: '계약직',
   FREELANCE: '프리랜서',
-  INTERNSHIP: '인턴',
+  PART_TIME: '파트타임',
+  INTERNSHIP: '인턴십',
   OTHER: '기타',
 };
 
-const getTypeColor = (type: ExperienceType): string => {
-  const colorMap: Record<ExperienceType, string> = {
+const getTypeColor = (type: ExperienceTypeString): string => {
+  const colorMap: Record<ExperienceTypeString, string> = {
     FULL_TIME: 'blue',
-    PART_TIME: 'green',
+    CONTRACT: 'cyan',
     FREELANCE: 'orange',
+    PART_TIME: 'green',
     INTERNSHIP: 'purple',
     OTHER: 'default',
   };
@@ -26,6 +28,13 @@ const getTypeColor = (type: ExperienceType): string => {
 };
 
 export const createExperienceColumns = (): ColumnsType<Experience> => [
+  {
+    title: '정렬 순서',
+    dataIndex: 'sortOrder',
+    key: 'sortOrder',
+    width: 100,
+    fixed: 'left',
+  },
   {
     title: '제목',
     dataIndex: 'title',
@@ -49,7 +58,7 @@ export const createExperienceColumns = (): ColumnsType<Experience> => [
     dataIndex: 'type',
     key: 'type',
     width: 120,
-    render: (type: ExperienceType) => (
+    render: (type: ExperienceTypeString) => (
       <Tag color={getTypeColor(type)}>
         {experienceTypeNames[type] || type}
       </Tag>
@@ -61,15 +70,23 @@ export const createExperienceColumns = (): ColumnsType<Experience> => [
     onFilter: (value, record) => record.type === value,
   },
   {
-    title: '기간',
-    key: 'period',
-    width: 200,
-    render: (_: any, record: Experience) => {
-      const start = new Date(record.startDate).toLocaleDateString('ko-KR');
-      const end = record.endDate
-        ? new Date(record.endDate).toLocaleDateString('ko-KR')
-        : '진행중';
-      return `${start} ~ ${end}`;
+    title: '시작일',
+    dataIndex: 'startDate',
+    key: 'startDate',
+    width: 130,
+    render: (date: string) => new Date(date).toLocaleDateString('ko-KR'),
+    sorter: (a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime(),
+  },
+  {
+    title: '완료일',
+    dataIndex: 'endDate',
+    key: 'endDate',
+    width: 130,
+    render: (date?: string) => date ? new Date(date).toLocaleDateString('ko-KR') : '진행중',
+    sorter: (a, b) => {
+      if (!a.endDate) return 1;
+      if (!b.endDate) return -1;
+      return new Date(a.endDate).getTime() - new Date(b.endDate).getTime();
     },
   },
   {
@@ -105,47 +122,5 @@ export const createExperienceColumns = (): ColumnsType<Experience> => [
         )}
       </div>
     ),
-  },
-  {
-    title: '성과',
-    dataIndex: 'achievements',
-    key: 'achievements',
-    width: 200,
-    render: (achievements: string[]) => (
-      <div>
-        {achievements?.slice(0, 2).map((item, index) => (
-          <Tag key={index} color="green" style={{ marginBottom: 4 }}>
-            {item.length > 30 ? `${item.substring(0, 30)}...` : item}
-          </Tag>
-        ))}
-        {achievements?.length > 2 && (
-          <Tag color="green">+{achievements.length - 2}</Tag>
-        )}
-      </div>
-    ),
-  },
-  {
-    title: '관련 프로젝트',
-    dataIndex: 'projects',
-    key: 'projects',
-    width: 200,
-    render: (projects: string[]) => (
-      <div>
-        {projects?.slice(0, 2).map((item, index) => (
-          <Tag key={index} color="purple" style={{ marginBottom: 4 }}>
-            {item.length > 30 ? `${item.substring(0, 30)}...` : item}
-          </Tag>
-        ))}
-        {projects?.length > 2 && (
-          <Tag color="purple">+{projects.length - 2}</Tag>
-        )}
-      </div>
-    ),
-  },
-  {
-    title: '정렬 순서',
-    dataIndex: 'sortOrder',
-    key: 'sortOrder',
-    width: 100,
   },
 ];

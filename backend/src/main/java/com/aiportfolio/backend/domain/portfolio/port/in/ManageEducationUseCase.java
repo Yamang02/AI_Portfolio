@@ -2,6 +2,8 @@ package com.aiportfolio.backend.domain.portfolio.port.in;
 
 import com.aiportfolio.backend.domain.portfolio.model.Education;
 
+import java.util.Map;
+
 /**
  * Education 관리 UseCase (Command)
  *
@@ -39,5 +41,26 @@ public interface ManageEducationUseCase {
      *
      * @param sortOrderUpdates ID와 새로운 sortOrder 맵
      */
-    void updateEducationSortOrder(java.util.Map<String, Integer> sortOrderUpdates);
+    void updateEducationSortOrder(Map<String, Integer> sortOrderUpdates);
+
+    /**
+     * 정렬 순서 업데이트 정보를 담는 내부 클래스
+     */
+    class SortOrderUpdate {
+        private String educationId;
+        private int newSortOrder;
+
+        public SortOrderUpdate(String educationId, int newSortOrder) {
+            this.educationId = educationId;
+            this.newSortOrder = newSortOrder;
+        }
+
+        public String getEducationId() {
+            return educationId;
+        }
+
+        public int getNewSortOrder() {
+            return newSortOrder;
+        }
+    }
 }

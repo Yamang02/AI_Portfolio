@@ -101,4 +101,11 @@ public interface ExperienceJpaRepository extends JpaRepository<ExperienceJpaEnti
      */
     @Query("SELECT e FROM ExperienceJpaEntity e WHERE LOWER(e.role) LIKE LOWER('%' || :keyword || '%')")
     List<ExperienceJpaEntity> findByRoleContaining(@Param("keyword") String keyword);
+    
+    /**
+     * 최대 정렬 순서 조회
+     * @return 최대 정렬 순서
+     */
+    @Query("SELECT COALESCE(MAX(e.sortOrder), 0) FROM ExperienceJpaEntity e")
+    Integer findMaxSortOrder();
 }

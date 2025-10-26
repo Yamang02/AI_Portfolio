@@ -3,17 +3,17 @@
  */
 
 import { useMemo } from 'react';
-import type { Experience, ExperienceStats, ExperienceType } from '@/admin/entities/experience';
+import type { Experience, ExperienceStats, ExperienceTypeString } from '@/admin/entities/experience';
 
 export const useExperienceStats = (experiences: Experience[] = []): ExperienceStats => {
   return useMemo(() => {
     const total = experiences.length;
-    const ongoing = experiences.filter(e => !e.endDate).length;
 
-    const byType: Record<ExperienceType, number> = {
+    const byType: Record<ExperienceTypeString, number> = {
       FULL_TIME: 0,
-      PART_TIME: 0,
+      CONTRACT: 0,
       FREELANCE: 0,
+      PART_TIME: 0,
       INTERNSHIP: 0,
       OTHER: 0,
     };
@@ -26,7 +26,6 @@ export const useExperienceStats = (experiences: Experience[] = []): ExperienceSt
 
     return {
       total,
-      ongoing,
       byType,
     };
   }, [experiences]);

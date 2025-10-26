@@ -13,13 +13,14 @@ import {
   Select,
   Input,
   App,
-  DatePicker,
+  Typography,
+  Modal as AntdModal,
 } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 
 // Entities 계층에서 타입과 훅 import
-import type { Experience, ExperienceFormData, ExperienceType } from '../entities/experience';
+import type { Experience, ExperienceFormData, ExperienceTypeString } from '../entities/experience';
 import {
   useAdminExperiencesQuery,
   useExperienceMutation,
@@ -35,23 +36,35 @@ import {
 } from '../features/experience-management';
 
 // Shared 컴포넌트 import
-import { Table, Modal, SearchFilter } from '../shared/ui';
+import { Table, SearchFilter } from '../shared/ui';
+import { DateRangeWithOngoing } from '../../shared/ui/date-range';
 
 const { Option } = Select;
-const { RangePicker } = DatePicker;
+const { Title } = Typography;
 
-const experienceTypeOptions: { value: ExperienceType; label: string }[] = [
+const experienceTypeOptions: { value: ExperienceTypeString; label: string }[] = [
   { value: 'FULL_TIME', label: '정규직' },
-  { value: 'PART_TIME', label: '파트타임' },
+  { value: 'CONTRACT', label: '계약직' },
   { value: 'FREELANCE', label: '프리랜서' },
-  { value: 'INTERNSHIP', label: '인턴' },
+  { value: 'PART_TIME', label: '파트타임' },
+  { value: 'INTERNSHIP', label: '인턴십' },
   { value: 'OTHER', label: '기타' },
 ];
 
+const jobFieldOptions = [
+  { value: '개발', label: '개발' },
+  { value: '디자인', label: '디자인' },
+  { value: '교육', label: '교육' },
+  { value: '마케팅', label: '마케팅' },
+  { value: '경영', label: '경영' },
+  { value: '기타', label: '기타' },
+];
+
 const ExperienceManagement: React.FC = () => {
-  const { modal } = App.useApp();
+  const { modal, message } = App.useApp();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingExperience, setEditingExperience] = useState<Experience | null>(null);
+  const [modalLoading, setModalLoading] = useState(false);
   const [form] = Form.useForm();
 
   // Entities 계층의 훅 사용
@@ -79,23 +92,25 @@ const ExperienceManagement: React.FC = () => {
 
   const handleModalOk = async () => {
     try {
+      setModalLoading(true);
       const values = await form.validateFields();
 
-      // 날짜 변환
+      // 날짜 변환 (endDate가 null이면 undefined로 변환)
       const formData: ExperienceFormData = {
         ...values,
-        startDate: values.dateRange?.[0]?.format('YYYY-MM-DD'),
-        endDate: values.dateRange?.[1]?.format('YYYY-MM-DD') || undefined,
+        startDate: values.startDate?.format('YYYY-MM-DD'),
+        endDate: values.endDate?.format('YYYY-MM-DD') || undefined,
       };
 
-      // dateRange 제거
-      delete (formData as any).dateRange;
-
       await createOrUpdateMutation.mutateAsync(formData);
+      message.success(editingExperience ? '경력이 성공적으로 수정되었습니다.' : '경력이 성공적으로 추가되었습니다.');
       setIsModalVisible(false);
       form.resetFields();
+      setEditingExperience(null);
     } catch (error) {
-      console.error('Validation failed:', error);
+      message.error(error instanceof Error ? error.message : '작업 중 오류가 발생했습니다.');
+    } finally {
+      setModalLoading(false);
     }
   };
 
@@ -105,28 +120,40 @@ const ExperienceManagement: React.FC = () => {
     form.resetFields();
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async () => {
+    if (!editingExperience) return;
+    
+    // 삭제 확인창 표시
     modal.confirm({
-      title: '정말 삭제하시겠습니까?',
-      content: '이 작업은 되돌릴 수 없습니다.',
+      title: '경력 삭제',
+      content: `'${editingExperience.title}' 경력을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`,
       okText: '삭제',
-      okType: 'danger',
       cancelText: '취소',
-      onOk: () => {
-        deleteExperienceMutation.mutate(id);
-      },
+      okType: 'danger',
+      onOk: async () => {
+        try {
+          setModalLoading(true);
+          await deleteExperienceMutation.mutateAsync(editingExperience.id);
+          message.success('경력이 성공적으로 삭제되었습니다.');
+          setIsModalVisible(false);
+          setEditingExperience(null);
+          form.resetFields();
+        } catch (error) {
+          message.error(error instanceof Error ? error.message : '삭제 중 오류가 발생했습니다.');
+        } finally {
+          setModalLoading(false);
+        }
+      }
     });
   };
 
   const handleRowClick = (experience: Experience) => {
     setEditingExperience(experience);
+    
     form.setFieldsValue({
       ...experience,
-      dateRange: experience.startDate && experience.endDate
-        ? [dayjs(experience.startDate), dayjs(experience.endDate)]
-        : experience.startDate
-        ? [dayjs(experience.startDate), null]
-        : undefined,
+      startDate: experience.startDate ? dayjs(experience.startDate) : undefined,
+      endDate: experience.endDate ? dayjs(experience.endDate) : undefined,
     });
     setIsModalVisible(true);
   };
@@ -139,6 +166,11 @@ const ExperienceManagement: React.FC = () => {
       {/* 페이지 헤더 */}
       <div style={{ marginBottom: 24 }}>
         <Row justify="space-between" align="middle">
+          <Col>
+            <Title level={4} style={{ margin: 0 }}>
+              경력 관리
+            </Title>
+          </Col>
           <Col>
             <Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>
               경력 추가
@@ -181,15 +213,28 @@ const ExperienceManagement: React.FC = () => {
       </Card>
 
       {/* 생성/수정 모달 */}
-      <Modal
-        title={editingExperience ? 'Experience 수정' : 'Experience 추가'}
+      <AntdModal
+        title={editingExperience ? '경력 수정' : '경력 추가'}
         open={isModalVisible}
         onOk={handleModalOk}
         onCancel={handleModalCancel}
-        loading={createOrUpdateMutation.isPending}
-        form={form}
         width={800}
+        okText="저장"
+        cancelText="취소"
+        confirmLoading={modalLoading}
+        footer={editingExperience ? [
+          <Button key="delete" danger onClick={handleDelete} loading={modalLoading}>
+            삭제
+          </Button>,
+          <Button key="cancel" onClick={handleModalCancel}>
+            취소
+          </Button>,
+          <Button key="save" type="primary" onClick={handleModalOk} loading={modalLoading}>
+            저장
+          </Button>
+        ] : undefined}
       >
+        <Form form={form} layout="vertical">
           <Form.Item
             name="title"
             label="제목"
@@ -236,15 +281,58 @@ const ExperienceManagement: React.FC = () => {
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item name="dateRange" label="근무 기간">
-                <RangePicker style={{ width: '100%' }} />
+              <Form.Item name="jobField" label="직무 분야">
+                <Select placeholder="직무 분야 선택">
+                  {jobFieldOptions.map((option) => (
+                    <Option key={option.value} value={option.value}>
+                      {option.label}
+                    </Option>
+                  ))}
+                </Select>
               </Form.Item>
             </Col>
           </Row>
 
+          <DateRangeWithOngoing
+            startDateName="startDate"
+            endDateName="endDate"
+            startDateLabel="시작일"
+            endDateLabel="종료일"
+            ongoingLabel="진행중"
+            defaultOngoing={editingExperience ? !editingExperience.endDate : false}
+          />
+
           <Form.Item name="description" label="설명">
             <Input.TextArea rows={3} placeholder="경력에 대한 설명을 입력하세요" />
           </Form.Item>
+
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name="sortOrder"
+                label="정렬 순서"
+                rules={editingExperience ? [
+                  { required: true, message: '정렬 순서를 입력해주세요.' },
+                  {
+                    validator: (_, value) => {
+                      const numValue = Number(value);
+                      if (!value || isNaN(numValue) || numValue < 1) {
+                        return Promise.reject(new Error('정렬 순서는 1 이상의 숫자여야 합니다.'));
+                      }
+                      return Promise.resolve();
+                    }
+                  }
+                ] : []}
+              >
+                <Input 
+                  type="number" 
+                  min={1} 
+                  placeholder={editingExperience ? "정렬 순서" : "자동 할당"} 
+                  disabled={!editingExperience}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
 
           <Form.Item name="technologies" label="기술 스택">
             <Select mode="tags" placeholder="기술 스택을 입력하세요" />
@@ -261,7 +349,8 @@ const ExperienceManagement: React.FC = () => {
           <Form.Item name="projects" label="프로젝트">
             <Select mode="tags" placeholder="관련 프로젝트를 입력하세요" />
           </Form.Item>
-      </Modal>
+        </Form>
+      </AntdModal>
     </div>
   );
 };

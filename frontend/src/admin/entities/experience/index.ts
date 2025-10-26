@@ -9,6 +9,12 @@ export type {
   ExperienceFilter,
   ExperienceStats,
   ExperienceType,
+  ExperienceTypeString,
+} from './model/experience.types';
+
+export { 
+  ExperienceType,
+  EXPERIENCE_TYPE_LABELS,
 } from './model/experience.types';
 
 // API

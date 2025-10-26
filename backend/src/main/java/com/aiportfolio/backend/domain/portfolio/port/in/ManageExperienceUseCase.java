@@ -2,6 +2,8 @@ package com.aiportfolio.backend.domain.portfolio.port.in;
 
 import com.aiportfolio.backend.domain.portfolio.model.Experience;
 
+import java.util.Map;
+
 /**
  * Experience 관리 UseCase (Command)
  *
@@ -39,5 +41,26 @@ public interface ManageExperienceUseCase {
      *
      * @param sortOrderUpdates ID와 새로운 sortOrder 맵
      */
-    void updateExperienceSortOrder(java.util.Map<String, Integer> sortOrderUpdates);
+    void updateExperienceSortOrder(Map<String, Integer> sortOrderUpdates);
+
+    /**
+     * 정렬 순서 업데이트 정보를 담는 내부 클래스
+     */
+    class SortOrderUpdate {
+        private String experienceId;
+        private int newSortOrder;
+
+        public SortOrderUpdate(String experienceId, int newSortOrder) {
+            this.experienceId = experienceId;
+            this.newSortOrder = newSortOrder;
+        }
+
+        public String getExperienceId() {
+            return experienceId;
+        }
+
+        public int getNewSortOrder() {
+            return newSortOrder;
+        }
+    }
 }

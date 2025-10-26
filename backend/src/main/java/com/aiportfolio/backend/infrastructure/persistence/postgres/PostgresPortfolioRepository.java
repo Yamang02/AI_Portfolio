@@ -168,9 +168,38 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
     public Experience saveExperience(Experience experience) {
         try {
             ExperienceJpaEntity jpaEntity = experienceMapper.toJpaEntity(experience);
-            ExperienceJpaEntity savedEntity = experienceJpaRepository.save(jpaEntity);
-            log.info("경력 저장 완료: {}", experience.getTitle());
-            return experienceMapper.toDomain(savedEntity);
+            
+            // 기존 엔티티가 있는지 확인 (업데이트 vs 생성 구분)
+            Optional<ExperienceJpaEntity> existingEntity = experienceJpaRepository.findByBusinessId(experience.getId());
+            
+            if (existingEntity.isPresent()) {
+                // 업데이트: 기존 엔티티를 직접 수정
+                ExperienceJpaEntity existing = existingEntity.get();
+                
+                // 필드 업데이트 (DB ID와 createdAt은 유지)
+                existing.setTitle(experience.getTitle());
+                existing.setDescription(experience.getDescription());
+                existing.setOrganization(experience.getOrganization());
+                existing.setRole(experience.getRole());
+                existing.setStartDate(experience.getStartDate());
+                existing.setEndDate(experience.getEndDate());
+                existing.setJobField(experience.getJobField());
+                existing.setEmploymentType(experience.getEmploymentType());
+                existing.setMainResponsibilities(experience.getMainResponsibilities());
+                existing.setAchievements(experience.getAchievements());
+                existing.setSortOrder(experience.getSortOrder());
+                
+                // updatedAt은 JPA @PreUpdate에서 자동 처리됨
+                
+                log.info("경력 업데이트 중: {}", experience.getTitle());
+                ExperienceJpaEntity savedEntity = experienceJpaRepository.save(existing);
+                return experienceMapper.toDomain(savedEntity);
+            } else {
+                // 생성: 새 엔티티
+                log.info("경력 생성 중: {}", experience.getTitle());
+                ExperienceJpaEntity savedEntity = experienceJpaRepository.save(jpaEntity);
+                return experienceMapper.toDomain(savedEntity);
+            }
         } catch (Exception e) {
             log.error("경력 저장 중 오류 발생: {}", experience.getTitle(), e);
             throw new RuntimeException("경력 저장에 실패했습니다", e);
@@ -232,9 +261,37 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
     public Education saveEducation(Education education) {
         try {
             EducationJpaEntity jpaEntity = educationMapper.toJpaEntity(education);
-            EducationJpaEntity savedEntity = educationJpaRepository.save(jpaEntity);
-            log.info("교육 저장 완료: {}", education.getTitle());
-            return educationMapper.toDomain(savedEntity);
+            
+            // 기존 엔티티가 있는지 확인 (업데이트 vs 생성 구분)
+            Optional<EducationJpaEntity> existingEntity = educationJpaRepository.findByBusinessId(education.getId());
+            
+            if (existingEntity.isPresent()) {
+                // 업데이트: 기존 엔티티를 직접 수정
+                EducationJpaEntity existing = existingEntity.get();
+                
+                // 필드 업데이트 (DB ID와 createdAt은 유지)
+                existing.setTitle(education.getTitle());
+                existing.setDescription(education.getDescription());
+                existing.setOrganization(education.getOrganization());
+                existing.setDegree(education.getDegree());
+                existing.setMajor(education.getMajor());
+                existing.setStartDate(education.getStartDate());
+                existing.setEndDate(education.getEndDate());
+                existing.setGpa(education.getGpa());
+                existing.setType(education.getType() != null ? education.getType().name() : null);
+                existing.setSortOrder(education.getSortOrder());
+                
+                // updatedAt은 JPA @PreUpdate에서 자동 처리됨
+                
+                log.info("교육 업데이트 중: {}", education.getTitle());
+                EducationJpaEntity savedEntity = educationJpaRepository.save(existing);
+                return educationMapper.toDomain(savedEntity);
+            } else {
+                // 생성: 새 엔티티
+                log.info("교육 생성 중: {}", education.getTitle());
+                EducationJpaEntity savedEntity = educationJpaRepository.save(jpaEntity);
+                return educationMapper.toDomain(savedEntity);
+            }
         } catch (Exception e) {
             log.error("교육 저장 중 오류 발생: {}", education.getTitle(), e);
             throw new RuntimeException("교육 저장에 실패했습니다", e);
@@ -402,14 +459,56 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
         log.debug("Updating project: {}", project.getId());
         
         try {
-            ProjectJpaEntity entity = projectMapper.toJpaEntity(project);
-            ProjectJpaEntity savedEntity = projectJpaRepository.save(entity);
+            // 기존 엔티티 조회
+            Optional<ProjectJpaEntity> existingEntity = projectJpaRepository.findByBusinessId(project.getId());
             
-            log.debug("Project updated successfully: {}", savedEntity.getId());
-            return projectMapper.toDomain(savedEntity);
+            if (existingEntity.isPresent()) {
+                // 업데이트: 기존 엔티티의 필드를 직접 수정
+                ProjectJpaEntity existing = existingEntity.get();
+                
+                // 필드 업데이트
+                existing.setTitle(project.getTitle());
+                existing.setDescription(project.getDescription());
+                existing.setReadme(project.getReadme());
+                existing.setType(project.getType());
+                existing.setStatus(project.getStatus());
+                existing.setRole(project.getRole());
+                existing.setStartDate(project.getStartDate());
+                existing.setEndDate(project.getEndDate());
+                existing.setImageUrl(project.getImageUrl());
+                existing.setGithubUrl(project.getGithubUrl());
+                existing.setLiveUrl(project.getLiveUrl());
+                existing.setExternalUrl(project.getExternalUrl());
+                existing.setMyContributions(project.getMyContributions());
+                existing.setScreenshots(project.getScreenshots());
+                existing.setIsTeam(project.isTeam());
+                existing.setTeamSize(null); // 팀 사이즈는 별도 업데이트 필요 시 설정
+                existing.setSortOrder(project.getSortOrder());
+                
+                ProjectJpaEntity savedEntity = projectJpaRepository.save(existing);
+                log.debug("Project updated successfully: {}", savedEntity.getId());
+                return projectMapper.toDomain(savedEntity);
+            } else {
+                // 프로젝트가 존재하지 않음
+                throw new IllegalArgumentException("프로젝트를 찾을 수 없습니다: " + project.getId());
+            }
         } catch (Exception e) {
             log.error("프로젝트 업데이트 중 오류 발생: {}", project.getId(), e);
             throw new RuntimeException("프로젝트 업데이트에 실패했습니다", e);
         }
+    }
+    
+    // === 정렬 순서 관련 ===
+    
+    @Override
+    public int findMaxExperienceSortOrder() {
+        Integer maxSortOrder = experienceJpaRepository.findMaxSortOrder();
+        return maxSortOrder != null ? maxSortOrder : 0;
+    }
+    
+    @Override
+    public int findMaxEducationSortOrder() {
+        Integer maxSortOrder = educationJpaRepository.findMaxSortOrder();
+        return maxSortOrder != null ? maxSortOrder : 0;
     }
 }

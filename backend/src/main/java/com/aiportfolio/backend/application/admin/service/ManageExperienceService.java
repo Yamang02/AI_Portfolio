@@ -1,5 +1,6 @@
 package com.aiportfolio.backend.application.admin.service;
 
+import com.aiportfolio.backend.application.common.util.MetadataHelper;
 import com.aiportfolio.backend.domain.portfolio.model.Experience;
 import com.aiportfolio.backend.domain.portfolio.port.in.ManageExperienceUseCase;
 import com.aiportfolio.backend.domain.portfolio.port.out.PortfolioRepositoryPort;
@@ -9,8 +10,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Admin 전용 Experience 관리 서비스
@@ -31,11 +31,15 @@ public class ManageExperienceService implements ManageExperienceUseCase {
     public Experience createExperience(Experience experience) {
         log.info("Creating new experience: {}", experience.getTitle());
 
-        // 메타데이터 설정
-        if (experience.getCreatedAt() == null) {
-            experience.setCreatedAt(LocalDateTime.now());
+        // 정렬 순서 자동 할당 (DB 쿼리 방식 - 더 효율적)
+        if (experience.getSortOrder() == null) {
+            int maxSortOrder = portfolioRepositoryPort.findMaxExperienceSortOrder();
+            experience.setSortOrder(maxSortOrder + 1);
         }
-        experience.setUpdatedAt(LocalDateTime.now());
+
+        // 메타데이터 설정
+        experience.setCreatedAt(MetadataHelper.setupCreatedAt(experience.getCreatedAt()));
+        experience.setUpdatedAt(MetadataHelper.setupUpdatedAt());
 
         Experience saved = portfolioRepositoryPort.saveExperience(experience);
 
@@ -59,7 +63,7 @@ public class ManageExperienceService implements ManageExperienceUseCase {
         experience.setCreatedAt(existing.getCreatedAt());
 
         // 수정 시간 갱신
-        experience.setUpdatedAt(LocalDateTime.now());
+        experience.setUpdatedAt(MetadataHelper.setupUpdatedAt());
 
         Experience updated = portfolioRepositoryPort.saveExperience(experience);
 
@@ -86,17 +90,96 @@ public class ManageExperienceService implements ManageExperienceUseCase {
     public void updateExperienceSortOrder(Map<String, Integer> sortOrderUpdates) {
         log.info("Updating experience sort orders: {} items", sortOrderUpdates.size());
 
-        sortOrderUpdates.forEach((id, sortOrder) -> {
-            Experience experience = portfolioRepositoryPort.findExperienceById(id)
+        // 모든 Experience 조회
+        List<Experience> allExperiences = portfolioRepositoryPort.findAllExperiencesWithoutCache();
+
+        // 각 업데이트에 대해 자동 재정렬 수행
+        for (Map.Entry<String, Integer> entry : sortOrderUpdates.entrySet()) {
+            String id = entry.getKey();
+            Integer newSortOrder = entry.getValue();
+
+            // 현재 Experience 찾기
+            Experience targetExperience = allExperiences.stream()
+                .filter(e -> e.getId().equals(id))
+                .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Experience not found: " + id));
 
-            // sortOrder 필드는 Experience에 없으므로 추가 필요시 도메인 모델 수정
-            // 현재는 기본 저장만 수행
-            experience.setUpdatedAt(LocalDateTime.now());
-            portfolioRepositoryPort.saveExperience(experience);
-        });
+            Integer oldSortOrder = targetExperience.getSortOrder();
+
+            // 자동 재정렬 수행
+            List<Experience> reordered = reorderExperiences(
+                allExperiences,
+                targetExperience,
+                oldSortOrder,
+                newSortOrder
+            );
+
+            // 재정렬된 Experience들을 저장
+            for (Experience exp : reordered) {
+                exp.setUpdatedAt(MetadataHelper.setupUpdatedAt());
+                portfolioRepositoryPort.saveExperience(exp);
+            }
+
+            allExperiences = reordered; // 다음 업데이트를 위해 목록 갱신
+        }
 
         log.info("Experience sort orders updated successfully");
+    }
+
+    /**
+     * Experience 자동 재정렬
+     */
+    private List<Experience> reorderExperiences(
+            List<Experience> allExperiences,
+            Experience targetExperience,
+            Integer oldSortOrder,
+            Integer newSortOrder) {
+        
+        List<Experience> result = new ArrayList<>();
+        String targetId = targetExperience.getId();
+
+        if (oldSortOrder == newSortOrder) {
+            return allExperiences;
+        }
+
+        if (oldSortOrder < newSortOrder) {
+            // 뒤로 이동
+            for (Experience exp : allExperiences) {
+                if (exp.getId().equals(targetId)) {
+                    result.add(createUpdatedExperience(exp, newSortOrder));
+                } else if (exp.getSortOrder() != null &&
+                          exp.getSortOrder() > oldSortOrder &&
+                          exp.getSortOrder() <= newSortOrder) {
+                    result.add(createUpdatedExperience(exp, exp.getSortOrder() - 1));
+                } else {
+                    result.add(exp);
+                }
+            }
+        } else {
+            // 앞으로 이동
+            for (Experience exp : allExperiences) {
+                if (exp.getId().equals(targetId)) {
+                    result.add(createUpdatedExperience(exp, newSortOrder));
+                } else if (exp.getSortOrder() != null &&
+                          exp.getSortOrder() >= newSortOrder &&
+                          exp.getSortOrder() < oldSortOrder) {
+                    result.add(createUpdatedExperience(exp, exp.getSortOrder() + 1));
+                } else {
+                    result.add(exp);
+                }
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * sortOrder만 변경된 Experience 생성
+     */
+    private Experience createUpdatedExperience(Experience original, Integer newSortOrder) {
+        original.setSortOrder(newSortOrder);
+        original.setUpdatedAt(MetadataHelper.setupUpdatedAt());
+        return original;
     }
 }
 

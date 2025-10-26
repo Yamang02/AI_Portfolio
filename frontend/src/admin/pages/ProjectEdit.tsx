@@ -6,7 +6,6 @@ import {
   Input,
   Button,
   Select,
-  DatePicker,
   Switch,
   InputNumber,
   Typography,
@@ -25,6 +24,7 @@ import { ProjectScreenshotsUpload } from '../features/project-management/ui/Proj
 import { ProjectMarkdownEditor } from '../features/project-management/ui/ProjectMarkdownEditor';
 import { TechStackSelector } from '../features/project-management/ui/TechStackSelector';
 import { ProjectLinksForm } from '../features/project-management/ui/ProjectLinksForm';
+import { DateRangeWithOngoing } from '../../shared/ui/date-range';
 import dayjs from 'dayjs';
 
 const { Title } = Typography;
@@ -90,7 +90,7 @@ const ProjectEdit: React.FC = () => {
           role: values.role,
           myContributions: values.myContributions,
           startDate: values.startDate ? values.startDate.format('YYYY-MM-DD') : undefined,
-          endDate: values.endDate ? values.endDate.format('YYYY-MM-DD') : undefined,
+          endDate: values.endDate?.format('YYYY-MM-DD') || undefined,
           imageUrl: values.imageUrl,
           screenshots: screenshots.map(s => s.imageUrl),
           githubUrl: values.githubUrl,
@@ -115,7 +115,7 @@ const ProjectEdit: React.FC = () => {
           role: values.role,
           myContributions: values.myContributions,
           startDate: values.startDate ? values.startDate.format('YYYY-MM-DD') : undefined,
-          endDate: values.endDate ? values.endDate.format('YYYY-MM-DD') : undefined,
+          endDate: values.endDate?.format('YYYY-MM-DD') || undefined,
           imageUrl: values.imageUrl,
           screenshots: screenshots.map(s => s.imageUrl),
           githubUrl: values.githubUrl,
@@ -275,24 +275,14 @@ const ProjectEdit: React.FC = () => {
             </>
           )}
 
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item
-                name="startDate"
-                label="시작일"
-              >
-                <DatePicker style={{ width: '100%' }} format="YYYY-MM-DD" />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                name="endDate"
-                label="종료일"
-              >
-                <DatePicker style={{ width: '100%' }} format="YYYY-MM-DD" />
-              </Form.Item>
-            </Col>
-          </Row>
+          <DateRangeWithOngoing
+            startDateName="startDate"
+            endDateName="endDate"
+            startDateLabel="시작일"
+            endDateLabel="종료일"
+            ongoingLabel="진행중"
+            defaultOngoing={project ? !project.endDate : false}
+          />
         </Card>
 
         <Card title="기술 스택" style={{ marginBottom: '24px' }}>

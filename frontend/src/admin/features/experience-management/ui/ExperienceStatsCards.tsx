@@ -15,17 +15,17 @@ export const ExperienceStatsCards: React.FC<ExperienceStatsCardsProps> = ({ stat
     <Row gutter={16} style={{ marginBottom: 24 }}>
       <Col span={6}>
         <Card>
-          <Statistic title="전체 경력" value={stats.total} />
-        </Card>
-      </Col>
-      <Col span={6}>
-        <Card>
-          <Statistic title="현재 근무" value={stats.ongoing} />
+          <Statistic title="전체" value={stats.total} />
         </Card>
       </Col>
       <Col span={6}>
         <Card>
           <Statistic title="정규직" value={stats.byType.FULL_TIME} />
+        </Card>
+      </Col>
+      <Col span={6}>
+        <Card>
+          <Statistic title="계약직" value={stats.byType.CONTRACT} />
         </Card>
       </Col>
       <Col span={6}>
