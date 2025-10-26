@@ -41,6 +41,7 @@ import {
 
 // Shared 컴포넌트 import
 import { Table as SharedTable, ManagementPageLayout, CRUDModal } from '../shared/ui';
+import { usePagination } from '../shared/hooks';
 
 const { Option } = Select;
 
@@ -50,7 +51,6 @@ const TechStackManagement: React.FC = () => {
   const [editingTech, setEditingTech] = useState<TechStackMetadata | null>(null);
   const [selectedTechStack, setSelectedTechStack] = useState<TechStackMetadata | null>(null);
   const [modalLoading, setModalLoading] = useState(false);
-  const [pageSize, setPageSize] = useState(20);
   const [form] = Form.useForm();
 
   // Entities 계층의 훅 사용
@@ -71,6 +71,9 @@ const TechStackManagement: React.FC = () => {
   } = useTechStackFilter(techStacks);
 
   const stats = useTechStackStats(techStacks);
+
+  // 공통 페이지네이션 훅 사용
+  const pagination = usePagination();
 
   // 이벤트 핸들러들
   const handleCreate = () => {
@@ -453,17 +456,7 @@ const TechStackManagement: React.FC = () => {
           loading={isLoading}
           rowKey="name"
           onRowClick={handleRowClick}
-          pagination={{
-            pageSize: pageSize,
-            pageSizeOptions: ['10', '20', '50', '100'],
-            showSizeChanger: true,
-            showQuickJumper: true,
-            showTotal: (total: number, range?: [number, number]) => 
-              `${range?.[0] || 0}-${range?.[1] || 0} / ${total}개`,
-            onShowSizeChange: (_: number, size: number) => {
-              setPageSize(size);
-            },
-          }}
+          pagination={pagination}
         />
       </ManagementPageLayout>
 

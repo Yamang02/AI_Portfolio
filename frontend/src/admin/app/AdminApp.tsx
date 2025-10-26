@@ -10,7 +10,7 @@ import { ProjectList } from '../components/projects/ProjectList';
 import { ProjectEdit } from '../pages/ProjectEdit';
 import { TechStackManagement } from '../pages/TechStackManagement';
 import { CareerManagement } from '../pages/CareerManagement';
-import { CertificationManagement } from '../pages/CertificationList';
+import { CertificationManagement } from '../pages/CertificationManagement';
 import { Settings } from '../pages/Settings';
 
 // React Query 클라이언트 설정

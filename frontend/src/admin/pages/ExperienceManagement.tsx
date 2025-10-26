@@ -26,6 +26,7 @@ import {
 
 // Shared 컴포넌트 import
 import { Table, SearchFilter, ManagementPageLayout, CRUDModal } from '../shared/ui';
+import { usePagination } from '../shared/hooks';
 import { DateRangeWithOngoing } from '../../shared/ui/date-range';
 
 const { Option } = Select;
@@ -70,6 +71,9 @@ const ExperienceManagement: React.FC = () => {
   } = useExperienceFilter(experiences);
 
   const stats = useExperienceStats(experiences);
+
+  // 공통 페이지네이션 훅 사용
+  const pagination = usePagination();
 
   // 이벤트 핸들러
   const handleCreate = () => {
@@ -177,11 +181,7 @@ const ExperienceManagement: React.FC = () => {
           loading={isLoading}
           onRowClick={handleRowClick}
           rowKey="id"
-          pagination={{
-            pageSize: 20,
-            showSizeChanger: true,
-            showTotal: (total: number) => `총 ${total}개`,
-          }}
+          pagination={pagination}
         />
       </ManagementPageLayout>
 

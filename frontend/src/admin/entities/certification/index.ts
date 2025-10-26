@@ -1,4 +1,8 @@
-// Certification 엔티티 타입 export
+/**
+ * Certification Entity Public API
+ */
+
+// Types
 export type {
   Certification,
   CertificationFormData,
@@ -7,7 +11,18 @@ export type {
   CertificationCategory,
 } from './model/certification.types';
 
-// API 클라이언트와 훅들 (추후 구현)
-// export { adminCertificationApi } from './api/adminCertificationApi';
-// export { useAdminCertificationsQuery, useCertificationMutation, useDeleteCertificationMutation } from './api/useAdminCertificationQuery';
+// API
+export { adminCertificationApi } from './api/adminCertificationApi';
 
+// Queries
+export {
+  useAdminCertificationsQuery,
+  useAdminCertificationQuery,
+  useCertificationsByCategoryQuery,
+  useExpiredCertificationsQuery,
+  useExpiringSoonCertificationsQuery,
+  useCertificationMutation,
+  useDeleteCertificationMutation,
+  useUpdateCertificationSortOrderMutation,
+  CERTIFICATION_KEYS,
+} from './api/useAdminCertificationQuery';

@@ -2,8 +2,7 @@
  * Certification 테이블 컬럼 정의
  */
 
-import { Tag, Button, Space } from 'antd';
-import { LinkOutlined } from '@ant-design/icons';
+import { Tag } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import type { Certification, CertificationCategory } from '../../../entities/certification';
 
@@ -44,6 +43,13 @@ const isExpiringSoon = (expiryDate?: string): boolean => {
 };
 
 export const createCertificationColumns = (): ColumnsType<Certification> => [
+  {
+    title: '정렬 순서',
+    dataIndex: 'sortOrder',
+    key: 'sortOrder',
+    width: 100,
+    sorter: (a, b) => a.sortOrder - b.sortOrder,
+  },
   {
     title: '자격증명',
     dataIndex: 'name',
@@ -90,10 +96,10 @@ export const createCertificationColumns = (): ColumnsType<Certification> => [
     width: 120,
     render: (expiryDate?: string) => {
       if (!expiryDate) return <Tag color="green">무제한</Tag>;
-      
+
       const expired = isExpired(expiryDate);
       const expiringSoon = isExpiringSoon(expiryDate);
-      
+
       if (expired) {
         return <Tag color="red">만료됨</Tag>;
       } else if (expiringSoon) {
@@ -109,31 +115,6 @@ export const createCertificationColumns = (): ColumnsType<Certification> => [
     key: 'credentialId',
     width: 150,
     render: (credentialId?: string) => credentialId || '-',
-  },
-  {
-    title: '확인 URL',
-    dataIndex: 'credentialUrl',
-    key: 'credentialUrl',
-    width: 100,
-    render: (credentialUrl?: string) => {
-      if (!credentialUrl) return '-';
-      return (
-        <Button
-          type="link"
-          icon={<LinkOutlined />}
-          onClick={() => window.open(credentialUrl, '_blank')}
-        >
-          확인
-        </Button>
-      );
-    },
-  },
-  {
-    title: '정렬 순서',
-    dataIndex: 'sortOrder',
-    key: 'sortOrder',
-    width: 100,
-    sorter: (a, b) => a.sortOrder - b.sortOrder,
   },
 ];
 

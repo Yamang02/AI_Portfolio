@@ -314,6 +314,18 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
     @Override
     @Cacheable(value = "portfolio", key = "'certifications'")
     public List<Certification> findAllCertifications() {
+        return findAllCertificationsInternal();
+    }
+
+    @Override
+    public List<Certification> findAllCertificationsWithoutCache() {
+        return findAllCertificationsInternal();
+    }
+
+    /**
+     * 자격증 조회 (캐시 없이) - 어드민 전용
+     */
+    private List<Certification> findAllCertificationsInternal() {
         log.info("PostgreSQL에서 자격증 데이터를 조회합니다.");
         try {
             List<CertificationJpaEntity> jpaEntities = certificationJpaRepository
@@ -335,6 +347,79 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
         } catch (Exception e) {
             log.error("자격증 ID로 조회 중 오류 발생: {}", id, e);
             return Optional.empty();
+        }
+    }
+
+    @Override
+    public Certification saveCertification(Certification certification) {
+        try {
+            CertificationJpaEntity jpaEntity = certificationMapper.toJpaEntity(certification);
+
+            // 기존 엔티티가 있는지 확인 (업데이트 vs 생성 구분)
+            Optional<CertificationJpaEntity> existingEntity = certificationJpaRepository.findByBusinessId(certification.getId());
+
+            if (existingEntity.isPresent()) {
+                // 업데이트: 기존 엔티티를 직접 수정
+                CertificationJpaEntity existing = existingEntity.get();
+
+                // 필드 업데이트 (DB ID와 createdAt은 유지)
+                existing.setName(certification.getName());
+                existing.setIssuer(certification.getIssuer());
+                existing.setDate(certification.getDate());
+                existing.setExpiryDate(certification.getExpiryDate());
+                existing.setCredentialId(certification.getCredentialId());
+                existing.setCredentialUrl(certification.getCredentialUrl());
+                existing.setDescription(certification.getDescription());
+                existing.setCategory(certification.getCategory());
+                existing.setSortOrder(certification.getSortOrder());
+
+                // updatedAt은 JPA @PreUpdate에서 자동 처리됨
+
+                log.info("자격증 업데이트 중: {}", certification.getName());
+                CertificationJpaEntity savedEntity = certificationJpaRepository.save(existing);
+                return certificationMapper.toDomain(savedEntity);
+            } else {
+                // 생성: 새 엔티티
+                log.info("자격증 생성 중: {}", certification.getName());
+                CertificationJpaEntity savedEntity = certificationJpaRepository.save(jpaEntity);
+                return certificationMapper.toDomain(savedEntity);
+            }
+        } catch (Exception e) {
+            log.error("자격증 저장 중 오류 발생: {}", certification.getName(), e);
+            throw new RuntimeException("자격증 저장에 실패했습니다", e);
+        }
+    }
+
+    @Override
+    public void deleteCertification(String id) {
+        try {
+            Optional<CertificationJpaEntity> entity = certificationJpaRepository.findByBusinessId(id);
+            if (entity.isPresent()) {
+                certificationJpaRepository.delete(entity.get());
+                log.info("자격증 삭제 완료: {}", id);
+            } else {
+                log.warn("삭제할 자격증을 찾을 수 없습니다: {}", id);
+            }
+        } catch (Exception e) {
+            log.error("자격증 삭제 중 오류 발생: {}", id, e);
+            throw new RuntimeException("자격증 삭제에 실패했습니다", e);
+        }
+    }
+
+    @Override
+    public int findMaxCertificationSortOrder() {
+        Integer maxSortOrder = certificationJpaRepository.findMaxSortOrder();
+        return maxSortOrder != null ? maxSortOrder : 0;
+    }
+
+    @Override
+    public List<Certification> findCertificationsByCategory(String category) {
+        try {
+            List<CertificationJpaEntity> jpaEntities = certificationJpaRepository.findByCategory(category);
+            return certificationMapper.toDomainList(jpaEntities);
+        } catch (Exception e) {
+            log.error("카테고리별 자격증 조회 중 오류 발생: {}", category, e);
+            return new ArrayList<>();
         }
     }
     

@@ -131,15 +131,40 @@ public interface PortfolioRepositoryPort {
     
     // === 자격증 관련 ===
     /**
-     * 모든 자격증 정보를 조회합니다
+     * 모든 자격증 정보를 조회합니다 (캐시 포함)
      */
     List<Certification> findAllCertifications();
-    
+
+    /**
+     * 모든 자격증 정보를 조회합니다 (어드민용, 캐시 없음)
+     */
+    List<Certification> findAllCertificationsWithoutCache();
+
     /**
      * ID로 특정 자격증을 조회합니다
      */
     Optional<Certification> findCertificationById(String id);
-    
+
+    /**
+     * Certification을 저장합니다 (생성/수정 공통)
+     */
+    Certification saveCertification(Certification certification);
+
+    /**
+     * Certification을 삭제합니다
+     */
+    void deleteCertification(String id);
+
+    /**
+     * Certification의 최대 정렬 순서를 조회합니다
+     */
+    int findMaxCertificationSortOrder();
+
+    /**
+     * 카테고리별 자격증 목록 조회
+     */
+    List<Certification> findCertificationsByCategory(String category);
+
     // === 관리자 기능 추가 ===
     /**
      * 필터 조건에 따라 프로젝트 목록을 조회합니다 (관리자용)

@@ -44,7 +44,7 @@ export const ManagementPageLayout: React.FC<ManagementPageLayoutProps> = ({
       <div style={{ marginBottom: 24 }}>
         <Row justify="space-between" align="middle">
           <Col>
-            <Title level={4} style={{ margin: 0 }}>
+            <Title level={2} style={{ margin: 0 }}>
               {title}
             </Title>
           </Col>
@@ -59,7 +59,7 @@ export const ManagementPageLayout: React.FC<ManagementPageLayoutProps> = ({
       </div>
 
       {/* 통계 카드 */}
-      {statsCards}
+      {statsCards && <div style={{ marginBottom: 24 }}>{statsCards}</div>}
 
       {/* 필터 */}
       {filter}
