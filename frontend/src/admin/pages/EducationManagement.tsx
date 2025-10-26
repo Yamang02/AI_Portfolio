@@ -1,22 +1,11 @@
 /**
  * Education 관리 페이지
  * Feature-Sliced Design 아키텍처에 맞게 구성
+ * 공통 컴포넌트 및 훅을 사용하여 리팩토링됨
  */
 
 import React, { useState } from 'react';
-import {
-  Card,
-  Button,
-  Form,
-  Row,
-  Col,
-  Select,
-  Input,
-  App,
-  Typography,
-  Modal as AntdModal,
-} from 'antd';
-import { PlusOutlined } from '@ant-design/icons';
+import { Form, Row, Col, Select, Input, App } from 'antd';
 import dayjs from 'dayjs';
 
 // Entities 계층에서 타입과 훅 import
@@ -36,11 +25,10 @@ import {
 } from '../features/education-management';
 
 // Shared 컴포넌트 import
-import { Table, SearchFilter } from '../shared/ui';
+import { Table, SearchFilter, ManagementPageLayout, CRUDModal } from '../shared/ui';
 import { DateRangeWithOngoing } from '../../shared/ui/date-range';
 
 const { Option } = Select;
-const { Title } = Typography;
 
 const educationTypeOptions: { value: EducationType; label: string }[] = [
   { value: 'UNIVERSITY', label: '대학교' },
@@ -152,42 +140,27 @@ const EducationManagement: React.FC = () => {
   const columns = createEducationColumns();
 
   return (
-    <div>
-      {/* 페이지 헤더 */}
-      <div style={{ marginBottom: 24 }}>
-        <Row justify="space-between" align="middle">
-          <Col>
-            <Title level={4} style={{ margin: 0 }}>
-              학력 관리
-            </Title>
-          </Col>
-          <Col>
-            <Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>
-              교육 추가
-            </Button>
-          </Col>
-        </Row>
-      </div>
-
-      {/* 통계 카드 */}
-      <EducationStatsCards stats={stats} />
-
-      {/* 필터 */}
-      <SearchFilter
-        searchText={searchText}
-        onSearchChange={setSearchText}
-        searchPlaceholder="교육 제목, 기관명으로 검색..."
-        filterOptions={educationTypeOptions.map(option => ({
-          value: option.value,
-          label: option.label,
-        }))}
-        filterValue={typeFilter}
-        onFilterChange={setTypeFilter}
-        filterLabel="타입"
-      />
-
-      {/* 메인 테이블 */}
-      <Card>
+    <>
+      <ManagementPageLayout
+        title="학력 관리"
+        buttonText="교육 추가"
+        onAdd={handleCreate}
+        statsCards={<EducationStatsCards stats={stats} />}
+        filter={
+          <SearchFilter
+            searchText={searchText}
+            onSearchChange={setSearchText}
+            searchPlaceholder="교육 제목, 기관명으로 검색..."
+            filterOptions={educationTypeOptions.map(option => ({
+              value: option.value,
+              label: option.label,
+            }))}
+            filterValue={typeFilter}
+            onFilterChange={setTypeFilter}
+            filterLabel="타입"
+          />
+        }
+      >
         <Table
           dataSource={filteredEducations}
           columns={columns}
@@ -200,29 +173,18 @@ const EducationManagement: React.FC = () => {
             showTotal: (total: number) => `총 ${total}개`,
           }}
         />
-      </Card>
+      </ManagementPageLayout>
 
       {/* 생성/수정 모달 */}
-      <AntdModal
+      <CRUDModal
         title={editingEducation ? '학력 수정' : '학력 추가'}
         open={isModalVisible}
         onOk={handleModalOk}
         onCancel={handleModalCancel}
+        isEditMode={!!editingEducation}
+        loading={modalLoading}
+        onDelete={handleDelete}
         width={800}
-        okText="저장"
-        cancelText="취소"
-        confirmLoading={modalLoading}
-        footer={editingEducation ? [
-          <Button key="delete" danger onClick={handleDelete} loading={modalLoading}>
-            삭제
-          </Button>,
-          <Button key="cancel" onClick={handleModalCancel}>
-            취소
-          </Button>,
-          <Button key="save" type="primary" onClick={handleModalOk} loading={modalLoading}>
-            저장
-          </Button>
-        ] : undefined}
       >
         <Form form={form} layout="vertical">
           <Form.Item
@@ -305,8 +267,8 @@ const EducationManagement: React.FC = () => {
             <Select mode="tags" placeholder="기술 스택을 입력하세요" />
           </Form.Item>
         </Form>
-      </AntdModal>
-    </div>
+      </CRUDModal>
+    </>
   );
 };
 
