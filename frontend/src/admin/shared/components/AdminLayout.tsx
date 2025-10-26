@@ -49,7 +49,7 @@ const AdminLayout: React.FC = () => {
     {
       key: '/admin/career',
       icon: <BookOutlined />,
-      label: '학력 및 경력',
+      label: '경력 및 학력',
     },
     {
       key: '/admin/certifications',

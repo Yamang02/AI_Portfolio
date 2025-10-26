@@ -171,8 +171,7 @@ const EducationManagement: React.FC = () => {
           dataSource={filteredEducations}
           columns={columns}
           loading={isLoading}
-          onEdit={handleRowClick}
-          onDelete={(record) => handleDelete(record.id)}
+          onRowClick={handleRowClick}
           rowKey="id"
           pagination={{
             pageSize: 20,

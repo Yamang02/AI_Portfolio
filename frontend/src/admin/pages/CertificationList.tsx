@@ -222,8 +222,7 @@ const CertificationManagement: React.FC = () => {
           dataSource={filteredCertifications}
           columns={columns}
           loading={false}
-          onEdit={handleRowClick}
-          onDelete={(record) => handleDelete(record.id)}
+          onRowClick={handleRowClick}
           rowKey="id"
           pagination={{
             pageSize: 20,

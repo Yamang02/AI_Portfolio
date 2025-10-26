@@ -1,6 +1,6 @@
 /**
- * 학력 및 경력 관리 페이지
- * Education과 Experience를 하나의 페이지에서 탭으로 관리
+ * 경력 및 학력 관리 페이지
+ * Experience와 Education을 하나의 페이지에서 탭으로 관리
  */
 
 import React, { useState } from 'react';
@@ -10,22 +10,12 @@ import { EducationManagement } from './EducationManagement';
 import { ExperienceManagement } from './ExperienceManagement';
 
 /**
- * 학력 및 경력 관리 페이지
+ * 경력 및 학력 관리 페이지
  */
 const CareerManagement: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<string>('education');
+  const [activeTab, setActiveTab] = useState<string>('experience');
 
   const tabItems = [
-    {
-      key: 'education',
-      label: (
-        <span>
-          <ReadOutlined />
-          교육 이력
-        </span>
-      ),
-      children: <EducationManagement />,
-    },
     {
       key: 'experience',
       label: (
@@ -35,6 +25,16 @@ const CareerManagement: React.FC = () => {
         </span>
       ),
       children: <ExperienceManagement />,
+    },
+    {
+      key: 'education',
+      label: (
+        <span>
+          <ReadOutlined />
+          교육 이력
+        </span>
+      ),
+      children: <EducationManagement />,
     },
   ];
 

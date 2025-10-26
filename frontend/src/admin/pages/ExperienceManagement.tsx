@@ -170,8 +170,7 @@ const ExperienceManagement: React.FC = () => {
           dataSource={filteredExperiences}
           columns={columns}
           loading={isLoading}
-          onEdit={handleRowClick}
-          onDelete={(record) => handleDelete(record.id)}
+          onRowClick={handleRowClick}
           rowKey="id"
           pagination={{
             pageSize: 20,
