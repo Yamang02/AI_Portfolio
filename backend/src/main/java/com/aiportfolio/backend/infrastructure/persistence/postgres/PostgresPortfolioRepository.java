@@ -129,6 +129,18 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
     @Override
     @Cacheable(value = "portfolio", key = "'experiences'")
     public List<Experience> findAllExperiences() {
+        return findAllExperiencesInternal();
+    }
+    
+    @Override
+    public List<Experience> findAllExperiencesWithoutCache() {
+        return findAllExperiencesInternal();
+    }
+    
+    /**
+     * 경력 조회 (캐시 없이) - 어드민 전용
+     */
+    private List<Experience> findAllExperiencesInternal() {
         log.info("PostgreSQL에서 경력 데이터를 조회합니다.");
         try {
             List<ExperienceJpaEntity> jpaEntities = experienceJpaRepository.findAllOrderedBySortOrderAndStartDate();
@@ -181,6 +193,18 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
     @Override
     @Cacheable(value = "portfolio", key = "'educations'")
     public List<Education> findAllEducations() {
+        return findAllEducationsInternal();
+    }
+    
+    @Override
+    public List<Education> findAllEducationsWithoutCache() {
+        return findAllEducationsInternal();
+    }
+    
+    /**
+     * 교육 조회 (캐시 없이) - 어드민 전용
+     */
+    private List<Education> findAllEducationsInternal() {
         log.info("PostgreSQL에서 교육 데이터를 조회합니다.");
         try {
             List<EducationJpaEntity> jpaEntities = educationJpaRepository.findAllOrderedBySortOrderAndStartDate();

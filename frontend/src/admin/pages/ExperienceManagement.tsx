@@ -13,7 +13,6 @@ import {
   Select,
   Input,
   App,
-  Typography,
   DatePicker,
 } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
@@ -29,7 +28,6 @@ import {
 
 // Features 계층에서 컴포넌트와 훅 import
 import {
-  ExperienceFilter,
   ExperienceStatsCards,
   createExperienceColumns,
   useExperienceFilter,
@@ -37,10 +35,9 @@ import {
 } from '../features/experience-management';
 
 // Shared 컴포넌트 import
-import { Table, Modal, StatsCards, SearchFilter } from '../shared/ui';
+import { Table, Modal, SearchFilter } from '../shared/ui';
 
 const { Option } = Select;
-const { Title } = Typography;
 const { RangePicker } = DatePicker;
 
 const experienceTypeOptions: { value: ExperienceType; label: string }[] = [
@@ -52,7 +49,7 @@ const experienceTypeOptions: { value: ExperienceType; label: string }[] = [
 ];
 
 const ExperienceManagement: React.FC = () => {
-  const { message, modal } = App.useApp();
+  const { modal } = App.useApp();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingExperience, setEditingExperience] = useState<Experience | null>(null);
   const [form] = Form.useForm();
@@ -151,14 +148,7 @@ const ExperienceManagement: React.FC = () => {
       </div>
 
       {/* 통계 카드 */}
-      <StatsCards
-        items={[
-          { title: '전체', value: stats.total },
-          { title: '현재 근무', value: stats.current },
-          { title: '정규직', value: stats.byType.FULL_TIME },
-          { title: '프리랜서', value: stats.byType.FREELANCE },
-        ]}
-      />
+      <ExperienceStatsCards stats={stats} />
 
       {/* 필터 */}
       <SearchFilter
@@ -186,7 +176,7 @@ const ExperienceManagement: React.FC = () => {
           pagination={{
             pageSize: 20,
             showSizeChanger: true,
-            showTotal: (total) => `총 ${total}개`,
+            showTotal: (total: number) => `총 ${total}개`,
           }}
         />
       </Card>

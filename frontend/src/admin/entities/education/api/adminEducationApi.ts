@@ -5,7 +5,7 @@
 import type { Education, EducationFormData } from '../model/education.types';
 
 class AdminEducationApi {
-  private baseUrl = '/api/educations';
+  private baseUrl = '/api/admin/educations';
 
   /**
    * Education 목록 조회

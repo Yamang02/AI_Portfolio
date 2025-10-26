@@ -89,6 +89,60 @@ export const createExperienceColumns = (): ColumnsType<Experience> => [
     ),
   },
   {
+    title: '주요 업무',
+    dataIndex: 'mainResponsibilities',
+    key: 'mainResponsibilities',
+    width: 200,
+    render: (mainResponsibilities: string[]) => (
+      <div>
+        {mainResponsibilities?.slice(0, 2).map((item, index) => (
+          <Tag key={index} style={{ marginBottom: 4 }}>
+            {item.length > 30 ? `${item.substring(0, 30)}...` : item}
+          </Tag>
+        ))}
+        {mainResponsibilities?.length > 2 && (
+          <Tag>+{mainResponsibilities.length - 2}</Tag>
+        )}
+      </div>
+    ),
+  },
+  {
+    title: '성과',
+    dataIndex: 'achievements',
+    key: 'achievements',
+    width: 200,
+    render: (achievements: string[]) => (
+      <div>
+        {achievements?.slice(0, 2).map((item, index) => (
+          <Tag key={index} color="green" style={{ marginBottom: 4 }}>
+            {item.length > 30 ? `${item.substring(0, 30)}...` : item}
+          </Tag>
+        ))}
+        {achievements?.length > 2 && (
+          <Tag color="green">+{achievements.length - 2}</Tag>
+        )}
+      </div>
+    ),
+  },
+  {
+    title: '관련 프로젝트',
+    dataIndex: 'projects',
+    key: 'projects',
+    width: 200,
+    render: (projects: string[]) => (
+      <div>
+        {projects?.slice(0, 2).map((item, index) => (
+          <Tag key={index} color="purple" style={{ marginBottom: 4 }}>
+            {item.length > 30 ? `${item.substring(0, 30)}...` : item}
+          </Tag>
+        ))}
+        {projects?.length > 2 && (
+          <Tag color="purple">+{projects.length - 2}</Tag>
+        )}
+      </div>
+    ),
+  },
+  {
     title: '정렬 순서',
     dataIndex: 'sortOrder',
     key: 'sortOrder',

@@ -13,7 +13,6 @@ import {
   Select,
   Input,
   App,
-  Typography,
   DatePicker,
   InputNumber,
 } from 'antd';
@@ -30,7 +29,6 @@ import {
 
 // Features 계층에서 컴포넌트와 훅 import
 import {
-  EducationFilter,
   EducationStatsCards,
   createEducationColumns,
   useEducationFilter,
@@ -38,10 +36,9 @@ import {
 } from '../features/education-management';
 
 // Shared 컴포넌트 import
-import { Table, Modal, StatsCards, SearchFilter } from '../shared/ui';
+import { Table, Modal, SearchFilter } from '../shared/ui';
 
 const { Option } = Select;
-const { Title } = Typography;
 const { RangePicker } = DatePicker;
 
 const educationTypeOptions: { value: EducationType; label: string }[] = [
@@ -53,7 +50,7 @@ const educationTypeOptions: { value: EducationType; label: string }[] = [
 ];
 
 const EducationManagement: React.FC = () => {
-  const { message, modal } = App.useApp();
+  const { modal } = App.useApp();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingEducation, setEditingEducation] = useState<Education | null>(null);
   const [form] = Form.useForm();
@@ -152,14 +149,7 @@ const EducationManagement: React.FC = () => {
       </div>
 
       {/* 통계 카드 */}
-      <StatsCards
-        items={[
-          { title: '전체', value: stats.total },
-          { title: '진행중', value: stats.ongoing },
-          { title: '대학교', value: stats.byType.UNIVERSITY },
-          { title: '부트캠프', value: stats.byType.BOOTCAMP },
-        ]}
-      />
+      <EducationStatsCards stats={stats} />
 
       {/* 필터 */}
       <SearchFilter
@@ -187,7 +177,7 @@ const EducationManagement: React.FC = () => {
           pagination={{
             pageSize: 20,
             showSizeChanger: true,
-            showTotal: (total) => `총 ${total}개`,
+            showTotal: (total: number) => `총 ${total}개`,
           }}
         />
       </Card>

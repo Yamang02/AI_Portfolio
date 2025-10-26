@@ -69,9 +69,14 @@ public interface PortfolioRepositoryPort {
     
     // === 경력 관련 ===
     /**
-     * 모든 경력 정보를 조회합니다
+     * 모든 경력 정보를 조회합니다 (캐시 포함)
      */
     List<Experience> findAllExperiences();
+    
+    /**
+     * 모든 경력 정보를 조회합니다 (어드민용, 캐시 없음)
+     */
+    List<Experience> findAllExperiencesWithoutCache();
 
     /**
      * ID로 특정 경력을 조회합니다
@@ -90,9 +95,14 @@ public interface PortfolioRepositoryPort {
     
     // === 교육 관련 ===
     /**
-     * 모든 교육 정보를 조회합니다
+     * 모든 교육 정보를 조회합니다 (캐시 포함)
      */
     List<Education> findAllEducations();
+    
+    /**
+     * 모든 교육 정보를 조회합니다 (어드민용, 캐시 없음)
+     */
+    List<Education> findAllEducationsWithoutCache();
 
     /**
      * ID로 특정 교육을 조회합니다

@@ -101,6 +101,24 @@ export const createEducationColumns = (): ColumnsType<Education> => [
     ),
   },
   {
+    title: '관련 프로젝트',
+    dataIndex: 'projects',
+    key: 'projects',
+    width: 200,
+    render: (projects: string[]) => (
+      <div>
+        {projects?.slice(0, 2).map((item, index) => (
+          <Tag key={index} color="purple" style={{ marginBottom: 4 }}>
+            {item.length > 30 ? `${item.substring(0, 30)}...` : item}
+          </Tag>
+        ))}
+        {projects?.length > 2 && (
+          <Tag color="purple">+{projects.length - 2}</Tag>
+        )}
+      </div>
+    ),
+  },
+  {
     title: '정렬 순서',
     dataIndex: 'sortOrder',
     key: 'sortOrder',

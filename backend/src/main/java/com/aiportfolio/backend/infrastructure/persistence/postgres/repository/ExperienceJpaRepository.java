@@ -73,10 +73,10 @@ public interface ExperienceJpaRepository extends JpaRepository<ExperienceJpaEnti
     List<ExperienceJpaEntity> findByTechnology(@Param("technology") String technology);
     
     /**
-     * 정렬 순서와 시작일 기준으로 모든 경력 조회
+     * 정렬 순서와 시작일 기준으로 모든 경력 조회 (기술 스택 포함)
      * @return 정렬된 경력 엔티티 리스트
      */
-    @Query("SELECT e FROM ExperienceJpaEntity e ORDER BY e.sortOrder ASC, e.startDate DESC")
+    @Query("SELECT DISTINCT e FROM ExperienceJpaEntity e LEFT JOIN FETCH e.experienceTechStacks et LEFT JOIN FETCH et.techStack ORDER BY e.sortOrder ASC, e.startDate DESC")
     List<ExperienceJpaEntity> findAllOrderedBySortOrderAndStartDate();
     
     /**

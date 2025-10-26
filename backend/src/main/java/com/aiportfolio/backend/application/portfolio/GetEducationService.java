@@ -26,10 +26,15 @@ public class GetEducationService implements GetEducationUseCase {
 
     private final PortfolioRepositoryPort portfolioRepositoryPort;
 
+    private List<Education> getAllEducationsInternal() {
+        // 어드민용: 캐시 없이 조회
+        return portfolioRepositoryPort.findAllEducationsWithoutCache();
+    }
+
     @Override
     public List<Education> getAllEducations() {
-        log.debug("Fetching all educations");
-        return portfolioRepositoryPort.findAllEducations().stream()
+        log.debug("Fetching all educations (without cache for admin)");
+        return getAllEducationsInternal().stream()
             .sorted((e1, e2) -> {
                 Integer order1 = e1.getSortOrder() != null ? e1.getSortOrder() : Integer.MAX_VALUE;
                 Integer order2 = e2.getSortOrder() != null ? e2.getSortOrder() : Integer.MAX_VALUE;
@@ -47,7 +52,7 @@ public class GetEducationService implements GetEducationUseCase {
     @Override
     public List<Education> getEducationsByType(EducationType type) {
         log.debug("Fetching educations by type: {}", type);
-        return portfolioRepositoryPort.findAllEducations().stream()
+        return getAllEducationsInternal().stream()
             .filter(e -> e.getType() == type)
             .sorted((e1, e2) -> {
                 Integer order1 = e1.getSortOrder() != null ? e1.getSortOrder() : Integer.MAX_VALUE;
@@ -60,7 +65,7 @@ public class GetEducationService implements GetEducationUseCase {
     @Override
     public List<Education> getEducationsByOrganization(String organization) {
         log.debug("Fetching educations by organization: {}", organization);
-        return portfolioRepositoryPort.findAllEducations().stream()
+        return getAllEducationsInternal().stream()
             .filter(e -> e.getOrganization().equalsIgnoreCase(organization))
             .sorted((e1, e2) -> {
                 Integer order1 = e1.getSortOrder() != null ? e1.getSortOrder() : Integer.MAX_VALUE;
@@ -73,7 +78,7 @@ public class GetEducationService implements GetEducationUseCase {
     @Override
     public List<Education> getOngoingEducations() {
         log.debug("Fetching ongoing educations");
-        return portfolioRepositoryPort.findAllEducations().stream()
+        return getAllEducationsInternal().stream()
             .filter(Education::isOngoing)
             .sorted((e1, e2) -> {
                 Integer order1 = e1.getSortOrder() != null ? e1.getSortOrder() : Integer.MAX_VALUE;
@@ -86,7 +91,7 @@ public class GetEducationService implements GetEducationUseCase {
     @Override
     public List<Education> getEducationsByTechStack(String techStackName) {
         log.debug("Fetching educations by tech stack: {}", techStackName);
-        return portfolioRepositoryPort.findAllEducations().stream()
+        return getAllEducationsInternal().stream()
             .filter(e -> e.getTechStackMetadata() != null &&
                         e.getTechStackMetadata().stream()
                             .anyMatch(tech -> tech.getName().equalsIgnoreCase(techStackName)))
@@ -102,7 +107,7 @@ public class GetEducationService implements GetEducationUseCase {
     public List<Education> searchEducations(String keyword) {
         log.debug("Searching educations with keyword: {}", keyword);
         String lowerKeyword = keyword.toLowerCase();
-        return portfolioRepositoryPort.findAllEducations().stream()
+        return getAllEducationsInternal().stream()
             .filter(e ->
                 e.getTitle().toLowerCase().contains(lowerKeyword) ||
                 (e.getDescription() != null && e.getDescription().toLowerCase().contains(lowerKeyword)) ||

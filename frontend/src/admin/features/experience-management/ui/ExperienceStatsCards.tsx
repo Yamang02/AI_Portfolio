@@ -20,7 +20,7 @@ export const ExperienceStatsCards: React.FC<ExperienceStatsCardsProps> = ({ stat
       </Col>
       <Col span={6}>
         <Card>
-          <Statistic title="진행중" value={stats.ongoing} />
+          <Statistic title="현재 근무" value={stats.ongoing} />
         </Card>
       </Col>
       <Col span={6}>
@@ -30,7 +30,7 @@ export const ExperienceStatsCards: React.FC<ExperienceStatsCardsProps> = ({ stat
       </Col>
       <Col span={6}>
         <Card>
-          <Statistic title="인턴" value={stats.byType.INTERNSHIP} />
+          <Statistic title="프리랜서" value={stats.byType.FREELANCE} />
         </Card>
       </Col>
     </Row>

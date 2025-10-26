@@ -42,8 +42,8 @@ public interface EducationJpaRepository extends JpaRepository<EducationJpaEntity
     List<EducationJpaEntity> findByTechnology(@Param("technology") String technology);
     
     /**
-     * 정렬 순서와 시작일 기준으로 모든 교육 조회
+     * 정렬 순서와 시작일 기준으로 모든 교육 조회 (기술 스택 포함)
      */
-    @Query("SELECT e FROM EducationJpaEntity e ORDER BY e.sortOrder ASC, e.startDate DESC")
+    @Query("SELECT DISTINCT e FROM EducationJpaEntity e LEFT JOIN FETCH e.educationTechStacks et LEFT JOIN FETCH et.techStack ORDER BY e.sortOrder ASC, e.startDate DESC")
     List<EducationJpaEntity> findAllOrderedBySortOrderAndStartDate();
 }

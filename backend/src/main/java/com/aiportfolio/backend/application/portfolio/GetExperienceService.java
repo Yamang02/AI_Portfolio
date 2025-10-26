@@ -26,10 +26,15 @@ public class GetExperienceService implements GetExperienceUseCase {
 
     private final PortfolioRepositoryPort portfolioRepositoryPort;
 
+    private List<Experience> getAllExperiencesInternal() {
+        // 어드민용: 캐시 없이 조회
+        return portfolioRepositoryPort.findAllExperiencesWithoutCache();
+    }
+
     @Override
     public List<Experience> getAllExperiences() {
-        log.debug("Fetching all experiences");
-        return portfolioRepositoryPort.findAllExperiences();
+        log.debug("Fetching all experiences (without cache for admin)");
+        return getAllExperiencesInternal();
     }
 
     @Override
@@ -41,7 +46,7 @@ public class GetExperienceService implements GetExperienceUseCase {
     @Override
     public List<Experience> getExperiencesByType(ExperienceType type) {
         log.debug("Fetching experiences by type: {}", type);
-        return portfolioRepositoryPort.findAllExperiences().stream()
+        return getAllExperiencesInternal().stream()
             .filter(e -> e.getType() == type)
             .collect(Collectors.toList());
     }
@@ -49,7 +54,7 @@ public class GetExperienceService implements GetExperienceUseCase {
     @Override
     public List<Experience> getExperiencesByOrganization(String organization) {
         log.debug("Fetching experiences by organization: {}", organization);
-        return portfolioRepositoryPort.findAllExperiences().stream()
+        return getAllExperiencesInternal().stream()
             .filter(e -> e.isFromOrganization(organization))
             .collect(Collectors.toList());
     }
@@ -57,7 +62,7 @@ public class GetExperienceService implements GetExperienceUseCase {
     @Override
     public List<Experience> getCurrentExperiences() {
         log.debug("Fetching current experiences");
-        return portfolioRepositoryPort.findAllExperiences().stream()
+        return getAllExperiencesInternal().stream()
             .filter(Experience::isCurrentlyEmployed)
             .collect(Collectors.toList());
     }
@@ -65,7 +70,7 @@ public class GetExperienceService implements GetExperienceUseCase {
     @Override
     public List<Experience> getExperiencesByTechStack(String techStackName) {
         log.debug("Fetching experiences by tech stack: {}", techStackName);
-        return portfolioRepositoryPort.findAllExperiences().stream()
+        return getAllExperiencesInternal().stream()
             .filter(e -> e.usesTechnology(techStackName))
             .collect(Collectors.toList());
     }
@@ -74,7 +79,7 @@ public class GetExperienceService implements GetExperienceUseCase {
     public List<Experience> searchExperiences(String keyword) {
         log.debug("Searching experiences with keyword: {}", keyword);
         String lowerKeyword = keyword.toLowerCase();
-        return portfolioRepositoryPort.findAllExperiences().stream()
+        return getAllExperiencesInternal().stream()
             .filter(e ->
                 e.getTitle().toLowerCase().contains(lowerKeyword) ||
                 (e.getDescription() != null && e.getDescription().toLowerCase().contains(lowerKeyword)) ||

@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import jakarta.validation.constraints.NotBlank;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -60,4 +61,13 @@ public class ExperienceDto {
 
     @JsonProperty("projects")
     private List<String> projects;
+
+    @JsonProperty("sortOrder")
+    private Integer sortOrder;
+
+    @JsonProperty("createdAt")
+    private LocalDateTime createdAt;
+
+    @JsonProperty("updatedAt")
+    private LocalDateTime updatedAt;
 }

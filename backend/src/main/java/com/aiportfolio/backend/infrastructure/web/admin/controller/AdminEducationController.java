@@ -1,4 +1,4 @@
-package com.aiportfolio.backend.infrastructure.web.controller;
+package com.aiportfolio.backend.infrastructure.web.admin.controller;
 
 import com.aiportfolio.backend.domain.portfolio.model.Education;
 import com.aiportfolio.backend.domain.portfolio.model.enums.EducationType;
@@ -6,51 +6,63 @@ import com.aiportfolio.backend.domain.portfolio.port.in.GetEducationUseCase;
 import com.aiportfolio.backend.domain.portfolio.port.in.ManageEducationUseCase;
 import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;
 import com.aiportfolio.backend.infrastructure.web.dto.education.EducationDto;
+import com.aiportfolio.backend.infrastructure.web.admin.util.AdminAuthChecker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * Education REST API Controller
+ * Education REST API Controller (Admin)
  *
- * 책임: Education CRUD 엔드포인트 제공
+ * 책임: Education CRUD 엔드포인트 제공 (관리자 전용)
  */
 @RestController
-@RequestMapping("/api/educations")
+@RequestMapping("/api/admin/educations")
 @RequiredArgsConstructor
 @Slf4j
 @CrossOrigin(origins = {"http://localhost:3000", "http://localhost:8080"})
-public class EducationController {
+public class AdminEducationController {
 
     private final GetEducationUseCase getEducationUseCase;
     private final ManageEducationUseCase manageEducationUseCase;
+    private final AdminAuthChecker adminAuthChecker;
 
-    // ==================== 조회 (Public) ====================
+    // ==================== 조회 ====================
 
     /**
      * 전체 Education 목록 조회
      */
     @GetMapping
-    public ResponseEntity<ApiResponse<List<EducationDto>>> getAllEducations() {
+    public ResponseEntity<ApiResponse<List<EducationDto>>> getAllEducations(HttpServletRequest request) {
+        try {
+            adminAuthChecker.requireAuthentication(request);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(401)
+                    .body(ApiResponse.error(e.getMessage(), "인증 필요"));
+        }
+
         log.info("Fetching all educations");
 
         try {
             List<Education> educations = getEducationUseCase.getAllEducations();
+            log.info("Fetched {} educations", educations.size());
+            
             List<EducationDto> dtos = educations.stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
 
             return ResponseEntity.ok(ApiResponse.success(dtos));
         } catch (Exception e) {
-            log.error("Error fetching educations", e);
+            log.error("Error fetching educations - Exception type: {}, Message: {}", e.getClass().getName(), e.getMessage(), e);
             return ResponseEntity.internalServerError()
-                .body(ApiResponse.error("교육 목록 조회 중 오류가 발생했습니다: " + e.getMessage()));
+                .body(ApiResponse.error("교육 목록 조회 중 오류가 발생했습니다: " + e.getClass().getSimpleName() + " - " + e.getMessage()));
         }
     }
 
@@ -58,7 +70,14 @@ public class EducationController {
      * ID로 Education 조회
      */
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<EducationDto>> getEducation(@PathVariable String id) {
+    public ResponseEntity<ApiResponse<EducationDto>> getEducation(@PathVariable String id, HttpServletRequest request) {
+        try {
+            adminAuthChecker.requireAuthentication(request);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(401)
+                    .body(ApiResponse.error(e.getMessage(), "인증 필요"));
+        }
+
         log.info("Fetching education by id: {}", id);
 
         try {
@@ -76,77 +95,19 @@ public class EducationController {
     }
 
     /**
-     * 타입별 Education 조회
-     */
-    @GetMapping("/type/{type}")
-    public ResponseEntity<ApiResponse<List<EducationDto>>> getEducationsByType(@PathVariable String type) {
-        log.info("Fetching educations by type: {}", type);
-
-        try {
-            EducationType educationType = EducationType.valueOf(type.toUpperCase());
-            List<Education> educations = getEducationUseCase.getEducationsByType(educationType);
-            List<EducationDto> dtos = educations.stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
-
-            return ResponseEntity.ok(ApiResponse.success(dtos));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest()
-                .body(ApiResponse.error("Invalid education type: " + type));
-        } catch (Exception e) {
-            log.error("Error fetching educations by type: {}", type, e);
-            return ResponseEntity.internalServerError()
-                .body(ApiResponse.error("교육 조회 중 오류가 발생했습니다: " + e.getMessage()));
-        }
-    }
-
-    /**
-     * 교육기관별 조회
-     */
-    @GetMapping("/organization/{organization}")
-    public ResponseEntity<ApiResponse<List<EducationDto>>> getEducationsByOrganization(@PathVariable String organization) {
-        log.info("Fetching educations by organization: {}", organization);
-
-        try {
-            List<Education> educations = getEducationUseCase.getEducationsByOrganization(organization);
-            List<EducationDto> dtos = educations.stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
-
-            return ResponseEntity.ok(ApiResponse.success(dtos));
-        } catch (Exception e) {
-            log.error("Error fetching educations by organization: {}", organization, e);
-            return ResponseEntity.internalServerError()
-                .body(ApiResponse.error("교육 조회 중 오류가 발생했습니다: " + e.getMessage()));
-        }
-    }
-
-    /**
-     * 진행중인 Education 조회
-     */
-    @GetMapping("/ongoing")
-    public ResponseEntity<ApiResponse<List<EducationDto>>> getOngoingEducations() {
-        log.info("Fetching ongoing educations");
-
-        try {
-            List<Education> educations = getEducationUseCase.getOngoingEducations();
-            List<EducationDto> dtos = educations.stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
-
-            return ResponseEntity.ok(ApiResponse.success(dtos));
-        } catch (Exception e) {
-            log.error("Error fetching ongoing educations", e);
-            return ResponseEntity.internalServerError()
-                .body(ApiResponse.error("진행중인 교육 조회 중 오류가 발생했습니다: " + e.getMessage()));
-        }
-    }
-
-    /**
      * 검색
      */
     @GetMapping("/search")
-    public ResponseEntity<ApiResponse<List<EducationDto>>> searchEducations(@RequestParam String keyword) {
+    public ResponseEntity<ApiResponse<List<EducationDto>>> searchEducations(
+            @RequestParam String keyword,
+            HttpServletRequest request) {
+        try {
+            adminAuthChecker.requireAuthentication(request);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(401)
+                    .body(ApiResponse.error(e.getMessage(), "인증 필요"));
+        }
+
         log.info("Searching educations with keyword: {}", keyword);
 
         try {
@@ -163,13 +124,22 @@ public class EducationController {
         }
     }
 
-    // ==================== 관리 (Admin) ====================
+    // ==================== 관리 ====================
 
     /**
      * Education 생성
      */
     @PostMapping
-    public ResponseEntity<ApiResponse<EducationDto>> createEducation(@Valid @RequestBody EducationDto dto) {
+    public ResponseEntity<ApiResponse<EducationDto>> createEducation(
+            @Valid @RequestBody EducationDto dto,
+            HttpServletRequest request) {
+        try {
+            adminAuthChecker.requireAuthentication(request);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(401)
+                    .body(ApiResponse.error(e.getMessage(), "인증 필요"));
+        }
+
         log.info("Creating new education: {}", dto.getTitle());
 
         try {
@@ -196,7 +166,15 @@ public class EducationController {
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<EducationDto>> updateEducation(
             @PathVariable String id,
-            @Valid @RequestBody EducationDto dto) {
+            @Valid @RequestBody EducationDto dto,
+            HttpServletRequest request) {
+        try {
+            adminAuthChecker.requireAuthentication(request);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(401)
+                    .body(ApiResponse.error(e.getMessage(), "인증 필요"));
+        }
+
         log.info("Updating education: {}", id);
 
         try {
@@ -221,7 +199,14 @@ public class EducationController {
      * Education 삭제
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteEducation(@PathVariable String id) {
+    public ResponseEntity<ApiResponse<Void>> deleteEducation(@PathVariable String id, HttpServletRequest request) {
+        try {
+            adminAuthChecker.requireAuthentication(request);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(401)
+                    .body(ApiResponse.error(e.getMessage(), "인증 필요"));
+        }
+
         log.info("Deleting education: {}", id);
 
         try {
@@ -241,7 +226,16 @@ public class EducationController {
      * Education 정렬 순서 일괄 업데이트
      */
     @PatchMapping("/sort-order")
-    public ResponseEntity<ApiResponse<Void>> updateSortOrder(@RequestBody Map<String, Integer> sortOrderUpdates) {
+    public ResponseEntity<ApiResponse<Void>> updateSortOrder(
+            @RequestBody Map<String, Integer> sortOrderUpdates,
+            HttpServletRequest request) {
+        try {
+            adminAuthChecker.requireAuthentication(request);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(401)
+                    .body(ApiResponse.error(e.getMessage(), "인증 필요"));
+        }
+
         log.info("Updating education sort orders: {} items", sortOrderUpdates.size());
 
         try {
@@ -271,7 +265,7 @@ public class EducationController {
             .endDate(education.getEndDate())
             .gpa(education.getGpa())
             .type(education.getType() != null ? education.getType().name() : null)
-            .technologies(education.getTechnologies())
+            .technologies(education.getTechnologies() != null ? education.getTechnologies() : new java.util.ArrayList<>())
             .projects(education.getProjects())
             .sortOrder(education.getSortOrder())
             .createdAt(education.getCreatedAt())
@@ -295,6 +289,10 @@ public class EducationController {
             .sortOrder(dto.getSortOrder())
             .createdAt(dto.getCreatedAt())
             .updatedAt(dto.getUpdatedAt())
+            // technologies는 techStackMetadata로 변환되는데, 이는 별도 로직이 필요하므로 
+            // 여기서는 null로 설정 (저장 시 별도 처리)
+            .techStackMetadata(null)
             .build();
     }
 }
+

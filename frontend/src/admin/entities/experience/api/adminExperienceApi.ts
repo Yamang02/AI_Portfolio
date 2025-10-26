@@ -5,7 +5,7 @@
 import type { Experience, ExperienceFormData } from '../model/experience.types';
 
 class AdminExperienceApi {
-  private baseUrl = '/api/experiences';
+  private baseUrl = '/api/admin/experiences';
 
   /**
    * Experience 목록 조회
