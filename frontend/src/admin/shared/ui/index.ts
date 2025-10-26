@@ -7,3 +7,7 @@ export { SearchFilter } from './SearchFilter';
 export { ManagementPageLayout } from './ManagementPageLayout';
 export { CRUDModal } from './CRUDModal';
 
+// Relationship Management Components (for inline use in modals)
+export { TechStackRelationshipSection } from './TechStackRelationshipSection';
+export { ProjectRelationshipSection } from './ProjectRelationshipSection';
+

@@ -4,6 +4,7 @@
 
 // 관리자용 기술 스택 메타데이터
 export interface TechStackMetadata {
+  id?: number; // 추가: 백엔드에서 받는 ID
   name: string;
   displayName: string;
   category: string;

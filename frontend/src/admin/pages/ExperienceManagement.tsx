@@ -5,7 +5,7 @@
  */
 
 import React, { useState } from 'react';
-import { Form, Row, Col, Select, Input, App } from 'antd';
+import { Form, Row, Col, Select, Input, App, Divider } from 'antd';
 import dayjs from 'dayjs';
 
 // Entities 계층에서 타입과 훅 import
@@ -25,9 +25,19 @@ import {
 } from '../features/experience-management';
 
 // Shared 컴포넌트 import
-import { Table, SearchFilter, ManagementPageLayout, CRUDModal } from '../shared/ui';
+import { 
+  Table, 
+  SearchFilter, 
+  ManagementPageLayout, 
+  CRUDModal,
+  TechStackRelationshipSection,
+  ProjectRelationshipSection 
+} from '../shared/ui';
 import { usePagination } from '../shared/hooks';
 import { DateRangeWithOngoing } from '../../shared/ui/date-range';
+
+// Relationship API
+import { relationshipApi } from '../entities/relationship';
 
 const { Option } = Select;
 
@@ -55,6 +65,10 @@ const ExperienceManagement: React.FC = () => {
   const [editingExperience, setEditingExperience] = useState<Experience | null>(null);
   const [modalLoading, setModalLoading] = useState(false);
   const [form] = Form.useForm();
+  
+  // 기술스택 및 프로젝트 관계 상태
+  const [techStackRelationships, setTechStackRelationships] = useState<any[]>([]);
+  const [projectRelationships, setProjectRelationships] = useState<any[]>([]);
 
   // Entities 계층의 훅 사용
   const { data: experiences, isLoading } = useAdminExperiencesQuery();
@@ -75,12 +89,6 @@ const ExperienceManagement: React.FC = () => {
   // 공통 페이지네이션 훅 사용
   const pagination = usePagination();
 
-  // 이벤트 핸들러
-  const handleCreate = () => {
-    setEditingExperience(null);
-    form.resetFields();
-    setIsModalVisible(true);
-  };
 
   const handleModalOk = async () => {
     try {
@@ -94,11 +102,70 @@ const ExperienceManagement: React.FC = () => {
         endDate: values.endDate?.format('YYYY-MM-DD') || undefined,
       };
 
-      await createOrUpdateMutation.mutateAsync(formData);
+      // Experience 생성/수정 및 반환값 받기
+      const savedExperience = await createOrUpdateMutation.mutateAsync(formData);
+      const experienceId = editingExperience ? editingExperience.id : savedExperience.id;
+      
+      console.log('Updating relationships for experience:', experienceId);
+      console.log('TechStack relationships to save:', techStackRelationships);
+      console.log('Project relationships to save:', projectRelationships);
+      
+      // 관계 저장 (생성/수정 모두)
+      try {
+        // 기존 기술스택 관계 삭제 및 새로 추가
+        const existingTechStacks = await relationshipApi.getExperienceTechStacks(experienceId);
+        console.log('Existing tech stacks to delete:', existingTechStacks);
+        
+        for (const ts of existingTechStacks) {
+          await relationshipApi.deleteExperienceTechStack(experienceId, ts.techStackId);
+        }
+        
+        // 새 기술스택 관계 추가
+        for (const ts of techStackRelationships) {
+          // TechStackMetadata에서 id 추출
+          const techStackId = ts.techStack.id;
+          
+          console.log('Adding tech stack relationship:', { techStackId, isPrimary: ts.isPrimary });
+          
+          await relationshipApi.addExperienceTechStack(experienceId, {
+            techStackId: typeof techStackId === 'string' ? parseInt(techStackId) : techStackId,
+            isPrimary: ts.isPrimary,
+            usageDescription: ts.usageDescription,
+          });
+        }
+        
+        // 기존 프로젝트 관계 삭제
+        const existingProjects = await relationshipApi.getExperienceProjects(experienceId);
+        console.log('Existing projects to delete:', existingProjects);
+        
+        for (const p of existingProjects) {
+          await relationshipApi.deleteExperienceProject(experienceId, p.projectId);
+        }
+        
+        // 새 프로젝트 관계 추가 (Business ID 사용)
+        for (const p of projectRelationships) {
+          console.log('Adding project relationship:', p);
+
+          await relationshipApi.addExperienceProject(experienceId, {
+            projectBusinessId: p.projectBusinessId,
+            usageDescription: p.usageDescription,
+            roleInProject: p.roleInProject,
+            contributionDescription: p.contributionDescription,
+          });
+        }
+        
+        console.log('Relationships updated successfully');
+      } catch (error) {
+        console.error('Failed to update relationships:', error);
+        message.warning('기본 정보는 저장되었지만 관계 업데이트에 실패했습니다.');
+      }
+      
       message.success(editingExperience ? '경력이 성공적으로 수정되었습니다.' : '경력이 성공적으로 추가되었습니다.');
       setIsModalVisible(false);
       form.resetFields();
       setEditingExperience(null);
+      setTechStackRelationships([]);
+      setProjectRelationships([]);
     } catch (error) {
       message.error(error instanceof Error ? error.message : '작업 중 오류가 발생했습니다.');
     } finally {
@@ -139,7 +206,7 @@ const ExperienceManagement: React.FC = () => {
     });
   };
 
-  const handleRowClick = (experience: Experience) => {
+  const handleRowClick = async (experience: Experience) => {
     setEditingExperience(experience);
     
     form.setFieldsValue({
@@ -147,6 +214,70 @@ const ExperienceManagement: React.FC = () => {
       startDate: experience.startDate ? dayjs(experience.startDate) : undefined,
       endDate: experience.endDate ? dayjs(experience.endDate) : undefined,
     });
+    
+    // 백엔드에서 기존 관계 데이터 가져오기
+    console.log('Loading relationships for experience:', experience.id);
+    
+    let techStacks: any[] = [];
+    let projects: any[] = [];
+    
+    try {
+      techStacks = await relationshipApi.getExperienceTechStacks(experience.id);
+      console.log('Loaded tech stacks:', techStacks);
+    } catch (error) {
+      console.error('Failed to load tech stacks:', error);
+    }
+    
+    try {
+      projects = await relationshipApi.getExperienceProjects(experience.id);
+      console.log('Loaded projects:', projects);
+      console.log('Projects length:', projects?.length);
+      console.log('Projects data:', JSON.stringify(projects, null, 2));
+    } catch (error) {
+      console.error('Failed to load projects:', error);
+    }
+      
+      // 기술스택 관계 변환
+      const techStackRelationships = techStacks.map((ts: any) => ({
+        techStack: {
+          id: ts.techStackId,
+          name: ts.techStackName,
+          displayName: ts.techStackDisplayName,
+          category: ts.category,
+        },
+        isPrimary: ts.isPrimary,
+        usageDescription: ts.usageDescription,
+      }));
+      
+      // 프로젝트 관계 변환
+      // 백엔드가 projectBusinessId와 projectId(DB ID) 모두 반환
+      const projectRelationships = projects.map((p: any) => ({
+        id: p.id,
+        projectBusinessId: p.projectBusinessId,  // Business ID (외부 API용)
+        projectTitle: p.projectTitle,
+        isPrimary: p.isPrimary || false,
+        usageDescription: p.usageDescription,
+        roleInProject: p.roleInProject,
+        contributionDescription: p.contributionDescription,
+      }));
+      
+      console.log('Transformed techStackRelationships:', techStackRelationships);
+      console.log('Transformed projectRelationships:', projectRelationships);
+      console.log('Setting projectRelationships with length:', projectRelationships?.length);
+      
+      setTechStackRelationships(techStackRelationships);
+      setProjectRelationships(projectRelationships);
+      
+      console.log('States set. projectRelationships length:', projectRelationships?.length);
+      
+    setIsModalVisible(true);
+  };
+  
+  const handleCreate = () => {
+    setEditingExperience(null);
+    form.resetFields();
+    setTechStackRelationships([]);
+    setProjectRelationships([]);
     setIsModalVisible(true);
   };
 
@@ -194,7 +325,10 @@ const ExperienceManagement: React.FC = () => {
         isEditMode={!!editingExperience}
         loading={modalLoading}
         onDelete={handleDelete}
-        width={800}
+        width={920}
+        styles={{
+          body: { maxHeight: '70vh', overflowY: 'auto', paddingRight: '8px' }
+        }}
       >
         <Form form={form} layout="vertical">
           <Form.Item
@@ -296,10 +430,6 @@ const ExperienceManagement: React.FC = () => {
             </Col>
           </Row>
 
-          <Form.Item name="technologies" label="기술 스택">
-            <Select mode="tags" placeholder="기술 스택을 입력하세요" />
-          </Form.Item>
-
           <Form.Item name="mainResponsibilities" label="주요 업무">
             <Select mode="tags" placeholder="주요 업무를 입력하세요" />
           </Form.Item>
@@ -308,8 +438,22 @@ const ExperienceManagement: React.FC = () => {
             <Select mode="tags" placeholder="성과를 입력하세요" />
           </Form.Item>
 
-          <Form.Item name="projects" label="프로젝트">
-            <Select mode="tags" placeholder="관련 프로젝트를 입력하세요" />
+          <Divider />
+
+          <Form.Item label="기술 스택">
+            <TechStackRelationshipSection
+              value={techStackRelationships}
+              onChange={setTechStackRelationships}
+            />
+          </Form.Item>
+
+          <Divider />
+
+          <Form.Item label="관련 프로젝트">
+            <ProjectRelationshipSection
+              value={projectRelationships}
+              onChange={setProjectRelationships}
+            />
           </Form.Item>
         </Form>
       </CRUDModal>

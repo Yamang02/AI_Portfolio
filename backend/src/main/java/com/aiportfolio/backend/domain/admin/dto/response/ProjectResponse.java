@@ -20,6 +20,7 @@ import java.util.List;
 public class ProjectResponse {
 
     private String id;
+    private Long dbId; // 데이터베이스 ID (관계 테이블에서 사용)
     private String title;
     private String description;
     private String readme;

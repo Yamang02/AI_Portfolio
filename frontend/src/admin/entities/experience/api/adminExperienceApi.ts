@@ -44,7 +44,7 @@ class AdminExperienceApi {
   /**
    * Experience 생성
    */
-  async createExperience(data: ExperienceFormData): Promise<void> {
+  async createExperience(data: ExperienceFormData): Promise<Experience> {
     const response = await fetch(this.baseUrl, {
       method: 'POST',
       headers: {
@@ -58,12 +58,15 @@ class AdminExperienceApi {
       const error = await response.json();
       throw new Error(error.message || 'Experience 생성 실패');
     }
+
+    const result = await response.json();
+    return result.data;
   }
 
   /**
    * Experience 수정
    */
-  async updateExperience(id: string, data: ExperienceFormData): Promise<void> {
+  async updateExperience(id: string, data: ExperienceFormData): Promise<Experience> {
     const response = await fetch(`${this.baseUrl}/${id}`, {
       method: 'PUT',
       headers: {
@@ -77,6 +80,9 @@ class AdminExperienceApi {
       const error = await response.json();
       throw new Error(error.message || 'Experience 수정 실패');
     }
+
+    const result = await response.json();
+    return result.data;
   }
 
   /**

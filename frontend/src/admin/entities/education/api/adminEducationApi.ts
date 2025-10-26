@@ -44,7 +44,7 @@ class AdminEducationApi {
   /**
    * Education 생성
    */
-  async createEducation(data: EducationFormData): Promise<void> {
+  async createEducation(data: EducationFormData): Promise<Education> {
     const response = await fetch(this.baseUrl, {
       method: 'POST',
       headers: {
@@ -58,12 +58,15 @@ class AdminEducationApi {
       const error = await response.json();
       throw new Error(error.message || 'Education 생성 실패');
     }
+
+    const result = await response.json();
+    return result.data;
   }
 
   /**
    * Education 수정
    */
-  async updateEducation(id: string, data: EducationFormData): Promise<void> {
+  async updateEducation(id: string, data: EducationFormData): Promise<Education> {
     const response = await fetch(`${this.baseUrl}/${id}`, {
       method: 'PUT',
       headers: {
@@ -77,6 +80,9 @@ class AdminEducationApi {
       const error = await response.json();
       throw new Error(error.message || 'Education 수정 실패');
     }
+
+    const result = await response.json();
+    return result.data;
   }
 
   /**

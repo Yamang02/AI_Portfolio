@@ -5,7 +5,7 @@
  */
 
 import React, { useState } from 'react';
-import { Form, Row, Col, Select, Input, App } from 'antd';
+import { Form, Row, Col, Select, Input, App, Divider } from 'antd';
 import dayjs from 'dayjs';
 
 // Entities 계층에서 타입과 훅 import
@@ -25,9 +25,19 @@ import {
 } from '../features/education-management';
 
 // Shared 컴포넌트 import
-import { Table, SearchFilter, ManagementPageLayout, CRUDModal } from '../shared/ui';
+import { 
+  Table, 
+  SearchFilter, 
+  ManagementPageLayout, 
+  CRUDModal,
+  TechStackRelationshipSection,
+  ProjectRelationshipSection 
+} from '../shared/ui';
 import { usePagination } from '../shared/hooks';
 import { DateRangeWithOngoing } from '../../shared/ui/date-range';
+
+// Relationship API
+import { relationshipApi } from '../entities/relationship';
 
 const { Option } = Select;
 
@@ -45,6 +55,10 @@ const EducationManagement: React.FC = () => {
   const [editingEducation, setEditingEducation] = useState<Education | null>(null);
   const [modalLoading, setModalLoading] = useState(false);
   const [form] = Form.useForm();
+  
+  // 기술스택 및 프로젝트 관계 상태
+  const [techStackRelationships, setTechStackRelationships] = useState<any[]>([]);
+  const [projectRelationships, setProjectRelationships] = useState<any[]>([]);
 
   // Entities 계층의 훅 사용
   const { data: educations, isLoading } = useAdminEducationsQuery();
@@ -69,6 +83,8 @@ const EducationManagement: React.FC = () => {
   const handleCreate = () => {
     setEditingEducation(null);
     form.resetFields();
+    setTechStackRelationships([]);
+    setProjectRelationships([]);
     setIsModalVisible(true);
   };
 
@@ -84,11 +100,67 @@ const EducationManagement: React.FC = () => {
         endDate: values.endDate?.format('YYYY-MM-DD') || undefined,
       };
 
-      await createOrUpdateMutation.mutateAsync(formData);
+      // Education 생성/수정 및 반환값 받기
+      const savedEducation = await createOrUpdateMutation.mutateAsync(formData);
+      const educationId = editingEducation ? editingEducation.id : savedEducation.id;
+      
+      console.log('Updating relationships for education:', educationId);
+      console.log('TechStack relationships to save:', techStackRelationships);
+      console.log('Project relationships to save:', projectRelationships);
+      
+      // 관계 저장 (생성/수정 모두)
+      try {
+        // 기존 기술스택 관계 삭제 및 추가
+        const existingTechStacks = await relationshipApi.getEducationTechStacks(educationId);
+        console.log('Existing tech stacks to delete:', existingTechStacks);
+        
+        for (const ts of existingTechStacks) {
+          await relationshipApi.deleteEducationTechStack(educationId, ts.techStackId);
+        }
+        
+        // 새 기술스택 관계 추가
+        for (const ts of techStackRelationships) {
+          const techStackId = ts.techStack.id;
+          
+          console.log('Adding tech stack relationship:', { techStackId, isPrimary: ts.isPrimary });
+          
+          await relationshipApi.addEducationTechStack(educationId, {
+            techStackId: typeof techStackId === 'string' ? parseInt(techStackId) : techStackId,
+            isPrimary: ts.isPrimary,
+            usageDescription: ts.usageDescription,
+          });
+        }
+        
+        // 기존 프로젝트 관계 삭제 및 추가
+        const existingProjects = await relationshipApi.getEducationProjects(educationId);
+        console.log('Existing projects to delete:', existingProjects);
+        
+        for (const p of existingProjects) {
+          await relationshipApi.deleteEducationProject(educationId, p.projectId);
+        }
+        
+        // 새 프로젝트 관계 추가 (Business ID 사용)
+        for (const p of projectRelationships) {
+          console.log('Adding project relationship:', p);
+
+          await relationshipApi.addEducationProject(educationId, {
+            projectBusinessId: p.projectBusinessId,
+            usageDescription: p.usageDescription,
+          });
+        }
+        
+        console.log('Relationships updated successfully');
+      } catch (error) {
+        console.error('Failed to update relationships:', error);
+        message.warning('기본 정보는 저장되었지만 관계 업데이트에 실패했습니다.');
+      }
+      
       message.success(editingEducation ? '학력이 성공적으로 수정되었습니다.' : '학력이 성공적으로 추가되었습니다.');
       setIsModalVisible(false);
       form.resetFields();
       setEditingEducation(null);
+      setTechStackRelationships([]);
+      setProjectRelationships([]);
     } catch (error) {
       message.error(error instanceof Error ? error.message : '작업 중 오류가 발생했습니다.');
     } finally {
@@ -129,7 +201,7 @@ const EducationManagement: React.FC = () => {
     });
   };
 
-  const handleRowClick = (education: Education) => {
+  const handleRowClick = async (education: Education) => {
     setEditingEducation(education);
     
     form.setFieldsValue({
@@ -137,6 +209,44 @@ const EducationManagement: React.FC = () => {
       startDate: education.startDate ? dayjs(education.startDate) : undefined,
       endDate: education.endDate ? dayjs(education.endDate) : undefined,
     });
+    
+    // 백엔드에서 기존 관계 데이터 가져오기
+    try {
+      const [techStacks, projects] = await Promise.all([
+        relationshipApi.getEducationTechStacks(education.id),
+        relationshipApi.getEducationProjects(education.id),
+      ]);
+      
+      // 기술스택 관계 변환
+      const techStackRelationships = techStacks.map((ts: any) => ({
+        techStack: {
+          id: ts.techStackId,
+          name: ts.techStackName,
+          displayName: ts.techStackDisplayName,
+          category: ts.category,
+        },
+        isPrimary: ts.isPrimary,
+        usageDescription: ts.usageDescription,
+      }));
+      
+      // 프로젝트 관계 변환
+      // 백엔드가 projectBusinessId와 projectId(DB ID) 모두 반환
+      const projectRelationships = projects.map((p: any) => ({
+        id: p.id,
+        projectBusinessId: p.projectBusinessId,  // Business ID (외부 API용)
+        projectTitle: p.projectTitle,
+        isPrimary: p.isPrimary || false,
+        usageDescription: p.usageDescription,
+      }));
+      
+      setTechStackRelationships(techStackRelationships);
+      setProjectRelationships(projectRelationships);
+    } catch (error) {
+      console.error('Failed to load relationships:', error);
+      setTechStackRelationships([]);
+      setProjectRelationships([]);
+    }
+    
     setIsModalVisible(true);
   };
 
@@ -184,7 +294,10 @@ const EducationManagement: React.FC = () => {
         isEditMode={!!editingEducation}
         loading={modalLoading}
         onDelete={handleDelete}
-        width={800}
+        width={920}
+        styles={{
+          body: { maxHeight: '70vh', overflowY: 'auto', paddingRight: '8px' }
+        }}
       >
         <Form form={form} layout="vertical">
           <Form.Item
@@ -263,8 +376,22 @@ const EducationManagement: React.FC = () => {
             </Col>
           </Row>
 
-          <Form.Item name="technologies" label="기술 스택">
-            <Select mode="tags" placeholder="기술 스택을 입력하세요" />
+          <Divider />
+
+          <Form.Item label="기술 스택">
+            <TechStackRelationshipSection
+              value={techStackRelationships}
+              onChange={setTechStackRelationships}
+            />
+          </Form.Item>
+
+          <Divider />
+
+          <Form.Item label="관련 프로젝트">
+            <ProjectRelationshipSection
+              value={projectRelationships}
+              onChange={setProjectRelationships}
+            />
           </Form.Item>
         </Form>
       </CRUDModal>

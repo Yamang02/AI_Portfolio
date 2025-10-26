@@ -29,6 +29,9 @@ interface CRUDModalProps {
     label: string;
     children: React.ReactNode;
   }>;
+  styles?: {
+    body?: React.CSSProperties;
+  };
 }
 
 /**
@@ -53,6 +56,7 @@ export const CRUDModal: React.FC<CRUDModalProps> = ({
   width = 800,
   children,
   tabs,
+  styles,
 }) => {
   const renderContent = () => {
     if (tabs && tabs.length > 0) {
@@ -105,6 +109,7 @@ export const CRUDModal: React.FC<CRUDModalProps> = ({
       cancelText={cancelText}
       confirmLoading={loading}
       footer={renderFooter()}
+      styles={styles}
     >
       {renderContent()}
     </AntModal>

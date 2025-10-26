@@ -51,9 +51,9 @@ export const useExperienceMutation = (editingExperience?: Experience | null) => 
   return useMutation({
     mutationFn: async (data: ExperienceFormData) => {
       if (editingExperience) {
-        await adminExperienceApi.updateExperience(editingExperience.id, data);
+        return await adminExperienceApi.updateExperience(editingExperience.id, data);
       } else {
-        await adminExperienceApi.createExperience(data);
+        return await adminExperienceApi.createExperience(data);
       }
     },
     onSuccess: () => {

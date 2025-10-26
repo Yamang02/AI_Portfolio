@@ -51,9 +51,9 @@ export const useEducationMutation = (editingEducation?: Education | null) => {
   return useMutation({
     mutationFn: async (data: EducationFormData) => {
       if (editingEducation) {
-        await adminEducationApi.updateEducation(editingEducation.id, data);
+        return await adminEducationApi.updateEducation(editingEducation.id, data);
       } else {
-        await adminEducationApi.createEducation(data);
+        return await adminEducationApi.createEducation(data);
       }
     },
     onSuccess: () => {
