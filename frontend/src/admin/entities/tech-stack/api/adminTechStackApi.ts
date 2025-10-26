@@ -72,13 +72,13 @@ class AdminTechStackApi {
   /**
    * 기술 스택 정렬 순서 업데이트
    */
-  async updateSortOrder(data: TechStackSortOrderUpdate): Promise<void> {
-    const response = await fetch('/api/tech-stack/sort-order', {
-      method: 'PUT',
+  async updateSortOrder(techName: string, newSortOrder: number): Promise<void> {
+    const response = await fetch(`/api/tech-stack/${techName}/sort-order`, {
+      method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(data),
+      body: JSON.stringify({ sortOrder: newSortOrder }),
     });
 
     if (!response.ok) {

@@ -14,11 +14,12 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * Experience 조회 서비스
+ * Main 앱 전용 Experience 조회 서비스
  *
- * 책임: Experience 조회 UseCase 구현
+ * 책임: Experience 조회 UseCase 구현 (Main 앱용)
+ * 특징: Redis 캐시 사용 (Repository 레벨 @Cacheable)
  */
-@Service
+@Service("getExperienceService")
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 @Slf4j
@@ -26,14 +27,16 @@ public class GetExperienceService implements GetExperienceUseCase {
 
     private final PortfolioRepositoryPort portfolioRepositoryPort;
 
+    /**
+     * Main 앱용: 캐시된 데이터 조회 (@Cacheable)
+     */
     private List<Experience> getAllExperiencesInternal() {
-        // 어드민용: 캐시 없이 조회
-        return portfolioRepositoryPort.findAllExperiencesWithoutCache();
+        return portfolioRepositoryPort.findAllExperiences();
     }
 
     @Override
     public List<Experience> getAllExperiences() {
-        log.debug("Fetching all experiences (without cache for admin)");
+        log.debug("Fetching all experiences (main - with cache)");
         return getAllExperiencesInternal();
     }
 

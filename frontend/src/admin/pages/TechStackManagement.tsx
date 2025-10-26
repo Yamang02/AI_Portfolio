@@ -160,7 +160,8 @@ const TechStackManagement: React.FC = () => {
           newSortOrder: values.sortOrder
         });
         
-        const { sortOrder, name, ...updateData } = values; // name과 sortOrder 제외
+        // name은 유지하고 sortOrder만 제외하여 업데이트
+        const { sortOrder, ...updateData } = values;
         await createOrUpdateMutation.mutateAsync({ 
           data: updateData, 
           editingTech: editingTech.name 

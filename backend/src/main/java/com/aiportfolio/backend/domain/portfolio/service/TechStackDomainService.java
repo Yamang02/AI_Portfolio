@@ -46,9 +46,7 @@ public class TechStackDomainService {
      * @param techStackMetadata 생성할 기술 스택 메타데이터
      */
     public void validateForCreation(TechStackMetadata techStackMetadata) {
-        validateUniqueName(techStackMetadata.getName());
-        
-        // 추가 비즈니스 규칙 검증
+        // 필수값 검증을 먼저 수행
         if (techStackMetadata.getName() == null || techStackMetadata.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("기술명은 필수입니다");
         }
@@ -56,18 +54,19 @@ public class TechStackDomainService {
         if (techStackMetadata.getCategory() == null || techStackMetadata.getCategory().trim().isEmpty()) {
             throw new IllegalArgumentException("카테고리는 필수입니다");
         }
+        
+        // 필수값이 유효한 경우에만 고유성 검증
+        validateUniqueName(techStackMetadata.getName());
     }
     
     /**
-     * 기술 스택 메타데이터 수정 전 검증을 수행합니다.
+     * 기술 스택 메타데이터 수정 전 검증 수행합니다.
      * 
      * @param oldName 기존 기술명
      * @param techStackMetadata 수정할 기술 스택 메타데이터
      */
     public void validateForUpdate(String oldName, TechStackMetadata techStackMetadata) {
-        validateNameChange(oldName, techStackMetadata.getName());
-        
-        // 추가 비즈니스 규칙 검증
+        // 필수값 검증을 먼저 수행
         if (techStackMetadata.getName() == null || techStackMetadata.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("기술명은 필수입니다");
         }
@@ -75,5 +74,8 @@ public class TechStackDomainService {
         if (techStackMetadata.getCategory() == null || techStackMetadata.getCategory().trim().isEmpty()) {
             throw new IllegalArgumentException("카테고리는 필수입니다");
         }
+        
+        // 필수값이 유효한 경우에만 이름 변경 검증
+        validateNameChange(oldName, techStackMetadata.getName());
     }
 }

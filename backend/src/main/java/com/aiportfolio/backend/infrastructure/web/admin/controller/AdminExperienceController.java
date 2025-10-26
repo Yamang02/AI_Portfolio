@@ -7,8 +7,8 @@ import com.aiportfolio.backend.domain.portfolio.port.in.ManageExperienceUseCase;
 import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;
 import com.aiportfolio.backend.infrastructure.web.dto.experience.ExperienceDto;
 import com.aiportfolio.backend.infrastructure.web.admin.util.AdminAuthChecker;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,20 +19,29 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * Experience REST API Controller (Admin)
+ * Admin 전용 Experience REST API Controller
  *
  * 책임: Experience CRUD 엔드포인트 제공 (관리자 전용)
+ * 특징: 캐시 없는 실시간 데이터 조회
  */
 @RestController
 @RequestMapping("/api/admin/experiences")
-@RequiredArgsConstructor
 @Slf4j
 @CrossOrigin(origins = {"http://localhost:3000", "http://localhost:8080"})
 public class AdminExperienceController {
 
-    private final GetExperienceUseCase getExperienceUseCase;
+    private final GetExperienceUseCase adminGetExperienceUseCase;
     private final ManageExperienceUseCase manageExperienceUseCase;
     private final AdminAuthChecker adminAuthChecker;
+
+    public AdminExperienceController(
+            @Qualifier("adminGetExperienceService") GetExperienceUseCase adminGetExperienceUseCase,
+            @Qualifier("manageExperienceService") ManageExperienceUseCase manageExperienceUseCase,
+            AdminAuthChecker adminAuthChecker) {
+        this.adminGetExperienceUseCase = adminGetExperienceUseCase;
+        this.manageExperienceUseCase = manageExperienceUseCase;
+        this.adminAuthChecker = adminAuthChecker;
+    }
 
     // ==================== 조회 ====================
 
@@ -51,7 +60,7 @@ public class AdminExperienceController {
         log.info("Fetching all experiences");
 
         try {
-            List<Experience> experiences = getExperienceUseCase.getAllExperiences();
+            List<Experience> experiences = adminGetExperienceUseCase.getAllExperiences();
             log.info("Fetched {} experiences", experiences.size());
             
             List<ExperienceDto> dtos = experiences.stream()
@@ -83,7 +92,7 @@ public class AdminExperienceController {
         log.info("Fetching experience by id: {}", id);
 
         try {
-            Experience experience = getExperienceUseCase.getExperienceById(id)
+            Experience experience = adminGetExperienceUseCase.getExperienceById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Experience not found: " + id));
 
             return ResponseEntity.ok(ApiResponse.success(convertToDto(experience)));
@@ -113,7 +122,7 @@ public class AdminExperienceController {
         log.info("Searching experiences with keyword: {}", keyword);
 
         try {
-            List<Experience> experiences = getExperienceUseCase.searchExperiences(keyword);
+            List<Experience> experiences = adminGetExperienceUseCase.searchExperiences(keyword);
             List<ExperienceDto> dtos = experiences.stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());

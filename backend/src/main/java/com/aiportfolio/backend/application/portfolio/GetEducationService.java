@@ -14,11 +14,12 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * Education 조회 서비스
+ * Main 앱 전용 Education 조회 서비스
  *
- * 책임: Education 조회 UseCase 구현
+ * 책임: Education 조회 UseCase 구현 (Main 앱용)
+ * 특징: Redis 캐시 사용 (Repository 레벨 @Cacheable)
  */
-@Service
+@Service("getEducationService")
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 @Slf4j
@@ -26,14 +27,16 @@ public class GetEducationService implements GetEducationUseCase {
 
     private final PortfolioRepositoryPort portfolioRepositoryPort;
 
+    /**
+     * Main 앱용: 캐시된 데이터 조회 (@Cacheable)
+     */
     private List<Education> getAllEducationsInternal() {
-        // 어드민용: 캐시 없이 조회
-        return portfolioRepositoryPort.findAllEducationsWithoutCache();
+        return portfolioRepositoryPort.findAllEducations();
     }
 
     @Override
     public List<Education> getAllEducations() {
-        log.debug("Fetching all educations (without cache for admin)");
+        log.debug("Fetching all educations (main - with cache)");
         return getAllEducationsInternal().stream()
             .sorted((e1, e2) -> {
                 Integer order1 = e1.getSortOrder() != null ? e1.getSortOrder() : Integer.MAX_VALUE;
@@ -45,13 +48,13 @@ public class GetEducationService implements GetEducationUseCase {
 
     @Override
     public Optional<Education> getEducationById(String id) {
-        log.debug("Fetching education by id: {}", id);
+        log.debug("Fetching education by id: {} (main - with cache)", id);
         return portfolioRepositoryPort.findEducationById(id);
     }
 
     @Override
     public List<Education> getEducationsByType(EducationType type) {
-        log.debug("Fetching educations by type: {}", type);
+        log.debug("Fetching educations by type: {} (main - with cache)", type);
         return getAllEducationsInternal().stream()
             .filter(e -> e.getType() == type)
             .sorted((e1, e2) -> {
@@ -64,7 +67,7 @@ public class GetEducationService implements GetEducationUseCase {
 
     @Override
     public List<Education> getEducationsByOrganization(String organization) {
-        log.debug("Fetching educations by organization: {}", organization);
+        log.debug("Fetching educations by organization: {} (main - with cache)", organization);
         return getAllEducationsInternal().stream()
             .filter(e -> e.getOrganization().equalsIgnoreCase(organization))
             .sorted((e1, e2) -> {
@@ -77,7 +80,7 @@ public class GetEducationService implements GetEducationUseCase {
 
     @Override
     public List<Education> getOngoingEducations() {
-        log.debug("Fetching ongoing educations");
+        log.debug("Fetching ongoing educations (main - with cache)");
         return getAllEducationsInternal().stream()
             .filter(Education::isOngoing)
             .sorted((e1, e2) -> {
@@ -90,7 +93,7 @@ public class GetEducationService implements GetEducationUseCase {
 
     @Override
     public List<Education> getEducationsByTechStack(String techStackName) {
-        log.debug("Fetching educations by tech stack: {}", techStackName);
+        log.debug("Fetching educations by tech stack: {} (main - with cache)", techStackName);
         return getAllEducationsInternal().stream()
             .filter(e -> e.getTechStackMetadata() != null &&
                         e.getTechStackMetadata().stream()
@@ -105,7 +108,7 @@ public class GetEducationService implements GetEducationUseCase {
 
     @Override
     public List<Education> searchEducations(String keyword) {
-        log.debug("Searching educations with keyword: {}", keyword);
+        log.debug("Searching educations with keyword: {} (main - with cache)", keyword);
         String lowerKeyword = keyword.toLowerCase();
         return getAllEducationsInternal().stream()
             .filter(e ->

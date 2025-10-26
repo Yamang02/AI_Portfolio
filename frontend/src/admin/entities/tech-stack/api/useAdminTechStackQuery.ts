@@ -5,8 +5,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { adminTechStackApi } from './adminTechStackApi';
 import type { 
-  TechStackFormData, 
-  TechStackSortOrderUpdate 
+  TechStackFormData
 } from '../model/techStack.types';
 
 // 기술 스택 목록 조회
@@ -68,7 +67,8 @@ export const useUpdateSortOrderMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: TechStackSortOrderUpdate) => adminTechStackApi.updateSortOrder(data),
+    mutationFn: ({ techName, newSortOrder }: { techName: string; newSortOrder: number }) => 
+      adminTechStackApi.updateSortOrder(techName, newSortOrder),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-tech-stacks'] });
     },

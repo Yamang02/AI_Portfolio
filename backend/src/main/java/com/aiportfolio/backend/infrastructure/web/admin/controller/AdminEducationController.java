@@ -7,8 +7,8 @@ import com.aiportfolio.backend.domain.portfolio.port.in.ManageEducationUseCase;
 import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;
 import com.aiportfolio.backend.infrastructure.web.dto.education.EducationDto;
 import com.aiportfolio.backend.infrastructure.web.admin.util.AdminAuthChecker;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,20 +19,29 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * Education REST API Controller (Admin)
+ * Admin 전용 Education REST API Controller
  *
  * 책임: Education CRUD 엔드포인트 제공 (관리자 전용)
+ * 특징: 캐시 없는 실시간 데이터 조회
  */
 @RestController
 @RequestMapping("/api/admin/educations")
-@RequiredArgsConstructor
 @Slf4j
 @CrossOrigin(origins = {"http://localhost:3000", "http://localhost:8080"})
 public class AdminEducationController {
 
-    private final GetEducationUseCase getEducationUseCase;
+    private final GetEducationUseCase adminGetEducationUseCase;
     private final ManageEducationUseCase manageEducationUseCase;
     private final AdminAuthChecker adminAuthChecker;
+
+    public AdminEducationController(
+            @Qualifier("adminGetEducationService") GetEducationUseCase adminGetEducationUseCase,
+            @Qualifier("manageEducationService") ManageEducationUseCase manageEducationUseCase,
+            AdminAuthChecker adminAuthChecker) {
+        this.adminGetEducationUseCase = adminGetEducationUseCase;
+        this.manageEducationUseCase = manageEducationUseCase;
+        this.adminAuthChecker = adminAuthChecker;
+    }
 
     // ==================== 조회 ====================
 
@@ -48,10 +57,10 @@ public class AdminEducationController {
                     .body(ApiResponse.error(e.getMessage(), "인증 필요"));
         }
 
-        log.info("Fetching all educations");
+        log.info("Fetching all educations (admin - no cache)");
 
         try {
-            List<Education> educations = getEducationUseCase.getAllEducations();
+            List<Education> educations = adminGetEducationUseCase.getAllEducations();
             log.info("Fetched {} educations", educations.size());
             
             List<EducationDto> dtos = educations.stream()
@@ -81,7 +90,7 @@ public class AdminEducationController {
         log.info("Fetching education by id: {}", id);
 
         try {
-            Education education = getEducationUseCase.getEducationById(id)
+            Education education = adminGetEducationUseCase.getEducationById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Education not found: " + id));
 
             return ResponseEntity.ok(ApiResponse.success(convertToDto(education)));
@@ -111,7 +120,7 @@ public class AdminEducationController {
         log.info("Searching educations with keyword: {}", keyword);
 
         try {
-            List<Education> educations = getEducationUseCase.searchEducations(keyword);
+            List<Education> educations = adminGetEducationUseCase.searchEducations(keyword);
             List<EducationDto> dtos = educations.stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());

@@ -1,10 +1,11 @@
-package com.aiportfolio.backend.application.portfolio;
+package com.aiportfolio.backend.application.admin.service;
 
 import com.aiportfolio.backend.domain.portfolio.model.TechStackMetadata;
 import com.aiportfolio.backend.domain.portfolio.port.in.UpdateTechStackSortOrderUseCase;
 import com.aiportfolio.backend.domain.portfolio.port.out.TechStackMetadataRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,10 +16,12 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * 기술스택 정렬 순서 업데이트 서비스
- * 정렬 순서 변경 시 자동 재정렬 로직을 구현
+ * Admin 전용 기술스택 정렬 순서 업데이트 서비스
+ *
+ * 책임: 정렬 순서 변경 시 자동 재정렬 로직을 구현
+ * 특징: Cache Evict로 캐시 자동 무효화
  */
-@Service
+@Service("updateTechStackSortOrderService")
 @RequiredArgsConstructor
 @Slf4j
 @Transactional
@@ -27,6 +30,7 @@ public class UpdateTechStackSortOrderService implements UpdateTechStackSortOrder
     private final TechStackMetadataRepositoryPort techStackMetadataRepositoryPort;
     
     @Override
+    @CacheEvict(value = "portfolio", allEntries = true)
     public List<TechStackMetadata> updateSortOrder(String techStackName, int newSortOrder) {
         log.info("기술스택 '{}'의 정렬 순서를 {}로 변경", techStackName, newSortOrder);
         
@@ -58,6 +62,7 @@ public class UpdateTechStackSortOrderService implements UpdateTechStackSortOrder
     }
     
     @Override
+    @CacheEvict(value = "portfolio", allEntries = true)
     public List<TechStackMetadata> updateSortOrders(List<SortOrderUpdate> sortOrderUpdates) {
         log.info("{}개 기술스택의 정렬 순서 일괄 업데이트", sortOrderUpdates.size());
         
@@ -171,3 +176,4 @@ public class UpdateTechStackSortOrderService implements UpdateTechStackSortOrder
             .build();
     }
 }
+
