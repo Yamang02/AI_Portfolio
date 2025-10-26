@@ -213,3 +213,102 @@ COMMENT ON TABLE education_tech_stack IS '교육-기술스택 매핑 테이블 (
 -- DROP TABLE IF EXISTS project_tech_stack_backup;
 -- DROP TABLE IF EXISTS experience_tech_stack_backup;
 -- DROP TABLE IF EXISTS education_tech_stack_backup;
+
+-- ============================================
+-- 12. 경력 및 교육 스키마 변경 (프로젝트 참조 분리, 경력 타입 분리)
+-- ============================================
+
+-- 12-1. 경력-프로젝트 릴레이션 테이블 생성
+CREATE TABLE experience_projects (
+    id BIGSERIAL PRIMARY KEY,
+    experience_id BIGINT NOT NULL REFERENCES experiences(id) ON DELETE CASCADE,
+    project_id BIGINT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+    role_in_project VARCHAR(255),
+    contribution_description TEXT,
+    display_order INTEGER DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(experience_id, project_id)
+);
+
+-- 12-2. 교육-프로젝트 릴레이션 테이블 생성
+CREATE TABLE education_projects (
+    id BIGSERIAL PRIMARY KEY,
+    education_id BIGINT NOT NULL REFERENCES education(id) ON DELETE CASCADE,
+    project_id BIGINT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+    project_type VARCHAR(100),
+    grade VARCHAR(50),
+    display_order INTEGER DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(education_id, project_id)
+);
+
+-- 12-3. 인덱스 생성
+CREATE INDEX idx_experience_projects_experience_id ON experience_projects(experience_id);
+CREATE INDEX idx_experience_projects_project_id ON experience_projects(project_id);
+CREATE INDEX idx_education_projects_education_id ON education_projects(education_id);
+CREATE INDEX idx_education_projects_project_id ON education_projects(project_id);
+
+-- 12-4. 경력 테이블에 job_field, employment_type 컬럼 추가
+ALTER TABLE experiences ADD COLUMN IF NOT EXISTS job_field VARCHAR(100);
+ALTER TABLE experiences ADD COLUMN IF NOT EXISTS employment_type VARCHAR(50);
+
+-- 12-5. 기존 type 데이터를 employment_type으로 마이그레이션
+UPDATE experiences SET employment_type = type WHERE type IS NOT NULL AND employment_type IS NULL;
+
+-- 12-6. 기본 job_field 값 설정 (기존 데이터 보존을 위해)
+UPDATE experiences SET job_field = '개발' WHERE job_field IS NULL AND type IS NOT NULL;
+
+-- 12-7. 기존 projects TEXT[] 데이터를 릴레이션 테이블로 마이그레이션
+-- Experience Projects 마이그레이션
+INSERT INTO experience_projects (experience_id, project_id, display_order, created_at, updated_at)
+SELECT 
+    e.id as experience_id,
+    p.id as project_id,
+    ROW_NUMBER() OVER (PARTITION BY e.id ORDER BY p.business_id) - 1 as display_order,
+    CURRENT_TIMESTAMP,
+    CURRENT_TIMESTAMP
+FROM experiences e
+CROSS JOIN LATERAL unnest(e.projects) AS project_business_id
+JOIN projects p ON p.business_id = project_business_id
+WHERE e.projects IS NOT NULL AND array_length(e.projects, 1) > 0
+ON CONFLICT (experience_id, project_id) DO NOTHING;
+
+-- Education Projects 마이그레이션
+INSERT INTO education_projects (education_id, project_id, display_order, created_at, updated_at)
+SELECT 
+    ed.id as education_id,
+    p.id as project_id,
+    ROW_NUMBER() OVER (PARTITION BY ed.id ORDER BY p.business_id) - 1 as display_order,
+    CURRENT_TIMESTAMP,
+    CURRENT_TIMESTAMP
+FROM education ed
+CROSS JOIN LATERAL unnest(ed.projects) AS project_business_id
+JOIN projects p ON p.business_id = project_business_id
+WHERE ed.projects IS NOT NULL AND array_length(ed.projects, 1) > 0
+ON CONFLICT (education_id, project_id) DO NOTHING;
+
+-- 12-8. 기존 projects TEXT[] 컬럼 제거
+ALTER TABLE experiences DROP COLUMN IF EXISTS projects;
+ALTER TABLE education DROP COLUMN IF EXISTS projects;
+
+-- 12-9. 기존 type 컬럼 제거 (employment_type으로 대체됨)
+ALTER TABLE experiences DROP COLUMN IF EXISTS type;
+
+-- 12-10. 새 테이블에 트리거 적용
+CREATE TRIGGER update_experience_projects_updated_at
+    BEFORE UPDATE ON experience_projects
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_education_projects_updated_at
+    BEFORE UPDATE ON education_projects
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+-- 12-11. 테이블 코멘트 추가
+COMMENT ON TABLE experience_projects IS '경력-프로젝트 매핑 테이블';
+COMMENT ON TABLE education_projects IS '교육-프로젝트 매핑 테이블';
+COMMENT ON COLUMN experiences.job_field IS '직무 분야 (개발, 교육, 디자인 등)';
+COMMENT ON COLUMN experiences.employment_type IS '계약 조건 (정규직, 계약직, 프리랜서 등)';

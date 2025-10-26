@@ -48,7 +48,8 @@ public class ExperienceMapper {
                 .role(jpaEntity.getRole())
                 .startDate(jpaEntity.getStartDate())
                 .endDate(jpaEntity.getEndDate())
-                .type(parseExperienceType(jpaEntity.getType()))
+                .jobField(jpaEntity.getJobField())
+                .employmentType(jpaEntity.getEmploymentType())
                 .techStackMetadata(techStackMetadataMapper.toDomainList(
                     jpaEntity.getExperienceTechStacks() != null ? 
                     jpaEntity.getExperienceTechStacks().stream()
@@ -58,7 +59,7 @@ public class ExperienceMapper {
                 ))
                 .mainResponsibilities(jpaEntity.getMainResponsibilities())
                 .achievements(jpaEntity.getAchievements())
-                .projects(jpaEntity.getProjects())
+                .projects(new java.util.ArrayList<>()) // 릴레이션 테이블로 분리됨
                 .sortOrder(jpaEntity.getSortOrder())
                 .createdAt(jpaEntity.getCreatedAt())
                 .updatedAt(jpaEntity.getUpdatedAt())
@@ -83,11 +84,11 @@ public class ExperienceMapper {
                 .role(domainModel.getRole())
                 .startDate(domainModel.getStartDate())
                 .endDate(domainModel.getEndDate())
-                .type(domainModel.getType() != null ? domainModel.getType().name() : null)
+                .jobField(domainModel.getJobField())
+                .employmentType(domainModel.getEmploymentType())
                 .experienceTechStacks(new java.util.ArrayList<>()) // 관계 테이블은 별도로 관리
                 .mainResponsibilities(domainModel.getMainResponsibilities())
                 .achievements(domainModel.getAchievements())
-                .projects(domainModel.getProjects())
                 .sortOrder(domainModel.getSortOrder() != null ? domainModel.getSortOrder() : 0)
                 .createdAt(domainModel.getCreatedAt())
                 .updatedAt(domainModel.getUpdatedAt())
@@ -124,21 +125,5 @@ public class ExperienceMapper {
                 .collect(Collectors.toList());
     }
     
-    /**
-     * 문자열을 ExperienceType enum으로 변환
-     * @param typeString 타입 문자열
-     * @return ExperienceType enum
-     */
-    private ExperienceType parseExperienceType(String typeString) {
-        if (typeString == null || typeString.trim().isEmpty()) {
-            return null;
-        }
-        
-        try {
-            return ExperienceType.valueOf(typeString.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            // 알 수 없는 타입인 경우 기본값 반환 또는 null
-            return null;
-        }
-    }
+    // ExperienceType enum 변환 메서드 제거됨 - employment_type으로 대체됨
 }

@@ -55,7 +55,7 @@ public class EducationMapper {
                         .collect(java.util.stream.Collectors.toList()) : 
                     new java.util.ArrayList<>()
                 ))
-                .projects(jpaEntity.getProjects())
+                .projects(new java.util.ArrayList<>()) // 릴레이션 테이블로 분리됨
                 .sortOrder(jpaEntity.getSortOrder())
                 .createdAt(jpaEntity.getCreatedAt())
                 .updatedAt(jpaEntity.getUpdatedAt())
@@ -82,7 +82,6 @@ public class EducationMapper {
                 .gpa(domainModel.getGpa())
                 .type(domainModel.getType() != null ? domainModel.getType().name() : null)
                 .educationTechStacks(new java.util.ArrayList<>()) // 관계 테이블은 별도로 관리
-                .projects(domainModel.getProjects())
                 .sortOrder(domainModel.getSortOrder() != null ? domainModel.getSortOrder() : 0)
                 .createdAt(domainModel.getCreatedAt())
                 .updatedAt(domainModel.getUpdatedAt())

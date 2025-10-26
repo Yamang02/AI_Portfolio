@@ -42,11 +42,18 @@ public interface ExperienceJpaRepository extends JpaRepository<ExperienceJpaEnti
     List<ExperienceJpaEntity> findByOrganization(String organization);
     
     /**
-     * 타입별 경력 조회
-     * @param type 경력 타입
+     * employment_type별 경력 조회
+     * @param employmentType 계약 조건 타입
      * @return 경력 엔티티 리스트
      */
-    List<ExperienceJpaEntity> findByType(String type);
+    List<ExperienceJpaEntity> findByEmploymentType(String employmentType);
+    
+    /**
+     * job_field별 경력 조회
+     * @param jobField 직무 분야
+     * @return 경력 엔티티 리스트
+     */
+    List<ExperienceJpaEntity> findByJobField(String jobField);
     
     /**
      * 현재 재직중인 경력 조회 (end_date가 null인 경력)

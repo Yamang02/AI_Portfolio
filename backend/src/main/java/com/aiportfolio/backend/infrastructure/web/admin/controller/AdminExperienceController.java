@@ -275,11 +275,11 @@ public class AdminExperienceController {
             .role(experience.getRole())
             .startDate(experience.getStartDate())
             .endDate(experience.getEndDate())
-            .type(experience.getType() != null ? experience.getType().name() : null)
+            .type(experience.getEmploymentType()) // employment_type을 type으로 매핑 (호환성)
             .technologies(experience.getTechnologies() != null ? experience.getTechnologies() : new java.util.ArrayList<>())
             .mainResponsibilities(experience.getMainResponsibilities())
             .achievements(experience.getAchievements())
-            .projects(experience.getProjects())
+            .projects(new java.util.ArrayList<>()) // 릴레이션 테이블로 분리됨
             .sortOrder(experience.getSortOrder())
             .createdAt(experience.getCreatedAt())
             .updatedAt(experience.getUpdatedAt())
@@ -295,10 +295,10 @@ public class AdminExperienceController {
             .role(dto.getRole())
             .startDate(dto.getStartDate())
             .endDate(dto.getEndDate())
-            .type(dto.getType() != null ? ExperienceType.valueOf(dto.getType()) : null)
+            .employmentType(dto.getType()) // DTO의 type을 employment_type으로 매핑
             .mainResponsibilities(dto.getMainResponsibilities())
             .achievements(dto.getAchievements())
-            .projects(dto.getProjects())
+            .projects(new java.util.ArrayList<>()) // 릴레이션 테이블로 분리됨
             .sortOrder(dto.getSortOrder())
             .createdAt(dto.getCreatedAt())
             .updatedAt(dto.getUpdatedAt())

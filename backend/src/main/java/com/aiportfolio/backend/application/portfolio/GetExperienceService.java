@@ -50,7 +50,7 @@ public class GetExperienceService implements GetExperienceUseCase {
     public List<Experience> getExperiencesByType(ExperienceType type) {
         log.debug("Fetching experiences by type: {}", type);
         return getAllExperiencesInternal().stream()
-            .filter(e -> e.getType() == type)
+            .filter(e -> type != null && type.name().equals(e.getEmploymentType()))
             .collect(Collectors.toList());
     }
 

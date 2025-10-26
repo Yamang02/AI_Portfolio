@@ -4,7 +4,6 @@ import lombok.Data;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-import com.aiportfolio.backend.domain.portfolio.model.enums.ExperienceType;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -45,8 +44,10 @@ public class Experience {
     
     private LocalDate endDate; // 종료일은 선택사항 (현재 재직중)
     
-    @NotNull(message = "경력 타입은 필수입니다")
-    private ExperienceType type;
+    // type 필드 제거됨 - employment_type으로 대체됨
+    
+    private String jobField; // 직무 분야 (개발, 교육, 디자인 등)
+    private String employmentType; // 계약 조건 (FULL_TIME, PART_TIME, CONTRACT 등)
     
     @Size(max = 10, message = "주요 책임은 최대 10개까지 가능합니다")
     private List<String> mainResponsibilities;

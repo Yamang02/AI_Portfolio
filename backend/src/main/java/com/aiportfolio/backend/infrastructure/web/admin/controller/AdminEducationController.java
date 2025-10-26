@@ -275,7 +275,7 @@ public class AdminEducationController {
             .gpa(education.getGpa())
             .type(education.getType() != null ? education.getType().name() : null)
             .technologies(education.getTechnologies() != null ? education.getTechnologies() : new java.util.ArrayList<>())
-            .projects(education.getProjects())
+            .projects(new java.util.ArrayList<>()) // 릴레이션 테이블로 분리됨
             .sortOrder(education.getSortOrder())
             .createdAt(education.getCreatedAt())
             .updatedAt(education.getUpdatedAt())
@@ -294,7 +294,7 @@ public class AdminEducationController {
             .endDate(dto.getEndDate())
             .gpa(dto.getGpa())
             .type(dto.getType() != null ? EducationType.valueOf(dto.getType()) : null)
-            .projects(dto.getProjects())
+            .projects(new java.util.ArrayList<>()) // 릴레이션 테이블로 분리됨
             .sortOrder(dto.getSortOrder())
             .createdAt(dto.getCreatedAt())
             .updatedAt(dto.getUpdatedAt())
