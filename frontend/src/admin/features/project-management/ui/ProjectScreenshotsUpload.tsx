@@ -75,6 +75,11 @@ const ProjectScreenshotsUpload: React.FC<ProjectScreenshotsUploadProps> = ({ val
   };
 
   const customRequest = ({ fileList, onSuccess, onError }: any) => {
+    if (!fileList || !Array.isArray(fileList)) {
+      onError?.(new Error('파일 목록이 올바르지 않습니다'));
+      return;
+    }
+    
     const files = fileList.map((file: any) => file.originFileObj || file);
     handleUpload(files)
       .then(() => onSuccess?.())

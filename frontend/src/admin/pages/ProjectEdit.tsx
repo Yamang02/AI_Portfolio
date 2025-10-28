@@ -15,9 +15,10 @@ import {
   Divider,
   Row,
   Col,
+  Modal,
 } from 'antd';
-import { SaveOutlined, ArrowLeftOutlined } from '@ant-design/icons';
-import { useProject, useUpdateProject, useCreateProject } from '../hooks/useProjects';
+import { SaveOutlined, ArrowLeftOutlined, DeleteOutlined } from '@ant-design/icons';
+import { useProject, useUpdateProject, useCreateProject, useDeleteProject } from '../hooks/useProjects';
 import { ProjectUpdateRequest, ProjectCreateRequest } from '../api/adminProjectApi';
 import { ProjectThumbnailUpload } from '../features/project-management/ui/ProjectThumbnailUpload';
 import { ProjectScreenshotsUpload } from '../features/project-management/ui/ProjectScreenshotsUpload';
@@ -43,6 +44,7 @@ const ProjectEdit: React.FC = () => {
   const { data: project, isLoading, isError } = useProject(id!, { enabled: !isNew && !!id });
   const updateProjectMutation = useUpdateProject();
   const createProjectMutation = useCreateProject();
+  const deleteProjectMutation = useDeleteProject();
 
   const [isTeam, setIsTeam] = useState(false);
   const [screenshots, setScreenshots] = useState<any[]>([]);
@@ -134,8 +136,33 @@ const ProjectEdit: React.FC = () => {
     }
   };
 
+  const handleDelete = async () => {
+    if (!project || isNew) return;
+
+    Modal.confirm({
+      title: '프로젝트 삭제',
+      content: `'${project.title}' 프로젝트를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`,
+      okText: '삭제',
+      cancelText: '취소',
+      okType: 'danger',
+      onOk: async () => {
+        try {
+          await deleteProjectMutation.mutateAsync(id!);
+          message.success('프로젝트가 성공적으로 삭제되었습니다');
+          navigate('/admin/projects');
+        } catch (error: any) {
+          message.error(error.message || '프로젝트 삭제 중 오류가 발생했습니다');
+        }
+      },
+    });
+  };
+
   const handleThumbnailChange = (url: string) => {
     form.setFieldValue('imageUrl', url);
+    // 프로젝트 상태도 업데이트
+    if (project) {
+      project.imageUrl = url;
+    }
   };
 
   const handleScreenshotsChange = (newScreenshots: any[]) => {
@@ -319,6 +346,16 @@ const ProjectEdit: React.FC = () => {
 
         <div style={{ textAlign: 'right', marginTop: '24px' }}>
           <Space>
+            {!isNew && (
+              <Button
+                danger
+                icon={<DeleteOutlined />}
+                onClick={handleDelete}
+                loading={deleteProjectMutation.isPending}
+              >
+                삭제
+              </Button>
+            )}
             <Button onClick={() => navigate('/admin/projects')}>
               취소
             </Button>

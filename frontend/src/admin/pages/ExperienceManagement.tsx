@@ -250,25 +250,19 @@ const ExperienceManagement: React.FC = () => {
       }));
       
       // 프로젝트 관계 변환
-      // 백엔드가 projectBusinessId와 projectId(DB ID) 모두 반환
       const projectRelationships = projects.map((p: any) => ({
         id: p.id,
-        projectBusinessId: p.projectBusinessId,  // Business ID (외부 API용)
+        projectId: p.projectId, // DB ID
         projectTitle: p.projectTitle,
+        projectBusinessId: undefined, // 기존 프로젝트는 businessId가 없음
         isPrimary: p.isPrimary || false,
         usageDescription: p.usageDescription,
         roleInProject: p.roleInProject,
         contributionDescription: p.contributionDescription,
       }));
       
-      console.log('Transformed techStackRelationships:', techStackRelationships);
-      console.log('Transformed projectRelationships:', projectRelationships);
-      console.log('Setting projectRelationships with length:', projectRelationships?.length);
-      
       setTechStackRelationships(techStackRelationships);
       setProjectRelationships(projectRelationships);
-      
-      console.log('States set. projectRelationships length:', projectRelationships?.length);
       
     setIsModalVisible(true);
   };

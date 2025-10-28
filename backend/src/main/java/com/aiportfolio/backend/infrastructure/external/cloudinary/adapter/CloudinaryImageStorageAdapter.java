@@ -32,16 +32,7 @@ public class CloudinaryImageStorageAdapter implements ImageStoragePort {
             @SuppressWarnings("unchecked")
             Map<String, Object> params = ObjectUtils.asMap(
                 "folder", folder,
-                "resource_type", "image",
-                "transformation", Arrays.asList(
-                    ObjectUtils.asMap(
-                        "width", metadata.getMaxWidth(),
-                        "height", metadata.getMaxHeight(),
-                        "crop", "limit",
-                        "quality", metadata.getQuality(),
-                        "format", metadata.getFormat()
-                    )
-                )
+                "resource_type", "image"
             );
             
             Map<?, ?> result = cloudinary.uploader().upload(imageData, params);

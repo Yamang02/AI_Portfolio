@@ -30,8 +30,6 @@ export const ProjectRelationshipSection: React.FC<ProjectRelationshipSectionProp
   const [isPrimary, setIsPrimary] = useState(false);
   const [usageDescription, setUsageDescription] = useState('');
   
-  console.log('ProjectRelationshipSection render - value prop:', value, 'length:', value?.length);
-
   // 캐시된 프로젝트 목록 조회 (관리자 API 사용)
   const { data: allProjects, isLoading } = useProjects({});
 
