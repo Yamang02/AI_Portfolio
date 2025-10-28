@@ -90,8 +90,28 @@ public class ManageEducationService implements ManageEducationUseCase {
     public void updateEducationSortOrder(Map<String, Integer> sortOrderUpdates) {
         log.info("Updating education sort orders: {} items", sortOrderUpdates.size());
 
-        // 모든 Education 조회
+        // 모든 Education 조회 및 스냅샷 생성 (원본 보호)
         List<Education> allEducations = portfolioRepositoryPort.findAllEducationsWithoutCache();
+        List<Education> originalSnapshot = new ArrayList<>();
+        for (Education edu : allEducations) {
+            Education snapshot = Education.builder()
+                .id(edu.getId())
+                .title(edu.getTitle())
+                .description(edu.getDescription())
+                .organization(edu.getOrganization())
+                .degree(edu.getDegree())
+                .major(edu.getMajor())
+                .startDate(edu.getStartDate())
+                .endDate(edu.getEndDate())
+                .gpa(edu.getGpa())
+                .type(edu.getType())
+                .projects(edu.getProjects())
+                .sortOrder(edu.getSortOrder())
+                .createdAt(edu.getCreatedAt())
+                .updatedAt(edu.getUpdatedAt())
+                .build();
+            originalSnapshot.add(snapshot);
+        }
 
         // 각 업데이트에 대해 자동 재정렬 수행
         for (Map.Entry<String, Integer> entry : sortOrderUpdates.entrySet()) {
@@ -114,13 +134,44 @@ public class ManageEducationService implements ManageEducationUseCase {
                 newSortOrder
             );
 
-            // 재정렬된 Education들을 저장
+            // 재정렬된 Education들 중 변경된 것만 저장
+            Map<String, Education> originalMap = originalSnapshot.stream()
+                .collect(java.util.stream.Collectors.toMap(Education::getId, e -> e));
+            
             for (Education edu : reordered) {
-                edu.setUpdatedAt(MetadataHelper.setupUpdatedAt());
-                portfolioRepositoryPort.saveEducation(edu);
+                Education original = originalMap.get(edu.getId());
+                
+                // sortOrder가 변경된 것만 저장 (updatedAt 갱신)
+                if (original != null && !original.getSortOrder().equals(edu.getSortOrder())) {
+                    log.debug("Updating sortOrder for education {}: {} -> {}", 
+                        edu.getId(), original.getSortOrder(), edu.getSortOrder());
+                    edu.setUpdatedAt(MetadataHelper.setupUpdatedAt());
+                    portfolioRepositoryPort.saveEducation(edu);
+                }
             }
 
-            allEducations = reordered; // 다음 업데이트를 위해 목록 갱신
+            // 다음 업데이트를 위해 목록 갱신 및 스냅샷 업데이트
+            allEducations = reordered;
+            originalSnapshot = new ArrayList<>();
+            for (Education edu : allEducations) {
+                Education snapshot = Education.builder()
+                    .id(edu.getId())
+                    .title(edu.getTitle())
+                    .description(edu.getDescription())
+                    .organization(edu.getOrganization())
+                    .degree(edu.getDegree())
+                    .major(edu.getMajor())
+                    .startDate(edu.getStartDate())
+                    .endDate(edu.getEndDate())
+                    .gpa(edu.getGpa())
+                    .type(edu.getType())
+                    .projects(edu.getProjects())
+                    .sortOrder(edu.getSortOrder())
+                    .createdAt(edu.getCreatedAt())
+                    .updatedAt(edu.getUpdatedAt())
+                    .build();
+                originalSnapshot.add(snapshot);
+            }
         }
 
         log.info("Education sort orders updated successfully");
@@ -174,12 +225,27 @@ public class ManageEducationService implements ManageEducationUseCase {
     }
 
     /**
-     * sortOrder만 변경된 Education 생성
+     * sortOrder만 변경된 Education 생성 (원본을 보호하기 위해 복사본 생성)
+     * 
+     * Note: updatedAt은 호출하는 측에서 변경 여부를 확인하고 설정해야 함
      */
     private Education createUpdatedEducation(Education original, Integer newSortOrder) {
-        original.setSortOrder(newSortOrder);
-        original.setUpdatedAt(MetadataHelper.setupUpdatedAt());
-        return original;
+        return Education.builder()
+            .id(original.getId())
+            .title(original.getTitle())
+            .description(original.getDescription())
+            .organization(original.getOrganization())
+            .degree(original.getDegree())
+            .major(original.getMajor())
+            .startDate(original.getStartDate())
+            .endDate(original.getEndDate())
+            .gpa(original.getGpa())
+            .type(original.getType())
+            .projects(original.getProjects())
+            .sortOrder(newSortOrder)
+            .createdAt(original.getCreatedAt())
+            .updatedAt(original.getUpdatedAt())
+            .build();
     }
 }
 

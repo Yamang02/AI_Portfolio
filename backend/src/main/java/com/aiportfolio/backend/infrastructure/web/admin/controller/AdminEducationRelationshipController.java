@@ -158,6 +158,69 @@ public class AdminEducationRelationshipController {
         }
     }
 
+    /**
+     * 기술스택 관계 일괄 업데이트 (원자적 트랜잭션 보장)
+     *
+     * 기존 관계 전체 삭제 후 새 관계 생성
+     * 하나라도 실패하면 전체 롤백
+     */
+    @PutMapping("/tech-stacks")
+    public ResponseEntity<ApiResponse<Void>> updateTechStackRelationships(
+            @PathVariable String id,
+            @RequestBody BulkTechStackRelationshipRequest request,
+            HttpServletRequest httpRequest) {
+        try {
+            adminAuthChecker.requireAuthentication(httpRequest);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(401)
+                    .body(ApiResponse.error(e.getMessage(), "인증 필요"));
+        }
+
+        try {
+            EducationJpaEntity education = educationJpaRepository.findByBusinessId(id)
+                .orElseThrow(() -> new IllegalArgumentException("Education not found"));
+
+            // 1. 기존 관계 전체 삭제
+            List<EducationTechStackJpaEntity> existingRelations =
+                educationTechStackJpaRepository.findByEducationId(education.getId());
+
+            educationTechStackJpaRepository.deleteAll(existingRelations);
+            log.info("Deleted {} existing tech stack relationships", existingRelations.size());
+
+            // 2. 새 관계 생성
+            if (request.getTechStackRelationships() != null) {
+                for (BulkTechStackRelationshipRequest.TechStackRelationshipItem item : request.getTechStackRelationships()) {
+                    // ID로 기술스택 조회
+                    TechStackMetadataJpaEntity techStack = techStackMetadataJpaRepository
+                        .findById(item.getTechStackId())
+                        .orElseThrow(() -> new IllegalArgumentException(
+                            "TechStack not found: " + item.getTechStackId()));
+
+                    // 새 관계 생성
+                    EducationTechStackJpaEntity relationship = EducationTechStackJpaEntity.builder()
+                        .education(education)
+                        .techStack(techStack)
+                        .isPrimary(item.getIsPrimary() != null ? item.getIsPrimary() : false)
+                        .usageDescription(item.getUsageDescription())
+                        .build();
+
+                    educationTechStackJpaRepository.save(relationship);
+                }
+                log.info("Created {} new tech stack relationships", request.getTechStackRelationships().size());
+            }
+
+            return ResponseEntity.ok(ApiResponse.success(null, "기술스택 관계 일괄 업데이트 성공"));
+        } catch (IllegalArgumentException e) {
+            log.error("Invalid request: {}", e.getMessage());
+            return ResponseEntity.badRequest()
+                .body(ApiResponse.error(e.getMessage()));
+        } catch (Exception e) {
+            log.error("Error updating tech stack relationships", e);
+            return ResponseEntity.internalServerError()
+                .body(ApiResponse.error("기술스택 관계 일괄 업데이트 실패: " + e.getMessage()));
+        }
+    }
+
     // ==================== 프로젝트 관계 ====================
 
     @GetMapping("/projects")
@@ -271,6 +334,69 @@ public class AdminEducationRelationshipController {
             log.error("Error deleting project relationship", e);
             return ResponseEntity.internalServerError()
                 .body(ApiResponse.error("프로젝트 관계 삭제 실패: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * 프로젝트 관계 일괄 업데이트 (원자적 트랜잭션 보장)
+     * 
+     * 기존 관계 전체 삭제 후 새 관계 생성
+     * 하나라도 실패하면 전체 롤백
+     */
+    @PutMapping("/projects")
+    public ResponseEntity<ApiResponse<Void>> updateProjectRelationships(
+            @PathVariable String id,
+            @RequestBody BulkProjectRelationshipRequest request,
+            HttpServletRequest httpRequest) {
+        try {
+            adminAuthChecker.requireAuthentication(httpRequest);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(401)
+                    .body(ApiResponse.error(e.getMessage(), "인증 필요"));
+        }
+
+        try {
+            EducationJpaEntity education = educationJpaRepository.findByBusinessId(id)
+                .orElseThrow(() -> new IllegalArgumentException("Education not found"));
+
+            // 1. 기존 관계 전체 삭제
+            List<EducationProjectJpaEntity> existingRelations = 
+                educationProjectJpaRepository.findByEducationId(education.getId());
+            
+            educationProjectJpaRepository.deleteAll(existingRelations);
+            log.info("Deleted {} existing project relationships", existingRelations.size());
+
+            // 2. 새 관계 생성
+            if (request.getProjectRelationships() != null) {
+                for (BulkProjectRelationshipRequest.ProjectRelationshipItem item : request.getProjectRelationships()) {
+                    // Business ID로 프로젝트 조회
+                    ProjectJpaEntity project = projectJpaRepository
+                        .findByBusinessId(item.getProjectBusinessId())
+                        .orElseThrow(() -> new IllegalArgumentException(
+                            "Project not found: " + item.getProjectBusinessId()));
+
+                    // 새 관계 생성
+                    EducationProjectJpaEntity relationship = EducationProjectJpaEntity.builder()
+                        .education(education)
+                        .project(project)
+                        .projectType(item.getProjectType())
+                        .grade(item.getGrade())
+                        .build();
+
+                    educationProjectJpaRepository.save(relationship);
+                }
+                log.info("Created {} new project relationships", request.getProjectRelationships().size());
+            }
+
+            return ResponseEntity.ok(ApiResponse.success(null, "프로젝트 관계 일괄 업데이트 성공"));
+        } catch (IllegalArgumentException e) {
+            log.error("Invalid request: {}", e.getMessage());
+            return ResponseEntity.badRequest()
+                .body(ApiResponse.error(e.getMessage()));
+        } catch (Exception e) {
+            log.error("Error updating project relationships", e);
+            return ResponseEntity.internalServerError()
+                .body(ApiResponse.error("프로젝트 관계 일괄 업데이트 실패: " + e.getMessage()));
         }
     }
 }

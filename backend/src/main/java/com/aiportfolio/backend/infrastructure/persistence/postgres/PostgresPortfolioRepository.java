@@ -596,4 +596,14 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
         Integer maxSortOrder = educationJpaRepository.findMaxSortOrder();
         return maxSortOrder != null ? maxSortOrder : 0;
     }
+    
+    @Override
+    public Optional<String> findLastBusinessIdByPrefix(String prefix) {
+        try {
+            return projectJpaRepository.findLastBusinessIdByPrefix(prefix);
+        } catch (Exception e) {
+            log.error("프로젝트 비즈니스 ID 조회 중 오류 발생: prefix={}", prefix, e);
+            return Optional.empty();
+        }
+    }
 }

@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 프로젝트 관리 서비스
@@ -181,11 +182,43 @@ public class ProjectManagementService implements ManageProjectUseCase {
     
     /**
      * 프로젝트 ID 자동 생성
-     * 형식: proj-XXX (예: proj-001, proj-002)
+     * DB에서 마지막 ID를 조회하여 +1 증가
+     * 형식: prj-XXX (예: prj-001, prj-002)
      */
     private String generateProjectId() {
-        // 현재 시간 기반 고유 ID 생성
-        String timestamp = String.valueOf(System.currentTimeMillis());
-        return "proj-" + timestamp.substring(timestamp.length() - 6);
+        // DB에서 "prj-" prefix를 가진 마지막 business_id 조회
+        Optional<String> lastBusinessId = portfolioRepositoryPort.findLastBusinessIdByPrefix("prj-");
+        
+        int nextNumber;
+        if (lastBusinessId.isPresent()) {
+            // 마지막 ID에서 숫자 추출 (예: "prj-010" → 10)
+            nextNumber = extractNumber(lastBusinessId.get());
+        } else {
+            // 데이터 없으면 0부터 시작
+            nextNumber = 0;
+        }
+        
+        // +1 증가 후 3자리 포맷팅 (예: 11 → "prj-011")
+        String formattedNumber = String.format("%03d", nextNumber + 1);
+        return "prj-" + formattedNumber;
+    }
+    
+    /**
+     * 비즈니스 ID에서 숫자 부분을 추출
+     * @param businessId 비즈니스 ID (예: "prj-010")
+     * @return 숫자 부분 (예: 10)
+     */
+    private int extractNumber(String businessId) {
+        if (businessId == null || businessId.isEmpty()) {
+            return 0;
+        }
+        // "prj-010" → "010" → 10
+        try {
+            String numberPart = businessId.substring(4); // "prj-" (4글자) 이후
+            return Integer.parseInt(numberPart);
+        } catch (Exception e) {
+            log.error("비즈니스 ID 숫자 추출 실패: {}", businessId, e);
+            return 0;
+        }
     }
 }

@@ -109,50 +109,52 @@ const EducationManagement: React.FC = () => {
       console.log('Project relationships to save:', projectRelationships);
       
       // 관계 저장 (생성/수정 모두)
-      try {
-        // 기존 기술스택 관계 삭제 및 추가
-        const existingTechStacks = await relationshipApi.getEducationTechStacks(educationId);
-        console.log('Existing tech stacks to delete:', existingTechStacks);
-        
-        for (const ts of existingTechStacks) {
-          await relationshipApi.deleteEducationTechStack(educationId, ts.techStackId);
-        }
-        
-        // 새 기술스택 관계 추가
-        for (const ts of techStackRelationships) {
-          const techStackId = ts.techStack.id;
-          
-          console.log('Adding tech stack relationship:', { techStackId, isPrimary: ts.isPrimary });
-          
-          await relationshipApi.addEducationTechStack(educationId, {
-            techStackId: typeof techStackId === 'string' ? parseInt(techStackId) : techStackId,
-            isPrimary: ts.isPrimary,
-            usageDescription: ts.usageDescription,
-          });
-        }
-        
-        // 기존 프로젝트 관계 삭제 및 추가
-        const existingProjects = await relationshipApi.getEducationProjects(educationId);
-        console.log('Existing projects to delete:', existingProjects);
-        
-        for (const p of existingProjects) {
-          await relationshipApi.deleteEducationProject(educationId, p.projectId);
-        }
-        
-        // 새 프로젝트 관계 추가 (Business ID 사용)
-        for (const p of projectRelationships) {
-          console.log('Adding project relationship:', p);
+      let techStackSuccess = false;
+      let projectSuccess = false;
 
-          await relationshipApi.addEducationProject(educationId, {
-            projectBusinessId: p.projectBusinessId,
-            usageDescription: p.usageDescription,
-          });
-        }
-        
-        console.log('Relationships updated successfully');
+      try {
+        // 기술스택 관계는 Bulk API 사용 (원자적 트랜잭션)
+        const techStackRelationshipsData = techStackRelationships.map(ts => ({
+          techStackId: typeof ts.techStack.id === 'string' ? parseInt(ts.techStack.id) : ts.techStack.id,
+          isPrimary: ts.isPrimary,
+          usageDescription: ts.usageDescription,
+        }));
+
+        await relationshipApi.updateEducationTechStacks(educationId, {
+          techStackRelationships: techStackRelationshipsData,
+        });
+
+        techStackSuccess = true;
       } catch (error) {
-        console.error('Failed to update relationships:', error);
+        console.error('Failed to update tech stack relationships:', error);
+      }
+
+      try {
+        // 프로젝트 관계는 Bulk API 사용 (원자적 트랜잭션)
+        const projectRelationshipsData = projectRelationships.map(p => ({
+          projectBusinessId: p.projectBusinessId,
+          projectType: p.projectType,
+          grade: p.grade,
+        }));
+
+        await relationshipApi.updateEducationProjects(educationId, {
+          projectRelationships: projectRelationshipsData,
+        });
+
+        projectSuccess = true;
+      } catch (error) {
+        console.error('Failed to update project relationships:', error);
+      }
+
+      // 결과에 따른 메시지 표시
+      if (techStackSuccess && projectSuccess) {
+        console.log('All relationships updated successfully');
+      } else if (!techStackSuccess && !projectSuccess) {
         message.warning('기본 정보는 저장되었지만 관계 업데이트에 실패했습니다.');
+      } else if (!techStackSuccess) {
+        message.warning('기본 정보와 프로젝트 관계는 저장되었지만 기술스택 관계 업데이트에 실패했습니다.');
+      } else if (!projectSuccess) {
+        message.warning('기본 정보와 기술스택 관계는 저장되었지만 프로젝트 관계 업데이트에 실패했습니다.');
       }
       
       message.success(editingEducation ? '학력이 성공적으로 수정되었습니다.' : '학력이 성공적으로 추가되었습니다.');
@@ -235,8 +237,8 @@ const EducationManagement: React.FC = () => {
         id: p.id,
         projectBusinessId: p.projectBusinessId,  // Business ID (외부 API용)
         projectTitle: p.projectTitle,
-        isPrimary: p.isPrimary || false,
-        usageDescription: p.usageDescription,
+        projectType: p.projectType,  // Education-Project 전용 필드
+        grade: p.grade,  // Education-Project 전용 필드
       }));
       
       setTechStackRelationships(techStackRelationships);

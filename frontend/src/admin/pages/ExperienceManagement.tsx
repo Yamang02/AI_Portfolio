@@ -111,53 +111,52 @@ const ExperienceManagement: React.FC = () => {
       console.log('Project relationships to save:', projectRelationships);
       
       // 관계 저장 (생성/수정 모두)
-      try {
-        // 기존 기술스택 관계 삭제 및 새로 추가
-        const existingTechStacks = await relationshipApi.getExperienceTechStacks(experienceId);
-        console.log('Existing tech stacks to delete:', existingTechStacks);
-        
-        for (const ts of existingTechStacks) {
-          await relationshipApi.deleteExperienceTechStack(experienceId, ts.techStackId);
-        }
-        
-        // 새 기술스택 관계 추가
-        for (const ts of techStackRelationships) {
-          // TechStackMetadata에서 id 추출
-          const techStackId = ts.techStack.id;
-          
-          console.log('Adding tech stack relationship:', { techStackId, isPrimary: ts.isPrimary });
-          
-          await relationshipApi.addExperienceTechStack(experienceId, {
-            techStackId: typeof techStackId === 'string' ? parseInt(techStackId) : techStackId,
-            isPrimary: ts.isPrimary,
-            usageDescription: ts.usageDescription,
-          });
-        }
-        
-        // 기존 프로젝트 관계 삭제
-        const existingProjects = await relationshipApi.getExperienceProjects(experienceId);
-        console.log('Existing projects to delete:', existingProjects);
-        
-        for (const p of existingProjects) {
-          await relationshipApi.deleteExperienceProject(experienceId, p.projectId);
-        }
-        
-        // 새 프로젝트 관계 추가 (Business ID 사용)
-        for (const p of projectRelationships) {
-          console.log('Adding project relationship:', p);
+      let techStackSuccess = false;
+      let projectSuccess = false;
 
-          await relationshipApi.addExperienceProject(experienceId, {
-            projectBusinessId: p.projectBusinessId,
-            usageDescription: p.usageDescription,
-            roleInProject: p.roleInProject,
-            contributionDescription: p.contributionDescription,
-          });
-        }
-        
-        console.log('Relationships updated successfully');
+      try {
+        // 기술스택 관계는 Bulk API 사용 (원자적 트랜잭션)
+        const techStackRelationshipsData = techStackRelationships.map(ts => ({
+          techStackId: typeof ts.techStack.id === 'string' ? parseInt(ts.techStack.id) : ts.techStack.id,
+          isPrimary: ts.isPrimary,
+          usageDescription: ts.usageDescription,
+        }));
+
+        await relationshipApi.updateExperienceTechStacks(experienceId, {
+          techStackRelationships: techStackRelationshipsData,
+        });
+
+        techStackSuccess = true;
       } catch (error) {
-        console.error('Failed to update relationships:', error);
+        console.error('Failed to update tech stack relationships:', error);
+      }
+
+      try {
+        // 프로젝트 관계는 Bulk API 사용 (원자적 트랜잭션)
+        const projectRelationshipsData = projectRelationships.map(p => ({
+          projectBusinessId: p.projectBusinessId,
+          roleInProject: p.roleInProject,
+          contributionDescription: p.contributionDescription,
+        }));
+
+        await relationshipApi.updateExperienceProjects(experienceId, {
+          projectRelationships: projectRelationshipsData,
+        });
+
+        projectSuccess = true;
+      } catch (error) {
+        console.error('Failed to update project relationships:', error);
+      }
+
+      // 결과에 따른 메시지 표시
+      if (techStackSuccess && projectSuccess) {
+        console.log('All relationships updated successfully');
+      } else if (!techStackSuccess && !projectSuccess) {
         message.warning('기본 정보는 저장되었지만 관계 업데이트에 실패했습니다.');
+      } else if (!techStackSuccess) {
+        message.warning('기본 정보와 프로젝트 관계는 저장되었지만 기술스택 관계 업데이트에 실패했습니다.');
+      } else if (!projectSuccess) {
+        message.warning('기본 정보와 기술스택 관계는 저장되었지만 프로젝트 관계 업데이트에 실패했습니다.');
       }
       
       message.success(editingExperience ? '경력이 성공적으로 수정되었습니다.' : '경력이 성공적으로 추가되었습니다.');
@@ -254,9 +253,7 @@ const ExperienceManagement: React.FC = () => {
         id: p.id,
         projectId: p.projectId, // DB ID
         projectTitle: p.projectTitle,
-        projectBusinessId: undefined, // 기존 프로젝트는 businessId가 없음
-        isPrimary: p.isPrimary || false,
-        usageDescription: p.usageDescription,
+        projectBusinessId: p.projectBusinessId, // API에서 반환된 businessId
         roleInProject: p.roleInProject,
         contributionDescription: p.contributionDescription,
       }));

@@ -312,3 +312,13 @@ COMMENT ON TABLE experience_projects IS '경력-프로젝트 매핑 테이블';
 COMMENT ON TABLE education_projects IS '교육-프로젝트 매핑 테이블';
 COMMENT ON COLUMN experiences.job_field IS '직무 분야 (개발, 교육, 디자인 등)';
 COMMENT ON COLUMN experiences.employment_type IS '계약 조건 (정규직, 계약직, 프리랜서 등)';
+
+-- ============================================
+-- 13. 프로젝트 business_id 유니크 제약조건 추가 (ID 충돌 방지)
+-- ============================================
+
+-- 13-1. business_id에 unique constraint 추가
+ALTER TABLE projects ADD CONSTRAINT uk_projects_business_id UNIQUE (business_id);
+
+-- 13-2. 테이블 코멘트 추가
+COMMENT ON CONSTRAINT uk_projects_business_id ON projects IS 'Business ID 유니크 제약조건 - ID 생성 충돌 방지';

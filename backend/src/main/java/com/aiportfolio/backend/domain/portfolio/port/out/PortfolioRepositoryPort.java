@@ -180,4 +180,11 @@ public interface PortfolioRepositoryPort {
      * 프로젝트를 업데이트합니다 (관리자용)
      */
     Project updateProject(Project project);
+    
+    /**
+     * 특정 prefix를 가진 마지막 비즈니스 ID를 조회합니다 (ID 생성용)
+     * @param prefix 비즈니스 ID prefix (예: "prj-")
+     * @return 마지막 비즈니스 ID (예: "prj-010")
+     */
+    Optional<String> findLastBusinessIdByPrefix(String prefix);
 }

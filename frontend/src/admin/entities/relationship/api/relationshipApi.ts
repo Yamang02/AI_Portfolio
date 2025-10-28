@@ -67,6 +67,26 @@ class RelationshipApi {
     }
   }
 
+  /**
+   * Experience 기술스택 관계 일괄 업데이트 (원자적 트랜잭션)
+   */
+  async updateExperienceTechStacks(
+    experienceId: string,
+    request: any
+  ): Promise<void> {
+    const response = await fetch(`${this.baseUrl}/experiences/${experienceId}/tech-stacks`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify(request),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || '기술스택 관계 일괄 업데이트 실패');
+    }
+  }
+
   // ==================== 프로젝트 관계 ====================
 
   /**
@@ -177,6 +197,26 @@ class RelationshipApi {
     }
   }
 
+  /**
+   * Education 기술스택 관계 일괄 업데이트 (원자적 트랜잭션)
+   */
+  async updateEducationTechStacks(
+    educationId: string,
+    request: any
+  ): Promise<void> {
+    const response = await fetch(`${this.baseUrl}/educations/${educationId}/tech-stacks`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify(request),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || '기술스택 관계 일괄 업데이트 실패');
+    }
+  }
+
   async getEducationProjects(educationId: string): Promise<any[]> {
     const response = await fetch(`${this.baseUrl}/educations/${educationId}/projects`, {
       credentials: 'include',
@@ -221,6 +261,46 @@ class RelationshipApi {
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.message || '프로젝트 관계 삭제 실패');
+    }
+  }
+
+  /**
+   * Education 프로젝트 관계 일괄 업데이트 (원자적 트랜잭션)
+   */
+  async updateEducationProjects(
+    educationId: string,
+    request: any
+  ): Promise<void> {
+    const response = await fetch(`${this.baseUrl}/educations/${educationId}/projects`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify(request),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || '프로젝트 관계 일괄 업데이트 실패');
+    }
+  }
+
+  /**
+   * Experience 프로젝트 관계 일괄 업데이트 (원자적 트랜잭션)
+   */
+  async updateExperienceProjects(
+    experienceId: string,
+    request: any
+  ): Promise<void> {
+    const response = await fetch(`${this.baseUrl}/experiences/${experienceId}/projects`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify(request),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || '프로젝트 관계 일괄 업데이트 실패');
     }
   }
 }
