@@ -14,20 +14,47 @@ interface Screenshot {
 interface ProjectScreenshotsUploadProps {
   value?: Screenshot[];
   onChange?: (screenshots: Screenshot[]) => void;
+  projectId?: string;
 }
 
-const ProjectScreenshotsUpload: React.FC<ProjectScreenshotsUploadProps> = ({ value = [], onChange }) => {
+const ProjectScreenshotsUpload: React.FC<ProjectScreenshotsUploadProps> = ({ 
+  value = [], 
+  onChange,
+  projectId
+}) => {
   const [previewVisible, setPreviewVisible] = useState(false);
   const [previewImage, setPreviewImage] = useState('');
   const [previewList, setPreviewList] = useState<string[]>([]);
   const uploadImagesMutation = useUploadImages();
   const deleteImageMutation = useDeleteImage();
 
+  // 파일 크기 제한: 10MB
+  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB in bytes
+
+  const validateFileSizes = (files: File[]): boolean => {
+    const oversizedFiles = files.filter(file => file.size > MAX_FILE_SIZE);
+    
+    if (oversizedFiles.length > 0) {
+      const fileNames = oversizedFiles.map(f => {
+        const fileSizeMB = (f.size / (1024 * 1024)).toFixed(2);
+        return `${f.name} (${fileSizeMB}MB)`;
+      }).join(', ');
+      message.error(`다음 파일들의 크기가 너무 큽니다: ${fileNames} (최대 10MB)`);
+      return false;
+    }
+    return true;
+  };
+
   const handleUpload = async (files: File[]) => {
+    // 파일 크기 검증
+    if (!validateFileSizes(files)) {
+      return;
+    }
     try {
       const response = await uploadImagesMutation.mutateAsync({ 
         files, 
-        type: 'screenshots' 
+        type: 'screenshots',
+        projectId: projectId
       });
       
       if (response && response.length > 0) {
@@ -36,11 +63,26 @@ const ProjectScreenshotsUpload: React.FC<ProjectScreenshotsUploadProps> = ({ val
           displayOrder: (value?.length || 0) + index + 1,
         }));
         
-        onChange?.([...(value || []), ...newScreenshots]);
-        message.success(`${files.length}개의 이미지가 업로드되었습니다`);
+        const updatedScreenshots = [...(value || []), ...newScreenshots];
+        onChange?.(updatedScreenshots);
+        
+        // 백엔드에서 자동으로 DB에 저장하므로 성공 메시지만 표시
+        if (projectId && projectId !== 'new') {
+          message.success(`${files.length}개의 이미지가 업로드되어 DB에 저장되었습니다`);
+        } else {
+          message.success(`${files.length}개의 이미지가 업로드되었습니다`);
+        }
       }
     } catch (error: any) {
-      message.error(error.message || '이미지 업로드에 실패했습니다');
+      // 에러 메시지가 이미 사용자 친화적으로 처리되어 있을 수 있음
+      const errorMessage = error.message || '이미지 업로드에 실패했습니다';
+      
+      // 파일 크기 제한 관련 에러인지 확인
+      if (errorMessage.includes('크기가') || errorMessage.includes('크기') || errorMessage.includes('413')) {
+        message.error(errorMessage);
+      } else {
+        message.error(`${errorMessage} 다시 시도해주세요.`);
+      }
     }
   };
 
@@ -74,26 +116,31 @@ const ProjectScreenshotsUpload: React.FC<ProjectScreenshotsUploadProps> = ({ val
     }
   };
 
-  const customRequest = ({ fileList, onSuccess, onError }: any) => {
-    if (!fileList || !Array.isArray(fileList)) {
-      onError?.(new Error('파일 목록이 올바르지 않습니다'));
-      return;
+  const handleBeforeUpload = (file: File, fileList: File[]) => {
+    // 모든 파일이 추가되었을 때만 업로드 실행
+    return false; // 자동 업로드 방지
+  };
+
+  const handleFileChange = (info: any) => {
+    const { fileList } = info;
+
+    // 모든 파일이 추가된 경우
+    if (fileList.length > 0 && fileList.every((f: any) => f.originFileObj)) {
+      const files = fileList.map((f: any) => f.originFileObj);
+      handleUpload(files);
     }
-    
-    const files = fileList.map((file: any) => file.originFileObj || file);
-    handleUpload(files)
-      .then(() => onSuccess?.())
-      .catch((error) => onError?.(error));
   };
 
   return (
     <div>
       <div style={{ marginBottom: '16px' }}>
         <Upload
-          customRequest={customRequest}
+          beforeUpload={handleBeforeUpload}
+          onChange={handleFileChange}
           showUploadList={false}
           accept="image/*"
           multiple
+          fileList={[]}
         >
           <Button icon={<UploadOutlined />}>스크린샷 추가</Button>
         </Upload>

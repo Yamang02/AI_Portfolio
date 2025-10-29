@@ -191,6 +191,11 @@ CREATE TABLE project_screenshots (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- 7-1. projects 테이블의 screenshots 컬럼 타입 변경 (TEXT[] → BIGINT[])
+-- project_screenshots 테이블의 ID 값들을 배열로 저장하기 위한 변경
+ALTER TABLE projects DROP COLUMN IF EXISTS screenshots;
+ALTER TABLE projects ADD COLUMN screenshots BIGINT[];
+
 -- 8. 프로젝트 스크린샷 테이블 인덱스 생성
 CREATE INDEX idx_project_screenshots_project_id ON project_screenshots(project_id);
 CREATE INDEX idx_project_screenshots_display_order ON project_screenshots(display_order);

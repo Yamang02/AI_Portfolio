@@ -1,6 +1,5 @@
 package com.aiportfolio.backend.domain.admin.dto.request;
 
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
@@ -10,15 +9,14 @@ import java.util.List;
 /**
  * 프로젝트 수정 요청 DTO
  * 도메인 계층에서 사용되는 프로젝트 수정 요청 데이터 전송 객체
+ * 모든 필드는 선택사항이며, 제공된 필드만 업데이트됩니다.
  */
 @Data
 public class ProjectUpdateRequest {
 
-    @NotBlank(message = "프로젝트 제목은 필수입니다")
     @Size(max = 255, message = "프로젝트 제목은 255자 이하여야 합니다")
     private String title;
 
-    @NotBlank(message = "프로젝트 설명은 필수입니다")
     private String description;
 
     private String readme;

@@ -10,6 +10,7 @@ import com.aiportfolio.backend.domain.portfolio.model.Project;
 import com.aiportfolio.backend.application.admin.mapper.ProjectResponseMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +32,7 @@ public class ProjectManagementService implements ManageProjectUseCase {
     private final ImageStoragePort imageStoragePort;
     
     @Override
+    @CacheEvict(value = "portfolio", allEntries = true)
     public ProjectResponse createProject(ProjectCreateRequest request) {
         log.info("Creating new project: {}", request.getTitle());
         
@@ -64,6 +66,7 @@ public class ProjectManagementService implements ManageProjectUseCase {
     }
     
     @Override
+    @CacheEvict(value = "portfolio", allEntries = true)
     public ProjectResponse updateProject(String id, ProjectUpdateRequest request) {
         log.info("Updating project: {}", id);
 
@@ -109,19 +112,24 @@ public class ProjectManagementService implements ManageProjectUseCase {
             }
 
             // 스크린샷이 교체되었는지 확인
-            if (request.getScreenshots() != null && oldScreenshots != null) {
-                // 기존 스크린샷 중 새로운 목록에 없는 것 찾기
-                for (String oldScreenshot : oldScreenshots) {
-                    if (oldScreenshot != null && oldScreenshot.contains("cloudinary.com")) {
-                        boolean stillExists = request.getScreenshots().stream()
-                            .anyMatch(s -> s != null && s.equals(oldScreenshot));
-                        
-                        if (!stillExists) {
-                            // 삭제된 스크린샷
-                            String publicId = imageStoragePort.extractPublicId(oldScreenshot);
-                            if (publicId != null) {
-                                log.info("Deleting old screenshot from Cloudinary: {}", publicId);
-                                imageStoragePort.deleteImage(publicId);
+            if (request.getScreenshots() != null) {
+                // 빈 배열로 업데이트한 경우에도 처리
+                List<String> newScreenshots = request.getScreenshots();
+                
+                if (oldScreenshots != null && !oldScreenshots.isEmpty()) {
+                    // 기존 스크린샷 중 새로운 목록에 없는 것 찾기
+                    for (String oldScreenshot : oldScreenshots) {
+                        if (oldScreenshot != null && oldScreenshot.contains("cloudinary.com")) {
+                            boolean stillExists = newScreenshots.stream()
+                                .anyMatch(s -> s != null && s.equals(oldScreenshot));
+                            
+                            if (!stillExists) {
+                                // 삭제된 스크린샷
+                                String publicId = imageStoragePort.extractPublicId(oldScreenshot);
+                                if (publicId != null) {
+                                    log.info("Deleting old screenshot from Cloudinary: {}", publicId);
+                                    imageStoragePort.deleteImage(publicId);
+                                }
                             }
                         }
                     }
@@ -139,6 +147,7 @@ public class ProjectManagementService implements ManageProjectUseCase {
     }
     
     @Override
+    @CacheEvict(value = "portfolio", allEntries = true)
     public void deleteProject(String id) {
         log.info("Deleting project: {}", id);
 
