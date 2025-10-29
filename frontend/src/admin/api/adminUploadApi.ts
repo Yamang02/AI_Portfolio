@@ -24,17 +24,43 @@ class AdminUploadApi {
     const response = await fetch(url, { ...defaultOptions, ...options });
     
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || `HTTP ${response.status}`);
+      let errorMessage = `HTTP ${response.status}`;
+      let errorData: any = {};
+      
+      try {
+        errorData = await response.json();
+        errorMessage = errorData.message || errorData.data?.message || errorMessage;
+        
+        // 특정 상태 코드에 대한 사용자 친화적인 메시지
+        if (response.status === 413) {
+          errorMessage = '파일 크기가 너무 큽니다. 최대 10MB까지 업로드 가능합니다.';
+        } else if (response.status === 400 && errorData.data) {
+          errorMessage = errorData.data || errorMessage;
+        }
+      } catch (e) {
+        // JSON 파싱 실패 시 기본 메시지 사용
+        if (response.status === 413) {
+          errorMessage = '파일 크기가 너무 큽니다. 최대 10MB까지 업로드 가능합니다.';
+        }
+      }
+      
+      throw new Error(errorMessage);
     }
 
     return response.json();
   }
 
-  async uploadImage(file: File, type: 'project' | 'screenshots' | 'skill' | 'profile'): Promise<ApiResponse<ImageUploadResponse>> {
+  async uploadImage(
+    file: File, 
+    type: 'project' | 'screenshots' | 'skill' | 'profile',
+    projectId?: string
+  ): Promise<ApiResponse<ImageUploadResponse>> {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('type', type);
+    if (projectId) {
+      formData.append('projectId', projectId);
+    }
 
     return this.request<ImageUploadResponse>('/api/admin/upload/image', {
       method: 'POST',
@@ -42,10 +68,17 @@ class AdminUploadApi {
     });
   }
 
-  async uploadImages(files: File[], type: 'project' | 'screenshots' | 'skill' | 'profile'): Promise<ApiResponse<string[]>> {
+  async uploadImages(
+    files: File[], 
+    type: 'project' | 'screenshots' | 'skill' | 'profile',
+    projectId?: string
+  ): Promise<ApiResponse<string[]>> {
     const formData = new FormData();
     files.forEach(file => formData.append('files', file));
     formData.append('type', type);
+    if (projectId) {
+      formData.append('projectId', projectId);
+    }
 
     return this.request<string[]>('/api/admin/upload/images', {
       method: 'POST',

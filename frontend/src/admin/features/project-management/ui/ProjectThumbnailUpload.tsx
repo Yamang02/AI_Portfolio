@@ -7,26 +7,62 @@ import type { UploadFile } from 'antd/es/upload/interface';
 interface ProjectThumbnailUploadProps {
   value?: string;
   onChange?: (url: string) => void;
+  projectId?: string;
 }
 
-const ProjectThumbnailUpload: React.FC<ProjectThumbnailUploadProps> = ({ value, onChange }) => {
+const ProjectThumbnailUpload: React.FC<ProjectThumbnailUploadProps> = ({ 
+  value, 
+  onChange,
+  projectId
+}) => {
   const [previewVisible, setPreviewVisible] = useState(false);
   const uploadImageMutation = useUploadImage();
   const deleteImageMutation = useDeleteImage();
 
+  // 파일 크기 제한: 10MB
+  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB in bytes
+
+  const validateFileSize = (file: File): boolean => {
+    if (file.size > MAX_FILE_SIZE) {
+      const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+      message.error(`파일 크기가 너무 큽니다. (${fileSizeMB}MB / 최대 10MB)`);
+      return false;
+    }
+    return true;
+  };
+
   const handleUpload = async (file: File) => {
+    // 파일 크기 검증
+    if (!validateFileSize(file)) {
+      return;
+    }
     try {
       const response = await uploadImageMutation.mutateAsync({ 
         file, 
-        type: 'project' 
+        type: 'project',
+        projectId: projectId
       });
       
       if (response && response.url) {
         onChange?.(response.url);
-        message.success('이미지가 업로드되었습니다');
+        
+        // 백엔드에서 자동으로 DB에 저장하므로 성공 메시지만 표시
+        if (projectId && projectId !== 'new') {
+          message.success('이미지가 업로드되어 DB에 저장되었습니다');
+        } else {
+          message.success('이미지가 업로드되었습니다');
+        }
       }
     } catch (error: any) {
-      message.error(error.message || '이미지 업로드에 실패했습니다');
+      // 에러 메시지가 이미 사용자 친화적으로 처리되어 있을 수 있음
+      const errorMessage = error.message || '이미지 업로드에 실패했습니다';
+      
+      // 파일 크기 제한 관련 에러인지 확인
+      if (errorMessage.includes('크기가') || errorMessage.includes('크기') || errorMessage.includes('413')) {
+        message.error(errorMessage);
+      } else {
+        message.error(`${errorMessage} 다시 시도해주세요.`);
+      }
     }
   };
 

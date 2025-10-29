@@ -8,6 +8,7 @@ import com.aiportfolio.backend.domain.portfolio.model.TechStackMetadata;
 import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.ProjectJpaEntity;
 import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.TechStackMetadataJpaEntity;
 import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.ProjectTechStackJpaEntity;
+import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.ProjectScreenshotJpaEntity;
 
 // 외부 라이브러리 imports
 import org.springframework.stereotype.Component;
@@ -64,7 +65,11 @@ public class ProjectMapper {
                 .externalUrl(jpaEntity.getExternalUrl())
                 .myContributions(jpaEntity.getMyContributions())
                 .role(jpaEntity.getRole())
-                .screenshots(jpaEntity.getScreenshots())
+                .screenshots(jpaEntity.getProjectScreenshots() != null ?
+                    jpaEntity.getProjectScreenshots().stream()
+                        .map(ProjectScreenshotJpaEntity::getImageUrl)
+                        .collect(java.util.stream.Collectors.toList()) :
+                    new java.util.ArrayList<>())
                 .createdAt(jpaEntity.getCreatedAt())
                 .updatedAt(jpaEntity.getUpdatedAt())
                 .build();
@@ -99,7 +104,7 @@ public class ProjectMapper {
                 .externalUrl(domainModel.getExternalUrl())
                 .myContributions(domainModel.getMyContributions())
                 .role(domainModel.getRole())
-                .screenshots(domainModel.getScreenshots())
+                .projectScreenshots(new java.util.ArrayList<>()) // 관계 테이블은 별도로 관리
                 .createdAt(domainModel.getCreatedAt())
                 .updatedAt(domainModel.getUpdatedAt())
                 .build();

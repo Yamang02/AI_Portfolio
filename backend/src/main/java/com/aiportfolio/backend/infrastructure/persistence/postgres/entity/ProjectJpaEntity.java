@@ -10,7 +10,6 @@ import org.hibernate.type.SqlTypes;
 
 // 외부 라이브러리 imports
 import lombok.*;
-import org.hibernate.validator.constraints.URL;
 
 // Java 표준 라이브러리 imports
 import java.time.LocalDate;
@@ -57,15 +56,12 @@ public class ProjectJpaEntity {
     private LocalDate endDate;
     
     @Column(name = "github_url", length = 500)
-    @URL(message = "올바른 GitHub URL 형식이어야 합니다")
     private String githubUrl;
     
     @Column(name = "live_url", length = 500)
-    @URL(message = "올바른 라이브 URL 형식이어야 합니다")
     private String liveUrl;
     
     @Column(name = "image_url", length = 500)
-    @URL(message = "올바른 이미지 URL 형식이어야 합니다")
     private String imageUrl;
     
     @Column(name = "readme", columnDefinition = "TEXT")
@@ -90,7 +86,6 @@ public class ProjectJpaEntity {
     private Integer sortOrder = 0;
     
     @Column(name = "external_url", length = 500)
-    @URL(message = "올바른 외부 URL 형식이어야 합니다")
     private String externalUrl;
     
     @Column(name = "my_contributions", columnDefinition = "text[]")
@@ -100,16 +95,17 @@ public class ProjectJpaEntity {
     @Column(name = "role", length = 255)
     private String role; // 팀 프로젝트에서의 역할
     
-    @Column(name = "screenshots", columnDefinition = "text[]")
-    @JdbcTypeCode(SqlTypes.ARRAY)
-    private List<String> screenshots; // 추가 스크린샷 URL 배열
-    
     @Column(name = "team_size")
     private Integer teamSize; // 팀 크기
     
     // 기술 스택 메타데이터 관계 (완전 통합용 - One-to-Many)
     @OneToMany(mappedBy = "project", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProjectTechStackJpaEntity> projectTechStacks;
+    
+    // 프로젝트 스크린샷 관계 (One-to-Many) - JOIN FETCH로 명시적으로 로드
+    @OneToMany(mappedBy = "project", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("displayOrder ASC")
+    private List<ProjectScreenshotJpaEntity> projectScreenshots;
     
     @Column(name = "created_at")
     private LocalDateTime createdAt;

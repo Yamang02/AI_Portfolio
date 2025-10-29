@@ -39,6 +39,7 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
     private final CertificationJpaRepository certificationJpaRepository;
     private final ProjectTechStackJpaRepository projectTechStackJpaRepository;
     private final TechStackMetadataJpaRepository techStackMetadataJpaRepository;
+    private final ProjectScreenshotJpaRepository projectScreenshotJpaRepository;
 
     // 매퍼들 (도메인 ↔ JPA 엔티티 변환)
     private final ProjectMapper projectMapper;
@@ -54,6 +55,17 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
         log.info("PostgreSQL에서 프로젝트 데이터를 조회합니다.");
         try {
             List<ProjectJpaEntity> jpaEntities = projectJpaRepository.findAllOrderedBySortOrderAndStartDate();
+            
+            // 스크린샷과 기술스택을 명시적으로 로드 (N+1 문제 방지 및 LAZY 로딩 트리거)
+            jpaEntities.forEach(entity -> {
+                if (entity.getProjectScreenshots() != null) {
+                    entity.getProjectScreenshots().size(); // LAZY 로딩 트리거
+                }
+                if (entity.getProjectTechStacks() != null) {
+                    entity.getProjectTechStacks().size(); // LAZY 로딩 트리거
+                }
+            });
+            
             List<Project> projects = projectMapper.toDomainList(jpaEntities);
             log.info("프로젝트 {} 개를 성공적으로 조회했습니다.", projects.size());
             return projects;
@@ -66,8 +78,19 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
     @Override
     public Optional<Project> findProjectById(String id) {
         try {
-            Optional<ProjectJpaEntity> jpaEntity = projectJpaRepository.findByBusinessId(id);
-            return jpaEntity.map(projectMapper::toDomain);
+            Optional<ProjectJpaEntity> jpaEntityOpt = projectJpaRepository.findByBusinessId(id);
+            if (jpaEntityOpt.isPresent()) {
+                ProjectJpaEntity jpaEntity = jpaEntityOpt.get();
+                // 스크린샷과 기술스택을 명시적으로 로드
+                if (jpaEntity.getProjectScreenshots() != null) {
+                    jpaEntity.getProjectScreenshots().size(); // LAZY 로딩 트리거
+                }
+                if (jpaEntity.getProjectTechStacks() != null) {
+                    jpaEntity.getProjectTechStacks().size(); // LAZY 로딩 트리거
+                }
+                return Optional.of(projectMapper.toDomain(jpaEntity));
+            }
+            return Optional.empty();
         } catch (Exception e) {
             log.error("프로젝트 ID로 조회 중 오류 발생: {}", id, e);
             return Optional.empty();
@@ -431,6 +454,26 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
             // Project를 JPA Entity로 변환하여 저장
             ProjectJpaEntity jpaEntity = projectMapper.toJpaEntity(project);
             ProjectJpaEntity savedEntity = projectJpaRepository.save(jpaEntity);
+            
+            // 스크린샷은 관계 테이블에 저장
+            if (project.getScreenshots() != null && !project.getScreenshots().isEmpty()) {
+                List<ProjectScreenshotJpaEntity> screenshots = new ArrayList<>();
+                for (int i = 0; i < project.getScreenshots().size(); i++) {
+                    String screenshotUrl = project.getScreenshots().get(i);
+                    if (screenshotUrl != null && !screenshotUrl.isEmpty()) {
+                        ProjectScreenshotJpaEntity screenshot = ProjectScreenshotJpaEntity.builder()
+                                .project(savedEntity)
+                                .imageUrl(screenshotUrl)
+                                .displayOrder(i)
+                                .build();
+                        screenshots.add(screenshot);
+                    }
+                }
+                if (!screenshots.isEmpty()) {
+                    projectScreenshotJpaRepository.saveAll(screenshots);
+                }
+            }
+            
             return projectMapper.toDomain(savedEntity);
         } catch (Exception e) {
             log.error("프로젝트 저장 중 오류 발생: {}", project.getTitle(), e);
@@ -516,6 +559,16 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
             // TODO: 향후 JPA Specification을 사용하여 DB 레벨에서 필터링 개선
             List<ProjectJpaEntity> entities = projectJpaRepository.findAllOrderedBySortOrderAndStartDate();
             
+            // 스크린샷과 기술스택을 명시적으로 로드 (N+1 문제 방지)
+            entities.forEach(entity -> {
+                if (entity.getProjectScreenshots() != null) {
+                    entity.getProjectScreenshots().size(); // LAZY 로딩 트리거
+                }
+                if (entity.getProjectTechStacks() != null) {
+                    entity.getProjectTechStacks().size(); // LAZY 로딩 트리거
+                }
+            });
+            
             return entities.stream()
                 .map(projectMapper::toDomain)
                 .filter(filter::matches)
@@ -551,24 +604,46 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
                 // 업데이트: 기존 엔티티의 필드를 직접 수정
                 ProjectJpaEntity existing = existingEntity.get();
                 
-                // 필드 업데이트
-                existing.setTitle(project.getTitle());
-                existing.setDescription(project.getDescription());
-                existing.setReadme(project.getReadme());
-                existing.setType(project.getType());
-                existing.setStatus(project.getStatus());
-                existing.setRole(project.getRole());
-                existing.setStartDate(project.getStartDate());
-                existing.setEndDate(project.getEndDate());
-                existing.setImageUrl(project.getImageUrl());
-                existing.setGithubUrl(project.getGithubUrl());
-                existing.setLiveUrl(project.getLiveUrl());
-                existing.setExternalUrl(project.getExternalUrl());
-                existing.setMyContributions(project.getMyContributions());
-                existing.setScreenshots(project.getScreenshots());
+                // 필드 업데이트 - null이 아닌 경우에만 업데이트
+                if (project.getTitle() != null) existing.setTitle(project.getTitle());
+                if (project.getDescription() != null) existing.setDescription(project.getDescription());
+                if (project.getReadme() != null) existing.setReadme(project.getReadme());
+                if (project.getType() != null) existing.setType(project.getType());
+                if (project.getStatus() != null) existing.setStatus(project.getStatus());
+                if (project.getRole() != null) existing.setRole(project.getRole());
+                if (project.getStartDate() != null) existing.setStartDate(project.getStartDate());
+                if (project.getEndDate() != null) existing.setEndDate(project.getEndDate());
+                // 이미지 URL은 빈 문자열도 허용 (null이 아닌 경우 업데이트)
+                if (project.getImageUrl() != null) existing.setImageUrl(project.getImageUrl().isEmpty() ? null : project.getImageUrl());
+                // URL 필드들은 빈 문자열을 null로 변환하여 검증 문제 방지
+                if (project.getGithubUrl() != null) existing.setGithubUrl(project.getGithubUrl().isEmpty() ? null : project.getGithubUrl());
+                if (project.getLiveUrl() != null) existing.setLiveUrl(project.getLiveUrl().isEmpty() ? null : project.getLiveUrl());
+                if (project.getExternalUrl() != null) existing.setExternalUrl(project.getExternalUrl().isEmpty() ? null : project.getExternalUrl());
+                if (project.getMyContributions() != null) existing.setMyContributions(project.getMyContributions());
+                if (project.getSortOrder() != null) existing.setSortOrder(project.getSortOrder());
+                // isTeam은 boolean이므로 null 체크 불필요
                 existing.setIsTeam(project.isTeam());
-                existing.setTeamSize(null); // 팀 사이즈는 별도 업데이트 필요 시 설정
-                existing.setSortOrder(project.getSortOrder());
+                
+                // 스크린샷은 관계 테이블에 저장
+                if (project.getScreenshots() != null) {
+                    // 기존 스크린샷 삭제
+                    projectScreenshotJpaRepository.deleteByProjectId(existing.getId());
+                    
+                    // 새로운 스크린샷 추가
+                    List<ProjectScreenshotJpaEntity> newScreenshots = new ArrayList<>();
+                    for (int i = 0; i < project.getScreenshots().size(); i++) {
+                        String screenshotUrl = project.getScreenshots().get(i);
+                        if (screenshotUrl != null && !screenshotUrl.isEmpty()) {
+                            ProjectScreenshotJpaEntity screenshot = ProjectScreenshotJpaEntity.builder()
+                                    .project(existing)
+                                    .imageUrl(screenshotUrl)
+                                    .displayOrder(i)
+                                    .build();
+                            newScreenshots.add(screenshot);
+                        }
+                    }
+                    projectScreenshotJpaRepository.saveAll(newScreenshots);
+                }
                 
                 ProjectJpaEntity savedEntity = projectJpaRepository.save(existing);
                 log.debug("Project updated successfully: {}", savedEntity.getId());

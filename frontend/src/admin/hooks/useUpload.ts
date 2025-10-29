@@ -5,17 +5,19 @@ type UploadType = 'project' | 'screenshots' | 'skill' | 'profile';
 
 export const useUploadImage = () => {
   return useMutation({
-    mutationFn: ({ file, type }: { file: File; type: UploadType }) =>
-      adminUploadApi.uploadImage(file, type),
-    select: (response) => response.data,
+    mutationFn: async ({ file, type, projectId }: { file: File; type: UploadType; projectId?: string }) => {
+      const response = await adminUploadApi.uploadImage(file, type, projectId);
+      return response.data;
+    },
   });
 };
 
 export const useUploadImages = () => {
   return useMutation({
-    mutationFn: ({ files, type }: { files: File[]; type: UploadType }) =>
-      adminUploadApi.uploadImages(files, type),
-    select: (response) => response.data,
+    mutationFn: async ({ files, type, projectId }: { files: File[]; type: UploadType; projectId?: string }) => {
+      const response = await adminUploadApi.uploadImages(files, type, projectId);
+      return response.data;
+    },
   });
 };
 

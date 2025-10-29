@@ -62,13 +62,22 @@ const ProjectEdit: React.FC = () => {
         role: project.role,
         startDate: project.startDate ? dayjs(project.startDate) : undefined,
         endDate: project.endDate ? dayjs(project.endDate) : undefined,
+        imageUrl: project.imageUrl,
         githubUrl: project.githubUrl,
         liveUrl: project.liveUrl,
         externalUrl: project.externalUrl,
         sortOrder: project.sortOrder,
+        readme: project.readme,
       });
       setIsTeam(project.isTeam || false);
-      setScreenshots(project.screenshots || []);
+      // screenshots는 백엔드에서 객체 배열로 올 수 있으므로 변환 처리
+      const projectScreenshots = project.screenshots || [];
+      const screenshotsData = projectScreenshots.map((s: any) => 
+        typeof s === 'string' 
+          ? { imageUrl: s, displayOrder: 0 } 
+          : { imageUrl: s?.imageUrl || s, displayOrder: s?.displayOrder || 0, cloudinaryPublicId: s?.cloudinaryPublicId }
+      );
+      setScreenshots(screenshotsData);
       setTechnologies(project.technologies?.map(t => t.name) || []);
     }
   }, [project, form]);
@@ -79,6 +88,11 @@ const ProjectEdit: React.FC = () => {
 
   const handleSubmit = async (values: any) => {
     try {
+      // screenshots를 문자열 배열로 변환 (객체 배열인 경우 imageUrl 추출, 이미 문자열 배열인 경우 그대로 사용)
+      const screenshotsArray = screenshots && screenshots.length > 0
+        ? screenshots.map((s: any) => typeof s === 'string' ? s : s?.imageUrl || s).filter(Boolean)
+        : [];
+
       if (isNew) {
         // 새 프로젝트 생성
         const createData: ProjectCreateRequest = {
@@ -94,7 +108,7 @@ const ProjectEdit: React.FC = () => {
           startDate: values.startDate ? values.startDate.format('YYYY-MM-DD') : undefined,
           endDate: values.endDate?.format('YYYY-MM-DD') || undefined,
           imageUrl: values.imageUrl,
-          screenshots: screenshots.map(s => s.imageUrl),
+          screenshots: screenshotsArray.length > 0 ? screenshotsArray : undefined,
           githubUrl: values.githubUrl,
           liveUrl: values.liveUrl,
           externalUrl: values.externalUrl,
@@ -119,7 +133,7 @@ const ProjectEdit: React.FC = () => {
           startDate: values.startDate ? values.startDate.format('YYYY-MM-DD') : undefined,
           endDate: values.endDate?.format('YYYY-MM-DD') || undefined,
           imageUrl: values.imageUrl,
-          screenshots: screenshots.map(s => s.imageUrl),
+          screenshots: screenshotsArray.length > 0 ? screenshotsArray : undefined,
           githubUrl: values.githubUrl,
           liveUrl: values.liveUrl,
           externalUrl: values.externalUrl,
@@ -155,14 +169,6 @@ const ProjectEdit: React.FC = () => {
         }
       },
     });
-  };
-
-  const handleThumbnailChange = (url: string) => {
-    form.setFieldValue('imageUrl', url);
-    // 프로젝트 상태도 업데이트
-    if (project) {
-      project.imageUrl = url;
-    }
   };
 
   const handleScreenshotsChange = (newScreenshots: any[]) => {
@@ -248,9 +254,9 @@ const ProjectEdit: React.FC = () => {
                 rules={[{ required: true, message: '프로젝트 상태를 선택해주세요' }]}
               >
                 <Select placeholder="완료/진행 중/유지보수" allowClear>
-                  <Option value="completed">완료</Option>
-                  <Option value="in_progress">진행 중</Option>
-                  <Option value="maintenance">유지보수</Option>
+                  <Option value="COMPLETED">완료</Option>
+                  <Option value="IN_PROGRESS">진행 중</Option>
+                  <Option value="MAINTENANCE">유지보수</Option>
                 </Select>
               </Form.Item>
             </Col>
@@ -320,16 +326,18 @@ const ProjectEdit: React.FC = () => {
         </Card>
 
         <Card title="썸네일 이미지" style={{ marginBottom: '24px' }}>
-          <ProjectThumbnailUpload
-            value={project?.imageUrl}
-            onChange={handleThumbnailChange}
-          />
+          <Form.Item name="imageUrl">
+            <ProjectThumbnailUpload 
+              projectId={!isNew ? id : undefined}
+            />
+          </Form.Item>
         </Card>
 
         <Card title="스크린샷" style={{ marginBottom: '24px' }}>
           <ProjectScreenshotsUpload
             value={screenshots}
             onChange={handleScreenshotsChange}
+            projectId={!isNew ? id : undefined}
           />
         </Card>
 
