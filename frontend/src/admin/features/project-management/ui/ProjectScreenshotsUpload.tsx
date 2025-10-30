@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Upload, Button, message, Modal, Image, Space } from 'antd';
-import { UploadOutlined, DeleteOutlined, EyeOutlined } from '@ant-design/icons';
+import { UploadOutlined, DeleteOutlined, EyeOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { useUploadImages, useDeleteImage } from '../../../hooks/useUpload';
 import type { UploadFile } from 'antd/es/upload/interface';
 
@@ -15,12 +15,18 @@ interface ProjectScreenshotsUploadProps {
   value?: Screenshot[];
   onChange?: (screenshots: Screenshot[]) => void;
   projectId?: string;
+  hideAddButton?: boolean;
+  isLoading?: boolean;
+  tempImageUrls?: string[];
 }
 
 const ProjectScreenshotsUpload: React.FC<ProjectScreenshotsUploadProps> = ({ 
   value = [], 
   onChange,
-  projectId
+  projectId,
+  hideAddButton = false,
+  isLoading = false,
+  tempImageUrls = [],
 }) => {
   const [previewVisible, setPreviewVisible] = useState(false);
   const [previewImage, setPreviewImage] = useState('');
@@ -131,23 +137,59 @@ const ProjectScreenshotsUpload: React.FC<ProjectScreenshotsUploadProps> = ({
     }
   };
 
+  const updateDisplayOrder = (items: Screenshot[]): Screenshot[] => {
+    return items.map((item, idx) => ({ ...item, displayOrder: idx + 1 }));
+  };
+
+  const moveLeft = (index: number) => {
+    if (index <= 0) return;
+    const next = [...(value || [])];
+    const temp = next[index - 1];
+    next[index - 1] = next[index];
+    next[index] = temp;
+    onChange?.(updateDisplayOrder(next));
+  };
+
+  const moveRight = (index: number) => {
+    if (!value || index >= value.length - 1) return;
+    const next = [...value];
+    const temp = next[index + 1];
+    next[index + 1] = next[index];
+    next[index] = temp;
+    onChange?.(updateDisplayOrder(next));
+  };
+
   return (
     <div>
-      <div style={{ marginBottom: '16px' }}>
-        <Upload
-          beforeUpload={handleBeforeUpload}
-          onChange={handleFileChange}
-          showUploadList={false}
-          accept="image/*"
-          multiple
-          fileList={[]}
-        >
-          <Button icon={<UploadOutlined />}>스크린샷 추가</Button>
-        </Upload>
-      </div>
+      {!hideAddButton && (
+        <div style={{ marginBottom: '16px' }}>
+          <Upload
+            beforeUpload={handleBeforeUpload}
+            onChange={handleFileChange}
+            showUploadList={false}
+            accept="image/*"
+            multiple
+            fileList={[]}
+          >
+            <Button icon={<UploadOutlined />}>스크린샷 추가</Button>
+          </Upload>
+        </div>
+      )}
 
-      {value && value.length > 0 && (
+      {(value && value.length > 0) || (tempImageUrls && tempImageUrls.length > 0) ? (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px' }}>
+          {tempImageUrls.map((url, idx) => (
+            <div key={`temp-${idx}`} style={{ position: 'relative', opacity: 0.8 }}>
+              <img
+                src={url}
+                alt={`임시 스크린샷 ${idx + 1}`}
+                style={{ width: '100%', height: '150px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #d9d9d9' }}
+              />
+              <div style={{ position: 'absolute', inset: 0, background: 'rgba(255,255,255,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px' }}>
+                <span style={{ fontSize: 12, color: '#555' }}>업로드 중...</span>
+              </div>
+            </div>
+          ))}
           {value.map((screenshot, index) => (
             <div key={index} style={{ position: 'relative' }}>
               <img
@@ -161,7 +203,11 @@ const ProjectScreenshotsUpload: React.FC<ProjectScreenshotsUploadProps> = ({
                   border: '1px solid #d9d9d9',
                 }}
               />
-              <div style={{ marginTop: '8px', display: 'flex', gap: '8px' }}>
+              <div style={{ marginTop: '8px', display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <div style={{ display: 'flex', gap: '4px' }}>
+                  <Button icon={<LeftOutlined />} size="small" onClick={() => moveLeft(index)} disabled={index === 0} />
+                  <Button icon={<RightOutlined />} size="small" onClick={() => moveRight(index)} disabled={!value || index === value.length - 1} />
+                </div>
                 <Button
                   type="primary"
                   icon={<EyeOutlined />}
@@ -181,13 +227,13 @@ const ProjectScreenshotsUpload: React.FC<ProjectScreenshotsUploadProps> = ({
             </div>
           ))}
         </div>
-      )}
+      ) : null}
 
       <Modal
         open={previewVisible}
         footer={null}
         onCancel={() => setPreviewVisible(false)}
-        width={800}
+        width={1000}
       >
         <Image.PreviewGroup>
           {previewList.map((url, index) => (

@@ -8,12 +8,18 @@ interface ProjectThumbnailUploadProps {
   value?: string;
   onChange?: (url: string) => void;
   projectId?: string;
+  hideControls?: boolean;
+  isLoading?: boolean;
+  tempImageUrl?: string;
 }
 
 const ProjectThumbnailUpload: React.FC<ProjectThumbnailUploadProps> = ({ 
   value, 
   onChange,
-  projectId
+  projectId,
+  hideControls = false,
+  isLoading = false,
+  tempImageUrl,
 }) => {
   const [previewVisible, setPreviewVisible] = useState(false);
   const uploadImageMutation = useUploadImage();
@@ -92,22 +98,30 @@ const ProjectThumbnailUpload: React.FC<ProjectThumbnailUploadProps> = ({
       .catch((error) => onError?.(error));
   };
 
+  const displayImage = value || tempImageUrl;
+
   return (
-    <div>
-      {value ? (
+    <div style={{ display: 'flex', justifyContent: 'center' }}>
+      {displayImage ? (
         <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
           <div style={{ position: 'relative' }}>
             <img
-              src={value}
+              src={displayImage}
               alt="썸네일"
               style={{
-                width: '200px',
-                height: '150px',
+                width: '480px',
+                height: '270px',
                 objectFit: 'cover',
                 borderRadius: '8px',
                 border: '1px solid #d9d9d9',
               }}
             />
+            {isLoading && (
+              <div style={{ position: 'absolute', inset: 0, background: 'rgba(255,255,255,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px' }}>
+                <span style={{ fontSize: 14, color: '#555' }}>업로드 중...</span>
+              </div>
+            )}
+            {!hideControls && (
             <Button
               type="primary"
               icon={<EyeOutlined />}
@@ -121,39 +135,42 @@ const ProjectThumbnailUpload: React.FC<ProjectThumbnailUploadProps> = ({
             >
               미리보기
             </Button>
+            )}
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <Upload
-              customRequest={customRequest}
-              showUploadList={false}
-              accept="image/*"
-            >
-              <Button icon={<UploadOutlined />}>이미지 변경</Button>
-            </Upload>
-            <Button
-              danger
-              icon={<DeleteOutlined />}
-              onClick={handleDelete}
-            >
-              삭제
-            </Button>
-          </div>
+          {!hideControls && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <Upload
+                customRequest={customRequest}
+                showUploadList={false}
+                accept="image/*"
+              >
+                <Button icon={<UploadOutlined />}>이미지 변경</Button>
+              </Upload>
+              <Button
+                danger
+                icon={<DeleteOutlined />}
+                onClick={handleDelete}
+              >
+                삭제
+              </Button>
+            </div>
+          )}
         </div>
       ) : (
-        <Upload
-          customRequest={customRequest}
-          showUploadList={false}
-          accept="image/*"
-        >
-          <Button icon={<UploadOutlined />}>이미지 업로드</Button>
-        </Upload>
+        <div style={{ width: '480px', height: '270px', border: '1px dashed #d9d9d9', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#999' }}>
+          {isLoading ? '업로드 중...' : (!hideControls ? (
+            <Upload customRequest={customRequest} showUploadList={false} accept="image/*">
+              <Button icon={<UploadOutlined />}>이미지 업로드</Button>
+            </Upload>
+          ) : '이미지가 없습니다')}
+        </div>
       )}
-
+ 
       <Modal
         open={previewVisible}
         footer={null}
         onCancel={() => setPreviewVisible(false)}
-        width={800}
+        width={1000}
       >
         {value && <img src={value} alt="썸네일 미리보기" style={{ width: '100%' }} />}
       </Modal>

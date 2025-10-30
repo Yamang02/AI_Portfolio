@@ -12,12 +12,12 @@ import {
   Space,
   message,
   Spin,
-  Divider,
   Row,
   Col,
   Modal,
+  Upload,
 } from 'antd';
-import { SaveOutlined, ArrowLeftOutlined, DeleteOutlined } from '@ant-design/icons';
+import { SaveOutlined, ArrowLeftOutlined, DeleteOutlined, UploadOutlined, EyeOutlined } from '@ant-design/icons';
 import { useProject, useUpdateProject, useCreateProject, useDeleteProject } from '../hooks/useProjects';
 import { ProjectUpdateRequest, ProjectCreateRequest } from '../api/adminProjectApi';
 import { ProjectThumbnailUpload } from '../features/project-management/ui/ProjectThumbnailUpload';
@@ -27,6 +27,7 @@ import { TechStackSelector } from '../features/project-management/ui/TechStackSe
 import { ProjectLinksForm } from '../features/project-management/ui/ProjectLinksForm';
 import { DateRangeWithOngoing } from '../../shared/ui/date-range';
 import dayjs from 'dayjs';
+import { useUploadImage, useUploadImages, useDeleteImage } from '../hooks/useUpload';
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -49,6 +50,16 @@ const ProjectEdit: React.FC = () => {
   const [isTeam, setIsTeam] = useState(false);
   const [screenshots, setScreenshots] = useState<any[]>([]);
   const [technologies, setTechnologies] = useState<string[]>([]);
+  const [thumbPreviewVisible, setThumbPreviewVisible] = useState(false);
+  const [isUploadingScreenshots, setIsUploadingScreenshots] = useState(false);
+  const [lastScreenshotsSelectionKey, setLastScreenshotsSelectionKey] = useState<string | null>(null);
+  const [isUploadingThumbnail, setIsUploadingThumbnail] = useState(false);
+  const [tempThumbnailUrl, setTempThumbnailUrl] = useState<string | undefined>(undefined);
+  const [tempScreenshotUrls, setTempScreenshotUrls] = useState<string[]>([]);
+
+  const uploadImageMutation = useUploadImage();
+  const uploadImagesMutation = useUploadImages();
+  const deleteImageMutation = useDeleteImage();
 
   useEffect(() => {
     if (project) {
@@ -223,6 +234,85 @@ const ProjectEdit: React.FC = () => {
           type: undefined, // 기본값 없음
         }}
       >
+        {/* 썸네일 섹션을 기본 정보 위로 이동 */}
+        <Card 
+          title="썸네일 이미지" 
+          style={{ marginBottom: '24px' }}
+          extra={
+            <Space>
+              <Upload
+                showUploadList={false}
+                accept="image/*"
+                customRequest={async ({ file, onSuccess, onError }: any) => {
+                  try {
+                    // 임시 미리보기 URL과 로딩 상태 설정
+                    const f = file as File;
+                    const objectUrl = URL.createObjectURL(f);
+                    setTempThumbnailUrl(objectUrl);
+                    setIsUploadingThumbnail(true);
+                    const response = await uploadImageMutation.mutateAsync({ file: file as File, type: 'project', projectId: !isNew ? id : undefined });
+                    if (response?.url) {
+                      form.setFieldValue('imageUrl', response.url);
+                      message.success('이미지가 업로드되었습니다');
+                    }
+                    onSuccess?.();
+                  } catch (e: any) {
+                    message.error(e?.message || '이미지 업로드 실패');
+                    onError?.(e);
+                  } finally {
+                    // 로딩 해제 및 임시 URL 정리
+                    setIsUploadingThumbnail(false);
+                    if (tempThumbnailUrl) {
+                      try { URL.revokeObjectURL(tempThumbnailUrl); } catch {}
+                    }
+                    setTempThumbnailUrl(undefined);
+                  }
+                }}
+              >
+                <Button icon={<UploadOutlined />}>이미지 변경</Button>
+              </Upload>
+              {form.getFieldValue('imageUrl') && (
+                <>
+                  <Button icon={<EyeOutlined />} onClick={() => setThumbPreviewVisible(true)}>미리보기</Button>
+                  <Button 
+                    danger 
+                    icon={<DeleteOutlined />} 
+                    onClick={async () => {
+                      const value = form.getFieldValue('imageUrl');
+                      if (!value) return;
+                      try {
+                        const publicId = value.split('/').pop()?.split('.')[0];
+                        if (publicId) {
+                          await deleteImageMutation.mutateAsync(publicId);
+                        }
+                        form.setFieldValue('imageUrl', '');
+                        message.success('이미지가 삭제되었습니다');
+                      } catch (e: any) {
+                        message.error(e?.message || '이미지 삭제 실패');
+                      }
+                    }}
+                  />
+                </>
+              )}
+            </Space>
+          }
+        >
+          <Form.Item name="imageUrl">
+            <ProjectThumbnailUpload 
+              hideControls
+              isLoading={isUploadingThumbnail}
+              tempImageUrl={tempThumbnailUrl}
+              projectId={!isNew ? id : undefined}
+            />
+          </Form.Item>
+        </Card>
+
+        <Modal open={thumbPreviewVisible} footer={null} onCancel={() => setThumbPreviewVisible(false)} width={1000}>
+          {form.getFieldValue('imageUrl') && (
+            <img src={form.getFieldValue('imageUrl')} alt="썸네일 미리보기" style={{ width: '100%' }} />
+          )}
+        </Modal>
+
         <Card title="기본 정보" style={{ marginBottom: '24px' }}>
           <Row gutter={16}>
             <Col span={6}>
@@ -325,19 +415,65 @@ const ProjectEdit: React.FC = () => {
           />
         </Card>
 
-        <Card title="썸네일 이미지" style={{ marginBottom: '24px' }}>
-          <Form.Item name="imageUrl">
-            <ProjectThumbnailUpload 
-              projectId={!isNew ? id : undefined}
-            />
-          </Form.Item>
-        </Card>
-
-        <Card title="스크린샷" style={{ marginBottom: '24px' }}>
+        <Card 
+          title="스크린샷" 
+          style={{ marginBottom: '24px' }}
+          extra={
+            <Upload
+              showUploadList={false}
+              accept="image/*"
+              multiple
+              beforeUpload={() => false}
+              fileList={[]}
+              onChange={async (info) => {
+                if (isUploadingScreenshots) return;
+                const files = (info.fileList || [])
+                  .map((f: any) => f.originFileObj)
+                  .filter(Boolean) as File[];
+                if (files.length === 0) return;
+                // 동일 선택에 대한 중복 업로드 방지 키
+                const selectionKey = files
+                  .map(f => `${f.name}-${f.size}-${(f as any).lastModified}`)
+                  .join('|');
+                if (selectionKey && selectionKey === lastScreenshotsSelectionKey) {
+                  return;
+                }
+                // 임시 프리뷰 URL 생성 및 표시 (finally에서 정리 필요하므로 try 바깥에서 선언)
+                const tempUrls = files.map(f => URL.createObjectURL(f));
+                setTempScreenshotUrls(prev => [...prev, ...tempUrls]);
+                try {
+                  setIsUploadingScreenshots(true);
+                  setLastScreenshotsSelectionKey(selectionKey);
+                  const response = await uploadImagesMutation.mutateAsync({ files, type: 'screenshots', projectId: !isNew ? id : undefined });
+                  if (response && response.length > 0) {
+                    const newItems = response.map((url: string, index: number) => ({ imageUrl: url, displayOrder: (screenshots?.length || 0) + index + 1 }));
+                    const updated = [...(screenshots || []), ...newItems];
+                    setScreenshots(updated);
+                    message.success(`${files.length}개의 이미지가 업로드되었습니다`);
+                  }
+                } catch (e: any) {
+                  message.error(e?.message || '스크린샷 업로드 실패');
+                } finally {
+                  setIsUploadingScreenshots(false);
+                  // 임시 URL 정리 및 제거
+                  setTempScreenshotUrls(current => {
+                    tempUrls.forEach((u: string) => { try { URL.revokeObjectURL(u); } catch {} });
+                    return current.filter(u => !tempUrls.includes(u));
+                  });
+                }
+              }}
+            >
+              <Button icon={<UploadOutlined />}>스크린샷 추가</Button>
+            </Upload>
+          }
+        >
           <ProjectScreenshotsUpload
             value={screenshots}
             onChange={handleScreenshotsChange}
             projectId={!isNew ? id : undefined}
+            hideAddButton
+            isLoading={isUploadingScreenshots}
+            tempImageUrls={tempScreenshotUrls}
           />
         </Card>
 

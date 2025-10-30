@@ -80,11 +80,18 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
             if (jpaEntityOpt.isPresent()) {
                 ProjectJpaEntity jpaEntity = jpaEntityOpt.get();
                 // 기술스택을 명시적으로 로드
-                // 스크린샷은 ID 배열 기반으로 별도 조회하므로 여기서는 로드하지 않음
                 if (jpaEntity.getProjectTechStacks() != null) {
                     jpaEntity.getProjectTechStacks().size(); // LAZY 로딩 트리거
                 }
-                return Optional.of(projectMapper.toDomain(jpaEntity));
+                
+                // 상세 조회이므로 스크린샷 조회
+                Project project = projectMapper.toDomain(jpaEntity);
+                if (project != null && jpaEntity.getScreenshots() != null && !jpaEntity.getScreenshots().isEmpty()) {
+                    List<String> screenshotUrls = projectMapper.getScreenshotUrlsFromIds(jpaEntity);
+                    project.setScreenshots(screenshotUrls);
+                }
+                
+                return Optional.of(project);
             }
             return Optional.empty();
         } catch (Exception e) {
