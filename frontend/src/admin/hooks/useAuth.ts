@@ -24,13 +24,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const { data: sessionData, isLoading, error, refetch } = useQuery({
     queryKey: ['admin-session'],
     queryFn: async () => {
-      console.log('[AuthProvider] Fetching session...');
       try {
         const result = await adminAuthApi.getSession();
-        console.log('[AuthProvider] Session fetch result:', result);
         return result;
       } catch (err) {
-        console.error('[AuthProvider] Session fetch error:', err);
         throw err;
       }
     },
@@ -43,16 +40,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   });
 
   useEffect(() => {
-    console.log('[AuthProvider] State update - isLoading:', isLoading, 'sessionData:', sessionData, 'error:', error);
-
     // 로딩 중이 아닐 때만 인증 상태 업데이트
     if (!isLoading) {
       // ApiResponse<AdminUserInfo> 구조에서 data가 있으면 인증됨
       if (sessionData?.success && sessionData?.data) {
-        console.log('[AuthProvider] User authenticated:', sessionData.data.username);
         setIsAuthenticated(true);
       } else {
-        console.log('[AuthProvider] User not authenticated');
         setIsAuthenticated(false);
       }
     }
@@ -73,7 +66,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         // 3. 인증 상태 설정
         setIsAuthenticated(true);
 
-        console.log('[AuthProvider] Login successful, cache updated');
         return { success: true, user: response.data };
       } else {
         return {
@@ -82,7 +74,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         };
       }
     } catch (error: any) {
-      console.error('Login error:', error);
       return {
         success: false,
         message: error.message || '로그인 중 오류가 발생했습니다'
@@ -98,7 +89,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       await queryClient.invalidateQueries({ queryKey: ['admin-session'] });
       return { success: true };
     } catch (error) {
-      console.error('Logout error:', error);
       setIsAuthenticated(false);
       await queryClient.invalidateQueries({ queryKey: ['admin-session'] });
       return { success: true }; // 로그아웃은 항상 성공으로 처리

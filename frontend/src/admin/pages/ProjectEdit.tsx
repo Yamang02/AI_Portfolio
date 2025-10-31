@@ -56,6 +56,7 @@ const ProjectEdit: React.FC = () => {
   const [isUploadingThumbnail, setIsUploadingThumbnail] = useState(false);
   const [tempThumbnailUrl, setTempThumbnailUrl] = useState<string | undefined>(undefined);
   const [tempScreenshotUrls, setTempScreenshotUrls] = useState<string[]>([]);
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
 
   const uploadImageMutation = useUploadImage();
   const uploadImagesMutation = useUploadImages();
@@ -161,25 +162,23 @@ const ProjectEdit: React.FC = () => {
     }
   };
 
-  const handleDelete = async () => {
-    if (!project || isNew) return;
+  const handleDelete = () => {
+    if (!project || isNew) {
+      return;
+    }
+    setDeleteModalVisible(true);
+  };
 
-    Modal.confirm({
-      title: '프로젝트 삭제',
-      content: `'${project.title}' 프로젝트를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`,
-      okText: '삭제',
-      cancelText: '취소',
-      okType: 'danger',
-      onOk: async () => {
-        try {
-          await deleteProjectMutation.mutateAsync(id!);
-          message.success('프로젝트가 성공적으로 삭제되었습니다');
-          navigate('/admin/projects');
-        } catch (error: any) {
-          message.error(error.message || '프로젝트 삭제 중 오류가 발생했습니다');
-        }
-      },
-    });
+  const confirmDelete = async () => {
+    try {
+      await deleteProjectMutation.mutateAsync(id!);
+      message.success('프로젝트가 성공적으로 삭제되었습니다');
+      navigate('/admin/projects');
+    } catch (error: any) {
+      message.error(error.message || '프로젝트 삭제 중 오류가 발생했습니다');
+    } finally {
+      setDeleteModalVisible(false);
+    }
   };
 
   const handleScreenshotsChange = (newScreenshots: any[]) => {
@@ -263,7 +262,7 @@ const ProjectEdit: React.FC = () => {
                     // 로딩 해제 및 임시 URL 정리
                     setIsUploadingThumbnail(false);
                     if (tempThumbnailUrl) {
-                      try { URL.revokeObjectURL(tempThumbnailUrl); } catch {}
+                      URL.revokeObjectURL(tempThumbnailUrl);
                     }
                     setTempThumbnailUrl(undefined);
                   }
@@ -457,7 +456,7 @@ const ProjectEdit: React.FC = () => {
                   setIsUploadingScreenshots(false);
                   // 임시 URL 정리 및 제거
                   setTempScreenshotUrls(current => {
-                    tempUrls.forEach((u: string) => { try { URL.revokeObjectURL(u); } catch {} });
+                    tempUrls.forEach((u: string) => URL.revokeObjectURL(u));
                     return current.filter(u => !tempUrls.includes(u));
                   });
                 }
@@ -482,10 +481,9 @@ const ProjectEdit: React.FC = () => {
         </Card>
 
         <Card title="README" style={{ marginBottom: '24px' }}>
-          <ProjectMarkdownEditor
-            value={project?.readme}
-            onChange={(value) => form.setFieldValue('readme', value)}
-          />
+          <Form.Item name="readme" noStyle>
+            <ProjectMarkdownEditor />
+          </Form.Item>
         </Card>
 
         <div style={{ textAlign: 'right', marginTop: '24px' }}>
@@ -494,13 +492,20 @@ const ProjectEdit: React.FC = () => {
               <Button
                 danger
                 icon={<DeleteOutlined />}
-                onClick={handleDelete}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleDelete();
+                }}
                 loading={deleteProjectMutation.isPending}
               >
                 삭제
               </Button>
             )}
-            <Button onClick={() => navigate('/admin/projects')}>
+            <Button onClick={(e) => {
+              e.preventDefault();
+              navigate('/admin/projects');
+            }}>
               취소
             </Button>
             <Button
@@ -514,6 +519,23 @@ const ProjectEdit: React.FC = () => {
           </Space>
         </div>
       </Form>
+
+      <Modal
+        open={deleteModalVisible}
+        title="프로젝트 삭제"
+        onOk={confirmDelete}
+        onCancel={() => setDeleteModalVisible(false)}
+        okText="삭제"
+        cancelText="취소"
+        okType="danger"
+        confirmLoading={deleteProjectMutation.isPending}
+      >
+        <p>
+          '{project?.title}' 프로젝트를 삭제하시겠습니까? 
+          <br />
+          이 작업은 되돌릴 수 없습니다.
+        </p>
+      </Modal>
     </div>
   );
 };

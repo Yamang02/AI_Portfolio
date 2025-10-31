@@ -94,19 +94,16 @@ class RelationshipApi {
    */
   async getExperienceProjects(experienceId: string): Promise<any[]> {
     const url = `${this.baseUrl}/experiences/${experienceId}/projects`;
-    console.log('Fetching projects from:', url);
     
     const response = await fetch(url, {
       credentials: 'include',
     });
 
     if (!response.ok) {
-      console.error('Failed to fetch projects:', response.status, response.statusText);
       throw new Error('프로젝트 관계 조회 실패');
     }
 
     const result = await response.json();
-    console.log('Projects API response:', result);
     return result.data || [];
   }
 
@@ -117,8 +114,6 @@ class RelationshipApi {
     experienceId: string,
     request: ProjectRelationshipRequest
   ): Promise<void> {
-    console.log('Adding experience project relationship:', { experienceId, request });
-
     const response = await fetch(`${this.baseUrl}/experiences/${experienceId}/projects`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -234,8 +229,6 @@ class RelationshipApi {
     educationId: string,
     request: ProjectRelationshipRequest
   ): Promise<void> {
-    console.log('Adding education project relationship:', { educationId, request });
-
     const response = await fetch(`${this.baseUrl}/educations/${educationId}/projects`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

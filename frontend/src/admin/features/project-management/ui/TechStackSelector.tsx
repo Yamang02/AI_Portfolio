@@ -193,11 +193,22 @@ const TechStackSelector: React.FC<TechStackSelectorProps> = ({ value = [], onCha
                 <Card
                   size="small"
                   hoverable
+                  onClick={() => handleTechToggle(tech.name, !value.includes(tech.name))}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      handleTechToggle(tech.name, !value.includes(tech.name));
+                    }
+                  }}
+                  tabIndex={0}
+                  role="checkbox"
+                  aria-checked={value.includes(tech.name)}
                   style={{
+                    cursor: 'pointer',
                     border: value.includes(tech.name) ? `2px solid ${getCategoryColor(tech.category)}` : '1px solid #d9d9d9',
                     backgroundColor: value.includes(tech.name) ? `${getCategoryColor(tech.category)}10` : 'white',
                   }}
-                  bodyStyle={{ padding: '8px 12px' }}
+                  styles={{ body: { padding: '8px 12px' } }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <div style={{ flex: 1 }}>
@@ -230,11 +241,7 @@ const TechStackSelector: React.FC<TechStackSelectorProps> = ({ value = [], onCha
                         </div>
                       )}
                     </div>
-                    <Checkbox
-                      checked={value.includes(tech.name)}
-                      onChange={(e) => handleTechToggle(tech.name, e.target.checked)}
-                      style={{ marginLeft: '8px' }}
-                    />
+                    {/* 카드 전체가 토글되므로 별도의 체크박스는 제거 */}
                   </div>
                 </Card>
               </Col>

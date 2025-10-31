@@ -48,8 +48,8 @@ export const RedisCacheModal: React.FC<RedisCacheModalProps> = ({
       const values = await form.validateFields();
       onClearPattern(values.pattern);
       form.resetFields();
-    } catch (error) {
-      console.error('Validation failed:', error);
+    } catch {
+      // Validation 실패 - 폼이 자동으로 에러 표시
     }
   };
 

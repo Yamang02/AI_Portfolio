@@ -106,10 +106,6 @@ const ExperienceManagement: React.FC = () => {
       const savedExperience = await createOrUpdateMutation.mutateAsync(formData);
       const experienceId = editingExperience ? editingExperience.id : savedExperience.id;
       
-      console.log('Updating relationships for experience:', experienceId);
-      console.log('TechStack relationships to save:', techStackRelationships);
-      console.log('Project relationships to save:', projectRelationships);
-      
       // 관계 저장 (생성/수정 모두)
       let techStackSuccess = false;
       let projectSuccess = false;
@@ -127,8 +123,8 @@ const ExperienceManagement: React.FC = () => {
         });
 
         techStackSuccess = true;
-      } catch (error) {
-        console.error('Failed to update tech stack relationships:', error);
+      } catch {
+        // 관계 업데이트 실패 - techStackSuccess는 false로 유지
       }
 
       try {
@@ -144,13 +140,12 @@ const ExperienceManagement: React.FC = () => {
         });
 
         projectSuccess = true;
-      } catch (error) {
-        console.error('Failed to update project relationships:', error);
+      } catch {
+        // 관계 업데이트 실패 - projectSuccess는 false로 유지
       }
 
       // 결과에 따른 메시지 표시
       if (techStackSuccess && projectSuccess) {
-        console.log('All relationships updated successfully');
       } else if (!techStackSuccess && !projectSuccess) {
         message.warning('기본 정보는 저장되었지만 관계 업데이트에 실패했습니다.');
       } else if (!techStackSuccess) {
@@ -215,25 +210,19 @@ const ExperienceManagement: React.FC = () => {
     });
     
     // 백엔드에서 기존 관계 데이터 가져오기
-    console.log('Loading relationships for experience:', experience.id);
-    
     let techStacks: any[] = [];
     let projects: any[] = [];
     
     try {
       techStacks = await relationshipApi.getExperienceTechStacks(experience.id);
-      console.log('Loaded tech stacks:', techStacks);
-    } catch (error) {
-      console.error('Failed to load tech stacks:', error);
+    } catch {
+      // 기술스택 로드 실패 - 빈 배열로 유지
     }
     
     try {
       projects = await relationshipApi.getExperienceProjects(experience.id);
-      console.log('Loaded projects:', projects);
-      console.log('Projects length:', projects?.length);
-      console.log('Projects data:', JSON.stringify(projects, null, 2));
-    } catch (error) {
-      console.error('Failed to load projects:', error);
+    } catch {
+      // 프로젝트 로드 실패 - 빈 배열로 유지
     }
       
       // 기술스택 관계 변환

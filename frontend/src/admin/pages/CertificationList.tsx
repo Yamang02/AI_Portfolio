@@ -133,12 +133,11 @@ const CertificationManagement: React.FC = () => {
       };
 
       // await createOrUpdateMutation.mutateAsync(formData);
-      console.log('Certification data:', formData);
       message.success(editingCertification ? '자격증이 수정되었습니다.' : '자격증이 추가되었습니다.');
       setIsModalVisible(false);
       form.resetFields();
-    } catch (error) {
-      console.error('Validation failed:', error);
+    } catch {
+      // Validation 실패 - 폼이 자동으로 에러 표시
     }
   };
 
@@ -157,7 +156,6 @@ const CertificationManagement: React.FC = () => {
       cancelText: '취소',
       onOk: () => {
         // deleteCertificationMutation.mutate(id);
-        console.log('Delete certification:', id);
         message.success('자격증이 삭제되었습니다.');
       },
     });

@@ -31,8 +31,8 @@ export const Modal = <T,>({
     try {
       await form.validateFields();
       onOk();
-    } catch (error) {
-      console.error('Validation failed:', error);
+    } catch {
+      // Validation 실패 - 폼이 자동으로 에러 표시
     }
   };
 

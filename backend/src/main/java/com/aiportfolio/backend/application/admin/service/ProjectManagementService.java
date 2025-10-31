@@ -8,6 +8,10 @@ import com.aiportfolio.backend.domain.admin.dto.request.ProjectUpdateRequest;
 import com.aiportfolio.backend.domain.admin.dto.response.ProjectResponse;
 import com.aiportfolio.backend.domain.portfolio.model.Project;
 import com.aiportfolio.backend.application.admin.mapper.ProjectResponseMapper;
+import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.ProjectJpaEntity;
+import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.ProjectScreenshotJpaEntity;
+import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.ProjectJpaRepository;
+import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.ProjectScreenshotJpaRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -30,6 +34,8 @@ public class ProjectManagementService implements ManageProjectUseCase {
     private final PortfolioRepositoryPort portfolioRepositoryPort;
     private final ProjectResponseMapper projectResponseMapper;
     private final ImageStoragePort imageStoragePort;
+    private final ProjectJpaRepository projectJpaRepository;
+    private final ProjectScreenshotJpaRepository projectScreenshotJpaRepository;
     
     @Override
     @CacheEvict(value = "portfolio", allEntries = true)
@@ -157,26 +163,47 @@ public class ProjectManagementService implements ManageProjectUseCase {
 
         // Cloudinary 이미지 삭제
         try {
-            // 썸네일 이미지 삭제
-            if (project.getImageUrl() != null && project.getImageUrl().contains("cloudinary.com")) {
-                String publicId = imageStoragePort.extractPublicId(project.getImageUrl());
-                if (publicId != null) {
-                    log.info("Deleting thumbnail image from Cloudinary: {}", publicId);
-                    imageStoragePort.deleteImage(publicId);
+            // 프로젝트 엔티티 조회 (스크린샷 정보 포함)
+            Optional<ProjectJpaEntity> projectEntityOpt = projectJpaRepository.findByBusinessId(id);
+            
+            if (projectEntityOpt.isPresent()) {
+                ProjectJpaEntity projectEntity = projectEntityOpt.get();
+                
+                // 썸네일 이미지 삭제
+                if (project.getImageUrl() != null && project.getImageUrl().contains("cloudinary.com")) {
+                    String publicId = imageStoragePort.extractPublicId(project.getImageUrl());
+                    if (publicId != null) {
+                        log.info("Deleting thumbnail image from Cloudinary: {}", publicId);
+                        imageStoragePort.deleteImage(publicId);
+                    }
                 }
-            }
 
-            // 스크린샷 이미지들 삭제
-            if (project.getScreenshots() != null) {
-                for (String screenshotUrl : project.getScreenshots()) {
-                    if (screenshotUrl != null && screenshotUrl.contains("cloudinary.com")) {
-                        String publicId = imageStoragePort.extractPublicId(screenshotUrl);
-                        if (publicId != null) {
-                            log.info("Deleting screenshot from Cloudinary: {}", publicId);
+                // 스크린샷 이미지들 삭제 (엔티티에서 cloudinaryPublicId 직접 사용)
+                if (projectEntity.getScreenshots() != null && !projectEntity.getScreenshots().isEmpty()) {
+                    List<ProjectScreenshotJpaEntity> screenshotEntities = 
+                        projectScreenshotJpaRepository.findAllById(projectEntity.getScreenshots());
+                    
+                    for (ProjectScreenshotJpaEntity screenshot : screenshotEntities) {
+                        // cloudinaryPublicId가 있으면 직접 사용, 없으면 URL에서 추출
+                        String publicId = screenshot.getCloudinaryPublicId();
+                        if (publicId == null || publicId.isEmpty()) {
+                            // fallback: URL에서 추출
+                            if (screenshot.getImageUrl() != null && screenshot.getImageUrl().contains("cloudinary.com")) {
+                                publicId = imageStoragePort.extractPublicId(screenshot.getImageUrl());
+                            }
+                        }
+                        
+                        if (publicId != null && !publicId.isEmpty()) {
+                            log.info("Deleting screenshot from Cloudinary: {} (publicId: {})", 
+                                screenshot.getImageUrl(), publicId);
                             imageStoragePort.deleteImage(publicId);
+                        } else {
+                            log.warn("Screenshot publicId를 찾을 수 없습니다: {}", screenshot.getImageUrl());
                         }
                     }
                 }
+            } else {
+                log.warn("프로젝트 엔티티를 찾을 수 없어 이미지 삭제를 건너뜁니다: {}", id);
             }
         } catch (Exception e) {
             log.error("Failed to delete images from Cloudinary for project: {}", id, e);

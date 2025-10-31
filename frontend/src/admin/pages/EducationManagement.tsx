@@ -104,10 +104,6 @@ const EducationManagement: React.FC = () => {
       const savedEducation = await createOrUpdateMutation.mutateAsync(formData);
       const educationId = editingEducation ? editingEducation.id : savedEducation.id;
       
-      console.log('Updating relationships for education:', educationId);
-      console.log('TechStack relationships to save:', techStackRelationships);
-      console.log('Project relationships to save:', projectRelationships);
-      
       // 관계 저장 (생성/수정 모두)
       let techStackSuccess = false;
       let projectSuccess = false;
@@ -125,8 +121,8 @@ const EducationManagement: React.FC = () => {
         });
 
         techStackSuccess = true;
-      } catch (error) {
-        console.error('Failed to update tech stack relationships:', error);
+      } catch {
+        // 관계 업데이트 실패 - techStackSuccess는 false로 유지
       }
 
       try {
@@ -142,13 +138,12 @@ const EducationManagement: React.FC = () => {
         });
 
         projectSuccess = true;
-      } catch (error) {
-        console.error('Failed to update project relationships:', error);
+      } catch {
+        // 관계 업데이트 실패 - projectSuccess는 false로 유지
       }
 
       // 결과에 따른 메시지 표시
       if (techStackSuccess && projectSuccess) {
-        console.log('All relationships updated successfully');
       } else if (!techStackSuccess && !projectSuccess) {
         message.warning('기본 정보는 저장되었지만 관계 업데이트에 실패했습니다.');
       } else if (!techStackSuccess) {
@@ -243,8 +238,7 @@ const EducationManagement: React.FC = () => {
       
       setTechStackRelationships(techStackRelationships);
       setProjectRelationships(projectRelationships);
-    } catch (error) {
-      console.error('Failed to load relationships:', error);
+    } catch {
       setTechStackRelationships([]);
       setProjectRelationships([]);
     }

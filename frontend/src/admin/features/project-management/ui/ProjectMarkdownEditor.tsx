@@ -14,7 +14,6 @@ const ProjectMarkdownEditor: React.FC<ProjectMarkdownEditorProps> = ({ value, on
         value={value || ''}
         onChange={(val) => onChange?.(val || '')}
         preview="edit"
-        visibleDragBar={false}
         height={500}
       />
     </div>

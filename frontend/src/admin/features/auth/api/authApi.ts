@@ -30,7 +30,6 @@ class AuthApi {
         };
       }
     } catch (error: any) {
-      console.error('Login error:', error);
       return {
         success: false,
         message: error.message || '로그인 중 오류가 발생했습니다',
@@ -46,7 +45,6 @@ class AuthApi {
       await adminAuthApi.logout();
       return { success: true };
     } catch (error: any) {
-      console.error('Logout error:', error);
       return { success: true }; // 로그아웃은 항상 성공으로 처리
     }
   }
@@ -64,7 +62,6 @@ class AuthApi {
       
       return null;
     } catch (error) {
-      console.error('Session check error:', error);
       return null;
     }
   }

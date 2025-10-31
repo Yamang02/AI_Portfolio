@@ -41,11 +41,11 @@ spring:
 
   # Redis 캐싱 설정
   redis:
-    host: ${REDIS_HOST:localhost}
-    port: ${REDIS_PORT:6379}
-    password: ${REDIS_PASSWORD:}
-    database: ${REDIS_DATABASE:0}
-    ssl: ${REDIS_SSL:false}
+    host: ${REDIS_HOST}
+    port: ${REDIS_PORT}
+    password: ${REDIS_PASSWORD}
+    database: ${REDIS_DATABASE}
+    ssl: ${REDIS_SSL}
     timeout: 2000ms
     lettuce:
       pool:
@@ -59,6 +59,14 @@ spring:
     type: redis
     redis:
       time-to-live: 86400000  # 1일 (밀리초)
+
+  # 세션 설정 (Redis에 저장)
+  session:
+    store-type: redis
+    redis:
+      namespace: spring:session
+      flush-mode: on_save
+    timeout: 1800s  # 30분 (초 단위)
 
   # CORS 설정 (FE 분리 후 CloudFront 도메인 추가)
   web:
@@ -98,7 +106,7 @@ springdoc:
     tryItOutEnabled: true
 
 # Actuator 설정 (Health Check용) - Production과 동일
-  management:
+management:
     endpoints:
       web:
         exposure:

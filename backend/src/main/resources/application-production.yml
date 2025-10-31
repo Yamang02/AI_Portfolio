@@ -52,6 +52,14 @@ spring:
     redis:
       time-to-live: 86400000  # 1일 (밀리초)
 
+  # 세션 설정 (Redis에 저장)
+  session:
+    store-type: redis
+    redis:
+      namespace: spring:session
+      flush-mode: on_save
+    timeout: 1800s  # 30분 (초 단위)
+
   # CORS 설정 (프로덕션 도메인)
   web:
     cors:
