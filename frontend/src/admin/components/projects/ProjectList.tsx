@@ -12,8 +12,8 @@ import {
   Select,
   message,
   Popconfirm,
-  Image,
   Alert,
+  Tooltip,
 } from 'antd';
 import {
   PlusOutlined,
@@ -25,6 +25,126 @@ import { useNavigate } from 'react-router-dom';
 
 const { Title } = Typography;
 const { Option } = Select;
+
+// 플레이스홀더 이미지 경로
+const PLACEHOLDER_IMAGE = '/placeholder/image_placeholder.png';
+
+/**
+ * 프로젝트 이미지 셀 컴포넌트
+ * 기본 이미지를 먼저 표시하고, 실제 이미지를 백그라운드에서 로드
+ */
+const ProjectImageCell: React.FC<{ imageUrl: string | null | undefined }> = ({ imageUrl }) => {
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageError, setImageError] = useState(false);
+
+  // imageUrl이 없거나 빈 문자열인 경우
+  if (!imageUrl || imageUrl === '#' || imageUrl.trim() === '') {
+    return (
+      <Tooltip title="이미지 URL이 없습니다">
+        <div style={{ 
+          width: 60, 
+          height: 40, 
+          background: '#f0f0f0', 
+          borderRadius: 4,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: '10px',
+          color: '#999'
+        }}>
+          NO IMAGE
+        </div>
+      </Tooltip>
+    );
+  }
+
+  return (
+    <div style={{ position: 'relative', width: 60, height: 40 }}>
+      {/* 기본 플레이스홀더 이미지 (항상 표시) */}
+      <img
+        src={PLACEHOLDER_IMAGE}
+        alt="프로젝트 썸네일"
+        style={{
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+          borderRadius: 4,
+          position: 'absolute',
+          top: 0,
+          left: 0,
+        }}
+      />
+      
+      {/* 실제 이미지 (로드 성공 시에만 표시) */}
+      {imageUrl && (
+        <img
+          src={imageUrl}
+          alt="프로젝트 이미지"
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            borderRadius: 4,
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            opacity: imageLoaded ? 1 : 0,
+            transition: 'opacity 0.3s ease',
+          }}
+          onLoad={() => setImageLoaded(true)}
+          onError={() => {
+            setImageError(true);
+            setImageLoaded(false);
+          }}
+        />
+      )}
+
+      {/* 이미지 URL 툴팁 (로드 실패 시 URL 표시) */}
+      {imageError && (
+        <Tooltip 
+          title={
+            <div style={{ maxWidth: 300, wordBreak: 'break-all' }}>
+              <div style={{ marginBottom: 4, fontWeight: 'bold' }}>이미지를 불러올 수 없습니다</div>
+              <div style={{ fontSize: '11px', color: '#fff' }}>{imageUrl}</div>
+            </div>
+          }
+        >
+          <div
+            style={{
+              position: 'absolute',
+              bottom: 0,
+              right: 0,
+              background: 'rgba(255, 0, 0, 0.7)',
+              color: 'white',
+              fontSize: '8px',
+              padding: '2px 4px',
+              borderRadius: '0 0 4px 0',
+              cursor: 'help',
+            }}
+          >
+            !
+          </div>
+        </Tooltip>
+      )}
+
+      {/* 이미지 URL 표시 (항상 표시) */}
+      {imageUrl && (
+        <Tooltip title={imageUrl}>
+          <div
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              cursor: 'help',
+            }}
+          />
+        </Tooltip>
+      )}
+    </div>
+  );
+};
 
 const ProjectList: React.FC = () => {
   const navigate = useNavigate();
@@ -61,18 +181,7 @@ const ProjectList: React.FC = () => {
       width: 80,
       fixed: 'left' as const,
       render: (imageUrl: string) => (
-        imageUrl ? (
-          <Image
-            src={imageUrl}
-            alt="프로젝트 이미지"
-            width={60}
-            height={40}
-            style={{ objectFit: 'cover', borderRadius: 4 }}
-            preview={false}
-          />
-        ) : (
-          <div style={{ width: 60, height: 40, background: '#f0f0f0', borderRadius: 4 }} />
-        )
+        <ProjectImageCell imageUrl={imageUrl} />
       ),
     },
     {

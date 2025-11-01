@@ -36,6 +36,11 @@ public class AdminAuthChecker {
      * 인증되지 않은 경우 예외 발생
      */
     public void requireAuthentication(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (session == null) {
+            throw new IllegalArgumentException("세션이 없습니다.");
+        }
+        
         if (!isAuthenticated(request)) {
             throw new IllegalArgumentException("인증이 필요합니다.");
         }

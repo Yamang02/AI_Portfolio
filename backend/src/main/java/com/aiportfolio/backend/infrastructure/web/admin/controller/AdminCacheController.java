@@ -65,9 +65,12 @@ public class AdminCacheController {
      */
     @GetMapping("/stats")
     public ResponseEntity<Map<String, Object>> getCacheStats(HttpServletRequest request) {
+        log.debug("Cache stats request received - Session ID: {}", request.getSession(false) != null ? request.getSession(false).getId() : "null");
+        
         try {
             adminAuthChecker.requireAuthentication(request);
         } catch (IllegalArgumentException e) {
+            log.warn("Authentication failed for cache stats request: {}", e.getMessage());
             return ResponseEntity.status(401).body(Map.of(
                 "success", false,
                 "message", e.getMessage(),
