@@ -6,8 +6,13 @@
 
 import { Certification, CertificationFormData } from '../model/certification.types';
 
+// 환경 변수에서 API Base URL 가져오기 (staging/production은 절대 경로 필요)
+const API_BASE_URL = typeof window !== 'undefined'
+  ? (import.meta.env.VITE_API_BASE_URL || '')  // 빈 문자열 = 상대 경로 사용
+  : (import.meta.env?.VITE_API_BASE_URL || '');
+
 class AdminCertificationApi {
-  private baseUrl = '/api/admin/certifications';
+  private baseUrl = `${API_BASE_URL}/api/admin/certifications`;
 
   /**
    * 전체 Certification 목록 조회
