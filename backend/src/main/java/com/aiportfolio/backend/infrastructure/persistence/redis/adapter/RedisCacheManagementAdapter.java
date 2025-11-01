@@ -3,13 +3,13 @@ package com.aiportfolio.backend.infrastructure.persistence.redis.adapter;
 import com.aiportfolio.backend.domain.admin.port.out.CacheManagementPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Redis 캐시 관리 어댑터
@@ -27,7 +27,7 @@ public class RedisCacheManagementAdapter implements CacheManagementPort {
         log.info("Starting cache flush operation");
         
         try {
-            Set<String> keys = redisTemplate.keys("*");
+            Set<String> keys = scanKeys("*");
             
             if (keys != null && !keys.isEmpty()) {
                 redisTemplate.delete(keys);
@@ -47,7 +47,7 @@ public class RedisCacheManagementAdapter implements CacheManagementPort {
         log.info("Evicting cache by pattern: {}", pattern);
         
         try {
-            Set<String> keys = redisTemplate.keys(pattern);
+            Set<String> keys = scanKeys(pattern);
             
             if (keys != null && !keys.isEmpty()) {
                 redisTemplate.delete(keys);
@@ -84,21 +84,21 @@ public class RedisCacheManagementAdapter implements CacheManagementPort {
         Map<String, Object> stats = new HashMap<>();
         
         try {
-            // 전체 키 개수
-            Set<String> allKeys = redisTemplate.keys("*");
+            // 전체 키 개수 (SCAN 사용)
+            Set<String> allKeys = scanKeys("*");
             int totalKeys = allKeys != null ? allKeys.size() : 0;
             
-            // 패턴별 키 개수 (null-safe)
-            Set<String> sessionKeysSet = redisTemplate.keys("spring:session:*");
+            // 패턴별 키 개수 (null-safe, SCAN 사용)
+            Set<String> sessionKeysSet = scanKeys("spring:session:*");
             int sessionKeys = sessionKeysSet != null ? sessionKeysSet.size() : 0;
             
-            Set<String> portfolioCacheSet = redisTemplate.keys("portfolio::*");
+            Set<String> portfolioCacheSet = scanKeys("portfolio::*");
             int portfolioCacheKeys = portfolioCacheSet != null ? portfolioCacheSet.size() : 0;
             
-            Set<String> githubCacheSet = redisTemplate.keys("github::*");
+            Set<String> githubCacheSet = scanKeys("github::*");
             int githubCacheKeys = githubCacheSet != null ? githubCacheSet.size() : 0;
             
-            Set<String> aiServiceCacheSet = redisTemplate.keys("ai-service::*");
+            Set<String> aiServiceCacheSet = scanKeys("ai-service::*");
             int aiServiceCacheKeys = aiServiceCacheSet != null ? aiServiceCacheSet.size() : 0;
             
             // 메모리 사용량 정보
@@ -127,7 +127,7 @@ public class RedisCacheManagementAdapter implements CacheManagementPort {
         log.debug("Getting key count for pattern: {}", pattern);
         
         try {
-            Set<String> keys = redisTemplate.keys(pattern);
+            Set<String> keys = scanKeys(pattern);
             return keys != null ? keys.size() : 0;
             
         } catch (Exception e) {
@@ -138,7 +138,7 @@ public class RedisCacheManagementAdapter implements CacheManagementPort {
     
     @Override
     public Map<String, Object> getCacheStatus() {
-        log.debug("Getting cache status");
+        log.info("Getting cache status");
 
         Map<String, Object> status = new HashMap<>();
 
@@ -146,14 +146,23 @@ public class RedisCacheManagementAdapter implements CacheManagementPort {
             // Redis 연결 상태 확인
             var connectionFactory = redisTemplate.getConnectionFactory();
             if (connectionFactory != null) {
-                String pingResult = connectionFactory
-                    .getConnection()
-                    .ping();
-
-                status.put("status", "connected");
-                status.put("ping", pingResult);
+                var connection = connectionFactory.getConnection();
+                try {
+                    String pingResult = connection.ping();
+                    Properties info = connection.info("server");
+                    String redisVersion = info.getProperty("redis_version");
+                    
+                    status.put("status", "connected");
+                    status.put("ping", pingResult);
+                    status.put("redisVersion", redisVersion != null ? redisVersion : "unknown");
+                    
+                    log.info("Redis connection status - Connected: true, Ping: {}, Version: {}", pingResult, redisVersion);
+                } finally {
+                    connection.close();
+                }
             } else {
                 status.put("status", "no_connection_factory");
+                log.warn("Redis connection factory is null");
             }
             status.put("timestamp", System.currentTimeMillis());
 
@@ -172,7 +181,7 @@ public class RedisCacheManagementAdapter implements CacheManagementPort {
         log.debug("Getting keys by pattern: {}", pattern);
 
         try {
-            Set<String> keys = redisTemplate.keys(pattern);
+            Set<String> keys = scanKeys(pattern);
             log.debug("Found {} keys matching pattern: {}", keys != null ? keys.size() : 0, pattern);
             return keys != null ? keys : Set.of();
 
@@ -180,6 +189,76 @@ public class RedisCacheManagementAdapter implements CacheManagementPort {
             log.error("Error getting keys by pattern: {}", pattern, e);
             return Set.of();
         }
+    }
+    
+    /**
+     * SCAN 명령어를 사용하여 키를 조회합니다.
+     * keys(*) 대신 SCAN을 사용하여 논블로킹 방식으로 키를 조회합니다.
+     * 
+     * @param pattern 조회할 키 패턴
+     * @return 일치하는 키 목록
+     */
+    private Set<String> scanKeys(String pattern) {
+        log.info("Scanning keys with pattern: {}", pattern);
+        
+        // 현재 Redis 연결 정보 로깅 (환경 차이 진단용)
+        try {
+            var connectionFactory = redisTemplate.getConnectionFactory();
+            if (connectionFactory != null) {
+                var connection = connectionFactory.getConnection();
+                try {
+                    // Redis INFO 명령으로 DB 정보 확인
+                    Properties info = connection.info("server");
+                    String redisVersion = info.getProperty("redis_version");
+                    log.info("Redis connection info - Version: {}", redisVersion);
+                } catch (Exception infoEx) {
+                    log.debug("Could not retrieve Redis INFO", infoEx);
+                } finally {
+                    connection.close();
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Could not retrieve Redis connection info", e);
+        }
+        
+        Set<String> keys = new HashSet<>();
+        int scanCount = 100; // 한 번에 스캔할 키 개수
+        
+        try {
+            ScanOptions options = ScanOptions.scanOptions()
+                    .match(pattern)
+                    .count(scanCount)
+                    .build();
+            
+            log.info("Starting SCAN operation with pattern: {}, count: {}", pattern, scanCount);
+            
+            try (Cursor<String> cursor = redisTemplate.scan(options)) {
+                int scanned = 0;
+                while (cursor.hasNext()) {
+                    keys.add(cursor.next());
+                    scanned++;
+                    if (scanned % 100 == 0) {
+                        log.debug("Scanned {} keys so far...", scanned);
+                    }
+                }
+                log.info("SCAN completed. Total keys found: {}", keys.size());
+            }
+            
+        } catch (Exception e) {
+            log.error("Error scanning keys with pattern: {}. Error: {}", pattern, e.getMessage(), e);
+            // SCAN 실패 시 keys() 명령어로 fallback (경고 로그와 함께)
+            log.warn("Falling back to keys() command due to SCAN failure. This may cause performance issues.");
+            try {
+                Set<String> fallbackKeys = redisTemplate.keys(pattern);
+                log.info("Fallback keys() command succeeded. Found {} keys", fallbackKeys != null ? fallbackKeys.size() : 0);
+                return fallbackKeys != null ? fallbackKeys : Collections.emptySet();
+            } catch (Exception fallbackException) {
+                log.error("Fallback keys() command also failed. Error: {}", fallbackException.getMessage(), fallbackException);
+                throw new RuntimeException("키 조회 중 오류가 발생했습니다", fallbackException);
+            }
+        }
+        
+        return keys;
     }
     
     /**

@@ -50,7 +50,7 @@ spring:
       database: ${REDIS_DATABASE}
       ssl:
         enabled: ${REDIS_SSL}
-      timeout: 2000ms
+      timeout: 10000ms  # SCAN 명령어 사용 시 타임아웃 증가 (10초)
       lettuce:
         pool:
           max-active: 8
@@ -120,15 +120,16 @@ management:
       show-details: never
   health:
     redis:
-      enabled: false  # Redis 헬스체크 비활성화
+      enabled: true  # Redis 헬스체크 활성화 (환경 진단용)
 
 # 로깅 설정 (운영 레벨)
 logging:
   level:
     com.aiportfolio.backend: INFO
+    com.aiportfolio.backend.infrastructure.persistence.redis: DEBUG  # Redis 관련 상세 로깅
     org.springframework.web: WARN
     org.hibernate.SQL: WARN
-    org.springframework.data.redis: WARN
+    org.springframework.data.redis: INFO  # Spring Data Redis 로깅 활성화
     org.springframework.boot.autoconfigure: WARN
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%level] %logger{36} - %msg%n"
