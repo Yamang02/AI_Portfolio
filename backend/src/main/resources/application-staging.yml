@@ -148,3 +148,9 @@ app:
     rate-limit:
       window: 60000
       max-requests: 50  # 스테이징에서는 더 제한적
+
+# Cloudinary 설정
+cloudinary:
+  cloud-name: ${CLOUDINARY_CLOUD_NAME:}
+  api-key: ${CLOUDINARY_API_KEY:}
+  api-secret: ${CLOUDINARY_API_SECRET:}

@@ -22,7 +22,10 @@ export default defineConfig(({ mode }) => {
       resolve: {
         alias: {
           '@': path.resolve(__dirname, '.'),
-        }
+        },
+        extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
+        // 명시적으로 TypeScript 파일 해석 강화
+        mainFields: ['module', 'jsnext:main', 'jsnext'],
       },
       build: {
         // 청크 크기 경고 임계값 상향 (기본 500kB -> 1000kB)
