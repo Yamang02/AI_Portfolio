@@ -18,6 +18,6 @@ export const useCertificationsQuery = () => {
   return useQuery({
     queryKey: CERTIFICATION_QUERY_KEYS.lists(),
     queryFn: () => certificationApi.getCertifications(),
-    staleTime: 10 * 60 * 1000, // 10분
+    staleTime: 24 * 60 * 60 * 1000, // 24시간 - 콜드스타트 보완을 위해 긴 캐시 유지
   });
 };

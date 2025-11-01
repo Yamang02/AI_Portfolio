@@ -2,7 +2,7 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { HomePage } from './layout/components/HomePage';
 import { ProjectDetailPage } from './pages/ProjectDetail/ProjectDetailPage';
-import { useApp } from './providers';
+import { useApp } from './app/providers/AppProvider';
 
 const App: React.FC = () => {
   const {

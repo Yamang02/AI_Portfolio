@@ -149,6 +149,7 @@ app:
   session:
     cookie:
       secure: false  # 로컬은 HTTP이므로 false
+      sameSite: Lax  # 로컬은 프록시를 통해 same-origin이므로 Lax 사용
 
 # Cloudinary 설정
 cloudinary:

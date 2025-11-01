@@ -41,14 +41,43 @@ interface ChatbotResponse {
 
 class ApiClient {
   private baseURL: string;
+  private readonly MAX_RETRIES = 3;
+  private readonly RETRY_DELAY = 1000; // 1초
+  private readonly HEALTH_CHECK_MAX_ATTEMPTS = 30; // 최대 30번 시도
+  private readonly HEALTH_CHECK_INTERVAL = 2000; // 2초마다 체크
 
   constructor(baseURL: string = API_BASE_URL) {
     this.baseURL = baseURL;
   }
 
+  /**
+   * 지수 백오프를 사용한 재시도 로직
+   */
+  private async delay(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  /**
+   * 네트워크 오류인지 확인 (재시도 가능한 오류)
+   */
+  private isRetryableError(error: any): boolean {
+    // 네트워크 오류 또는 5xx 서버 오류
+    return (
+      error instanceof TypeError || // 네트워크 오류 (fetch 실패)
+      (error as any)?.status >= 500 || // 서버 오류
+      (error as any)?.status === 0 || // CORS 또는 네트워크 오류
+      error?.message?.includes('Failed to fetch') ||
+      error?.message?.includes('NetworkError')
+    );
+  }
+
+  /**
+   * 재시도 로직이 포함된 request 메서드
+   */
   private async request<T>(
     endpoint: string,
-    options: RequestInit = {}
+    options: RequestInit = {},
+    retries: number = this.MAX_RETRIES
   ): Promise<ApiResponse<T>> {
     const url = `${this.baseURL}${endpoint}`;
 
@@ -62,7 +91,18 @@ class ApiClient {
 
     try {
       const response = await fetch(url, { ...defaultOptions, ...options });
-      const data = await response.json();
+      
+      // JSON 파싱 시도
+      let data: ApiResponse<T>;
+      try {
+        data = await response.json();
+      } catch (parseError) {
+        // JSON 파싱 실패 시 빈 응답 처리
+        if (response.ok) {
+          return { success: true, message: '', data: {} as T };
+        }
+        throw new Error(`Invalid JSON response: ${response.status}`);
+      }
 
       // 비즈니스 로직 오류는 200 OK로 반환되므로 정상 처리
       if (response.ok) {
@@ -74,10 +114,52 @@ class ApiClient {
       (error as any).status = response.status;
       (error as any).response = { data };
       throw error;
-    } catch (error) {
+    } catch (error: any) {
+      // 재시도 가능한 오류이고 재시도 횟수가 남아있는 경우
+      if (this.isRetryableError(error) && retries > 0) {
+        const delayMs = this.RETRY_DELAY * Math.pow(2, this.MAX_RETRIES - retries);
+        console.warn(`API request failed, retrying... (${this.MAX_RETRIES - retries + 1}/${this.MAX_RETRIES})`, error);
+        await this.delay(delayMs);
+        return this.request<T>(endpoint, options, retries - 1);
+      }
+
       console.error('API request failed:', error);
       throw error;
     }
+  }
+
+  /**
+   * 백엔드 서버가 준비될 때까지 대기
+   * @returns 백엔드가 준비되었는지 여부
+   */
+  async waitForBackendReady(): Promise<boolean> {
+    for (let attempt = 1; attempt <= this.HEALTH_CHECK_MAX_ATTEMPTS; attempt++) {
+      try {
+        const response = await fetch(`${this.baseURL}/health`, {
+          method: 'GET',
+          credentials: 'include',
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data?.status === 'UP' || data?.status === 'healthy') {
+            console.log('백엔드 서버가 준비되었습니다.');
+            return true;
+          }
+        }
+      } catch (error) {
+        // 네트워크 오류는 정상 (서버가 아직 시작 중)
+        console.log(`백엔드 준비 확인 중... (${attempt}/${this.HEALTH_CHECK_MAX_ATTEMPTS})`);
+      }
+
+      // 마지막 시도가 아니면 대기
+      if (attempt < this.HEALTH_CHECK_MAX_ATTEMPTS) {
+        await this.delay(this.HEALTH_CHECK_INTERVAL);
+      }
+    }
+
+    console.warn('백엔드 서버 준비 확인 시간 초과. 계속 진행합니다.');
+    return false;
   }
 
 
@@ -163,8 +245,25 @@ class ApiClient {
     return response.data || { experiences: [], education: [], certifications: [] };
   }
 
-  // 헬스 체크
-  async healthCheck(): Promise<string> {
+  // 헬스 체크 (백엔드 메인 헬스 체크)
+  async healthCheck(): Promise<{ status: string; timestamp?: string }> {
+    try {
+      const response = await fetch(`${this.baseURL}/health`, {
+        method: 'GET',
+        credentials: 'include',
+      });
+      
+      if (response.ok) {
+        return await response.json();
+      }
+      return { status: 'DOWN' };
+    } catch (error) {
+      return { status: 'DOWN' };
+    }
+  }
+
+  // 챗봇 서비스 헬스 체크
+  async chatHealthCheck(): Promise<string> {
     const response = await this.request<string>('/api/chat/health');
     return response.data || 'unknown';
   }

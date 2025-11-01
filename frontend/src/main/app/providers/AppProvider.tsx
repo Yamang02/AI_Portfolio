@@ -1,5 +1,8 @@
 import React, { useContext, useEffect, useState, createContext, ReactNode } from 'react';
-import { apiClient } from '../../../shared/api/apiClient';
+import { useProjectsQuery } from '../../entities/project/api/useProjectsQuery';
+import { useExperiencesQuery } from '../../entities/experience/api/useExperienceQuery';
+import { useEducationQuery } from '../../entities/education/api/useEducationQuery';
+import { useCertificationsQuery } from '../../entities/certification/api/useCertificationQuery';
 import type { Project, Experience, Education, Certification } from '../../entities';
 
 interface AppState {
@@ -58,87 +61,22 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     return true;
   });
 
-  // 데이터 상태
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [experiences, setExperiences] = useState<Experience[]>([]);
-  const [educations, setEducations] = useState<Education[]>([]);
-  const [certifications, setCertifications] = useState<Certification[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  // React Query를 사용한 데이터 로드
+  // localStorage에 캐시가 있으면 즉시 표시, 없으면 API 호출
+  const { data: projects = [], isLoading: projectsLoading } = useProjectsQuery();
+  const { data: experiences = [], isLoading: experiencesLoading } = useExperiencesQuery();
+  const { data: educations = [], isLoading: educationsLoading } = useEducationQuery();
+  const { data: certifications = [], isLoading: certificationsLoading } = useCertificationsQuery();
+
+  // 로딩 상태 계산
+  const isLoading = projectsLoading || experiencesLoading || educationsLoading || certificationsLoading;
   
-  // 개별 로딩 상태
-  const [loadingStates, setLoadingStates] = useState({
-    projects: true,
-    experiences: true,
-    educations: true,
-    certifications: true,
-  });
-
-  // 데이터 로드 - 점진적 로딩 방식
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        // 각 API를 개별적으로 호출하여 점진적 로딩
-        const loadProjects = async () => {
-          try {
-            const data = await apiClient.getProjects();
-            setProjects(data);
-            setLoadingStates(prev => ({ ...prev, projects: false }));
-          } catch (error) {
-            console.error('프로젝트 데이터 로드 오류:', error);
-            setLoadingStates(prev => ({ ...prev, projects: false }));
-          }
-        };
-
-        const loadExperiences = async () => {
-          try {
-            const data = await apiClient.getExperiences();
-            setExperiences(data);
-            setLoadingStates(prev => ({ ...prev, experiences: false }));
-          } catch (error) {
-            console.error('경험 데이터 로드 오류:', error);
-            setLoadingStates(prev => ({ ...prev, experiences: false }));
-          }
-        };
-
-        const loadEducations = async () => {
-          try {
-            const data = await apiClient.getEducation();
-            setEducations(data);
-            setLoadingStates(prev => ({ ...prev, educations: false }));
-          } catch (error) {
-            console.error('교육 데이터 로드 오류:', error);
-            setLoadingStates(prev => ({ ...prev, educations: false }));
-          }
-        };
-
-        const loadCertifications = async () => {
-          try {
-            const data = await apiClient.getCertifications();
-            setCertifications(data);
-            setLoadingStates(prev => ({ ...prev, certifications: false }));
-          } catch (error) {
-            console.error('자격증 데이터 로드 오류:', error);
-            setLoadingStates(prev => ({ ...prev, certifications: false }));
-          }
-        };
-
-        // 병렬로 모든 데이터 로드 시작
-        await Promise.allSettled([
-          loadProjects(),
-          loadExperiences(),
-          loadEducations(),
-          loadCertifications()
-        ]);
-
-      } catch (error) {
-        console.error('데이터 로드 오류:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadData();
-  }, []);
+  const loadingStates = {
+    projects: projectsLoading,
+    experiences: experiencesLoading,
+    educations: educationsLoading,
+    certifications: certificationsLoading,
+  };
 
   // 화면 크기 감지
   useEffect(() => {

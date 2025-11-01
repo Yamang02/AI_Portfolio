@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Project } from '../../../features/projects/types';
-import { useApp } from '../../../providers';
+import { useApp } from '../../../app/providers/AppProvider';
 
 // 프로젝트 데이터 캐시
 const projectCache = new Map<string, Project>();

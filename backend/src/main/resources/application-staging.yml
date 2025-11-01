@@ -149,6 +149,7 @@ app:
   session:
     cookie:
       secure: true  # 스테이징은 HTTPS이므로 true
+      sameSite: None  # 스테이징은 cross-origin이므로 None 사용
 
 # Cloudinary 설정
 cloudinary:

@@ -16,6 +16,9 @@ export default defineConfig(({ mode }) => {
             changeOrigin: true,
             secure: false,
             ws: false, // 백엔드에 WebSocket 서버가 없으므로 false로 설정
+            // 쿠키 전송을 위한 설정
+            cookieDomainRewrite: '',
+            cookiePathRewrite: '/',
           }
         }
       },

@@ -18,6 +18,6 @@ export const useExperiencesQuery = () => {
   return useQuery({
     queryKey: EXPERIENCE_QUERY_KEYS.lists(),
     queryFn: () => experienceApi.getExperiences(),
-    staleTime: 10 * 60 * 1000, // 10분
+    staleTime: 24 * 60 * 60 * 1000, // 24시간 - 콜드스타트 보완을 위해 긴 캐시 유지
   });
 };

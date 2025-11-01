@@ -1,6 +1,8 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import { AppProvider, useApp } from '../providers/AppProvider';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { queryClient } from '../config/queryClient';
+import { AppProvider, useApp } from '../app/providers/AppProvider';
 import { HomePage } from '../layout/components/HomePage';
 import { ProjectDetailPage } from '../pages/ProjectDetail/ProjectDetailPage';
 
@@ -83,9 +85,11 @@ const MainAppContent: React.FC = () => {
 
 const MainApp: React.FC = () => {
   return (
-    <AppProvider>
-      <MainAppContent />
-    </AppProvider>
+    <QueryClientProvider client={queryClient}>
+      <AppProvider>
+        <MainAppContent />
+      </AppProvider>
+    </QueryClientProvider>
   );
 };
 
