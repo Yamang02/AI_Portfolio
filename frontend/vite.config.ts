@@ -51,24 +51,25 @@ export default defineConfig(({ mode }) => {
                 return 'antd-vendor';
               }
 
-              // 마크다운 관련 (에디터, 렌더러, 플러그인)
+              // React Query
+              if (id.includes('node_modules/@tanstack/react-query')) {
+                return 'react-query-vendor';
+              }
+
+              // 마크다운 생태계 전체를 하나의 청크로 통합
+              // unified, remark, rehype, unist, react-markdown, md-editor, highlight 모두 포함
               if (id.includes('node_modules/react-markdown') ||
                   id.includes('node_modules/@uiw/react-md-editor') ||
                   id.includes('node_modules/remark-') ||
                   id.includes('node_modules/rehype-') ||
                   id.includes('node_modules/unified') ||
-                  id.includes('node_modules/unist-util')) {
+                  id.includes('node_modules/unist-') ||
+                  id.includes('node_modules/micromark') ||
+                  id.includes('node_modules/mdast') ||
+                  id.includes('node_modules/hast') ||
+                  id.includes('node_modules/highlight.js') ||
+                  id.includes('node_modules/lowlight')) {
                 return 'markdown-vendor';
-              }
-
-              // 코드 하이라이팅
-              if (id.includes('node_modules/highlight.js')) {
-                return 'highlight-vendor';
-              }
-
-              // React Query
-              if (id.includes('node_modules/@tanstack/react-query')) {
-                return 'react-query-vendor';
               }
 
               // 나머지 node_modules는 공통 vendor로
