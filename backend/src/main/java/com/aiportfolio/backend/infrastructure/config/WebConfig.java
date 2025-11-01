@@ -34,6 +34,11 @@ public class WebConfig implements WebMvcConfigurer {
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         log.info("Configuring static resource handlers for frontend");
         
+        // 정적 리소스 파일 확장자 목록
+        String[] staticExtensions = {".ico", ".png", ".jpg", ".jpeg", ".gif", ".svg", 
+                                     ".css", ".js", ".json", ".xml", ".woff", ".woff2", 
+                                     ".ttf", ".eot", ".webp"};
+        
         // 프론트엔드 정적 파일 서빙 설정
         registry.addResourceHandler("/**")
                 .addResourceLocations("file:/app/static/", "classpath:/static/")
@@ -48,10 +53,21 @@ public class WebConfig implements WebMvcConfigurer {
                             return requestedResource;
                         }
                         
-                        // SPA 라우팅: API가 아닌 경로는 index.html로 리다이렉트
-                        if (!resourcePath.startsWith("api/") && 
-                            !resourcePath.startsWith("actuator/") && 
-                            !resourcePath.contains(".")) {
+                        // 정적 리소스 파일 확장자를 가진 경우는 null 반환 (404)
+                        String lowerPath = resourcePath.toLowerCase();
+                        for (String ext : staticExtensions) {
+                            if (lowerPath.endsWith(ext)) {
+                                return null;
+                            }
+                        }
+                        
+                        // API나 Actuator 경로는 제외
+                        if (resourcePath.startsWith("api/") || resourcePath.startsWith("actuator/")) {
+                            return null;
+                        }
+                        
+                        // SPA 라우팅: 확장자가 없는 경로는 index.html로 리다이렉트
+                        if (!resourcePath.contains(".")) {
                             return new ClassPathResource("/static/index.html");
                         }
                         
