@@ -26,7 +26,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 @Transactional
-@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:8080"})
 public class AdminEducationRelationshipController {
 
     private final AdminAuthChecker adminAuthChecker;

@@ -27,7 +27,6 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/admin/educations")
 @Slf4j
-@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:8080"})
 public class AdminEducationController {
 
     private final GetEducationUseCase adminGetEducationUseCase;

@@ -24,7 +24,6 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/tech-stack")
 @RequiredArgsConstructor
-@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:8080"})
 public class TechStackController {
     
     private final GetTechStackMetadataUseCase getTechStackMetadataUseCase;

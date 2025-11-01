@@ -26,7 +26,6 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/admin/certifications")
 @Slf4j
-@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:8080"})
 public class AdminCertificationController {
 
     private final GetCertificationUseCase getCertificationUseCase;
