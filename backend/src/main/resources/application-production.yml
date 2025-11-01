@@ -134,6 +134,9 @@ app:
     rate-limit:
       window: 60000
       max-requests: 100  # 프로덕션에서는 더 관대하게
+  session:
+    cookie:
+      secure: true  # 프로덕션은 HTTPS이므로 true
 
 # Cloudinary 설정
 cloudinary:

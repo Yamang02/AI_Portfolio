@@ -17,17 +17,9 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**")
-                .allowedOriginPatterns(
-                    "*", // 개발 환경용
-                    "https://res.cloudinary.com", // Cloudinary 이미지
-                    "https://*.cloudinary.com" // Cloudinary 서브도메인
-                )
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                .allowedHeaders("*")
-                .exposedHeaders("Access-Control-Allow-Origin")
-                .allowCredentials(true)
-                .maxAge(3600);
+        // CORS 설정은 application.yml의 spring.web.cors 설정을 사용합니다
+        // Java 코드로 CORS를 설정하면 YAML 설정을 덮어쓰므로 여기서는 설정하지 않습니다
+        // allowCredentials(true)와 함께 와일드카드(*) 사용은 브라우저에서 차단되므로 제거
     }
 
     @Override

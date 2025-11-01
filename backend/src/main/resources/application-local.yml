@@ -146,6 +146,9 @@ app:
       enabled: true
       max-requests: 100
       window-minutes: 60
+  session:
+    cookie:
+      secure: false  # 로컬은 HTTP이므로 false
 
 # Cloudinary 설정
 cloudinary:

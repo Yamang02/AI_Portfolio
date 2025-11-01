@@ -76,10 +76,6 @@ spring:
   web:
     cors:
       allowed-origins:
-        - "http://localhost:3000"
-        - "http://localhost:5173"
-        - "https://ai-portfolio-chatbot-493721639129.asia-northeast3.run.app"
-        - "https://ai-portfolio-staging-493721639129.asia-northeast3.run.app"  # 기존 스테이징 도메인
         - "https://staging.yamang02.com"  # Staging 커스텀 도메인
       allowed-methods: 
         - GET
@@ -146,6 +142,9 @@ app:
     rate-limit:
       window: 60000
       max-requests: 50  # 스테이징에서는 더 제한적
+  session:
+    cookie:
+      secure: true  # 스테이징은 HTTPS이므로 true
 
 # Cloudinary 설정
 cloudinary:

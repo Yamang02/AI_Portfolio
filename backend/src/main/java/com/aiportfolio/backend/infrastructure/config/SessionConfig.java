@@ -1,5 +1,6 @@
 package com.aiportfolio.backend.infrastructure.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.session.web.http.CookieSerializer;
@@ -11,6 +12,9 @@ import org.springframework.session.web.http.DefaultCookieSerializer;
  */
 @Configuration
 public class SessionConfig {
+
+    @Value("${app.session.cookie.secure:false}")
+    private boolean cookieSecure;
 
     @Bean
     public CookieSerializer cookieSerializer() {
@@ -29,9 +33,10 @@ public class SessionConfig {
         // Lax: GET 요청과 top-level navigation에서 쿠키 전송
         serializer.setSameSite("Lax");
 
-        // Secure 설정 - 개발환경에서는 false (http 허용)
-        // 프로덕션에서는 true로 설정 (https만 허용)
-        serializer.setUseSecureCookie(false);
+        // Secure 설정 - application.yml의 app.session.cookie.secure 값 사용
+        // 로컬: false (http 허용)
+        // 스테이징/프로덕션: true (https만 허용)
+        serializer.setUseSecureCookie(cookieSecure);
 
         // 쿠키 Max-Age 설정 (-1은 브라우저 세션 쿠키로 동작)
         // 브라우저를 닫으면 삭제되지만, 새로고침에는 유지됨
