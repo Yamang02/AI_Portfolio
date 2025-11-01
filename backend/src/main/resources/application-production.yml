@@ -1,10 +1,8 @@
 # Production environment (Railway + Cloud Run)
 spring:
-  # Railway PostgreSQL Configuration (URL 변환 처리)
+  # Railway PostgreSQL Configuration (URL에 username/password 포함)
   datasource:
-    url: ${POSTGRE_URL:jdbc:postgresql://localhost:5432/ai_portfolio}  # Railway PostgreSQL URL 우선 사용
-    username: ${POSTGRES_USER:dev_user}
-    password: ${POSTGRES_PASSWORD:dev_password}
+    url: ${POSTGRE_URL}  # Railway PostgreSQL URL (credentials 포함)
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 5  # Cloud Run 메모리 제한 고려
@@ -31,21 +29,26 @@ spring:
     # 2. 마이그레이션 SQL 파일을 직접 실행
     # 또는 필요 시 enabled: true로 변경 후 배포
 
-  # Redis 캐싱 설정
-  redis:
-    host: ${REDIS_HOST}
-    port: ${REDIS_PORT}
-    password: ${REDIS_PASSWORD}
-    database: ${REDIS_DATABASE}
-    ssl:
-      enabled: ${REDIS_SSL:true}
-    timeout: 2000ms
-    lettuce:
-      pool:
-        max-active: 8
-        max-idle: 8
-        min-idle: 0
-        max-wait: -1ms
+  # Spring Data Redis 설정 (로컬/스테이징과 일치)
+  data:
+    redis:
+      # Redis Repository 비활성화 (Redis는 캐싱/세션용만 사용)
+      repositories:
+        enabled: false
+      # Redis 캐싱 설정
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      password: ${REDIS_PASSWORD}
+      database: ${REDIS_DATABASE}
+      ssl:
+        enabled: ${REDIS_SSL}
+      timeout: 2000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+          max-wait: -1ms
 
   # 캐시 설정
   cache:
@@ -116,7 +119,7 @@ logging:
 
 # Server configuration
 server:
-  port: ${PORT:8080}  # Cloud Run에서 제공하는 PORT 사용
+  port: ${PORT}  # Cloud Run에서 제공하는 PORT 사용
 
 # 앱 설정
 app:
@@ -134,6 +137,6 @@ app:
 
 # Cloudinary 설정
 cloudinary:
-  cloud-name: ${CLOUDINARY_CLOUD_NAME:}
-  api-key: ${CLOUDINARY_API_KEY:}
-  api-secret: ${CLOUDINARY_API_SECRET:}
+  cloud-name: ${CLOUDINARY_CLOUD_NAME}
+  api-key: ${CLOUDINARY_API_KEY}
+  api-secret: ${CLOUDINARY_API_SECRET}

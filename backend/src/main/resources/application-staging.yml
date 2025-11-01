@@ -1,21 +1,13 @@
 server:
-  port: ${PORT:8080}  # Cloud Run이 제공하는 동적 포트 사용
+  port: ${PORT}  # Cloud Run이 제공하는 동적 포트 사용
 
 spring:
   application:
     name: ai-portfolio-backend-staging
   
-  # Spring Data 설정 - JPA와 Redis Repository 구분
-  data:
-    redis:
-      repositories:
-        enabled: false  # Redis Repository 비활성화 (Redis는 캐싱/세션용만 사용)
-  
-  # Railway PostgreSQL 설정 (POSTGRE_URL을 통해 DatabaseConfig에서 처리)
+  # Railway PostgreSQL 설정 (POSTGRE_URL에 username/password 포함)
   datasource:
-    url: ${POSTGRE_URL:jdbc:postgresql://localhost:5432/ai_portfolio}  # Railway PostgreSQL URL 우선 사용
-    username: ${POSTGRES_USER:dev_user}
-    password: ${POSTGRES_PASSWORD:dev_password}
+    url: ${POSTGRE_URL}  # Railway PostgreSQL URL (credentials 포함)
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 5  # Cloud Run 메모리 제한 고려
@@ -45,21 +37,26 @@ spring:
     clean-disabled: true  # 운영환경에서 clean 명령 비활성화
     ignore-missing-migrations: false  # 누락된 마이그레이션 엄격하게 체크
 
-  # Redis 캐싱 설정
-  redis:
-    host: ${REDIS_HOST}
-    port: ${REDIS_PORT}
-    password: ${REDIS_PASSWORD}
-    database: ${REDIS_DATABASE}
-    ssl:
-      enabled: ${REDIS_SSL:true}
-    timeout: 2000ms
-    lettuce:
-      pool:
-        max-active: 8
-        max-idle: 8
-        min-idle: 0
-        max-wait: -1ms
+  # Spring Data 설정 - JPA와 Redis Repository 구분
+  data:
+    redis:
+      # Redis Repository 비활성화 (Redis는 캐싱/세션용만 사용)
+      repositories:
+        enabled: false
+      # Redis 캐싱 설정 (로컬 환경과 일치)
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      password: ${REDIS_PASSWORD}
+      database: ${REDIS_DATABASE}
+      ssl:
+        enabled: ${REDIS_SSL}
+      timeout: 2000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+          max-wait: -1ms
 
   # 캐시 설정
   cache:
@@ -78,12 +75,12 @@ spring:
   # CORS 설정 (FE 분리 후 CloudFront 도메인 추가)
   web:
     cors:
-      allowed-origins: 
+      allowed-origins:
         - "http://localhost:3000"
         - "http://localhost:5173"
         - "https://ai-portfolio-chatbot-493721639129.asia-northeast3.run.app"
         - "https://ai-portfolio-staging-493721639129.asia-northeast3.run.app"  # 기존 스테이징 도메인
-        - "https://${CLOUDFRONT_DOMAIN:ai-portfolio-frontend-staging.cloudfront.net}"  # 새로운 CloudFront 도메인
+        - "https://staging.yamang02.com"  # Staging 커스텀 도메인
       allowed-methods: 
         - GET
         - POST
@@ -152,6 +149,6 @@ app:
 
 # Cloudinary 설정
 cloudinary:
-  cloud-name: ${CLOUDINARY_CLOUD_NAME:}
-  api-key: ${CLOUDINARY_API_KEY:}
-  api-secret: ${CLOUDINARY_API_SECRET:}
+  cloud-name: ${CLOUDINARY_CLOUD_NAME}
+  api-key: ${CLOUDINARY_API_KEY}
+  api-secret: ${CLOUDINARY_API_SECRET}
