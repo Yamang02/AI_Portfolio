@@ -113,18 +113,16 @@ springdoc:
 
 # Actuator 설정 (Health Check용) - Production과 동일
 management:
-    endpoints:
-      web:
-        exposure:
-          include: health
-    endpoint:
-      health:
-        show-details: never
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
     health:
-      redis:
-        enabled: false  # Redis 헬스체크 비활성화
-      defaults:
-        enabled: true
+      show-details: never
+  health:
+    redis:
+      enabled: false  # Redis 헬스체크 비활성화
 
 # 로깅 설정 (운영 레벨)
 logging:

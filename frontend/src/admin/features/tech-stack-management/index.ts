@@ -9,3 +9,4 @@ export { createTechStackColumns } from './ui/TechStackTableColumns';
 export { useTechStackFilter } from './hooks/useTechStackFilter';
 export { useTechStackStats } from './hooks/useTechStackStats';
 
+export { categoryNames, levelMapping, getCategoryColor } from './lib/techStackMappings';
