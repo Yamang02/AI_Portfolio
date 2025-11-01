@@ -179,9 +179,6 @@ CREATE TRIGGER update_education_tech_stack_updated_at
 -- 6. detailed_description 컬럼 제거 (사용되지 않음)
 ALTER TABLE projects DROP COLUMN IF EXISTS detailed_description;
 
--- 6-1. team_size 컬럼 추가 (V001에서 누락되었을 수 있음)
-ALTER TABLE projects ADD COLUMN IF NOT EXISTS team_size INTEGER;
-
 -- 7. 프로젝트 스크린샷 테이블 생성
 CREATE TABLE project_screenshots (
     id BIGSERIAL PRIMARY KEY,
