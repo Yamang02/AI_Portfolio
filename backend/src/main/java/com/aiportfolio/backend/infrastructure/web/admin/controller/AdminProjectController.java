@@ -57,21 +57,27 @@ public class AdminProjectController {
         log.debug("Getting projects with filters - search: {}, isTeam: {}, type: {}, status: {}", 
                 search, isTeam, projectType, status);
 
-        ProjectFilter filter = ProjectFilter.builder()
-                .searchQuery(search)
-                .isTeam(isTeam)
-                .projectType(projectType)
-                .status(status)
-                .selectedTechs(techs)
-                .sortBy(sortBy)
-                .sortOrder(sortOrder)
-                .page(page)
-                .size(size)
-                .build();
+        try {
+            ProjectFilter filter = ProjectFilter.builder()
+                    .searchQuery(search)
+                    .isTeam(isTeam)
+                    .projectType(projectType)
+                    .status(status)
+                    .selectedTechs(techs)
+                    .sortBy(sortBy)
+                    .sortOrder(sortOrder)
+                    .page(page)
+                    .size(size)
+                    .build();
 
-        List<ProjectResponse> projects = searchProjectsUseCase.searchProjects(filter);
-        
-        return ResponseEntity.ok(ApiResponse.success(projects, "프로젝트 목록 조회 성공"));
+            List<ProjectResponse> projects = searchProjectsUseCase.searchProjects(filter);
+            
+            return ResponseEntity.ok(ApiResponse.success(projects, "프로젝트 목록 조회 성공"));
+        } catch (Exception e) {
+            log.error("Failed to get projects", e);
+            return ResponseEntity.status(500)
+                    .body(ApiResponse.error("프로젝트 목록 조회 중 오류가 발생했습니다: " + e.getMessage(), "서버 오류"));
+        }
     }
 
     /**
@@ -95,7 +101,12 @@ public class AdminProjectController {
             ProjectResponse project = searchProjectsUseCase.getProjectById(id);
             return ResponseEntity.ok(ApiResponse.success(project, "프로젝트 조회 성공"));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(404)
+                    .body(ApiResponse.error(e.getMessage(), "프로젝트를 찾을 수 없습니다"));
+        } catch (Exception e) {
+            log.error("Failed to get project: {}", id, e);
+            return ResponseEntity.status(500)
+                    .body(ApiResponse.error("프로젝트 조회 중 오류가 발생했습니다: " + e.getMessage(), "서버 오류"));
         }
     }
 

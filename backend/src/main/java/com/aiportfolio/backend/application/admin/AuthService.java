@@ -29,7 +29,6 @@ public class AuthService {
     /**
      * 로그인 처리 (사용자명 또는 이메일로 로그인 가능)
      */
-    @Transactional(readOnly = true)
     public AdminUserInfo login(String usernameOrEmail, String password, HttpSession session) {
         log.debug("Login attempt for user: {}", usernameOrEmail);
 

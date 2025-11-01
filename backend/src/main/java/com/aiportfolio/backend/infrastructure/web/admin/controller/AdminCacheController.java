@@ -1,11 +1,13 @@
 package com.aiportfolio.backend.infrastructure.web.admin.controller;
 
 import com.aiportfolio.backend.domain.admin.port.in.ManageCacheUseCase;
+import com.aiportfolio.backend.infrastructure.web.admin.util.AdminAuthChecker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
 
@@ -20,12 +22,22 @@ import java.util.Map;
 public class AdminCacheController {
 
     private final ManageCacheUseCase manageCacheUseCase;
+    private final AdminAuthChecker adminAuthChecker;
 
     /**
      * Redis 캐시 전체 flush
      */
     @PostMapping("/flush")
-    public ResponseEntity<Map<String, Object>> flushCache() {
+    public ResponseEntity<Map<String, Object>> flushCache(HttpServletRequest request) {
+        try {
+            adminAuthChecker.requireAuthentication(request);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(401).body(Map.of(
+                "success", false,
+                "message", e.getMessage(),
+                "timestamp", System.currentTimeMillis()
+            ));
+        }
         log.info("Admin cache flush requested");
         
         try {
@@ -52,7 +64,16 @@ public class AdminCacheController {
      * Redis 캐시 통계 조회
      */
     @GetMapping("/stats")
-    public ResponseEntity<Map<String, Object>> getCacheStats() {
+    public ResponseEntity<Map<String, Object>> getCacheStats(HttpServletRequest request) {
+        try {
+            adminAuthChecker.requireAuthentication(request);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(401).body(Map.of(
+                "success", false,
+                "message", e.getMessage(),
+                "timestamp", System.currentTimeMillis()
+            ));
+        }
         log.info("Admin cache stats requested");
 
         try {
@@ -79,7 +100,16 @@ public class AdminCacheController {
      * 모든 캐시 키 목록 조회
      */
     @GetMapping("/keys")
-    public ResponseEntity<Map<String, Object>> getAllCacheKeys() {
+    public ResponseEntity<Map<String, Object>> getAllCacheKeys(HttpServletRequest request) {
+        try {
+            adminAuthChecker.requireAuthentication(request);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(401).body(Map.of(
+                "success", false,
+                "message", e.getMessage(),
+                "timestamp", System.currentTimeMillis()
+            ));
+        }
         log.info("Admin cache keys requested");
 
         try {
@@ -107,7 +137,18 @@ public class AdminCacheController {
      * 패턴별 캐시 키 목록 조회
      */
     @GetMapping("/keys/{pattern}")
-    public ResponseEntity<Map<String, Object>> getCacheKeysByPattern(@PathVariable String pattern) {
+    public ResponseEntity<Map<String, Object>> getCacheKeysByPattern(
+            @PathVariable String pattern,
+            HttpServletRequest request) {
+        try {
+            adminAuthChecker.requireAuthentication(request);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(401).body(Map.of(
+                "success", false,
+                "message", e.getMessage(),
+                "timestamp", System.currentTimeMillis()
+            ));
+        }
         log.info("Admin cache keys by pattern requested: {}", pattern);
 
         try {
@@ -136,7 +177,18 @@ public class AdminCacheController {
      * 패턴별 캐시 삭제
      */
     @DeleteMapping("/pattern/{pattern}")
-    public ResponseEntity<Map<String, Object>> clearCacheByPattern(@PathVariable String pattern) {
+    public ResponseEntity<Map<String, Object>> clearCacheByPattern(
+            @PathVariable String pattern,
+            HttpServletRequest request) {
+        try {
+            adminAuthChecker.requireAuthentication(request);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(401).body(Map.of(
+                "success", false,
+                "message", e.getMessage(),
+                "timestamp", System.currentTimeMillis()
+            ));
+        }
         log.info("Admin cache clear by pattern requested: {}", pattern);
         
         try {

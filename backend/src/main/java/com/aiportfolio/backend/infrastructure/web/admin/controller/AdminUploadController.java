@@ -253,8 +253,17 @@ public class AdminUploadController {
      * 이미지 삭제
      */
     @DeleteMapping("/image/{publicId}")
-    public ResponseEntity<ApiResponse<Void>> deleteImage(@PathVariable String publicId) {
+    public ResponseEntity<ApiResponse<Void>> deleteImage(
+            @PathVariable String publicId,
+            HttpServletRequest request) {
         log.debug("Image deletion request: {}", publicId);
+
+        try {
+            adminAuthChecker.requireAuthentication(request);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(401)
+                    .body(ApiResponse.error(e.getMessage(), "인증 필요"));
+        }
 
         try {
             uploadImageUseCase.deleteImage(publicId);
