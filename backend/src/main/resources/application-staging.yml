@@ -73,10 +73,14 @@ spring:
     timeout: 1800s  # 30분 (초 단위)
 
   # CORS 설정 (FE 분리 후 CloudFront 도메인 추가)
+  # 환경 변수 없으면 아래 기본값 사용
+  # 필요시 환경 변수에서 추가 도메인 설정 가능
   web:
     cors:
       allowed-origins:
         - "https://staging.yamang02.com"  # Staging 커스텀 도메인
+        - "https://ai-portfolio-staging-493721639129.asia-northeast3.run.app"  # 기존 스테이징 도메인
+        - "https://ai-portfolio-chatbot-493721639129.asia-northeast3.run.app"  # 챗봇 도메인
       allowed-methods: 
         - GET
         - POST

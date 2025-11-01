@@ -70,6 +70,7 @@ spring:
       allowed-origins: 
         - "https://yamang02.com"
         - "https://www.yamang02.com"
+        - "https://ai-portfolio-493721639129.asia-northeast3.run.app"  # Cloud Run 직접 도메인
       allowed-methods: 
         - GET
         - POST
