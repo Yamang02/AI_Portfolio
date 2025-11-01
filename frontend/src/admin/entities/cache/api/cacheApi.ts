@@ -5,7 +5,12 @@
 
 import type { CacheStats } from '../model/cache.types';
 
-const API_BASE_URL = '/api/admin/cache';
+// 환경 변수에서 API Base URL 가져오기 (staging/production은 절대 경로 필요)
+const VITE_API_BASE_URL = typeof window !== 'undefined'
+  ? (import.meta.env.VITE_API_BASE_URL || '')  // 빈 문자열 = 상대 경로 사용
+  : (import.meta.env?.VITE_API_BASE_URL || '');
+
+const API_BASE_URL = `${VITE_API_BASE_URL}/api/admin/cache`;
 
 /**
  * Admin API 응답 형식

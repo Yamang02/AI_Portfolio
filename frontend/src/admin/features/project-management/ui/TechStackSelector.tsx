@@ -25,11 +25,16 @@ const TechStackSelector: React.FC<TechStackSelectorProps> = ({ value = [], onCha
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [levelFilter, setLevelFilter] = useState<string>('all');
 
+  // 환경 변수에서 API Base URL 가져오기
+  const API_BASE_URL = typeof window !== 'undefined'
+    ? (import.meta.env.VITE_API_BASE_URL || '')
+    : (import.meta.env?.VITE_API_BASE_URL || '');
+
   // 기술 스택 목록 조회
   const { data: techStacks, isLoading } = useQuery<TechStackOption[]>({
     queryKey: ['tech-stacks'],
     queryFn: async () => {
-      const response = await fetch('/api/tech-stack');
+      const response = await fetch(`${API_BASE_URL}/api/tech-stack`);
       const data = await response.json();
       return data.data || [];
     },
