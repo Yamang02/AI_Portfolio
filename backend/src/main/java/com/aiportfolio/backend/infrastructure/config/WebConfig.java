@@ -1,6 +1,7 @@
 package com.aiportfolio.backend.infrastructure.config;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -10,16 +11,36 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.resource.PathResourceResolver;
 
 import java.io.IOException;
+import java.util.List;
 
 @Slf4j
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
+    @Value("${spring.web.cors.allowed-origins}")
+    private List<String> allowedOrigins;
+
+    @Value("${spring.web.cors.allowed-methods}")
+    private List<String> allowedMethods;
+
+    @Value("${spring.web.cors.allowed-headers}")
+    private String allowedHeaders;
+
+    @Value("${spring.web.cors.allow-credentials}")
+    private boolean allowCredentials;
+
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        // CORS 설정은 application.yml의 spring.web.cors 설정을 사용합니다
-        // Java 코드로 CORS를 설정하면 YAML 설정을 덮어쓰므로 여기서는 설정하지 않습니다
-        // allowCredentials(true)와 함께 와일드카드(*) 사용은 브라우저에서 차단되므로 제거
+        log.info("Configuring CORS with allowed origins: {}", allowedOrigins);
+
+        registry.addMapping("/**")
+                .allowedOrigins(allowedOrigins.toArray(new String[0]))
+                .allowedMethods(allowedMethods.toArray(new String[0]))
+                .allowedHeaders(allowedHeaders)
+                .allowCredentials(allowCredentials)
+                .maxAge(3600); // 1시간 동안 preflight 결과 캐싱
+
+        log.info("CORS configured successfully");
     }
 
     @Override
