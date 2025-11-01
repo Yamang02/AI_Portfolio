@@ -96,8 +96,27 @@ public class ProjectManagementService implements ManageProjectUseCase {
         if (request.getMyContributions() != null) project.setMyContributions(request.getMyContributions());
         if (request.getStartDate() != null) project.setStartDate(request.getStartDate());
         if (request.getEndDate() != null) project.setEndDate(request.getEndDate());
-        if (request.getImageUrl() != null) project.setImageUrl(request.getImageUrl());
-        if (request.getScreenshots() != null) project.setScreenshots(request.getScreenshots());
+        
+        // 이미지 URL 업데이트 - 빈 문자열도 허용 (값을 비우는 의도)
+        // 빈 문자열 필터링은 Cloudinary 업로드 실패 시에만 적용되며,
+        // 일반 업데이트에서는 빈 문자열을 null로 변환하지 않음 (저장 계층에서 처리)
+        if (request.getImageUrl() != null) {
+            project.setImageUrl(request.getImageUrl());
+        }
+        
+        // 스크린샷 업데이트 - 빈 배열도 허용 (모든 스크린샷 제거 의도)
+        // 빈 배열은 그대로 유지하여 저장 계층에서 처리하도록 함
+        // 저장 계층에서 빈 값들은 필터링되지만, 빈 배열 자체는 null이 아닌 빈 리스트로 전달
+        if (request.getScreenshots() != null) {
+            // null 또는 빈 문자열인 URL만 필터링 (빈 배열은 유지)
+            List<String> validScreenshots = request.getScreenshots().stream()
+                .filter(url -> url != null && !url.trim().isEmpty())
+                .collect(java.util.stream.Collectors.toList());
+            // 빈 배열인 경우도 그대로 유지 (모든 스크린샷 제거 의도)
+            project.setScreenshots(validScreenshots);
+            log.debug("Filtered invalid screenshot URLs: {} -> {} (empty list preserved for removal intent)", 
+                    request.getScreenshots().size(), validScreenshots.size());
+        }
         if (request.getGithubUrl() != null) project.setGithubUrl(request.getGithubUrl());
         if (request.getLiveUrl() != null) project.setLiveUrl(request.getLiveUrl());
         if (request.getExternalUrl() != null) project.setExternalUrl(request.getExternalUrl());

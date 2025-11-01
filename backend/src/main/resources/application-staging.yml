@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: ai-portfolio-backend-staging
+    name: ai-portfolio-backend
   
   # Railway PostgreSQL 설정 (POSTGRE_URL에 username/password 포함)
   datasource:

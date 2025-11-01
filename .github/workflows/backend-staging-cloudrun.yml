@@ -123,7 +123,7 @@ jobs:
           --set-env-vars="REDIS_DATABASE=${{ vars.REDIS_DATABASE }}" \
           --set-env-vars="REDIS_SSL=${{ vars.REDIS_SSL }}" \
           --set-env-vars="CACHE_TYPE=redis" \
-          --set-env-vars="CLOUDINARY_CLOUD_NAME=${{ secrets.CLOUDINARY_CLOUD_NAME }}" \
+          --set-env-vars="CLOUDINARY_CLOUD_NAME=${{ vars.CLOUDINARY_CLOUD_NAME }}" \
           --set-env-vars="CLOUDINARY_API_KEY=${{ secrets.CLOUDINARY_API_KEY }}" \
           --set-env-vars="CLOUDINARY_API_SECRET=${{ secrets.CLOUDINARY_API_SECRET }}" \
           --set-env-vars="JAVA_OPTS=-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -Djava.security.egd=file:/dev/./urandom" \

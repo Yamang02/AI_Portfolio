@@ -76,11 +76,19 @@ public class AdminUploadController {
 
             // 이미지 업로드
             String url = uploadImageUseCase.uploadImage(file, folder);
+            
+            // 업로드 성공 여부 및 URL 유효성 검증
+            if (url == null || url.trim().isEmpty()) {
+                log.error("Image upload returned null or empty URL");
+                return ResponseEntity.internalServerError()
+                    .body(ApiResponse.error("이미지 업로드는 성공했지만 URL을 받지 못했습니다", "업로드 실패"));
+            }
+            
             String publicId = extractPublicIdFromUrl(url);
-
             log.info("Image uploaded successfully: {} -> {}", publicId, url);
 
             // 프로젝트 ID가 제공되고 타입이 project 또는 screenshots이면 자동으로 DB에 저장
+            // 업로드가 성공하고 URL이 유효한 경우에만 DB 업데이트 수행
             if (projectId != null && !projectId.isEmpty() && !projectId.equals("new")) {
                 try {
                     if ("project".equals(type)) {
@@ -97,12 +105,12 @@ public class AdminUploadController {
                         List<String> existingScreenshots = existingProject.getScreenshots() != null
                             ? existingProject.getScreenshots().stream()
                                 .map(s -> s.getImageUrl())
-                                .filter(imageUrl -> imageUrl != null && !imageUrl.isEmpty())
+                                .filter(imageUrl -> imageUrl != null && !imageUrl.trim().isEmpty())
                                 .collect(Collectors.toList())
                             : new ArrayList<String>();
                         
-                        // 새 스크린샷 URL 추가 (중복 방지)
-                        if (!existingScreenshots.contains(url)) {
+                        // 새 스크린샷 URL 추가 (중복 방지 및 빈 값 필터링)
+                        if (!existingScreenshots.contains(url) && !url.trim().isEmpty()) {
                             existingScreenshots.add(url);
                             
                             ProjectUpdateRequest updateRequest = new ProjectUpdateRequest();
@@ -111,13 +119,19 @@ public class AdminUploadController {
                             log.info("Project screenshot saved to DB automatically: projectId={}, url={}, totalScreenshots={}", 
                                     projectId, url, existingScreenshots.size());
                         } else {
-                            log.warn("Screenshot URL already exists, skipping: projectId={}, url={}", projectId, url);
+                            log.warn("Screenshot URL already exists or is empty, skipping: projectId={}, url={}", projectId, url);
                         }
                     }
                 } catch (Exception e) {
                     log.error("Failed to auto-save image to project in DB: projectId={}, type={}, error={}", 
                             projectId, type, e.getMessage(), e);
-                    // DB 저장 실패해도 업로드는 성공으로 처리
+                    // DB 저장 실패 시 트랜잭션 롤백되므로 DB는 변경되지 않음
+                    // 하지만 Cloudinary에는 이미 업로드되어 있으므로, 사용자에게 실패 응답 반환
+                    // TODO: 향후 보상 트랜잭션(Compensating Transaction) 패턴으로 Cloudinary 이미지 삭제 고려
+                    return ResponseEntity.internalServerError()
+                        .body(ApiResponse.error(
+                            "이미지 업로드는 성공했지만 DB 저장에 실패했습니다. 이미지는 Cloudinary에 저장되었지만 프로젝트 정보는 업데이트되지 않았습니다.", 
+                            "DB 저장 실패"));
                 }
             } else {
                 log.debug("Skipping auto-save: projectId={}, type={}", projectId, type);
@@ -190,25 +204,42 @@ public class AdminUploadController {
             // 이미지 업로드
             List<String> urls = uploadImageUseCase.uploadImages(files, folder);
 
-            log.info("Multiple images uploaded successfully: {} files", files.size());
+            // 업로드된 URL 유효성 검증 (null 및 빈 문자열 필터링)
+            List<String> validUrls = urls.stream()
+                .filter(url -> url != null && !url.trim().isEmpty())
+                .collect(Collectors.toList());
+            
+            if (validUrls.size() != urls.size()) {
+                log.warn("Some images failed to upload. Expected: {}, Got: {}", urls.size(), validUrls.size());
+            }
+            
+            // 모든 업로드가 실패한 경우
+            if (validUrls.isEmpty()) {
+                log.error("All image uploads failed or returned invalid URLs");
+                return ResponseEntity.internalServerError()
+                    .body(ApiResponse.error("모든 이미지 업로드에 실패했습니다", "업로드 실패"));
+            }
+
+            log.info("Multiple images uploaded successfully: {}/{} files", validUrls.size(), files.size());
 
             // 프로젝트 ID가 제공되고 타입이 screenshots이면 자동으로 DB에 저장
+            // 업로드가 성공하고 URL이 유효한 경우에만 DB 업데이트 수행
             if (projectId != null && !projectId.isEmpty() && !projectId.equals("new") && "screenshots".equals(type)) {
                 try {
-                    log.debug("Auto-saving {} screenshots to DB: projectId={}", urls.size(), projectId);
+                    log.debug("Auto-saving {} screenshots to DB: projectId={}", validUrls.size(), projectId);
                     // 기존 프로젝트 조회
                     var existingProject = searchProjectsUseCase.getProjectById(projectId);
                     List<String> existingScreenshots = existingProject.getScreenshots() != null
                         ? existingProject.getScreenshots().stream()
                             .map(s -> s.getImageUrl())
-                            .filter(imageUrl -> imageUrl != null && !imageUrl.isEmpty())
+                            .filter(imageUrl -> imageUrl != null && !imageUrl.trim().isEmpty())
                             .collect(Collectors.toList())
                         : new ArrayList<String>();
                     
-                    // 새 스크린샷 URL들 추가 (중복 방지)
+                    // 새 스크린샷 URL들 추가 (중복 방지 및 빈 값 필터링)
                     int addedCount = 0;
-                    for (String newUrl : urls) {
-                        if (!existingScreenshots.contains(newUrl)) {
+                    for (String newUrl : validUrls) {
+                        if (!existingScreenshots.contains(newUrl) && !newUrl.trim().isEmpty()) {
                             existingScreenshots.add(newUrl);
                             addedCount++;
                         }
@@ -219,18 +250,27 @@ public class AdminUploadController {
                         updateRequest.setScreenshots(existingScreenshots);
                         manageProjectUseCase.updateProject(projectId, updateRequest);
                         log.info("Project screenshots saved to DB automatically: projectId={}, added={}/{}, total={}", 
-                                projectId, addedCount, urls.size(), existingScreenshots.size());
+                                projectId, addedCount, validUrls.size(), existingScreenshots.size());
                     } else {
-                        log.warn("All screenshot URLs already exist, skipping: projectId={}", projectId);
+                        log.warn("All screenshot URLs already exist or are invalid, skipping: projectId={}", projectId);
                     }
                 } catch (Exception e) {
                     log.error("Failed to auto-save screenshots to project in DB: projectId={}, error={}", 
                             projectId, e.getMessage(), e);
-                    // DB 저장 실패해도 업로드는 성공으로 처리
+                    // DB 저장 실패 시 트랜잭션 롤백되므로 DB는 변경되지 않음
+                    // 하지만 Cloudinary에는 이미 업로드되어 있으므로, 사용자에게 실패 응답 반환
+                    // TODO: 향후 보상 트랜잭션(Compensating Transaction) 패턴으로 Cloudinary 이미지 삭제 고려
+                    return ResponseEntity.internalServerError()
+                        .body(ApiResponse.error(
+                            String.format("이미지 업로드는 성공했지만 DB 저장에 실패했습니다. %d개의 이미지가 Cloudinary에 저장되었지만 프로젝트 정보는 업데이트되지 않았습니다.", validUrls.size()), 
+                            "DB 저장 실패"));
                 }
             } else {
                 log.debug("Skipping auto-save: projectId={}, type={}", projectId, type);
             }
+            
+            // 유효한 URL만 반환
+            urls = validUrls;
 
             return ResponseEntity.ok(ApiResponse.success(urls, "이미지 업로드 성공"));
 

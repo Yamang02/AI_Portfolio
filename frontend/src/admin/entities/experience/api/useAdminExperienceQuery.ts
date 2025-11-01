@@ -6,6 +6,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { adminExperienceApi } from './adminExperienceApi';
 import type { Experience, ExperienceFormData } from '../model/experience.types';
 import { message } from 'antd';
+import { queryClient as mainQueryClient } from '../../../../main/config/queryClient';
 
 // ==================== Query Keys ====================
 export const EXPERIENCE_KEYS = {
@@ -57,7 +58,10 @@ export const useExperienceMutation = (editingExperience?: Experience | null) => 
       }
     },
     onSuccess: () => {
+      // 어드민 캐시 무효화
       queryClient.invalidateQueries({ queryKey: EXPERIENCE_KEYS.lists() });
+      // 메인 페이지 캐시도 무효화
+      mainQueryClient.invalidateQueries({ queryKey: ['experiences'] });
       message.success(
         editingExperience ? 'Experience 수정 성공' : 'Experience 생성 성공'
       );
@@ -77,7 +81,10 @@ export const useDeleteExperienceMutation = () => {
   return useMutation({
     mutationFn: (id: string) => adminExperienceApi.deleteExperience(id),
     onSuccess: () => {
+      // 어드민 캐시 무효화
       queryClient.invalidateQueries({ queryKey: EXPERIENCE_KEYS.lists() });
+      // 메인 페이지 캐시도 무효화
+      mainQueryClient.invalidateQueries({ queryKey: ['experiences'] });
       message.success('Experience 삭제 성공');
     },
     onError: (error: Error) => {
@@ -96,7 +103,10 @@ export const useUpdateExperienceSortOrderMutation = () => {
     mutationFn: (sortOrderUpdates: Record<string, number>) =>
       adminExperienceApi.updateSortOrder(sortOrderUpdates),
     onSuccess: () => {
+      // 어드민 캐시 무효화
       queryClient.invalidateQueries({ queryKey: EXPERIENCE_KEYS.lists() });
+      // 메인 페이지 캐시도 무효화
+      mainQueryClient.invalidateQueries({ queryKey: ['experiences'] });
       message.success('정렬 순서 업데이트 성공');
     },
     onError: (error: Error) => {

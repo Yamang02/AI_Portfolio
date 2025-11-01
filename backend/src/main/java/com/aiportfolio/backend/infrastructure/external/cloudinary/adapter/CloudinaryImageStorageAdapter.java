@@ -39,6 +39,12 @@ public class CloudinaryImageStorageAdapter implements ImageStoragePort {
             String url = (String) result.get("secure_url");
             String publicId = (String) result.get("public_id");
             
+            // 업로드 결과 검증
+            if (url == null || url.trim().isEmpty()) {
+                log.error("Cloudinary upload succeeded but returned null or empty URL. publicId: {}", publicId);
+                throw new RuntimeException("이미지 업로드는 성공했지만 URL을 받지 못했습니다");
+            }
+            
             log.info("Image uploaded successfully: {} -> {}", publicId, url);
             return url;
             

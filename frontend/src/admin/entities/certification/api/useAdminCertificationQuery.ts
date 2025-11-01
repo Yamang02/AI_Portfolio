@@ -7,6 +7,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { adminCertificationApi } from './adminCertificationApi';
 import { Certification, CertificationFormData } from '../model/certification.types';
+import { queryClient as mainQueryClient } from '../../../../main/config/queryClient';
 
 // ==================== Query Keys ====================
 export const CERTIFICATION_KEYS = {
@@ -92,9 +93,12 @@ export const useCertificationMutation = (editingCertification?: Certification | 
       }
     },
     onSuccess: () => {
+      // 어드민 캐시 무효화
       queryClient.invalidateQueries({ queryKey: CERTIFICATION_KEYS.lists() });
       queryClient.invalidateQueries({ queryKey: CERTIFICATION_KEYS.expired() });
       queryClient.invalidateQueries({ queryKey: CERTIFICATION_KEYS.expiringSoon() });
+      // 메인 페이지 캐시도 무효화
+      mainQueryClient.invalidateQueries({ queryKey: ['certifications'] });
     },
   });
 };
@@ -108,9 +112,12 @@ export const useDeleteCertificationMutation = () => {
   return useMutation({
     mutationFn: (id: string) => adminCertificationApi.deleteCertification(id),
     onSuccess: () => {
+      // 어드민 캐시 무효화
       queryClient.invalidateQueries({ queryKey: CERTIFICATION_KEYS.lists() });
       queryClient.invalidateQueries({ queryKey: CERTIFICATION_KEYS.expired() });
       queryClient.invalidateQueries({ queryKey: CERTIFICATION_KEYS.expiringSoon() });
+      // 메인 페이지 캐시도 무효화
+      mainQueryClient.invalidateQueries({ queryKey: ['certifications'] });
     },
   });
 };
@@ -125,7 +132,10 @@ export const useUpdateCertificationSortOrderMutation = () => {
     mutationFn: (sortOrderUpdates: Record<string, number>) =>
       adminCertificationApi.updateSortOrder(sortOrderUpdates),
     onSuccess: () => {
+      // 어드민 캐시 무효화
       queryClient.invalidateQueries({ queryKey: CERTIFICATION_KEYS.lists() });
+      // 메인 페이지 캐시도 무효화
+      mainQueryClient.invalidateQueries({ queryKey: ['certifications'] });
     },
   });
 };

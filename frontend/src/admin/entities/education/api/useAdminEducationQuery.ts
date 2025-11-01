@@ -6,6 +6,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { adminEducationApi } from './adminEducationApi';
 import type { Education, EducationFormData } from '../model/education.types';
 import { message } from 'antd';
+import { queryClient as mainQueryClient } from '../../../../main/config/queryClient';
 
 // ==================== Query Keys ====================
 export const EDUCATION_KEYS = {
@@ -57,7 +58,10 @@ export const useEducationMutation = (editingEducation?: Education | null) => {
       }
     },
     onSuccess: () => {
+      // 어드민 캐시 무효화
       queryClient.invalidateQueries({ queryKey: EDUCATION_KEYS.lists() });
+      // 메인 페이지 캐시도 무효화
+      mainQueryClient.invalidateQueries({ queryKey: ['education'] });
       message.success(
         editingEducation ? 'Education 수정 성공' : 'Education 생성 성공'
       );
@@ -77,7 +81,10 @@ export const useDeleteEducationMutation = () => {
   return useMutation({
     mutationFn: (id: string) => adminEducationApi.deleteEducation(id),
     onSuccess: () => {
+      // 어드민 캐시 무효화
       queryClient.invalidateQueries({ queryKey: EDUCATION_KEYS.lists() });
+      // 메인 페이지 캐시도 무효화
+      mainQueryClient.invalidateQueries({ queryKey: ['education'] });
       message.success('Education 삭제 성공');
     },
     onError: (error: Error) => {
@@ -96,7 +103,10 @@ export const useUpdateEducationSortOrderMutation = () => {
     mutationFn: (sortOrderUpdates: Record<string, number>) =>
       adminEducationApi.updateSortOrder(sortOrderUpdates),
     onSuccess: () => {
+      // 어드민 캐시 무효화
       queryClient.invalidateQueries({ queryKey: EDUCATION_KEYS.lists() });
+      // 메인 페이지 캐시도 무효화
+      mainQueryClient.invalidateQueries({ queryKey: ['education'] });
       message.success('정렬 순서 업데이트 성공');
     },
     onError: (error: Error) => {

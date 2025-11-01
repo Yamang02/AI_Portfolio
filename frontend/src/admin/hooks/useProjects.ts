@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { adminProjectApi, ProjectCreateRequest, ProjectUpdateRequest, ProjectFilter } from '../api/adminProjectApi';
+import { queryClient as mainQueryClient } from '../../main/config/queryClient';
 
 export const useProjects = (filter: ProjectFilter = {}) => {
   return useQuery({
@@ -24,7 +25,16 @@ export const useCreateProject = () => {
   return useMutation({
     mutationFn: (project: ProjectCreateRequest) => adminProjectApi.createProject(project),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-projects'] });
+      // 어드민 캐시 무효화 후 즉시 리패치
+      queryClient.invalidateQueries({ 
+        queryKey: ['admin-projects'],
+        refetchType: 'active', // 활성 쿼리 즉시 리패치
+      });
+      // 메인 페이지 캐시도 무효화 (다른 QueryClient이므로 직접 접근)
+      mainQueryClient.invalidateQueries({ 
+        queryKey: ['projects'],
+        refetchType: 'active',
+      });
     },
   });
 };
@@ -36,8 +46,24 @@ export const useUpdateProject = () => {
     mutationFn: ({ id, project }: { id: string; project: ProjectUpdateRequest }) =>
       adminProjectApi.updateProject(id, project),
     onSuccess: (_, { id }) => {
-      queryClient.invalidateQueries({ queryKey: ['admin-projects'] });
-      queryClient.invalidateQueries({ queryKey: ['admin-project', id] });
+      // 어드민 캐시 무효화 후 즉시 리패치
+      queryClient.invalidateQueries({ 
+        queryKey: ['admin-projects'],
+        refetchType: 'active', // 활성 쿼리 즉시 리패치
+      });
+      queryClient.invalidateQueries({ 
+        queryKey: ['admin-project', id],
+        refetchType: 'active',
+      });
+      // 메인 페이지 캐시도 무효화 (다른 QueryClient이므로 직접 접근)
+      mainQueryClient.invalidateQueries({ 
+        queryKey: ['projects'],
+        refetchType: 'active',
+      });
+      mainQueryClient.invalidateQueries({ 
+        queryKey: ['projects', 'detail', id],
+        refetchType: 'active',
+      });
     },
   });
 };
@@ -48,7 +74,16 @@ export const useDeleteProject = () => {
   return useMutation({
     mutationFn: (id: string) => adminProjectApi.deleteProject(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-projects'] });
+      // 어드민 캐시 무효화 후 즉시 리패치
+      queryClient.invalidateQueries({ 
+        queryKey: ['admin-projects'],
+        refetchType: 'active', // 활성 쿼리 즉시 리패치
+      });
+      // 메인 페이지 캐시도 무효화 (다른 QueryClient이므로 직접 접근)
+      mainQueryClient.invalidateQueries({ 
+        queryKey: ['projects'],
+        refetchType: 'active',
+      });
     },
   });
 };
