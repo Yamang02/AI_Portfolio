@@ -36,45 +36,11 @@ export default defineConfig(({ mode }) => {
             warn(warning);
           },
           output: {
-            // 청크 분리 최적화
+            // 청크 분리 최적화: 의존성 문제를 피하기 위해 단순화
             manualChunks: (id) => {
-              // React 관련 라이브러리
-              if (id.includes('node_modules/react') ||
-                  id.includes('node_modules/react-dom') ||
-                  id.includes('node_modules/react-router-dom')) {
-                return 'react-vendor';
-              }
-
-              // Ant Design UI 라이브러리
-              if (id.includes('node_modules/antd') ||
-                  id.includes('node_modules/@ant-design')) {
-                return 'antd-vendor';
-              }
-
-              // React Query
-              if (id.includes('node_modules/@tanstack/react-query')) {
-                return 'react-query-vendor';
-              }
-
-              // 마크다운 생태계 전체를 하나의 청크로 통합
-              // unified, remark, rehype, unist, react-markdown, md-editor, highlight 모두 포함
-              if (id.includes('node_modules/react-markdown') ||
-                  id.includes('node_modules/@uiw/react-md-editor') ||
-                  id.includes('node_modules/remark-') ||
-                  id.includes('node_modules/rehype-') ||
-                  id.includes('node_modules/unified') ||
-                  id.includes('node_modules/unist-') ||
-                  id.includes('node_modules/micromark') ||
-                  id.includes('node_modules/mdast') ||
-                  id.includes('node_modules/hast') ||
-                  id.includes('node_modules/highlight.js') ||
-                  id.includes('node_modules/lowlight')) {
-                return 'markdown-vendor';
-              }
-
-              // 나머지 node_modules는 공통 vendor로
+              // node_modules의 모든 라이브러리를 하나의 vendor 청크로
               if (id.includes('node_modules')) {
-                return 'common-vendor';
+                return 'vendor';
               }
             }
           }
