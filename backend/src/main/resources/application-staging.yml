@@ -5,6 +5,12 @@ spring:
   application:
     name: ai-portfolio-backend-staging
   
+  # Spring Data 설정 - JPA와 Redis Repository 구분
+  data:
+    redis:
+      repositories:
+        enabled: false  # Redis Repository 비활성화 (Redis는 캐싱/세션용만 사용)
+  
   # Railway PostgreSQL 설정 (POSTGRE_URL을 통해 DatabaseConfig에서 처리)
   datasource:
     url: ${POSTGRE_URL:jdbc:postgresql://localhost:5432/ai_portfolio}  # Railway PostgreSQL URL 우선 사용

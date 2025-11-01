@@ -35,9 +35,9 @@ import {
   TechStackStatsCards,
   createTechStackColumns,
   useTechStackFilter,
-  useTechStackStats,
-  categoryNames
+  useTechStackStats
 } from '../features/tech-stack-management';
+import { categoryNames } from '../features/tech-stack-management/lib/techStackMappings';
 
 // Shared 컴포넌트 import
 import { Table as SharedTable, ManagementPageLayout, CRUDModal } from '../shared/ui';
