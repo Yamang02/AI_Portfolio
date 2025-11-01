@@ -1,7 +1,9 @@
 package com.aiportfolio.backend.infrastructure.config;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -17,30 +19,35 @@ import java.util.List;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
-    @Value("${spring.web.cors.allowed-origins}")
-    private List<String> allowedOrigins;
+    private final CorsProperties corsProperties;
 
-    @Value("${spring.web.cors.allowed-methods}")
-    private List<String> allowedMethods;
-
-    @Value("${spring.web.cors.allowed-headers}")
-    private String allowedHeaders;
-
-    @Value("${spring.web.cors.allow-credentials}")
-    private boolean allowCredentials;
+    public WebConfig(CorsProperties corsProperties) {
+        this.corsProperties = corsProperties;
+    }
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        log.info("Configuring CORS with allowed origins: {}", allowedOrigins);
+        log.info("Configuring CORS with allowed origins: {}", corsProperties.getAllowedOrigins());
 
         registry.addMapping("/**")
-                .allowedOrigins(allowedOrigins.toArray(new String[0]))
-                .allowedMethods(allowedMethods.toArray(new String[0]))
-                .allowedHeaders(allowedHeaders)
-                .allowCredentials(allowCredentials)
+                .allowedOrigins(corsProperties.getAllowedOrigins().toArray(new String[0]))
+                .allowedMethods(corsProperties.getAllowedMethods().toArray(new String[0]))
+                .allowedHeaders(corsProperties.getAllowedHeaders())
+                .allowCredentials(corsProperties.isAllowCredentials())
                 .maxAge(3600); // 1시간 동안 preflight 결과 캐싱
 
         log.info("CORS configured successfully");
+    }
+
+    @Getter
+    @Setter
+    @Configuration
+    @ConfigurationProperties(prefix = "spring.web.cors")
+    public static class CorsProperties {
+        private List<String> allowedOrigins;
+        private List<String> allowedMethods;
+        private String allowedHeaders;
+        private boolean allowCredentials;
     }
 
     @Override
