@@ -4,7 +4,10 @@ package com.aiportfolio.backend.infrastructure.persistence.postgres.repository;
 import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.ProjectJpaEntity;
 
 // 외부 라이브러리 imports
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -18,7 +21,7 @@ import java.util.Optional;
  * Spring Data JPA를 사용한 데이터 액세스 레이어
  */
 @Repository
-public interface ProjectJpaRepository extends JpaRepository<ProjectJpaEntity, Long> {
+public interface ProjectJpaRepository extends JpaRepository<ProjectJpaEntity, Long>, JpaSpecificationExecutor<ProjectJpaEntity> {
     
     /**
      * 비즈니스 ID로 프로젝트 조회
@@ -83,6 +86,14 @@ public interface ProjectJpaRepository extends JpaRepository<ProjectJpaEntity, Lo
      */
     @Query("SELECT p FROM ProjectJpaEntity p ORDER BY p.sortOrder ASC, p.startDate DESC")
     List<ProjectJpaEntity> findAllOrderedBySortOrderAndStartDate();
+
+    /**
+     * 페이지네이션을 지원하는 모든 프로젝트 조회 (Admin용)
+     * @param pageable 페이지 정보
+     * @return 페이지네이션된 프로젝트 엔티티 리스트
+     */
+    @Query("SELECT p FROM ProjectJpaEntity p ORDER BY p.sortOrder ASC, p.startDate DESC")
+    Page<ProjectJpaEntity> findAllWithPagination(Pageable pageable);
     
     /**
      * GitHub URL이 있는 프로젝트만 조회

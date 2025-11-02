@@ -61,7 +61,7 @@ export const getAllCacheKeys = async (): Promise<string[]> => {
  * 패턴별 캐시 키 목록 조회
  */
 export const getCacheKeysByPattern = async (pattern: string): Promise<string[]> => {
-  const response = await fetch(`${API_BASE_URL}/keys/${encodeURIComponent(pattern)}`, {
+  const response = await fetch(`${API_BASE_URL}/keys?pattern=${encodeURIComponent(pattern)}`, {
     credentials: 'include', // 쿠키 포함 (세션 인증을 위해 필요)
   });
   if (!response.ok) {
@@ -95,7 +95,7 @@ export const clearAllCache = async (): Promise<void> => {
  * 패턴별 캐시 삭제
  */
 export const clearCacheByPattern = async (pattern: string): Promise<void> => {
-  const response = await fetch(`${API_BASE_URL}/pattern/${encodeURIComponent(pattern)}`, {
+  const response = await fetch(`${API_BASE_URL}/pattern?pattern=${encodeURIComponent(pattern)}`, {
     method: 'DELETE',
     credentials: 'include', // 쿠키 포함 (세션 인증을 위해 필요)
   });

@@ -33,7 +33,8 @@ export const useProjectsQuery = (params?: {
   return useQuery({
     queryKey: [...PROJECT_QUERY_KEYS.lists(), params],
     queryFn: () => projectApi.getProjects(params),
-    staleTime: 24 * 60 * 60 * 1000, // 24시간 - 콜드스타트 보완을 위해 긴 캐시 유지
+    staleTime: 3 * 60 * 1000, // 3분 - 관리자 수정 후 빠른 갱신 (트래픽 적음)
+    gcTime: 10 * 60 * 1000, // 10분 - 가비지 컬렉션 시간
   });
 };
 

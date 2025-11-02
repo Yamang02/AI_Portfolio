@@ -6,6 +6,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { message } from 'antd';
 import * as cacheApi from './cacheApi';
+import { queryClient as mainQueryClient } from '../../../main/config/queryClient';
 
 /**
  * 캐시 통계 조회 훅
@@ -14,7 +15,8 @@ export const useCacheStats = () => {
   return useQuery({
     queryKey: ['cache', 'stats'],
     queryFn: cacheApi.getCacheStats,
-    refetchInterval: 5000, // 5초마다 자동 갱신
+    refetchInterval: 10000, // 10초마다 자동 갱신 (성능 개선)
+    staleTime: 8000, // 8초간 캐시 유지
   });
 };
 
@@ -39,7 +41,13 @@ export const useClearAllCache = () => {
     mutationFn: cacheApi.clearAllCache,
     onSuccess: () => {
       message.success('모든 캐시가 삭제되었습니다.');
+      // 관리자 페이지 캐시 무효화
       queryClient.invalidateQueries({ queryKey: ['cache'] });
+      // 메인 페이지 캐시도 무효화 (3분 내에 새 데이터 자동 로드)
+      mainQueryClient.invalidateQueries({
+        queryKey: ['projects'],
+        refetchType: 'active',
+      });
     },
     onError: (error: Error) => {
       message.error(`캐시 삭제 실패: ${error.message}`);
@@ -55,9 +63,18 @@ export const useClearCacheByPattern = () => {
 
   return useMutation({
     mutationFn: cacheApi.clearCacheByPattern,
-    onSuccess: () => {
+    onSuccess: (_, pattern) => {
       message.success('패턴별 캐시가 삭제되었습니다.');
+      // 관리자 페이지 캐시 무효화
       queryClient.invalidateQueries({ queryKey: ['cache'] });
+
+      // portfolio 캐시 삭제 시 메인 페이지도 무효화
+      if (pattern.includes('portfolio')) {
+        mainQueryClient.invalidateQueries({
+          queryKey: ['projects'],
+          refetchType: 'active',
+        });
+      }
     },
     onError: (error: Error) => {
       message.error(`패턴별 캐시 삭제 실패: ${error.message}`);
