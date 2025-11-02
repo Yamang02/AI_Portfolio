@@ -9,12 +9,18 @@ import com.aiportfolio.backend.domain.admin.model.vo.ProjectFilter;
 import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.*;
 import com.aiportfolio.backend.infrastructure.persistence.postgres.mapper.*;
 import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.*;
+import com.aiportfolio.backend.infrastructure.persistence.postgres.specification.ProjectSpecification;
 
 // 외부 라이브러리 imports
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 
 // Java 표준 라이브러리 imports
@@ -566,12 +572,23 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
     @Override
     public List<Project> findByFilter(ProjectFilter filter) {
         log.debug("Finding projects by filter: {}", filter);
-        
+
         try {
-            // 모든 프로젝트를 조회한 후 메모리에서 필터링
-            // TODO: 향후 JPA Specification을 사용하여 DB 레벨에서 필터링 개선
-            List<ProjectJpaEntity> entities = projectJpaRepository.findAllOrderedBySortOrderAndStartDate();
+            // Specification 생성 (필터 조건을 쿼리 레벨로 내림)
+            Specification<ProjectJpaEntity> spec = ProjectSpecification.withFilter(filter);
+
+            // 정렬 조건 생성
+            Sort sort = createSortFromFilter(filter);
             
+            // 페이지네이션 적용
+            Integer page = filter.getPage() != null ? filter.getPage() : 0;
+            Integer size = filter.getSize() != null ? filter.getSize() : 20;
+            Pageable pageable = PageRequest.of(page, size, sort);
+
+            // 필터링된 프로젝트 조회 (쿼리 레벨에서 필터링 및 정렬 수행)
+            Page<ProjectJpaEntity> entityPage = projectJpaRepository.findAll(spec, pageable);
+            List<ProjectJpaEntity> entities = entityPage.getContent();
+
             // 기술스택을 명시적으로 로드 (N+1 문제 방지)
             // 스크린샷은 ID 배열 기반으로 별도 조회하므로 여기서는 로드하지 않음
             entities.forEach(entity -> {
@@ -579,15 +596,65 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
                     entity.getProjectTechStacks().size(); // LAZY 로딩 트리거
                 }
             });
-            
+
+            // 도메인 모델로 변환 (필터링은 이미 쿼리에서 수행됨)
             return entities.stream()
                 .map(projectMapper::toDomain)
-                .filter(filter::matches)
-                .sorted(filter.getSortCriteria())
                 .collect(Collectors.toList());
         } catch (Exception e) {
             log.error("프로젝트 필터링 조회 중 오류 발생", e);
             return List.of();
+        }
+    }
+
+    /**
+     * ProjectFilter로부터 Sort 객체를 생성합니다.
+     * 
+     * @param filter 필터 조건
+     * @return Sort 객체
+     */
+    private Sort createSortFromFilter(ProjectFilter filter) {
+        String sortBy = filter.getSortBy();
+        if (sortBy == null || "sortOrder".equals(sortBy)) {
+            sortBy = "sortOrder";
+        }
+        
+        // 필드명 매핑 (도메인 필드명 -> JPA 엔티티 필드명)
+        String jpaFieldName;
+        switch (sortBy) {
+            case "startDate":
+                jpaFieldName = "startDate";
+                break;
+            case "endDate":
+                jpaFieldName = "endDate";
+                break;
+            case "title":
+                jpaFieldName = "title";
+                break;
+            case "status":
+                jpaFieldName = "status";
+                break;
+            case "type":
+                jpaFieldName = "type";
+                break;
+            case "sortOrder":
+            default:
+                jpaFieldName = "sortOrder";
+                break;
+        }
+        
+        // 기본 정렬: sortOrder ASC, startDate DESC (sortOrder가 같을 때)
+        Sort.Direction direction = filter.isAscending() ? Sort.Direction.ASC : Sort.Direction.DESC;
+        
+        if ("sortOrder".equals(sortBy)) {
+            // sortOrder 정렬 시 startDate를 보조 정렬로 추가
+            return Sort.by(direction, jpaFieldName)
+                .and(Sort.by(Sort.Direction.DESC, "startDate"));
+        } else {
+            // 다른 정렬 기준 사용 시 sortOrder를 보조 정렬로 추가
+            return Sort.by(direction, jpaFieldName)
+                .and(Sort.by(Sort.Direction.ASC, "sortOrder"))
+                .and(Sort.by(Sort.Direction.DESC, "startDate"));
         }
     }
     

@@ -7,6 +7,8 @@ export const useProjects = (filter: ProjectFilter = {}) => {
     queryKey: ['admin-projects', filter],
     queryFn: () => adminProjectApi.getProjects(filter),
     select: (response) => response.data,
+    staleTime: 5 * 60 * 1000, // 5분간 캐시 유지 (성능 개선)
+    gcTime: 10 * 60 * 1000, // 10분 후 가비지 컬렉션
   });
 };
 

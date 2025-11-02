@@ -100,48 +100,12 @@ public class AdminCacheController {
     }
 
     /**
-     * 모든 캐시 키 목록 조회
+     * 캐시 키 목록 조회 (패턴 지원)
+     * pattern 파라미터가 없으면 모든 키를 조회합니다.
      */
     @GetMapping("/keys")
-    public ResponseEntity<Map<String, Object>> getAllCacheKeys(HttpServletRequest request) {
-        try {
-            adminAuthChecker.requireAuthentication(request);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(401).body(Map.of(
-                "success", false,
-                "message", e.getMessage(),
-                "timestamp", System.currentTimeMillis()
-            ));
-        }
-        log.info("Admin cache keys requested");
-
-        try {
-            List<String> keys = manageCacheUseCase.getAllCacheKeys();
-            log.info("Cache keys retrieved successfully: {} keys", keys.size());
-
-            return ResponseEntity.ok(Map.of(
-                "success", true,
-                "data", keys,
-                "count", keys.size(),
-                "timestamp", System.currentTimeMillis()
-            ));
-        } catch (Exception e) {
-            log.error("Cache keys retrieval failed", e);
-
-            return ResponseEntity.internalServerError().body(Map.of(
-                "success", false,
-                "message", "캐시 키 목록 조회 중 오류가 발생했습니다: " + e.getMessage(),
-                "timestamp", System.currentTimeMillis()
-            ));
-        }
-    }
-
-    /**
-     * 패턴별 캐시 키 목록 조회
-     */
-    @GetMapping("/keys/{pattern}")
-    public ResponseEntity<Map<String, Object>> getCacheKeysByPattern(
-            @PathVariable String pattern,
+    public ResponseEntity<Map<String, Object>> getCacheKeys(
+            @RequestParam(required = false, defaultValue = "*") String pattern,
             HttpServletRequest request) {
         try {
             adminAuthChecker.requireAuthentication(request);
@@ -179,9 +143,9 @@ public class AdminCacheController {
     /**
      * 패턴별 캐시 삭제
      */
-    @DeleteMapping("/pattern/{pattern}")
+    @DeleteMapping("/pattern")
     public ResponseEntity<Map<String, Object>> clearCacheByPattern(
-            @PathVariable String pattern,
+            @RequestParam String pattern,
             HttpServletRequest request) {
         try {
             adminAuthChecker.requireAuthentication(request);
@@ -193,11 +157,11 @@ public class AdminCacheController {
             ));
         }
         log.info("Admin cache clear by pattern requested: {}", pattern);
-        
+
         try {
             manageCacheUseCase.evictCacheByPattern(pattern);
             log.info("Cache cleared by pattern successfully: {}", pattern);
-            
+
             return ResponseEntity.ok(Map.of(
                 "success", true,
                 "message", "패턴별 캐시가 성공적으로 삭제되었습니다.",
@@ -206,7 +170,7 @@ public class AdminCacheController {
             ));
         } catch (Exception e) {
             log.error("Cache clear by pattern failed: {}", pattern, e);
-            
+
             return ResponseEntity.internalServerError().body(Map.of(
                 "success", false,
                 "message", "패턴별 캐시 삭제 중 오류가 발생했습니다: " + e.getMessage(),
