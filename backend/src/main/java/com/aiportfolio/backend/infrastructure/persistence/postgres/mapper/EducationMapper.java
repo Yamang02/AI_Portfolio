@@ -42,8 +42,11 @@ public class EducationMapper {
                 .title(jpaEntity.getTitle())
                 .description(jpaEntity.getDescription())
                 .organization(jpaEntity.getOrganization())
+                .degree(jpaEntity.getDegree())
+                .major(jpaEntity.getMajor())
                 .startDate(jpaEntity.getStartDate())
                 .endDate(jpaEntity.getEndDate())
+                .gpa(jpaEntity.getGpa())
                 .type(parseEducationType(jpaEntity.getType()))
                 .techStackMetadata(techStackMetadataMapper.toDomainList(
                     jpaEntity.getEducationTechStacks() != null ? 
@@ -52,7 +55,10 @@ public class EducationMapper {
                         .collect(java.util.stream.Collectors.toList()) : 
                     new java.util.ArrayList<>()
                 ))
-                .projects(jpaEntity.getProjects())
+                .projects(new java.util.ArrayList<>()) // 릴레이션 테이블로 분리됨
+                .sortOrder(jpaEntity.getSortOrder())
+                .createdAt(jpaEntity.getCreatedAt())
+                .updatedAt(jpaEntity.getUpdatedAt())
                 .build();
     }
     
@@ -69,12 +75,16 @@ public class EducationMapper {
                 .title(domainModel.getTitle())
                 .description(domainModel.getDescription())
                 .organization(domainModel.getOrganization())
+                .degree(domainModel.getDegree())
+                .major(domainModel.getMajor())
                 .startDate(domainModel.getStartDate())
                 .endDate(domainModel.getEndDate())
+                .gpa(domainModel.getGpa())
                 .type(domainModel.getType() != null ? domainModel.getType().name() : null)
                 .educationTechStacks(new java.util.ArrayList<>()) // 관계 테이블은 별도로 관리
-                .projects(domainModel.getProjects())
-                .sortOrder(0) // 기본값
+                .sortOrder(domainModel.getSortOrder() != null ? domainModel.getSortOrder() : 0)
+                .createdAt(domainModel.getCreatedAt())
+                .updatedAt(domainModel.getUpdatedAt())
                 .build();
     }
     

@@ -141,9 +141,8 @@ public class ChatController {
         try {
             String clientId = getClientId(httpRequest);
             
-            // 스팸 보호 상태와 채팅 사용량 상태 모두 반환
+            // 스팸 보호 상태 조회
             var spamStatus = spamProtectionService.getSubmissionStatus(clientId);
-            Object chatStatus = chatUseCase.getChatUsageStatus();
             
             // 종합 상태 응답 생성
             return ResponseEntity.ok(ApiResponse.success(spamStatus, "사용량 제한 상태 조회 성공"));

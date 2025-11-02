@@ -3,6 +3,7 @@ package com.aiportfolio.backend.infrastructure.persistence.postgres;
 // 도메인 모델 imports
 import com.aiportfolio.backend.domain.portfolio.port.out.PortfolioRepositoryPort;
 import com.aiportfolio.backend.domain.portfolio.model.*;
+import com.aiportfolio.backend.domain.admin.model.vo.ProjectFilter;
 
 // 인프라 레이어 imports (와일드카드 사용)
 import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.*;
@@ -12,13 +13,13 @@ import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.*;
 // 외부 라이브러리 imports
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 
 // Java 표준 라이브러리 imports
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * PostgreSQL 기반 PortfolioRepository 구현체
@@ -36,6 +37,9 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
     private final ExperienceJpaRepository experienceJpaRepository;
     private final EducationJpaRepository educationJpaRepository;
     private final CertificationJpaRepository certificationJpaRepository;
+    private final ProjectTechStackJpaRepository projectTechStackJpaRepository;
+    private final TechStackMetadataJpaRepository techStackMetadataJpaRepository;
+    private final ProjectScreenshotJpaRepository projectScreenshotJpaRepository;
 
     // 매퍼들 (도메인 ↔ JPA 엔티티 변환)
     private final ProjectMapper projectMapper;
@@ -51,6 +55,15 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
         log.info("PostgreSQL에서 프로젝트 데이터를 조회합니다.");
         try {
             List<ProjectJpaEntity> jpaEntities = projectJpaRepository.findAllOrderedBySortOrderAndStartDate();
+            
+            // 기술스택을 명시적으로 로드 (N+1 문제 방지 및 LAZY 로딩 트리거)
+            // 스크린샷은 ID 배열 기반으로 별도 조회하므로 여기서는 로드하지 않음
+            jpaEntities.forEach(entity -> {
+                if (entity.getProjectTechStacks() != null) {
+                    entity.getProjectTechStacks().size(); // LAZY 로딩 트리거
+                }
+            });
+            
             List<Project> projects = projectMapper.toDomainList(jpaEntities);
             log.info("프로젝트 {} 개를 성공적으로 조회했습니다.", projects.size());
             return projects;
@@ -63,8 +76,24 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
     @Override
     public Optional<Project> findProjectById(String id) {
         try {
-            Optional<ProjectJpaEntity> jpaEntity = projectJpaRepository.findByBusinessId(id);
-            return jpaEntity.map(projectMapper::toDomain);
+            Optional<ProjectJpaEntity> jpaEntityOpt = projectJpaRepository.findByBusinessId(id);
+            if (jpaEntityOpt.isPresent()) {
+                ProjectJpaEntity jpaEntity = jpaEntityOpt.get();
+                // 기술스택을 명시적으로 로드
+                if (jpaEntity.getProjectTechStacks() != null) {
+                    jpaEntity.getProjectTechStacks().size(); // LAZY 로딩 트리거
+                }
+                
+                // 상세 조회이므로 스크린샷 조회
+                Project project = projectMapper.toDomain(jpaEntity);
+                if (project != null && jpaEntity.getScreenshots() != null && !jpaEntity.getScreenshots().isEmpty()) {
+                    List<String> screenshotUrls = projectMapper.getScreenshotUrlsFromIds(jpaEntity);
+                    project.setScreenshots(screenshotUrls);
+                }
+                
+                return Optional.of(project);
+            }
+            return Optional.empty();
         } catch (Exception e) {
             log.error("프로젝트 ID로 조회 중 오류 발생: {}", id, e);
             return Optional.empty();
@@ -126,6 +155,18 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
     @Override
     @Cacheable(value = "portfolio", key = "'experiences'")
     public List<Experience> findAllExperiences() {
+        return findAllExperiencesInternal();
+    }
+    
+    @Override
+    public List<Experience> findAllExperiencesWithoutCache() {
+        return findAllExperiencesInternal();
+    }
+    
+    /**
+     * 경력 조회 (캐시 없이) - 어드민 전용
+     */
+    private List<Experience> findAllExperiencesInternal() {
         log.info("PostgreSQL에서 경력 데이터를 조회합니다.");
         try {
             List<ExperienceJpaEntity> jpaEntities = experienceJpaRepository.findAllOrderedBySortOrderAndStartDate();
@@ -149,11 +190,76 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
         }
     }
 
+    @Override
+    public Experience saveExperience(Experience experience) {
+        try {
+            ExperienceJpaEntity jpaEntity = experienceMapper.toJpaEntity(experience);
+            
+            // 기존 엔티티가 있는지 확인 (업데이트 vs 생성 구분)
+            Optional<ExperienceJpaEntity> existingEntity = experienceJpaRepository.findByBusinessId(experience.getId());
+            
+            if (existingEntity.isPresent()) {
+                // 업데이트: 기존 엔티티를 직접 수정
+                ExperienceJpaEntity existing = existingEntity.get();
+                
+                // 필드 업데이트 (DB ID와 createdAt은 유지)
+                existing.setTitle(experience.getTitle());
+                existing.setDescription(experience.getDescription());
+                existing.setOrganization(experience.getOrganization());
+                existing.setRole(experience.getRole());
+                existing.setStartDate(experience.getStartDate());
+                existing.setEndDate(experience.getEndDate());
+                existing.setJobField(experience.getJobField());
+                existing.setEmploymentType(experience.getEmploymentType());
+                existing.setMainResponsibilities(experience.getMainResponsibilities());
+                existing.setAchievements(experience.getAchievements());
+                existing.setSortOrder(experience.getSortOrder());
+                
+                // updatedAt은 JPA @PreUpdate에서 자동 처리됨
+                
+                log.info("경력 업데이트 중: {}", experience.getTitle());
+                ExperienceJpaEntity savedEntity = experienceJpaRepository.save(existing);
+                return experienceMapper.toDomain(savedEntity);
+            } else {
+                // 생성: 새 엔티티
+                log.info("경력 생성 중: {}", experience.getTitle());
+                ExperienceJpaEntity savedEntity = experienceJpaRepository.save(jpaEntity);
+                return experienceMapper.toDomain(savedEntity);
+            }
+        } catch (Exception e) {
+            log.error("경력 저장 중 오류 발생: {}", experience.getTitle(), e);
+            throw new RuntimeException("경력 저장에 실패했습니다", e);
+        }
+    }
+
+    @Override
+    public void deleteExperience(String id) {
+        try {
+            experienceJpaRepository.deleteByBusinessId(id);
+            log.info("경력 삭제 완료: {}", id);
+        } catch (Exception e) {
+            log.error("경력 삭제 중 오류 발생: {}", id, e);
+            throw new RuntimeException("경력 삭제에 실패했습니다", e);
+        }
+    }
+
     // === 교육 관련 구현 ===
 
     @Override
     @Cacheable(value = "portfolio", key = "'educations'")
     public List<Education> findAllEducations() {
+        return findAllEducationsInternal();
+    }
+    
+    @Override
+    public List<Education> findAllEducationsWithoutCache() {
+        return findAllEducationsInternal();
+    }
+    
+    /**
+     * 교육 조회 (캐시 없이) - 어드민 전용
+     */
+    private List<Education> findAllEducationsInternal() {
         log.info("PostgreSQL에서 교육 데이터를 조회합니다.");
         try {
             List<EducationJpaEntity> jpaEntities = educationJpaRepository.findAllOrderedBySortOrderAndStartDate();
@@ -177,11 +283,75 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
         }
     }
 
+    @Override
+    public Education saveEducation(Education education) {
+        try {
+            EducationJpaEntity jpaEntity = educationMapper.toJpaEntity(education);
+            
+            // 기존 엔티티가 있는지 확인 (업데이트 vs 생성 구분)
+            Optional<EducationJpaEntity> existingEntity = educationJpaRepository.findByBusinessId(education.getId());
+            
+            if (existingEntity.isPresent()) {
+                // 업데이트: 기존 엔티티를 직접 수정
+                EducationJpaEntity existing = existingEntity.get();
+                
+                // 필드 업데이트 (DB ID와 createdAt은 유지)
+                existing.setTitle(education.getTitle());
+                existing.setDescription(education.getDescription());
+                existing.setOrganization(education.getOrganization());
+                existing.setDegree(education.getDegree());
+                existing.setMajor(education.getMajor());
+                existing.setStartDate(education.getStartDate());
+                existing.setEndDate(education.getEndDate());
+                existing.setGpa(education.getGpa());
+                existing.setType(education.getType() != null ? education.getType().name() : null);
+                existing.setSortOrder(education.getSortOrder());
+                
+                // updatedAt은 JPA @PreUpdate에서 자동 처리됨
+                
+                log.info("교육 업데이트 중: {}", education.getTitle());
+                EducationJpaEntity savedEntity = educationJpaRepository.save(existing);
+                return educationMapper.toDomain(savedEntity);
+            } else {
+                // 생성: 새 엔티티
+                log.info("교육 생성 중: {}", education.getTitle());
+                EducationJpaEntity savedEntity = educationJpaRepository.save(jpaEntity);
+                return educationMapper.toDomain(savedEntity);
+            }
+        } catch (Exception e) {
+            log.error("교육 저장 중 오류 발생: {}", education.getTitle(), e);
+            throw new RuntimeException("교육 저장에 실패했습니다", e);
+        }
+    }
+
+    @Override
+    public void deleteEducation(String id) {
+        try {
+            educationJpaRepository.deleteByBusinessId(id);
+            log.info("교육 삭제 완료: {}", id);
+        } catch (Exception e) {
+            log.error("교육 삭제 중 오류 발생: {}", id, e);
+            throw new RuntimeException("교육 삭제에 실패했습니다", e);
+        }
+    }
+
     // === 자격증 관련 구현 ===
 
     @Override
     @Cacheable(value = "portfolio", key = "'certifications'")
     public List<Certification> findAllCertifications() {
+        return findAllCertificationsInternal();
+    }
+
+    @Override
+    public List<Certification> findAllCertificationsWithoutCache() {
+        return findAllCertificationsInternal();
+    }
+
+    /**
+     * 자격증 조회 (캐시 없이) - 어드민 전용
+     */
+    private List<Certification> findAllCertificationsInternal() {
         log.info("PostgreSQL에서 자격증 데이터를 조회합니다.");
         try {
             List<CertificationJpaEntity> jpaEntities = certificationJpaRepository
@@ -205,4 +375,337 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
             return Optional.empty();
         }
     }
+
+    @Override
+    public Certification saveCertification(Certification certification) {
+        try {
+            CertificationJpaEntity jpaEntity = certificationMapper.toJpaEntity(certification);
+
+            // 기존 엔티티가 있는지 확인 (업데이트 vs 생성 구분)
+            Optional<CertificationJpaEntity> existingEntity = certificationJpaRepository.findByBusinessId(certification.getId());
+
+            if (existingEntity.isPresent()) {
+                // 업데이트: 기존 엔티티를 직접 수정
+                CertificationJpaEntity existing = existingEntity.get();
+
+                // 필드 업데이트 (DB ID와 createdAt은 유지)
+                existing.setName(certification.getName());
+                existing.setIssuer(certification.getIssuer());
+                existing.setDate(certification.getDate());
+                existing.setExpiryDate(certification.getExpiryDate());
+                existing.setCredentialId(certification.getCredentialId());
+                existing.setCredentialUrl(certification.getCredentialUrl());
+                existing.setDescription(certification.getDescription());
+                existing.setCategory(certification.getCategory());
+                existing.setSortOrder(certification.getSortOrder());
+
+                // updatedAt은 JPA @PreUpdate에서 자동 처리됨
+
+                log.info("자격증 업데이트 중: {}", certification.getName());
+                CertificationJpaEntity savedEntity = certificationJpaRepository.save(existing);
+                return certificationMapper.toDomain(savedEntity);
+            } else {
+                // 생성: 새 엔티티
+                log.info("자격증 생성 중: {}", certification.getName());
+                CertificationJpaEntity savedEntity = certificationJpaRepository.save(jpaEntity);
+                return certificationMapper.toDomain(savedEntity);
+            }
+        } catch (Exception e) {
+            log.error("자격증 저장 중 오류 발생: {}", certification.getName(), e);
+            throw new RuntimeException("자격증 저장에 실패했습니다", e);
+        }
+    }
+
+    @Override
+    public void deleteCertification(String id) {
+        try {
+            Optional<CertificationJpaEntity> entity = certificationJpaRepository.findByBusinessId(id);
+            if (entity.isPresent()) {
+                certificationJpaRepository.delete(entity.get());
+                log.info("자격증 삭제 완료: {}", id);
+            } else {
+                log.warn("삭제할 자격증을 찾을 수 없습니다: {}", id);
+            }
+        } catch (Exception e) {
+            log.error("자격증 삭제 중 오류 발생: {}", id, e);
+            throw new RuntimeException("자격증 삭제에 실패했습니다", e);
+        }
+    }
+
+    @Override
+    public int findMaxCertificationSortOrder() {
+        Integer maxSortOrder = certificationJpaRepository.findMaxSortOrder();
+        return maxSortOrder != null ? maxSortOrder : 0;
+    }
+
+    @Override
+    public List<Certification> findCertificationsByCategory(String category) {
+        try {
+            List<CertificationJpaEntity> jpaEntities = certificationJpaRepository.findByCategory(category);
+            return certificationMapper.toDomainList(jpaEntities);
+        } catch (Exception e) {
+            log.error("카테고리별 자격증 조회 중 오류 발생: {}", category, e);
+            return new ArrayList<>();
+        }
+    }
+    
+    // === Admin Dashboard용 메서드 ===
+    
+    @Override
+    public Project saveProject(Project project) {
+        try {
+            // Project를 JPA Entity로 변환하여 저장
+            ProjectJpaEntity jpaEntity = projectMapper.toJpaEntity(project);
+            ProjectJpaEntity savedEntity = projectJpaRepository.save(jpaEntity);
+            
+            // 스크린샷은 관계 테이블에 저장하고 ID 배열을 projects.screenshots에 저장
+            if (project.getScreenshots() != null && !project.getScreenshots().isEmpty()) {
+                List<ProjectScreenshotJpaEntity> screenshotEntities = new ArrayList<>();
+                for (int i = 0; i < project.getScreenshots().size(); i++) {
+                    String screenshotUrl = project.getScreenshots().get(i);
+                    if (screenshotUrl != null && !screenshotUrl.isEmpty()) {
+                        ProjectScreenshotJpaEntity screenshot = ProjectScreenshotJpaEntity.builder()
+                                .project(savedEntity)
+                                .imageUrl(screenshotUrl)
+                                .displayOrder(i)
+                                .build();
+                        screenshotEntities.add(screenshot);
+                    }
+                }
+                if (!screenshotEntities.isEmpty()) {
+                    // 관계 테이블에 저장
+                    List<ProjectScreenshotJpaEntity> savedScreenshots = projectScreenshotJpaRepository.saveAll(screenshotEntities);
+                    
+                    // 저장된 스크린샷의 ID 배열 추출
+                    List<Long> screenshotIds = savedScreenshots.stream()
+                            .map(ProjectScreenshotJpaEntity::getId)
+                            .collect(Collectors.toList());
+                    
+                    // 프로젝트 엔티티의 screenshots 필드에 ID 배열 저장
+                    savedEntity.setScreenshots(screenshotIds);
+                    savedEntity = projectJpaRepository.save(savedEntity);
+                }
+            }
+            
+            return projectMapper.toDomain(savedEntity);
+        } catch (Exception e) {
+            log.error("프로젝트 저장 중 오류 발생: {}", project.getTitle(), e);
+            throw new RuntimeException("프로젝트 저장에 실패했습니다", e);
+        }
+    }
+    
+    @Override
+    public void deleteProject(String id) {
+        try {
+            projectJpaRepository.deleteByBusinessId(id);
+            log.info("프로젝트 삭제 완료: {}", id);
+        } catch (Exception e) {
+            log.error("프로젝트 삭제 중 오류 발생: {}", id, e);
+            throw new RuntimeException("프로젝트 삭제에 실패했습니다", e);
+        }
+    }
+    
+    @Override
+    public List<Project> findProjectsByTechStack(String techStackName) {
+        log.debug("기술스택 '{}'을 사용하는 프로젝트 조회", techStackName);
+        try {
+            // 먼저 기술스택 이름으로 ID 조회
+            Optional<TechStackMetadataJpaEntity> techStackEntity = techStackMetadataJpaRepository.findByName(techStackName);
+            if (techStackEntity.isEmpty()) {
+                log.debug("기술스택 '{}'을 찾을 수 없습니다", techStackName);
+                return List.of();
+            }
+            
+            Long techStackId = techStackEntity.get().getId();
+            
+            // ProjectTechStackJpaRepository를 통해 기술스택 ID별 프로젝트 매핑 조회
+            List<ProjectTechStackJpaEntity> mappings = projectTechStackJpaRepository.findByTechStackId(techStackId);
+            
+            // 매핑에서 프로젝트 ID 추출
+            List<Long> projectIds = mappings.stream()
+                .map(mapping -> mapping.getProject().getId())
+                .toList();
+            
+            if (projectIds.isEmpty()) {
+                log.debug("기술스택 '{}'을 사용하는 프로젝트가 없습니다", techStackName);
+                return List.of();
+            }
+            
+            // 프로젝트 ID로 프로젝트 엔티티 조회
+            List<ProjectJpaEntity> projectEntities = projectJpaRepository.findAllById(projectIds);
+            List<Project> projects = projectMapper.toDomainList(projectEntities);
+            
+            log.info("기술스택 '{}'을 사용하는 프로젝트 {} 개 조회 완료", techStackName, projects.size());
+            return projects;
+        } catch (Exception e) {
+            log.error("기술스택별 프로젝트 조회 중 오류 발생: {}", techStackName, e);
+            return List.of();
+        }
+    }
+    
+    @Override
+    public List<Project> findProjectsByTechStacks(List<String> techStackNames) {
+        log.debug("기술스택 목록 {} 을 사용하는 프로젝트 조회", techStackNames);
+        try {
+            // 각 기술스택별로 프로젝트 조회 후 중복 제거
+            List<Project> allProjects = techStackNames.stream()
+                .flatMap(techStackName -> findProjectsByTechStack(techStackName).stream())
+                .distinct() // 중복 제거 (Project의 equals/hashCode 구현 필요)
+                .toList();
+            
+            log.info("기술스택 목록 {} 을 사용하는 프로젝트 {} 개 조회 완료", techStackNames, allProjects.size());
+            return allProjects;
+        } catch (Exception e) {
+            log.error("기술스택 목록별 프로젝트 조회 중 오류 발생: {}", techStackNames, e);
+            return List.of();
+        }
+    }
+    
+    // === 관리자 기능 구현 ===
+    
+    @Override
+    public List<Project> findByFilter(ProjectFilter filter) {
+        log.debug("Finding projects by filter: {}", filter);
+        
+        try {
+            // 모든 프로젝트를 조회한 후 메모리에서 필터링
+            // TODO: 향후 JPA Specification을 사용하여 DB 레벨에서 필터링 개선
+            List<ProjectJpaEntity> entities = projectJpaRepository.findAllOrderedBySortOrderAndStartDate();
+            
+            // 기술스택을 명시적으로 로드 (N+1 문제 방지)
+            // 스크린샷은 ID 배열 기반으로 별도 조회하므로 여기서는 로드하지 않음
+            entities.forEach(entity -> {
+                if (entity.getProjectTechStacks() != null) {
+                    entity.getProjectTechStacks().size(); // LAZY 로딩 트리거
+                }
+            });
+            
+            return entities.stream()
+                .map(projectMapper::toDomain)
+                .filter(filter::matches)
+                .sorted(filter.getSortCriteria())
+                .collect(Collectors.toList());
+        } catch (Exception e) {
+            log.error("프로젝트 필터링 조회 중 오류 발생", e);
+            return List.of();
+        }
+    }
+    
+    @Override
+    public boolean existsProjectById(String id) {
+        log.debug("Checking if project exists: {}", id);
+        
+        try {
+            return projectJpaRepository.existsByBusinessId(id);
+        } catch (Exception e) {
+            log.error("프로젝트 존재 여부 확인 중 오류 발생: {}", id, e);
+            return false;
+        }
+    }
+    
+    @Override
+    public Project updateProject(Project project) {
+        log.debug("Updating project: {}", project.getId());
+        
+        try {
+            // 기존 엔티티 조회
+            Optional<ProjectJpaEntity> existingEntity = projectJpaRepository.findByBusinessId(project.getId());
+            
+            if (existingEntity.isPresent()) {
+                // 업데이트: 기존 엔티티의 필드를 직접 수정
+                ProjectJpaEntity existing = existingEntity.get();
+                
+                // 필드 업데이트 - null이 아닌 경우에만 업데이트
+                if (project.getTitle() != null) existing.setTitle(project.getTitle());
+                if (project.getDescription() != null) existing.setDescription(project.getDescription());
+                if (project.getReadme() != null) existing.setReadme(project.getReadme());
+                if (project.getType() != null) existing.setType(project.getType());
+                if (project.getStatus() != null) existing.setStatus(project.getStatus());
+                if (project.getRole() != null) existing.setRole(project.getRole());
+                if (project.getStartDate() != null) existing.setStartDate(project.getStartDate());
+                if (project.getEndDate() != null) existing.setEndDate(project.getEndDate());
+                // 이미지 URL은 빈 문자열도 허용 (null이 아닌 경우 업데이트)
+                if (project.getImageUrl() != null) existing.setImageUrl(project.getImageUrl().isEmpty() ? null : project.getImageUrl());
+                // URL 필드들은 빈 문자열을 null로 변환하여 검증 문제 방지
+                if (project.getGithubUrl() != null) existing.setGithubUrl(project.getGithubUrl().isEmpty() ? null : project.getGithubUrl());
+                if (project.getLiveUrl() != null) existing.setLiveUrl(project.getLiveUrl().isEmpty() ? null : project.getLiveUrl());
+                if (project.getExternalUrl() != null) existing.setExternalUrl(project.getExternalUrl().isEmpty() ? null : project.getExternalUrl());
+                if (project.getMyContributions() != null) existing.setMyContributions(project.getMyContributions());
+                if (project.getSortOrder() != null) existing.setSortOrder(project.getSortOrder());
+                // isTeam은 boolean이므로 null 체크 불필요
+                existing.setIsTeam(project.isTeam());
+                
+                // 스크린샷은 관계 테이블에 저장하고 ID 배열을 projects.screenshots에 저장
+                if (project.getScreenshots() != null) {
+                    // 기존 스크린샷 삭제
+                    projectScreenshotJpaRepository.deleteByProjectId(existing.getId());
+                    
+                    // 새로운 스크린샷 추가
+                    List<ProjectScreenshotJpaEntity> newScreenshotEntities = new ArrayList<>();
+                    for (int i = 0; i < project.getScreenshots().size(); i++) {
+                        String screenshotUrl = project.getScreenshots().get(i);
+                        if (screenshotUrl != null && !screenshotUrl.isEmpty()) {
+                            ProjectScreenshotJpaEntity screenshot = ProjectScreenshotJpaEntity.builder()
+                                    .project(existing)
+                                    .imageUrl(screenshotUrl)
+                                    .displayOrder(i)
+                                    .build();
+                            newScreenshotEntities.add(screenshot);
+                        }
+                    }
+                    
+                    if (!newScreenshotEntities.isEmpty()) {
+                        // 관계 테이블에 저장
+                        List<ProjectScreenshotJpaEntity> savedScreenshots = projectScreenshotJpaRepository.saveAll(newScreenshotEntities);
+                        
+                        // 저장된 스크린샷의 ID 배열 추출
+                        List<Long> screenshotIds = savedScreenshots.stream()
+                                .map(ProjectScreenshotJpaEntity::getId)
+                                .collect(Collectors.toList());
+                        
+                        // 프로젝트 엔티티의 screenshots 필드에 ID 배열 저장
+                        existing.setScreenshots(screenshotIds);
+                    } else {
+                        // 빈 배열인 경우
+                        existing.setScreenshots(new ArrayList<>());
+                    }
+                }
+                
+                ProjectJpaEntity savedEntity = projectJpaRepository.save(existing);
+                log.debug("Project updated successfully: {}", savedEntity.getId());
+                return projectMapper.toDomain(savedEntity);
+            } else {
+                // 프로젝트가 존재하지 않음
+                throw new IllegalArgumentException("프로젝트를 찾을 수 없습니다: " + project.getId());
+            }
+        } catch (Exception e) {
+            log.error("프로젝트 업데이트 중 오류 발생: {}", project.getId(), e);
+            throw new RuntimeException("프로젝트 업데이트에 실패했습니다", e);
+        }
+    }
+    
+    // === 정렬 순서 관련 ===
+    
+    @Override
+    public int findMaxExperienceSortOrder() {
+        Integer maxSortOrder = experienceJpaRepository.findMaxSortOrder();
+        return maxSortOrder != null ? maxSortOrder : 0;
+    }
+    
+    @Override
+    public int findMaxEducationSortOrder() {
+        Integer maxSortOrder = educationJpaRepository.findMaxSortOrder();
+        return maxSortOrder != null ? maxSortOrder : 0;
+    }
+    
+    @Override
+    public Optional<String> findLastBusinessIdByPrefix(String prefix) {
+        try {
+            return projectJpaRepository.findLastBusinessIdByPrefix(prefix);
+        } catch (Exception e) {
+            log.error("프로젝트 비즈니스 ID 조회 중 오류 발생: prefix={}", prefix, e);
+            return Optional.empty();
+        }
+    }
 }
+

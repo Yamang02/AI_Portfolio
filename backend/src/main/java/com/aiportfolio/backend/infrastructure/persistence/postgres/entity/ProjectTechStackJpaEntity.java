@@ -33,7 +33,7 @@ public class ProjectTechStackJpaEntity {
     private ProjectJpaEntity project;
     
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tech_name", referencedColumnName = "name", nullable = false)
+    @JoinColumn(name = "tech_stack_id", nullable = false)
     @NotNull(message = "기술 스택은 필수입니다")
     private TechStackMetadataJpaEntity techStack;
     

@@ -12,6 +12,11 @@ import java.util.Optional;
 public interface TechStackMetadataRepositoryPort {
     
     /**
+     * 모든 기술 스택 메타데이터 조회 (활성/비활성 포함)
+     */
+    List<TechStackMetadata> findAll();
+    
+    /**
      * 모든 활성화된 기술 스택 메타데이터 조회
      */
     List<TechStackMetadata> findAllActive();
@@ -62,6 +67,11 @@ public interface TechStackMetadataRepositoryPort {
     TechStackMetadata save(TechStackMetadata techStackMetadata);
     
     /**
+     * 기술 스택 메타데이터 업데이트
+     */
+    TechStackMetadata updateByName(String name, TechStackMetadata techStackMetadata);
+    
+    /**
      * 기술 스택 메타데이터 목록 저장
      */
     List<TechStackMetadata> saveAll(List<TechStackMetadata> techStackMetadataList);
@@ -75,5 +85,10 @@ public interface TechStackMetadataRepositoryPort {
      * 기술 스택 메타데이터 존재 여부 확인
      */
     boolean existsByName(String name);
+    
+    /**
+     * 최대 정렬 순서 조회
+     */
+    int findMaxSortOrder();
 }
 

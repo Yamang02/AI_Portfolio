@@ -23,6 +23,12 @@ public class PostgresTechStackMetadataRepository implements TechStackMetadataRep
     private final TechStackMetadataMapper mapper;
     
     @Override
+    public List<TechStackMetadata> findAll() {
+        List<TechStackMetadataJpaEntity> entities = jpaRepository.findAllByOrderBySortOrderAsc();
+        return mapper.toDomainList(entities);
+    }
+    
+    @Override
     public List<TechStackMetadata> findAllActive() {
         List<TechStackMetadataJpaEntity> entities = jpaRepository.findByIsActiveTrueOrderBySortOrderAsc();
         return mapper.toDomainList(entities);
@@ -84,6 +90,30 @@ public class PostgresTechStackMetadataRepository implements TechStackMetadataRep
     }
     
     @Override
+    public TechStackMetadata updateByName(String name, TechStackMetadata techStackMetadata) {
+        // 기존 엔티티 조회
+        TechStackMetadataJpaEntity existingEntity = jpaRepository.findByName(name)
+            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 기술명입니다: " + name));
+        
+        // 기존 엔티티의 필드들을 새로운 데이터로 업데이트 (name 필드는 제외)
+        // existingEntity.setName(techStackMetadata.getName()); // name 필드는 변경하지 않음
+        existingEntity.setDisplayName(techStackMetadata.getDisplayName());
+        existingEntity.setCategory(techStackMetadata.getCategory());
+        existingEntity.setLevel(techStackMetadata.getLevel());
+        existingEntity.setIsCore(techStackMetadata.getIsCore());
+        existingEntity.setIsActive(techStackMetadata.getIsActive());
+        existingEntity.setIconUrl(techStackMetadata.getIconUrl());
+        existingEntity.setColorHex(techStackMetadata.getColorHex());
+        existingEntity.setDescription(techStackMetadata.getDescription());
+        existingEntity.setSortOrder(techStackMetadata.getSortOrder());
+        existingEntity.setUpdatedAt(techStackMetadata.getUpdatedAt());
+        
+        // 업데이트된 엔티티 저장
+        TechStackMetadataJpaEntity savedEntity = jpaRepository.save(existingEntity);
+        return mapper.toDomain(savedEntity);
+    }
+    
+    @Override
     public List<TechStackMetadata> saveAll(List<TechStackMetadata> techStackMetadataList) {
         List<TechStackMetadataJpaEntity> entities = mapper.toEntityList(techStackMetadataList);
         List<TechStackMetadataJpaEntity> savedEntities = jpaRepository.saveAll(entities);
@@ -98,6 +128,12 @@ public class PostgresTechStackMetadataRepository implements TechStackMetadataRep
     @Override
     public boolean existsByName(String name) {
         return jpaRepository.findByName(name).isPresent();
+    }
+    
+    @Override
+    public int findMaxSortOrder() {
+        Integer maxSortOrder = jpaRepository.findMaxSortOrder();
+        return maxSortOrder != null ? maxSortOrder : 0;
     }
 }
 

@@ -15,10 +15,13 @@ import java.util.stream.Collectors;
 
 /**
  * Certification 도메인 모델과 JPA 엔티티 간 변환 매퍼
+ *
+ * 책임: Domain ↔ JPA Entity 변환
+ * Hexagonal Architecture의 Adapter 패턴
  */
 @Component
 public class CertificationMapper {
-    
+
     /**
      * JPA 엔티티를 도메인 모델로 변환
      */
@@ -26,17 +29,23 @@ public class CertificationMapper {
         if (jpaEntity == null) {
             return null;
         }
-        
+
         return Certification.builder()
                 .id(jpaEntity.getBusinessId()) // business_id → domain.id
                 .name(jpaEntity.getName())
                 .issuer(jpaEntity.getIssuer())
                 .date(jpaEntity.getDate())
-                .description(jpaEntity.getDescription())
+                .expiryDate(jpaEntity.getExpiryDate())
+                .credentialId(jpaEntity.getCredentialId())
                 .credentialUrl(jpaEntity.getCredentialUrl())
+                .description(jpaEntity.getDescription())
+                .category(jpaEntity.getCategory())
+                .sortOrder(jpaEntity.getSortOrder())
+                .createdAt(jpaEntity.getCreatedAt())
+                .updatedAt(jpaEntity.getUpdatedAt())
                 .build();
     }
-    
+
     /**
      * 도메인 모델을 JPA 엔티티로 변환
      */
@@ -44,18 +53,23 @@ public class CertificationMapper {
         if (domainModel == null) {
             return null;
         }
-        
+
         return CertificationJpaEntity.builder()
                 .businessId(domainModel.getId()) // domain.id → business_id
                 .name(domainModel.getName())
                 .issuer(domainModel.getIssuer())
                 .date(domainModel.getDate())
-                .description(domainModel.getDescription())
+                .expiryDate(domainModel.getExpiryDate())
+                .credentialId(domainModel.getCredentialId())
                 .credentialUrl(domainModel.getCredentialUrl())
-                .sortOrder(0) // 기본값
+                .description(domainModel.getDescription())
+                .category(domainModel.getCategory())
+                .sortOrder(domainModel.getSortOrder())
+                .createdAt(domainModel.getCreatedAt())
+                .updatedAt(domainModel.getUpdatedAt())
                 .build();
     }
-    
+
     /**
      * JPA 엔티티 리스트를 도메인 모델 리스트로 변환
      */
@@ -63,12 +77,12 @@ public class CertificationMapper {
         if (jpaEntities == null) {
             return null;
         }
-        
+
         return jpaEntities.stream()
                 .map(this::toDomain)
                 .collect(Collectors.toList());
     }
-    
+
     /**
      * 도메인 모델 리스트를 JPA 엔티티 리스트로 변환
      */
@@ -76,7 +90,7 @@ public class CertificationMapper {
         if (domainModels == null) {
             return null;
         }
-        
+
         return domainModels.stream()
                 .map(this::toJpaEntity)
                 .collect(Collectors.toList());

@@ -63,6 +63,26 @@ backend/src/main/java/com/aiportfolio/backend/
 - Maven 3.6+
 
 ### 로컬 개발 환경
+
+#### Docker Compose (권장)
+```bash
+# Windows 환경: Docker Desktop 전체 경로 사용
+alias docker='"/c/Program Files/Docker/Docker/resources/bin/docker.exe"'
+
+# 컨테이너 시작
+docker compose up -d
+
+# 로그 확인
+docker compose logs backend -f
+
+# 컨테이너 중지
+docker compose down
+
+# 컨테이너 중지 + 볼륨 삭제 (데이터 완전 초기화)
+docker compose down -v
+```
+
+#### 개별 실행
 ```bash
 # 백엔드 실행
 cd backend

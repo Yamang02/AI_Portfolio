@@ -27,7 +27,13 @@ public interface ExperienceJpaRepository extends JpaRepository<ExperienceJpaEnti
      * @return 경력 엔티티
      */
     Optional<ExperienceJpaEntity> findByBusinessId(String businessId);
-    
+
+    /**
+     * 비즈니스 ID로 경력 삭제
+     * @param businessId 비즈니스 ID
+     */
+    void deleteByBusinessId(String businessId);
+
     /**
      * 조직명으로 경력 조회
      * @param organization 조직명
@@ -36,11 +42,18 @@ public interface ExperienceJpaRepository extends JpaRepository<ExperienceJpaEnti
     List<ExperienceJpaEntity> findByOrganization(String organization);
     
     /**
-     * 타입별 경력 조회
-     * @param type 경력 타입
+     * employment_type별 경력 조회
+     * @param employmentType 계약 조건 타입
      * @return 경력 엔티티 리스트
      */
-    List<ExperienceJpaEntity> findByType(String type);
+    List<ExperienceJpaEntity> findByEmploymentType(String employmentType);
+    
+    /**
+     * job_field별 경력 조회
+     * @param jobField 직무 분야
+     * @return 경력 엔티티 리스트
+     */
+    List<ExperienceJpaEntity> findByJobField(String jobField);
     
     /**
      * 현재 재직중인 경력 조회 (end_date가 null인 경력)
@@ -67,10 +80,10 @@ public interface ExperienceJpaRepository extends JpaRepository<ExperienceJpaEnti
     List<ExperienceJpaEntity> findByTechnology(@Param("technology") String technology);
     
     /**
-     * 정렬 순서와 시작일 기준으로 모든 경력 조회
+     * 정렬 순서와 시작일 기준으로 모든 경력 조회 (기술 스택 포함)
      * @return 정렬된 경력 엔티티 리스트
      */
-    @Query("SELECT e FROM ExperienceJpaEntity e ORDER BY e.sortOrder ASC, e.startDate DESC")
+    @Query("SELECT DISTINCT e FROM ExperienceJpaEntity e LEFT JOIN FETCH e.experienceTechStacks et LEFT JOIN FETCH et.techStack ORDER BY e.sortOrder ASC, e.startDate DESC")
     List<ExperienceJpaEntity> findAllOrderedBySortOrderAndStartDate();
     
     /**
@@ -88,4 +101,11 @@ public interface ExperienceJpaRepository extends JpaRepository<ExperienceJpaEnti
      */
     @Query("SELECT e FROM ExperienceJpaEntity e WHERE LOWER(e.role) LIKE LOWER('%' || :keyword || '%')")
     List<ExperienceJpaEntity> findByRoleContaining(@Param("keyword") String keyword);
+    
+    /**
+     * 최대 정렬 순서 조회
+     * @return 최대 정렬 순서
+     */
+    @Query("SELECT COALESCE(MAX(e.sortOrder), 0) FROM ExperienceJpaEntity e")
+    Integer findMaxSortOrder();
 }

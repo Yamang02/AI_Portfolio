@@ -1,1 +1,2 @@
-export * from './useCardHover';
+// 공통 훅 export
+export { useCardHover } from './useCardHover';

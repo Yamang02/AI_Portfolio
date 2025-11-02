@@ -1,0 +1,25 @@
+/* TechStackManagement.module.css */
+
+.loadingContainer {
+  text-align: center;
+  padding: 40px;
+}
+
+.projectDescription {
+  margin-bottom: 4px;
+}
+
+.projectDate {
+  font-size: 12px;
+  color: #666;
+}
+
+
+.clickableRow {
+  cursor: pointer;
+}
+
+.modalContent {
+  max-height: 400px;
+  overflow-y: auto;
+}

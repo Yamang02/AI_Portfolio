@@ -97,4 +97,25 @@ public interface ProjectJpaRepository extends JpaRepository<ProjectJpaEntity, Lo
      */
     @Query("SELECT p FROM ProjectJpaEntity p WHERE p.liveUrl IS NOT NULL AND p.liveUrl != ''")
     List<ProjectJpaEntity> findProjectsWithLiveUrl();
+    
+    /**
+     * 비즈니스 ID로 프로젝트 삭제 (Admin Dashboard용)
+     * @param businessId 비즈니스 ID
+     */
+    void deleteByBusinessId(String businessId);
+    
+    /**
+     * 비즈니스 ID로 프로젝트 존재 여부 확인 (Admin Dashboard용)
+     * @param businessId 비즈니스 ID
+     * @return 존재 여부
+     */
+    boolean existsByBusinessId(String businessId);
+    
+    /**
+     * 특정 prefix를 가진 마지막 비즈니스 ID를 조회합니다 (ID 생성용)
+     * @param prefix 비즈니스 ID prefix (예: "prj-")
+     * @return 마지막 비즈니스 ID (예: "prj-010")
+     */
+    @Query(value = "SELECT p.business_id FROM projects p WHERE p.business_id LIKE :prefix || '%' ORDER BY p.business_id DESC LIMIT 1", nativeQuery = true)
+    Optional<String> findLastBusinessIdByPrefix(@Param("prefix") String prefix);
 }

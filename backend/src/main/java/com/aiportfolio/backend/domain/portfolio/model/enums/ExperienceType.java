@@ -5,7 +5,11 @@ package com.aiportfolio.backend.domain.portfolio.model.enums;
  */
 public enum ExperienceType {
     FULL_TIME("정규직"),
-    CONTRACT("계약직");
+    PART_TIME("파트타임"),
+    CONTRACT("계약직"),
+    FREELANCE("프리랜서"),
+    INTERNSHIP("인턴십"),
+    OTHER("기타");
     
     private final String displayName;
     

@@ -62,8 +62,11 @@ public class ExperienceJpaEntity {
     @Column(name = "end_date")
     private LocalDate endDate; // NULL이면 현재 재직중
     
-    @Column(name = "type", length = 50)
-    private String type; // ExperienceType enum을 String으로 저장
+    @Column(name = "job_field", length = 100)
+    private String jobField; // 직무 분야 (개발, 교육, 디자인 등)
+    
+    @Column(name = "employment_type", length = 50)
+    private String employmentType; // 계약 조건 (정규직, 계약직, 프리랜서 등)
     
     // 기존 technologies 배열 필드 제거됨 - techStackMetadata 관계 필드로 대체
     
@@ -74,10 +77,6 @@ public class ExperienceJpaEntity {
     @Column(name = "achievements", columnDefinition = "text[]")
     @JdbcTypeCode(SqlTypes.ARRAY)
     private List<String> achievements; // PostgreSQL TEXT[] 배열
-    
-    @Column(name = "projects", columnDefinition = "text[]")
-    @JdbcTypeCode(SqlTypes.ARRAY)
-    private List<String> projects; // PostgreSQL TEXT[] 배열
     
     // 기술 스택 메타데이터 관계 (완전 통합용 - One-to-Many)
     @OneToMany(mappedBy = "experience", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)

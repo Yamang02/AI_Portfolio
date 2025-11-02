@@ -75,7 +75,16 @@ jspm_packages/
 
 # Gatsby files
 .cache/
-public
+# Exclude all public folders except frontend/public/favicons (for favicons)
+public/
+!frontend/public/
+frontend/public/*
+!frontend/public/favicons/
+!frontend/public/favicons/**
+!frontend/public/favicons/*.ico
+!frontend/public/favicons/*.png
+!frontend/public/favicons/*.json
+!frontend/public/favicons/*.xml
 
 # Storybook build outputs
 .out
@@ -197,8 +206,8 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
-lib64/
+ai-service/lib/
+ai-service/lib64/
 parts/
 sdist/
 var/

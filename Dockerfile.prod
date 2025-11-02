@@ -1,0 +1,22 @@
+# Production Dockerfile - 미리 빌드된 JAR 파일 사용
+# GitHub Actions에서 Maven으로 빌드한 JAR를 복사하여 사용
+FROM eclipse-temurin:17-jre-alpine
+
+# 필수 패키지 설치 (curl for health checks)
+RUN apk add --no-cache curl
+
+# 작업 디렉토리 설정
+WORKDIR /app
+
+# GitHub Actions에서 빌드한 JAR 파일 복사
+COPY backend/target/*.jar app.jar
+
+# 포트 8080 노출 (Cloud Run에서는 동적 PORT 사용)
+EXPOSE 8080
+
+# Health check (로컬 테스트용)
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+  CMD curl -f http://localhost:${PORT:-8080}/actuator/health || exit 1
+
+# JVM 최적화 설정으로 Spring Boot 애플리케이션 실행
+CMD ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]

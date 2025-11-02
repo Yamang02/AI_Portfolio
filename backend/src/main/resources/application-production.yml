@@ -1,10 +1,8 @@
 # Production environment (Railway + Cloud Run)
 spring:
-  # Railway PostgreSQL Configuration (URL 변환 처리)
+  # Railway PostgreSQL Configuration (URL에 username/password 포함)
   datasource:
-    url: ${POSTGRE_URL:jdbc:postgresql://localhost:5432/ai_portfolio}  # Railway PostgreSQL URL 우선 사용
-    username: ${POSTGRES_USER:dev_user}
-    password: ${POSTGRES_PASSWORD:dev_password}
+    url: ${POSTGRE_URL}  # Railway PostgreSQL URL (credentials 포함)
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 5  # Cloud Run 메모리 제한 고려
@@ -13,30 +11,44 @@ spring:
       idle-timeout: 600000
       max-lifetime: 1800000
   
-  # JPA Configuration for Production  
+  # JPA Configuration for Production
   jpa:
     hibernate:
-      ddl-auto: none  # 운영환경에서는 스키마 변경 금지
+      ddl-auto: validate  # 스키마 검증만 수행
     show-sql: false
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: false
 
-  # Redis 캐싱 설정
-  redis:
-    host: ${REDIS_HOST}
-    port: ${REDIS_PORT}
-    password: ${REDIS_PASSWORD}
-    database: ${REDIS_DATABASE}
-    ssl: ${REDIS_SSL}
-    timeout: 2000ms
-    lettuce:
-      pool:
-        max-active: 8
-        max-idle: 8
-        min-idle: 0
-        max-wait: -1ms
+  # Flyway 마이그레이션 설정 (프로덕션 - 수동 마이그레이션)
+  flyway:
+    enabled: false  # 프로덕션은 수동으로 마이그레이션 수행
+    # 수동 마이그레이션 방법:
+    # 1. Railway CLI로 DB 접속
+    # 2. 마이그레이션 SQL 파일을 직접 실행
+    # 또는 필요 시 enabled: true로 변경 후 배포
+
+  # Spring Data Redis 설정 (로컬/스테이징과 일치)
+  data:
+    redis:
+      # Redis Repository 비활성화 (Redis는 캐싱/세션용만 사용)
+      repositories:
+        enabled: false
+      # Redis 캐싱 설정
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      password: ${REDIS_PASSWORD}
+      database: ${REDIS_DATABASE}
+      ssl:
+        enabled: ${REDIS_SSL}
+      timeout: 2000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+          max-wait: -1ms
 
   # 캐시 설정
   cache:
@@ -44,12 +56,21 @@ spring:
     redis:
       time-to-live: 86400000  # 1일 (밀리초)
 
+  # 세션 설정 (Redis에 저장)
+  session:
+    store-type: redis
+    redis:
+      namespace: spring:session
+      flush-mode: on_save
+    timeout: 1800s  # 30분 (초 단위)
+
   # CORS 설정 (프로덕션 도메인)
   web:
     cors:
       allowed-origins: 
         - "https://yamang02.com"
         - "https://www.yamang02.com"
+        - "https://ai-portfolio-493721639129.asia-northeast3.run.app"  # Cloud Run 직접 도메인
       allowed-methods: 
         - GET
         - POST
@@ -58,6 +79,25 @@ spring:
         - OPTIONS
       allowed-headers: "*"
       allow-credentials: true
+  
+  # 파일 업로드 크기 제한 설정
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 50MB
+      enabled: true
+
+# Swagger/OpenAPI 설정 (프로덕션 - API 문서화용)
+springdoc:
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    operationsSorter: method
+    tagsSorter: alpha
+    tryItOutEnabled: false  # 프로덕션에서는 Try it out 비활성화
 
 # Actuator for Cloud Run health checks
 management:
@@ -70,7 +110,7 @@ management:
       show-details: never
   health:
     redis:
-      enabled: false  # Redis 헬스체크 비활성화
+      enabled: true  # Redis 헬스체크 활성화 (세션/캐시 필수 의존성 확인)
 
 # Production logging
 logging:
@@ -80,7 +120,7 @@ logging:
 
 # Server configuration
 server:
-  port: ${PORT:8080}  # Cloud Run에서 제공하는 PORT 사용
+  port: ${PORT}  # Cloud Run에서 제공하는 PORT 사용
 
 # 앱 설정
 app:
@@ -95,3 +135,13 @@ app:
     rate-limit:
       window: 60000
       max-requests: 100  # 프로덕션에서는 더 관대하게
+  session:
+    cookie:
+      secure: true  # 프로덕션은 HTTPS이므로 true
+      sameSite: None  # 프로덕션은 cross-origin이므로 None 사용
+
+# Cloudinary 설정
+cloudinary:
+  cloud-name: ${CLOUDINARY_CLOUD_NAME}
+  api-key: ${CLOUDINARY_API_KEY}
+  api-secret: ${CLOUDINARY_API_SECRET}

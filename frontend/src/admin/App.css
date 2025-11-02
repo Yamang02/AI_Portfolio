@@ -1,0 +1,147 @@
+/* Admin Dashboard 스타일 */
+
+/* 마크다운 에디터 스타일 */
+.markdown-editor {
+  border: 1px solid #d9d9d9;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.markdown-editor .w-md-editor {
+  border: none;
+}
+
+.markdown-editor .w-md-editor-toolbar {
+  background-color: #fafafa;
+  border-bottom: 1px solid #d9d9d9;
+}
+
+/* 이미지 업로드 영역 스타일 */
+.upload-area {
+  border: 2px dashed #d9d9d9;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  background-color: #fafafa;
+  transition: all 0.3s;
+}
+
+.upload-area:hover {
+  border-color: #8b5cf6;
+  background-color: #f8f5ff;
+}
+
+.upload-area.dragover {
+  border-color: #8b5cf6;
+  background-color: #f0ebff;
+}
+
+/* 프로젝트 카드 스타일 */
+.project-card {
+  transition: all 0.3s;
+}
+
+.project-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* 필터 영역 스타일 */
+.filter-section {
+  background: #fafafa;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+/* 테이블 스타일 */
+.admin-table .ant-table-thead > tr > th {
+  background-color: #f8f5ff;
+  font-weight: 600;
+}
+
+/* 폼 스타일 */
+.admin-form .ant-form-item-label > label {
+  font-weight: 500;
+}
+
+/* 상태 배지 스타일 */
+.status-badge {
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.status-badge.completed {
+  background-color: #f6ffed;
+  color: #52c41a;
+  border: 1px solid #b7eb8f;
+}
+
+.status-badge.in-progress {
+  background-color: #fff7e6;
+  color: #fa8c16;
+  border: 1px solid #ffd591;
+}
+
+.status-badge.maintenance {
+  background-color: #fff1f0;
+  color: #ff4d4f;
+  border: 1px solid #ffccc7;
+}
+
+/* 로딩 스피너 */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+}
+
+/* 에러 메시지 */
+.error-message {
+  color: #ff4d4f;
+  font-size: 14px;
+  margin-top: 8px;
+}
+
+/* 성공 메시지 */
+.success-message {
+  color: #52c41a;
+  font-size: 14px;
+  margin-top: 8px;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .admin-layout .ant-layout-sider {
+    position: fixed !important;
+    height: 100vh;
+    z-index: 1000;
+  }
+  
+  .admin-layout .ant-layout-content {
+    margin-left: 0 !important;
+  }
+}
+
+/* 커스텀 스크롤바 */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+

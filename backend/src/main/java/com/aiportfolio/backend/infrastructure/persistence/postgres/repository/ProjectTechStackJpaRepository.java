@@ -20,23 +20,37 @@ public interface ProjectTechStackJpaRepository extends JpaRepository<ProjectTech
     List<ProjectTechStackJpaEntity> findByProjectId(Long projectId);
     
     /**
-     * 기술 스택 이름으로 프로젝트 매핑 조회
+     * 기술 스택 ID로 프로젝트 매핑 조회
      */
+    List<ProjectTechStackJpaEntity> findByTechStackId(Long techStackId);
+    
+    /**
+     * 프로젝트 ID와 기술 스택 ID로 매핑 조회
+     */
+    ProjectTechStackJpaEntity findByProjectIdAndTechStackId(Long projectId, Long techStackId);
+    
+    /**
+     * 기술 스택 ID로 프로젝트 매핑 삭제
+     */
+    void deleteByTechStackId(Long techStackId);
+    
+    // 기존 메서드들은 호환성을 위해 유지 (deprecated로 표시)
+    /**
+     * @deprecated tech_stack_id 기반으로 변경됨. findByTechStackId 사용 권장
+     */
+    @Deprecated
     List<ProjectTechStackJpaEntity> findByTechStackName(String techStackName);
     
     /**
-     * 프로젝트 ID와 기술 스택 이름으로 매핑 조회
+     * @deprecated tech_stack_id 기반으로 변경됨. findByProjectIdAndTechStackId 사용 권장
      */
+    @Deprecated
     ProjectTechStackJpaEntity findByProjectIdAndTechStackName(Long projectId, String techStackName);
     
     /**
-     * 프로젝트 ID로 기술 스택 매핑 삭제
+     * @deprecated tech_stack_id 기반으로 변경됨. deleteByTechStackId 사용 권장
      */
-    void deleteByProjectId(Long projectId);
-    
-    /**
-     * 기술 스택 이름으로 프로젝트 매핑 삭제
-     */
+    @Deprecated
     void deleteByTechStackName(String techStackName);
     
     /**

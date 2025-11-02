@@ -1,15 +1,13 @@
 server:
-  port: ${PORT:8080}  # Cloud Run이 제공하는 동적 포트 사용
+  port: ${PORT}  # Cloud Run이 제공하는 동적 포트 사용
 
 spring:
   application:
-    name: ai-portfolio-backend-staging
+    name: ai-portfolio-backend
   
-  # Railway PostgreSQL 설정 (POSTGRE_URL을 통해 DatabaseConfig에서 처리)
+  # Railway PostgreSQL 설정 (POSTGRE_URL에 username/password 포함)
   datasource:
-    url: ${POSTGRE_URL:jdbc:postgresql://localhost:5432/ai_portfolio}  # Railway PostgreSQL URL 우선 사용
-    username: ${POSTGRES_USER:dev_user}
-    password: ${POSTGRES_PASSWORD:dev_password}
+    url: ${POSTGRE_URL}  # Railway PostgreSQL URL (credentials 포함)
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 5  # Cloud Run 메모리 제한 고려
@@ -28,20 +26,37 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: false
 
-  # Redis 캐싱 설정
-  redis:
-    host: ${REDIS_HOST:localhost}
-    port: ${REDIS_PORT:6379}
-    password: ${REDIS_PASSWORD:}
-    database: ${REDIS_DATABASE:0}
-    ssl: ${REDIS_SSL:false}
-    timeout: 2000ms
-    lettuce:
-      pool:
-        max-active: 8
-        max-idle: 8
-        min-idle: 0
-        max-wait: -1ms
+  # Flyway 마이그레이션 설정 (스테이징)
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    baseline-version: 1  # V001 베이스라인으로 설정
+    baseline-description: "Staging schema baseline - existing tables"
+    validate-on-migrate: true  # 마이그레이션 검증 활성화
+    clean-disabled: true  # 운영환경에서 clean 명령 비활성화
+    ignore-missing-migrations: false  # 누락된 마이그레이션 엄격하게 체크
+
+  # Spring Data 설정 - JPA와 Redis Repository 구분
+  data:
+    redis:
+      # Redis Repository 비활성화 (Redis는 캐싱/세션용만 사용)
+      repositories:
+        enabled: false
+      # Redis 캐싱 설정 (로컬 환경과 일치)
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      password: ${REDIS_PASSWORD}
+      database: ${REDIS_DATABASE}
+      ssl:
+        enabled: ${REDIS_SSL}
+      timeout: 10000ms  # SCAN 명령어 사용 시 타임아웃 증가 (10초)
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+          max-wait: -1ms
 
   # 캐시 설정
   cache:
@@ -49,15 +64,23 @@ spring:
     redis:
       time-to-live: 86400000  # 1일 (밀리초)
 
+  # 세션 설정 (Redis에 저장)
+  session:
+    store-type: redis
+    redis:
+      namespace: spring:session
+      flush-mode: on_save
+    timeout: 1800s  # 30분 (초 단위)
+
   # CORS 설정 (FE 분리 후 CloudFront 도메인 추가)
+  # 환경 변수 없으면 아래 기본값 사용
+  # 필요시 환경 변수에서 추가 도메인 설정 가능
   web:
     cors:
-      allowed-origins: 
-        - "http://localhost:3000"
-        - "http://localhost:5173"
-        - "https://ai-portfolio-chatbot-493721639129.asia-northeast3.run.app"
+      allowed-origins:
+        - "https://staging.yamang02.com"  # Staging 커스텀 도메인
         - "https://ai-portfolio-staging-493721639129.asia-northeast3.run.app"  # 기존 스테이징 도메인
-        - "https://${CLOUDFRONT_DOMAIN:ai-portfolio-frontend-staging.cloudfront.net}"  # 새로운 CloudFront 도메인
+        - "https://ai-portfolio-chatbot-493721639129.asia-northeast3.run.app"  # 챗봇 도메인
       allowed-methods: 
         - GET
         - POST
@@ -66,36 +89,47 @@ spring:
         - OPTIONS
       allowed-headers: "*"
       allow-credentials: true
+  
+  # 파일 업로드 크기 제한 설정
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 50MB
+      enabled: true
 
-# Swagger 비활성화 (스테이징에서는 선택적)
+# Swagger/OpenAPI 설정 (스테이징 - 개발자 테스트용)
 springdoc:
   api-docs:
-    enabled: false
+    enabled: true
+    path: /v3/api-docs
   swagger-ui:
-    enabled: false
+    enabled: true
+    path: /swagger-ui.html
+    operationsSorter: method
+    tagsSorter: alpha
+    tryItOutEnabled: true
 
-  # Actuator 설정 (Health Check용) - Production과 동일
-  management:
-    endpoints:
-      web:
-        exposure:
-          include: health
-    endpoint:
-      health:
-        show-details: never
+# Actuator 설정 (Health Check용) - Production과 동일
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
     health:
-      redis:
-        enabled: false  # Redis 헬스체크 비활성화
-      defaults:
-        enabled: true
+      show-details: never
+  health:
+    redis:
+      enabled: true  # Redis 헬스체크 활성화 (환경 진단용)
 
 # 로깅 설정 (운영 레벨)
 logging:
   level:
     com.aiportfolio.backend: INFO
+    com.aiportfolio.backend.infrastructure.persistence.redis: DEBUG  # Redis 관련 상세 로깅
     org.springframework.web: WARN
     org.hibernate.SQL: WARN
-    org.springframework.data.redis: WARN
+    org.springframework.data.redis: INFO  # Spring Data Redis 로깅 활성화
     org.springframework.boot.autoconfigure: WARN
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%level] %logger{36} - %msg%n"
@@ -113,3 +147,13 @@ app:
     rate-limit:
       window: 60000
       max-requests: 50  # 스테이징에서는 더 제한적
+  session:
+    cookie:
+      secure: true  # 스테이징은 HTTPS이므로 true
+      sameSite: None  # 스테이징은 cross-origin이므로 None 사용
+
+# Cloudinary 설정
+cloudinary:
+  cloud-name: ${CLOUDINARY_CLOUD_NAME}
+  api-key: ${CLOUDINARY_API_KEY}
+  api-secret: ${CLOUDINARY_API_SECRET}
