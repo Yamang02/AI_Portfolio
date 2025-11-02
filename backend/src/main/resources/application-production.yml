@@ -110,7 +110,7 @@ management:
       show-details: never
   health:
     redis:
-      enabled: false  # Redis 헬스체크 비활성화
+      enabled: true  # Redis 헬스체크 활성화 (세션/캐시 필수 의존성 확인)
 
 # Production logging
 logging:
