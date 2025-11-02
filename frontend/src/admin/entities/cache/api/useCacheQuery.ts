@@ -6,7 +6,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { message } from 'antd';
 import * as cacheApi from './cacheApi';
-import { queryClient as mainQueryClient } from '../../../main/config/queryClient';
+import { queryClient as mainQueryClient } from '../../../../main/config/queryClient';
 
 /**
  * 캐시 통계 조회 훅
