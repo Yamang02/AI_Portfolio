@@ -151,6 +151,7 @@ app:
     cookie:
       secure: true  # 스테이징은 HTTPS이므로 true
       sameSite: None  # 스테이징은 cross-origin이므로 None 사용
+      domain: staging.yamang02.com  # 스테이징 전용 도메인에서 세션 유지
 
 # Cloudinary 설정
 cloudinary:

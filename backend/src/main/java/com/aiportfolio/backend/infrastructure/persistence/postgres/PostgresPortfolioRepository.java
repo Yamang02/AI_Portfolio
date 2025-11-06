@@ -1,6 +1,8 @@
 package com.aiportfolio.backend.infrastructure.persistence.postgres;
 
 // 도메인 모델 imports
+import com.aiportfolio.backend.domain.admin.model.ProjectAssetSnapshot;
+import com.aiportfolio.backend.domain.admin.model.ProjectAssetSnapshot.ProjectScreenshotAsset;
 import com.aiportfolio.backend.domain.portfolio.port.out.PortfolioRepositoryPort;
 import com.aiportfolio.backend.domain.portfolio.model.*;
 import com.aiportfolio.backend.domain.admin.model.vo.ProjectFilter;
@@ -510,6 +512,30 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
             throw new RuntimeException("프로젝트 삭제에 실패했습니다", e);
         }
     }
+
+    @Override
+    public Optional<ProjectAssetSnapshot> findProjectAssets(String projectId) {
+        return projectJpaRepository.findByBusinessId(projectId)
+            .map(entity -> {
+                List<ProjectScreenshotAsset> screenshotAssets = new ArrayList<>();
+                if (entity.getScreenshots() != null && !entity.getScreenshots().isEmpty()) {
+                    List<ProjectScreenshotJpaEntity> screenshotEntities =
+                        projectScreenshotJpaRepository.findAllById(entity.getScreenshots());
+
+                    for (ProjectScreenshotJpaEntity screenshotEntity : screenshotEntities) {
+                        screenshotAssets.add(ProjectScreenshotAsset.builder()
+                            .imageUrl(screenshotEntity.getImageUrl())
+                            .cloudinaryPublicId(screenshotEntity.getCloudinaryPublicId())
+                            .build());
+                    }
+                }
+
+                return ProjectAssetSnapshot.builder()
+                    .thumbnailUrl(entity.getImageUrl())
+                    .screenshots(screenshotAssets)
+                    .build();
+            });
+    }
     
     @Override
     public List<Project> findProjectsByTechStack(String techStackName) {
@@ -701,6 +727,11 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
                 if (project.getSortOrder() != null) existing.setSortOrder(project.getSortOrder());
                 // isTeam은 boolean이므로 null 체크 불필요
                 existing.setIsTeam(project.isTeam());
+                if (!project.isTeam()) {
+                    existing.setTeamSize(null);
+                } else if (project.getTeamSize() != null) {
+                    existing.setTeamSize(project.getTeamSize());
+                }
                 
                 // 스크린샷은 관계 테이블에 저장하고 ID 배열을 projects.screenshots에 저장
                 if (project.getScreenshots() != null) {

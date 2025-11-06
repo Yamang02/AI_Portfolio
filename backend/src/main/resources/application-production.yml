@@ -139,6 +139,7 @@ app:
     cookie:
       secure: true  # 프로덕션은 HTTPS이므로 true
       sameSite: None  # 프로덕션은 cross-origin이므로 None 사용
+      domain: yamang02.com  # www와 apex 도메인에서 동일 세션 유지
 
 # Cloudinary 설정
 cloudinary:
