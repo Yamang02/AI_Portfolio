@@ -2,13 +2,11 @@ package com.aiportfolio.backend.infrastructure.web.admin.controller;
 
 import com.aiportfolio.backend.domain.admin.port.in.ManageProjectUseCase;
 import com.aiportfolio.backend.domain.admin.port.in.SearchProjectsUseCase;
-import com.aiportfolio.backend.infrastructure.web.admin.util.AdminAuthChecker;
-import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;
-import com.aiportfolio.backend.domain.admin.dto.request.ProjectCreateRequest;
-import com.aiportfolio.backend.domain.admin.model.vo.ProjectFilter;
 import com.aiportfolio.backend.domain.admin.dto.response.ProjectResponse;
-import com.aiportfolio.backend.domain.admin.dto.request.ProjectUpdateRequest;
-import jakarta.servlet.http.HttpServletRequest;
+import com.aiportfolio.backend.domain.admin.model.vo.ProjectFilter;
+import com.aiportfolio.backend.infrastructure.web.admin.dto.AdminProjectCreateRequest;
+import com.aiportfolio.backend.infrastructure.web.admin.dto.AdminProjectUpdateRequest;
+import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +27,6 @@ public class AdminProjectController {
 
     private final ManageProjectUseCase manageProjectUseCase;
     private final SearchProjectsUseCase searchProjectsUseCase;
-    private final AdminAuthChecker adminAuthChecker;
 
     /**
      * 프로젝트 목록 조회 (필터링 지원)
@@ -44,15 +41,7 @@ public class AdminProjectController {
             @RequestParam(required = false, defaultValue = "sortOrder") String sortBy,
             @RequestParam(required = false, defaultValue = "asc") String sortOrder,
             @RequestParam(required = false, defaultValue = "0") Integer page,
-            @RequestParam(required = false, defaultValue = "20") Integer size,
-            HttpServletRequest request) {
-        
-        try {
-            adminAuthChecker.requireAuthentication(request);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(401)
-                    .body(ApiResponse.error(e.getMessage(), "인증 필요"));
-        }
+            @RequestParam(required = false, defaultValue = "20") Integer size) {
         
         log.debug("Getting projects with filters - search: {}, isTeam: {}, type: {}, status: {}", 
                 search, isTeam, projectType, status);
@@ -85,15 +74,7 @@ public class AdminProjectController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<ProjectResponse>> getProject(
-            @PathVariable String id,
-            HttpServletRequest request) {
-        
-        try {
-            adminAuthChecker.requireAuthentication(request);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(401)
-                    .body(ApiResponse.error(e.getMessage(), "인증 필요"));
-        }
+            @PathVariable String id) {
         
         log.debug("Getting project by id: {}", id);
         
@@ -115,20 +96,12 @@ public class AdminProjectController {
      */
     @PostMapping
     public ResponseEntity<ApiResponse<ProjectResponse>> createProject(
-            @Valid @RequestBody ProjectCreateRequest request,
-            HttpServletRequest httpRequest) {
-        
-        try {
-            adminAuthChecker.requireAuthentication(httpRequest);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(401)
-                    .body(ApiResponse.error(e.getMessage(), "인증 필요"));
-        }
-        
+            @Valid @RequestBody AdminProjectCreateRequest request) {
+
         log.info("Creating new project: {}", request.getTitle());
-        
+
         try {
-            ProjectResponse project = manageProjectUseCase.createProject(request);
+            ProjectResponse project = manageProjectUseCase.createProject(request.toCommand());
             return ResponseEntity.ok(ApiResponse.success(project, "프로젝트 생성 성공"));
         } catch (Exception e) {
             log.error("Failed to create project", e);
@@ -143,20 +116,12 @@ public class AdminProjectController {
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<ProjectResponse>> updateProject(
             @PathVariable String id,
-            @Valid @RequestBody ProjectUpdateRequest request,
-            HttpServletRequest httpRequest) {
-        
-        try {
-            adminAuthChecker.requireAuthentication(httpRequest);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(401)
-                    .body(ApiResponse.error(e.getMessage(), "인증 필요"));
-        }
-        
+            @Valid @RequestBody AdminProjectUpdateRequest request) {
+
         log.info("Updating project: {}", id);
-        
+
         try {
-            ProjectResponse project = manageProjectUseCase.updateProject(id, request);
+            ProjectResponse project = manageProjectUseCase.updateProject(id, request.toCommand());
             return ResponseEntity.ok(ApiResponse.success(project, "프로젝트 수정 성공"));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.notFound().build();
@@ -172,18 +137,10 @@ public class AdminProjectController {
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteProject(
-            @PathVariable String id,
-            HttpServletRequest request) {
-        
-        try {
-            adminAuthChecker.requireAuthentication(request);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(401)
-                    .body(ApiResponse.error(e.getMessage(), "인증 필요"));
-        }
-        
+            @PathVariable String id) {
+
         log.info("Deleting project: {}", id);
-        
+
         try {
             manageProjectUseCase.deleteProject(id);
             return ResponseEntity.ok(ApiResponse.success(null, "프로젝트 삭제 성공"));
