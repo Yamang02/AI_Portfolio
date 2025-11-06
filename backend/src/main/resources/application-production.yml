@@ -139,6 +139,8 @@ app:
     cookie:
       secure: true  # 프로덕션은 HTTPS이므로 true
       sameSite: None  # 프로덕션은 cross-origin이므로 None 사용
+      use-domain: false  # Cloud Run 기본 도메인 사용 시에는 false로 유지
+      # domain: yamang02.com  # 커스텀 도메인(예: api.yamang02.com)에서 제공할 때만 활성화
 
 # Cloudinary 설정
 cloudinary:

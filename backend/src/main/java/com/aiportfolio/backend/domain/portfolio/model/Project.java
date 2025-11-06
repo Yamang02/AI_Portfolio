@@ -67,6 +67,8 @@ public class Project {
     @JsonProperty("isTeam")
     private boolean isTeam;
 
+    private Integer teamSize;
+
     @URL(message = "올바른 외부 URL 형식이어야 합니다")
     private String externalUrl;
 

@@ -1,5 +1,6 @@
 package com.aiportfolio.backend.domain.portfolio.port.out;
 
+import com.aiportfolio.backend.domain.admin.model.ProjectAssetSnapshot;
 import com.aiportfolio.backend.domain.portfolio.model.Project;
 import com.aiportfolio.backend.domain.portfolio.model.Experience;
 import com.aiportfolio.backend.domain.portfolio.model.Education;
@@ -187,4 +188,9 @@ public interface PortfolioRepositoryPort {
      * @return 마지막 비즈니스 ID (예: "prj-010")
      */
     Optional<String> findLastBusinessIdByPrefix(String prefix);
+
+    /**
+     * 프로젝트에 연결된 자산 정보를 조회합니다 (썸네일 및 스크린샷 메타데이터).
+     */
+    Optional<ProjectAssetSnapshot> findProjectAssets(String projectId);
 }
