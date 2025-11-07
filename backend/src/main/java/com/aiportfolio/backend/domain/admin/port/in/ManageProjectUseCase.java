@@ -1,5 +1,7 @@
 package com.aiportfolio.backend.domain.admin.port.in;
 
+import com.aiportfolio.backend.domain.admin.dto.request.ProjectCreateRequest;
+import com.aiportfolio.backend.domain.admin.dto.request.ProjectUpdateRequest;
 import com.aiportfolio.backend.domain.admin.dto.response.ProjectResponse;
 import com.aiportfolio.backend.domain.admin.model.command.ProjectCreateCommand;
 import com.aiportfolio.backend.domain.admin.model.command.ProjectUpdateCommand;
@@ -17,6 +19,10 @@ public interface ManageProjectUseCase {
      * @return 생성된 프로젝트 응답
      */
     ProjectResponse createProject(ProjectCreateCommand command);
+
+    default ProjectResponse createProject(ProjectCreateRequest request) {
+        return createProject(ProjectCreateCommand.fromRequest(request));
+    }
     
     /**
      * 프로젝트를 수정합니다.
@@ -26,6 +32,10 @@ public interface ManageProjectUseCase {
      * @return 수정된 프로젝트 응답
      */
     ProjectResponse updateProject(String id, ProjectUpdateCommand command);
+
+    default ProjectResponse updateProject(String id, ProjectUpdateRequest request) {
+        return updateProject(id, ProjectUpdateCommand.fromRequest(request));
+    }
     
     /**
      * 프로젝트를 삭제합니다.
