@@ -1,6 +1,5 @@
 package com.aiportfolio.backend.infrastructure.web.admin.dto;
 
-import com.aiportfolio.backend.domain.admin.dto.request.ProjectUpdateRequest;
 import com.aiportfolio.backend.domain.admin.model.command.ProjectUpdateCommand;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
@@ -54,31 +53,27 @@ public class AdminProjectUpdateRequest {
 
     private Integer sortOrder;
 
-    public ProjectUpdateRequest toDomainRequest() {
-        ProjectUpdateRequest request = new ProjectUpdateRequest();
-        request.setTitle(title);
-        request.setDescription(description);
-        request.setReadme(readme);
-        request.setType(type);
-        request.setStatus(status);
-        request.setIsTeam(isTeam);
-        request.setTeamSize(teamSize);
-        request.setRole(role);
-        request.setMyContributions(myContributions);
-        request.setStartDate(startDate);
-        request.setEndDate(endDate);
-        request.setImageUrl(imageUrl);
-        request.setScreenshots(screenshots);
-        request.setGithubUrl(githubUrl);
-        request.setLiveUrl(liveUrl);
-        request.setExternalUrl(externalUrl);
-        request.setTechnologies(technologies);
-        request.setSortOrder(sortOrder);
-        return request;
-    }
-
     public ProjectUpdateCommand toCommand() {
-        return toDomainRequest().toCommand();
+        return ProjectUpdateCommand.builder()
+                .title(title)
+                .description(description)
+                .readme(readme)
+                .type(type)
+                .status(status)
+                .isTeam(isTeam)
+                .teamSize(teamSize)
+                .role(role)
+                .myContributions(myContributions)
+                .startDate(startDate)
+                .endDate(endDate)
+                .imageUrl(imageUrl)
+                .screenshots(screenshots)
+                .githubUrl(githubUrl)
+                .liveUrl(liveUrl)
+                .externalUrl(externalUrl)
+                .technologies(technologies)
+                .sortOrder(sortOrder)
+                .build();
     }
 }
 

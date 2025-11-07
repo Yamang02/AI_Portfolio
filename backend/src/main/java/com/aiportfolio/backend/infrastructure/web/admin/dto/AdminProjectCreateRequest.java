@@ -1,6 +1,5 @@
 package com.aiportfolio.backend.infrastructure.web.admin.dto;
 
-import com.aiportfolio.backend.domain.admin.dto.request.ProjectCreateRequest;
 import com.aiportfolio.backend.domain.admin.model.command.ProjectCreateCommand;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -61,31 +60,27 @@ public class AdminProjectCreateRequest {
 
     private Integer sortOrder = 0;
 
-    public ProjectCreateRequest toDomainRequest() {
-        ProjectCreateRequest request = new ProjectCreateRequest();
-        request.setTitle(title);
-        request.setDescription(description);
-        request.setReadme(readme);
-        request.setType(type);
-        request.setStatus(status);
-        request.setIsTeam(isTeam);
-        request.setTeamSize(teamSize);
-        request.setRole(role);
-        request.setMyContributions(myContributions);
-        request.setStartDate(startDate);
-        request.setEndDate(endDate);
-        request.setImageUrl(imageUrl);
-        request.setScreenshots(screenshots);
-        request.setGithubUrl(githubUrl);
-        request.setLiveUrl(liveUrl);
-        request.setExternalUrl(externalUrl);
-        request.setTechnologies(technologies);
-        request.setSortOrder(sortOrder);
-        return request;
-    }
-
     public ProjectCreateCommand toCommand() {
-        return toDomainRequest().toCommand();
+        return ProjectCreateCommand.builder()
+                .title(title)
+                .description(description)
+                .readme(readme)
+                .type(type)
+                .status(status)
+                .isTeam(isTeam)
+                .teamSize(teamSize)
+                .role(role)
+                .myContributions(myContributions)
+                .startDate(startDate)
+                .endDate(endDate)
+                .imageUrl(imageUrl)
+                .screenshots(screenshots)
+                .githubUrl(githubUrl)
+                .liveUrl(liveUrl)
+                .externalUrl(externalUrl)
+                .technologies(technologies)
+                .sortOrder(sortOrder)
+                .build();
     }
 }
 
