@@ -30,5 +30,6 @@ public class ProjectCreateCommand {
     private final String externalUrl;
     private final List<String> technologies;
     private final Integer sortOrder;
+
 }
 

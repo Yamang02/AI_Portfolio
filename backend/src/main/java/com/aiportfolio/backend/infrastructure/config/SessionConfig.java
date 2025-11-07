@@ -26,6 +26,9 @@ public class SessionConfig {
     @Value("${app.session.cookie.domain-pattern:}")
     private String cookieDomainPattern;
 
+    @Value("${app.session.cookie.use-domain:false}")
+    private boolean useCookieDomain;
+
     @Bean
     public CookieSerializer cookieSerializer() {
         DefaultCookieSerializer serializer = new DefaultCookieSerializer();
@@ -51,10 +54,12 @@ public class SessionConfig {
         serializer.setUseSecureCookie(cookieSecure);
 
         // Domain 설정 - 동일 eTLD+1에서 세션 공유
-        if (StringUtils.hasText(cookieDomainPattern)) {
-            serializer.setDomainNamePattern(cookieDomainPattern);
-        } else if (StringUtils.hasText(cookieDomain)) {
-            serializer.setDomainName(cookieDomain);
+        if (useCookieDomain) {
+            if (StringUtils.hasText(cookieDomainPattern)) {
+                serializer.setDomainNamePattern(cookieDomainPattern);
+            } else if (StringUtils.hasText(cookieDomain)) {
+                serializer.setDomainName(cookieDomain);
+            }
         }
 
         // 쿠키 Max-Age 설정 (-1은 브라우저 세션 쿠키로 동작)
