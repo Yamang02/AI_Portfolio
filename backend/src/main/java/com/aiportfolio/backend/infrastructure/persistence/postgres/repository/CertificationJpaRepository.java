@@ -6,6 +6,7 @@ import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.Certif
 // 외부 라이브러리 imports
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 // Java 표준 라이브러리 imports
@@ -51,4 +52,12 @@ public interface CertificationJpaRepository extends JpaRepository<CertificationJ
      */
     @Query("SELECT COALESCE(MAX(c.sortOrder), 0) FROM CertificationJpaEntity c")
     Integer findMaxSortOrder();
+
+    /**
+     * 특정 접두사로 시작하는 마지막 비즈니스 ID 조회
+     * @param prefix 접두사 (예: "cer-")
+     * @return 마지막 비즈니스 ID (예: "cer-010")
+     */
+    @Query(value = "SELECT c.business_id FROM certifications c WHERE c.business_id LIKE :prefix || '%' ORDER BY c.business_id DESC LIMIT 1", nativeQuery = true)
+    Optional<String> findLastBusinessIdByPrefix(@Param("prefix") String prefix);
 }

@@ -1,5 +1,6 @@
 package com.aiportfolio.backend.application.admin.service;
 
+import com.aiportfolio.backend.application.common.util.BusinessIdGenerator;
 import com.aiportfolio.backend.domain.admin.port.in.ManageProjectUseCase;
 import com.aiportfolio.backend.domain.admin.port.out.ImageStoragePort;
 import com.aiportfolio.backend.domain.portfolio.port.out.PortfolioRepositoryPort;
@@ -42,8 +43,9 @@ public class ProjectManagementService implements ManageProjectUseCase {
     public ProjectResponse createProject(ProjectCreateRequest request) {
         log.info("Creating new project: {}", request.getTitle());
         
-        // 프로젝트 ID 자동 생성 (형식: proj-XXX)
-        String projectId = generateProjectId();
+        // 프로젝트 ID 자동 생성 (형식: prj-001)
+        Optional<String> lastBusinessId = portfolioRepositoryPort.findLastBusinessIdByPrefix(BusinessIdGenerator.Prefix.PROJECT);
+        String projectId = BusinessIdGenerator.generate(BusinessIdGenerator.Prefix.PROJECT, lastBusinessId);
         
         Project project = Project.builder()
                 .id(projectId) // ID 필수 설정
@@ -235,45 +237,4 @@ public class ProjectManagementService implements ManageProjectUseCase {
         log.info("Project deleted successfully: {}", id);
     }
     
-    /**
-     * 프로젝트 ID 자동 생성
-     * DB에서 마지막 ID를 조회하여 +1 증가
-     * 형식: prj-XXX (예: prj-001, prj-002)
-     */
-    private String generateProjectId() {
-        // DB에서 "prj-" prefix를 가진 마지막 business_id 조회
-        Optional<String> lastBusinessId = portfolioRepositoryPort.findLastBusinessIdByPrefix("prj-");
-        
-        int nextNumber;
-        if (lastBusinessId.isPresent()) {
-            // 마지막 ID에서 숫자 추출 (예: "prj-010" → 10)
-            nextNumber = extractNumber(lastBusinessId.get());
-        } else {
-            // 데이터 없으면 0부터 시작
-            nextNumber = 0;
-        }
-        
-        // +1 증가 후 3자리 포맷팅 (예: 11 → "prj-011")
-        String formattedNumber = String.format("%03d", nextNumber + 1);
-        return "prj-" + formattedNumber;
-    }
-    
-    /**
-     * 비즈니스 ID에서 숫자 부분을 추출
-     * @param businessId 비즈니스 ID (예: "prj-010")
-     * @return 숫자 부분 (예: 10)
-     */
-    private int extractNumber(String businessId) {
-        if (businessId == null || businessId.isEmpty()) {
-            return 0;
-        }
-        // "prj-010" → "010" → 10
-        try {
-            String numberPart = businessId.substring(4); // "prj-" (4글자) 이후
-            return Integer.parseInt(numberPart);
-        } catch (Exception e) {
-            log.error("비즈니스 ID 숫자 추출 실패: {}", businessId, e);
-            return 0;
-        }
-    }
 }

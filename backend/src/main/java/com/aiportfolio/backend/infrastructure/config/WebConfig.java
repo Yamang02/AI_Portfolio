@@ -1,5 +1,6 @@
 package com.aiportfolio.backend.infrastructure.config;
 
+import com.aiportfolio.backend.infrastructure.web.admin.interceptor.AdminAuthInterceptor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -8,6 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.resource.PathResourceResolver;
@@ -20,9 +22,26 @@ import java.util.List;
 public class WebConfig implements WebMvcConfigurer {
 
     private final CorsProperties corsProperties;
+    private final AdminAuthInterceptor adminAuthInterceptor;
 
-    public WebConfig(CorsProperties corsProperties) {
+    public WebConfig(CorsProperties corsProperties, AdminAuthInterceptor adminAuthInterceptor) {
         this.corsProperties = corsProperties;
+        this.adminAuthInterceptor = adminAuthInterceptor;
+    }
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        log.info("Registering AdminAuthInterceptor for /api/admin/** endpoints");
+
+        registry.addInterceptor(adminAuthInterceptor)
+                .addPathPatterns("/api/admin/**")
+                .excludePathPatterns(
+                    "/api/admin/auth/login",
+                    "/api/admin/auth/session",
+                    "/api/admin/auth/logout"
+                );
+
+        log.info("AdminAuthInterceptor registered successfully");
     }
 
     @Override

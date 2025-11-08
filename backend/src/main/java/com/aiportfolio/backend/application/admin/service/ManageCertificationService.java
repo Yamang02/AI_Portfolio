@@ -1,5 +1,6 @@
 package com.aiportfolio.backend.application.admin.service;
 
+import com.aiportfolio.backend.application.common.util.BusinessIdGenerator;
 import com.aiportfolio.backend.application.common.util.MetadataHelper;
 import com.aiportfolio.backend.domain.portfolio.model.Certification;
 import com.aiportfolio.backend.domain.portfolio.port.in.ManageCertificationUseCase;
@@ -30,6 +31,14 @@ public class ManageCertificationService implements ManageCertificationUseCase {
     @CacheEvict(value = "portfolio", allEntries = true)
     public Certification createCertification(Certification certification) {
         log.info("Creating new certification: {}", certification.getName());
+
+        // ID 자동 생성 (생성 시에만)
+        if (certification.getId() == null || certification.getId().isEmpty()) {
+            Optional<String> lastBusinessId = portfolioRepositoryPort.findLastBusinessIdByPrefix(BusinessIdGenerator.Prefix.CERTIFICATION);
+            String generatedId = BusinessIdGenerator.generate(BusinessIdGenerator.Prefix.CERTIFICATION, lastBusinessId);
+            certification.setId(generatedId);
+            log.debug("Generated certification ID: {}", generatedId);
+        }
 
         // 정렬 순서 자동 할당
         if (certification.getSortOrder() == null) {

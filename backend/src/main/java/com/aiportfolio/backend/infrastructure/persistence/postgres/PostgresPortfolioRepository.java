@@ -768,9 +768,21 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
     @Override
     public Optional<String> findLastBusinessIdByPrefix(String prefix) {
         try {
-            return projectJpaRepository.findLastBusinessIdByPrefix(prefix);
+            // prefix에 따라 적절한 repository 선택
+            if (prefix.startsWith("prj-")) {
+                return projectJpaRepository.findLastBusinessIdByPrefix(prefix);
+            } else if (prefix.startsWith("exp-")) {
+                return experienceJpaRepository.findLastBusinessIdByPrefix(prefix);
+            } else if (prefix.startsWith("edu-")) {
+                return educationJpaRepository.findLastBusinessIdByPrefix(prefix);
+            } else if (prefix.startsWith("cer-")) {
+                return certificationJpaRepository.findLastBusinessIdByPrefix(prefix);
+            } else {
+                log.warn("Unknown prefix: {}", prefix);
+                return Optional.empty();
+            }
         } catch (Exception e) {
-            log.error("프로젝트 비즈니스 ID 조회 중 오류 발생: prefix={}", prefix, e);
+            log.error("비즈니스 ID 조회 중 오류 발생: prefix={}", prefix, e);
             return Optional.empty();
         }
     }

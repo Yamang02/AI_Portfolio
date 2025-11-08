@@ -5,61 +5,100 @@ import lombok.Builder;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.List;
 
+/**
+ * Experience 도메인 모델
+ *
+ * 순수 비즈니스 도메인 모델 (인프라 의존성 없음)
+ * Hexagonal Architecture의 중심 도메인
+ */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Experience {
-    
-    @NotBlank(message = "경력 ID는 필수입니다")
+
+    /**
+     * 비즈니스 ID (exp-001, exp-002 등)
+     */
     private String id;
-    
-    @NotBlank(message = "직책은 필수입니다")
-    @Size(max = 200, message = "직책은 200자를 초과할 수 없습니다")
+
+    /**
+     * 직책
+     */
     private String title;
-    
-    @NotBlank(message = "경력 설명은 필수입니다")
-    @Size(max = 2000, message = "경력 설명은 2000자를 초과할 수 없습니다")
+
+    /**
+     * 경력 설명
+     */
     private String description;
-    
-    // 기존 technologies 필드 제거됨 - techStackMetadata 관계 필드로 대체
+
+    /**
+     * 기술 스택 메타데이터
+     * (기존 technologies 필드 제거됨 - techStackMetadata 관계 필드로 대체)
+     */
     private List<TechStackMetadata> techStackMetadata;
-    
-    @NotBlank(message = "조직명은 필수입니다")
-    @Size(max = 200, message = "조직명은 200자를 초과할 수 없습니다")
+
+    /**
+     * 조직명
+     */
     private String organization;
-    
-    @NotBlank(message = "역할은 필수입니다")
-    @Size(max = 200, message = "역할은 200자를 초과할 수 없습니다")
+
+    /**
+     * 역할
+     */
     private String role;
-    
-    @NotNull(message = "시작일은 필수입니다")
+
+    /**
+     * 시작일
+     */
     private LocalDate startDate;
-    
-    private LocalDate endDate; // 종료일은 선택사항 (현재 재직중)
-    
-    // type 필드 제거됨 - employment_type으로 대체됨
-    
-    private String jobField; // 직무 분야 (개발, 교육, 디자인 등)
-    private String employmentType; // 계약 조건 (FULL_TIME, PART_TIME, CONTRACT 등)
-    
-    @Size(max = 10, message = "주요 책임은 최대 10개까지 가능합니다")
+
+    /**
+     * 종료일 (NULL이면 현재 재직중)
+     */
+    private LocalDate endDate;
+
+    /**
+     * 직무 분야 (개발, 교육, 디자인 등)
+     */
+    private String jobField;
+
+    /**
+     * 계약 조건 (FULL_TIME, PART_TIME, CONTRACT 등)
+     */
+    private String employmentType;
+
+    /**
+     * 주요 책임
+     */
     private List<String> mainResponsibilities;
-    
-    @Size(max = 10, message = "주요 성과는 최대 10개까지 가능합니다")
+
+    /**
+     * 주요 성과
+     */
     private List<String> achievements;
-    
-    @Size(max = 20, message = "관련 프로젝트는 최대 20개까지 가능합니다")
+
+    /**
+     * 관련 프로젝트
+     */
     private List<String> projects;
-    
+
+    /**
+     * 정렬 순서
+     */
     private Integer sortOrder;
+
+    /**
+     * 생성일시
+     */
     private java.time.LocalDateTime createdAt;
+
+    /**
+     * 수정일시
+     */
     private java.time.LocalDateTime updatedAt;
     
     /**
