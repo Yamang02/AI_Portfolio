@@ -6,14 +6,12 @@ import com.aiportfolio.backend.domain.admin.port.in.SearchProjectsUseCase;
 import com.aiportfolio.backend.domain.admin.model.dto.ImageUploadResponse;
 import com.aiportfolio.backend.domain.admin.dto.request.ProjectUpdateRequest;
 import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;
-import com.aiportfolio.backend.infrastructure.web.admin.util.AdminAuthChecker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +30,6 @@ public class AdminUploadController {
     private final UploadImageUseCase uploadImageUseCase;
     private final ManageProjectUseCase manageProjectUseCase;
     private final SearchProjectsUseCase searchProjectsUseCase;
-    private final AdminAuthChecker adminAuthChecker;
 
     /**
      * 단일 이미지 업로드
@@ -45,19 +42,10 @@ public class AdminUploadController {
     public ResponseEntity<ApiResponse<ImageUploadResponse>> uploadImage(
             @RequestParam("file") MultipartFile file,
             @RequestParam("type") String type,
-            @RequestParam(value = "projectId", required = false) String projectId,
-            HttpServletRequest request) {
+            @RequestParam(value = "projectId", required = false) String projectId) {
 
         log.debug("Image upload request - type: {}, filename: {}, projectId: {}", 
                 type, file.getOriginalFilename(), projectId);
-
-        try {
-            // 인증 확인
-            adminAuthChecker.requireAuthentication(request);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(401)
-                    .body(ApiResponse.error(e.getMessage(), "인증 필요"));
-        }
 
         try {
             // 파일 유효성 검사
@@ -170,19 +158,10 @@ public class AdminUploadController {
     public ResponseEntity<ApiResponse<List<String>>> uploadImages(
             @RequestParam("files") List<MultipartFile> files,
             @RequestParam("type") String type,
-            @RequestParam(value = "projectId", required = false) String projectId,
-            HttpServletRequest request) {
+            @RequestParam(value = "projectId", required = false) String projectId) {
 
         log.debug("Multiple image upload request - type: {}, count: {}, projectId: {}", 
                 type, files.size(), projectId);
-
-        try {
-            // 인증 확인
-            adminAuthChecker.requireAuthentication(request);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(401)
-                    .body(ApiResponse.error(e.getMessage(), "인증 필요"));
-        }
 
         try {
             // 파일 유효성 검사
@@ -294,16 +273,8 @@ public class AdminUploadController {
      */
     @DeleteMapping("/image/{publicId}")
     public ResponseEntity<ApiResponse<Void>> deleteImage(
-            @PathVariable String publicId,
-            HttpServletRequest request) {
+            @PathVariable String publicId) {
         log.debug("Image deletion request: {}", publicId);
-
-        try {
-            adminAuthChecker.requireAuthentication(request);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(401)
-                    .body(ApiResponse.error(e.getMessage(), "인증 필요"));
-        }
 
         try {
             uploadImageUseCase.deleteImage(publicId);

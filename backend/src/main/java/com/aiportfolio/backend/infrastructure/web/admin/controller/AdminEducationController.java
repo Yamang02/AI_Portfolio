@@ -6,13 +6,11 @@ import com.aiportfolio.backend.domain.portfolio.port.in.GetEducationUseCase;
 import com.aiportfolio.backend.domain.portfolio.port.in.ManageEducationUseCase;
 import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;
 import com.aiportfolio.backend.infrastructure.web.dto.education.EducationDto;
-import com.aiportfolio.backend.infrastructure.web.admin.util.AdminAuthChecker;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Map;
@@ -31,15 +29,12 @@ public class AdminEducationController {
 
     private final GetEducationUseCase adminGetEducationUseCase;
     private final ManageEducationUseCase manageEducationUseCase;
-    private final AdminAuthChecker adminAuthChecker;
 
     public AdminEducationController(
             @Qualifier("adminGetEducationService") GetEducationUseCase adminGetEducationUseCase,
-            @Qualifier("manageEducationService") ManageEducationUseCase manageEducationUseCase,
-            AdminAuthChecker adminAuthChecker) {
+            @Qualifier("manageEducationService") ManageEducationUseCase manageEducationUseCase) {
         this.adminGetEducationUseCase = adminGetEducationUseCase;
         this.manageEducationUseCase = manageEducationUseCase;
-        this.adminAuthChecker = adminAuthChecker;
     }
 
     // ==================== 조회 ====================
@@ -48,14 +43,7 @@ public class AdminEducationController {
      * 전체 Education 목록 조회
      */
     @GetMapping
-    public ResponseEntity<ApiResponse<List<EducationDto>>> getAllEducations(HttpServletRequest request) {
-        try {
-            adminAuthChecker.requireAuthentication(request);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(401)
-                    .body(ApiResponse.error(e.getMessage(), "인증 필요"));
-        }
-
+    public ResponseEntity<ApiResponse<List<EducationDto>>> getAllEducations() {
         log.info("Fetching all educations (admin - no cache)");
 
         try {
@@ -78,14 +66,7 @@ public class AdminEducationController {
      * ID로 Education 조회
      */
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<EducationDto>> getEducation(@PathVariable String id, HttpServletRequest request) {
-        try {
-            adminAuthChecker.requireAuthentication(request);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(401)
-                    .body(ApiResponse.error(e.getMessage(), "인증 필요"));
-        }
-
+    public ResponseEntity<ApiResponse<EducationDto>> getEducation(@PathVariable String id) {
         log.info("Fetching education by id: {}", id);
 
         try {
@@ -107,15 +88,7 @@ public class AdminEducationController {
      */
     @GetMapping("/search")
     public ResponseEntity<ApiResponse<List<EducationDto>>> searchEducations(
-            @RequestParam String keyword,
-            HttpServletRequest request) {
-        try {
-            adminAuthChecker.requireAuthentication(request);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(401)
-                    .body(ApiResponse.error(e.getMessage(), "인증 필요"));
-        }
-
+            @RequestParam String keyword) {
         log.info("Searching educations with keyword: {}", keyword);
 
         try {
@@ -139,15 +112,7 @@ public class AdminEducationController {
      */
     @PostMapping
     public ResponseEntity<ApiResponse<EducationDto>> createEducation(
-            @Valid @RequestBody EducationDto dto,
-            HttpServletRequest request) {
-        try {
-            adminAuthChecker.requireAuthentication(request);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(401)
-                    .body(ApiResponse.error(e.getMessage(), "인증 필요"));
-        }
-
+            @Valid @RequestBody EducationDto dto) {
         log.info("Creating new education: {}", dto.getTitle());
 
         try {
@@ -174,15 +139,7 @@ public class AdminEducationController {
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<EducationDto>> updateEducation(
             @PathVariable String id,
-            @Valid @RequestBody EducationDto dto,
-            HttpServletRequest request) {
-        try {
-            adminAuthChecker.requireAuthentication(request);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(401)
-                    .body(ApiResponse.error(e.getMessage(), "인증 필요"));
-        }
-
+            @Valid @RequestBody EducationDto dto) {
         log.info("Updating education: {}", id);
 
         try {
@@ -207,14 +164,7 @@ public class AdminEducationController {
      * Education 삭제
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteEducation(@PathVariable String id, HttpServletRequest request) {
-        try {
-            adminAuthChecker.requireAuthentication(request);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(401)
-                    .body(ApiResponse.error(e.getMessage(), "인증 필요"));
-        }
-
+    public ResponseEntity<ApiResponse<Void>> deleteEducation(@PathVariable String id) {
         log.info("Deleting education: {}", id);
 
         try {
@@ -235,15 +185,7 @@ public class AdminEducationController {
      */
     @PatchMapping("/sort-order")
     public ResponseEntity<ApiResponse<Void>> updateSortOrder(
-            @RequestBody Map<String, Integer> sortOrderUpdates,
-            HttpServletRequest request) {
-        try {
-            adminAuthChecker.requireAuthentication(request);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(401)
-                    .body(ApiResponse.error(e.getMessage(), "인증 필요"));
-        }
-
+            @RequestBody Map<String, Integer> sortOrderUpdates) {
         log.info("Updating education sort orders: {} items", sortOrderUpdates.size());
 
         try {

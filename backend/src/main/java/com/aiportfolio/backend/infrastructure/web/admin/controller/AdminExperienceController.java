@@ -6,13 +6,11 @@ import com.aiportfolio.backend.domain.portfolio.port.in.GetExperienceUseCase;
 import com.aiportfolio.backend.domain.portfolio.port.in.ManageExperienceUseCase;
 import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;
 import com.aiportfolio.backend.infrastructure.web.dto.experience.ExperienceDto;
-import com.aiportfolio.backend.infrastructure.web.admin.util.AdminAuthChecker;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Map;
@@ -31,15 +29,12 @@ public class AdminExperienceController {
 
     private final GetExperienceUseCase adminGetExperienceUseCase;
     private final ManageExperienceUseCase manageExperienceUseCase;
-    private final AdminAuthChecker adminAuthChecker;
 
     public AdminExperienceController(
             @Qualifier("adminGetExperienceService") GetExperienceUseCase adminGetExperienceUseCase,
-            @Qualifier("manageExperienceService") ManageExperienceUseCase manageExperienceUseCase,
-            AdminAuthChecker adminAuthChecker) {
+            @Qualifier("manageExperienceService") ManageExperienceUseCase manageExperienceUseCase) {
         this.adminGetExperienceUseCase = adminGetExperienceUseCase;
         this.manageExperienceUseCase = manageExperienceUseCase;
-        this.adminAuthChecker = adminAuthChecker;
     }
 
     // ==================== 조회 ====================
@@ -48,14 +43,7 @@ public class AdminExperienceController {
      * 전체 Experience 목록 조회
      */
     @GetMapping
-    public ResponseEntity<ApiResponse<List<ExperienceDto>>> getAllExperiences(HttpServletRequest request) {
-        try {
-            adminAuthChecker.requireAuthentication(request);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(401)
-                    .body(ApiResponse.error(e.getMessage(), "인증 필요"));
-        }
-
+    public ResponseEntity<ApiResponse<List<ExperienceDto>>> getAllExperiences() {
         log.info("Fetching all experiences");
 
         try {
@@ -79,15 +67,7 @@ public class AdminExperienceController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<ExperienceDto>> getExperience(
-            @PathVariable String id,
-            HttpServletRequest request) {
-        try {
-            adminAuthChecker.requireAuthentication(request);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(401)
-                    .body(ApiResponse.error(e.getMessage(), "인증 필요"));
-        }
-
+            @PathVariable String id) {
         log.info("Fetching experience by id: {}", id);
 
         try {
@@ -109,15 +89,7 @@ public class AdminExperienceController {
      */
     @GetMapping("/search")
     public ResponseEntity<ApiResponse<List<ExperienceDto>>> searchExperiences(
-            @RequestParam String keyword,
-            HttpServletRequest request) {
-        try {
-            adminAuthChecker.requireAuthentication(request);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(401)
-                    .body(ApiResponse.error(e.getMessage(), "인증 필요"));
-        }
-
+            @RequestParam String keyword) {
         log.info("Searching experiences with keyword: {}", keyword);
 
         try {
@@ -141,15 +113,7 @@ public class AdminExperienceController {
      */
     @PostMapping
     public ResponseEntity<ApiResponse<ExperienceDto>> createExperience(
-            @Valid @RequestBody ExperienceDto dto,
-            HttpServletRequest request) {
-        try {
-            adminAuthChecker.requireAuthentication(request);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(401)
-                    .body(ApiResponse.error(e.getMessage(), "인증 필요"));
-        }
-
+            @Valid @RequestBody ExperienceDto dto) {
         log.info("Creating new experience: {}", dto.getTitle());
 
         try {
@@ -176,15 +140,7 @@ public class AdminExperienceController {
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<ExperienceDto>> updateExperience(
             @PathVariable String id,
-            @Valid @RequestBody ExperienceDto dto,
-            HttpServletRequest request) {
-        try {
-            adminAuthChecker.requireAuthentication(request);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(401)
-                    .body(ApiResponse.error(e.getMessage(), "인증 필요"));
-        }
-
+            @Valid @RequestBody ExperienceDto dto) {
         log.info("Updating experience: {}", id);
 
         try {
@@ -210,15 +166,7 @@ public class AdminExperienceController {
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteExperience(
-            @PathVariable String id,
-            HttpServletRequest request) {
-        try {
-            adminAuthChecker.requireAuthentication(request);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(401)
-                    .body(ApiResponse.error(e.getMessage(), "인증 필요"));
-        }
-
+            @PathVariable String id) {
         log.info("Deleting experience: {}", id);
 
         try {
@@ -239,15 +187,7 @@ public class AdminExperienceController {
      */
     @PatchMapping("/sort-order")
     public ResponseEntity<ApiResponse<Void>> updateSortOrder(
-            @RequestBody Map<String, Integer> sortOrderUpdates,
-            HttpServletRequest request) {
-        try {
-            adminAuthChecker.requireAuthentication(request);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(401)
-                    .body(ApiResponse.error(e.getMessage(), "인증 필요"));
-        }
-
+            @RequestBody Map<String, Integer> sortOrderUpdates) {
         log.info("Updating experience sort orders: {} items", sortOrderUpdates.size());
 
         try {
