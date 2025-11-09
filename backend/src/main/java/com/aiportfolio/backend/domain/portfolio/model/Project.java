@@ -7,128 +7,81 @@ import lombok.AllArgsConstructor;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import org.hibernate.validator.constraints.URL;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-/**
- * Project 도메인 모델
- *
- * 순수 비즈니스 도메인 모델 (인프라 의존성 없음)
- * Hexagonal Architecture의 중심 도메인
- */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Project {
-
-    /**
-     * 비즈니스 ID (prj-001, prj-002 등)
-     */
+    
+    @NotBlank(message = "프로젝트 ID는 필수입니다")
     private String id;
-
-    /**
-     * 프로젝트 제목
-     */
+    
+    @NotBlank(message = "프로젝트 제목은 필수입니다")
+    @Size(max = 200, message = "프로젝트 제목은 200자를 초과할 수 없습니다")
     private String title;
-
-    /**
-     * 프로젝트 설명
-     */
+    
+    @NotBlank(message = "프로젝트 설명은 필수입니다")
+    @Size(max = 2000, message = "프로젝트 설명은 2000자를 초과할 수 없습니다")
     private String description;
-
-    /**
-     * 기술 스택 메타데이터
-     * (기존 technologies 필드 제거됨 - techStackMetadata 관계 필드로 대체)
-     */
+    
+    
+    // 기존 technologies 필드 제거됨 - techStackMetadata 관계 필드로 대체
     private List<TechStackMetadata> techStackMetadata;
-
-    /**
-     * GitHub URL
-     */
+    
+    @URL(message = "올바른 GitHub URL 형식이어야 합니다")
     private String githubUrl;
-
-    /**
-     * 라이브 URL
-     */
+    
+    @URL(message = "올바른 라이브 URL 형식이어야 합니다")
     private String liveUrl;
-
-    /**
-     * 이미지 URL
-     */
+    
+    @URL(message = "올바른 이미지 URL 형식이어야 합니다")
     private String imageUrl;
-
-    /**
-     * README 내용
-     */
+    
+    @Size(max = 10000, message = "README는 10000자를 초과할 수 없습니다")
     private String readme;
-
-    /**
-     * 프로젝트 타입 ('project' 또는 'certification')
-     */
-    private String type;
-
-    /**
-     * 소스 정보
-     */
+    
+    @Size(max = 50, message = "프로젝트 타입은 50자를 초과할 수 없습니다")
+    private String type; // 'project' 또는 'certification'
+    
+    @Size(max = 100, message = "소스 정보는 100자를 초과할 수 없습니다")
     private String source;
 
-    /**
-     * 프로젝트 상태 (completed, in_progress, maintenance 등)
-     */
-    private String status;
+    @Size(max = 50, message = "상태는 50자를 초과할 수 없습니다")
+    private String status; // 프로젝트 상태 (completed, in_progress, maintenance 등)
 
-    /**
-     * 정렬 순서
-     */
-    private Integer sortOrder;
+    private Integer sortOrder; // 정렬 순서
 
-    /**
-     * 시작일
-     */
+    @NotNull(message = "시작일은 필수입니다")
     private LocalDate startDate;
 
-    /**
-     * 종료일 (NULL이면 진행중)
-     */
-    private LocalDate endDate;
-
-    /**
-     * 팀 프로젝트 여부
-     */
+    private LocalDate endDate; // 종료일은 선택사항 (진행중인 프로젝트)
+    
     @JsonProperty("isTeam")
     private boolean isTeam;
 
-    /**
-     * 외부 URL
-     */
+    private Integer teamSize;
+
+    @URL(message = "올바른 외부 URL 형식이어야 합니다")
     private String externalUrl;
 
-    /**
-     * 나의 기여 사항
-     */
     private List<String> myContributions;
 
-    /**
-     * 팀 프로젝트에서의 역할
-     */
-    private String role;
+    @Size(max = 255, message = "역할은 255자를 초과할 수 없습니다")
+    private String role; // 팀 프로젝트에서의 역할
 
-    /**
-     * 추가 스크린샷 URL 배열
-     */
-    private List<String> screenshots;
+    private List<@URL(message = "올바른 스크린샷 URL 형식이어야 합니다") String> screenshots; // 추가 스크린샷 URL 배열
 
-    /**
-     * 생성일시
-     */
-    private LocalDateTime createdAt;
-
-    /**
-     * 수정일시
-     */
-    private LocalDateTime updatedAt;
+    private LocalDateTime createdAt; // 생성일시
+    
+    private LocalDateTime updatedAt; // 수정일시
 
     /**
      * 프로젝트가 진행중인지 확인

@@ -1,8 +1,10 @@
 package com.aiportfolio.backend.infrastructure.web.admin.controller;
 
 import com.aiportfolio.backend.application.admin.AuthService;
-import com.aiportfolio.backend.domain.admin.model.dto.AdminLoginRequest;
+import com.aiportfolio.backend.application.admin.exception.AdminAuthenticationException;
 import com.aiportfolio.backend.domain.admin.model.dto.AdminUserInfo;
+import com.aiportfolio.backend.infrastructure.web.admin.dto.AdminLoginRequest;
+import com.aiportfolio.backend.infrastructure.web.admin.session.AdminSessionManager;
 import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -23,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 public class AdminAuthController {
 
     private final AuthService authService;
+    private final AdminSessionManager adminSessionManager;
 
     /**
      * 관리자 로그인
@@ -37,14 +40,15 @@ public class AdminAuthController {
         try {
             HttpSession session = httpRequest.getSession(true);
             AdminUserInfo userInfo = authService.login(
-                request.getUsername(), 
-                request.getPassword(), 
-                session
+                request.getUsername(),
+                request.getPassword()
             );
+
+            adminSessionManager.establishSession(session, userInfo);
 
             log.info("Login successful for user: {}", request.getUsername());
             return ResponseEntity.ok(ApiResponse.success(userInfo, "로그인 성공"));
-        } catch (IllegalArgumentException e) {
+        } catch (AdminAuthenticationException e) {
             log.warn("Login failed for user: {} - {}", request.getUsername(), e.getMessage());
             return ResponseEntity.status(401)
                     .body(ApiResponse.error(e.getMessage(), "인증 실패"));
@@ -63,7 +67,7 @@ public class AdminAuthController {
         log.debug("Logout request received");
         try {
             HttpSession session = httpRequest.getSession(false);
-            authService.logout(session);
+            adminSessionManager.clearSession(session);
             
             return ResponseEntity.ok(ApiResponse.success(null, "로그아웃 성공"));
         } catch (Exception e) {
@@ -100,10 +104,11 @@ public class AdminAuthController {
         }
 
         try {
-            AdminUserInfo userInfo = authService.getCurrentUser(session);
+            AdminUserInfo userInfo = adminSessionManager.resolveCurrentUser(session)
+                    .orElseThrow(() -> new AdminAuthenticationException("세션이 없습니다."));
             log.info("Session check successful for user: {}", userInfo.getUsername());
             return ResponseEntity.ok(ApiResponse.success(userInfo, "세션이 유효합니다"));
-        } catch (IllegalArgumentException e) {
+        } catch (AdminAuthenticationException e) {
             log.warn("Session check failed: {}", e.getMessage());
             return ResponseEntity.status(401)
                     .body(ApiResponse.error(e.getMessage(), "인증되지 않음"));

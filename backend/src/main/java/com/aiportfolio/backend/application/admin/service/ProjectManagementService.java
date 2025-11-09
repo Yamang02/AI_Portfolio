@@ -1,18 +1,14 @@
 package com.aiportfolio.backend.application.admin.service;
 
-import com.aiportfolio.backend.application.common.util.BusinessIdGenerator;
+import com.aiportfolio.backend.application.admin.mapper.ProjectResponseMapper;
+import com.aiportfolio.backend.domain.admin.model.ProjectAssetSnapshot;
+import com.aiportfolio.backend.domain.admin.model.command.ProjectCreateCommand;
+import com.aiportfolio.backend.domain.admin.model.command.ProjectUpdateCommand;
 import com.aiportfolio.backend.domain.admin.port.in.ManageProjectUseCase;
 import com.aiportfolio.backend.domain.admin.port.out.ImageStoragePort;
-import com.aiportfolio.backend.domain.portfolio.port.out.PortfolioRepositoryPort;
-import com.aiportfolio.backend.domain.admin.dto.request.ProjectCreateRequest;
-import com.aiportfolio.backend.domain.admin.dto.request.ProjectUpdateRequest;
 import com.aiportfolio.backend.domain.admin.dto.response.ProjectResponse;
 import com.aiportfolio.backend.domain.portfolio.model.Project;
-import com.aiportfolio.backend.application.admin.mapper.ProjectResponseMapper;
-import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.ProjectJpaEntity;
-import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.ProjectScreenshotJpaEntity;
-import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.ProjectJpaRepository;
-import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.ProjectScreenshotJpaRepository;
+import com.aiportfolio.backend.domain.portfolio.port.out.PortfolioRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -35,36 +31,37 @@ public class ProjectManagementService implements ManageProjectUseCase {
     private final PortfolioRepositoryPort portfolioRepositoryPort;
     private final ProjectResponseMapper projectResponseMapper;
     private final ImageStoragePort imageStoragePort;
-    private final ProjectJpaRepository projectJpaRepository;
-    private final ProjectScreenshotJpaRepository projectScreenshotJpaRepository;
     
     @Override
     @CacheEvict(value = "portfolio", allEntries = true)
-    public ProjectResponse createProject(ProjectCreateRequest request) {
-        log.info("Creating new project: {}", request.getTitle());
+    public ProjectResponse createProject(ProjectCreateCommand command) {
+        log.info("Creating new project: {}", command.getTitle());
         
-        // 프로젝트 ID 자동 생성 (형식: prj-001)
-        Optional<String> lastBusinessId = portfolioRepositoryPort.findLastBusinessIdByPrefix(BusinessIdGenerator.Prefix.PROJECT);
-        String projectId = BusinessIdGenerator.generate(BusinessIdGenerator.Prefix.PROJECT, lastBusinessId);
-        
+        // 프로젝트 ID 자동 생성 (형식: proj-XXX)
+        String projectId = generateProjectId();
+
+        boolean isTeam = Boolean.TRUE.equals(command.getIsTeam());
+        Integer normalizedTeamSize = normalizeTeamSize(isTeam, command.getTeamSize());
+
         Project project = Project.builder()
-                .id(projectId) // ID 필수 설정
-                .title(request.getTitle())
-                .description(request.getDescription())
-                .readme(request.getReadme())
-                .type(request.getType())
-                .status(request.getStatus())
-                .isTeam(request.getIsTeam())
-                .role(request.getRole())
-                .myContributions(request.getMyContributions())
-                .startDate(request.getStartDate())
-                .endDate(request.getEndDate())
-                .imageUrl(request.getImageUrl())
-                .screenshots(request.getScreenshots())
-                .githubUrl(request.getGithubUrl())
-                .liveUrl(request.getLiveUrl())
-                .externalUrl(request.getExternalUrl())
-                .sortOrder(request.getSortOrder())
+                .id(projectId)
+                .title(command.getTitle())
+                .description(command.getDescription())
+                .readme(command.getReadme())
+                .type(command.getType())
+                .status(command.getStatus())
+                .isTeam(isTeam)
+                .teamSize(normalizedTeamSize)
+                .role(command.getRole())
+                .myContributions(command.getMyContributions())
+                .startDate(command.getStartDate())
+                .endDate(command.getEndDate())
+                .imageUrl(command.getImageUrl())
+                .screenshots(command.getScreenshots())
+                .githubUrl(command.getGithubUrl())
+                .liveUrl(command.getLiveUrl())
+                .externalUrl(command.getExternalUrl())
+                .sortOrder(command.getSortOrder())
                 .build();
 
         Project savedProject = portfolioRepositoryPort.saveProject(project);
@@ -75,7 +72,7 @@ public class ProjectManagementService implements ManageProjectUseCase {
     
     @Override
     @CacheEvict(value = "portfolio", allEntries = true)
-    public ProjectResponse updateProject(String id, ProjectUpdateRequest request) {
+    public ProjectResponse updateProject(String id, ProjectUpdateCommand command) {
         log.info("Updating project: {}", id);
 
         Project project = portfolioRepositoryPort.findProjectById(id)
@@ -88,46 +85,47 @@ public class ProjectManagementService implements ManageProjectUseCase {
             : null;
 
         // 필드 업데이트
-        if (request.getTitle() != null) project.setTitle(request.getTitle());
-        if (request.getDescription() != null) project.setDescription(request.getDescription());
-        if (request.getReadme() != null) project.setReadme(request.getReadme());
-        if (request.getType() != null) project.setType(request.getType());
-        if (request.getStatus() != null) project.setStatus(request.getStatus());
-        if (request.getIsTeam() != null) project.setTeam(request.getIsTeam());
-        if (request.getRole() != null) project.setRole(request.getRole());
-        if (request.getMyContributions() != null) project.setMyContributions(request.getMyContributions());
-        if (request.getStartDate() != null) project.setStartDate(request.getStartDate());
-        if (request.getEndDate() != null) project.setEndDate(request.getEndDate());
+        if (command.getTitle() != null) project.setTitle(command.getTitle());
+        if (command.getDescription() != null) project.setDescription(command.getDescription());
+        if (command.getReadme() != null) project.setReadme(command.getReadme());
+        if (command.getType() != null) project.setType(command.getType());
+        if (command.getStatus() != null) project.setStatus(command.getStatus());
+        if (command.getRole() != null) project.setRole(command.getRole());
+        if (command.getMyContributions() != null) project.setMyContributions(command.getMyContributions());
+        if (command.getStartDate() != null) project.setStartDate(command.getStartDate());
+        if (command.getEndDate() != null) project.setEndDate(command.getEndDate());
+
+        applyTeamAttributes(project, command.getIsTeam(), command.getTeamSize());
         
         // 이미지 URL 업데이트 - 빈 문자열도 허용 (값을 비우는 의도)
         // 빈 문자열 필터링은 Cloudinary 업로드 실패 시에만 적용되며,
         // 일반 업데이트에서는 빈 문자열을 null로 변환하지 않음 (저장 계층에서 처리)
-        if (request.getImageUrl() != null) {
-            project.setImageUrl(request.getImageUrl());
+        if (command.getImageUrl() != null) {
+            project.setImageUrl(command.getImageUrl());
         }
         
         // 스크린샷 업데이트 - 빈 배열도 허용 (모든 스크린샷 제거 의도)
         // 빈 배열은 그대로 유지하여 저장 계층에서 처리하도록 함
         // 저장 계층에서 빈 값들은 필터링되지만, 빈 배열 자체는 null이 아닌 빈 리스트로 전달
-        if (request.getScreenshots() != null) {
+        if (command.getScreenshots() != null) {
             // null 또는 빈 문자열인 URL만 필터링 (빈 배열은 유지)
-            List<String> validScreenshots = request.getScreenshots().stream()
+            List<String> validScreenshots = command.getScreenshots().stream()
                 .filter(url -> url != null && !url.trim().isEmpty())
                 .collect(java.util.stream.Collectors.toList());
             // 빈 배열인 경우도 그대로 유지 (모든 스크린샷 제거 의도)
             project.setScreenshots(validScreenshots);
-            log.debug("Filtered invalid screenshot URLs: {} -> {} (empty list preserved for removal intent)", 
-                    request.getScreenshots().size(), validScreenshots.size());
+            log.debug("Filtered invalid screenshot URLs: {} -> {} (empty list preserved for removal intent)",
+                    command.getScreenshots().size(), validScreenshots.size());
         }
-        if (request.getGithubUrl() != null) project.setGithubUrl(request.getGithubUrl());
-        if (request.getLiveUrl() != null) project.setLiveUrl(request.getLiveUrl());
-        if (request.getExternalUrl() != null) project.setExternalUrl(request.getExternalUrl());
-        if (request.getSortOrder() != null) project.setSortOrder(request.getSortOrder());
+        if (command.getGithubUrl() != null) project.setGithubUrl(command.getGithubUrl());
+        if (command.getLiveUrl() != null) project.setLiveUrl(command.getLiveUrl());
+        if (command.getExternalUrl() != null) project.setExternalUrl(command.getExternalUrl());
+        if (command.getSortOrder() != null) project.setSortOrder(command.getSortOrder());
 
         // 수정된 이미지 처리 (교체된 경우 기존 이미지 삭제)
         try {
             // 썸네일이 교체되었는지 확인
-            if (request.getImageUrl() != null && !request.getImageUrl().equals(oldImageUrl)) {
+            if (command.getImageUrl() != null && !command.getImageUrl().equals(oldImageUrl)) {
                 // 기존 썸네일 삭제
                 if (oldImageUrl != null && oldImageUrl.contains("cloudinary.com")) {
                     String publicId = imageStoragePort.extractPublicId(oldImageUrl);
@@ -139,9 +137,9 @@ public class ProjectManagementService implements ManageProjectUseCase {
             }
 
             // 스크린샷이 교체되었는지 확인
-            if (request.getScreenshots() != null) {
+            if (command.getScreenshots() != null) {
                 // 빈 배열로 업데이트한 경우에도 처리
-                List<String> newScreenshots = request.getScreenshots();
+                List<String> newScreenshots = command.getScreenshots();
                 
                 if (oldScreenshots != null && !oldScreenshots.isEmpty()) {
                     // 기존 스크린샷 중 새로운 목록에 없는 것 찾기
@@ -182,49 +180,16 @@ public class ProjectManagementService implements ManageProjectUseCase {
         Project project = portfolioRepositoryPort.findProjectById(id)
                 .orElseThrow(() -> new IllegalArgumentException("프로젝트를 찾을 수 없습니다: " + id));
 
-        // Cloudinary 이미지 삭제
         try {
-            // 프로젝트 엔티티 조회 (스크린샷 정보 포함)
-            Optional<ProjectJpaEntity> projectEntityOpt = projectJpaRepository.findByBusinessId(id);
-            
-            if (projectEntityOpt.isPresent()) {
-                ProjectJpaEntity projectEntity = projectEntityOpt.get();
-                
-                // 썸네일 이미지 삭제
-                if (project.getImageUrl() != null && project.getImageUrl().contains("cloudinary.com")) {
-                    String publicId = imageStoragePort.extractPublicId(project.getImageUrl());
-                    if (publicId != null) {
-                        log.info("Deleting thumbnail image from Cloudinary: {}", publicId);
-                        imageStoragePort.deleteImage(publicId);
-                    }
-                }
+            Optional<ProjectAssetSnapshot> assetSnapshotOpt = portfolioRepositoryPort.findProjectAssets(id);
 
-                // 스크린샷 이미지들 삭제 (엔티티에서 cloudinaryPublicId 직접 사용)
-                if (projectEntity.getScreenshots() != null && !projectEntity.getScreenshots().isEmpty()) {
-                    List<ProjectScreenshotJpaEntity> screenshotEntities = 
-                        projectScreenshotJpaRepository.findAllById(projectEntity.getScreenshots());
-                    
-                    for (ProjectScreenshotJpaEntity screenshot : screenshotEntities) {
-                        // cloudinaryPublicId가 있으면 직접 사용, 없으면 URL에서 추출
-                        String publicId = screenshot.getCloudinaryPublicId();
-                        if (publicId == null || publicId.isEmpty()) {
-                            // fallback: URL에서 추출
-                            if (screenshot.getImageUrl() != null && screenshot.getImageUrl().contains("cloudinary.com")) {
-                                publicId = imageStoragePort.extractPublicId(screenshot.getImageUrl());
-                            }
-                        }
-                        
-                        if (publicId != null && !publicId.isEmpty()) {
-                            log.info("Deleting screenshot from Cloudinary: {} (publicId: {})", 
-                                screenshot.getImageUrl(), publicId);
-                            imageStoragePort.deleteImage(publicId);
-                        } else {
-                            log.warn("Screenshot publicId를 찾을 수 없습니다: {}", screenshot.getImageUrl());
-                        }
-                    }
-                }
+            if (assetSnapshotOpt.isEmpty()) {
+                log.warn("프로젝트 자산 정보를 찾을 수 없어 이미지 삭제를 건너뜁니다: {}", id);
             } else {
-                log.warn("프로젝트 엔티티를 찾을 수 없어 이미지 삭제를 건너뜁니다: {}", id);
+                ProjectAssetSnapshot assetSnapshot = assetSnapshotOpt.get();
+
+                deleteThumbnailIfNecessary(assetSnapshot.getThumbnailUrl());
+                deleteScreenshots(assetSnapshot);
             }
         } catch (Exception e) {
             log.error("Failed to delete images from Cloudinary for project: {}", id, e);
@@ -237,4 +202,119 @@ public class ProjectManagementService implements ManageProjectUseCase {
         log.info("Project deleted successfully: {}", id);
     }
     
+    /**
+     * 프로젝트 ID 자동 생성
+     * DB에서 마지막 ID를 조회하여 +1 증가
+     * 형식: prj-XXX (예: prj-001, prj-002)
+     */
+    private String generateProjectId() {
+        // DB에서 "prj-" prefix를 가진 마지막 business_id 조회
+        Optional<String> lastBusinessId = portfolioRepositoryPort.findLastBusinessIdByPrefix("prj-");
+        
+        int nextNumber;
+        if (lastBusinessId.isPresent()) {
+            // 마지막 ID에서 숫자 추출 (예: "prj-010" → 10)
+            nextNumber = extractNumber(lastBusinessId.get());
+        } else {
+            // 데이터 없으면 0부터 시작
+            nextNumber = 0;
+        }
+        
+        // +1 증가 후 3자리 포맷팅 (예: 11 → "prj-011")
+        String formattedNumber = String.format("%03d", nextNumber + 1);
+        return "prj-" + formattedNumber;
+    }
+    
+    /**
+     * 비즈니스 ID에서 숫자 부분을 추출
+     * @param businessId 비즈니스 ID (예: "prj-010")
+     * @return 숫자 부분 (예: 10)
+     */
+    private int extractNumber(String businessId) {
+        if (businessId == null || businessId.isEmpty()) {
+            return 0;
+        }
+        // "prj-010" → "010" → 10
+        try {
+            String numberPart = businessId.substring(4); // "prj-" (4글자) 이후
+            return Integer.parseInt(numberPart);
+        } catch (Exception e) {
+            log.error("비즈니스 ID 숫자 추출 실패: {}", businessId, e);
+            return 0;
+        }
+    }
+
+    private void deleteThumbnailIfNecessary(String imageUrl) {
+        if (imageUrl == null || !imageUrl.contains("cloudinary.com")) {
+            return;
+        }
+
+        String publicId = imageStoragePort.extractPublicId(imageUrl);
+        if (publicId != null) {
+            log.info("Deleting thumbnail image from Cloudinary: {}", publicId);
+            imageStoragePort.deleteImage(publicId);
+        }
+    }
+
+    private void deleteScreenshots(ProjectAssetSnapshot assetSnapshot) {
+        if (assetSnapshot.getScreenshots() == null || assetSnapshot.getScreenshots().isEmpty()) {
+            return;
+        }
+
+        for (ProjectAssetSnapshot.ProjectScreenshotAsset screenshot : assetSnapshot.getScreenshots()) {
+            try {
+                String publicId = screenshot.getCloudinaryPublicId();
+                if ((publicId == null || publicId.isEmpty())
+                        && screenshot.getImageUrl() != null
+                        && screenshot.getImageUrl().contains("cloudinary.com")) {
+                    publicId = imageStoragePort.extractPublicId(screenshot.getImageUrl());
+                }
+
+                if (publicId != null && !publicId.isEmpty()) {
+                    log.info("Deleting screenshot from Cloudinary: {} (publicId: {})",
+                            screenshot.getImageUrl(), publicId);
+                    imageStoragePort.deleteImage(publicId);
+                } else {
+                    log.warn("Screenshot publicId를 찾을 수 없습니다: {}", screenshot.getImageUrl());
+                }
+            } catch (Exception ex) {
+                log.error("Failed to delete screenshot asset: {}", screenshot.getImageUrl(), ex);
+            }
+        }
+    }
+
+    private void applyTeamAttributes(Project project, Boolean isTeamUpdate, Integer teamSizeUpdate) {
+        if (isTeamUpdate != null) {
+            project.setTeam(isTeamUpdate);
+            if (!isTeamUpdate) {
+                project.setTeamSize(null);
+            }
+        }
+
+        if (teamSizeUpdate != null) {
+            if (project.isTeam()) {
+                Integer normalized = normalizeTeamSize(true, teamSizeUpdate);
+                project.setTeamSize(normalized);
+            } else {
+                log.debug("Ignoring teamSize update for non-team project: {}", project.getId());
+            }
+        }
+    }
+
+    private Integer normalizeTeamSize(boolean isTeam, Integer teamSize) {
+        if (!isTeam) {
+            return null;
+        }
+
+        if (teamSize == null) {
+            return null;
+        }
+
+        if (teamSize <= 0) {
+            log.warn("Invalid team size provided ({}). Falling back to null.", teamSize);
+            return null;
+        }
+
+        return teamSize;
+    }
 }

@@ -151,6 +151,8 @@ app:
     cookie:
       secure: true  # 스테이징은 HTTPS이므로 true
       sameSite: None  # 스테이징은 cross-origin이므로 None 사용
+      use-domain: false  # Cloud Run 기본 도메인 사용 시에는 false로 유지
+      # domain: staging.yamang02.com  # 커스텀 서브도메인으로 서비스할 때만 활성화
 
 # Cloudinary 설정
 cloudinary:

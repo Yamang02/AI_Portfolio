@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.session.web.http.CookieSerializer;
 import org.springframework.session.web.http.DefaultCookieSerializer;
+import org.springframework.util.StringUtils;
 
 /**
  * Spring Session 쿠키 구성
@@ -18,6 +19,15 @@ public class SessionConfig {
 
     @Value("${app.session.cookie.sameSite:None}")
     private String cookieSameSite;
+
+    @Value("${app.session.cookie.domain:}")
+    private String cookieDomain;
+
+    @Value("${app.session.cookie.domain-pattern:}")
+    private String cookieDomainPattern;
+
+    @Value("${app.session.cookie.use-domain:false}")
+    private boolean useCookieDomain;
 
     @Bean
     public CookieSerializer cookieSerializer() {
@@ -42,6 +52,15 @@ public class SessionConfig {
         // 로컬: false (http 허용)
         // 스테이징/프로덕션: true (https만 허용)
         serializer.setUseSecureCookie(cookieSecure);
+
+        // Domain 설정 - 동일 eTLD+1에서 세션 공유
+        if (useCookieDomain) {
+            if (StringUtils.hasText(cookieDomainPattern)) {
+                serializer.setDomainNamePattern(cookieDomainPattern);
+            } else if (StringUtils.hasText(cookieDomain)) {
+                serializer.setDomainName(cookieDomain);
+            }
+        }
 
         // 쿠키 Max-Age 설정 (-1은 브라우저 세션 쿠키로 동작)
         // 브라우저를 닫으면 삭제되지만, 새로고침에는 유지됨

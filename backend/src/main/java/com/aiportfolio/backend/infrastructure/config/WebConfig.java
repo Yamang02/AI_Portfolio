@@ -8,6 +8,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -46,13 +48,29 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        log.info("Configuring CORS with allowed origins: {}", corsProperties.getAllowedOrigins());
+        var registration = registry.addMapping("/**");
 
-        registry.addMapping("/**")
-                .allowedOrigins(corsProperties.getAllowedOrigins().toArray(new String[0]))
-                .allowedMethods(corsProperties.getAllowedMethods().toArray(new String[0]))
-                .allowedHeaders(corsProperties.getAllowedHeaders())
-                .allowCredentials(corsProperties.isAllowCredentials())
+        if (CollectionUtils.isEmpty(corsProperties.getAllowedOrigins())) {
+            log.warn("No CORS allowed origins configured. Falling back to pattern-based configuration with credentials disabled.");
+            registration.allowedOriginPatterns("*")
+                    .allowCredentials(false);
+        } else {
+            log.info("Configuring CORS with allowed origins: {}", corsProperties.getAllowedOrigins());
+            registration.allowedOrigins(corsProperties.getAllowedOrigins().toArray(new String[0]))
+                    .allowCredentials(corsProperties.isAllowCredentials());
+        }
+
+        if (CollectionUtils.isEmpty(corsProperties.getAllowedMethods())) {
+            registration.allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS");
+        } else {
+            registration.allowedMethods(corsProperties.getAllowedMethods().toArray(new String[0]));
+        }
+
+        String allowedHeaders = StringUtils.hasText(corsProperties.getAllowedHeaders())
+                ? corsProperties.getAllowedHeaders()
+                : "*";
+
+        registration.allowedHeaders(allowedHeaders)
                 .maxAge(3600); // 1시간 동안 preflight 결과 캐싱
 
         log.info("CORS configured successfully");

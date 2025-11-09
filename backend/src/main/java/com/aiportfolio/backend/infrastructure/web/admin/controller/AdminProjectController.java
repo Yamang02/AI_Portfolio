@@ -2,11 +2,11 @@ package com.aiportfolio.backend.infrastructure.web.admin.controller;
 
 import com.aiportfolio.backend.domain.admin.port.in.ManageProjectUseCase;
 import com.aiportfolio.backend.domain.admin.port.in.SearchProjectsUseCase;
-import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;
-import com.aiportfolio.backend.domain.admin.dto.request.ProjectCreateRequest;
-import com.aiportfolio.backend.domain.admin.model.vo.ProjectFilter;
 import com.aiportfolio.backend.domain.admin.dto.response.ProjectResponse;
-import com.aiportfolio.backend.domain.admin.dto.request.ProjectUpdateRequest;
+import com.aiportfolio.backend.domain.admin.model.vo.ProjectFilter;
+import com.aiportfolio.backend.infrastructure.web.admin.dto.AdminProjectCreateRequest;
+import com.aiportfolio.backend.infrastructure.web.admin.dto.AdminProjectUpdateRequest;
+import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -96,12 +96,12 @@ public class AdminProjectController {
      */
     @PostMapping
     public ResponseEntity<ApiResponse<ProjectResponse>> createProject(
-            @Valid @RequestBody ProjectCreateRequest request) {
-        
+            @Valid @RequestBody AdminProjectCreateRequest request) {
+
         log.info("Creating new project: {}", request.getTitle());
-        
+
         try {
-            ProjectResponse project = manageProjectUseCase.createProject(request);
+            ProjectResponse project = manageProjectUseCase.createProject(request.toCommand());
             return ResponseEntity.ok(ApiResponse.success(project, "프로젝트 생성 성공"));
         } catch (Exception e) {
             log.error("Failed to create project", e);
@@ -116,12 +116,12 @@ public class AdminProjectController {
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<ProjectResponse>> updateProject(
             @PathVariable String id,
-            @Valid @RequestBody ProjectUpdateRequest request) {
-        
+            @Valid @RequestBody AdminProjectUpdateRequest request) {
+
         log.info("Updating project: {}", id);
-        
+
         try {
-            ProjectResponse project = manageProjectUseCase.updateProject(id, request);
+            ProjectResponse project = manageProjectUseCase.updateProject(id, request.toCommand());
             return ResponseEntity.ok(ApiResponse.success(project, "프로젝트 수정 성공"));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.notFound().build();
@@ -138,9 +138,9 @@ public class AdminProjectController {
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteProject(
             @PathVariable String id) {
-        
+
         log.info("Deleting project: {}", id);
-        
+
         try {
             manageProjectUseCase.deleteProject(id);
             return ResponseEntity.ok(ApiResponse.success(null, "프로젝트 삭제 성공"));

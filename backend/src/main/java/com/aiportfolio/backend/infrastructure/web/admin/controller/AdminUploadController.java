@@ -3,8 +3,8 @@ package com.aiportfolio.backend.infrastructure.web.admin.controller;
 import com.aiportfolio.backend.domain.admin.port.in.UploadImageUseCase;
 import com.aiportfolio.backend.domain.admin.port.in.ManageProjectUseCase;
 import com.aiportfolio.backend.domain.admin.port.in.SearchProjectsUseCase;
+import com.aiportfolio.backend.domain.admin.model.command.ProjectUpdateCommand;
 import com.aiportfolio.backend.domain.admin.model.dto.ImageUploadResponse;
-import com.aiportfolio.backend.domain.admin.dto.request.ProjectUpdateRequest;
 import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -82,9 +82,10 @@ public class AdminUploadController {
                     if ("project".equals(type)) {
                         // 썸네일 업로드 - 프로젝트 imageUrl 업데이트
                         log.debug("Auto-saving thumbnail to DB: projectId={}, url={}", projectId, url);
-                        ProjectUpdateRequest updateRequest = new ProjectUpdateRequest();
-                        updateRequest.setImageUrl(url);
-                        manageProjectUseCase.updateProject(projectId, updateRequest);
+                        ProjectUpdateCommand updateCommand = ProjectUpdateCommand.builder()
+                                .imageUrl(url)
+                                .build();
+                        manageProjectUseCase.updateProject(projectId, updateCommand);
                         log.info("Project thumbnail saved to DB automatically: projectId={}, url={}", projectId, url);
                     } else if ("screenshots".equals(type)) {
                         // 스크린샷 업로드 - 프로젝트 screenshots에 추가
@@ -101,9 +102,10 @@ public class AdminUploadController {
                         if (!existingScreenshots.contains(url) && !url.trim().isEmpty()) {
                             existingScreenshots.add(url);
                             
-                            ProjectUpdateRequest updateRequest = new ProjectUpdateRequest();
-                            updateRequest.setScreenshots(existingScreenshots);
-                            manageProjectUseCase.updateProject(projectId, updateRequest);
+                            ProjectUpdateCommand updateCommand = ProjectUpdateCommand.builder()
+                                    .screenshots(existingScreenshots)
+                                    .build();
+                            manageProjectUseCase.updateProject(projectId, updateCommand);
                             log.info("Project screenshot saved to DB automatically: projectId={}, url={}, totalScreenshots={}", 
                                     projectId, url, existingScreenshots.size());
                         } else {
@@ -225,9 +227,10 @@ public class AdminUploadController {
                     }
                     
                     if (addedCount > 0) {
-                        ProjectUpdateRequest updateRequest = new ProjectUpdateRequest();
-                        updateRequest.setScreenshots(existingScreenshots);
-                        manageProjectUseCase.updateProject(projectId, updateRequest);
+                        ProjectUpdateCommand updateCommand = ProjectUpdateCommand.builder()
+                                .screenshots(existingScreenshots)
+                                .build();
+                        manageProjectUseCase.updateProject(projectId, updateCommand);
                         log.info("Project screenshots saved to DB automatically: projectId={}, added={}/{}, total={}", 
                                 projectId, addedCount, validUrls.size(), existingScreenshots.size());
                     } else {
