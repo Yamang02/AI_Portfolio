@@ -4,6 +4,7 @@ import com.aiportfolio.backend.application.admin.exception.AdminAuthenticationEx
 import com.aiportfolio.backend.domain.admin.model.AdminUser;
 import com.aiportfolio.backend.domain.admin.model.dto.AdminUserInfo;
 import com.aiportfolio.backend.domain.admin.port.out.AdminUserRepository;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.mindrot.jbcrypt.BCrypt;
@@ -87,6 +88,18 @@ public class AuthService {
     private void handleSuccessfulLogin(AdminUser adminUser) {
         adminUser.onSuccessfulLogin();
         adminUserRepository.save(adminUser);
+    }
+
+    /**
+     * 세션 유효성 검증
+     */
+    public boolean isValidSession(HttpSession session) {
+        if (session == null) {
+            return false;
+        }
+
+        Object userInfo = session.getAttribute("ADMIN_USER");
+        return userInfo instanceof AdminUserInfo;
     }
 
     /**
