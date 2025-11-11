@@ -4,14 +4,12 @@ import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.*;
 import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.*;
 import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;
 import com.aiportfolio.backend.infrastructure.web.dto.relationship.*;
-import com.aiportfolio.backend.infrastructure.web.admin.util.AdminAuthChecker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -28,7 +26,6 @@ import java.util.stream.Collectors;
 @Transactional
 public class AdminEducationRelationshipController {
 
-    private final AdminAuthChecker adminAuthChecker;
     private final EducationJpaRepository educationJpaRepository;
     private final TechStackMetadataJpaRepository techStackMetadataJpaRepository;
     private final ProjectJpaRepository projectJpaRepository;
@@ -39,15 +36,7 @@ public class AdminEducationRelationshipController {
 
     @GetMapping("/tech-stacks")
     public ResponseEntity<ApiResponse<List<TechStackRelationshipDto>>> getTechStackRelationships(
-            @PathVariable String id,
-            HttpServletRequest request) {
-        try {
-            adminAuthChecker.requireAuthentication(request);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(401)
-                    .body(ApiResponse.error(e.getMessage(), "인증 필요"));
-        }
-
+            @PathVariable String id) {
         try {
             EducationJpaEntity education = educationJpaRepository.findByBusinessId(id)
                 .orElseThrow(() -> new IllegalArgumentException("Education not found: " + id));
@@ -80,15 +69,7 @@ public class AdminEducationRelationshipController {
     @PostMapping("/tech-stacks")
     public ResponseEntity<ApiResponse<Void>> addTechStackRelationship(
             @PathVariable String id,
-            @RequestBody TechStackRelationshipRequest request,
-            HttpServletRequest httpRequest) {
-        try {
-            adminAuthChecker.requireAuthentication(httpRequest);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(401)
-                    .body(ApiResponse.error(e.getMessage(), "인증 필요"));
-        }
-
+            @RequestBody TechStackRelationshipRequest request) {
         try {
             EducationJpaEntity education = educationJpaRepository.findByBusinessId(id)
                 .orElseThrow(() -> new IllegalArgumentException("Education not found"));
@@ -133,15 +114,7 @@ public class AdminEducationRelationshipController {
     @DeleteMapping("/tech-stacks/{techStackId}")
     public ResponseEntity<ApiResponse<Void>> deleteTechStackRelationship(
             @PathVariable String id,
-            @PathVariable Long techStackId,
-            HttpServletRequest httpRequest) {
-        try {
-            adminAuthChecker.requireAuthentication(httpRequest);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(401)
-                    .body(ApiResponse.error(e.getMessage(), "인증 필요"));
-        }
-
+            @PathVariable Long techStackId) {
         try {
             EducationJpaEntity education = educationJpaRepository.findByBusinessId(id)
                 .orElseThrow(() -> new IllegalArgumentException("Education not found"));
@@ -166,15 +139,7 @@ public class AdminEducationRelationshipController {
     @PutMapping("/tech-stacks")
     public ResponseEntity<ApiResponse<Void>> updateTechStackRelationships(
             @PathVariable String id,
-            @RequestBody BulkTechStackRelationshipRequest request,
-            HttpServletRequest httpRequest) {
-        try {
-            adminAuthChecker.requireAuthentication(httpRequest);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(401)
-                    .body(ApiResponse.error(e.getMessage(), "인증 필요"));
-        }
-
+            @RequestBody BulkTechStackRelationshipRequest request) {
         try {
             EducationJpaEntity education = educationJpaRepository.findByBusinessId(id)
                 .orElseThrow(() -> new IllegalArgumentException("Education not found"));
@@ -224,15 +189,7 @@ public class AdminEducationRelationshipController {
 
     @GetMapping("/projects")
     public ResponseEntity<ApiResponse<List<ProjectRelationshipDto>>> getProjectRelationships(
-            @PathVariable String id,
-            HttpServletRequest request) {
-        try {
-            adminAuthChecker.requireAuthentication(request);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(401)
-                    .body(ApiResponse.error(e.getMessage(), "인증 필요"));
-        }
-
+            @PathVariable String id) {
         try {
             EducationJpaEntity education = educationJpaRepository.findByBusinessId(id)
                 .orElseThrow(() -> new IllegalArgumentException("Education not found: " + id));
@@ -264,15 +221,7 @@ public class AdminEducationRelationshipController {
     @PostMapping("/projects")
     public ResponseEntity<ApiResponse<Void>> addProjectRelationship(
             @PathVariable String id,
-            @RequestBody ProjectRelationshipRequest request,
-            HttpServletRequest httpRequest) {
-        try {
-            adminAuthChecker.requireAuthentication(httpRequest);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(401)
-                    .body(ApiResponse.error(e.getMessage(), "인증 필요"));
-        }
-
+            @RequestBody ProjectRelationshipRequest request) {
         try {
             EducationJpaEntity education = educationJpaRepository.findByBusinessId(id)
                 .orElseThrow(() -> new IllegalArgumentException("Education not found"));
@@ -312,15 +261,7 @@ public class AdminEducationRelationshipController {
     @DeleteMapping("/projects/{projectId}")
     public ResponseEntity<ApiResponse<Void>> deleteProjectRelationship(
             @PathVariable String id,
-            @PathVariable Long projectId,
-            HttpServletRequest httpRequest) {
-        try {
-            adminAuthChecker.requireAuthentication(httpRequest);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(401)
-                    .body(ApiResponse.error(e.getMessage(), "인증 필요"));
-        }
-
+            @PathVariable Long projectId) {
         try {
             EducationJpaEntity education = educationJpaRepository.findByBusinessId(id)
                 .orElseThrow(() -> new IllegalArgumentException("Education not found"));
@@ -345,15 +286,7 @@ public class AdminEducationRelationshipController {
     @PutMapping("/projects")
     public ResponseEntity<ApiResponse<Void>> updateProjectRelationships(
             @PathVariable String id,
-            @RequestBody BulkProjectRelationshipRequest request,
-            HttpServletRequest httpRequest) {
-        try {
-            adminAuthChecker.requireAuthentication(httpRequest);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(401)
-                    .body(ApiResponse.error(e.getMessage(), "인증 필요"));
-        }
-
+            @RequestBody BulkProjectRelationshipRequest request) {
         try {
             EducationJpaEntity education = educationJpaRepository.findByBusinessId(id)
                 .orElseThrow(() -> new IllegalArgumentException("Education not found"));

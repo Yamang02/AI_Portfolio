@@ -1,5 +1,6 @@
 package com.aiportfolio.backend.application.admin.service;
 
+import com.aiportfolio.backend.application.common.util.BusinessIdGenerator;
 import com.aiportfolio.backend.application.common.util.MetadataHelper;
 import com.aiportfolio.backend.domain.portfolio.model.Education;
 import com.aiportfolio.backend.domain.portfolio.port.in.ManageEducationUseCase;
@@ -30,6 +31,14 @@ public class ManageEducationService implements ManageEducationUseCase {
     @CacheEvict(value = "portfolio", allEntries = true)
     public Education createEducation(Education education) {
         log.info("Creating new education: {}", education.getTitle());
+
+        // ID 자동 생성 (생성 시에만)
+        if (education.getId() == null || education.getId().isEmpty()) {
+            Optional<String> lastBusinessId = portfolioRepositoryPort.findLastBusinessIdByPrefix(BusinessIdGenerator.Prefix.EDUCATION);
+            String generatedId = BusinessIdGenerator.generate(BusinessIdGenerator.Prefix.EDUCATION, lastBusinessId);
+            education.setId(generatedId);
+            log.debug("Generated education ID: {}", generatedId);
+        }
 
         // 정렬 순서 자동 할당 (DB 쿼리 방식 - 더 효율적)
         if (education.getSortOrder() == null) {

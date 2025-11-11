@@ -108,4 +108,12 @@ public interface ExperienceJpaRepository extends JpaRepository<ExperienceJpaEnti
      */
     @Query("SELECT COALESCE(MAX(e.sortOrder), 0) FROM ExperienceJpaEntity e")
     Integer findMaxSortOrder();
+
+    /**
+     * 특정 접두사로 시작하는 마지막 비즈니스 ID 조회
+     * @param prefix 접두사 (예: "exp-")
+     * @return 마지막 비즈니스 ID (예: "exp-010")
+     */
+    @Query(value = "SELECT e.business_id FROM experiences e WHERE e.business_id LIKE :prefix || '%' ORDER BY e.business_id DESC LIMIT 1", nativeQuery = true)
+    Optional<String> findLastBusinessIdByPrefix(@Param("prefix") String prefix);
 }

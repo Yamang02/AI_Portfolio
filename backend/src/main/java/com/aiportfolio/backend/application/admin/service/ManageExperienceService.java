@@ -1,5 +1,6 @@
 package com.aiportfolio.backend.application.admin.service;
 
+import com.aiportfolio.backend.application.common.util.BusinessIdGenerator;
 import com.aiportfolio.backend.application.common.util.MetadataHelper;
 import com.aiportfolio.backend.domain.portfolio.model.Experience;
 import com.aiportfolio.backend.domain.portfolio.port.in.ManageExperienceUseCase;
@@ -30,6 +31,14 @@ public class ManageExperienceService implements ManageExperienceUseCase {
     @CacheEvict(value = "portfolio", allEntries = true)
     public Experience createExperience(Experience experience) {
         log.info("Creating new experience: {}", experience.getTitle());
+
+        // ID 자동 생성 (생성 시에만)
+        if (experience.getId() == null || experience.getId().isEmpty()) {
+            Optional<String> lastBusinessId = portfolioRepositoryPort.findLastBusinessIdByPrefix(BusinessIdGenerator.Prefix.EXPERIENCE);
+            String generatedId = BusinessIdGenerator.generate(BusinessIdGenerator.Prefix.EXPERIENCE, lastBusinessId);
+            experience.setId(generatedId);
+            log.debug("Generated experience ID: {}", generatedId);
+        }
 
         // 정렬 순서 자동 할당 (DB 쿼리 방식 - 더 효율적)
         if (experience.getSortOrder() == null) {
@@ -228,7 +237,7 @@ public class ManageExperienceService implements ManageExperienceUseCase {
 
     /**
      * sortOrder만 변경된 Experience 생성 (원본을 보호하기 위해 복사본 생성)
-     * 
+     *
      * Note: updatedAt은 호출하는 측에서 변경 여부를 확인하고 설정해야 함
      */
     private Experience createUpdatedExperience(Experience original, Integer newSortOrder) {
@@ -250,5 +259,6 @@ public class ManageExperienceService implements ManageExperienceUseCase {
             .updatedAt(original.getUpdatedAt())
             .build();
     }
+
 }
 

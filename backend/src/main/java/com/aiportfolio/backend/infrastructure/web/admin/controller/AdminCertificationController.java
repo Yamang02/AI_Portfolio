@@ -5,13 +5,11 @@ import com.aiportfolio.backend.domain.portfolio.port.in.GetCertificationUseCase;
 import com.aiportfolio.backend.domain.portfolio.port.in.ManageCertificationUseCase;
 import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;
 import com.aiportfolio.backend.infrastructure.web.dto.certification.CertificationDto;
-import com.aiportfolio.backend.infrastructure.web.admin.util.AdminAuthChecker;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Map;
@@ -30,15 +28,12 @@ public class AdminCertificationController {
 
     private final GetCertificationUseCase getCertificationUseCase;
     private final ManageCertificationUseCase manageCertificationUseCase;
-    private final AdminAuthChecker adminAuthChecker;
 
     public AdminCertificationController(
             @Qualifier("getCertificationService") GetCertificationUseCase getCertificationUseCase,
-            @Qualifier("manageCertificationService") ManageCertificationUseCase manageCertificationUseCase,
-            AdminAuthChecker adminAuthChecker) {
+            @Qualifier("manageCertificationService") ManageCertificationUseCase manageCertificationUseCase) {
         this.getCertificationUseCase = getCertificationUseCase;
         this.manageCertificationUseCase = manageCertificationUseCase;
-        this.adminAuthChecker = adminAuthChecker;
     }
 
     // ==================== 조회 ====================
@@ -47,14 +42,7 @@ public class AdminCertificationController {
      * 전체 Certification 목록 조회
      */
     @GetMapping
-    public ResponseEntity<ApiResponse<List<CertificationDto>>> getAllCertifications(HttpServletRequest request) {
-        try {
-            adminAuthChecker.requireAuthentication(request);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(401)
-                    .body(ApiResponse.error(e.getMessage(), "인증 필요"));
-        }
-
+    public ResponseEntity<ApiResponse<List<CertificationDto>>> getAllCertifications() {
         log.info("Fetching all certifications (admin - no cache)");
 
         try {
@@ -77,14 +65,7 @@ public class AdminCertificationController {
      * ID로 Certification 조회
      */
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<CertificationDto>> getCertification(@PathVariable String id, HttpServletRequest request) {
-        try {
-            adminAuthChecker.requireAuthentication(request);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(401)
-                    .body(ApiResponse.error(e.getMessage(), "인증 필요"));
-        }
-
+    public ResponseEntity<ApiResponse<CertificationDto>> getCertification(@PathVariable String id) {
         log.info("Fetching certification by id: {}", id);
 
         try {
@@ -106,15 +87,7 @@ public class AdminCertificationController {
      */
     @GetMapping("/category/{category}")
     public ResponseEntity<ApiResponse<List<CertificationDto>>> getCertificationsByCategory(
-            @PathVariable String category,
-            HttpServletRequest request) {
-        try {
-            adminAuthChecker.requireAuthentication(request);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(401)
-                    .body(ApiResponse.error(e.getMessage(), "인증 필요"));
-        }
-
+            @PathVariable String category) {
         log.info("Fetching certifications by category: {}", category);
 
         try {
@@ -135,14 +108,7 @@ public class AdminCertificationController {
      * 만료된 Certification 조회
      */
     @GetMapping("/expired")
-    public ResponseEntity<ApiResponse<List<CertificationDto>>> getExpiredCertifications(HttpServletRequest request) {
-        try {
-            adminAuthChecker.requireAuthentication(request);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(401)
-                    .body(ApiResponse.error(e.getMessage(), "인증 필요"));
-        }
-
+    public ResponseEntity<ApiResponse<List<CertificationDto>>> getExpiredCertifications() {
         log.info("Fetching expired certifications");
 
         try {
@@ -163,14 +129,7 @@ public class AdminCertificationController {
      * 곧 만료될 Certification 조회 (3개월 이내)
      */
     @GetMapping("/expiring-soon")
-    public ResponseEntity<ApiResponse<List<CertificationDto>>> getExpiringSoonCertifications(HttpServletRequest request) {
-        try {
-            adminAuthChecker.requireAuthentication(request);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(401)
-                    .body(ApiResponse.error(e.getMessage(), "인증 필요"));
-        }
-
+    public ResponseEntity<ApiResponse<List<CertificationDto>>> getExpiringSoonCertifications() {
         log.info("Fetching expiring soon certifications");
 
         try {
@@ -194,15 +153,7 @@ public class AdminCertificationController {
      */
     @PostMapping
     public ResponseEntity<ApiResponse<CertificationDto>> createCertification(
-            @Valid @RequestBody CertificationDto dto,
-            HttpServletRequest request) {
-        try {
-            adminAuthChecker.requireAuthentication(request);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(401)
-                    .body(ApiResponse.error(e.getMessage(), "인증 필요"));
-        }
-
+            @Valid @RequestBody CertificationDto dto) {
         log.info("Creating new certification: {}", dto.getName());
 
         try {
@@ -229,15 +180,7 @@ public class AdminCertificationController {
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<CertificationDto>> updateCertification(
             @PathVariable String id,
-            @Valid @RequestBody CertificationDto dto,
-            HttpServletRequest request) {
-        try {
-            adminAuthChecker.requireAuthentication(request);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(401)
-                    .body(ApiResponse.error(e.getMessage(), "인증 필요"));
-        }
-
+            @Valid @RequestBody CertificationDto dto) {
         log.info("Updating certification: {}", id);
 
         try {
@@ -262,14 +205,7 @@ public class AdminCertificationController {
      * Certification 삭제
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteCertification(@PathVariable String id, HttpServletRequest request) {
-        try {
-            adminAuthChecker.requireAuthentication(request);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(401)
-                    .body(ApiResponse.error(e.getMessage(), "인증 필요"));
-        }
-
+    public ResponseEntity<ApiResponse<Void>> deleteCertification(@PathVariable String id) {
         log.info("Deleting certification: {}", id);
 
         try {
@@ -290,15 +226,7 @@ public class AdminCertificationController {
      */
     @PatchMapping("/sort-order")
     public ResponseEntity<ApiResponse<Void>> updateSortOrder(
-            @RequestBody Map<String, Integer> sortOrderUpdates,
-            HttpServletRequest request) {
-        try {
-            adminAuthChecker.requireAuthentication(request);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(401)
-                    .body(ApiResponse.error(e.getMessage(), "인증 필요"));
-        }
-
+            @RequestBody Map<String, Integer> sortOrderUpdates) {
         log.info("Updating certification sort orders: {} items", sortOrderUpdates.size());
 
         try {

@@ -34,7 +34,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
   const navigate = useNavigate();
 
   // 공통 hover 로직 사용
-  const { handleMouseEnter, handleMouseLeave } = useCardHover(
+  const { onMouseEnter: handleMouseEnter, onMouseLeave: handleMouseLeave } = useCardHover(
     project.id,
     onMouseEnter,
     onMouseLeave,
