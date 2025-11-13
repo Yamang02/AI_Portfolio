@@ -190,6 +190,34 @@ public class RedisCacheManagementAdapter implements CacheManagementPort {
             return Set.of();
         }
     }
+
+    @Override
+    public String getValue(String key) {
+        log.debug("Getting value for key: {}", key);
+
+        try {
+            Object value = redisTemplate.opsForValue().get(key);
+            return value != null ? value.toString() : null;
+
+        } catch (Exception e) {
+            log.error("Error getting value for key: {}", key, e);
+            return null;
+        }
+    }
+
+    @Override
+    public void setValue(String key, String value) {
+        log.debug("Setting value for key: {}", key);
+
+        try {
+            redisTemplate.opsForValue().set(key, value);
+            log.debug("Value set successfully for key: {}", key);
+
+        } catch (Exception e) {
+            log.error("Error setting value for key: {}", key, e);
+            throw new RuntimeException("Redis 값 저장 중 오류가 발생했습니다", e);
+        }
+    }
     
     /**
      * SCAN 명령어를 사용하여 키를 조회합니다.

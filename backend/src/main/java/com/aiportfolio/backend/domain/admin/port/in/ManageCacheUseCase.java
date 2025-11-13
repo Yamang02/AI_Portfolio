@@ -42,4 +42,19 @@ public interface ManageCacheUseCase {
      * @return 일치하는 캐시 키 목록
      */
     List<String> getCacheKeysByPattern(String pattern);
+
+    /**
+     * 프론트엔드 캐시 버전을 조회합니다.
+     *
+     * @return 현재 캐시 버전
+     */
+    String getFrontendCacheVersion();
+
+    /**
+     * 프론트엔드 캐시 버전을 업데이트합니다.
+     * 모든 사용자의 localStorage 캐시가 무효화됩니다.
+     *
+     * @return 새로운 캐시 버전
+     */
+    String updateFrontendCacheVersion();
 }

@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -17,8 +19,11 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class CacheManagementService implements ManageCacheUseCase {
-    
+
     private final CacheManagementPort cacheManagementPort;
+
+    private static final String FRONTEND_CACHE_VERSION_KEY = "frontend:cache:version";
+    private static final DateTimeFormatter VERSION_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
     
     @Override
     public void flushAllCache() {
@@ -94,6 +99,42 @@ public class CacheManagementService implements ManageCacheUseCase {
         } catch (Exception e) {
             log.error("Error retrieving cache keys by pattern: {}", pattern, e);
             throw new RuntimeException("패턴별 캐시 키 조회 중 오류가 발생했습니다", e);
+        }
+    }
+
+    @Override
+    public String getFrontendCacheVersion() {
+        log.info("Retrieving frontend cache version");
+
+        try {
+            String version = cacheManagementPort.getValue(FRONTEND_CACHE_VERSION_KEY);
+            if (version == null) {
+                // 초기 버전 설정
+                version = LocalDateTime.now().format(VERSION_FORMATTER);
+                cacheManagementPort.setValue(FRONTEND_CACHE_VERSION_KEY, version);
+                log.info("Initialized frontend cache version: {}", version);
+            }
+            return version;
+
+        } catch (Exception e) {
+            log.error("Error retrieving frontend cache version", e);
+            throw new RuntimeException("프론트엔드 캐시 버전 조회 중 오류가 발생했습니다", e);
+        }
+    }
+
+    @Override
+    public String updateFrontendCacheVersion() {
+        log.info("Updating frontend cache version");
+
+        try {
+            String newVersion = LocalDateTime.now().format(VERSION_FORMATTER);
+            cacheManagementPort.setValue(FRONTEND_CACHE_VERSION_KEY, newVersion);
+            log.info("Frontend cache version updated to: {}", newVersion);
+            return newVersion;
+
+        } catch (Exception e) {
+            log.error("Error updating frontend cache version", e);
+            throw new RuntimeException("프론트엔드 캐시 버전 업데이트 중 오류가 발생했습니다", e);
         }
     }
 }

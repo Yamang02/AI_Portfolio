@@ -58,4 +58,20 @@ public interface CacheManagementPort {
      * @return 일치하는 캐시 키 목록
      */
     Set<String> getKeysByPattern(String pattern);
+
+    /**
+     * 특정 키의 값을 조회합니다.
+     *
+     * @param key 조회할 키
+     * @return 키에 저장된 값
+     */
+    String getValue(String key);
+
+    /**
+     * 특정 키에 값을 저장합니다.
+     *
+     * @param key 저장할 키
+     * @param value 저장할 값
+     */
+    void setValue(String key, String value);
 }

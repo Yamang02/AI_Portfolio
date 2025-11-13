@@ -4,6 +4,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { techStackApi } from './techStackApi';
+import { QUERY_STALE_TIME } from '../../../config/queryCacheConfig';
 
 // 쿼리 키 상수
 export const TECH_STACK_QUERY_KEYS = {
@@ -22,7 +23,7 @@ export const useTechStacksQuery = () => {
   return useQuery({
     queryKey: TECH_STACK_QUERY_KEYS.lists(),
     queryFn: () => techStackApi.getTechStacks(),
-    staleTime: 10 * 60 * 1000, // 10분
+    staleTime: QUERY_STALE_TIME.TECH_STACK,
   });
 };
 
@@ -33,7 +34,7 @@ export const useCoreTechStacksQuery = () => {
   return useQuery({
     queryKey: TECH_STACK_QUERY_KEYS.core(),
     queryFn: () => techStackApi.getCoreTechStacks(),
-    staleTime: 10 * 60 * 1000, // 10분
+    staleTime: QUERY_STALE_TIME.TECH_STACK,
   });
 };
 
@@ -45,7 +46,7 @@ export const useTechStackQuery = (name: string) => {
     queryKey: TECH_STACK_QUERY_KEYS.detail(name),
     queryFn: () => techStackApi.getTechStackByName(name),
     enabled: !!name,
-    staleTime: 10 * 60 * 1000, // 10분
+    staleTime: QUERY_STALE_TIME.TECH_STACK,
   });
 };
 
@@ -57,6 +58,6 @@ export const useTechStacksByCategoryQuery = (category: string) => {
     queryKey: TECH_STACK_QUERY_KEYS.category(category),
     queryFn: () => techStackApi.getTechStacksByCategory(category),
     enabled: !!category,
-    staleTime: 10 * 60 * 1000, // 10분
+    staleTime: QUERY_STALE_TIME.TECH_STACK,
   });
 };
