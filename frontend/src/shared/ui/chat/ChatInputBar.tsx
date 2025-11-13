@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { cn } from '../../lib/utils/cn';
 import { colors, transitions, easing, shadows, borderRadius, focusRing } from '../../config/theme';
+import { useEasterEggTrigger, useEasterEggStore, checkEasterEggTrigger, triggerEasterEggs } from '@features/easter-eggs';
 
 interface ChatInputBarProps {
   onSendMessage: (message: string) => void;
@@ -38,11 +39,33 @@ const ChatInputBar: React.FC<ChatInputBarProps> = ({
 }) => {
   const [inputValue, setInputValue] = useState('');
   const [isFocused, setIsFocused] = useState(false);
+  const { triggerEasterEgg } = useEasterEggStore();
+
+  // 이스터에그 트리거 감지 (입력 중)
+  useEasterEggTrigger({
+    inputValue,
+    debounceMs: 300,
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputValue.trim() || isLoading) return;
 
+    // 메시지 전송 전에 이스터에그 트리거 체크
+    const { shouldBlock, triggers } = checkEasterEggTrigger(inputValue);
+    
+    // 이스터에그 트리거 실행
+    if (triggers.length > 0) {
+      triggerEasterEggs(triggers, inputValue, triggerEasterEgg);
+      
+      // 이스터에그 전용 문구는 챗봇으로 전송하지 않음
+      if (shouldBlock) {
+        setInputValue('');
+        return;
+      }
+    }
+
+    // 일반 메시지는 챗봇으로 전송
     onSendMessage(inputValue);
     setInputValue('');
   };

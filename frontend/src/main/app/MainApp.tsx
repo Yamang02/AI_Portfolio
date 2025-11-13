@@ -1,10 +1,18 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from '../config/queryClient';
 import { AppProvider, useApp } from '../app/providers/AppProvider';
 import { HomePage } from '../layout/components/HomePage';
 import { ProjectDetailPage } from '../pages/ProjectDetail/ProjectDetailPage';
+import {
+  EasterEggProvider,
+  EasterEggLayer,
+  useEasterEggEscapeKey,
+  easterEggRegistry,
+  defaultTriggers,
+  defaultEffects,
+} from '@features/easter-eggs';
 
 const MainAppContent: React.FC = () => {
   const {
@@ -20,6 +28,9 @@ const MainAppContent: React.FC = () => {
     setChatbotOpen,
     setHistoryPanelOpen
   } = useApp();
+
+  // ESC 키로 이스터에그 종료
+  useEasterEggEscapeKey();
 
   // React Router의 기본 스크롤 복원 비활성화
   React.useEffect(() => {
@@ -79,15 +90,32 @@ const MainAppContent: React.FC = () => {
         {/* 프로젝트 상세 페이지 */}
         <Route path="/projects/:id" element={<ProjectDetailPage />} />
       </Routes>
+      
+      {/* 이스터에그 레이어 */}
+      <EasterEggLayer />
     </div>
   );
 };
 
 const MainApp: React.FC = () => {
+  // 이스터에그 초기화
+  useEffect(() => {
+    // 기본 트리거 및 이펙트 등록
+    defaultTriggers.forEach(trigger => {
+      easterEggRegistry.registerTrigger(trigger);
+    });
+
+    defaultEffects.forEach(effect => {
+      easterEggRegistry.registerEffect(effect);
+    });
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <AppProvider>
-        <MainAppContent />
+        <EasterEggProvider maxConcurrent={1} initialEnabled={true}>
+          <MainAppContent />
+        </EasterEggProvider>
       </AppProvider>
     </QueryClientProvider>
   );

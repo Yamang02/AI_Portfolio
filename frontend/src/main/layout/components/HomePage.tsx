@@ -5,6 +5,7 @@ import { HeroSection } from './HeroSection';
 import { PortfolioSection } from '@features/project-gallery';
 import { Chatbot } from '@features/chatbot';
 import { ChatInputBar, SpeedDialFab } from '@shared/ui';
+import { checkEasterEggTrigger, useEasterEggStore, triggerEasterEggs } from '@features/easter-eggs';
 
 interface HomePageProps {
   projects: any[];
@@ -42,6 +43,7 @@ const HomePage: React.FC<HomePageProps> = ({
   const [pendingMessage, setPendingMessage] = useState<string>('');
   const [messageToSend, setMessageToSend] = useState<string>('');
   const [isFabOpen, setIsFabOpen] = useState(false);
+  const { triggerEasterEgg } = useEasterEggStore();
 
   // 마운트 시 스크롤 위치 복원
   useEffect(() => {
@@ -94,6 +96,18 @@ const HomePage: React.FC<HomePageProps> = ({
 
   // 채팅 입력창에서 메시지 전송
   const handleChatInputSend = (message: string) => {
+    // 이스터에그 트리거 체크
+    const { shouldBlock, triggers } = checkEasterEggTrigger(message);
+    
+    if (triggers.length > 0) {
+      triggerEasterEggs(triggers, message, triggerEasterEgg);
+      
+      // 이스터에그 전용 문구는 챗봇으로 전송하지 않음
+      if (shouldBlock) {
+        return;
+      }
+    }
+    
     setPendingMessage(message);
     setMessageToSend(message);
   };
