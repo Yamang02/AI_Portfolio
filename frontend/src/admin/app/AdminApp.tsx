@@ -1,9 +1,10 @@
 import React from 'react';
-import { ConfigProvider, App as AntdApp } from 'antd';
+import { ConfigProvider, App as AntdApp, theme as antdTheme } from 'antd';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { adminQueryClient } from '../config/queryClient';
 import { AuthProvider } from '../hooks/useAuth';
+import { ThemeProvider, useTheme } from '@shared/providers/ThemeProvider';
 import { LoginForm, ProtectedRoute } from '../features/auth';
 import { AdminLayout } from '../shared/components/AdminLayout';
 import { Dashboard } from '../pages/Dashboard';
@@ -14,10 +15,14 @@ import { CareerManagement } from '../pages/CareerManagement';
 import { CertificationManagement } from '../pages/CertificationManagement';
 import { Settings } from '../pages/Settings';
 
-const AdminApp: React.FC = () => {
+const AdminAppContent: React.FC = () => {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+
   return (
     <ConfigProvider
       theme={{
+        algorithm: isDark ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
         token: {
           colorPrimary: '#8b5cf6', // 기존 프로젝트 색상
           fontFamily: 'Pretendard, sans-serif',
@@ -25,8 +30,9 @@ const AdminApp: React.FC = () => {
         },
         components: {
           Layout: {
-            headerBg: '#ffffff',
-            siderBg: '#001529',
+            headerBg: isDark ? '#1e293b' : '#ffffff',
+            siderBg: isDark ? '#0f172a' : '#001529',
+            bodyBg: isDark ? '#0f172a' : '#f0f2f5',
           },
           Button: {
             borderRadius: 8,
@@ -63,6 +69,14 @@ const AdminApp: React.FC = () => {
         </QueryClientProvider>
       </AntdApp>
     </ConfigProvider>
+  );
+};
+
+const AdminApp: React.FC = () => {
+  return (
+    <ThemeProvider>
+      <AdminAppContent />
+    </ThemeProvider>
   );
 };
 

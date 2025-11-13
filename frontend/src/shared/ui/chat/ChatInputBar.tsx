@@ -106,7 +106,7 @@ const ChatInputBar: React.FC<ChatInputBarProps> = ({
 
   return (
     <div 
-      className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-40"
+      className="fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-800 border-t border-border z-40 transition-colors"
       style={{
         boxShadow: shadows.lg,
       }}
@@ -155,8 +155,8 @@ const ChatInputBar: React.FC<ChatInputBarProps> = ({
               'focus:outline-none focus:ring-2 focus:border-transparent',
               'transition-all duration-300 ease-in-out',
               isFocused && 'shadow-md scale-[1.02]',
-              isLoading ? 'bg-gray-50 cursor-not-allowed' : 'bg-white',
-              'border-gray-300'
+              isLoading ? 'bg-surface-elevated cursor-not-allowed' : 'bg-surface',
+              'border-border text-text-primary placeholder:text-text-muted'
             )}
             style={{
               transitionDuration: transitions.normal,

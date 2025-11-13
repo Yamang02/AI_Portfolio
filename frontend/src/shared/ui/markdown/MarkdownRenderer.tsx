@@ -4,7 +4,8 @@ import remarkGfm from 'remark-gfm';
 import remarkHeadingId from 'remark-heading-id';
 import rehypeSanitize from 'rehype-sanitize';
 import rehypeHighlight from 'rehype-highlight';
-import 'highlight.js/styles/github-dark.css'; // 코드 블록 스타일
+import 'highlight.js/styles/github.css'; // 라이트 모드용
+import 'highlight.js/styles/github-dark.css'; // 다크 모드용 (조건부로 적용)
 
 interface MarkdownRendererProps {
   content: string;
@@ -65,19 +66,19 @@ const markdownComponents = {
   
   // 문단 스타일링
   p: ({ children }: { children: React.ReactNode }) => (
-    <p className="mb-4 text-gray-700 leading-relaxed">
+    <p className="mb-4 text-text-secondary leading-relaxed">
       {children}
     </p>
   ),
   
   // 리스트 스타일링
   ul: ({ children }: { children: React.ReactNode }) => (
-    <ul className="mb-4 ml-6 list-disc text-gray-700">
+    <ul className="mb-4 ml-6 list-disc text-text-secondary">
       {children}
     </ul>
   ),
   ol: ({ children }: { children: React.ReactNode }) => (
-    <ol className="mb-4 ml-6 list-decimal text-gray-700">
+    <ol className="mb-4 ml-6 list-decimal text-text-secondary">
       {children}
     </ol>
   ),
@@ -92,7 +93,7 @@ const markdownComponents = {
     const isInline = !className;
     if (isInline) {
       return (
-        <code className="bg-gray-100 text-gray-800 px-1.5 py-0.5 rounded text-sm font-mono">
+        <code className="bg-surface-elevated dark:bg-surface text-text-primary px-1.5 py-0.5 rounded text-sm font-mono border border-border">
           {children}
         </code>
       );
@@ -104,14 +105,14 @@ const markdownComponents = {
     );
   },
   pre: ({ children }: { children: React.ReactNode }) => (
-    <pre className="mb-4 rounded-lg overflow-x-auto bg-gray-900 text-gray-100 p-4">
+    <pre className="mb-4 rounded-lg overflow-x-auto bg-surface-elevated dark:bg-slate-900 text-text-primary p-4 border border-border">
       {children}
     </pre>
   ),
   
   // 인용문 스타일링
   blockquote: ({ children }: { children: React.ReactNode }) => (
-    <blockquote className="mb-4 pl-4 border-l-4 border-gray-300 italic text-gray-600">
+    <blockquote className="mb-4 pl-4 border-l-4 border-primary-500 dark:border-primary-400 italic text-text-secondary">
       {children}
     </blockquote>
   ),
@@ -120,7 +121,7 @@ const markdownComponents = {
   a: ({ children, href }: { children: React.ReactNode; href?: string }) => (
     <a 
       href={href}
-      className="text-blue-600 hover:text-blue-800 underline transition-colors"
+      className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 underline transition-colors"
       target="_blank"
       rel="noopener noreferrer"
     >
@@ -140,13 +141,13 @@ const markdownComponents = {
   // 테이블 스타일링
   table: ({ children }: { children: React.ReactNode }) => (
     <div className="mb-4 overflow-x-auto">
-      <table className="min-w-full border-collapse border border-gray-300">
+      <table className="min-w-full border-collapse border border-border">
         {children}
       </table>
     </div>
   ),
   thead: ({ children }: { children: React.ReactNode }) => (
-    <thead className="bg-gray-50">
+    <thead className="bg-surface-elevated">
       {children}
     </thead>
   ),
@@ -156,34 +157,34 @@ const markdownComponents = {
     </tbody>
   ),
   tr: ({ children }: { children: React.ReactNode }) => (
-    <tr className="border-b border-gray-200">
+    <tr className="border-b border-border">
       {children}
     </tr>
   ),
   th: ({ children }: { children: React.ReactNode }) => (
-    <th className="px-4 py-2 text-left font-semibold text-gray-700 border border-gray-300">
+    <th className="px-4 py-2 text-left font-semibold text-text-primary border border-border">
       {children}
     </th>
   ),
   td: ({ children }: { children: React.ReactNode }) => (
-    <td className="px-4 py-2 text-gray-700 border border-gray-300">
+    <td className="px-4 py-2 text-text-secondary border border-border">
       {children}
     </td>
   ),
   
   // 구분선 스타일링
   hr: () => (
-    <hr className="my-8 border-gray-300" />
+    <hr className="my-8 border-border" />
   ),
   
   // 강조 스타일링
   strong: ({ children }: { children: React.ReactNode }) => (
-    <strong className="font-semibold text-gray-900">
+    <strong className="font-semibold text-text-primary">
       {children}
     </strong>
   ),
   em: ({ children }: { children: React.ReactNode }) => (
-    <em className="italic text-gray-800">
+    <em className="italic text-text-secondary">
       {children}
     </em>
   ),

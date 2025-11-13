@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from 'react';
-import './TechStackTetris.css';
 
 interface TechStackMetadata {
   name: string;
@@ -529,11 +528,11 @@ export const TechStackTetris: React.FC<TechStackTetrisProps> = ({
         <>
           <canvas
             ref={backgroundCanvasRef}
-            className={`tech-stack-tetris tech-stack-tetris-background ${className}`}
+            className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4/5 max-w-[800px] h-[400px] min-h-[400px] pointer-events-none opacity-35 z-[1] ${className}`}
           />
           <canvas
             ref={foregroundCanvasRef}
-            className={`tech-stack-tetris tech-stack-tetris-foreground ${className}`}
+            className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4/5 max-w-[800px] h-[400px] min-h-[400px] pointer-events-none opacity-100 z-[15] ${className}`}
           />
         </>
       )}

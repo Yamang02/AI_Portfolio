@@ -1,6 +1,5 @@
 import React from 'react';
 import { useTechStackCategorization } from '../hooks/useTechStackCategorization';
-import '../../../components/common/TechStackBadge/TechStackBadge.css';
 
 interface ProjectDetailTechStackProps {
   technologies: string[];

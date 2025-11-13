@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { TechStackMetadata } from '@entities/tech-stack';
 import { TechStackApi } from '@shared/techStackApi';
 import { TechStackBadge } from '@shared/ui';
-import './CoreTechStackSection.css';
 
 /**
  * 소개 섹션용 핵심 기술 스택 컴포넌트
@@ -33,12 +32,12 @@ export const CoreTechStackSection: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="core-tech-section">
-        <h3 className="core-tech-section__title">핵심 기술 스택</h3>
-        <div className="core-tech-section__badges">
+      <div className="my-8 p-6 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 rounded-xl border border-slate-200 dark:border-slate-700">
+        <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200 mb-4 flex items-center gap-2">핵심 기술 스택</h3>
+        <div className="flex flex-wrap gap-2 items-center">
           {[...Array(6)].map((_, index) => (
-            <div key={index} className="tech-badge tech-badge--loading">
-              <div className="tech-badge__skeleton"></div>
+            <div key={index} className="animate-pulse">
+              <div className="w-16 h-6 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 bg-[length:200%_100%] animate-[skeleton-loading_1.5s_infinite] rounded-md"></div>
             </div>
           ))}
         </div>
@@ -48,10 +47,10 @@ export const CoreTechStackSection: React.FC = () => {
 
   if (error) {
     return (
-      <div className="core-tech-section">
-        <h3 className="core-tech-section__title">핵심 기술 스택</h3>
-        <div className="core-tech-section__error">
-          <p>{error}</p>
+      <div className="my-8 p-6 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 rounded-xl border border-slate-200 dark:border-slate-700">
+        <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200 mb-4 flex items-center gap-2">핵심 기술 스택</h3>
+        <div className="text-center py-8 text-slate-600 dark:text-slate-400">
+          <p className="text-sm m-0">{error}</p>
         </div>
       </div>
     );
@@ -59,10 +58,10 @@ export const CoreTechStackSection: React.FC = () => {
 
   if (coreTechs.length === 0) {
     return (
-      <div className="core-tech-section">
-        <h3 className="core-tech-section__title">핵심 기술 스택</h3>
-        <div className="core-tech-section__empty">
-          <p>표시할 핵심 기술 스택이 없습니다.</p>
+      <div className="my-8 p-6 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 rounded-xl border border-slate-200 dark:border-slate-700">
+        <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200 mb-4 flex items-center gap-2">핵심 기술 스택</h3>
+        <div className="text-center py-8 text-slate-600 dark:text-slate-400">
+          <p className="text-sm m-0">표시할 핵심 기술 스택이 없습니다.</p>
         </div>
       </div>
     );
@@ -73,8 +72,8 @@ export const CoreTechStackSection: React.FC = () => {
   const generalLevelTechs = coreTechs.filter(tech => tech.level === 'general');
 
   return (
-    <div className="core-tech-section--minimal">
-      <div className="core-tech-section__badges">
+    <div className="my-4">
+      <div className="flex flex-wrap justify-center gap-3 items-center">
         {coreTechs.map((tech) => (
           <TechStackBadge
             key={tech.name}

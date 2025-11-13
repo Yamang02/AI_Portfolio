@@ -1,6 +1,5 @@
 import React from 'react';
 import { TechStackBadgeProps } from '../../../entities/techstack';
-import './TechStackBadge.css';
 
 /**
  * 기술 스택 배지 컴포넌트
