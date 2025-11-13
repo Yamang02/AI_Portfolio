@@ -1,9 +1,10 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Header } from './Header';
 import { HeroSection } from './HeroSection';
 import { PortfolioSection } from '../../features/projects';
 import { Chatbot } from '../../features/chatbot';
+import { ChatInputBar, SpeedDialFab } from '../../../shared/ui';
 
 interface HomePageProps {
   projects: any[];
@@ -38,6 +39,9 @@ const HomePage: React.FC<HomePageProps> = ({
   onHistoryPanelToggle
 }) => {
   const location = useLocation();
+  const [pendingMessage, setPendingMessage] = useState<string>('');
+  const [messageToSend, setMessageToSend] = useState<string>('');
+  const [isFabOpen, setIsFabOpen] = useState(false);
 
   // 마운트 시 스크롤 위치 복원
   useEffect(() => {
@@ -65,11 +69,87 @@ const HomePage: React.FC<HomePageProps> = ({
     };
   }, []);
 
+  // ESC 키 매핑: 열린 패널 닫기
+  useEffect(() => {
+    const handleEscKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        // 챗봇이 열려있으면 닫기
+        if (isChatbotOpen) {
+          onChatbotToggle();
+          return;
+        }
+        // 히스토리 패널이 열려있으면 닫기
+        if (isHistoryPanelOpen) {
+          onHistoryPanelToggle();
+          return;
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleEscKey);
+    return () => {
+      window.removeEventListener('keydown', handleEscKey);
+    };
+  }, [isChatbotOpen, isHistoryPanelOpen, onChatbotToggle, onHistoryPanelToggle]);
+
+  // 채팅 입력창에서 메시지 전송
+  const handleChatInputSend = (message: string) => {
+    setPendingMessage(message);
+    setMessageToSend(message);
+  };
+
+  // 채팅 입력창 포커스 시 챗봇 자동 열기
+  const handleChatInputFocus = () => {
+    if (!isChatbotOpen) {
+      onChatbotToggle();
+    }
+  };
+
+  // 메시지 처리 완료 시 상태 초기화
+  const handleMessageProcessed = () => {
+    setMessageToSend('');
+  };
+
+  // Speed Dial 액션 정의
+  const speedDialActions = [
+    {
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 16 14"></polyline>
+        </svg>
+      ),
+      label: '프로젝트 히스토리',
+      onClick: onHistoryPanelToggle,
+      color: 'bg-orange-500 text-white hover:bg-orange-600'
+    },
+    {
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
+      ),
+      label: 'AI 챗봇',
+      onClick: onChatbotToggle,
+      color: 'bg-blue-500 text-white hover:bg-blue-600'
+    }
+  ];
+
+  // Main 영역 클릭 시 채팅 패널 닫기
+  const handleMainClick = () => {
+    if (isChatbotOpen) {
+      onChatbotToggle();
+    }
+  };
+
   return (
     <>
       <Header />
       <HeroSection />
-      <main className="container mx-auto px-4 py-8 md:py-12">
+      <main
+        className="container mx-auto px-4 py-8 md:py-12 pb-32"
+        onClick={handleMainClick}
+      >
         <PortfolioSection 
           projects={projects}
           experiences={experiences}
@@ -81,12 +161,23 @@ const HomePage: React.FC<HomePageProps> = ({
           onHistoryPanelToggle={onHistoryPanelToggle}
         />
       </main>
-      
+
       {/* 챗봇 패널 */}
-      <Chatbot 
-        isOpen={isChatbotOpen} 
-        onToggle={onChatbotToggle} 
-        showProjectButtons={isWideScreen} 
+      <Chatbot
+        isOpen={isChatbotOpen}
+        onToggle={onChatbotToggle}
+        showProjectButtons={isWideScreen}
+        externalMessage={messageToSend}
+        onMessageProcessed={handleMessageProcessed}
+      />
+
+      {/* 하단 고정 채팅 입력창 with Speed Dial */}
+      <ChatInputBar
+        onSendMessage={handleChatInputSend}
+        onFocus={handleChatInputFocus}
+        placeholder="프로젝트에 대해 궁금한 점을 물어보세요..."
+        isFabOpen={isFabOpen}
+        speedDialButton={<SpeedDialFab actions={speedDialActions} onOpenChange={setIsFabOpen} />}
       />
     </>
   );

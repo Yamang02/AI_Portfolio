@@ -5,7 +5,6 @@ import { ExperienceCard } from './ExperienceCard';
 import { EducationCard } from './EducationCard';
 import { CertificationCard } from './CertificationCard';
 import { HistoryPanel } from './HistoryPanel';
-import { PanelToggle } from './PanelToggle';
 import { ProjectFilter, FilterOptions } from './ProjectFilter';
 import { SkeletonSection } from '../../../components/common/SkeletonCard';
 
@@ -332,12 +331,6 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
         onToggle={onHistoryPanelToggle}
         onItemHover={handleItemHover}
         scrollToItemId={longHoveredItemId}
-      />
-
-      {/* 패널 토글 버튼 */}
-      <PanelToggle
-        isOpen={isHistoryPanelOpen}
-        onToggle={onHistoryPanelToggle}
       />
     </section>
   );
