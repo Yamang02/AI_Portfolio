@@ -93,66 +93,32 @@ const EducationManagement: React.FC = () => {
       setModalLoading(true);
       const values = await form.validateFields();
 
-      // 날짜 변환 (endDate가 null이면 undefined로 변환)
+      const techStackRelationshipsData = techStackRelationships.map(ts => ({
+        techStackId: typeof ts.techStack.id === 'string' ? parseInt(ts.techStack.id) : ts.techStack.id,
+        isPrimary: ts.isPrimary,
+        usageDescription: ts.usageDescription,
+      }));
+
+      const projectRelationshipsData = projectRelationships.map(p => ({
+        projectBusinessId: p.projectBusinessId,
+        projectType: p.projectType,
+        grade: p.grade,
+        isPrimary: p.isPrimary,
+        usageDescription: p.usageDescription,
+      }));
+
       const formData: EducationFormData = {
         ...values,
         startDate: values.startDate?.format('YYYY-MM-DD'),
         endDate: values.endDate?.format('YYYY-MM-DD') || undefined,
+        technologies: [],
+        projects: [],
+        techStackRelationships: techStackRelationshipsData,
+        projectRelationships: projectRelationshipsData,
       };
 
-      // Education 생성/수정 및 반환값 받기
-      const savedEducation = await createOrUpdateMutation.mutateAsync(formData);
-      const educationId = editingEducation ? editingEducation.id : savedEducation.id;
-      
-      // 관계 저장 (생성/수정 모두)
-      let techStackSuccess = false;
-      let projectSuccess = false;
+      await createOrUpdateMutation.mutateAsync(formData);
 
-      try {
-        // 기술스택 관계는 Bulk API 사용 (원자적 트랜잭션)
-        const techStackRelationshipsData = techStackRelationships.map(ts => ({
-          techStackId: typeof ts.techStack.id === 'string' ? parseInt(ts.techStack.id) : ts.techStack.id,
-          isPrimary: ts.isPrimary,
-          usageDescription: ts.usageDescription,
-        }));
-
-        await relationshipApi.updateEducationTechStacks(educationId, {
-          techStackRelationships: techStackRelationshipsData,
-        });
-
-        techStackSuccess = true;
-      } catch {
-        // 관계 업데이트 실패 - techStackSuccess는 false로 유지
-      }
-
-      try {
-        // 프로젝트 관계는 Bulk API 사용 (원자적 트랜잭션)
-        const projectRelationshipsData = projectRelationships.map(p => ({
-          projectBusinessId: p.projectBusinessId,
-          projectType: p.projectType,
-          grade: p.grade,
-        }));
-
-        await relationshipApi.updateEducationProjects(educationId, {
-          projectRelationships: projectRelationshipsData,
-        });
-
-        projectSuccess = true;
-      } catch {
-        // 관계 업데이트 실패 - projectSuccess는 false로 유지
-      }
-
-      // 결과에 따른 메시지 표시
-      if (techStackSuccess && projectSuccess) {
-      } else if (!techStackSuccess && !projectSuccess) {
-        message.warning('기본 정보는 저장되었지만 관계 업데이트에 실패했습니다.');
-      } else if (!techStackSuccess) {
-        message.warning('기본 정보와 프로젝트 관계는 저장되었지만 기술스택 관계 업데이트에 실패했습니다.');
-      } else if (!projectSuccess) {
-        message.warning('기본 정보와 기술스택 관계는 저장되었지만 프로젝트 관계 업데이트에 실패했습니다.');
-      }
-      
-      message.success(editingEducation ? '학력이 성공적으로 수정되었습니다.' : '학력이 성공적으로 추가되었습니다.');
       setIsModalVisible(false);
       form.resetFields();
       setEditingEducation(null);
@@ -387,6 +353,7 @@ const EducationManagement: React.FC = () => {
             <ProjectRelationshipSection
               value={projectRelationships}
               onChange={setProjectRelationships}
+              mode="education"
             />
           </Form.Item>
         </Form>

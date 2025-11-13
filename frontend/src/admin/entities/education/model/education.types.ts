@@ -35,9 +35,23 @@ export interface EducationFormData {
   endDate?: string;
   gpa?: number;
   type: EducationType;
-  technologies: string[];
-  projects: string[];
+  technologies?: string[];
+  projects?: string[];
   sortOrder?: number;
+  techStackRelationships: Array<{
+    techStackId: number;
+    isPrimary?: boolean;
+    usageDescription?: string;
+  }>;
+  projectRelationships: Array<{
+    projectBusinessId: string;
+    projectType?: string;
+    grade?: string;
+    isPrimary?: boolean;
+    usageDescription?: string;
+    roleInProject?: string;
+    contributionDescription?: string;
+  }>;
 }
 
 // Education 필터

@@ -49,5 +49,7 @@ export interface EntityProjectRelationship {
   usageDescription?: string;
   roleInProject?: string; // Experience-Project용
   contributionDescription?: string; // Experience-Project용
+  projectType?: string; // Education-Project용
+  grade?: string; // Education-Project용
 }
 
