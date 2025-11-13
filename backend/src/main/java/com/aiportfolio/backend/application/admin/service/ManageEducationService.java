@@ -5,6 +5,16 @@ import com.aiportfolio.backend.application.common.util.MetadataHelper;
 import com.aiportfolio.backend.domain.portfolio.model.Education;
 import com.aiportfolio.backend.domain.portfolio.port.in.ManageEducationUseCase;
 import com.aiportfolio.backend.domain.portfolio.port.out.PortfolioRepositoryPort;
+import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.EducationJpaEntity;
+import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.EducationProjectJpaEntity;
+import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.EducationTechStackJpaEntity;
+import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.ProjectJpaEntity;
+import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.TechStackMetadataJpaEntity;
+import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.EducationJpaRepository;
+import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.EducationProjectJpaRepository;
+import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.EducationTechStackJpaRepository;
+import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.ProjectJpaRepository;
+import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.TechStackMetadataJpaRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -26,6 +36,28 @@ import java.util.*;
 public class ManageEducationService implements ManageEducationUseCase {
 
     private final PortfolioRepositoryPort portfolioRepositoryPort;
+    private final EducationJpaRepository educationJpaRepository;
+    private final TechStackMetadataJpaRepository techStackMetadataJpaRepository;
+    private final ProjectJpaRepository projectJpaRepository;
+    private final EducationTechStackJpaRepository educationTechStackJpaRepository;
+    private final EducationProjectJpaRepository educationProjectJpaRepository;
+
+    public Education createEducationWithRelations(Education education,
+                                                  List<TechStackRelation> techStacks,
+                                                  List<ProjectRelation> projects) {
+        Education created = createEducation(education);
+        replaceAllRelationships(created.getId(), techStacks, projects);
+        return created;
+    }
+
+    public Education updateEducationWithRelations(String id,
+                                                  Education education,
+                                                  List<TechStackRelation> techStacks,
+                                                  List<ProjectRelation> projects) {
+        Education updated = updateEducation(id, education);
+        replaceAllRelationships(updated.getId(), techStacks, projects);
+        return updated;
+    }
 
     @Override
     @CacheEvict(value = "portfolio", allEntries = true)
@@ -92,6 +124,77 @@ public class ManageEducationService implements ManageEducationUseCase {
         portfolioRepositoryPort.deleteEducation(id);
 
         log.info("Education deleted successfully: {}", id);
+    }
+
+    private void replaceAllRelationships(String educationBusinessId,
+                                         List<TechStackRelation> techStacks,
+                                         List<ProjectRelation> projects) {
+        replaceTechStacks(educationBusinessId, techStacks);
+        replaceProjects(educationBusinessId, projects);
+    }
+
+    private void replaceTechStacks(String educationBusinessId, List<TechStackRelation> relationships) {
+        EducationJpaEntity education = educationJpaRepository.findByBusinessId(educationBusinessId)
+            .orElseThrow(() -> new IllegalArgumentException("Education not found: " + educationBusinessId));
+
+        educationTechStackJpaRepository.deleteByEducationId(education.getId());
+        log.debug("Cleared existing tech stack relationships for education {}", educationBusinessId);
+
+        if (relationships == null || relationships.isEmpty()) {
+            return;
+        }
+
+        for (TechStackRelation item : relationships) {
+            if (item.techStackId() == null) {
+                throw new IllegalArgumentException("Tech stack ID must not be null");
+            }
+
+            TechStackMetadataJpaEntity techStack = techStackMetadataJpaRepository.findById(item.techStackId())
+                .orElseThrow(() -> new IllegalArgumentException("TechStack not found: " + item.techStackId()));
+
+            EducationTechStackJpaEntity relation = EducationTechStackJpaEntity.builder()
+                .education(education)
+                .techStack(techStack)
+                .isPrimary(item.isPrimary())
+                .usageDescription(item.usageDescription())
+                .build();
+
+            educationTechStackJpaRepository.save(relation);
+        }
+
+        log.debug("Created {} tech stack relationships for education {}", relationships.size(), educationBusinessId);
+    }
+
+    private void replaceProjects(String educationBusinessId, List<ProjectRelation> relationships) {
+        EducationJpaEntity education = educationJpaRepository.findByBusinessId(educationBusinessId)
+            .orElseThrow(() -> new IllegalArgumentException("Education not found: " + educationBusinessId));
+
+        educationProjectJpaRepository.deleteByEducationId(education.getId());
+        log.debug("Cleared existing project relationships for education {}", educationBusinessId);
+
+        if (relationships == null || relationships.isEmpty()) {
+            return;
+        }
+
+        for (ProjectRelation item : relationships) {
+            if (item.projectBusinessId() == null || item.projectBusinessId().isBlank()) {
+                throw new IllegalArgumentException("Project business ID must not be blank");
+            }
+
+            ProjectJpaEntity project = projectJpaRepository.findByBusinessId(item.projectBusinessId())
+                .orElseThrow(() -> new IllegalArgumentException("Project not found: " + item.projectBusinessId()));
+
+            EducationProjectJpaEntity relation = EducationProjectJpaEntity.builder()
+                .education(education)
+                .project(project)
+                .projectType(item.projectType())
+                .grade(item.grade())
+                .build();
+
+            educationProjectJpaRepository.save(relation);
+        }
+
+        log.debug("Created {} project relationships for education {}", relationships.size(), educationBusinessId);
     }
 
     @Override
@@ -184,6 +287,12 @@ public class ManageEducationService implements ManageEducationUseCase {
         }
 
         log.info("Education sort orders updated successfully");
+    }
+
+    public record TechStackRelation(Long techStackId, boolean isPrimary, String usageDescription) {
+    }
+
+    public record ProjectRelation(String projectBusinessId, String projectType, String grade) {
     }
 
     /**

@@ -15,6 +15,7 @@ const { TextArea } = Input;
 interface ProjectRelationshipSectionProps {
   value: EntityProjectRelationship[];
   onChange: (relationships: EntityProjectRelationship[]) => void;
+  mode?: 'education' | 'experience';
 }
 
 /**
@@ -24,17 +25,17 @@ interface ProjectRelationshipSectionProps {
 export const ProjectRelationshipSection: React.FC<ProjectRelationshipSectionProps> = ({
   value = [],
   onChange,
+  mode = 'experience',
 }) => {
   const { message } = App.useApp();
   const [selectingProject, setSelectingProject] = useState<string | null>(null);
   const [isPrimary, setIsPrimary] = useState(false);
   const [usageDescription, setUsageDescription] = useState('');
+  const [projectType, setProjectType] = useState('');
+  const [grade, setGrade] = useState('');
   
   // 캐시된 프로젝트 목록 조회 (관리자 API 사용)
   const { data: allProjects, isLoading } = useProjects({});
-
-  // 이미 선택된 프로젝트 Business ID 목록
-  const selectedIds = useMemo(() => value.map((v) => v.projectBusinessId), [value]);
 
   // 추가 가능한 프로젝트만 필터링
   // 기존 프로젝트는 제외하지 않고 모든 프로젝트 표시
@@ -58,6 +59,8 @@ export const ProjectRelationshipSection: React.FC<ProjectRelationshipSectionProp
       projectTitle: selectedProject.title,
       isPrimary,
       usageDescription: usageDescription.trim() || undefined,
+      projectType: mode === 'education' ? projectType.trim() || undefined : undefined,
+      grade: mode === 'education' ? grade.trim() || undefined : undefined,
     };
 
     onChange([...value, newRelationship]);
@@ -65,6 +68,8 @@ export const ProjectRelationshipSection: React.FC<ProjectRelationshipSectionProp
     setSelectingProject(null);
     setIsPrimary(false);
     setUsageDescription('');
+    setProjectType('');
+    setGrade('');
     message.success(`${selectedProject.title}이(가) 추가되었습니다`);
   };
 
@@ -110,6 +115,20 @@ export const ProjectRelationshipSection: React.FC<ProjectRelationshipSectionProp
               />{' '}
               <span style={{ marginLeft: '8px', fontSize: '14px' }}>주요 프로젝트</span>
             </div>
+            {mode === 'education' && (
+              <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+                <Input
+                  placeholder="프로젝트 유형"
+                  value={projectType}
+                  onChange={(e) => setProjectType(e.target.value)}
+                />
+                <Input
+                  placeholder="성적/성과"
+                  value={grade}
+                  onChange={(e) => setGrade(e.target.value)}
+                />
+              </div>
+            )}
             <TextArea
               placeholder="사용 내용 설명 (선택사항)"
               value={usageDescription}
@@ -155,6 +174,12 @@ export const ProjectRelationshipSection: React.FC<ProjectRelationshipSectionProp
                       </Tag>
                     )}
                   </div>
+                  {mode === 'education' && (item.projectType || item.grade) && (
+                    <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
+                      {item.projectType && <div>프로젝트 유형: {item.projectType}</div>}
+                      {item.grade && <div>성적/성과: {item.grade}</div>}
+                    </div>
+                  )}
                   {item.usageDescription && (
                     <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
                       {item.usageDescription}
