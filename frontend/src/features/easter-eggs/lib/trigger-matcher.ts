@@ -1,14 +1,6 @@
-/**
- * 트리거 매칭 로직
- */
-
 import type { EasterEggTrigger } from '../model/easter-egg.types';
 
-/**
- * 메시지가 트리거와 매칭되는지 확인
- */
 export function matchTrigger(message: string, trigger: EasterEggTrigger): boolean {
-  // enabled가 명시적으로 false이면 비활성화
   if (trigger.enabled === false) {
     return false;
   }
@@ -32,7 +24,6 @@ export function matchTrigger(message: string, trigger: EasterEggTrigger): boolea
     }
 
     case 'hashtag': {
-      // 해시태그 매칭 (#pattern 또는 #pattern으로 시작하는 단어)
       const hashtagPattern = new RegExp(`#${normalizedPattern.replace(/^#/, '')}\\b`, 'i');
       return hashtagPattern.test(message);
     }
@@ -42,9 +33,6 @@ export function matchTrigger(message: string, trigger: EasterEggTrigger): boolea
   }
 }
 
-/**
- * 메시지에서 매칭되는 트리거 찾기
- */
 export function findMatchingTriggers(
   message: string,
   triggers: EasterEggTrigger[]

@@ -43,7 +43,7 @@ const HomePage: React.FC<HomePageProps> = ({
   const [pendingMessage, setPendingMessage] = useState<string>('');
   const [messageToSend, setMessageToSend] = useState<string>('');
   const [isFabOpen, setIsFabOpen] = useState(false);
-  const { triggerEasterEgg } = useEasterEggStore();
+  const { triggerEasterEgg, isEasterEggMode } = useEasterEggStore();
 
   // 마운트 시 스크롤 위치 복원
   useEffect(() => {
@@ -97,7 +97,7 @@ const HomePage: React.FC<HomePageProps> = ({
   // 채팅 입력창에서 메시지 전송
   const handleChatInputSend = (message: string) => {
     // 이스터에그 트리거 체크
-    const { shouldBlock, triggers } = checkEasterEggTrigger(message);
+    const { shouldBlock, triggers } = checkEasterEggTrigger(message, isEasterEggMode);
     
     if (triggers.length > 0) {
       triggerEasterEggs(triggers, message, triggerEasterEgg);
@@ -106,6 +106,11 @@ const HomePage: React.FC<HomePageProps> = ({
       if (shouldBlock) {
         return;
       }
+    }
+    
+    // 이스터에그 모드가 활성화되어 있으면 모든 입력 차단
+    if (isEasterEggMode) {
+      return;
     }
     
     setPendingMessage(message);

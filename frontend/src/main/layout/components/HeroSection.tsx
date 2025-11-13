@@ -4,14 +4,20 @@ import { CoreTechStackSection } from '@features/introduction';
 import { TechStackTetris } from '../../components/common/TechStackTetris';
 import { TechStackApi } from '../../services/techStackApi';
 import { TechStackMetadata } from '../../entities/techstack';
+import { useClickCounter } from '@features/easter-eggs';
 
 const HeroSection: React.FC = () => {
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [techs, setTechs] = useState<TechStackMetadata[]>([]);
-  const [clickCount, setClickCount] = useState(0);
-  const [lastClickTime, setLastClickTime] = useState(0);
   const [giantBlockTrigger, setGiantBlockTrigger] = useState(0);
   const [isAnimationEnabled, setIsAnimationEnabled] = useState(true);
+
+  // 이스터에그: 이름 5번 클릭
+  const { handleClick: handleNameClick } = useClickCounter({
+    easterEggId: 'name-click-5',
+    targetCount: 5,
+    timeWindow: 3000,
+  });
 
   useEffect(() => {
     const fetchTechs = async () => {
@@ -25,24 +31,17 @@ const HeroSection: React.FC = () => {
     fetchTechs();
   }, []);
 
-  // 이스터에그: 이정준 이름 클릭 핸들러
-  const handleNameClick = () => {
-    const currentTime = Date.now();
-    
-    // 3초 내에 연속 클릭인지 확인
-    if (currentTime - lastClickTime > 3000) {
-      setClickCount(0); // 3초 지나면 카운터 리셋
-    }
-    
-    const newClickCount = clickCount + 1;
-    setClickCount(newClickCount);
-    setLastClickTime(currentTime);
-    
-    // 3번 클릭할 때마다 초거대 블록 생성
-    if (newClickCount % 3 === 0) {
+  // 이스터에그 시스템에서 초거대 블록 생성 요청 수신
+  useEffect(() => {
+    const handleGiantBlockTrigger = () => {
       setGiantBlockTrigger(prev => prev + 1);
-    }
-  };
+    };
+
+    window.addEventListener('triggerGiantBlock', handleGiantBlockTrigger);
+    return () => {
+      window.removeEventListener('triggerGiantBlock', handleGiantBlockTrigger);
+    };
+  }, []);
 
   // 애니메이션 토글 핸들러
   const handleAnimationToggle = () => {

@@ -29,6 +29,25 @@ const SendIcon = () => (
   </svg>
 );
 
+const EggIcon = ({ isActive }: { isActive: boolean }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill={isActive ? 'currentColor' : 'none'}
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <ellipse cx="12" cy="12" rx="8" ry="10" />
+    {isActive && (
+      <circle cx="12" cy="12" r="3" fill="currentColor" />
+    )}
+  </svg>
+);
+
 const ChatInputBar: React.FC<ChatInputBarProps> = ({
   onSendMessage,
   onFocus,
@@ -39,7 +58,7 @@ const ChatInputBar: React.FC<ChatInputBarProps> = ({
 }) => {
   const [inputValue, setInputValue] = useState('');
   const [isFocused, setIsFocused] = useState(false);
-  const { triggerEasterEgg } = useEasterEggStore();
+  const { triggerEasterEgg, isEasterEggMode, toggleEasterEggMode } = useEasterEggStore();
 
   // 이스터에그 트리거 감지 (입력 중)
   useEasterEggTrigger({
@@ -52,7 +71,7 @@ const ChatInputBar: React.FC<ChatInputBarProps> = ({
     if (!inputValue.trim() || isLoading) return;
 
     // 메시지 전송 전에 이스터에그 트리거 체크
-    const { shouldBlock, triggers } = checkEasterEggTrigger(inputValue);
+    const { shouldBlock, triggers } = checkEasterEggTrigger(inputValue, isEasterEggMode);
     
     // 이스터에그 트리거 실행
     if (triggers.length > 0) {
@@ -63,6 +82,12 @@ const ChatInputBar: React.FC<ChatInputBarProps> = ({
         setInputValue('');
         return;
       }
+    }
+
+    // 이스터에그 모드가 활성화되어 있으면 모든 입력 차단
+    if (isEasterEggMode) {
+      setInputValue('');
+      return;
     }
 
     // 일반 메시지는 챗봇으로 전송
@@ -88,6 +113,28 @@ const ChatInputBar: React.FC<ChatInputBarProps> = ({
     >
       <div className="container mx-auto px-4 py-4 max-w-4xl">
         <div className="flex items-center gap-3">
+          {/* 이스터에그 모드 토글 버튼 */}
+          <button
+            type="button"
+            onClick={toggleEasterEggMode}
+            className={cn(
+              'flex-shrink-0 p-3 rounded-full transition-all duration-300 ease-in-out',
+              'hover:scale-110 active:scale-95 shadow-md',
+              isEasterEggMode 
+                ? 'bg-yellow-400 text-yellow-900 hover:bg-yellow-500' 
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            )}
+            style={{
+              transitionDuration: transitions.normal,
+              transitionTimingFunction: easing['ease-in-out'],
+              boxShadow: shadows.md,
+            }}
+            aria-label={isEasterEggMode ? '이스터에그 모드 끄기' : '이스터에그 모드 켜기'}
+            title={isEasterEggMode ? '이스터에그 모드: 활성화됨 (모든 입력이 챗봇으로 전송되지 않음)' : '이스터에그 모드: 비활성화됨'}
+          >
+            <EggIcon isActive={isEasterEggMode} />
+          </button>
+
           {/* Input Field */}
           <input
             type="text"
@@ -95,7 +142,7 @@ const ChatInputBar: React.FC<ChatInputBarProps> = ({
             onChange={(e) => setInputValue(e.target.value)}
             onFocus={handleFocus}
             onBlur={handleBlur}
-            placeholder={placeholder}
+            placeholder={isEasterEggMode ? '이스터에그 모드: 이스터에그를 찾아보세요...' : placeholder}
             disabled={isLoading}
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {

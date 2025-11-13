@@ -8,6 +8,7 @@ export { EasterEggProvider } from './store/easterEggStore';
 
 // Hooks
 export { useEasterEggTrigger, useEasterEggEscapeKey } from './hooks/useEasterEggTrigger';
+export { useClickCounter } from './hooks/useClickCounter';
 export { useEasterEggStore } from './store/easterEggStore';
 
 // Registry

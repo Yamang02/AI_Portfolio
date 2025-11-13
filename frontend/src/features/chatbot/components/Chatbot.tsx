@@ -44,7 +44,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ isOpen, onToggle, showProjectButtons,
   } | null>(null);
   const MAX_VISIBLE_PROJECTS = 4;
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { triggerEasterEgg } = useEasterEggStore();
+  const { triggerEasterEgg, isEasterEggMode } = useEasterEggStore();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -137,7 +137,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ isOpen, onToggle, showProjectButtons,
   useEffect(() => {
     if (externalMessage && externalMessage.trim()) {
       // 이스터에그 트리거 체크
-      const { shouldBlock, triggers } = checkEasterEggTrigger(externalMessage);
+      const { shouldBlock, triggers } = checkEasterEggTrigger(externalMessage, isEasterEggMode);
       
       if (triggers.length > 0) {
         triggerEasterEggs(triggers, externalMessage, triggerEasterEgg);
@@ -150,6 +150,15 @@ const Chatbot: React.FC<ChatbotProps> = ({ isOpen, onToggle, showProjectButtons,
           }
           return;
         }
+      }
+
+      // 이스터에그 모드가 활성화되어 있으면 모든 입력 차단
+      if (isEasterEggMode) {
+        // 처리 완료 콜백만 호출 (메시지는 처리하지 않음)
+        if (onMessageProcessed) {
+          onMessageProcessed();
+        }
+        return;
       }
 
       // 챗봇 자동 열기

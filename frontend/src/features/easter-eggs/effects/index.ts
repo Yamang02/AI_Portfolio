@@ -3,4 +3,5 @@
  */
 
 export { ConfettiEffect } from './confetti/ConfettiEffect';
+export { GiantBlockEffect } from './giant-block/GiantBlockEffect';
 

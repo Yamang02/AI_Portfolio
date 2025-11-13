@@ -1,13 +1,5 @@
-/**
- * 기본 이스터에그 트리거 정의
- */
-
 import type { EasterEggTrigger } from '../model/easter-egg.types';
 
-/**
- * 기본 트리거 목록
- * 여기에 새로운 이스터에그 트리거를 추가할 수 있습니다.
- */
 export const defaultTriggers: EasterEggTrigger[] = [
   {
     id: 'confetti-celebration',
@@ -27,14 +19,5 @@ export const defaultTriggers: EasterEggTrigger[] = [
     enabled: true,
     caseSensitive: false,
   },
-  // 추가 트리거 예시:
-  // {
-  //   id: 'matrix-rain',
-  //   type: 'hashtag',
-  //   pattern: 'matrix',
-  //   name: '매트릭스 레인',
-  //   description: '#matrix를 입력하면 매트릭스 레인이 시작됩니다',
-  //   enabled: true,
-  // },
 ];
 
