@@ -2,9 +2,9 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Header } from './Header';
 import { HeroSection } from './HeroSection';
-import { PortfolioSection } from '../../features/projects';
-import { Chatbot } from '../../features/chatbot';
-import { ChatInputBar, SpeedDialFab } from '../../../shared/ui';
+import { PortfolioSection } from '@features/project-gallery';
+import { Chatbot } from '@features/chatbot';
+import { ChatInputBar, SpeedDialFab } from '@shared/ui';
 
 interface HomePageProps {
   projects: any[];

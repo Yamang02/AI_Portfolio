@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Project } from '../../../features/projects/types';
-import { useTOC, useActiveSection } from '../../../features/projects/hooks';
+import { Project } from '@features/project-gallery/types';
+import { useTOC, useActiveSection } from '@features/project-gallery/hooks';
 
 interface ProjectModalProps {
   isOpen: boolean;

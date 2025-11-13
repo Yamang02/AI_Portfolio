@@ -1,6 +1,6 @@
 import React from 'react';
 import { MarkdownRenderer } from '../../../components/common/Markdown';
-import { Project } from '../../../features/projects/types';
+import { Project } from '@features/project-gallery/types';
 
 interface ProjectDetailContentProps {
   content: string;

@@ -4,6 +4,7 @@ export {
   ProjectSkeletonCard,
   ExperienceSkeletonCard,
   EducationSkeletonCard,
-  CertificationSkeletonCard
+  CertificationSkeletonCard,
+  SkeletonSection
 } from './SkeletonCard';
 

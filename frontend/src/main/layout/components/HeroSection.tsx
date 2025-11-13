@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ContactModal } from '../../components/common/Modal';
-import { CoreTechStackSection } from '../../features/introduction';
+import { CoreTechStackSection } from '@features/introduction';
 import { TechStackTetris } from '../../components/common/TechStackTetris';
 import { TechStackApi } from '../../services/techStackApi';
 import { TechStackMetadata } from '../../entities/techstack';

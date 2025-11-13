@@ -1,0 +1,147 @@
+/* 핵심 기술 스택 섹션 스타일 */
+.core-tech-section {
+  margin: 2rem 0;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-radius: 0.75rem;
+  border: 1px solid #e2e8f0;
+}
+
+/* 미니멀 버전 - 배경과 제목 없이 배지만 표시 */
+.core-tech-section--minimal {
+  margin: 1rem 0;
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: 0;
+}
+
+.core-tech-section__title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 1rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.core-tech-section__count {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #64748b;
+  background-color: #e2e8f0;
+  padding: 0.125rem 0.5rem;
+  border-radius: 0.375rem;
+}
+
+.core-tech-section__content {
+  margin-bottom: 1.5rem;
+}
+
+.core-tech-section__group {
+  margin-bottom: 1.5rem;
+}
+
+.core-tech-section__group:last-child {
+  margin-bottom: 0;
+}
+
+.core-tech-section__group-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #475569;
+  margin: 0 0 0.75rem 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.core-tech-section__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+/* 미니멀 버전의 배지 스타일 */
+.core-tech-section--minimal .core-tech-section__badges {
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.core-tech-section__footer {
+  border-top: 1px solid #e2e8f0;
+  padding-top: 1rem;
+}
+
+.core-tech-section__description {
+  font-size: 0.875rem;
+  color: #64748b;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* 에러 및 빈 상태 */
+.core-tech-section__error,
+.core-tech-section__empty {
+  text-align: center;
+  padding: 2rem;
+  color: #64748b;
+}
+
+.core-tech-section__error p,
+.core-tech-section__empty p {
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+/* 로딩 스켈레톤 */
+.tech-badge__skeleton {
+  width: 4rem;
+  height: 1.5rem;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+  border-radius: 0.375rem;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .core-tech-section {
+    margin: 1rem 0;
+    padding: 1rem;
+  }
+  
+  .core-tech-section__title {
+    font-size: 1.125rem;
+  }
+  
+  .core-tech-section__badges {
+    gap: 0.375rem;
+  }
+  
+  .core-tech-section__group-title {
+    font-size: 0.8125rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .core-tech-section__badges {
+    justify-content: center;
+  }
+  
+  .core-tech-section__title {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+}

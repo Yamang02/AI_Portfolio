@@ -1,6 +1,6 @@
 import React from 'react';
-import { TOCItem, flattenTOCItems } from '../../../features/projects/hooks/useTOC';
-import { scrollToSection } from '../../../features/projects/hooks/useActiveSection';
+import { TOCItem, flattenTOCItems } from '@features/project-gallery/hooks/useTOC';
+import { scrollToSection } from '@features/project-gallery/hooks/useActiveSection';
 
 interface ProjectDetailTOCProps {
   items: TOCItem[];

@@ -1,7 +1,7 @@
 import React from 'react';
-import { Project } from '../../../features/projects/types';
-import { TOCItem, flattenTOCItems } from '../../../features/projects/hooks/useTOC';
-import { scrollToSection } from '../../../features/projects/hooks/useActiveSection';
+import { Project } from '@features/project-gallery/types';
+import { TOCItem, flattenTOCItems } from '@features/project-gallery/hooks/useTOC';
+import { scrollToSection } from '@features/project-gallery/hooks/useActiveSection';
 
 interface ProjectDetailSidebarProps {
   project: Project;

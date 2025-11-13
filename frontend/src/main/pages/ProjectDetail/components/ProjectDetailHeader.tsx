@@ -1,5 +1,5 @@
 import React from 'react';
-import { Project } from '../../../features/projects/types';
+import { Project } from '@features/project-gallery/types';
 
 interface ProjectDetailHeaderProps {
   project: Project;

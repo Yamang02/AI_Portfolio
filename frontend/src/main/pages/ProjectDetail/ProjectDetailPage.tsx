@@ -8,8 +8,8 @@ import { ProjectDetailContribution } from './components/ProjectDetailContributio
 import { ProjectDetailGallery } from './components/ProjectDetailGallery';
 import { ProjectDetailSidebar } from './components/ProjectDetailSidebar';
 import { ProjectDetailSidebarToggle } from './components/ProjectDetailSidebarToggle';
-import { useTOC, useActiveSection } from '../../features/projects/hooks';
-import { Chatbot } from '../../features/chatbot';
+import { useTOC, useActiveSection } from '@features/project-gallery/hooks';
+import { Chatbot } from '@features/chatbot';
 import { useApp } from '../../app/providers/AppProvider';
 
 // 로딩 스켈레톤 컴포넌트
