@@ -2,6 +2,17 @@
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
   <head>
+    <script>
+      // 다크모드 초기화 스크립트 (플래시 방지)
+      (function() {
+        const theme = localStorage.getItem('portfolio-theme');
+        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const shouldBeDark = theme === 'dark' || (!theme && systemPrefersDark);
+        if (shouldBeDark) {
+          document.documentElement.classList.add('dark');
+        }
+      })();
+    </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
@@ -33,7 +44,7 @@
     
     <title>Yamang02</title>
   </head>
-  <body class="bg-gray-50">
+  <body class="bg-background text-text-primary">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

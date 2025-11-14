@@ -14,31 +14,36 @@ import { useApp } from '../../app/providers/AppProvider';
 
 // 로딩 스켈레톤 컴포넌트
 const ProjectDetailSkeleton: React.FC = () => (
-  <div className="min-h-screen bg-white">
+  <div 
+    className="min-h-screen"
+    style={{
+      backgroundColor: 'var(--color-background)',
+    }}
+  >
     <div className="max-w-4xl mx-auto px-6 py-8">
       {/* 헤더 스켈레톤 */}
       <div className="animate-pulse mb-8">
-        <div className="h-8 bg-gray-200 rounded w-3/4 mb-4"></div>
+        <div className="h-8 bg-surface-elevated dark:bg-slate-700 rounded w-3/4 mb-4"></div>
         <div className="flex gap-2 mb-4">
-          <div className="h-6 bg-gray-200 rounded w-20"></div>
-          <div className="h-6 bg-gray-200 rounded w-16"></div>
-          <div className="h-6 bg-gray-200 rounded w-24"></div>
+          <div className="h-6 bg-surface-elevated dark:bg-slate-700 rounded w-20"></div>
+          <div className="h-6 bg-surface-elevated dark:bg-slate-700 rounded w-16"></div>
+          <div className="h-6 bg-surface-elevated dark:bg-slate-700 rounded w-24"></div>
         </div>
         <div className="flex gap-2">
-          <div className="h-10 bg-gray-200 rounded w-32"></div>
-          <div className="h-10 bg-gray-200 rounded w-28"></div>
-          <div className="h-10 bg-gray-200 rounded w-24"></div>
+          <div className="h-10 bg-surface-elevated dark:bg-slate-700 rounded w-32"></div>
+          <div className="h-10 bg-surface-elevated dark:bg-slate-700 rounded w-28"></div>
+          <div className="h-10 bg-surface-elevated dark:bg-slate-700 rounded w-24"></div>
         </div>
       </div>
       
       {/* 컨텐츠 스켈레톤 */}
       <div className="animate-pulse space-y-4">
-        <div className="h-4 bg-gray-200 rounded w-full"></div>
-        <div className="h-4 bg-gray-200 rounded w-5/6"></div>
-        <div className="h-4 bg-gray-200 rounded w-4/5"></div>
-        <div className="h-64 bg-gray-200 rounded"></div>
-        <div className="h-4 bg-gray-200 rounded w-full"></div>
-        <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+        <div className="h-4 bg-surface-elevated dark:bg-slate-700 rounded w-full"></div>
+        <div className="h-4 bg-surface-elevated dark:bg-slate-700 rounded w-5/6"></div>
+        <div className="h-4 bg-surface-elevated dark:bg-slate-700 rounded w-4/5"></div>
+        <div className="h-64 bg-surface-elevated dark:bg-slate-700 rounded"></div>
+        <div className="h-4 bg-surface-elevated dark:bg-slate-700 rounded w-full"></div>
+        <div className="h-4 bg-surface-elevated dark:bg-slate-700 rounded w-3/4"></div>
       </div>
     </div>
   </div>
@@ -46,14 +51,19 @@ const ProjectDetailSkeleton: React.FC = () => (
 
 // 에러 컴포넌트
 const ProjectDetailError: React.FC<{ error: string; onRetry: () => void }> = ({ error, onRetry }) => (
-  <div className="min-h-screen bg-white flex items-center justify-center">
+  <div 
+    className="min-h-screen flex items-center justify-center"
+    style={{
+      backgroundColor: 'var(--color-background)',
+    }}
+  >
     <div className="text-center max-w-md mx-auto px-6">
       <div className="text-6xl mb-4">😕</div>
-      <h1 className="text-2xl font-bold text-gray-900 mb-4">프로젝트를 불러올 수 없습니다</h1>
-      <p className="text-gray-600 mb-6">{error}</p>
+      <h1 className="text-2xl font-bold text-text-primary mb-4">프로젝트를 불러올 수 없습니다</h1>
+      <p className="text-text-secondary mb-6">{error}</p>
       <button
         onClick={onRetry}
-        className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+        className="px-6 py-3 bg-primary-600 dark:bg-primary-500 text-white rounded-lg hover:bg-primary-700 dark:hover:bg-primary-600 transition-colors font-medium"
       >
         다시 시도
       </button>
@@ -103,7 +113,12 @@ const ProjectDetailPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div 
+      className="min-h-screen"
+      style={{
+        backgroundColor: 'var(--color-background)',
+      }}
+    >
       {/* 헤더 */}
       <ProjectDetailHeader 
         project={project}

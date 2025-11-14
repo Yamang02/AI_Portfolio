@@ -106,8 +106,10 @@ const ChatInputBar: React.FC<ChatInputBarProps> = ({
 
   return (
     <div 
-      className="fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-800 border-t border-border z-40 transition-colors"
+      className="fixed bottom-0 left-0 right-0 border-t z-40 transition-colors"
       style={{
+        backgroundColor: 'var(--color-surface)',
+        borderColor: 'var(--color-border)',
         boxShadow: shadows.lg,
       }}
     >
@@ -121,8 +123,8 @@ const ChatInputBar: React.FC<ChatInputBarProps> = ({
               'flex-shrink-0 p-3 rounded-full transition-all duration-300 ease-in-out',
               'hover:scale-110 active:scale-95 shadow-md',
               isEasterEggMode 
-                ? 'bg-yellow-400 text-yellow-900 hover:bg-yellow-500' 
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                ? 'bg-yellow-400 dark:bg-yellow-500 text-yellow-900 dark:text-yellow-950 hover:bg-yellow-500 dark:hover:bg-yellow-600' 
+                : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-300 hover:bg-gray-200 dark:hover:bg-slate-600'
             )}
             style={{
               transitionDuration: transitions.normal,
@@ -175,11 +177,13 @@ const ChatInputBar: React.FC<ChatInputBarProps> = ({
             disabled={!inputValue.trim() || isLoading}
             className={cn(
               'flex-shrink-0 text-white p-3 rounded-full',
-              'disabled:bg-gray-300 disabled:cursor-not-allowed',
+              'disabled:bg-gray-300 disabled:dark:bg-gray-600 disabled:cursor-not-allowed',
               'transition-all duration-300 ease-in-out transform',
               'hover:scale-110 active:scale-95 shadow-md',
               isFocused && 'translate-x-1',
-              !isLoading && !inputValue.trim() ? 'bg-gray-300' : 'bg-primary-600 hover:bg-primary-700'
+              !isLoading && !inputValue.trim() 
+                ? 'bg-gray-300 dark:bg-gray-600' 
+                : 'bg-primary-600 dark:bg-primary-500 hover:bg-primary-700 dark:hover:bg-primary-600'
             )}
             style={{
               backgroundColor: !isLoading && inputValue.trim() ? colors.primary[600] : colors.gray[300],

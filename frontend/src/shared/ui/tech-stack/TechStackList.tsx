@@ -173,7 +173,7 @@ export const TechStackList: React.FC<TechStackListProps> = ({
       {/* 숨겨진 항목 개수 표시 */}
       {hiddenCount > 0 && (
         <span
-          className={`inline-block font-medium rounded-full border bg-gray-200 text-gray-600 border-gray-300 ${
+          className={`inline-block font-medium rounded-full border bg-surface-elevated dark:bg-slate-700 text-text-secondary dark:text-text-primary border-border ${
             size === 'sm' ? 'text-xs px-3 py-1.5' :
             size === 'lg' ? 'text-base px-4 py-2' :
             'text-sm px-3 py-1.5'
@@ -203,7 +203,7 @@ export const SimpleTechStackList: React.FC<{
       {technologies.map((tech, index) => (
         <span
           key={index}
-          className="inline-block bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded border border-gray-200"
+          className="inline-block bg-surface-elevated dark:bg-slate-700 text-text-primary text-xs px-2 py-1 rounded border border-border"
         >
           {tech}
         </span>

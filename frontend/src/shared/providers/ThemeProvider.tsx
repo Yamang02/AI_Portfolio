@@ -38,7 +38,19 @@ interface ThemeProviderProps {
 }
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
-  const [theme, setThemeState] = useState<Theme>(getInitialTheme);
+  const [theme, setThemeState] = useState<Theme>(() => {
+    // 초기 테마를 가져오면서 동시에 HTML에 클래스 적용
+    const initialTheme = getInitialTheme();
+    if (typeof window !== 'undefined') {
+      const root = document.documentElement;
+      if (initialTheme === 'dark') {
+        root.classList.add('dark');
+      } else {
+        root.classList.remove('dark');
+      }
+    }
+    return initialTheme;
+  });
 
   // HTML 요소에 dark 클래스 토글
   useEffect(() => {

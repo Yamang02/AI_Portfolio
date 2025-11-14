@@ -539,7 +539,7 @@ export const TechStackTetris: React.FC<TechStackTetrisProps> = ({
       {onAnimationToggle && (
         <button
           onClick={onAnimationToggle}
-          className="absolute top-3 right-3 z-20 bg-white/60 hover:bg-white/80 backdrop-blur-sm rounded-full p-1.5 shadow-md border border-white/30 transition-all duration-200 text-gray-500 hover:text-gray-700"
+          className="absolute top-3 right-3 z-20 bg-surface/60 dark:bg-slate-800/60 hover:bg-surface/80 dark:hover:bg-slate-800/80 backdrop-blur-sm rounded-full p-1.5 shadow-md border border-border/30 transition-all duration-200 text-text-secondary hover:text-text-primary"
           title={isAnimationEnabled ? "애니메이션 끄기" : "애니메이션 켜기"}
         >
           {isAnimationEnabled ? (

@@ -136,10 +136,10 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
   // title 색상 결정
   const getTitleColor = (type: 'project' | 'experience' | 'education') => {
     switch (type) {
-      case 'project': return 'bg-blue-50 border-blue-200 text-blue-700';
-      case 'experience': return 'bg-orange-50 border-orange-200 text-orange-700';
-      case 'education': return 'bg-green-50 border-green-200 text-green-700';
-      default: return 'bg-gray-50 border-gray-200 text-gray-700';
+      case 'project': return 'bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300';
+      case 'experience': return 'bg-orange-50 dark:bg-orange-900/30 border-orange-200 dark:border-orange-800 text-orange-700 dark:text-orange-300';
+      case 'education': return 'bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-800 text-green-700 dark:text-green-300';
+      default: return 'bg-surface-elevated dark:bg-slate-700 border-border text-text-primary';
     }
   };
 
@@ -265,9 +265,9 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
             <div
               className={`w-1 h-full transition-all duration-200 ${
                 isHighlighted ? (
-                  type === 'project' ? 'bg-blue-400' :
-                  type === 'experience' ? 'bg-orange-400' : 'bg-green-400'
-                ) : 'bg-gray-300 hover:bg-gray-500'
+                  type === 'project' ? 'bg-blue-400 dark:bg-blue-500' :
+                  type === 'experience' ? 'bg-orange-400 dark:bg-orange-500' : 'bg-green-400 dark:bg-green-500'
+                ) : 'bg-slate-400 dark:bg-slate-600 hover:bg-slate-500 dark:hover:bg-slate-500'
               }`}
               title={`${item.title} (진행 중)`}
             />
@@ -316,11 +316,11 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
             className={`${barWidthClass} mx-auto transition-all duration-300 cursor-pointer ${
               isHighlighted ? (
                 type === 'project'
-                  ? 'bg-blue-600 shadow-lg'
+                  ? 'bg-blue-600 dark:bg-blue-500 shadow-lg'
                   : type === 'experience'
-                  ? 'bg-orange-600 shadow-lg'
-                  : 'bg-green-600 shadow-lg'
-              ) : 'bg-gray-300 hover:bg-gray-500'
+                  ? 'bg-orange-600 dark:bg-orange-500 shadow-lg'
+                  : 'bg-green-600 dark:bg-green-500 shadow-lg'
+              ) : 'bg-slate-400 dark:bg-slate-600 hover:bg-slate-500 dark:hover:bg-slate-500'
             }`}
             style={{ height: `${barHeight}px`, minHeight: '20px' }}
           />
@@ -350,16 +350,16 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
   };
 
   return (
-    <div className={`fixed left-0 top-0 h-screen w-96 max-w-full bg-white shadow-lg transform transition-transform duration-300 ease-in-out z-50 ${
+    <div className={`fixed left-0 top-0 h-screen w-96 max-w-full bg-surface dark:bg-slate-800 shadow-lg transform transition-transform duration-300 ease-in-out z-50 border-r border-border ${
       isOpen ? 'translate-x-0' : '-translate-x-full'
     }`}>
       <div className="flex flex-col h-full">
         {/* 패널 헤더 */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900 text-center w-full">프로젝트 히스토리</h2>
+        <div className="flex items-center justify-between p-4 border-b border-border">
+          <h2 className="text-lg font-semibold text-text-primary text-center w-full">프로젝트 히스토리</h2>
           <button
             onClick={onToggle}
-            className="text-gray-500 hover:text-gray-700 transition-colors absolute right-4"
+            className="text-text-secondary hover:text-text-primary transition-colors absolute right-4"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -368,12 +368,12 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
         </div>
 
         {/* 타임라인(스크롤) 영역 */}
-        <div className="flex-1 overflow-y-auto p-4">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-slate-600 scrollbar-track-transparent hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-slate-500">
           {/* 통합 타임라인 */}
           <div className="mb-8">
-            <div className="relative bg-gray-100 rounded-lg p-2" style={{ height: timelineHeight }}>
+            <div className="relative bg-surface-elevated dark:bg-slate-700 rounded-lg p-2 border border-border overflow-hidden" style={{ height: timelineHeight }}>
               {/* 오른쪽 타임라인 라인 */}
-              <div className="absolute" style={{ right: '5%', top: 0, height: timelineHeight, width: '2px', background: '#D1D5DB' }}></div>
+              <div className="absolute" style={{ right: '5%', top: 0, height: timelineHeight, width: '2px', background: 'var(--color-border)' }}></div>
               {/* 타임라인 날짜 표시 */}
               {timelineDates.map((date, index) => {
                 const datePx = getPxPosition(date);
@@ -382,7 +382,7 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
                     key={index}
                     className="absolute" style={{ right: '5%', top: `${datePx}px` }}
                   >
-                    <span className="bg-white px-2 py-1 rounded text-xs text-gray-600 font-medium border border-gray-200">
+                    <span className="bg-surface dark:bg-slate-800 px-2 py-1 rounded text-xs text-text-secondary font-medium border border-border">
                       {formatDate(date)}
                     </span>
                   </div>
@@ -409,27 +409,27 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
         </div>
 
         {/* 범례 */}
-        <div className="mt-4 mb-2 mx-4 p-4 bg-gray-50 rounded-lg">
-          <h4 className="font-semibold mb-2 text-sm">범례</h4>
+        <div className="mt-4 mb-2 mx-4 p-4 bg-surface-elevated dark:bg-slate-700 rounded-lg border border-border">
+          <h4 className="font-semibold mb-2 text-sm text-text-primary">범례</h4>
           <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
-            <div className="flex items-center">
-              <div className="w-3 h-3 bg-blue-500 rounded mr-2"></div>
+            <div className="flex items-center text-text-secondary">
+              <div className="w-3 h-3 bg-blue-500 dark:bg-blue-400 rounded mr-2"></div>
               <span>프로젝트 </span>
             </div>
-            <div className="flex items-center">
-              <div className="w-3 h-3 bg-orange-500 rounded mr-2"></div>
+            <div className="flex items-center text-text-secondary">
+              <div className="w-3 h-3 bg-orange-500 dark:bg-orange-400 rounded mr-2"></div>
               <span>경력 </span>
             </div>
-            <div className="flex items-center">
-              <div className="w-3 h-3 bg-green-500 rounded mr-2"></div>
+            <div className="flex items-center text-text-secondary">
+              <div className="w-3 h-3 bg-green-500 dark:bg-green-400 rounded mr-2"></div>
               <span>교육 </span>
             </div>
           </div>
         </div>
 
         {/* 사용법 안내 */}
-        <div className="mt-2 mb-4 mx-4 p-3 bg-blue-50 rounded-lg">
-          <p className="text-xs text-blue-700">
+        <div className="mt-2 mb-4 mx-4 p-3 bg-blue-50 dark:bg-blue-900/30 rounded-lg border border-blue-200 dark:border-blue-800">
+          <p className="text-xs text-blue-700 dark:text-blue-300">
             💡 <b>바 클릭: 카드로 이동</b> | <b>마우스 오버: 하이라이트</b>
           </p>
         </div>

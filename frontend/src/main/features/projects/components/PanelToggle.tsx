@@ -21,7 +21,7 @@ const PanelToggle: React.FC<PanelToggleProps> = ({ isOpen, onToggle }) => {
   return (
     <button
       onClick={onToggle}
-      className={`fixed bottom-6 right-24 bg-blue-500 text-white p-4 rounded-full shadow-lg hover:bg-blue-600 transition-colors duration-200 z-50`}
+      className={`fixed bottom-6 right-24 bg-primary-600 dark:bg-primary-500 text-white p-4 rounded-full shadow-lg hover:bg-primary-700 dark:hover:bg-primary-600 transition-colors duration-200 z-50`}
       aria-label={isOpen ? '히스토리 패널 닫기' : '히스토리 패널 열기'}
     >
       {isOpen ? <CloseIcon /> : <ClockIcon />}

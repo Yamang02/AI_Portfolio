@@ -36,8 +36,8 @@ const TOCItemComponent: React.FC<TOCItemComponentProps> = React.memo(({
         className={`
           block py-2 px-3 rounded-md text-sm transition-all duration-200
           ${isActive
-            ? 'bg-blue-100 text-blue-700 font-medium border-l-2 border-blue-500'
-            : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'
+            ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-medium border-l-2 border-blue-500 dark:border-blue-400'
+            : 'text-text-secondary hover:text-primary-600 dark:hover:text-primary-400 hover:bg-surface-elevated dark:hover:bg-slate-700'
           }
         `}
         style={{ paddingLeft: `${paddingLeft}px` }}
@@ -63,17 +63,17 @@ const ProjectDetailTOC: React.FC<ProjectDetailTOCProps> = React.memo(({
   };
 
   return (
-    <div className={`w-64 bg-white border-l border-gray-200 flex flex-col h-full ${className}`}>
+    <div className={`w-64 bg-surface dark:bg-slate-800 border-l border-border flex flex-col h-full ${className}`}>
       {/* TOC 헤더 */}
-      <div className="p-4 border-b border-gray-200">
-        <h3 className="text-lg font-semibold text-gray-900 flex items-center mb-2">
-          <svg className="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div className="p-4 border-b border-border">
+        <h3 className="text-lg font-semibold text-text-primary flex items-center mb-2">
+          <svg className="w-5 h-5 mr-2 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
           </svg>
           목차
         </h3>
         {flattenedItems.length > 0 && (
-          <p className="text-sm text-gray-600">{flattenedItems.length}개 섹션</p>
+          <p className="text-sm text-text-secondary">{flattenedItems.length}개 섹션</p>
         )}
       </div>
 
@@ -94,7 +94,7 @@ const ProjectDetailTOC: React.FC<ProjectDetailTOCProps> = React.memo(({
             </ul>
           </nav>
         ) : (
-          <div className="text-center text-gray-500 py-8">
+          <div className="text-center text-text-muted py-8">
             <div className="text-2xl mb-2">📝</div>
             <p className="text-sm">목차가 없습니다</p>
           </div>

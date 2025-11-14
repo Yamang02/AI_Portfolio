@@ -59,7 +59,13 @@ const MainAppContent: React.FC = () => {
 
   if (isInitialLoading) {
     return (
-      <div className="min-h-screen bg-background text-text-primary font-sans flex items-center justify-center transition-colors">
+      <div 
+        className="min-h-screen font-sans flex items-center justify-center transition-colors"
+        style={{
+          backgroundColor: 'var(--color-background)',
+          color: 'var(--color-text-primary)',
+        }}
+      >
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 dark:border-primary-400 mx-auto mb-4"></div>
           <p className="text-text-secondary">포트폴리오를 불러오는 중...</p>
@@ -69,7 +75,13 @@ const MainAppContent: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background text-text-primary font-sans transition-colors">
+    <div 
+      className="min-h-screen font-sans transition-colors"
+      style={{
+        backgroundColor: 'var(--color-background)',
+        color: 'var(--color-text-primary)',
+      }}
+    >
       <Routes>
         {/* 홈 페이지 */}
         <Route path="/" element={

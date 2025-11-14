@@ -5,7 +5,13 @@ import { useTheme } from '@shared/providers/ThemeProvider';
 const Header: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
   return (
-    <header className="w-full sticky top-0 z-50 bg-white dark:bg-slate-800 border-b border-border transition-colors">
+    <header 
+      className="w-full sticky top-0 z-50 border-b transition-colors"
+      style={{
+        backgroundColor: 'var(--color-surface)',
+        borderColor: 'var(--color-border)',
+      }}
+    >
       <nav className="container mx-auto flex items-center justify-between px-4 py-4">
         {/* 좌측: 포트폴리오 이름 */}
         <a

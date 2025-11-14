@@ -37,14 +37,14 @@ export const TechStackBadge: React.FC<TechStackBadgeProps> = ({
         return 'bg-gradient-to-br from-blue-500 to-blue-700 border-blue-700 text-white font-semibold';
       case 'filter':
         return cn(
-          'bg-white dark:bg-slate-800 border-gray-300 dark:border-slate-600 text-gray-700 dark:text-slate-300',
-          onClick && 'cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-700 hover:border-gray-400 dark:hover:border-slate-500',
-          selected && 'bg-blue-500 dark:bg-blue-600 border-blue-500 dark:border-blue-600 text-white'
+          'bg-surface dark:bg-slate-800 border-border text-text-primary',
+          onClick && 'cursor-pointer hover:bg-surface-elevated dark:hover:bg-slate-700 hover:border-border',
+          selected && 'bg-primary-600 dark:bg-primary-500 border-primary-600 dark:border-primary-500 text-white'
         );
       case 'compact':
-        return 'px-1 py-0.5 text-[0.6875rem] bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-400';
+        return 'px-1 py-0.5 text-[0.6875rem] bg-surface dark:bg-slate-800 border-border text-text-secondary';
       default:
-        return 'bg-white dark:bg-slate-800 border-gray-300 dark:border-slate-600 text-gray-700 dark:text-slate-300';
+        return 'bg-surface dark:bg-slate-800 border-border text-text-primary';
     }
   };
 

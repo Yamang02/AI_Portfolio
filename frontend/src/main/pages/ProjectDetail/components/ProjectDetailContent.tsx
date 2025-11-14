@@ -18,10 +18,10 @@ const ProjectDetailContent: React.FC<ProjectDetailContentProps> = ({
   if (!hasMarkdown) {
     return (
       <div className={`${className}`}>
-        <div className="text-center text-gray-500 py-12">
+        <div className="text-center text-text-muted py-12">
           <div className="text-4xl mb-4">📝</div>
-          <h3 className="text-lg font-medium mb-2">프로젝트 상세 내용이 없습니다</h3>
-          <p className="text-sm">곧 추가될 예정입니다.</p>
+          <h3 className="text-lg font-medium mb-2 text-text-primary">프로젝트 상세 내용이 없습니다</h3>
+          <p className="text-sm text-text-secondary">곧 추가될 예정입니다.</p>
         </div>
       </div>
     );
