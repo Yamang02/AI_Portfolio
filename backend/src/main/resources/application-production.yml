@@ -147,3 +147,17 @@ cloudinary:
   cloud-name: ${CLOUDINARY_CLOUD_NAME}
   api-key: ${CLOUDINARY_API_KEY}
   api-secret: ${CLOUDINARY_API_SECRET}
+
+cloud:
+  usage:
+    providers:
+      aws:
+        enabled: ${AWS_USAGE_ENABLED:false}
+        endpoint: ${AWS_USAGE_ENDPOINT:}
+        region: ${AWS_USAGE_REGION:}
+        api-key: ${AWS_USAGE_API_KEY:}
+      gcp:
+        enabled: ${GCP_USAGE_ENABLED:false}
+        endpoint: ${GCP_USAGE_ENDPOINT:}
+        project-id: ${GCP_USAGE_PROJECT_ID:}
+        api-key: ${GCP_USAGE_API_KEY:}
