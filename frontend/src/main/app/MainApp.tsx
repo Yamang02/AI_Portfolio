@@ -4,6 +4,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from '../config/queryClient';
 import { AppProvider, useApp } from '../app/providers/AppProvider';
 import { ThemeProvider } from '@shared/providers/ThemeProvider';
+import { Header } from '../layout/components/Header';
 import { HomePage } from '../layout/components/HomePage';
 import { ProjectDetailPage } from '../pages/ProjectDetail/ProjectDetailPage';
 import {
@@ -82,6 +83,9 @@ const MainAppContent: React.FC = () => {
         color: 'var(--color-text-primary)',
       }}
     >
+      {/* 공통 헤더 - Admin 페이지를 제외한 모든 페이지에 표시 */}
+      <Header />
+      
       <Routes>
         {/* 홈 페이지 */}
         <Route path="/" element={

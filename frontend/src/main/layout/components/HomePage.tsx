@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Header } from './Header';
 import { HeroSection } from './HeroSection';
 import { PortfolioSection } from '@features/project-gallery';
 import { Chatbot } from '@features/chatbot';
@@ -179,7 +178,6 @@ const HomePage: React.FC<HomePageProps> = ({
 
   return (
     <>
-      <Header />
       <HeroSection />
       <main
         className="container mx-auto px-4 py-8 md:py-12 pb-32"
