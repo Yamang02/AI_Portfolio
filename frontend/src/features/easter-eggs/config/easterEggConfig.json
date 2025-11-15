@@ -20,6 +20,23 @@
       "isHeavy": true,
       "resources": [],
       "alwaysEnabled": false
+    },
+    {
+      "id": "demon-slayer-effect",
+      "componentPath": "effects/demon-slayer/DemonSlayerEffect",
+      "duration": null,
+      "zIndex": 9998,
+      "isHeavy": false,
+      "resources": [
+        {
+          "type": "audio",
+          "path": "/easter-eggs/audio/demon-slayer.m4a",
+          "preload": true,
+          "loop": false,
+          "volume": 0.5
+        }
+      ],
+      "alwaysEnabled": false
     }
   ]
 }

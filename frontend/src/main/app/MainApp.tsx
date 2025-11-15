@@ -11,8 +11,11 @@ import {
   EasterEggProvider,
   EasterEggLayer,
   useEasterEggEscapeKey,
+  useKeyboardTrigger,
+  useScrollTrigger,
   easterEggRegistry,
 } from '@features/easter-eggs';
+import { AudioIndicator } from '@features/easter-eggs/components/AudioIndicator';
 import { loadEasterEggConfig } from '@features/easter-eggs/config/easterEggConfigLoader';
 import { MobileFeatureNotice } from '../shared/ui/MobileFeatureNotice';
 import { useFeatureAvailability } from '../shared/lib/hooks/useFeatureAvailability';
@@ -36,6 +39,20 @@ const MainAppContent: React.FC = () => {
 
   // ESC 키로 이스터에그 종료
   useEasterEggEscapeKey();
+
+  // PgDn 키 3번 누르면 이스터에그 트리거
+  useKeyboardTrigger({
+    easterEggId: 'demon-slayer-effect',
+    key: 'PageDown',
+    targetCount: 3,
+    timeWindow: 3000, // 3초 내에 3번 눌러야 함
+  });
+
+  // 위에서 아래로 빠르게 스크롤하면 이스터에그 트리거
+  useScrollTrigger({
+    easterEggId: 'demon-slayer-effect',
+    timeWindow: 5000, // 5초 이내
+  });
 
   // ESC 키 매핑: 열린 패널 닫기 (공통)
   useEffect(() => {
@@ -143,6 +160,9 @@ const MainAppContent: React.FC = () => {
 
       {/* 이스터에그 레이어 */}
       <EasterEggLayer />
+      
+      {/* 오디오 재생 인디케이터 */}
+      <AudioIndicator />
     </div>
   );
 };
