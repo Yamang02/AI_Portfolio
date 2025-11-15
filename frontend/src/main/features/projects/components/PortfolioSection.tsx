@@ -163,9 +163,6 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
     <section id="portfolio">
       <div className="text-center mb-12">
         <h2 className="text-3xl font-bold text-text-primary">포트폴리오</h2>
-        <p className="mt-2 text-text-secondary">
-          프로젝트, 경력/교육, 자격증을 한눈에 볼 수 있습니다. 우측 하단의 AI 비서에게 무엇이든 물어보세요!
-        </p>
       </div>
 
       {/* 프로젝트 영역 */}

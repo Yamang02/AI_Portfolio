@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { cn } from '../../lib/utils/cn';
-import { colors, transitions, easing, shadows, borderRadius, focusRing } from '../../config/theme';
-import { useEasterEggTrigger, useEasterEggStore, checkEasterEggTrigger, triggerEasterEggs } from '@features/easter-eggs';
+import { colors, transitions, easing, shadows, focusRing } from '../../config/theme';
+import { useEasterEggStore, checkEasterEggTrigger, triggerEasterEggs } from '@features/easter-eggs';
+import { easterEggRegistry } from '@features/easter-eggs/registry/easterEggRegistry';
 
 const THEME_TOGGLE_FIRST_CLICK_KEY = 'portfolio-theme-toggle-first-click';
 
@@ -65,6 +66,14 @@ const ChatInputBar: React.FC<ChatInputBarProps> = ({
   
   // 이스터에그가 동작 중인지 확인
   const isEasterEggActive = activeEffects.length > 0;
+  
+  // 활성화된 이스터에그의 이름 가져오기 (가장 최근 것)
+  const activeEasterEggName = useMemo(() => {
+    if (activeEffects.length === 0) return null;
+    const latestEffect = activeEffects[activeEffects.length - 1];
+    const trigger = easterEggRegistry.getTrigger(latestEffect.id);
+    return trigger?.name || null;
+  }, [activeEffects]);
 
   // 이스터에그 버튼 표시 여부 확인
   useEffect(() => {
@@ -88,12 +97,6 @@ const ChatInputBar: React.FC<ChatInputBarProps> = ({
       window.removeEventListener('easterEggButtonRevealed', handleEasterEggButtonRevealed);
     };
   }, []);
-
-  // 이스터에그 트리거 감지 (입력 중)
-  useEasterEggTrigger({
-    inputValue,
-    debounceMs: 300,
-  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -254,8 +257,14 @@ const ChatInputBar: React.FC<ChatInputBarProps> = ({
             onChange={(e) => setInputValue(e.target.value)}
             onFocus={handleFocus}
             onBlur={handleBlur}
-            placeholder={isEasterEggMode ? '이스터에그 모드' : placeholder}
-            disabled={isLoading}
+            placeholder={
+              isEasterEggActive && activeEasterEggName
+                ? activeEasterEggName
+                : isEasterEggMode
+                ? '이스터에그 모드'
+                : placeholder
+            }
+            disabled={isLoading || isEasterEggActive}
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
