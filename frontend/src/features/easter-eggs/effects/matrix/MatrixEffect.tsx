@@ -7,7 +7,6 @@ interface MatrixEffectProps {
   onClose: () => void;
 }
 
-// Matrix Rain 파티클
 interface MatrixColumn {
   x: number;
   y: number;
@@ -17,7 +16,6 @@ interface MatrixColumn {
   startDelay: number;
 }
 
-// 그리드 셀 데이터 (미리 생성하여 재사용)
 interface GridCell {
   char: string;
   colorIndex: number;
@@ -28,7 +26,6 @@ const MATRIX_COLORS = ['#00ff00', '#00ff41', '#00ff82', '#00ffc3', '#39ff00', '#
 const GRID_SIZE = 30;
 const FONT_SIZE = 18;
 
-// 랜덤 문자 생성 헬퍼
 const getRandomChar = () => MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)];
 const getRandomColorIndex = () => Math.floor(Math.random() * MATRIX_COLORS.length);
 
@@ -39,16 +36,15 @@ const MatrixEffect: React.FC<MatrixEffectProps> = ({ context: _context, onClose 
   const startTimeRef = useRef<number>(Date.now());
   const columnsRef = useRef<MatrixColumn[]>([]);
   const { theme, setTheme } = useTheme();
-  const previousThemeRef = useRef<'light' | 'dark'>(theme === 'matrix' ? 'light' : theme);
-
-  // 그리드 셀 데이터 캐싱 (화면 크기별로)
+  const previousThemeRef = useRef<'light' | 'dark'>(
+    theme === 'matrix' ? 'light' : (theme as 'light' | 'dark')
+  );
   const gridCellsRef = useRef<Map<string, GridCell[][]>>(new Map());
 
-  // Matrix 테마 활성화/비활성화
   useEffect(() => {
     const currentTheme = theme;
     if (currentTheme !== 'matrix') {
-      previousThemeRef.current = currentTheme;
+      previousThemeRef.current = currentTheme as 'light' | 'dark';
       setTheme('matrix');
     }
 
@@ -57,7 +53,6 @@ const MatrixEffect: React.FC<MatrixEffectProps> = ({ context: _context, onClose 
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // 그리드 셀 데이터 생성 (메모이제이션)
   const getGridCells = useCallback((width: number, height: number): GridCell[][] => {
     const key = `${width}x${height}`;
     if (gridCellsRef.current.has(key)) {
@@ -82,7 +77,6 @@ const MatrixEffect: React.FC<MatrixEffectProps> = ({ context: _context, onClose 
     return cells;
   }, []);
 
-  // 그리드 렌더링 함수 (중복 제거)
   const renderGrid = useCallback((
     ctx: CanvasRenderingContext2D,
     width: number,
@@ -100,7 +94,6 @@ const MatrixEffect: React.FC<MatrixEffectProps> = ({ context: _context, onClose 
         const y = j * GRID_SIZE;
         const normalizedY = y / height;
 
-        // Fadein/Fadeout 진행도 계산
         let cellOpacity: number;
         if (isFadeout) {
           const cellFadeoutStart = normalizedY;
@@ -122,13 +115,10 @@ const MatrixEffect: React.FC<MatrixEffectProps> = ({ context: _context, onClose 
     }
   }, []);
 
-  // 컬럼 초기화 함수
   const initColumns = useCallback((width: number) => {
     const totalColumns = Math.floor(width / GRID_SIZE);
     const activeColumnCount = Math.floor(totalColumns * 0.6);
     const newColumns: MatrixColumn[] = [];
-
-    // 랜덤하게 선택된 컬럼들
     const selectedIndices = new Set<number>();
     while (selectedIndices.size < activeColumnCount) {
       selectedIndices.add(Math.floor(Math.random() * totalColumns));
@@ -136,7 +126,6 @@ const MatrixEffect: React.FC<MatrixEffectProps> = ({ context: _context, onClose 
 
     const sortedIndices = Array.from(selectedIndices).sort((a, b) => a - b);
 
-    // 각 컬럼마다 2-3개의 레인 생성
     sortedIndices.forEach((i, index) => {
       const rainCount = Math.floor(Math.random() * 2) + 2;
 
@@ -168,12 +157,10 @@ const MatrixEffect: React.FC<MatrixEffectProps> = ({ context: _context, onClose 
     const ctx = canvas.getContext('2d', { alpha: true });
     if (!ctx) return;
 
-    // 폰트 설정 (한 번만)
     ctx.font = `${FONT_SIZE}px monospace`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
-    // 캔버스 크기 설정
     const resizeCanvas = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
@@ -182,10 +169,8 @@ const MatrixEffect: React.FC<MatrixEffectProps> = ({ context: _context, onClose 
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
-    // 그리드 셀 데이터 가져오기
     const gridCells = getGridCells(canvas.width, canvas.height);
 
-    // 타이밍 상수
     const TOTAL_DURATION = 16500;
     const RAIN_START_TIME = 3500;
     const FADEOUT_START_TIME = 13500;
@@ -196,57 +181,45 @@ const MatrixEffect: React.FC<MatrixEffectProps> = ({ context: _context, onClose 
     const animate = () => {
       const elapsed = Date.now() - startTimeRef.current;
 
-      // 애니메이션 종료 체크
       if (elapsed >= TOTAL_DURATION) {
         setTheme(previousThemeRef.current);
         onClose();
         return;
       }
 
-      // 배경 처리
       if (elapsed < 1500) {
-        // 암전 단계
         const darkenProgress = Math.min(elapsed / 1500, 1);
         ctx.fillStyle = `rgba(0, 0, 0, ${darkenProgress})`;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
       } else if (elapsed < 2000) {
-        // 암전에서 회복
         const recoveryProgress = (elapsed - 1500) / 500;
         const recoveryOpacity = 1 - recoveryProgress;
         ctx.fillStyle = `rgba(0, 0, 0, ${recoveryOpacity})`;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
       } else if (elapsed >= RECOVERY_START_TIME && elapsed < RECOVERY_START_TIME + RECOVERY_DURATION) {
-        // 최종 회복
         const finalRecoveryProgress = Math.min((elapsed - RECOVERY_START_TIME) / RECOVERY_DURATION, 1);
         const finalRecoveryOpacity = 1 - finalRecoveryProgress;
         ctx.fillStyle = `rgba(0, 0, 0, ${finalRecoveryOpacity})`;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
       } else if (elapsed < RECOVERY_START_TIME) {
-        // 트레일 효과
         ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
       }
 
-      // 그리드 렌더링
       if (elapsed >= 2000 && elapsed < 3500) {
-        // 첫 번째 그리드 fadein
         const gridProgress = Math.min((elapsed - 2000) / 1500, 1);
         renderGrid(ctx, canvas.width, canvas.height, gridCells, gridProgress, false);
       } else if (elapsed >= 3500 && elapsed < 4500) {
-        // 첫 번째 그리드 fadeout
         const fadeoutProgress = Math.min((elapsed - 3500) / 1000, 1);
         renderGrid(ctx, canvas.width, canvas.height, gridCells, fadeoutProgress, true);
       } else if (elapsed >= FADEOUT_START_TIME && elapsed < FADEOUT_START_TIME + 1500) {
-        // 두 번째 그리드 fadein
         const gridProgress = Math.min((elapsed - FADEOUT_START_TIME) / 1500, 1);
         renderGrid(ctx, canvas.width, canvas.height, gridCells, gridProgress, false);
       } else if (elapsed >= FADEOUT_START_TIME + 1500 && elapsed < RECOVERY_START_TIME) {
-        // 두 번째 그리드 fadeout
         const fadeoutProgress = Math.min((elapsed - (FADEOUT_START_TIME + 1500)) / 1000, 1);
         renderGrid(ctx, canvas.width, canvas.height, gridCells, fadeoutProgress, true);
       }
 
-      // Matrix Rain 렌더링
       if (elapsed >= RAIN_START_TIME) {
         if (phase !== 'rain') {
           setPhase('rain');
@@ -254,28 +227,24 @@ const MatrixEffect: React.FC<MatrixEffectProps> = ({ context: _context, onClose 
 
         const rainElapsed = elapsed - RAIN_START_TIME;
 
-        // 페이드아웃 계산
         let fadeoutOpacity = 1;
         if (elapsed >= FADEOUT_START_TIME) {
           const fadeoutProgress = (elapsed - FADEOUT_START_TIME) / FADEOUT_DURATION;
           fadeoutOpacity = Math.max(0, 1 - fadeoutProgress);
         }
 
-        // 컬럼 렌더링
         const columns = columnsRef.current;
         for (let i = 0; i < columns.length; i++) {
           const column = columns[i];
 
           if (rainElapsed < column.startDelay) continue;
 
-          // 문자 렌더링
           const chars = column.chars;
           const length = column.length;
           for (let charIndex = 0; charIndex < length; charIndex++) {
             const y = column.y + charIndex * FONT_SIZE;
 
             if (y > -50 && y < canvas.height) {
-              // 밝기 계산
               const positionInColumn = charIndex / length;
               let brightness = 0;
               if (positionInColumn > 0.3) {
@@ -294,13 +263,11 @@ const MatrixEffect: React.FC<MatrixEffectProps> = ({ context: _context, onClose 
             }
           }
 
-          // 위치 업데이트
           const actualElapsed = rainElapsed - column.startDelay;
           if (actualElapsed >= 0) {
             column.y += column.speed;
           }
 
-          // 재시작
           if (column.y > canvas.height + length * FONT_SIZE) {
             column.y = -length * FONT_SIZE - Math.random() * 200;
             for (let k = 0; k < length; k++) {

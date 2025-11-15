@@ -51,6 +51,27 @@
               border-color 3s ease-in-out;
 }
 
+/* CSS 변수 - Demon Slayer 테마 (무한성편) - 따뜻한 오렌지/레드 톤 */
+.demon-slayer-theme {
+  --color-background: #0f172a;
+  --color-background-secondary: #1a0f0f;
+  --color-surface: #1e1a1a;
+  --color-surface-elevated: #2a1f1f;
+  --color-text-primary: #fff5e6;
+  --color-text-secondary: #ffd4a3;
+  --color-text-muted: #ffb366;
+  --color-border: #3d2a1a;
+  --color-border-light: #4a3320;
+  transition: all 0.5s ease-out;
+}
+
+/* Demon Slayer 테마 전환 애니메이션 */
+.demon-slayer-theme * {
+  transition: background-color 0.5s ease-out, 
+              color 0.5s ease-out, 
+              border-color 0.5s ease-out;
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;
