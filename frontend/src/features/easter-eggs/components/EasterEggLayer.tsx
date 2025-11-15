@@ -10,19 +10,26 @@ const LazyEffectWrapper: React.FC<{
   const effect = easterEggRegistry.getEffect(effectId);
   if (!effect) return null;
 
+  // 리소스를 컴포넌트에 전달
+  const componentProps = {
+    context,
+    onClose,
+    ...(effect.resources && { resources: effect.resources }),
+  };
+
   if (effect.isHeavy) {
     const LazyComponent = lazy(() =>
       Promise.resolve({ default: effect.component })
     );
     return (
       <Suspense fallback={null}>
-        <LazyComponent context={context} onClose={onClose} />
+        <LazyComponent {...componentProps} />
       </Suspense>
     );
   }
 
   const Component = effect.component;
-  return <Component context={context} onClose={onClose} />;
+  return <Component {...componentProps} />;
 };
 
 export const EasterEggLayer: React.FC = () => {

@@ -61,7 +61,10 @@ const ChatInputBar: React.FC<ChatInputBarProps> = ({
   const [inputValue, setInputValue] = useState('');
   const [isFocused, setIsFocused] = useState(false);
   const [showEasterEggButton, setShowEasterEggButton] = useState(false);
-  const { triggerEasterEgg, isEasterEggMode, toggleEasterEggMode } = useEasterEggStore();
+  const { triggerEasterEgg, isEasterEggMode, toggleEasterEggMode, activeEffects } = useEasterEggStore();
+  
+  // 이스터에그가 동작 중인지 확인
+  const isEasterEggActive = activeEffects.length > 0;
 
   // 이스터에그 버튼 표시 여부 확인
   useEffect(() => {
@@ -143,26 +146,105 @@ const ChatInputBar: React.FC<ChatInputBarProps> = ({
         <div className="flex items-center gap-3">
           {/* 이스터에그 모드 토글 버튼 - 최초 테마 토글 클릭 후에만 표시 */}
           {showEasterEggButton && (
-            <button
-              type="button"
-              onClick={toggleEasterEggMode}
-              className={cn(
-                'flex-shrink-0 p-3 rounded-full transition-all duration-300 ease-in-out',
-                'hover:scale-110 active:scale-95 shadow-md',
-                isEasterEggMode 
-                  ? 'bg-yellow-400 dark:bg-yellow-500 text-yellow-900 dark:text-yellow-950 hover:bg-yellow-500 dark:hover:bg-yellow-600' 
-                  : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-300 hover:bg-gray-200 dark:hover:bg-slate-600'
+            <>
+              {/* 네온색 줄무늬 애니메이션을 위한 스타일 태그 */}
+              {isEasterEggActive && (
+                <style>{`
+                  @keyframes neonStripeMove {
+                    0% {
+                      background-position: 50% 0%;
+                    }
+                    100% {
+                      background-position: 50% 200%;
+                    }
+                  }
+                  .easter-egg-active-stripe {
+                    background: repeating-linear-gradient(
+                      0deg,
+                      #ff0080 0%,
+                      #ff0080 14.28%,
+                      #ff8000 14.28%,
+                      #ff8000 28.56%,
+                      #ffff00 28.56%,
+                      #ffff00 42.84%,
+                      #00ff00 42.84%,
+                      #00ff00 57.12%,
+                      #00ffff 57.12%,
+                      #00ffff 71.4%,
+                      #0080ff 71.4%,
+                      #0080ff 85.68%,
+                      #ff0080 85.68%,
+                      #ff0080 100%
+                    );
+                    background-size: 100% 200%;
+                    animation: neonStripeMove 2s linear infinite;
+                    box-shadow: 0 0 20px rgba(255, 0, 128, 0.6), 
+                                0 0 40px rgba(0, 255, 255, 0.4), 
+                                0 0 60px rgba(255, 255, 0, 0.3);
+                    position: relative;
+                    overflow: hidden;
+                  }
+                  .easter-egg-active-stripe::before {
+                    content: '';
+                    position: absolute;
+                    top: -100%;
+                    left: 0;
+                    width: 100%;
+                    height: 200%;
+                    background: linear-gradient(
+                      0deg,
+                      transparent,
+                      rgba(255, 255, 255, 0.3),
+                      transparent
+                    );
+                    animation: shimmer 2s infinite;
+                  }
+                  @keyframes shimmer {
+                    0% {
+                      top: -100%;
+                    }
+                    100% {
+                      top: 100%;
+                    }
+                  }
+                `}</style>
               )}
-              style={{
-                transitionDuration: transitions.normal,
-                transitionTimingFunction: easing['ease-in-out'],
-                boxShadow: shadows.md,
-              }}
-              aria-label={isEasterEggMode ? '이스터에그 모드 끄기' : '이스터에그 모드 켜기'}
-              title={isEasterEggMode ? '이스터에그 모드: 활성화됨 (모든 입력이 챗봇으로 전송되지 않음)' : '이스터에그 모드: 비활성화됨'}
-            >
-              <EggIcon isActive={isEasterEggMode} />
-            </button>
+              <button
+                type="button"
+                onClick={toggleEasterEggMode}
+                className={cn(
+                  'flex-shrink-0 p-3 rounded-full transition-all duration-300 ease-in-out',
+                  'hover:scale-110 active:scale-95 shadow-md relative overflow-hidden',
+                  // 이스터에그 동작 중일 때 네온색 줄무늬 애니메이션
+                  isEasterEggActive && 'easter-egg-active-stripe',
+                  !isEasterEggActive && (
+                    isEasterEggMode 
+                      ? 'bg-yellow-400 dark:bg-yellow-500 text-yellow-900 dark:text-yellow-950 hover:bg-yellow-500 dark:hover:bg-yellow-600' 
+                      : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-300 hover:bg-gray-200 dark:hover:bg-slate-600'
+                  )
+                )}
+                style={{
+                  transitionDuration: transitions.normal,
+                  transitionTimingFunction: easing['ease-in-out'],
+                  ...(!isEasterEggActive && { boxShadow: shadows.md }),
+                  ...(isEasterEggActive && { 
+                    color: '#000',
+                    fontWeight: 'bold',
+                    zIndex: 10,
+                  }),
+                }}
+                aria-label={isEasterEggMode ? '이스터에그 모드 끄기' : '이스터에그 모드 켜기'}
+                title={
+                  isEasterEggActive 
+                    ? `이스터에그 동작 중 (${activeEffects.length}개) - ESC로 중단 가능`
+                    : isEasterEggMode 
+                      ? '이스터에그 모드: 활성화됨 (모든 입력이 챗봇으로 전송되지 않음)' 
+                      : '이스터에그 모드: 비활성화됨'
+                }
+              >
+                <EggIcon isActive={isEasterEggMode || isEasterEggActive} />
+              </button>
+            </>
           )}
 
           {/* Input Field */}
@@ -172,7 +254,7 @@ const ChatInputBar: React.FC<ChatInputBarProps> = ({
             onChange={(e) => setInputValue(e.target.value)}
             onFocus={handleFocus}
             onBlur={handleBlur}
-            placeholder={isEasterEggMode ? '이스터에그 모드: 이스터에그를 찾아보세요...' : placeholder}
+            placeholder={isEasterEggMode ? '이스터에그 모드' : placeholder}
             disabled={isLoading}
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {

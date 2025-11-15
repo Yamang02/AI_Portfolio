@@ -1,0 +1,87 @@
+{
+  "triggers": [
+    {
+      "id": "confetti-celebration",
+      "type": "regex",
+      "pattern": "(축하|축하해|축하합니다|축하해요)",
+      "name": "축하 컨페티",
+      "description": "축하 관련 문구를 입력하면 컨페티가 터집니다",
+      "enabled": true,
+      "caseSensitive": false,
+      "blockMessage": false
+    },
+    {
+      "id": "video-surprise",
+      "type": "exact",
+      "pattern": "비디오",
+      "name": "비디오 재생",
+      "description": "\"비디오\"를 입력하면 특별한 비디오가 재생됩니다",
+      "enabled": true,
+      "caseSensitive": false,
+      "blockMessage": true
+    },
+    {
+      "id": "audio-surprise",
+      "type": "regex",
+      "pattern": "(음악|노래|음성)",
+      "name": "음성 재생",
+      "description": "음악 관련 문구를 입력하면 특별한 음성이 재생됩니다",
+      "enabled": true,
+      "caseSensitive": false,
+      "blockMessage": true
+    }
+  ],
+  "effects": [
+    {
+      "id": "confetti-celebration",
+      "componentPath": "effects/confetti/ConfettiEffect",
+      "duration": 3000,
+      "zIndex": 1000,
+      "isHeavy": false,
+      "resources": [],
+      "alwaysEnabled": false
+    },
+    {
+      "id": "name-click-5",
+      "componentPath": "effects/giant-block/GiantBlockEffect",
+      "duration": 0,
+      "zIndex": 1000,
+      "isHeavy": false,
+      "resources": [],
+      "alwaysEnabled": true
+    },
+    {
+      "id": "video-surprise",
+      "componentPath": "effects/video/VideoEffect",
+      "duration": 0,
+      "zIndex": 2000,
+      "isHeavy": true,
+      "resources": [
+        {
+          "type": "video",
+          "path": "/easter-eggs/videos/surprise.mp4",
+          "preload": true
+        }
+      ],
+      "alwaysEnabled": false
+    },
+    {
+      "id": "audio-surprise",
+      "componentPath": "effects/audio/AudioEffect",
+      "duration": 0,
+      "zIndex": 1500,
+      "isHeavy": false,
+      "resources": [
+        {
+          "type": "audio",
+          "path": "/easter-eggs/audio/surprise.mp3",
+          "preload": false,
+          "loop": false,
+          "volume": 0.7
+        }
+      ],
+      "alwaysEnabled": false
+    }
+  ]
+}
+

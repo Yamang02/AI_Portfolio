@@ -64,17 +64,20 @@ export function useEasterEggTrigger({
 }
 
 export function useEasterEggEscapeKey(): void {
-  const { dismissAll } = useEasterEggStore();
+  const { dismissAll, activeEffects } = useEasterEggStore();
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+      // 이스터에그가 동작 중일 때만 ESC로 중단
+      if (e.key === 'Escape' && activeEffects.length > 0) {
+        e.preventDefault();
+        e.stopPropagation();
         dismissAll();
       }
     };
 
-    window.addEventListener('keydown', handleEscape);
-    return () => window.removeEventListener('keydown', handleEscape);
-  }, [dismissAll]);
+    window.addEventListener('keydown', handleEscape, true); // capture phase에서 처리하여 다른 핸들러보다 먼저 실행
+    return () => window.removeEventListener('keydown', handleEscape, true);
+  }, [dismissAll, activeEffects]);
 }
 

@@ -31,11 +31,22 @@ export interface EasterEggState {
   isEasterEggMode: boolean;
 }
 
+export interface EasterEggResource {
+  type: 'video' | 'audio' | 'image';
+  path: string;
+  preload?: boolean;
+  loop?: boolean;
+  volume?: number;
+  [key: string]: unknown;
+}
+
 export interface EasterEggEffect {
   id: string;
   component: React.ComponentType<{ context: EasterEggContext; onClose: () => void }>;
   duration?: number;
   zIndex?: number;
   isHeavy?: boolean;
+  resources?: EasterEggResource[];
+  alwaysEnabled?: boolean; // 이스터에그 모드 없이도 작동하는지 여부
 }
 

@@ -25,9 +25,8 @@ export type {
   TriggerType,
 } from './model/easter-egg.types';
 
-// Config
-export { defaultTriggers } from './config/defaultTriggers';
-export { defaultEffects } from './config/defaultEffects';
+// Config Loader
+export { loadEasterEggConfig, loadTriggersSync } from './config/easterEggConfigLoader';
 
 // Utils
 export { matchTrigger, findMatchingTriggers } from './lib/trigger-matcher';

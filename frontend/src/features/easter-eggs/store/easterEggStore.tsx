@@ -1,5 +1,7 @@
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
-import type { ActiveEasterEgg, EasterEggState, EasterEggContext } from '../model/easter-egg.types';
+import React, { createContext, useContext, useState, useCallback, ReactNode, useEffect } from 'react';
+import type { ActiveEasterEgg, EasterEggState, EasterEggContext, EasterEggResource } from '../model/easter-egg.types';
+import { easterEggRegistry } from '../registry/easterEggRegistry';
+import { resourcePreloader, type PreloadStatus } from '../lib/resourcePreloader';
 
 interface EasterEggStoreValue extends EasterEggState {
   triggerEasterEgg: (id: string, context: EasterEggContext) => void;
@@ -12,6 +14,8 @@ interface EasterEggStoreValue extends EasterEggState {
   discoveredEasterEggs: Set<string>;
   markEasterEggDiscovered: (id: string) => void;
   isEasterEggDiscovered: (id: string) => boolean;
+  preloadStatus: PreloadStatus | null;
+  isPreloading: boolean;
 }
 
 const EasterEggContext = createContext<EasterEggStoreValue | undefined>(undefined);
@@ -62,15 +66,22 @@ export const EasterEggProvider: React.FC<EasterEggProviderProps> = ({
   const [isEnabled, setIsEnabled] = useState(initialEnabled);
   const [maxConcurrent, setMaxConcurrentState] = useState(initialMaxConcurrent);
   const [isEasterEggMode, setIsEasterEggMode] = useState(false);
-  const [discoveredEasterEggs, setDiscoveredEasterEggs] = useState<Set<string>>(() => 
+  const [discoveredEasterEggs, setDiscoveredEasterEggs] = useState<Set<string>>(() =>
     loadDiscoveredEasterEggs()
   );
+  const [preloadStatus, setPreloadStatus] = useState<PreloadStatus | null>(null);
+  const [isPreloading, setIsPreloading] = useState(false);
 
   const triggerEasterEgg = useCallback(
     (id: string, context: EasterEggContext) => {
       if (!isEnabled) return;
 
-      if (!isEasterEggMode && id !== 'name-click-5') {
+      // 이펙트 정보 가져오기
+      const effect = easterEggRegistry.getEffect(id);
+      const isAlwaysEnabled = effect?.alwaysEnabled ?? false;
+
+      // 이스터에그 모드가 아니고 항상 활성화되지 않은 경우 차단
+      if (!isEasterEggMode && !isAlwaysEnabled) {
         return;
       }
 
@@ -136,8 +147,23 @@ export const EasterEggProvider: React.FC<EasterEggProviderProps> = ({
     setIsEasterEggMode(prev => !prev);
   }, []);
 
-  const enableEasterEggMode = useCallback(() => {
+  const enableEasterEggMode = useCallback(async () => {
     setIsEasterEggMode(true);
+
+    // 백그라운드에서 리소스 프리로드 시작
+    setIsPreloading(true);
+    try {
+      const status = await resourcePreloader.preloadAll();
+      setPreloadStatus(status);
+
+      if (status.failedResources.length > 0) {
+        console.warn('일부 리소스 로드 실패:', status.failedResources);
+      }
+    } catch (error) {
+      console.error('리소스 프리로드 실패:', error);
+    } finally {
+      setIsPreloading(false);
+    }
   }, []);
 
   const markEasterEggDiscovered = useCallback((id: string) => {
@@ -171,6 +197,8 @@ export const EasterEggProvider: React.FC<EasterEggProviderProps> = ({
     discoveredEasterEggs,
     markEasterEggDiscovered,
     isEasterEggDiscovered,
+    preloadStatus,
+    isPreloading,
   };
 
   return <EasterEggContext.Provider value={value}>{children}</EasterEggContext.Provider>;

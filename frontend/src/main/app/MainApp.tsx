@@ -12,9 +12,10 @@ import {
   EasterEggLayer,
   useEasterEggEscapeKey,
   easterEggRegistry,
-  defaultTriggers,
-  defaultEffects,
 } from '@features/easter-eggs';
+import { loadEasterEggConfig } from '@features/easter-eggs/config/easterEggConfigLoader';
+import { MobileFeatureNotice } from '../shared/ui/MobileFeatureNotice';
+import { useFeatureAvailability } from '../shared/lib/hooks/useFeatureAvailability';
 
 const MainAppContent: React.FC = () => {
   const {
@@ -31,8 +32,33 @@ const MainAppContent: React.FC = () => {
     setHistoryPanelOpen
   } = useApp();
 
+  const { shouldShowMobileNotice } = useFeatureAvailability();
+
   // ESC 키로 이스터에그 종료
   useEasterEggEscapeKey();
+
+  // ESC 키 매핑: 열린 패널 닫기 (공통)
+  useEffect(() => {
+    const handleEscKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        // 챗봇이 열려있으면 닫기
+        if (isChatbotOpen) {
+          setChatbotOpen(false);
+          return;
+        }
+        // 히스토리 패널이 열려있으면 닫기
+        if (isHistoryPanelOpen) {
+          setHistoryPanelOpen(false);
+          return;
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleEscKey);
+    return () => {
+      window.removeEventListener('keydown', handleEscKey);
+    };
+  }, [isChatbotOpen, isHistoryPanelOpen, setChatbotOpen, setHistoryPanelOpen]);
 
   // React Router의 기본 스크롤 복원 비활성화
   React.useEffect(() => {
@@ -76,7 +102,7 @@ const MainAppContent: React.FC = () => {
   }
 
   return (
-    <div 
+    <div
       className="min-h-screen font-sans transition-colors"
       style={{
         backgroundColor: 'var(--color-background)',
@@ -85,7 +111,14 @@ const MainAppContent: React.FC = () => {
     >
       {/* 공통 헤더 - Admin 페이지를 제외한 모든 페이지에 표시 */}
       <Header />
-      
+
+      {/* 모바일 기능 안내 메시지 */}
+      {shouldShowMobileNotice && (
+        <div className="container mx-auto px-4 pt-4">
+          <MobileFeatureNotice />
+        </div>
+      )}
+
       <Routes>
         {/* 홈 페이지 */}
         <Route path="/" element={
@@ -107,7 +140,7 @@ const MainAppContent: React.FC = () => {
         {/* 프로젝트 상세 페이지 */}
         <Route path="/projects/:id" element={<ProjectDetailPage />} />
       </Routes>
-      
+
       {/* 이스터에그 레이어 */}
       <EasterEggLayer />
     </div>
@@ -115,16 +148,27 @@ const MainAppContent: React.FC = () => {
 };
 
 const MainApp: React.FC = () => {
-  // 이스터에그 초기화
+  // 이스터에그 초기화 - JSON 설정 파일에서 로드
   useEffect(() => {
-    // 기본 트리거 및 이펙트 등록
-    defaultTriggers.forEach(trigger => {
-      easterEggRegistry.registerTrigger(trigger);
-    });
+    const initializeEasterEggs = async () => {
+      try {
+        const { triggers, effects } = await loadEasterEggConfig();
+        
+        // 트리거 등록
+        triggers.forEach(trigger => {
+          easterEggRegistry.registerTrigger(trigger);
+        });
 
-    defaultEffects.forEach(effect => {
-      easterEggRegistry.registerEffect(effect);
-    });
+        // 이펙트 등록
+        effects.forEach(effect => {
+          easterEggRegistry.registerEffect(effect);
+        });
+      } catch (error) {
+        console.error('Failed to load easter egg config:', error);
+      }
+    };
+
+    initializeEasterEggs();
   }, []);
 
   return (

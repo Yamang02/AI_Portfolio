@@ -5,6 +5,7 @@ import { PortfolioSection } from '@features/project-gallery';
 import { Chatbot } from '@features/chatbot';
 import { ChatInputBar, SpeedDialFab } from '@shared/ui';
 import { checkEasterEggTrigger, useEasterEggStore, triggerEasterEggs } from '@features/easter-eggs';
+import { useFeatureAvailability } from '../../shared/lib/hooks/useFeatureAvailability';
 
 interface HomePageProps {
   projects: any[];
@@ -43,6 +44,7 @@ const HomePage: React.FC<HomePageProps> = ({
   const [messageToSend, setMessageToSend] = useState<string>('');
   const [isFabOpen, setIsFabOpen] = useState(false);
   const { triggerEasterEgg, isEasterEggMode } = useEasterEggStore();
+  const { canUseEasterEgg } = useFeatureAvailability();
 
   // 마운트 시 스크롤 위치 복원
   useEffect(() => {
@@ -102,23 +104,26 @@ const HomePage: React.FC<HomePageProps> = ({
 
   // 채팅 입력창에서 메시지 전송
   const handleChatInputSend = (message: string) => {
-    // 이스터에그 트리거 체크
-    const { shouldBlock, triggers } = checkEasterEggTrigger(message, isEasterEggMode);
-    
-    if (triggers.length > 0) {
-      triggerEasterEggs(triggers, message, triggerEasterEgg);
-      
-      // 이스터에그 전용 문구는 챗봇으로 전송하지 않음
-      if (shouldBlock) {
+    // 모바일에서는 이스터에그 기능 비활성화
+    if (canUseEasterEgg) {
+      // 이스터에그 트리거 체크
+      const { shouldBlock, triggers } = checkEasterEggTrigger(message, isEasterEggMode);
+
+      if (triggers.length > 0) {
+        triggerEasterEggs(triggers, message, triggerEasterEgg);
+
+        // 이스터에그 전용 문구는 챗봇으로 전송하지 않음
+        if (shouldBlock) {
+          return;
+        }
+      }
+
+      // 이스터에그 모드가 활성화되어 있으면 모든 입력 차단
+      if (isEasterEggMode) {
         return;
       }
     }
-    
-    // 이스터에그 모드가 활성화되어 있으면 모든 입력 차단
-    if (isEasterEggMode) {
-      return;
-    }
-    
+
     setPendingMessage(message);
     setMessageToSend(message);
   };
