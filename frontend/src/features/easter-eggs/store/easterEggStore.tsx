@@ -9,9 +9,43 @@ interface EasterEggStoreValue extends EasterEggState {
   setMaxConcurrent: (max: number) => void;
   toggleEasterEggMode: () => void;
   enableEasterEggMode: () => void;
+  discoveredEasterEggs: Set<string>;
+  markEasterEggDiscovered: (id: string) => void;
+  isEasterEggDiscovered: (id: string) => boolean;
 }
 
 const EasterEggContext = createContext<EasterEggStoreValue | undefined>(undefined);
+
+const DISCOVERED_EASTER_EGGS_KEY = 'portfolio-discovered-easter-eggs';
+
+// localStorage에서 발견된 이스터에그 목록 로드
+const loadDiscoveredEasterEggs = (): Set<string> => {
+  if (typeof window === 'undefined') return new Set();
+  
+  try {
+    const stored = localStorage.getItem(DISCOVERED_EASTER_EGGS_KEY);
+    if (stored) {
+      const ids = JSON.parse(stored) as string[];
+      return new Set(ids);
+    }
+  } catch (error) {
+    console.error('Failed to load discovered easter eggs:', error);
+  }
+  
+  return new Set();
+};
+
+// localStorage에 발견된 이스터에그 목록 저장
+const saveDiscoveredEasterEggs = (discovered: Set<string>) => {
+  if (typeof window === 'undefined') return;
+  
+  try {
+    const ids = Array.from(discovered);
+    localStorage.setItem(DISCOVERED_EASTER_EGGS_KEY, JSON.stringify(ids));
+  } catch (error) {
+    console.error('Failed to save discovered easter eggs:', error);
+  }
+};
 
 interface EasterEggProviderProps {
   children: ReactNode;
@@ -28,6 +62,9 @@ export const EasterEggProvider: React.FC<EasterEggProviderProps> = ({
   const [isEnabled, setIsEnabled] = useState(initialEnabled);
   const [maxConcurrent, setMaxConcurrentState] = useState(initialMaxConcurrent);
   const [isEasterEggMode, setIsEasterEggMode] = useState(false);
+  const [discoveredEasterEggs, setDiscoveredEasterEggs] = useState<Set<string>>(() => 
+    loadDiscoveredEasterEggs()
+  );
 
   const triggerEasterEgg = useCallback(
     (id: string, context: EasterEggContext) => {
@@ -36,6 +73,17 @@ export const EasterEggProvider: React.FC<EasterEggProviderProps> = ({
       if (!isEasterEggMode && id !== 'name-click-5') {
         return;
       }
+
+      // 이스터에그 발견 기록
+      setDiscoveredEasterEggs(prev => {
+        if (prev.has(id)) {
+          return prev;
+        }
+        const newSet = new Set(prev);
+        newSet.add(id);
+        saveDiscoveredEasterEggs(newSet);
+        return newSet;
+      });
 
       setActiveEffects(prev => {
         if (prev.some(effect => effect.id === id)) {
@@ -92,6 +140,22 @@ export const EasterEggProvider: React.FC<EasterEggProviderProps> = ({
     setIsEasterEggMode(true);
   }, []);
 
+  const markEasterEggDiscovered = useCallback((id: string) => {
+    setDiscoveredEasterEggs(prev => {
+      if (prev.has(id)) {
+        return prev;
+      }
+      const newSet = new Set(prev);
+      newSet.add(id);
+      saveDiscoveredEasterEggs(newSet);
+      return newSet;
+    });
+  }, []);
+
+  const isEasterEggDiscovered = useCallback((id: string) => {
+    return discoveredEasterEggs.has(id);
+  }, [discoveredEasterEggs]);
+
   const value: EasterEggStoreValue = {
     activeEffects,
     maxConcurrent,
@@ -104,6 +168,9 @@ export const EasterEggProvider: React.FC<EasterEggProviderProps> = ({
     setMaxConcurrent,
     toggleEasterEggMode,
     enableEasterEggMode,
+    discoveredEasterEggs,
+    markEasterEggDiscovered,
+    isEasterEggDiscovered,
   };
 
   return <EasterEggContext.Provider value={value}>{children}</EasterEggContext.Provider>;

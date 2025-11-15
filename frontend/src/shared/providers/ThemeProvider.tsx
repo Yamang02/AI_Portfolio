@@ -20,7 +20,7 @@ const getSystemTheme = (): Theme => {
 };
 
 /**
- * 저장된 테마 또는 시스템 테마 가져오기
+ * 저장된 테마 가져오기 (기본값: light)
  */
 const getInitialTheme = (): Theme => {
   if (typeof window === 'undefined') return 'light';
@@ -30,7 +30,8 @@ const getInitialTheme = (): Theme => {
     return stored;
   }
   
-  return getSystemTheme();
+  // 기본값은 항상 light 모드
+  return 'light';
 };
 
 interface ThemeProviderProps {
@@ -62,31 +63,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     }
   }, [theme]);
 
-  // 시스템 테마 변경 감지
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    
-    const handleChange = (e: MediaQueryListEvent) => {
-      // 저장된 테마가 없을 때만 시스템 테마를 따름
-      const stored = localStorage.getItem(THEME_STORAGE_KEY);
-      if (!stored) {
-        setThemeState(e.matches ? 'dark' : 'light');
-      }
-    };
-
-    // 최신 브라우저
-    if (mediaQuery.addEventListener) {
-      mediaQuery.addEventListener('change', handleChange);
-      return () => mediaQuery.removeEventListener('change', handleChange);
-    } 
-    // 구형 브라우저 지원
-    else if (mediaQuery.addListener) {
-      mediaQuery.addListener(handleChange);
-      return () => mediaQuery.removeListener(handleChange);
-    }
-  }, []);
+  // 시스템 테마 변경 감지는 비활성화 (기본값은 항상 light)
 
   const setTheme = useCallback((newTheme: Theme) => {
     setThemeState(newTheme);

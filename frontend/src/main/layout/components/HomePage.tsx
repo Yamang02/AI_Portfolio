@@ -94,6 +94,13 @@ const HomePage: React.FC<HomePageProps> = ({
     };
   }, [isChatbotOpen, isHistoryPanelOpen, onChatbotToggle, onHistoryPanelToggle]);
 
+  // 모드 전환 시 챗봇 닫기
+  useEffect(() => {
+    if (isEasterEggMode && isChatbotOpen) {
+      onChatbotToggle();
+    }
+  }, [isEasterEggMode, isChatbotOpen, onChatbotToggle]);
+
   // 채팅 입력창에서 메시지 전송
   const handleChatInputSend = (message: string) => {
     // 이스터에그 트리거 체크
@@ -117,8 +124,13 @@ const HomePage: React.FC<HomePageProps> = ({
     setMessageToSend(message);
   };
 
-  // 채팅 입력창 포커스 시 챗봇 자동 열기
+  // 채팅 입력창 포커스 시 챗봇 자동 열기 (이스터에그 모드에서는 비활성화)
   const handleChatInputFocus = () => {
+    // 이스터에그 모드에서는 챗봇 자동 열기 비활성화
+    if (isEasterEggMode) {
+      return;
+    }
+    
     if (!isChatbotOpen) {
       onChatbotToggle();
     }
@@ -129,18 +141,22 @@ const HomePage: React.FC<HomePageProps> = ({
     setMessageToSend('');
   };
 
-  // Speed Dial 액션 정의
+  // Speed Dial 액션 정의 (이스터에그 모드에 따라 버튼 변경)
   const speedDialActions = [
     {
-      icon: (
+      icon: isEasterEggMode ? (
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+        </svg>
+      ) : (
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="12" cy="12" r="10"></circle>
           <polyline points="12 6 12 12 16 14"></polyline>
         </svg>
       ),
-      label: '프로젝트 히스토리',
+      label: isEasterEggMode ? '이스터에그 목록' : '프로젝트 히스토리',
       onClick: onHistoryPanelToggle,
-      color: 'bg-orange-500 text-white hover:bg-orange-600'
+      color: isEasterEggMode ? 'bg-yellow-500 text-white hover:bg-yellow-600' : 'bg-orange-500 text-white hover:bg-orange-600'
     },
     {
       icon: (

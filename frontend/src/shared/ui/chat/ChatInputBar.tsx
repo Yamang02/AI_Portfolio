@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { cn } from '../../lib/utils/cn';
 import { colors, transitions, easing, shadows, borderRadius, focusRing } from '../../config/theme';
 import { useEasterEggTrigger, useEasterEggStore, checkEasterEggTrigger, triggerEasterEggs } from '@features/easter-eggs';
+
+const THEME_TOGGLE_FIRST_CLICK_KEY = 'portfolio-theme-toggle-first-click';
 
 interface ChatInputBarProps {
   onSendMessage: (message: string) => void;
@@ -58,7 +60,31 @@ const ChatInputBar: React.FC<ChatInputBarProps> = ({
 }) => {
   const [inputValue, setInputValue] = useState('');
   const [isFocused, setIsFocused] = useState(false);
+  const [showEasterEggButton, setShowEasterEggButton] = useState(false);
   const { triggerEasterEgg, isEasterEggMode, toggleEasterEggMode } = useEasterEggStore();
+
+  // 이스터에그 버튼 표시 여부 확인
+  useEffect(() => {
+    // 초기 로드 시 localStorage 확인 (명시적으로 'true'일 때만 표시)
+    const checkButtonVisibility = () => {
+      const hasThemeToggleClicked = localStorage.getItem(THEME_TOGGLE_FIRST_CLICK_KEY);
+      // localStorage에 값이 없거나 'true'가 아닌 경우 버튼 숨김
+      const shouldShow = hasThemeToggleClicked === 'true';
+      setShowEasterEggButton(shouldShow);
+    };
+
+    checkButtonVisibility();
+
+    // 이벤트 리스너: 테마 토글 최초 클릭 시 버튼 표시
+    const handleEasterEggButtonRevealed = () => {
+      setShowEasterEggButton(true);
+    };
+
+    window.addEventListener('easterEggButtonRevealed', handleEasterEggButtonRevealed);
+    return () => {
+      window.removeEventListener('easterEggButtonRevealed', handleEasterEggButtonRevealed);
+    };
+  }, []);
 
   // 이스터에그 트리거 감지 (입력 중)
   useEasterEggTrigger({
@@ -115,27 +141,29 @@ const ChatInputBar: React.FC<ChatInputBarProps> = ({
     >
       <div className="container mx-auto px-4 py-4 max-w-4xl">
         <div className="flex items-center gap-3">
-          {/* 이스터에그 모드 토글 버튼 */}
-          <button
-            type="button"
-            onClick={toggleEasterEggMode}
-            className={cn(
-              'flex-shrink-0 p-3 rounded-full transition-all duration-300 ease-in-out',
-              'hover:scale-110 active:scale-95 shadow-md',
-              isEasterEggMode 
-                ? 'bg-yellow-400 dark:bg-yellow-500 text-yellow-900 dark:text-yellow-950 hover:bg-yellow-500 dark:hover:bg-yellow-600' 
-                : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-300 hover:bg-gray-200 dark:hover:bg-slate-600'
-            )}
-            style={{
-              transitionDuration: transitions.normal,
-              transitionTimingFunction: easing['ease-in-out'],
-              boxShadow: shadows.md,
-            }}
-            aria-label={isEasterEggMode ? '이스터에그 모드 끄기' : '이스터에그 모드 켜기'}
-            title={isEasterEggMode ? '이스터에그 모드: 활성화됨 (모든 입력이 챗봇으로 전송되지 않음)' : '이스터에그 모드: 비활성화됨'}
-          >
-            <EggIcon isActive={isEasterEggMode} />
-          </button>
+          {/* 이스터에그 모드 토글 버튼 - 최초 테마 토글 클릭 후에만 표시 */}
+          {showEasterEggButton && (
+            <button
+              type="button"
+              onClick={toggleEasterEggMode}
+              className={cn(
+                'flex-shrink-0 p-3 rounded-full transition-all duration-300 ease-in-out',
+                'hover:scale-110 active:scale-95 shadow-md',
+                isEasterEggMode 
+                  ? 'bg-yellow-400 dark:bg-yellow-500 text-yellow-900 dark:text-yellow-950 hover:bg-yellow-500 dark:hover:bg-yellow-600' 
+                  : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-300 hover:bg-gray-200 dark:hover:bg-slate-600'
+              )}
+              style={{
+                transitionDuration: transitions.normal,
+                transitionTimingFunction: easing['ease-in-out'],
+                boxShadow: shadows.md,
+              }}
+              aria-label={isEasterEggMode ? '이스터에그 모드 끄기' : '이스터에그 모드 켜기'}
+              title={isEasterEggMode ? '이스터에그 모드: 활성화됨 (모든 입력이 챗봇으로 전송되지 않음)' : '이스터에그 모드: 비활성화됨'}
+            >
+              <EggIcon isActive={isEasterEggMode} />
+            </button>
+          )}
 
           {/* Input Field */}
           <input

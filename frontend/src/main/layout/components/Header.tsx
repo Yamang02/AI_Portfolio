@@ -2,8 +2,25 @@ import React from 'react';
 import { SettingOutlined } from '@ant-design/icons';
 import { useTheme } from '@shared/providers/ThemeProvider';
 
+const THEME_TOGGLE_FIRST_CLICK_KEY = 'portfolio-theme-toggle-first-click';
+
 const Header: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
+
+  const handleThemeToggle = () => {
+    // 최초 클릭 여부 확인
+    const hasClickedBefore = localStorage.getItem(THEME_TOGGLE_FIRST_CLICK_KEY);
+    
+    if (!hasClickedBefore) {
+      // 최초 클릭 시 이스터에그 버튼 표시 플래그 저장
+      localStorage.setItem(THEME_TOGGLE_FIRST_CLICK_KEY, 'true');
+      // 이벤트를 발생시켜 다른 컴포넌트에 알림
+      window.dispatchEvent(new CustomEvent('easterEggButtonRevealed'));
+    }
+    
+    // 테마 토글 실행
+    toggleTheme();
+  };
   return (
     <header 
       className="w-full sticky top-0 z-50 border-b transition-colors"
@@ -81,7 +98,7 @@ const Header: React.FC = () => {
           
           {/* 다크모드 토글 버튼 */}
           <button
-            onClick={toggleTheme}
+            onClick={handleThemeToggle}
             className="text-sm text-text-secondary hover:text-primary-600 dark:hover:text-primary-400 transition-colors cursor-pointer flex items-center gap-1 p-2 rounded-md hover:bg-surface-elevated"
             title={theme === 'dark' ? '라이트 모드로 전환' : '다크 모드로 전환'}
             aria-label={theme === 'dark' ? '라이트 모드로 전환' : '다크 모드로 전환'}
