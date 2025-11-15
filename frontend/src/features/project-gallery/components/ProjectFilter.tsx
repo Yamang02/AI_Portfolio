@@ -111,10 +111,10 @@ const ProjectFilter: React.FC<ProjectFilterProps> = ({
   };
 
   return (
-    <div className={`bg-white rounded-lg shadow-md p-6 mb-6 ${className}`}>
+    <div className={`bg-surface dark:bg-slate-800 rounded-lg shadow-md p-6 mb-6 border border-border ${className}`}>
       {/* 검색 기능 */}
       <div className="mb-6">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium text-text-secondary mb-2">
           프로젝트 검색
         </label>
         <input
@@ -122,20 +122,20 @@ const ProjectFilter: React.FC<ProjectFilterProps> = ({
           value={filters.searchQuery}
           onChange={(e) => updateFilter('searchQuery', e.target.value)}
           placeholder="프로젝트명을 입력하세요..."
-          className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          className="w-full px-4 py-2 border border-border bg-surface dark:bg-slate-700 text-text-primary rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
         />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
         {/* 팀/개인 필터 */}
         <div className="lg:col-span-1">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-text-secondary mb-2">
             팀/개인
           </label>
           <select
             value={filters.isTeam}
             onChange={(e) => updateFilter('isTeam', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-3 py-2 border border-border bg-surface dark:bg-slate-700 text-text-primary rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
           >
             <option value="all">전체</option>
             <option value="team">팀 프로젝트</option>
@@ -145,13 +145,13 @@ const ProjectFilter: React.FC<ProjectFilterProps> = ({
 
         {/* 프로젝트 타입 필터 */}
         <div className="lg:col-span-1">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-text-secondary mb-2">
             프로젝트 타입
           </label>
           <select
             value={filters.projectType}
             onChange={(e) => updateFilter('projectType', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-3 py-2 border border-border bg-surface dark:bg-slate-700 text-text-primary rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
           >
             <option value="all">전체</option>
             <option value="BUILD">BUILD</option>
@@ -162,13 +162,13 @@ const ProjectFilter: React.FC<ProjectFilterProps> = ({
 
         {/* 상태 필터 */}
         <div className="lg:col-span-1">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-text-secondary mb-2">
             상태
           </label>
           <select
             value={filters.status}
             onChange={(e) => updateFilter('status', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-3 py-2 border border-border bg-surface dark:bg-slate-700 text-text-primary rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
           >
             <option value="all">전체</option>
             <option value="completed">완료</option>
@@ -179,13 +179,13 @@ const ProjectFilter: React.FC<ProjectFilterProps> = ({
 
         {/* 정렬 */}
         <div className="lg:col-span-1">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-text-secondary mb-2">
             정렬
           </label>
           <select
             value={filters.sortBy}
             onChange={(e) => updateFilter('sortBy', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-3 py-2 border border-border bg-surface dark:bg-slate-700 text-text-primary rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
           >
             <option value="startDate">시작일</option>
             <option value="endDate">종료일</option>
@@ -202,21 +202,21 @@ const ProjectFilter: React.FC<ProjectFilterProps> = ({
           <div className="flex items-center gap-2">
             <button
               onClick={() => updateFilter('sortOrder', filters.sortOrder === 'asc' ? 'desc' : 'asc')}
-              className="w-10 h-10 flex items-center justify-center border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-10 h-10 flex items-center justify-center border border-border bg-surface dark:bg-slate-700 text-text-primary rounded-md shadow-sm hover:bg-surface-elevated dark:hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               title={filters.sortOrder === 'asc' ? '오름차순' : '내림차순'}
             >
               {filters.sortOrder === 'asc' ? '↑' : '↓'}
             </button>
             <button
               onClick={resetFilters}
-              className="w-10 h-10 flex items-center justify-center border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-10 h-10 flex items-center justify-center border border-border bg-surface dark:bg-slate-700 text-text-primary rounded-md shadow-sm hover:bg-surface-elevated dark:hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               title="필터 초기화"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
             </button>
-            <span className="text-sm text-blue-600 ml-2">
+            <span className="text-sm text-primary-600 dark:text-primary-400 ml-2">
               총 {projects.length}개 프로젝트
             </span>
           </div>
@@ -226,10 +226,10 @@ const ProjectFilter: React.FC<ProjectFilterProps> = ({
       {/* 기술 스택 필터 (분야별 배지 방식) */}
       <div className="mt-6">
         <div className="flex items-center justify-between mb-4">
-          <label className="block text-sm font-medium text-gray-700">
+          <label className="block text-sm font-medium text-text-secondary">
             기술 스택 필터
             {filters.selectedTechs.length > 0 && (
-              <span className="ml-2 text-xs text-blue-600">
+              <span className="ml-2 text-xs text-primary-600 dark:text-primary-400">
                 ({filters.selectedTechs.length}개 선택됨)
               </span>
             )}
@@ -237,7 +237,7 @@ const ProjectFilter: React.FC<ProjectFilterProps> = ({
           {filters.selectedTechs.length > 0 && (
             <button
               onClick={() => onFilterOptionsChange({ ...filters, selectedTechs: [] })}
-              className="text-xs text-gray-500 hover:text-gray-700 underline"
+              className="text-xs text-text-muted hover:text-text-primary underline"
             >
               선택 해제
             </button>
@@ -248,7 +248,7 @@ const ProjectFilter: React.FC<ProjectFilterProps> = ({
           <div className="space-y-4">
             {[...Array(4)].map((_, index) => (
               <div key={index} className="space-y-2">
-                <div className="h-4 bg-gray-200 rounded w-32 animate-pulse"></div>
+                <div className="h-4 bg-gray-200 dark:bg-slate-700 rounded w-32 animate-pulse"></div>
                 <div className="flex flex-wrap gap-2">
                   {[...Array(6)].map((_, badgeIndex) => (
                     <div key={badgeIndex} className="tech-badge tech-badge--loading">
@@ -264,13 +264,13 @@ const ProjectFilter: React.FC<ProjectFilterProps> = ({
             {categorizeTechStack(availableTechs.map(tech => tech.name)).map((group) => (
               <div key={group.name} className="space-y-3">
                 <div className="flex items-center gap-2">
-                  <h4 className="text-sm font-semibold text-gray-800">
+                  <h4 className="text-sm font-semibold text-text-primary">
                     {group.name}
                   </h4>
-                  <span className="text-xs text-gray-500">
+                  <span className="text-xs text-text-muted">
                     ({group.techs.length}개)
                   </span>
-                  <div className="flex-1 h-px bg-gray-200"></div>
+                  <div className="flex-1 h-px bg-border"></div>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {group.techs.map((techName) => {

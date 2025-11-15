@@ -108,11 +108,9 @@ const AdminLayout: React.FC = () => {
       <Layout>
         <Header style={{
           padding: '0 24px',
-          background: '#fff',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          borderBottom: '1px solid #f0f0f0',
         }}>
           <Button
             type="text"
@@ -147,7 +145,6 @@ const AdminLayout: React.FC = () => {
         <Content style={{
           margin: '24px',
           padding: '24px',
-          background: '#fff',
           borderRadius: '8px',
           minHeight: 'calc(100vh - 112px)',
         }}>

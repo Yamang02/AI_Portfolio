@@ -1,5 +1,4 @@
 import React from 'react';
-import './TechStackBadge.css';
 
 // 기술 스택 타입 정의
 export interface TechStack {

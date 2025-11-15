@@ -4,6 +4,7 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
@@ -19,6 +20,24 @@ export default {
           '800': '#5b21b6',
           '900': '#4c1d95',
           '950': '#2e1065',
+        },
+        // 시맨틱 색상 (다크모드 지원)
+        background: {
+          DEFAULT: 'var(--color-background)',
+          secondary: 'var(--color-background-secondary)',
+        },
+        surface: {
+          DEFAULT: 'var(--color-surface)',
+          elevated: 'var(--color-surface-elevated)',
+        },
+        text: {
+          primary: 'var(--color-text-primary)',
+          secondary: 'var(--color-text-secondary)',
+          muted: 'var(--color-text-muted)',
+        },
+        border: {
+          DEFAULT: 'var(--color-border)',
+          light: 'var(--color-border-light)',
         },
       },
       keyframes: {

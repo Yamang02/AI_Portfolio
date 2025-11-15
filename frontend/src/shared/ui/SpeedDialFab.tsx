@@ -39,7 +39,7 @@ const SpeedDialFab: React.FC<SpeedDialFabProps> = ({ actions, onOpenChange }) =>
           <button
             key={index}
             onClick={() => handleActionClick(action)}
-            className={`${action.color || 'bg-white'} p-3 rounded-full shadow-lg transition-all duration-300 ease-out flex-shrink-0 ${
+            className={`${action.color || 'bg-white dark:bg-slate-700'} p-3 rounded-full shadow-lg transition-all duration-300 ease-out flex-shrink-0 ${
               isOpen
                 ? 'scale-100'
                 : 'scale-75'
@@ -58,7 +58,7 @@ const SpeedDialFab: React.FC<SpeedDialFabProps> = ({ actions, onOpenChange }) =>
       {/* Main FAB Button - Same size as submit button with smooth rotation */}
       <button
         onClick={handleToggle}
-        className={`flex-shrink-0 bg-primary-600 text-white p-3 rounded-full shadow-lg hover:bg-primary-700 transition-all duration-300 ease-in-out transform ${
+        className={`flex-shrink-0 bg-primary-600 dark:bg-primary-500 text-white p-3 rounded-full shadow-lg hover:bg-primary-700 dark:hover:bg-primary-600 transition-all duration-300 ease-in-out transform ${
           isOpen ? 'rotate-45' : 'rotate-0'
         }`}
         aria-label="메뉴 열기"

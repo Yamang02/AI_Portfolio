@@ -27,6 +27,7 @@ const AdminApp: React.FC = () => {
           Layout: {
             headerBg: '#ffffff',
             siderBg: '#001529',
+            bodyBg: '#f0f2f5',
           },
           Button: {
             borderRadius: 8,

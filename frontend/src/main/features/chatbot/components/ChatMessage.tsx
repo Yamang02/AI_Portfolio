@@ -12,7 +12,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
       <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
         message.isUser 
           ? 'bg-primary-600 text-white rounded-br-none' 
-          : 'bg-white text-gray-800 rounded-bl-none border border-gray-300'
+          : 'bg-surface dark:bg-slate-800 text-text-primary rounded-bl-none border border-border'
       }`}>
         {message.isUser ? (
           <p className="text-sm whitespace-pre-wrap">{message.content}</p>
@@ -31,9 +31,9 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
                   li: ({ children }) => <li className="text-sm">{children}</li>,
                   strong: ({ children }) => <strong className="font-bold">{children}</strong>,
                   em: ({ children }) => <em className="italic">{children}</em>,
-                  code: ({ children }) => <code className="bg-gray-100 px-1 py-0.5 rounded text-xs font-mono">{children}</code>,
-                  pre: ({ children }) => <pre className="bg-gray-100 p-2 rounded text-xs font-mono overflow-x-auto mb-2">{children}</pre>,
-                  blockquote: ({ children }) => <blockquote className="border-l-4 border-gray-300 pl-2 italic mb-2">{children}</blockquote>,
+                  code: ({ children }) => <code className="bg-surface-elevated dark:bg-slate-700 px-1 py-0.5 rounded text-xs font-mono text-text-primary">{children}</code>,
+                  pre: ({ children }) => <pre className="bg-surface-elevated dark:bg-slate-700 p-2 rounded text-xs font-mono overflow-x-auto mb-2 text-text-primary">{children}</pre>,
+                  blockquote: ({ children }) => <blockquote className="border-l-4 border-primary-500 dark:border-primary-400 pl-2 italic mb-2 text-text-secondary">{children}</blockquote>,
                 }}
               >
                 {message.content}
@@ -44,8 +44,8 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
             
             {/* 메일 보내기 버튼 */}
             {message.showEmailButton && (
-              <div className="mt-3 pt-3 border-t border-gray-200 flex flex-col items-center">
-                <p className="text-xs text-gray-500 mb-2 text-center">개발자에게 직접 메일을 보내보는 건 어떠신가요?</p>
+              <div className="mt-3 pt-3 border-t border-border flex flex-col items-center">
+                <p className="text-xs text-text-muted mb-2 text-center">개발자에게 직접 메일을 보내보는 건 어떠신가요?</p>
                 <button
                   onClick={() => {
                     // 모달 열기 이벤트 발생
@@ -61,7 +61,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
           </div>
         )}
         <p className={`text-xs mt-1 ${
-          message.isUser ? 'text-primary-200' : 'text-gray-500'
+          message.isUser ? 'text-primary-200' : 'text-text-muted'
         }`}>
           {message.timestamp.toLocaleTimeString('ko-KR', { 
             hour: '2-digit', 

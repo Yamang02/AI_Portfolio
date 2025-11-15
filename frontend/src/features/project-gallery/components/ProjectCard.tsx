@@ -48,7 +48,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         <>
           {parts[0]}
           {parts[1] && (
-            <span className="text-gray-700">({parts[1]})</span>
+            <span className="text-gray-700 dark:text-slate-300">({parts[1]})</span>
           )}
           {parts[2] && parts[2]}
         </>
@@ -63,7 +63,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
   return (
     <div
       id={`project-${project.id}`}
-      className={`group bg-white rounded-lg shadow-md overflow-hidden transform transition-all duration-300 hover:scale-105 flex flex-col border border-gray-100 hover:shadow-blue-200 cursor-pointer ${isHighlighted ? 'ring-4 ring-blue-200 shadow-blue-200' : ''}`}
+      className={`group bg-surface dark:bg-slate-800 rounded-lg shadow-md overflow-hidden transform transition-all duration-300 hover:scale-105 flex flex-col border border-border hover:shadow-primary-200 dark:hover:shadow-primary-900/50 cursor-pointer ${isHighlighted ? 'ring-4 ring-primary-200 dark:ring-primary-800 shadow-primary-200 dark:shadow-primary-900/50' : ''}`}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onClick={() => {
@@ -75,15 +75,15 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
           navigate(`/projects/${project.id}`);
         }
       }}
-      style={{ cursor: onClick ? 'pointer' : undefined, backgroundColor: '#ffffff' }}
+      style={{ cursor: onClick ? 'pointer' : undefined }}
     >
       {/* 상단 이미지/아이콘 영역 */}
-      <div className="h-48 w-full bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center relative overflow-hidden">
+      <div className="h-48 w-full bg-gradient-to-br from-gray-50 dark:from-slate-700 to-gray-100 dark:to-slate-800 flex items-center justify-center relative overflow-hidden">
         {/* 배지들 */}
         <div className="absolute top-3 right-3 flex flex-col gap-2 z-10 items-end">
           {/* 팀/개인 배지 */}
           <div
-            className={`px-1.5 py-1 rounded-md shadow text-xs font-medium flex items-center gap-1.5 transition-all duration-200 overflow-hidden ${project.isTeam ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'} w-auto max-w-[24px] group-hover:max-w-[56px]`}
+            className={`px-1.5 py-1 rounded-md shadow-lg backdrop-blur-sm text-xs font-medium flex items-center gap-1.5 transition-all duration-200 overflow-hidden ${project.isTeam ? 'bg-blue-100/90 dark:bg-blue-900/80 text-blue-800 dark:text-blue-200 border border-blue-200/50 dark:border-blue-700/50' : 'bg-purple-100/90 dark:bg-purple-900/80 text-purple-800 dark:text-purple-200 border border-purple-200/50 dark:border-purple-700/50'} w-auto max-w-[24px] group-hover:max-w-[56px]`}
           >
             <div className="flex-shrink-0 w-3 h-3">
               {project.isTeam ? (
@@ -104,10 +104,10 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
           {/* 프로젝트 타입 배지 */}
           {project.type && (
             <div
-              className={`px-1.5 py-1 rounded-md shadow text-xs font-medium flex items-center gap-1.5 transition-all duration-200 overflow-hidden ${
-                project.type === 'BUILD' ? 'bg-red-100 text-red-800' :
-                project.type === 'LAB' ? 'bg-orange-100 text-orange-800' :
-                project.type === 'MAINTENANCE' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+              className={`px-1.5 py-1 rounded-md shadow-lg backdrop-blur-sm text-xs font-medium flex items-center gap-1.5 transition-all duration-200 overflow-hidden ${
+                project.type === 'BUILD' ? 'bg-red-100/90 dark:bg-red-900/80 text-red-800 dark:text-red-200 border border-red-200/50 dark:border-red-700/50' :
+                project.type === 'LAB' ? 'bg-orange-100/90 dark:bg-orange-900/80 text-orange-800 dark:text-orange-200 border border-orange-200/50 dark:border-orange-700/50' :
+                project.type === 'MAINTENANCE' ? 'bg-green-100/90 dark:bg-green-900/80 text-green-800 dark:text-green-200 border border-green-200/50 dark:border-green-700/50' : 'bg-surface-elevated/90 dark:bg-slate-700/90 text-text-primary border border-border backdrop-blur-sm'
               } w-auto max-w-[24px] group-hover:max-w-[120px]`}
             >
               <div className="flex-shrink-0 w-3 h-3">
@@ -158,8 +158,8 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         ) : null}
         
         {/* 아이콘 (이미지가 없거나 로드 실패 시 표시) */}
-        <div className={`fallback-icon ${hasValidImage ? 'hidden' : ''} absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100`}>
-          <span className="inline-block w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center text-gray-600 text-3xl font-bold shadow">
+        <div className={`fallback-icon ${hasValidImage ? 'hidden' : ''} absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-50 dark:from-slate-700 to-gray-100 dark:to-slate-800`}>
+          <span className="inline-block w-16 h-16 bg-gray-200 dark:bg-slate-600 rounded-full flex items-center justify-center text-gray-600 dark:text-slate-300 text-3xl font-bold shadow">
             📁
           </span>
         </div>
@@ -167,11 +167,11 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
 
       {/* 본문 */}
       <div className="p-6 flex-grow flex flex-col">
-        <h3 className="text-2xl font-extrabold text-gray-900 mb-4 leading-tight truncate" title={project.title}>
+        <h3 className="text-2xl font-extrabold text-text-primary mb-4 leading-tight truncate" title={project.title}>
           {formatTitle(project.title)}
         </h3>
-        <div className="border-b border-gray-200 mb-6"></div>
-        <p className="text-gray-600 mb-6 text-sm flex-grow leading-relaxed min-h-[72px]">{project.description}</p>
+        <div className="border-b border-border mb-6"></div>
+        <p className="text-text-secondary mb-6 text-sm flex-grow leading-relaxed min-h-[72px]">{project.description}</p>
 
         {/* 기술 스택 (TechStackList 컴포넌트 사용) */}
         <TechStackList
@@ -183,8 +183,8 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         />
 
         {/* 하단 정보 */}
-        <div className="pt-4 border-t border-gray-200 mt-auto flex items-center justify-between">
-          <span className="text-xs text-gray-500">
+        <div className="pt-4 border-t border-border mt-auto flex items-center justify-between">
+          <span className="text-xs text-text-muted">
             {formatDateRange(project.startDate, project.endDate)}
           </span>
           <div className="flex items-center gap-2">
@@ -193,7 +193,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
                 href={project.githubUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-8 h-8 rounded-md bg-white group-hover:bg-purple-100 hover:!bg-purple-200 flex items-center justify-center transition-colors duration-200 text-gray-400 group-hover:text-purple-600"
+                className="w-8 h-8 rounded-md bg-surface-elevated dark:bg-slate-700 group-hover:bg-purple-100 dark:group-hover:bg-purple-900/30 hover:!bg-purple-200 dark:hover:!bg-purple-700/70 flex items-center justify-center transition-colors duration-200 text-text-muted dark:text-slate-400 group-hover:text-purple-600 dark:group-hover:text-purple-400 hover:text-purple-600 dark:hover:text-purple-300"
                 title="GitHub 저장소"
                 onClick={(e) => e.stopPropagation()}
               >
@@ -205,7 +205,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
                 href={project.liveUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-8 h-8 rounded-md bg-white group-hover:bg-green-100 hover:!bg-green-200 flex items-center justify-center transition-colors duration-200 text-gray-400 group-hover:text-green-600"
+                className="w-8 h-8 rounded-md bg-surface-elevated dark:bg-slate-700 group-hover:bg-green-100 dark:group-hover:bg-green-900/30 hover:!bg-green-200 dark:hover:!bg-green-700/70 flex items-center justify-center transition-colors duration-200 text-text-muted dark:text-slate-400 group-hover:text-green-600 dark:group-hover:text-green-400 hover:text-green-600 dark:hover:text-green-300"
                 title="Live 서비스"
                 onClick={(e) => e.stopPropagation()}
               >

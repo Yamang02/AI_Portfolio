@@ -4,13 +4,41 @@
 @tailwind components;
 @tailwind utilities;
 
-html {
-  scroll-behavior: smooth;
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
+/* CSS 변수 - 라이트 모드 (기본값) */
+:root {
+  --color-background: #ffffff;
+  --color-background-secondary: #f9fafb;
+  --color-surface: #ffffff;
+  --color-surface-elevated: #f9fafb;
+  --color-text-primary: #111827;
+  --color-text-secondary: #374151;
+  --color-text-muted: #6b7280;
+  --color-border: #e5e7eb;
+  --color-border-light: #f3f4f6;
 }
 
-body {
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
+/* CSS 변수 - 다크 모드 */
+.dark {
+  --color-background: #0f172a;
+  --color-background-secondary: #1e293b;
+  --color-surface: #1e293b;
+  --color-surface-elevated: #334155;
+  --color-text-primary: #f1f5f9;
+  --color-text-secondary: #cbd5e1;
+  --color-text-muted: #94a3b8;
+  --color-border: #334155;
+  --color-border-light: #475569;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
+  }
+
+  body {
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
+  }
 }
 
 /* 스크롤바 스타일 */
@@ -36,14 +64,64 @@ body {
   background-color: #d1d5db;
 }
 
+.dark .scrollbar-thin:hover::-webkit-scrollbar-thumb {
+  background-color: #475569;
+}
+
 .scrollbar-thumb-gray-300::-webkit-scrollbar-thumb {
   background-color: #d1d5db;
+}
+
+.dark .scrollbar-thumb-gray-300::-webkit-scrollbar-thumb {
+  background-color: #475569;
+}
+
+.scrollbar-thumb-slate-600::-webkit-scrollbar-thumb {
+  background-color: #475569;
+}
+
+.dark .scrollbar-thumb-slate-600::-webkit-scrollbar-thumb {
+  background-color: #475569;
 }
 
 .scrollbar-thumb-gray-400::-webkit-scrollbar-thumb {
   background-color: #9ca3af;
 }
 
+.dark .scrollbar-thumb-gray-400::-webkit-scrollbar-thumb {
+  background-color: #64748b;
+}
+
+.scrollbar-thumb-slate-500::-webkit-scrollbar-thumb {
+  background-color: #64748b;
+}
+
+.dark .scrollbar-thumb-slate-500::-webkit-scrollbar-thumb {
+  background-color: #64748b;
+}
+
 .scrollbar-track-transparent::-webkit-scrollbar-track {
   background: transparent;
+}
+
+/* highlight.js 스타일 - 라이트 모드 기본 */
+.hljs {
+  background: #f6f8fa !important;
+  color: #24292e !important;
+}
+
+/* highlight.js 스타일 - 다크 모드 */
+.dark .hljs {
+  background: #0d1117 !important;
+  color: #c9d1d9 !important;
+}
+
+/* Skeleton 로딩 애니메이션 */
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 } 

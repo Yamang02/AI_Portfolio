@@ -5,6 +5,7 @@ import { HeroSection } from './HeroSection';
 import { PortfolioSection } from '@features/project-gallery';
 import { Chatbot } from '@features/chatbot';
 import { ChatInputBar, SpeedDialFab } from '@shared/ui';
+import { checkEasterEggTrigger, useEasterEggStore, triggerEasterEggs } from '@features/easter-eggs';
 
 interface HomePageProps {
   projects: any[];
@@ -42,6 +43,7 @@ const HomePage: React.FC<HomePageProps> = ({
   const [pendingMessage, setPendingMessage] = useState<string>('');
   const [messageToSend, setMessageToSend] = useState<string>('');
   const [isFabOpen, setIsFabOpen] = useState(false);
+  const { triggerEasterEgg, isEasterEggMode } = useEasterEggStore();
 
   // 마운트 시 스크롤 위치 복원
   useEffect(() => {
@@ -92,14 +94,43 @@ const HomePage: React.FC<HomePageProps> = ({
     };
   }, [isChatbotOpen, isHistoryPanelOpen, onChatbotToggle, onHistoryPanelToggle]);
 
+  // 모드 전환 시 챗봇 닫기
+  useEffect(() => {
+    if (isEasterEggMode && isChatbotOpen) {
+      onChatbotToggle();
+    }
+  }, [isEasterEggMode, isChatbotOpen, onChatbotToggle]);
+
   // 채팅 입력창에서 메시지 전송
   const handleChatInputSend = (message: string) => {
+    // 이스터에그 트리거 체크
+    const { shouldBlock, triggers } = checkEasterEggTrigger(message, isEasterEggMode);
+    
+    if (triggers.length > 0) {
+      triggerEasterEggs(triggers, message, triggerEasterEgg);
+      
+      // 이스터에그 전용 문구는 챗봇으로 전송하지 않음
+      if (shouldBlock) {
+        return;
+      }
+    }
+    
+    // 이스터에그 모드가 활성화되어 있으면 모든 입력 차단
+    if (isEasterEggMode) {
+      return;
+    }
+    
     setPendingMessage(message);
     setMessageToSend(message);
   };
 
-  // 채팅 입력창 포커스 시 챗봇 자동 열기
+  // 채팅 입력창 포커스 시 챗봇 자동 열기 (이스터에그 모드에서는 비활성화)
   const handleChatInputFocus = () => {
+    // 이스터에그 모드에서는 챗봇 자동 열기 비활성화
+    if (isEasterEggMode) {
+      return;
+    }
+    
     if (!isChatbotOpen) {
       onChatbotToggle();
     }
@@ -110,18 +141,22 @@ const HomePage: React.FC<HomePageProps> = ({
     setMessageToSend('');
   };
 
-  // Speed Dial 액션 정의
+  // Speed Dial 액션 정의 (이스터에그 모드에 따라 버튼 변경)
   const speedDialActions = [
     {
-      icon: (
+      icon: isEasterEggMode ? (
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+        </svg>
+      ) : (
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="12" cy="12" r="10"></circle>
           <polyline points="12 6 12 12 16 14"></polyline>
         </svg>
       ),
-      label: '프로젝트 히스토리',
+      label: isEasterEggMode ? '이스터에그 목록' : '프로젝트 히스토리',
       onClick: onHistoryPanelToggle,
-      color: 'bg-orange-500 text-white hover:bg-orange-600'
+      color: isEasterEggMode ? 'bg-yellow-500 text-white hover:bg-yellow-600' : 'bg-orange-500 text-white hover:bg-orange-600'
     },
     {
       icon: (

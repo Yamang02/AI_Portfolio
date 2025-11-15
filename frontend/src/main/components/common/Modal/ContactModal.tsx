@@ -110,13 +110,13 @@ const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+    <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50">
+      <div className="bg-surface dark:bg-slate-800 rounded-lg p-6 w-full max-w-md mx-4 border border-border">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold text-gray-900">문의하기</h2>
+          <h2 className="text-xl font-bold text-text-primary">문의하기</h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-text-muted hover:text-text-primary transition-colors"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -126,7 +126,7 @@ const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) => {
         
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="name" className="block text-sm font-medium text-text-secondary mb-1">
               이름 *
             </label>
             <input
@@ -136,13 +136,13 @@ const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) => {
               value={formData.name}
               onChange={handleChange}
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-border bg-surface dark:bg-slate-700 text-text-primary rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               placeholder="이름을 입력하세요"
             />
           </div>
           
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="email" className="block text-sm font-medium text-text-secondary mb-1">
               이메일 *
             </label>
             <input
@@ -152,13 +152,13 @@ const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) => {
               value={formData.email}
               onChange={handleChange}
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-border bg-surface dark:bg-slate-700 text-text-primary rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               placeholder="이메일을 입력하세요"
             />
           </div>
           
           <div>
-            <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="subject" className="block text-sm font-medium text-text-secondary mb-1">
               제목 *
             </label>
             <input
@@ -168,13 +168,13 @@ const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) => {
               value={formData.subject}
               onChange={handleChange}
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-border bg-surface dark:bg-slate-700 text-text-primary rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               placeholder="문의 제목을 입력하세요"
             />
           </div>
           
           <div>
-            <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="message" className="block text-sm font-medium text-text-secondary mb-1">
               문의사항 *
             </label>
             <textarea
@@ -184,10 +184,10 @@ const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) => {
               onChange={handleChange}
               required
               rows={4}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
+              className="w-full px-3 py-2 border border-border bg-surface dark:bg-slate-700 text-text-primary rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
               placeholder="문의사항을 입력하세요"
             />
-            <p className={`text-xs mt-1 ${formData.message.length > 0 && formData.message.length < 10 ? 'text-red-500' : 'text-gray-400'}`}>
+            <p className={`text-xs mt-1 ${formData.message.length > 0 && formData.message.length < 10 ? 'text-red-500' : 'text-text-muted'}`}>
               10자 이상 입력해주세요
             </p>
           </div>
@@ -197,7 +197,7 @@ const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) => {
               type="button"
               onClick={onClose}
               disabled={isLoading}
-              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 px-4 py-2 border border-border text-text-primary bg-surface dark:bg-slate-700 rounded-md hover:bg-surface-elevated dark:hover:bg-slate-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               취소
             </button>

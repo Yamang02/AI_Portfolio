@@ -80,6 +80,32 @@ export const focusRing = {
   width: '2px',
 } as const;
 
+// 라이트 모드 색상 토큰
+export const lightTheme = {
+  background: colors.white,
+  backgroundSecondary: colors.gray[50],
+  surface: colors.white,
+  surfaceElevated: colors.gray[50],
+  textPrimary: colors.gray[900],
+  textSecondary: colors.gray[700],
+  textMuted: colors.gray[500],
+  border: colors.gray[200],
+  borderLight: colors.gray[100],
+} as const;
+
+// 다크 모드 색상 토큰
+export const darkTheme = {
+  background: '#0f172a', // slate-900
+  backgroundSecondary: '#1e293b', // slate-800
+  surface: '#1e293b', // slate-800
+  surfaceElevated: '#334155', // slate-700
+  textPrimary: '#f1f5f9', // slate-100
+  textSecondary: '#cbd5e1', // slate-300
+  textMuted: '#94a3b8', // slate-400
+  border: '#334155', // slate-700
+  borderLight: '#475569', // slate-600
+} as const;
+
 // 타입 정의
 export type ColorScale = typeof colors.primary;
 export type SpacingScale = typeof spacing;

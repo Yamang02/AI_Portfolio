@@ -20,7 +20,7 @@ const CertificationCard: React.FC<CertificationCardProps> = ({ certification, on
   return (
     <div 
       className={`
-        bg-white rounded-lg shadow-md p-6 border border-gray-200 
+        bg-surface dark:bg-slate-800 rounded-lg shadow-md p-6 border border-border 
         transition-all duration-200 hover:shadow-lg hover:scale-105
       `}
       onMouseEnter={onMouseEnter}
@@ -29,22 +29,22 @@ const CertificationCard: React.FC<CertificationCardProps> = ({ certification, on
       {/* 헤더 */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex-1">
-          <h3 className="text-lg font-semibold text-gray-800 mb-1">
+          <h3 className="text-lg font-semibold text-text-primary mb-1">
             {certification.name}
           </h3>
-          <p className="text-sm text-gray-600 mb-1">
+          <p className="text-sm text-text-secondary mb-1">
             {certification.issuer}
           </p>
         </div>
         <div className="flex flex-col items-end">
-          <span className="text-xs text-gray-500">
+          <span className="text-xs text-text-muted">
             취득일: {formatAcquisitionDate()}
           </span>
         </div>
       </div>
 
       {/* 설명 */}
-      <p className="text-gray-700 text-sm mb-4 line-clamp-3">
+      <p className="text-text-secondary text-sm mb-4 line-clamp-3">
         {certification.description}
       </p>
 
@@ -55,7 +55,7 @@ const CertificationCard: React.FC<CertificationCardProps> = ({ certification, on
             href={certification.credentialUrl} 
             target="_blank" 
             rel="noopener noreferrer"
-            className="text-blue-600 hover:text-blue-800 text-sm underline"
+            className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 text-sm underline"
           >
             자격증 확인하기
           </a>
