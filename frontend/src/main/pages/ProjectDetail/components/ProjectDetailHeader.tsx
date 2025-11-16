@@ -1,9 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Project } from '@features/project-gallery/types';
 
 interface ProjectDetailHeaderProps {
   project: Project;
-  onBack: () => void;
   className?: string;
 }
 
@@ -118,30 +117,29 @@ const ExternalLinkButton: React.FC<{
 
 const ProjectDetailHeader: React.FC<ProjectDetailHeaderProps> = ({
   project,
-  onBack,
   className = ''
 }) => {
+  const [headerHeight, setHeaderHeight] = useState(64);
+
+  useEffect(() => {
+    // 전체 앱 헤더의 실제 높이를 측정
+    const mainHeader = document.querySelector('header');
+    if (mainHeader) {
+      const height = mainHeader.offsetHeight;
+      setHeaderHeight(height);
+    }
+  }, []);
+
   return (
     <header 
-      className={`sticky top-0 border-b z-10 ${className}`}
+      className={`sticky border-b z-10 ${className}`}
       style={{
+        top: `${headerHeight}px`,
         backgroundColor: 'var(--color-surface)',
         borderColor: 'var(--color-border)',
       }}
     >
       <div className="max-w-4xl mx-auto px-6 py-4">
-        {/* 뒤로가기 버튼 */}
-        <button
-          onClick={onBack}
-          className="flex items-center gap-2 text-text-secondary hover:text-text-primary mb-4 transition-colors"
-          aria-label="뒤로가기"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
-          <span className="text-sm font-medium">프로젝트 목록으로</span>
-        </button>
-
         {/* 제목과 메타데이터 */}
         <div className="text-center">
           <h1 className="text-2xl lg:text-3xl font-bold text-text-primary mb-6 break-words">

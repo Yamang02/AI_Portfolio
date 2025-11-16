@@ -42,6 +42,10 @@ class EasterEggRegistry {
     return this.getEffect(triggerId);
   }
 
+  getTrigger(id: string): EasterEggTrigger | undefined {
+    return this.triggers.get(id);
+  }
+
   clear(): void {
     this.triggers.clear();
     this.effects.clear();

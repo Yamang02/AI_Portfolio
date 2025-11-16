@@ -4,20 +4,13 @@ import { CoreTechStackSection } from '@features/introduction';
 import { TechStackTetris } from '../../components/common/TechStackTetris';
 import { TechStackApi } from '../../services/techStackApi';
 import { TechStackMetadata } from '../../entities/techstack';
-import { useClickCounter } from '@features/easter-eggs';
+import { useEasterEggStore } from '@features/easter-eggs';
 
 const HeroSection: React.FC = () => {
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [techs, setTechs] = useState<TechStackMetadata[]>([]);
-  const [giantBlockTrigger, setGiantBlockTrigger] = useState(0);
   const [isAnimationEnabled, setIsAnimationEnabled] = useState(true);
-
-  // 이스터에그: 이름 5번 클릭
-  const { handleClick: handleNameClick } = useClickCounter({
-    easterEggId: 'name-click-5',
-    targetCount: 5,
-    timeWindow: 3000,
-  });
+  const { isEasterEggMode } = useEasterEggStore();
 
   useEffect(() => {
     const fetchTechs = async () => {
@@ -31,18 +24,6 @@ const HeroSection: React.FC = () => {
     fetchTechs();
   }, []);
 
-  // 이스터에그 시스템에서 초거대 블록 생성 요청 수신
-  useEffect(() => {
-    const handleGiantBlockTrigger = () => {
-      setGiantBlockTrigger(prev => prev + 1);
-    };
-
-    window.addEventListener('triggerGiantBlock', handleGiantBlockTrigger);
-    return () => {
-      window.removeEventListener('triggerGiantBlock', handleGiantBlockTrigger);
-    };
-  }, []);
-
   // 애니메이션 토글 핸들러
   const handleAnimationToggle = () => {
     setIsAnimationEnabled(prev => !prev);
@@ -54,8 +35,8 @@ const HeroSection: React.FC = () => {
       {techs.length > 0 && (
         <TechStackTetris 
           techs={techs} 
-          giantBlockTrigger={giantBlockTrigger}
-          isAnimationEnabled={isAnimationEnabled}
+          giantBlockTrigger={0}
+          isAnimationEnabled={isAnimationEnabled && !isEasterEggMode}
           onAnimationToggle={handleAnimationToggle}
         />
       )}
@@ -70,10 +51,7 @@ const HeroSection: React.FC = () => {
           <div className="absolute inset-0 rounded-2xl border border-white/20 dark:border-border/50"></div>
           {/* 컨텐츠 영역 */}
           <div className="relative z-10">
-          <h2 
-            className="text-3xl md:text-4xl font-extrabold text-text-primary mb-3 tracking-wider drop-shadow-lg select-none"
-            onClick={handleNameClick}
-          >
+          <h2 className="text-3xl md:text-4xl font-extrabold text-text-primary mb-3 tracking-wider drop-shadow-lg select-none">
             이정준
           </h2>
           <div className="text-2xl md:text-3xl font-bold text-text-primary mb-3 drop-shadow-md">Software Engineer</div>

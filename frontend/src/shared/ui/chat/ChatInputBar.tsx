@@ -1,9 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { cn } from '../../lib/utils/cn';
-import { colors, transitions, easing, shadows, borderRadius, focusRing } from '../../config/theme';
-import { useEasterEggTrigger, useEasterEggStore, checkEasterEggTrigger, triggerEasterEggs } from '@features/easter-eggs';
+import { colors, transitions, easing, shadows, focusRing } from '../../config/theme';
+import { useEasterEggStore, checkEasterEggTrigger, triggerEasterEggs } from '@features/easter-eggs';
+import { easterEggRegistry } from '@features/easter-eggs/registry/easterEggRegistry';
+import { Tooltip } from '../tooltip';
 
 const THEME_TOGGLE_FIRST_CLICK_KEY = 'portfolio-theme-toggle-first-click';
+const EASTER_EGG_TOOLTIP_SHOWN_KEY = 'portfolio-easter-egg-tooltip-shown';
 
 interface ChatInputBarProps {
   onSendMessage: (message: string) => void;
@@ -61,16 +64,41 @@ const ChatInputBar: React.FC<ChatInputBarProps> = ({
   const [inputValue, setInputValue] = useState('');
   const [isFocused, setIsFocused] = useState(false);
   const [showEasterEggButton, setShowEasterEggButton] = useState(false);
-  const { triggerEasterEgg, isEasterEggMode, toggleEasterEggMode } = useEasterEggStore();
+  const [showTooltipOnMount, setShowTooltipOnMount] = useState(false);
+  const { triggerEasterEgg, isEasterEggMode, toggleEasterEggMode, activeEffects } = useEasterEggStore();
+  
+  // 이스터에그가 동작 중인지 확인
+  const isEasterEggActive = activeEffects.length > 0;
+  
+  // 활성화된 이스터에그의 이름 가져오기 (가장 최근 것)
+  const activeEasterEggName = useMemo(() => {
+    if (activeEffects.length === 0) return null;
+    const latestEffect = activeEffects[activeEffects.length - 1];
+    const trigger = easterEggRegistry.getTrigger(latestEffect.id);
+    return trigger?.name || null;
+  }, [activeEffects]);
 
-  // 이스터에그 버튼 표시 여부 확인
+  // Tooltip 최초 표시 여부 확인 헬퍼 함수
+  const checkAndShowTooltip = useCallback(() => {
+    const tooltipShown = localStorage.getItem(EASTER_EGG_TOOLTIP_SHOWN_KEY);
+    if (tooltipShown !== 'true') {
+      setShowTooltipOnMount(true);
+      localStorage.setItem(EASTER_EGG_TOOLTIP_SHOWN_KEY, 'true');
+    }
+  }, []);
+
+  // 이스터에그 버튼 표시 여부 확인 및 Tooltip 최초 표시 여부 확인
   useEffect(() => {
     // 초기 로드 시 localStorage 확인 (명시적으로 'true'일 때만 표시)
     const checkButtonVisibility = () => {
       const hasThemeToggleClicked = localStorage.getItem(THEME_TOGGLE_FIRST_CLICK_KEY);
-      // localStorage에 값이 없거나 'true'가 아닌 경우 버튼 숨김
       const shouldShow = hasThemeToggleClicked === 'true';
       setShowEasterEggButton(shouldShow);
+
+      // 버튼이 표시되고 Tooltip이 아직 표시되지 않았다면 최초 표시
+      if (shouldShow) {
+        checkAndShowTooltip();
+      }
     };
 
     checkButtonVisibility();
@@ -78,19 +106,14 @@ const ChatInputBar: React.FC<ChatInputBarProps> = ({
     // 이벤트 리스너: 테마 토글 최초 클릭 시 버튼 표시
     const handleEasterEggButtonRevealed = () => {
       setShowEasterEggButton(true);
+      checkAndShowTooltip();
     };
 
     window.addEventListener('easterEggButtonRevealed', handleEasterEggButtonRevealed);
     return () => {
       window.removeEventListener('easterEggButtonRevealed', handleEasterEggButtonRevealed);
     };
-  }, []);
-
-  // 이스터에그 트리거 감지 (입력 중)
-  useEasterEggTrigger({
-    inputValue,
-    debounceMs: 300,
-  });
+  }, [checkAndShowTooltip]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -143,26 +166,122 @@ const ChatInputBar: React.FC<ChatInputBarProps> = ({
         <div className="flex items-center gap-3">
           {/* 이스터에그 모드 토글 버튼 - 최초 테마 토글 클릭 후에만 표시 */}
           {showEasterEggButton && (
-            <button
-              type="button"
-              onClick={toggleEasterEggMode}
-              className={cn(
-                'flex-shrink-0 p-3 rounded-full transition-all duration-300 ease-in-out',
-                'hover:scale-110 active:scale-95 shadow-md',
-                isEasterEggMode 
-                  ? 'bg-yellow-400 dark:bg-yellow-500 text-yellow-900 dark:text-yellow-950 hover:bg-yellow-500 dark:hover:bg-yellow-600' 
-                  : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-300 hover:bg-gray-200 dark:hover:bg-slate-600'
+            <>
+              {/* 네온색 줄무늬 애니메이션을 위한 스타일 태그 */}
+              {isEasterEggActive && (
+                <style>{`
+                  @keyframes neonStripeMove {
+                    0% {
+                      background-position: 50% 0%;
+                    }
+                    100% {
+                      background-position: 50% 200%;
+                    }
+                  }
+                  .easter-egg-active-stripe {
+                    background: repeating-linear-gradient(
+                      0deg,
+                      #ff0080 0%,
+                      #ff0080 14.28%,
+                      #ff8000 14.28%,
+                      #ff8000 28.56%,
+                      #ffff00 28.56%,
+                      #ffff00 42.84%,
+                      #00ff00 42.84%,
+                      #00ff00 57.12%,
+                      #00ffff 57.12%,
+                      #00ffff 71.4%,
+                      #0080ff 71.4%,
+                      #0080ff 85.68%,
+                      #ff0080 85.68%,
+                      #ff0080 100%
+                    );
+                    background-size: 100% 200%;
+                    animation: neonStripeMove 2s linear infinite;
+                    box-shadow: 0 0 20px rgba(255, 0, 128, 0.6), 
+                                0 0 40px rgba(0, 255, 255, 0.4), 
+                                0 0 60px rgba(255, 255, 0, 0.3);
+                    position: relative;
+                    overflow: hidden;
+                  }
+                  .easter-egg-active-stripe::before {
+                    content: '';
+                    position: absolute;
+                    top: -100%;
+                    left: 0;
+                    width: 100%;
+                    height: 200%;
+                    background: linear-gradient(
+                      0deg,
+                      transparent,
+                      rgba(255, 255, 255, 0.3),
+                      transparent
+                    );
+                    animation: shimmer 2s infinite;
+                  }
+                  @keyframes shimmer {
+                    0% {
+                      top: -100%;
+                    }
+                    100% {
+                      top: 100%;
+                    }
+                  }
+                `}</style>
               )}
-              style={{
-                transitionDuration: transitions.normal,
-                transitionTimingFunction: easing['ease-in-out'],
-                boxShadow: shadows.md,
-              }}
-              aria-label={isEasterEggMode ? '이스터에그 모드 끄기' : '이스터에그 모드 켜기'}
-              title={isEasterEggMode ? '이스터에그 모드: 활성화됨 (모든 입력이 챗봇으로 전송되지 않음)' : '이스터에그 모드: 비활성화됨'}
-            >
-              <EggIcon isActive={isEasterEggMode} />
-            </button>
+              <Tooltip
+                content={
+                  <div className="max-w-xs space-y-1.5 text-left">
+                    <div className="font-semibold text-sm mb-2">이스터에그 모드</div>
+                    <div className="text-xs leading-relaxed">
+                      <div>• 챗봇이 비활성화됩니다</div>
+                      <div>• 오디오가 재생될 수 있습니다</div>
+                      <div>• 이스터에그 목록은 Speed Dial에서 확인하세요</div>
+                    </div>
+                  </div>
+                }
+                showOnMount={showTooltipOnMount}
+                placement="top"
+                delay={300}
+                className="whitespace-normal max-w-xs"
+              >
+                <button
+                  type="button"
+                  onClick={toggleEasterEggMode}
+                  className={cn(
+                    'flex-shrink-0 p-3 rounded-full transition-all duration-300 ease-in-out',
+                    'hover:scale-110 active:scale-95 shadow-md relative overflow-hidden',
+                    // 이스터에그 동작 중일 때 네온색 줄무늬 애니메이션
+                    isEasterEggActive && 'easter-egg-active-stripe',
+                    !isEasterEggActive && (
+                      isEasterEggMode 
+                        ? 'bg-yellow-400 dark:bg-yellow-500 text-yellow-900 dark:text-yellow-950 hover:bg-yellow-500 dark:hover:bg-yellow-600' 
+                        : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-300 hover:bg-gray-200 dark:hover:bg-slate-600'
+                    )
+                  )}
+                  style={{
+                    transitionDuration: transitions.normal,
+                    transitionTimingFunction: easing['ease-in-out'],
+                    ...(!isEasterEggActive && { boxShadow: shadows.md }),
+                    ...(isEasterEggActive && { 
+                      color: '#000',
+                      fontWeight: 'bold',
+                      zIndex: 10,
+                    }),
+                  }}
+                  aria-label={isEasterEggMode ? '이스터에그 모드 끄기' : '이스터에그 모드 켜기'}
+                  title={
+                    isEasterEggActive 
+                      ? `이스터에그 동작 중 (${activeEffects.length}개) - ESC로 중단 가능`
+                      : isEasterEggMode 
+                        ? '이스터에그 모드: 활성화됨 (모든 입력이 챗봇으로 전송되지 않음)' 
+                        : '이스터에그 모드: 비활성화됨'
+                  }
+                >
+                  <EggIcon isActive={isEasterEggMode || isEasterEggActive} />
+                </button>
+              </Tooltip>
+            </>
           )}
 
           {/* Input Field */}
@@ -172,8 +291,14 @@ const ChatInputBar: React.FC<ChatInputBarProps> = ({
             onChange={(e) => setInputValue(e.target.value)}
             onFocus={handleFocus}
             onBlur={handleBlur}
-            placeholder={isEasterEggMode ? '이스터에그 모드: 이스터에그를 찾아보세요...' : placeholder}
-            disabled={isLoading}
+            placeholder={
+              isEasterEggActive && activeEasterEggName
+                ? activeEasterEggName
+                : isEasterEggMode
+                ? '이스터에그 모드'
+                : placeholder
+            }
+            disabled={isLoading || isEasterEggActive}
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();

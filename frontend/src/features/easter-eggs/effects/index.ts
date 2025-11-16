@@ -4,4 +4,7 @@
 
 export { ConfettiEffect } from './confetti/ConfettiEffect';
 export { GiantBlockEffect } from './giant-block/GiantBlockEffect';
+export { VideoEffect } from './video/VideoEffect';
+export { AudioEffect } from './audio/AudioEffect';
+export { MatrixEffect } from './matrix/MatrixEffect';
 

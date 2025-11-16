@@ -9,6 +9,7 @@ import { ProjectFilter, FilterOptions } from './ProjectFilter';
 import { SkeletonSection } from '../../../components/common/SkeletonCard';
 import { EasterEggListPanel } from '@features/easter-eggs/components/EasterEggListPanel';
 import { useEasterEggStore } from '@features/easter-eggs/store/easterEggStore';
+import { useFeatureAvailability } from '../../../shared/lib/hooks/useFeatureAvailability';
 
 interface PortfolioSectionProps {
   projects: Project[];
@@ -35,6 +36,7 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
   onHistoryPanelToggle
 }) => {
   const { isEasterEggMode } = useEasterEggStore();
+  const { canUseChatHistoryPanel } = useFeatureAvailability();
   const [highlightedItemId, setHighlightedItemId] = React.useState<string | undefined>();
   const [longHoveredItemId, setLongHoveredItemId] = React.useState<string | undefined>();
   const [filteredProjects, setFilteredProjects] = React.useState<Project[]>(projects);
@@ -161,9 +163,6 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
     <section id="portfolio">
       <div className="text-center mb-12">
         <h2 className="text-3xl font-bold text-text-primary">포트폴리오</h2>
-        <p className="mt-2 text-text-secondary">
-          프로젝트, 경력/교육, 자격증을 한눈에 볼 수 있습니다. 우측 하단의 AI 비서에게 무엇이든 물어보세요!
-        </p>
       </div>
 
       {/* 프로젝트 영역 */}
@@ -324,23 +323,25 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
         )}
       </div>
 
-      {/* 조건부 렌더링: 이스터에그 모드일 때는 이스터에그 목록 패널, 아니면 히스토리 패널 */}
-      {isEasterEggMode ? (
-        <EasterEggListPanel
-          isOpen={isHistoryPanelOpen}
-          onToggle={onHistoryPanelToggle}
-        />
-      ) : (
-        <HistoryPanel
-          isOpen={isHistoryPanelOpen}
-          projects={projects}
-          experiences={experiences}
-          educations={educations}
-          highlightedItemId={highlightedItemId}
-          onToggle={onHistoryPanelToggle}
-          onItemHover={handleItemHover}
-          scrollToItemId={longHoveredItemId}
-        />
+      {/* 조건부 렌더링: 모바일에서는 히스토리 패널 비활성화 */}
+      {canUseChatHistoryPanel && (
+        isEasterEggMode ? (
+          <EasterEggListPanel
+            isOpen={isHistoryPanelOpen}
+            onToggle={onHistoryPanelToggle}
+          />
+        ) : (
+          <HistoryPanel
+            isOpen={isHistoryPanelOpen}
+            projects={projects}
+            experiences={experiences}
+            educations={educations}
+            highlightedItemId={highlightedItemId}
+            onToggle={onHistoryPanelToggle}
+            onItemHover={handleItemHover}
+            scrollToItemId={longHoveredItemId}
+          />
+        )
       )}
     </section>
   );

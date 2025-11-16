@@ -5,11 +5,14 @@
 // Components
 export { EasterEggLayer } from './components/EasterEggLayer';
 export { EasterEggListPanel } from './components/EasterEggListPanel';
+export { AudioIndicator } from './components/AudioIndicator';
 export { EasterEggProvider } from './store/easterEggStore';
 
 // Hooks
 export { useEasterEggTrigger, useEasterEggEscapeKey } from './hooks/useEasterEggTrigger';
 export { useClickCounter } from './hooks/useClickCounter';
+export { useKeyboardTrigger } from './hooks/useKeyboardTrigger';
+export { useScrollTrigger } from './hooks/useScrollTrigger';
 export { useEasterEggStore } from './store/easterEggStore';
 
 // Registry
@@ -25,9 +28,8 @@ export type {
   TriggerType,
 } from './model/easter-egg.types';
 
-// Config
-export { defaultTriggers } from './config/defaultTriggers';
-export { defaultEffects } from './config/defaultEffects';
+// Config Loader
+export { loadEasterEggConfig, loadTriggersSync } from './config/easterEggConfigLoader';
 
 // Utils
 export { matchTrigger, findMatchingTriggers } from './lib/trigger-matcher';

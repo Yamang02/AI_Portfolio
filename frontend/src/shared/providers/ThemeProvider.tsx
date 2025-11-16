@@ -53,13 +53,16 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     return initialTheme;
   });
 
-  // HTML 요소에 dark 클래스 토글
+  // HTML 요소에 테마 클래스 토글
   useEffect(() => {
     const root = document.documentElement;
+    root.classList.remove('dark', 'matrix-theme', 'demon-slayer-theme');
     if (theme === 'dark') {
       root.classList.add('dark');
-    } else {
-      root.classList.remove('dark');
+    } else if (theme === 'matrix') {
+      root.classList.add('matrix-theme');
+    } else if (theme === 'demon-slayer') {
+      root.classList.add('demon-slayer-theme');
     }
   }, [theme]);
 
@@ -71,7 +74,12 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   }, []);
 
   const toggleTheme = useCallback(() => {
-    setTheme(theme === 'light' ? 'dark' : 'light');
+    // matrix와 demon-slayer 테마는 토글로 진입하지 않음 (이스터에그 전용)
+    if (theme === 'light') {
+      setTheme('dark');
+    } else if (theme === 'dark') {
+      setTheme('light');
+    }
   }, [theme, setTheme]);
 
   const value: ThemeContextValue = {

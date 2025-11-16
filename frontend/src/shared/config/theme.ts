@@ -106,6 +106,19 @@ export const darkTheme = {
   borderLight: '#475569', // slate-600
 } as const;
 
+// Demon Slayer 테마 색상 토큰 (무한성편) - 따뜻한 오렌지/레드 톤
+export const demonSlayerTheme = {
+  background: '#0f172a', // 어두운 배경
+  backgroundSecondary: '#1a0f0f', // 따뜻한 어두운 배경
+  surface: '#1e1a1a', // 따뜻한 표면
+  surfaceElevated: '#2a1f1f', // 높은 표면
+  textPrimary: '#fff5e6', // 따뜻한 흰색
+  textSecondary: '#ffd4a3', // 따뜻한 베이지
+  textMuted: '#ffb366', // 따뜻한 오렌지
+  border: '#3d2a1a', // 따뜻한 어두운 테두리
+  borderLight: '#4a3320', // 밝은 테두리
+} as const;
+
 // 타입 정의
 export type ColorScale = typeof colors.primary;
 export type SpacingScale = typeof spacing;
