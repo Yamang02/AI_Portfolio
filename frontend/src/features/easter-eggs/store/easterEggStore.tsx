@@ -85,37 +85,46 @@ export const EasterEggProvider: React.FC<EasterEggProviderProps> = ({
         return;
       }
 
-      // 이스터에그 발견 기록
-      setDiscoveredEasterEggs(prev => {
-        if (prev.has(id)) {
-          return prev;
-        }
-        const newSet = new Set(prev);
-        newSet.add(id);
-        saveDiscoveredEasterEggs(newSet);
-        return newSet;
-      });
-
+      // 다른 이스터에그가 실행 중이면 새로운 이스터에그 시작 차단
+      let shouldAdd = false;
       setActiveEffects(prev => {
+        // 이미 동일한 이스터에그가 실행 중이면 무시
         if (prev.some(effect => effect.id === id)) {
           return prev;
         }
 
-        const effectsToKeep = prev.length >= maxConcurrent 
-          ? prev.slice(1)
-          : prev;
+        // 다른 이스터에그가 실행 중이면 새로운 것을 차단
+        if (prev.length > 0) {
+          return prev;
+        }
+
+        // 이스터에그가 실제로 추가될 예정임을 표시
+        shouldAdd = true;
 
         const newEffect: ActiveEasterEgg = {
           id,
           context,
           startTime: new Date(),
-          zIndex: 1000 + effectsToKeep.length,
+          zIndex: 1000,
         };
 
-        return [...effectsToKeep, newEffect];
+        return [newEffect];
       });
+
+      // 이스터에그가 실제로 시작될 때만 발견 기록
+      if (shouldAdd) {
+        setDiscoveredEasterEggs(prev => {
+          if (prev.has(id)) {
+            return prev;
+          }
+          const newSet = new Set(prev);
+          newSet.add(id);
+          saveDiscoveredEasterEggs(newSet);
+          return newSet;
+        });
+      }
     },
-    [isEnabled, isEasterEggMode, maxConcurrent]
+    [isEnabled, isEasterEggMode]
   );
 
   const dismissEasterEgg = useCallback((id: string) => {

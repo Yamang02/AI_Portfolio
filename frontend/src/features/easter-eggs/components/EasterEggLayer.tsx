@@ -10,11 +10,12 @@ const LazyEffectWrapper: React.FC<{
   const effect = easterEggRegistry.getEffect(effectId);
   if (!effect) return null;
 
-  // 리소스를 컴포넌트에 전달
+  // 리소스와 config를 컴포넌트에 전달
   const componentProps = {
     context,
     onClose,
     ...(effect.resources && { resources: effect.resources }),
+    ...(effect.config && { config: effect.config }),
   };
 
   if (effect.isHeavy) {

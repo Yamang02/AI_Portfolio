@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import type { EasterEggContext, EasterEggResource } from '../../model/easter-egg.types';
 import { useTheme } from '@shared/providers/ThemeProvider';
 import { AudioPlayer } from './AudioPlayer';
@@ -10,25 +10,22 @@ import {
   useHeaderGlow,
 } from './hooks';
 import {
-  EFFECT_DURATION_MS,
-  FADE_OUT_DELAY_MS,
-  SLIDE_ANIMATION_DURATION_MS,
-  SLIDE_ANIMATION_MAX_OFFSET,
   MAIN_FADE_TRANSITION,
-  MAIN_CLIP_TRANSITION,
-  CLIP_PATH_RESET_DELAY_MS,
+  CARD_WIDTH,
 } from './constants';
 
 interface DemonSlayerEffectProps {
   context: EasterEggContext;
   onClose: () => void;
   resources?: EasterEggResource[];
+  config?: Record<string, unknown>;
 }
 
 export const DemonSlayerEffect: React.FC<DemonSlayerEffectProps> = ({
   context: _context,
   onClose,
   resources = [],
+  config,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const slideAnimationRef = useRef<number | undefined>(undefined);
@@ -38,22 +35,95 @@ export const DemonSlayerEffect: React.FC<DemonSlayerEffectProps> = ({
   const [backgroundImageOpacity, setBackgroundImageOpacity] = useState(0);
   const [backgroundImagePosition, setBackgroundImagePosition] = useState(0);
   const [canStartAudio, setCanStartAudio] = useState(false);
+  const [backgroundBrightness, setBackgroundBrightness] = useState(0.6); // 초기 밝기 60%
+  const [isFadingOut, setIsFadingOut] = useState(false);
+  const audioStartTimeRef = useRef<number | null>(null);
+  const recoveryTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const { theme, setTheme } = useTheme();
   const mainAreaBounds = useMainBounds();
   const { headerBottom, headerBottomRef } = useHeaderPosition();
   const projects = useProjects();
-  const { headerGlow, triggerHeaderGlowRef } = useHeaderGlow();
-  const spawnCardRef = useFallingCards(containerRef, projects, headerBottomRef, isVisible);
+  const { headerGlow, glowPosition, triggerHeaderGlowRef } = useHeaderGlow();
+  const CARD_REMOVAL_OFFSET = (config?.cardRemovalOffset as number) ?? 200;
 
   const audioResource = resources.find((r) => r.type === 'audio');
+  const backgroundImageResource = resources.find((r) => r.type === 'image');
+
+  // JSON config에서 값 가져오기 (기본값은 constants에서)
+  const FADE_OUT_DELAY_MS = (config?.fadeOutDelayMs as number) ?? 1000;
+  const SLIDE_ANIMATION_DURATION_MS = (config?.slideAnimationDurationMs as number) ?? 10000;
+  const SLIDE_ANIMATION_MAX_OFFSET = (config?.slideAnimationMaxOffset as number) ?? 50;
+  const effectTheme = (config?.theme as string) ?? 'demon-slayer';
+  
+  // 배경 어두워지기 설정
+  const darkeningConfig = (config?.darkeningConfig as { startTime?: number; duration?: number; minBrightness?: number }) ?? {};
+  const darkeningStartTime = darkeningConfig.startTime ?? 2.0;
+  const darkeningDuration = darkeningConfig.duration ?? 3.0;
+  const minBrightness = darkeningConfig.minBrightness ?? 0.3;
+  
+  const backgroundFadeoutDuration = 500;
+  
+  const beatTimings = (config?.beatTimings as number[]) ?? [];
+  const lastBeatTime = beatTimings.length > 0 ? Math.max(...beatTimings) : 0;
+  const recoveryStartDelay = 2000;
+  
+  const startRecoverySequence = useCallback(() => {
+    const mainElement = document.querySelector('main');
+    if (mainElement) {
+      mainElement.style.opacity = '1';
+      mainElement.style.pointerEvents = '';
+    }
+    
+    setIsFadingOut(true);
+    setBackgroundImageOpacity(0);
+    
+    setTimeout(() => {
+      const style = document.createElement('style');
+      style.id = 'theme-recovery-transition';
+      style.textContent = `
+        * {
+          transition: background-color 0.8s ease-in-out,
+                      color 0.8s ease-in-out,
+                      border-color 0.8s ease-in-out,
+                      box-shadow 0.8s ease-in-out;
+        }
+      `;
+      document.head.appendChild(style);
+      
+      setTheme(previousThemeRef.current);
+      
+      setTimeout(() => {
+        const transitionStyle = document.getElementById('theme-recovery-transition');
+        if (transitionStyle) {
+          transitionStyle.remove();
+        }
+        
+        setIsVisible(false);
+        setTimeout(() => {
+          onClose();
+        }, 500);
+      }, 800);
+    }, backgroundFadeoutDuration);
+  }, [backgroundFadeoutDuration, onClose, setTheme]);
+  
+  const handleCardSpawn = useCallback((cardX: number) => {
+    if (triggerHeaderGlowRef.current) {
+      triggerHeaderGlowRef.current(cardX);
+    }
+  }, [triggerHeaderGlowRef]);
+  
+  const handleLastCardReachedFooter = useCallback(() => {
+  }, []);
+  
+  const spawnCardRef = useFallingCards(containerRef, projects, headerBottomRef, isVisible, CARD_REMOVAL_OFFSET, handleCardSpawn, handleLastCardReachedFooter);
 
   // 테마 관리 및 초기 애니메이션
   useEffect(() => {
     const currentTheme = theme;
-    if (currentTheme !== 'demon-slayer') {
+    if (currentTheme !== effectTheme) {
       previousThemeRef.current = currentTheme === 'dark' ? 'dark' : 'light';
-      setTheme('demon-slayer');
+      setTheme(effectTheme as 'demon-slayer');
     }
 
     const mainElement = document.querySelector('main');
@@ -69,6 +139,10 @@ export const DemonSlayerEffect: React.FC<DemonSlayerEffectProps> = ({
 
       return () => {
         clearTimeout(fadeOutTimer);
+        if (recoveryTimerRef.current) {
+          clearTimeout(recoveryTimerRef.current);
+          recoveryTimerRef.current = null;
+        }
         setTheme(previousThemeRef.current);
         setBackgroundImageOpacity(0);
         setBackgroundImagePosition(0);
@@ -118,64 +192,60 @@ export const DemonSlayerEffect: React.FC<DemonSlayerEffectProps> = ({
   }, [backgroundImageOpacity]);
 
   // 오디오 재생 시작 핸들러
-  const handlePlayStart = () => {
+  const handlePlayStart = useCallback(() => {
+    audioStartTimeRef.current = Date.now();
     const mainElement = document.querySelector('main');
     if (mainElement) {
       mainElement.style.opacity = '0';
       mainElement.style.pointerEvents = 'none';
     }
-  };
 
-  // 오디오 재생 종료 핸들러
-  const handlePlayEnd = () => {
-    setBackgroundImageOpacity(0);
-    if (slideAnimationRef.current) {
-      cancelAnimationFrame(slideAnimationRef.current);
+    // 기존 타이머 정리
+    if (recoveryTimerRef.current) {
+      clearTimeout(recoveryTimerRef.current);
+      recoveryTimerRef.current = null;
     }
 
-    const mainElement = document.querySelector('main');
-    if (mainElement) {
-      mainElement.style.transition = MAIN_CLIP_TRANSITION;
-      mainElement.style.opacity = '1';
-      mainElement.style.pointerEvents = '';
-      mainElement.style.clipPath = 'inset(50% 50% 50% 50%)';
-
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          if (mainElement) {
-            mainElement.style.clipPath = 'inset(0% 0% 0% 0%)';
-          }
-        });
-      });
-
-      setTimeout(() => {
-        if (mainElement) {
-          mainElement.style.transition = '';
-          mainElement.style.clipPath = '';
-        }
-      }, CLIP_PATH_RESET_DELAY_MS);
+    if (lastBeatTime > 0) {
+      const totalDelayMs = (lastBeatTime * 1000) + recoveryStartDelay;
+      recoveryTimerRef.current = setTimeout(() => {
+        recoveryTimerRef.current = null;
+        startRecoverySequence();
+      }, totalDelayMs);
     }
-  };
+  }, [lastBeatTime, recoveryStartDelay, startRecoverySequence]);
+
 
   // 비트 감지 핸들러
   const handleBeatDetected = () => {
     if (spawnCardRef.current) {
       spawnCardRef.current();
     }
-    if (triggerHeaderGlowRef.current) {
-      triggerHeaderGlowRef.current();
-    }
   };
 
-  // 자동 종료 타이머
+  // 배경 어두워지기 애니메이션
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsVisible(false);
-      setTimeout(onClose, 500);
-    }, EFFECT_DURATION_MS);
+    if (!audioStartTimeRef.current) return;
 
-    return () => clearTimeout(timer);
-  }, [onClose]);
+    const animateDarkening = () => {
+      const currentTime = (Date.now() - audioStartTimeRef.current!) / 1000;
+      
+      if (currentTime >= darkeningStartTime && currentTime < darkeningStartTime + darkeningDuration) {
+        const progress = (currentTime - darkeningStartTime) / darkeningDuration;
+        const brightness = 0.6 - (progress * (0.6 - minBrightness));
+        setBackgroundBrightness(brightness);
+      } else if (currentTime >= darkeningStartTime + darkeningDuration) {
+        setBackgroundBrightness(minBrightness);
+      }
+
+      if (!isFadingOut && currentTime < darkeningStartTime + darkeningDuration + 10) {
+        requestAnimationFrame(animateDarkening);
+      }
+    };
+
+    const animationFrame = requestAnimationFrame(animateDarkening);
+    return () => cancelAnimationFrame(animationFrame);
+  }, [darkeningStartTime, darkeningDuration, minBrightness, isFadingOut]);
 
   return (
     <>
@@ -187,12 +257,13 @@ export const DemonSlayerEffect: React.FC<DemonSlayerEffectProps> = ({
           top: `${headerBottom}px`,
           width: `${mainAreaBounds.width || window.innerWidth}px`,
           height: `${window.innerHeight - headerBottom}px`,
-          backgroundImage: 'url(/easter-eggs/images/demonSlayer.png)',
+          backgroundImage: backgroundImageResource ? `url(${backgroundImageResource.path})` : 'url(/easter-eggs/images/demonSlayer.png)',
           backgroundSize: '100% auto',
           backgroundPosition: `center ${backgroundImagePosition === 0 ? 'top' : `${backgroundImagePosition}%`}`,
           backgroundRepeat: 'no-repeat',
-          opacity: backgroundImageOpacity,
-          transition: 'opacity 1s ease-in-out',
+          filter: `brightness(${backgroundBrightness})`,
+          opacity: isFadingOut ? 0 : backgroundImageOpacity,
+          transition: isFadingOut ? `opacity ${backgroundFadeoutDuration}ms ease-out, filter ${backgroundFadeoutDuration}ms ease-out` : 'opacity 1s ease-in-out, filter 0.1s linear',
           display: mainAreaBounds.width > 0 && headerBottom > 0 ? 'block' : 'none',
         }}
       />
@@ -208,14 +279,36 @@ export const DemonSlayerEffect: React.FC<DemonSlayerEffectProps> = ({
               radial-gradient(circle at 50% 0%, rgba(255, 107, 53, 0.15) 0%, transparent 60%),
               linear-gradient(180deg, rgba(26, 15, 15, 0.3) 0%, transparent 100%)
             `,
-            opacity: isVisible ? 1 : 0,
-            transition: 'opacity 0.5s ease-out',
+            opacity: isFadingOut ? 0 : (isVisible ? 1 : 0),
+            transition: isFadingOut ? `opacity ${backgroundFadeoutDuration}ms ease-out` : 'opacity 0.5s ease-out',
           }}
         />
       )}
 
-      {/* 헤더 글로우 효과 */}
+      {/* 그림자 오버레이 - 헤더 아래 영역, 이스터에그 전체 기간 동안 유지 */}
       {isVisible && (
+        <div
+          className="fixed pointer-events-none z-[31]"
+          style={{
+            left: 0,
+            right: 0,
+            top: `${headerBottom}px`,
+            height: `${window.innerHeight - headerBottom}px`,
+            background: `linear-gradient(180deg, 
+              rgba(0, 0, 0, 0.5) 0%, 
+              rgba(0, 0, 0, 0.4) 20%, 
+              rgba(0, 0, 0, 0.3) 50%, 
+              rgba(0, 0, 0, 0.2) 70%, 
+              rgba(0, 0, 0, 0.1) 85%, 
+              transparent 100%)`,
+            opacity: isFadingOut ? 0 : 1,
+            transition: isFadingOut ? `opacity ${backgroundFadeoutDuration}ms ease-out` : 'opacity 0.5s ease-out',
+          }}
+        />
+      )}
+
+      {/* 헤더 글로우 효과 - 전체 헤더에 글로우 */}
+      {isVisible && headerGlow && (
         <div
           className="fixed pointer-events-none z-[33]"
           style={{
@@ -223,15 +316,106 @@ export const DemonSlayerEffect: React.FC<DemonSlayerEffectProps> = ({
             right: 0,
             top: headerBottom - 2,
             height: '4px',
-            background: headerGlow
-              ? 'linear-gradient(90deg, transparent, rgba(255, 179, 102, 0.9), rgba(255, 140, 66, 0.9), rgba(255, 107, 53, 0.9), transparent)'
-              : 'transparent',
-            boxShadow: headerGlow
-              ? '0 0 20px rgba(255, 179, 102, 0.8), 0 0 40px rgba(255, 140, 66, 0.6), 0 0 60px rgba(255, 107, 53, 0.4)'
-              : 'none',
+            background: 'linear-gradient(90deg, transparent, rgba(255, 179, 102, 0.9), rgba(255, 140, 66, 0.9), rgba(255, 107, 53, 0.9), transparent)',
+            boxShadow: '0 0 20px rgba(255, 179, 102, 0.8), 0 0 40px rgba(255, 140, 66, 0.6), 0 0 60px rgba(255, 107, 53, 0.4)',
             transition: 'background 0.1s ease-out, box-shadow 0.1s ease-out',
           }}
         />
+      )}
+
+      {/* 광원 확산 효과 - 카드 생성 위치에서 헤더 아래로 빛이 퍼지는 효과 (그림자를 밝게 만드는 효과) */}
+      {isVisible && headerGlow && glowPosition !== null && (
+        <>
+          {/* 그림자를 밝게 만드는 효과 - 카드 생성 위치에서 그림자가 열리는 느낌 */}
+          <div
+            className="fixed pointer-events-none z-[31]"
+            style={{
+              left: `${glowPosition - 150}px`,
+              top: `${headerBottom}px`,
+              width: `${CARD_WIDTH + 300}px`,
+              height: `${window.innerHeight - headerBottom}px`,
+              background: `radial-gradient(ellipse at center top, 
+                rgba(255, 255, 255, 0.3) 0%, 
+                rgba(255, 255, 255, 0.2) 10%, 
+                rgba(255, 255, 255, 0.1) 25%, 
+                rgba(255, 255, 255, 0.05) 40%, 
+                transparent 60%)`,
+              opacity: 1,
+              maskImage: `linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(255, 255, 255, 0.2) 5%, 
+                rgba(255, 255, 255, 0.8) 10%, 
+                rgba(255, 255, 255, 1) 15%, 
+                rgba(255, 255, 255, 1) 85%, 
+                rgba(255, 255, 255, 0.8) 90%, 
+                rgba(255, 255, 255, 0.2) 95%, 
+                transparent 100%)`,
+              WebkitMaskImage: `linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(255, 255, 255, 0.2) 5%, 
+                rgba(255, 255, 255, 0.8) 10%, 
+                rgba(255, 255, 255, 1) 15%, 
+                rgba(255, 255, 255, 1) 85%, 
+                rgba(255, 255, 255, 0.8) 90%, 
+                rgba(255, 255, 255, 0.2) 95%, 
+                transparent 100%)`,
+              transition: 'opacity 0.1s ease-out, left 0.1s ease-out',
+            }}
+          />
+          
+          {/* 광원 확산 효과 - 헤더 아래로 빛이 퍼지는 효과 (y축 더 길게) */}
+          <div
+            className="fixed pointer-events-none z-[32]"
+            style={{
+              left: `${glowPosition - 150}px`,
+              top: `${headerBottom}px`,
+              width: `${CARD_WIDTH + 300}px`,
+              height: '250px',
+              background: `radial-gradient(ellipse 100% 60% at center top, 
+                rgba(255, 179, 102, 0.8) 0%, 
+                rgba(255, 140, 66, 0.7) 12%, 
+                rgba(255, 107, 53, 0.6) 25%, 
+                rgba(255, 140, 66, 0.4) 40%, 
+                rgba(255, 107, 53, 0.2) 60%, 
+                transparent 85%)`,
+              opacity: 1,
+              maskImage: `linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(255, 255, 255, 0.3) 5%, 
+                rgba(255, 255, 255, 1) 10%, 
+                rgba(255, 255, 255, 1) 90%, 
+                rgba(255, 255, 255, 0.3) 95%, 
+                transparent 100%)`,
+              WebkitMaskImage: `linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(255, 255, 255, 0.3) 5%, 
+                rgba(255, 255, 255, 1) 10%, 
+                rgba(255, 255, 255, 1) 90%, 
+                rgba(255, 255, 255, 0.3) 95%, 
+                transparent 100%)`,
+              transition: 'opacity 0.1s ease-out, left 0.1s ease-out',
+            }}
+          />
+          
+          {/* 추가 광원 레이어 - 더 강한 빛 (y축 더 길게) */}
+          <div
+            className="fixed pointer-events-none z-[32]"
+            style={{
+              left: `${glowPosition + CARD_WIDTH / 2 - 100}px`,
+              top: `${headerBottom}px`,
+              width: '200px',
+              height: '140px',
+              background: `radial-gradient(ellipse 100% 70% at center top, 
+                rgba(255, 179, 102, 0.9) 0%, 
+                rgba(255, 140, 66, 0.7) 25%, 
+                rgba(255, 107, 53, 0.5) 50%, 
+                transparent 80%)`,
+              opacity: 1,
+              transition: 'opacity 0.1s ease-out, left 0.1s ease-out',
+            }}
+          />
+          
+        </>
       )}
 
       {/* 떨어지는 카드 컨테이너 */}
@@ -243,8 +427,8 @@ export const DemonSlayerEffect: React.FC<DemonSlayerEffectProps> = ({
           top: `${mainAreaBounds.top}px`,
           width: `${mainAreaBounds.width || window.innerWidth}px`,
           height: `${mainAreaBounds.height || window.innerHeight}px`,
-          opacity: isVisible ? 1 : 0,
-          transition: 'opacity 0.5s ease-out',
+          opacity: isFadingOut ? 0 : (isVisible ? 1 : 0),
+          transition: isFadingOut ? `opacity ${backgroundFadeoutDuration}ms ease-out` : 'opacity 0.5s ease-out',
           display: mainAreaBounds.width > 0 ? 'block' : 'none',
         }}
       />
@@ -255,9 +439,10 @@ export const DemonSlayerEffect: React.FC<DemonSlayerEffectProps> = ({
           resource={audioResource}
           onEnded={onClose}
           onPlayStart={handlePlayStart}
-          onPlayEnd={handlePlayEnd}
           canStart={canStartAudio}
           onBeatDetected={handleBeatDetected}
+          beatTimings={config?.beatTimings as number[] | undefined}
+          audioConfig={config?.audioConfig as { beatTimingTolerance?: number; enableBeatLogging?: boolean } | undefined}
         />
       )}
     </>

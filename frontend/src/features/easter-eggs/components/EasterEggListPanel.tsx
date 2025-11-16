@@ -58,7 +58,7 @@ const EasterEggListPanel: React.FC<EasterEggListPanelProps> = ({
           </div>
           <p className="text-xs text-text-muted mt-2">
             {progressPercentage === 100 
-              ? '🎉 모든 이스터에그를 발견했습니다!' 
+              ? '모든 이스터에그를 발견했습니다!' 
               : `${totalCount - discoveredCount}개의 이스터에그가 더 있습니다.`}
           </p>
         </div>
@@ -144,14 +144,16 @@ const EasterEggItem: React.FC<EasterEggItemProps> = ({ trigger, isDiscovered }) 
               {trigger.name}
             </h4>
           </div>
-          {trigger.description && (
-            <p className={`text-xs ml-6 ${isDiscovered ? 'text-text-secondary' : 'text-text-muted'}`}>
-              {trigger.description}
+          {/* 미발견 이스터에그: 힌트 표시 */}
+          {!isDiscovered && (trigger.hint || trigger.description) && (
+            <p className="text-xs ml-6 mt-1 text-text-muted">
+              💡 {trigger.hint || trigger.description}
             </p>
           )}
-          {!isDiscovered && (
-            <p className="text-xs ml-6 mt-1 text-text-muted italic">
-              힌트: "{trigger.pattern}" 패턴을 찾아보세요
+          {/* 발견된 이스터에그: 구체적인 트리거 조건 표시 */}
+          {isDiscovered && (trigger.triggerDescription || trigger.description) && (
+            <p className="text-xs ml-6 mt-1 text-text-secondary">
+              ✓ {trigger.triggerDescription || trigger.description}
             </p>
           )}
         </div>

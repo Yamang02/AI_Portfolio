@@ -43,8 +43,9 @@ const HomePage: React.FC<HomePageProps> = ({
   const [pendingMessage, setPendingMessage] = useState<string>('');
   const [messageToSend, setMessageToSend] = useState<string>('');
   const [isFabOpen, setIsFabOpen] = useState(false);
-  const { triggerEasterEgg, isEasterEggMode } = useEasterEggStore();
+  const { triggerEasterEgg, isEasterEggMode, activeEffects } = useEasterEggStore();
   const { canUseEasterEgg } = useFeatureAvailability();
+  const wasPanelOpenRef = useRef<boolean>(false);
 
   // 마운트 시 스크롤 위치 복원
   useEffect(() => {
@@ -101,6 +102,34 @@ const HomePage: React.FC<HomePageProps> = ({
       onChatbotToggle();
     }
   }, [isEasterEggMode, isChatbotOpen, onChatbotToggle]);
+
+  // 매트릭스 이스터에그 동작 시 목록 패널 제어
+  useEffect(() => {
+    const hasMatrixEffect = activeEffects.some(effect => effect.id === 'matrix-effect');
+
+    if (hasMatrixEffect) {
+      // 매트릭스 이스터에그가 시작되면 패널이 열려있었는지 저장하고 닫기
+      if (isHistoryPanelOpen) {
+        wasPanelOpenRef.current = true;
+        onHistoryPanelToggle();
+      } else {
+        wasPanelOpenRef.current = false;
+      }
+    } else {
+      // 매트릭스 이스터에그가 종료되면 이전에 열려있었다면 다시 열기
+      if (wasPanelOpenRef.current && !isHistoryPanelOpen) {
+        wasPanelOpenRef.current = false;
+        // 약간의 지연을 두어 이스터에그 종료 애니메이션이 완료된 후 열기
+        const timeoutId = setTimeout(() => {
+          onHistoryPanelToggle();
+        }, 500);
+        
+        return () => {
+          clearTimeout(timeoutId);
+        };
+      }
+    }
+  }, [activeEffects, isHistoryPanelOpen, onHistoryPanelToggle]);
 
   // 채팅 입력창에서 메시지 전송
   const handleChatInputSend = (message: string) => {

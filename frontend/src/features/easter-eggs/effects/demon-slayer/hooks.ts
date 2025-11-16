@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import type { FallingCard, MainAreaBounds } from './types';
 import { getMainElementBounds, createFallingCard, selectRandomProject, createCardHTML } from './utils';
-import { getDemonSlayerColors, CARD_REMOVAL_OFFSET } from './constants';
+import { getDemonSlayerColors, CARD_REMOVAL_OFFSET as DEFAULT_CARD_REMOVAL_OFFSET } from './constants';
 
 /**
  * main 엘리먼트 경계 추적 훅
@@ -93,14 +93,19 @@ export const useFallingCards = (
   containerRef: React.RefObject<HTMLDivElement | null>,
   projects: any[],
   headerBottomRef: React.MutableRefObject<number>,
-  isVisible: boolean
+  isVisible: boolean,
+  cardRemovalOffset: number = DEFAULT_CARD_REMOVAL_OFFSET,
+  onCardSpawned?: (cardX: number) => void,
+  onLastCardReachedFooter?: () => void
 ) => {
   const cardsRef = useRef<FallingCard[]>([]);
   const usedProjectIdsRef = useRef<Set<string>>(new Set());
   const animationRef = useRef<number | undefined>(undefined);
-  const spawnCardRef = useRef<(() => void) | null>(null);
+  const spawnCardRef = useRef<((onSpawned?: (cardX: number) => void) => void) | null>(null);
+  const lastCardRef = useRef<FallingCard | null>(null);
+  const lastCardReachedFooterRef = useRef<boolean>(false);
 
-  const spawnCard = useCallback(() => {
+  const spawnCard = useCallback((onCardSpawned?: (cardX: number) => void) => {
     const selectedProject = selectRandomProject(projects, usedProjectIdsRef.current);
     if (!selectedProject) return;
 
@@ -108,6 +113,12 @@ export const useFallingCards = (
     const card = createFallingCard(selectedProject, headerBottomRef.current, mainBounds);
 
     cardsRef.current.push(card);
+    lastCardRef.current = card; // 마지막 카드 추적
+    
+    // 카드 생성 위치를 콜백으로 전달
+    if (onCardSpawned) {
+      onCardSpawned(card.x);
+    }
   }, [projects, headerBottomRef]);
 
   const renderCards = useCallback(() => {
@@ -145,22 +156,35 @@ export const useFallingCards = (
     if (!isVisible) return;
 
     const mainBounds = getMainElementBounds();
+    const footerTop = window.innerHeight; // footer는 화면 하단
 
     cardsRef.current = cardsRef.current.filter((card) => {
       card.y += card.speed;
       card.rotation += card.rotationSpeed;
 
+      // 마지막 카드가 footer에 닿았는지 확인
+      if (lastCardRef.current && card.id === lastCardRef.current.id && !lastCardReachedFooterRef.current) {
+        if (card.y + card.height >= footerTop) {
+          lastCardReachedFooterRef.current = true;
+          if (onLastCardReachedFooter) {
+            onLastCardReachedFooter();
+          }
+        }
+      }
+
       // 화면 밖으로 나간 카드 제거
-      return card.y <= mainBounds.top + mainBounds.height + CARD_REMOVAL_OFFSET;
+      return card.y <= mainBounds.top + mainBounds.height + cardRemovalOffset;
     });
 
     renderCards();
     animationRef.current = requestAnimationFrame(animate);
-  }, [isVisible, renderCards]);
+  }, [isVisible, renderCards, cardRemovalOffset, onLastCardReachedFooter]);
 
   useEffect(() => {
-    spawnCardRef.current = spawnCard;
-  }, [spawnCard]);
+    spawnCardRef.current = (onSpawned?: (cardX: number) => void) => {
+      spawnCard(onSpawned ?? onCardSpawned);
+    };
+  }, [spawnCard, onCardSpawned]);
 
   useEffect(() => {
     if (!isVisible) return;
@@ -187,16 +211,21 @@ export const useFallingCards = (
  */
 export const useHeaderGlow = () => {
   const [headerGlow, setHeaderGlow] = useState(false);
-  const triggerHeaderGlowRef = useRef<(() => void) | null>(null);
+  const [glowPosition, setGlowPosition] = useState<number | null>(null); // 카드 생성 위치 (x 좌표)
+  const triggerHeaderGlowRef = useRef<((cardX?: number) => void) | null>(null);
 
-  const triggerHeaderGlow = useCallback(() => {
+  const triggerHeaderGlow = useCallback((cardX?: number) => {
+    setGlowPosition(cardX ?? null);
     setHeaderGlow(true);
-    setTimeout(() => setHeaderGlow(false), 300);
+    setTimeout(() => {
+      setHeaderGlow(false);
+      setTimeout(() => setGlowPosition(null), 100); // 글로우가 사라진 후 위치 리셋
+    }, 300);
   }, []);
 
   useEffect(() => {
     triggerHeaderGlowRef.current = triggerHeaderGlow;
   }, [triggerHeaderGlow]);
 
-  return { headerGlow, triggerHeaderGlowRef };
+  return { headerGlow, glowPosition, triggerHeaderGlowRef };
 };

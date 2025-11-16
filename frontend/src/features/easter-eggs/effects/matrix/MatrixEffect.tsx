@@ -5,6 +5,7 @@ import { useTheme } from '@shared/providers/ThemeProvider';
 interface MatrixEffectProps {
   context: EasterEggContext;
   onClose: () => void;
+  config?: Record<string, unknown>;
 }
 
 interface MatrixColumn {
@@ -21,15 +22,22 @@ interface GridCell {
   colorIndex: number;
 }
 
-const MATRIX_CHARS = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZアイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
-const MATRIX_COLORS = ['#00ff00', '#00ff41', '#00ff82', '#00ffc3', '#39ff00', '#39ff41'];
-const GRID_SIZE = 30;
-const FONT_SIZE = 18;
+const getRandomChar = (chars: string) => chars[Math.floor(Math.random() * chars.length)];
+const getRandomColorIndex = (colors: string[]) => Math.floor(Math.random() * colors.length);
 
-const getRandomChar = () => MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)];
-const getRandomColorIndex = () => Math.floor(Math.random() * MATRIX_COLORS.length);
-
-const MatrixEffect: React.FC<MatrixEffectProps> = ({ context: _context, onClose }) => {
+const MatrixEffect: React.FC<MatrixEffectProps> = ({ context: _context, onClose, config }) => {
+  // JSON config에서 값 가져오기 (기본값은 하드코딩)
+  const MATRIX_CHARS = (config?.matrixChars as string) ?? '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZアイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
+  const MATRIX_COLORS = (config?.matrixColors as string[]) ?? ['#00ff00', '#00ff41', '#00ff82', '#00ffc3', '#39ff00', '#39ff41'];
+  const GRID_SIZE = (config?.gridSize as number) ?? 30;
+  const FONT_SIZE = (config?.fontSize as number) ?? 18;
+  const TOTAL_DURATION = (config?.totalDuration as number) ?? 16500;
+  const RAIN_START_TIME = (config?.rainStartTime as number) ?? 3500;
+  const FADEOUT_START_TIME = (config?.fadeoutStartTime as number) ?? 13500;
+  const FADEOUT_DURATION = (config?.fadeoutDuration as number) ?? 2000;
+  const RECOVERY_START_TIME = (config?.recoveryStartTime as number) ?? 16000;
+  const RECOVERY_DURATION = (config?.recoveryDuration as number) ?? 500;
+  const effectTheme = (config?.theme as string) ?? 'matrix';
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number | undefined>(undefined);
   const [phase, setPhase] = useState<'color' | 'rain'>('color');
@@ -43,9 +51,9 @@ const MatrixEffect: React.FC<MatrixEffectProps> = ({ context: _context, onClose 
 
   useEffect(() => {
     const currentTheme = theme;
-    if (currentTheme !== 'matrix') {
+    if (currentTheme !== effectTheme) {
       previousThemeRef.current = currentTheme as 'light' | 'dark';
-      setTheme('matrix');
+      setTheme(effectTheme as 'matrix');
     }
 
     return () => {
@@ -67,8 +75,8 @@ const MatrixEffect: React.FC<MatrixEffectProps> = ({ context: _context, onClose 
       cells[i] = [];
       for (let j = 0; j < rows; j++) {
         cells[i][j] = {
-          char: getRandomChar(),
-          colorIndex: getRandomColorIndex(),
+          char: getRandomChar(MATRIX_CHARS),
+          colorIndex: getRandomColorIndex(MATRIX_COLORS),
         };
       }
     }
@@ -133,7 +141,7 @@ const MatrixEffect: React.FC<MatrixEffectProps> = ({ context: _context, onClose 
         const length = Math.floor(Math.random() * 25) + 15;
         const chars: string[] = [];
         for (let k = 0; k < length; k++) {
-          chars.push(getRandomChar());
+          chars.push(getRandomChar(MATRIX_CHARS));
         }
 
         newColumns.push({
@@ -170,13 +178,6 @@ const MatrixEffect: React.FC<MatrixEffectProps> = ({ context: _context, onClose 
     window.addEventListener('resize', resizeCanvas);
 
     const gridCells = getGridCells(canvas.width, canvas.height);
-
-    const TOTAL_DURATION = 16500;
-    const RAIN_START_TIME = 3500;
-    const FADEOUT_START_TIME = 13500;
-    const FADEOUT_DURATION = 2000;
-    const RECOVERY_START_TIME = 16000;
-    const RECOVERY_DURATION = 500;
 
     const animate = () => {
       const elapsed = Date.now() - startTimeRef.current;
@@ -271,7 +272,7 @@ const MatrixEffect: React.FC<MatrixEffectProps> = ({ context: _context, onClose 
           if (column.y > canvas.height + length * FONT_SIZE) {
             column.y = -length * FONT_SIZE - Math.random() * 200;
             for (let k = 0; k < length; k++) {
-              column.chars[k] = getRandomChar();
+              column.chars[k] = getRandomChar(MATRIX_CHARS);
             }
           }
         }
@@ -289,7 +290,7 @@ const MatrixEffect: React.FC<MatrixEffectProps> = ({ context: _context, onClose 
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [phase, onClose, getGridCells, renderGrid, initColumns, setTheme]);
+  }, [phase, onClose, getGridCells, renderGrid, initColumns, setTheme, MATRIX_CHARS, MATRIX_COLORS, GRID_SIZE, FONT_SIZE, TOTAL_DURATION, RAIN_START_TIME, FADEOUT_START_TIME, FADEOUT_DURATION, RECOVERY_START_TIME, RECOVERY_DURATION, effectTheme]);
 
   return (
     <canvas
