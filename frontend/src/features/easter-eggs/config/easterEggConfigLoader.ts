@@ -2,6 +2,16 @@ import React from 'react';
 import type { EasterEggTrigger, EasterEggEffect, EasterEggResource, TriggerType } from '../model/easter-egg.types';
 import easterEggConfig from './easterEggConfig.json';
 
+// 명시적 import로 Vite가 모든 컴포넌트를 번들에 포함하도록 함
+import {
+  MatrixEffect,
+  DemonSlayerEffect,
+  ConfettiEffect,
+  GiantBlockEffect,
+  VideoEffect,
+  AudioEffect,
+} from '../effects';
+
 /**
  * JSON 설정 파일의 Trigger 인터페이스
  */
@@ -33,30 +43,42 @@ interface ConfigEffect {
 }
 
 /**
- * 동적으로 컴포넌트를 로드하는 함수
- * Vite의 동적 import 분석 제한으로 인해 @vite-ignore 주석 사용
+ * 컴포넌트 경로와 실제 컴포넌트를 매핑하는 맵
+ * 프로덕션 빌드에서 동적 import가 제대로 작동하도록 명시적으로 정의
  */
-async function loadEffectComponent(componentPath: string): Promise<React.ComponentType<any>> {
-  try {
-    // 동적 import를 사용하여 컴포넌트 로드
-    // Vite는 동적 경로를 정적 분석할 수 없으므로 @vite-ignore 주석 사용
-    const module = await import(/* @vite-ignore */ `../${componentPath}`);
-    
-    // 컴포넌트가 default export인지 named export인지 확인
-    return module.default || module[Object.keys(module)[0]];
-  } catch (error) {
-    console.error(`Failed to load effect component: ${componentPath}`, error);
-    throw error;
+const componentMap: Record<string, React.ComponentType<any>> = {
+  'effects/matrix/MatrixEffect': MatrixEffect,
+  'effects/demon-slayer/DemonSlayerEffect': DemonSlayerEffect,
+  'effects/confetti/ConfettiEffect': ConfettiEffect,
+  'effects/giant-block/GiantBlockEffect': GiantBlockEffect,
+  'effects/video/VideoEffect': VideoEffect,
+  'effects/audio/AudioEffect': AudioEffect,
+};
+
+/**
+ * 컴포넌트를 로드하는 함수
+ * 명시적 맵을 사용하여 프로덕션 빌드에서도 안정적으로 작동
+ * 동적 import를 사용하지 않으므로 동기 함수로 변경 (MIME 타입 오류 방지)
+ */
+function loadEffectComponent(componentPath: string): React.ComponentType<any> {
+  // 명시적 맵에서 컴포넌트 찾기
+  const component = componentMap[componentPath];
+  
+  if (!component) {
+    throw new Error(`Component not found: ${componentPath}. Available paths: ${Object.keys(componentMap).join(', ')}`);
   }
+  
+  return component;
 }
 
 /**
  * JSON 설정을 TypeScript 타입으로 변환
+ * 동적 import를 사용하지 않으므로 동기 함수로 변경
  */
-export async function loadEasterEggConfig(): Promise<{
+export function loadEasterEggConfig(): {
   triggers: EasterEggTrigger[];
   effects: EasterEggEffect[];
-}> {
+} {
   const triggers: EasterEggTrigger[] = (easterEggConfig.triggers as ConfigTrigger[]).map(trigger => ({
     ...trigger,
     type: trigger.type as TriggerType,
@@ -64,9 +86,9 @@ export async function loadEasterEggConfig(): Promise<{
     caseSensitive: trigger.caseSensitive ?? false,
   }));
 
-  // 이펙트 컴포넌트를 동적으로 로드
-  const effectsPromises = (easterEggConfig.effects as ConfigEffect[]).map(async (configEffect) => {
-    const component = await loadEffectComponent(configEffect.componentPath);
+  // 이펙트 컴포넌트를 로드 (동적 import 없이 명시적 맵 사용)
+  const effects = (easterEggConfig.effects as ConfigEffect[]).map((configEffect) => {
+    const component = loadEffectComponent(configEffect.componentPath);
     
     return {
       id: configEffect.id,
@@ -79,8 +101,6 @@ export async function loadEasterEggConfig(): Promise<{
       config: configEffect.config,
     } as EasterEggEffect;
   });
-
-  const effects = await Promise.all(effectsPromises);
 
   return { triggers, effects };
 }

@@ -170,25 +170,21 @@ const MainAppContent: React.FC = () => {
 const MainApp: React.FC = () => {
   // 이스터에그 초기화 - JSON 설정 파일에서 로드
   useEffect(() => {
-    const initializeEasterEggs = async () => {
-      try {
-        const { triggers, effects } = await loadEasterEggConfig();
-        
-        // 트리거 등록
-        triggers.forEach(trigger => {
-          easterEggRegistry.registerTrigger(trigger);
-        });
+    try {
+      const { triggers, effects } = loadEasterEggConfig();
+      
+      // 트리거 등록
+      triggers.forEach(trigger => {
+        easterEggRegistry.registerTrigger(trigger);
+      });
 
-        // 이펙트 등록
-        effects.forEach(effect => {
-          easterEggRegistry.registerEffect(effect);
-        });
-      } catch (error) {
-        console.error('Failed to load easter egg config:', error);
-      }
-    };
-
-    initializeEasterEggs();
+      // 이펙트 등록
+      effects.forEach(effect => {
+        easterEggRegistry.registerEffect(effect);
+      });
+    } catch (error) {
+      console.error('Failed to load easter egg config:', error);
+    }
   }, []);
 
   return (

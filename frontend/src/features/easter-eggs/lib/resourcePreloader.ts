@@ -256,14 +256,13 @@ export class ResourcePreloader {
 
   /**
    * 설정 파일에서 리소스 목록 로드
+   * 프로덕션 빌드에서도 작동하도록 import된 JSON 사용
    */
   private async loadConfig(): Promise<{ effects: Array<{ resources?: EasterEggResource[] }> }> {
     try {
-      const response = await fetch('/src/features/easter-eggs/config/easterEggConfig.json');
-      if (!response.ok) {
-        throw new Error('Failed to load easter egg config');
-      }
-      return await response.json();
+      // 동적 import로 JSON 파일을 로드 (Vite가 번들에 포함)
+      const config = await import('../config/easterEggConfig.json');
+      return config.default || config;
     } catch (error) {
       console.error('Failed to load config:', error);
       return { effects: [] };
