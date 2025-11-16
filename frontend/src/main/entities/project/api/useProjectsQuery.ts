@@ -4,11 +4,12 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { projectApi } from './projectApi';
-import type { 
-  Project, 
-  ProjectCreateRequest, 
-  ProjectUpdateRequest, 
-  ProjectFilter 
+import { QUERY_STALE_TIME } from '../../../config/queryCacheConfig';
+import type {
+  Project,
+  ProjectCreateRequest,
+  ProjectUpdateRequest,
+  ProjectFilter
 } from '../model/project.types';
 
 // 쿼리 키 상수
@@ -33,8 +34,7 @@ export const useProjectsQuery = (params?: {
   return useQuery({
     queryKey: [...PROJECT_QUERY_KEYS.lists(), params],
     queryFn: () => projectApi.getProjects(params),
-    staleTime: 3 * 60 * 1000, // 3분 - 관리자 수정 후 빠른 갱신 (트래픽 적음)
-    gcTime: 10 * 60 * 1000, // 10분 - 가비지 컬렉션 시간
+    staleTime: QUERY_STALE_TIME.PROJECT,
   });
 };
 
@@ -80,7 +80,7 @@ export const useGitHubProjectsQuery = () => {
   return useQuery({
     queryKey: PROJECT_QUERY_KEYS.github(),
     queryFn: () => projectApi.getGitHubProjects(),
-    staleTime: 10 * 60 * 1000, // 10분
+    staleTime: QUERY_STALE_TIME.GITHUB,
   });
 };
 

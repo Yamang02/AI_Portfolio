@@ -83,10 +83,12 @@ export type SortOrder = 'asc' | 'desc';
 export type ScreenSize = 'mobile' | 'tablet' | 'desktop' | 'wide';
 
 // 테마 타입
-export type Theme = 'light' | 'dark';
+export type Theme = 'light' | 'dark' | 'matrix' | 'demon-slayer';
 
 // 언어 타입
 export type Language = 'ko' | 'en';
+
+
 
 
 

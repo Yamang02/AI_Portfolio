@@ -1,9 +1,8 @@
-import React from 'react';
-import { Project } from '../../../features/projects/types';
+import React, { useEffect, useState } from 'react';
+import { Project } from '@features/project-gallery/types';
 
 interface ProjectDetailHeaderProps {
   project: Project;
-  onBack: () => void;
   className?: string;
 }
 
@@ -15,15 +14,15 @@ const ProjectMetaBadge: React.FC<{
   const getBadgeStyle = (type: string) => {
     switch (type) {
       case 'team':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300';
       case 'individual':
-        return 'bg-purple-100 text-purple-800';
+        return 'bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300';
       case 'project':
-        return 'bg-red-100 text-red-800';
+        return 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300';
       case 'status':
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-surface-elevated dark:bg-slate-700 text-text-primary';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-surface-elevated dark:bg-slate-700 text-text-primary';
     }
   };
 
@@ -46,18 +45,18 @@ const ExternalLinkButton: React.FC<{
     const baseStyle = 'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors';
     
     if (isDisabled) {
-      return `${baseStyle} bg-gray-100 text-gray-400 cursor-not-allowed`;
+      return `${baseStyle} bg-surface-elevated dark:bg-slate-700 text-text-muted cursor-not-allowed`;
     }
     
     switch (type) {
       case 'live':
-        return `${baseStyle} bg-green-100 text-green-700 hover:bg-green-200`;
+        return `${baseStyle} bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 hover:bg-green-200 dark:hover:bg-green-900/50`;
       case 'github':
-        return `${baseStyle} bg-purple-100 text-purple-700 hover:bg-purple-200`;
+        return `${baseStyle} bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 hover:bg-purple-200 dark:hover:bg-purple-900/50`;
       case 'notion':
-        return `${baseStyle} bg-blue-100 text-blue-700 hover:bg-blue-200`;
+        return `${baseStyle} bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-900/50`;
       default:
-        return `${baseStyle} bg-gray-100 text-gray-700 hover:bg-gray-200`;
+        return `${baseStyle} bg-surface-elevated dark:bg-slate-700 text-text-primary hover:bg-surface dark:hover:bg-slate-600`;
     }
   };
 
@@ -118,27 +117,32 @@ const ExternalLinkButton: React.FC<{
 
 const ProjectDetailHeader: React.FC<ProjectDetailHeaderProps> = ({
   project,
-  onBack,
   className = ''
 }) => {
-  return (
-    <header className={`sticky top-0 bg-white border-b border-gray-200 z-10 ${className}`}>
-      <div className="max-w-4xl mx-auto px-6 py-4">
-        {/* 뒤로가기 버튼 */}
-        <button
-          onClick={onBack}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4 transition-colors"
-          aria-label="뒤로가기"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
-          <span className="text-sm font-medium">프로젝트 목록으로</span>
-        </button>
+  const [headerHeight, setHeaderHeight] = useState(64);
 
+  useEffect(() => {
+    // 전체 앱 헤더의 실제 높이를 측정
+    const mainHeader = document.querySelector('header');
+    if (mainHeader) {
+      const height = mainHeader.offsetHeight;
+      setHeaderHeight(height);
+    }
+  }, []);
+
+  return (
+    <header 
+      className={`sticky border-b z-10 ${className}`}
+      style={{
+        top: `${headerHeight}px`,
+        backgroundColor: 'var(--color-surface)',
+        borderColor: 'var(--color-border)',
+      }}
+    >
+      <div className="max-w-4xl mx-auto px-6 py-4">
         {/* 제목과 메타데이터 */}
         <div className="text-center">
-          <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-6 break-words">
+          <h1 className="text-2xl lg:text-3xl font-bold text-text-primary mb-6 break-words">
             {project.title}
           </h1>
           
@@ -170,7 +174,7 @@ const ProjectDetailHeader: React.FC<ProjectDetailHeaderProps> = ({
               />
             )}
             
-            <span className="text-sm text-gray-600 flex items-center">
+            <span className="text-sm text-text-secondary flex items-center">
               <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>

@@ -1,0 +1,95 @@
+{
+  "triggers": [
+    {
+      "id": "matrix-effect",
+      "type": "regex",
+      "pattern": "^(Matrix|The Matrix|매트릭스)$",
+      "name": "Mr. Anderson, Welcome back.",
+      "hint": "채팅창에 영화제목 입력",
+      "triggerDescription": "채팅창에 \"Matrix\", \"The Matrix\", \"매트릭스\" 중 하나 입력",
+      "enabled": true,
+      "caseSensitive": false,
+      "blockMessage": true
+    },
+    {
+      "id": "demon-slayer-effect",
+      "type": "exact",
+      "pattern": "키보드/스크롤 트리거",
+      "name": "귀멸의 칼날:무한성(Demon Slayer)",
+      "hint": "페이지를 아래로 빠르게 스크롤하거나 이와 동일한 기능의 키를 연속으로 n회 누르기",
+      "triggerDescription": "페이지 상단에서 하단까지 5초 이내 스크롤 또는 PageDown 키 3번 연속 입력",
+      "enabled": true,
+      "caseSensitive": false,
+      "blockMessage": false
+    }
+  ],
+  "effects": [
+    {
+      "id": "matrix-effect",
+      "componentPath": "effects/matrix/MatrixEffect",
+      "duration": 20000,
+      "zIndex": 0,
+      "isHeavy": true,
+      "resources": [],
+      "alwaysEnabled": false,
+      "config": {
+        "totalDuration": 16500,
+        "rainStartTime": 3500,
+        "fadeoutStartTime": 13500,
+        "fadeoutDuration": 2000,
+        "recoveryStartTime": 16000,
+        "recoveryDuration": 500,
+        "matrixChars": "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZアイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン",
+        "matrixColors": ["#00ff00", "#00ff41", "#00ff82", "#00ffc3", "#39ff00", "#39ff41"],
+        "gridSize": 30,
+        "fontSize": 18,
+        "theme": "matrix"
+      }
+    },
+    {
+      "id": "demon-slayer-effect",
+      "componentPath": "effects/demon-slayer/DemonSlayerEffect",
+      "duration": null,
+      "isHeavy": false,
+      "resources": [
+        {
+          "type": "audio",
+          "path": "/easter-eggs/audio/demon-slayer.m4a",
+          "preload": true,
+          "loop": false,
+          "volume": 0.5
+        },
+        {
+          "type": "image",
+          "path": "/easter-eggs/images/demonSlayer.png",
+          "preload": true
+        }
+      ],
+      "alwaysEnabled": false,
+      "config": {
+        "effectDurationMs": 30000,
+        "fadeOutDelayMs": 1000,
+        "headerGlowDurationMs": 300,
+        "slideAnimationDurationMs": 10000,
+        "slideAnimationMaxOffset": 50,
+        "cardRemovalOffset": 200,
+        "clipPathResetDelayMs": 500,
+        "theme": "demon-slayer",
+        "beatTimings": [0.148, 1.910, 3.370, 4.159, 4.748],
+        "audioConfig": {
+          "beatTimingTolerance": 0.1,
+          "enableBeatLogging": false
+        },
+        "darkeningConfig": {
+          "startTime": 2.0,
+          "duration": 3.0,
+          "minBrightness": 0.3
+        },
+        "fadeoutConfig": {
+          "duration": 2000
+        }
+      }
+    }
+  ]
+}
+

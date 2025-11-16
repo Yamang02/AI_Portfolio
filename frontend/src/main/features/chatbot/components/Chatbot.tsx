@@ -10,6 +10,8 @@ interface ChatbotProps {
   isOpen: boolean;
   onToggle: () => void;
   showProjectButtons?: boolean;
+  externalMessage?: string; // 외부에서 전달된 메시지
+  onMessageProcessed?: () => void; // 메시지 처리 완료 콜백
 }
 
 const ChatIcon = () => (
@@ -24,7 +26,7 @@ const SendIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
 );
 
-const Chatbot: React.FC<ChatbotProps> = ({ isOpen, onToggle, showProjectButtons }) => {
+const Chatbot: React.FC<ChatbotProps> = ({ isOpen, onToggle, showProjectButtons, externalMessage, onMessageProcessed }) => {
   const [messages, setMessages] = useState<ChatMessageType[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -128,6 +130,137 @@ const Chatbot: React.FC<ChatbotProps> = ({ isOpen, onToggle, showProjectButtons 
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isInitialized]);
+
+  // 외부에서 전달된 메시지 처리
+  useEffect(() => {
+    if (externalMessage && externalMessage.trim()) {
+      // 챗봇 자동 열기
+      if (!isOpen) {
+        onToggle();
+      }
+
+      // 메시지 처리
+      const userMessage: ChatMessageType = {
+        id: Date.now().toString(),
+        content: externalMessage,
+        isUser: true,
+        timestamp: new Date()
+      };
+
+      setMessages(prev => [...prev, userMessage]);
+      processExternalMessage(externalMessage);
+
+      // 처리 완료 콜백
+      if (onMessageProcessed) {
+        onMessageProcessed();
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [externalMessage]);
+
+  // 외부 메시지 처리 함수
+  const processExternalMessage = async (message: string) => {
+    setIsLoading(true);
+
+    try {
+      // 1단계: 프론트엔드 사전 검증 및 분석
+      const questionProcessing = processQuestion(message);
+
+      let aiResponseText: React.ReactNode;
+      let showEmailButton = false;
+
+      // 검증 오류가 있는 경우
+      if (questionProcessing.validationError) {
+        aiResponseText = (
+          <span className="text-red-600 font-medium">
+            ⚠️ {questionProcessing.validationError}
+          </span>
+        );
+      }
+      // 즉시 응답이 있는 경우
+      else if (questionProcessing.immediateResponse) {
+        aiResponseText = questionProcessing.immediateResponse;
+        showEmailButton = questionProcessing.showEmailButton;
+      }
+      // 백엔드로 전송이 필요한 경우
+      else if (questionProcessing.shouldSendToBackend) {
+        const response = await apiClient.getChatbotResponse(message, selectedProject || undefined);
+
+        // 백엔드 응답 처리 (ResponseType 기반)
+        const responseType = response.responseType;
+
+        // 에러 타입별 처리
+        if (responseType === 'RATE_LIMITED' || response.isRateLimited) {
+          aiResponseText = (
+            <span className="text-red-600 font-medium">
+              ⚠️ {response.response}
+            </span>
+          );
+          showEmailButton = true;
+        } else if (responseType === 'CANNOT_ANSWER') {
+          aiResponseText = (
+            <span>
+              {response.response}
+            </span>
+          );
+          showEmailButton = true;
+        } else if (responseType === 'PERSONAL_INFO') {
+          aiResponseText = (
+            <span>
+              {response.response}
+            </span>
+          );
+          showEmailButton = true;
+        } else if (responseType === 'INVALID_INPUT' || responseType === 'SPAM_DETECTED') {
+          aiResponseText = (
+            <span className="text-red-600 font-medium">
+              ⚠️ {response.response}
+            </span>
+          );
+          showEmailButton = response.showEmailButton || false;
+        } else if (responseType === 'SYSTEM_ERROR') {
+          aiResponseText = (
+            <span className="text-red-600 font-medium">
+              ⚠️ {response.response}
+            </span>
+          );
+          showEmailButton = true;
+        } else {
+          // SUCCESS 또는 기타 정상 응답
+          aiResponseText = response.response;
+          showEmailButton = response.showEmailButton || false;
+        }
+
+        // 사용량 제한 상태 업데이트 (성공적인 요청 후)
+        if (!response.isRateLimited) {
+          loadUsageStatus();
+        }
+      }
+
+      const aiMessage: ChatMessageType = {
+        id: (Date.now() + 1).toString(),
+        content: aiResponseText as string,
+        isUser: false,
+        timestamp: new Date(),
+        showEmailButton: showEmailButton
+      };
+
+      setMessages(prev => [...prev, aiMessage]);
+
+    } catch (error) {
+      console.error('외부 메시지 처리 오류:', error);
+      const errorMessage: ChatMessageType = {
+        id: (Date.now() + 1).toString(),
+        content: '죄송합니다. 응답을 생성하는 중에 오류가 발생했습니다.',
+        isUser: false,
+        timestamp: new Date(),
+        showEmailButton: true
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // 프로젝트 선택 처리
   const handleProjectSelect = async (project: any) => {
@@ -356,28 +489,19 @@ const Chatbot: React.FC<ChatbotProps> = ({ isOpen, onToggle, showProjectButtons 
 
   return (
     <>
-      {/* 챗봇 토글 버튼 */}
-      <button
-        onClick={handleToggle}
-        className="fixed bottom-6 right-6 bg-primary-600 text-white p-4 rounded-full shadow-lg hover:bg-primary-700 transition-colors duration-200 z-50"
-        aria-label="챗봇 열기"
-      >
-        {isOpen ? <CloseIcon /> : <ChatIcon />}
-      </button>
-
       {/* 챗봇 패널 */}
       {(
         <div
-          className={`fixed right-0 top-0 h-[calc(100vh-120px)] w-96 max-w-full bg-white shadow-lg border-l border-gray-200 flex flex-col z-50 transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}
+          className={`fixed right-0 top-0 h-[calc(100vh-120px)] w-96 max-w-full bg-surface dark:bg-slate-800 shadow-lg border-l border-border flex flex-col z-50 transition-all duration-300 ease-in-out ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}
           style={{ pointerEvents: isOpen ? 'auto' : 'none' }}
         >
           {/* 헤더 */}
-          <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-white relative">
-            <h3 className="text-lg font-semibold text-gray-900 text-center w-full">AI 포트폴리오 비서</h3>
+          <div className="flex items-center justify-between p-4 border-b border-border bg-surface dark:bg-slate-800 relative">
+            <h3 className="text-lg font-semibold text-text-primary text-center w-full">AI 포트폴리오 비서</h3>
             <div className="absolute right-4 flex items-center gap-2">
               <button
                 onClick={resetChatbot}
-                className="text-gray-500 hover:text-gray-700 transition-colors"
+                className="p-2 rounded-full text-text-secondary dark:text-slate-400 hover:text-text-primary dark:hover:text-slate-200 hover:bg-surface-elevated dark:hover:bg-slate-700 transition-colors"
                 aria-label="채팅 초기화"
                 title="채팅 초기화"
               >
@@ -388,7 +512,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ isOpen, onToggle, showProjectButtons 
               </button>
               <button
                 onClick={handleToggle}
-                className="text-gray-500 hover:text-gray-700 transition-colors"
+                className="p-2 rounded-full text-text-secondary dark:text-slate-400 hover:text-text-primary dark:hover:text-slate-200 hover:bg-surface-elevated dark:hover:bg-slate-700 transition-colors"
                 aria-label="챗봇 닫기"
               >
                 <CloseIcon />
@@ -398,12 +522,12 @@ const Chatbot: React.FC<ChatbotProps> = ({ isOpen, onToggle, showProjectButtons 
 
           {/* 사용량 제한 상태 표시 */}
           {usageStatus && (
-            <div className="px-4 py-2 bg-gray-50 border-b border-gray-200">
-              <div className="flex justify-between items-center text-xs text-gray-600">
+            <div className="px-4 py-2 bg-surface-elevated dark:bg-slate-700 border-b border-border">
+              <div className="flex justify-between items-center text-xs text-text-secondary">
                 <span>시간당: {usageStatus.hourlyCount}/15</span>
                 <span>일일: {usageStatus.dailyCount}/45</span>
                 {usageStatus.isBlocked && (
-                  <span className="text-red-600 font-medium">
+                  <span className="text-red-600 dark:text-red-400 font-medium">
                     ⚠️ 차단됨 ({Math.ceil(usageStatus.timeUntilReset / (1000 * 60 * 60))}시간 후 해제)
                   </span>
                 )}
@@ -412,17 +536,17 @@ const Chatbot: React.FC<ChatbotProps> = ({ isOpen, onToggle, showProjectButtons 
           )}
 
           {/* 메시지 영역 */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 space-y-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-slate-600 scrollbar-track-transparent hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-slate-500">
             {messages.map(message => (
               <ChatMessage key={message.id} message={message} />
             ))}
             {isLoading && (
               <div className="flex justify-start mb-4">
-                <div className="bg-gray-200 text-gray-800 rounded-lg rounded-bl-none px-4 py-2">
+                <div className="bg-surface-elevated dark:bg-slate-700 text-text-primary rounded-lg rounded-bl-none px-4 py-2">
                   <div className="flex space-x-1">
-                    <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"></div>
-                    <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                    <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                    <div className="w-2 h-2 bg-primary-500 dark:bg-primary-400 rounded-full animate-bounce"></div>
+                    <div className="w-2 h-2 bg-primary-500 dark:bg-primary-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                    <div className="w-2 h-2 bg-primary-500 dark:bg-primary-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                   </div>
                 </div>
               </div>
@@ -432,14 +556,14 @@ const Chatbot: React.FC<ChatbotProps> = ({ isOpen, onToggle, showProjectButtons 
 
           {/* 프로젝트 선택 영역 */}
           {showProjectButtons !== false && messages.length === 1 && (
-            <div className="p-4 border-t border-gray-200">
-              <p className="text-sm text-gray-600 font-medium">프로젝트를 선택하세요:</p>
+            <div className="p-4 border-t border-border">
+              <p className="text-sm text-text-secondary font-medium">프로젝트를 선택하세요:</p>
               <div className="grid grid-cols-1 gap-2">
                 {(showAllProjects ? projects : projects.slice(0, MAX_VISIBLE_PROJECTS)).map((project: any) => (
                   <button
                     key={project.id}
                     onClick={() => handleProjectSelect(project)}
-                    className="text-left p-2 rounded border border-gray-200 hover:bg-gray-50 transition-colors text-sm"
+                    className="text-left p-2 rounded border border-border hover:bg-surface-elevated dark:hover:bg-slate-700 transition-colors text-sm text-text-primary"
                   >
                     {project.title}
                   </button>
@@ -447,7 +571,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ isOpen, onToggle, showProjectButtons 
                 {projects.length > MAX_VISIBLE_PROJECTS && (
                   <button
                     onClick={() => setShowAllProjects(!showAllProjects)}
-                    className="text-center p-2 rounded border border-gray-300 bg-gray-50 hover:bg-gray-100 text-xs font-medium"
+                    className="text-center p-2 rounded border border-border bg-surface-elevated dark:bg-slate-700 hover:bg-surface dark:hover:bg-slate-600 text-xs font-medium text-text-primary"
                   >
                     {showAllProjects ? '접기' : '더보기'}
                   </button>
@@ -456,26 +580,6 @@ const Chatbot: React.FC<ChatbotProps> = ({ isOpen, onToggle, showProjectButtons 
             </div>
           )}
 
-          {/* 입력 영역 */}
-          <form onSubmit={handleSendMessage} className="p-4 border-t border-gray-200">
-            <div className="flex space-x-2">
-              <input
-                type="text"
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                placeholder="메시지를 입력하세요..."
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent"
-                disabled={isLoading}
-              />
-              <button
-                type="submit"
-                disabled={!inputValue.trim() || isLoading}
-                className="bg-gray-800 text-white p-2 rounded-lg hover:bg-black disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
-              >
-                <SendIcon />
-              </button>
-            </div>
-          </form>
         </div>
       )}
 

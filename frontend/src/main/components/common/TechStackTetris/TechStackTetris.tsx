@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from 'react';
-import './TechStackTetris.css';
 
 interface TechStackMetadata {
   name: string;
@@ -529,18 +528,18 @@ export const TechStackTetris: React.FC<TechStackTetrisProps> = ({
         <>
           <canvas
             ref={backgroundCanvasRef}
-            className={`tech-stack-tetris tech-stack-tetris-background ${className}`}
+            className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4/5 max-w-[800px] h-[400px] min-h-[400px] pointer-events-none opacity-35 z-[1] ${className}`}
           />
           <canvas
             ref={foregroundCanvasRef}
-            className={`tech-stack-tetris tech-stack-tetris-foreground ${className}`}
+            className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4/5 max-w-[800px] h-[400px] min-h-[400px] pointer-events-none opacity-100 z-[15] ${className}`}
           />
         </>
       )}
       {onAnimationToggle && (
         <button
           onClick={onAnimationToggle}
-          className="absolute top-3 right-3 z-20 bg-white/60 hover:bg-white/80 backdrop-blur-sm rounded-full p-1.5 shadow-md border border-white/30 transition-all duration-200 text-gray-500 hover:text-gray-700"
+          className="absolute top-3 right-3 z-20 bg-surface/60 dark:bg-slate-800/60 hover:bg-surface/80 dark:hover:bg-slate-800/80 backdrop-blur-sm rounded-full p-1.5 shadow-md border border-border/30 transition-all duration-200 text-text-secondary hover:text-text-primary"
           title={isAnimationEnabled ? "애니메이션 끄기" : "애니메이션 켜기"}
         >
           {isAnimationEnabled ? (

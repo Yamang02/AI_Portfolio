@@ -1,7 +1,7 @@
 import React from 'react';
-import { Project } from '../../../features/projects/types';
-import { TOCItem, flattenTOCItems } from '../../../features/projects/hooks/useTOC';
-import { scrollToSection } from '../../../features/projects/hooks/useActiveSection';
+import { Project } from '@features/project-gallery/types';
+import { TOCItem, flattenTOCItems } from '@features/project-gallery/hooks/useTOC';
+import { scrollToSection } from '@features/project-gallery/hooks/useActiveSection';
 
 interface ProjectDetailSidebarProps {
   project: Project;
@@ -90,18 +90,18 @@ const ExternalLinkButton: React.FC<{
     const baseStyle = 'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors w-full';
     
     if (isDisabled) {
-      return `${baseStyle} bg-gray-100 text-gray-400 cursor-not-allowed`;
+      return `${baseStyle} bg-surface-elevated dark:bg-slate-700 text-text-muted cursor-not-allowed`;
     }
     
     switch (type) {
       case 'live':
-        return `${baseStyle} bg-green-100 text-green-700 hover:bg-green-200`;
+        return `${baseStyle} bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 hover:bg-green-200 dark:hover:bg-green-900/50`;
       case 'github':
-        return `${baseStyle} bg-purple-100 text-purple-700 hover:bg-purple-200`;
+        return `${baseStyle} bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 hover:bg-purple-200 dark:hover:bg-purple-900/50`;
       case 'notion':
-        return `${baseStyle} bg-blue-100 text-blue-700 hover:bg-blue-200`;
+        return `${baseStyle} bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-900/50`;
       default:
-        return `${baseStyle} bg-gray-100 text-gray-700 hover:bg-gray-200`;
+        return `${baseStyle} bg-surface-elevated dark:bg-slate-700 text-text-primary hover:bg-surface dark:hover:bg-slate-600`;
     }
   };
 
@@ -182,8 +182,8 @@ const TOCItemComponent: React.FC<TOCItemComponentProps> = React.memo(({
         className={`
           block py-2 px-3 rounded-md text-sm transition-all duration-200
           ${isActive
-            ? 'bg-blue-100 text-blue-700 font-medium border-l-2 border-blue-500'
-            : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'
+            ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-medium border-l-2 border-blue-500 dark:border-blue-400'
+            : 'text-text-secondary hover:text-primary-600 dark:hover:text-primary-400 hover:bg-surface-elevated dark:hover:bg-slate-700'
           }
         `}
         style={{ paddingLeft: `${paddingLeft}px` }}
@@ -215,7 +215,7 @@ const ProjectDetailSidebar: React.FC<ProjectDetailSidebarProps> = React.memo(({
 
   return (
     <div className={`w-80 ${className}`}>
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 max-h-[calc(100vh-8rem)] flex flex-col group">
+      <div className="bg-surface dark:bg-slate-800 rounded-lg shadow-sm border border-border max-h-[calc(100vh-8rem)] flex flex-col group">
         {/* 링크 버튼들 - 고정 영역 */}
         <div className="p-6 pb-4 flex-shrink-0">
           <div className="space-y-3">
@@ -239,9 +239,9 @@ const ProjectDetailSidebar: React.FC<ProjectDetailSidebarProps> = React.memo(({
 
         {/* TOC 헤더 - 고정 영역 */}
         <div className="px-6 pb-4 flex-shrink-0">
-          <div className="border-t border-gray-200 pt-4">
-            <h3 className="text-sm font-semibold text-gray-900 flex items-center">
-              <svg className="w-4 h-4 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="border-t border-border pt-4">
+            <h3 className="text-sm font-semibold text-text-primary flex items-center">
+              <svg className="w-4 h-4 mr-2 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
               </svg>
               목차
@@ -266,7 +266,7 @@ const ProjectDetailSidebar: React.FC<ProjectDetailSidebarProps> = React.memo(({
               </ul>
             </nav>
           ) : (
-            <div className="text-center text-gray-500 py-4">
+            <div className="text-center text-text-muted py-4">
               <div className="text-lg mb-1">📝</div>
               <p className="text-xs">목차가 없습니다</p>
             </div>

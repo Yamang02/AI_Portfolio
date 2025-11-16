@@ -3,7 +3,7 @@
   "short_name": "Yamang02",
   "description": "AI Portfolio Chatbot - Software Engineer 이정준",
   "start_url": "/",
-  "display": "standalone",
+  "display": "browser",
   "background_color": "#ffffff",
   "theme_color": "#ffffff",
   "icons": [

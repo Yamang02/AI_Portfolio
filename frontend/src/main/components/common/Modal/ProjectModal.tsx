@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Project } from '../../../features/projects/types';
-import { useTOC, useActiveSection } from '../../../features/projects/hooks';
+import { Project } from '@features/project-gallery/types';
+import { useTOC, useActiveSection } from '@features/project-gallery/hooks';
 
 interface ProjectModalProps {
   isOpen: boolean;
@@ -48,14 +48,14 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ isOpen, onClose, project })
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40" 
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/60" 
       onClick={handleOverlayClick}
     >
-      <div className="bg-white rounded-lg shadow-lg w-full min-w-[320px] max-w-7xl mx-4 h-[90vh] relative animate-fadeIn flex overflow-hidden p-4">
+      <div className="bg-surface dark:bg-slate-800 rounded-lg shadow-lg w-full min-w-[320px] max-w-7xl mx-4 h-[90vh] relative animate-fadeIn flex overflow-hidden p-4">
         {/* 닫기 버튼 - 패딩 경계선에 걸치도록 */}
         <button
           onClick={onClose}
-          className="absolute -top-3 right-4 z-30 bg-black bg-opacity-60 hover:bg-opacity-80 text-white p-2 rounded-full shadow-lg transition-all duration-200"
+          className="absolute -top-3 right-4 z-30 bg-black/60 dark:bg-black/80 hover:bg-black/80 dark:hover:bg-black/90 text-white p-2 rounded-full shadow-lg transition-all duration-200"
           aria-label="닫기"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -64,7 +64,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ isOpen, onClose, project })
         </button>
 
         {/* 내부 컨테이너 - 패딩된 영역에 테두리 적용 */}
-        <div className="flex-1 flex border border-gray-200 rounded-lg overflow-hidden">
+        <div className="flex-1 flex border border-border rounded-lg overflow-hidden">
           {/* TOC 사이드바 (고정) */}
           <div className="hidden lg:block flex-shrink-0">
             <ProjectModalTOC
@@ -101,7 +101,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ isOpen, onClose, project })
 
         {/* TOC 오버레이 (모바일/태블릿) */}
         {isTOCOpen && (
-          <div className="lg:hidden fixed inset-0 z-60 bg-black bg-opacity-50">
+          <div className="lg:hidden fixed inset-0 z-60 bg-black/50 dark:bg-black/70">
             <div className="absolute left-0 top-0 h-full w-80 max-w-[80vw]">
               <ProjectModalTOC
                 items={tocItems}
@@ -115,7 +115,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ isOpen, onClose, project })
 
         {/* 정보 오버레이 (모바일/태블릿) */}
         {isInfoOpen && (
-          <div className="xl:hidden fixed inset-0 z-60 bg-black bg-opacity-50">
+          <div className="xl:hidden fixed inset-0 z-60 bg-black/50 dark:bg-black/70">
             <div className="absolute right-0 top-0 h-full w-80 max-w-[80vw]">
               <div className="relative h-full">
                 <ProjectModalInfoSidebar 
@@ -124,7 +124,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ isOpen, onClose, project })
                 />
                 <button
                   onClick={handleInfoClose}
-                  className="absolute top-4 right-4 z-10 bg-white shadow-lg rounded-full p-2 text-gray-600 hover:text-gray-800 transition-colors"
+                  className="absolute top-4 right-4 z-10 bg-surface dark:bg-slate-700 shadow-lg rounded-full p-2 text-text-secondary hover:text-text-primary transition-colors"
                   aria-label="정보 패널 닫기"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -140,7 +140,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ isOpen, onClose, project })
         {!isTOCOpen && (
           <button
             onClick={handleTOCOpen}
-            className="lg:hidden fixed top-4 left-4 z-50 bg-white shadow-lg rounded-full p-3 text-gray-600 hover:text-gray-800 transition-colors"
+            className="lg:hidden fixed top-4 left-4 z-50 bg-surface dark:bg-slate-700 shadow-lg rounded-full p-3 text-text-secondary hover:text-text-primary transition-colors"
             aria-label="목차 열기"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -153,7 +153,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ isOpen, onClose, project })
         {!isInfoOpen && (
           <button
             onClick={handleInfoOpen}
-            className="xl:hidden fixed top-4 right-4 z-50 bg-white shadow-lg rounded-full p-3 text-gray-600 hover:text-gray-800 transition-colors"
+            className="xl:hidden fixed top-4 right-4 z-50 bg-surface dark:bg-slate-700 shadow-lg rounded-full p-3 text-text-secondary hover:text-text-primary transition-colors"
             aria-label="프로젝트 정보 열기"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

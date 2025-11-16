@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Project } from '../../../features/projects/types';
+import { Project } from '@features/project-gallery/types';
 import { useApp } from '../../../app/providers/AppProvider';
 
 // 프로젝트 데이터 캐시

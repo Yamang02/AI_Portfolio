@@ -24,7 +24,7 @@ const ProjectDetailSidebarToggle: React.FC<ProjectDetailSidebarToggleProps> = ({
   return (
     <button
       onClick={onToggle}
-      className={`fixed bottom-6 right-24 bg-blue-500 text-white p-4 rounded-full shadow-lg hover:bg-blue-600 transition-colors duration-200 z-50`}
+      className={`fixed bottom-6 right-24 bg-primary-600 dark:bg-primary-500 text-white p-4 rounded-full shadow-lg hover:bg-primary-700 dark:hover:bg-primary-600 transition-colors duration-200 z-50`}
       aria-label={isOpen ? '사이드바 닫기' : '사이드바 열기'}
     >
       {isOpen ? <CloseIcon /> : <MenuIcon />}

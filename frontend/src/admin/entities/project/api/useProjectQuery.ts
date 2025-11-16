@@ -5,6 +5,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { message } from 'antd';
 import { projectApi } from './projectApi';
 import { Project } from '../model/project.types';
+import { queryClient as mainQueryClient } from '../../../../main/config/queryClient';
 
 // Query Keys
 export const PROJECT_KEYS = {
@@ -45,7 +46,10 @@ export const useProjectMutation = (editingProject?: Project | null) => {
       }
     },
     onSuccess: () => {
+      // 어드민 캐시 무효화
       queryClient.invalidateQueries({ queryKey: PROJECT_KEYS.lists() });
+      // 메인 페이지 캐시도 무효화
+      mainQueryClient.invalidateQueries({ queryKey: ['projects'] });
       message.success(editingProject ? '프로젝트 수정 성공' : '프로젝트 생성 성공');
     },
     onError: (error: Error) => {
@@ -60,7 +64,10 @@ export const useDeleteProjectMutation = () => {
   return useMutation({
     mutationFn: (id: number) => projectApi.deleteProject(id),
     onSuccess: () => {
+      // 어드민 캐시 무효화
       queryClient.invalidateQueries({ queryKey: PROJECT_KEYS.lists() });
+      // 메인 페이지 캐시도 무효화
+      mainQueryClient.invalidateQueries({ queryKey: ['projects'] });
       message.success('프로젝트 삭제 성공');
     },
     onError: (error: Error) => {

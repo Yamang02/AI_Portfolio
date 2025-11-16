@@ -4,6 +4,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { experienceApi } from './experienceApi';
+import { QUERY_STALE_TIME } from '../../../config/queryCacheConfig';
 
 // 쿼리 키 상수
 export const EXPERIENCE_QUERY_KEYS = {
@@ -18,6 +19,6 @@ export const useExperiencesQuery = () => {
   return useQuery({
     queryKey: EXPERIENCE_QUERY_KEYS.lists(),
     queryFn: () => experienceApi.getExperiences(),
-    staleTime: 24 * 60 * 60 * 1000, // 24시간 - 콜드스타트 보완을 위해 긴 캐시 유지
+    staleTime: QUERY_STALE_TIME.EXPERIENCE,
   });
 };

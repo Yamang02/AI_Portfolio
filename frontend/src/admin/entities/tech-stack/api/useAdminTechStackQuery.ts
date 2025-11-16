@@ -4,9 +4,10 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { adminTechStackApi } from './adminTechStackApi';
-import type { 
+import type {
   TechStackFormData
 } from '../model/techStack.types';
+import { queryClient as mainQueryClient } from '../../../../main/config/queryClient';
 
 // 기술 스택 목록 조회
 export const useAdminTechStacksQuery = () => {
@@ -31,12 +32,12 @@ export const useTechStackMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ 
-      data, 
-      editingTech 
-    }: { 
-      data: TechStackFormData; 
-      editingTech: string | null; 
+    mutationFn: async ({
+      data,
+      editingTech
+    }: {
+      data: TechStackFormData;
+      editingTech: string | null;
     }) => {
       if (editingTech) {
         return adminTechStackApi.updateTechStack(editingTech, data);
@@ -45,7 +46,10 @@ export const useTechStackMutation = () => {
       }
     },
     onSuccess: () => {
+      // 어드민 캐시 무효화
       queryClient.invalidateQueries({ queryKey: ['admin-tech-stacks'] });
+      // 메인 페이지 캐시도 무효화
+      mainQueryClient.invalidateQueries({ queryKey: ['techStacks'] });
     },
   });
 };
@@ -57,7 +61,10 @@ export const useDeleteTechStackMutation = () => {
   return useMutation({
     mutationFn: (name: string) => adminTechStackApi.deleteTechStack(name),
     onSuccess: () => {
+      // 어드민 캐시 무효화
       queryClient.invalidateQueries({ queryKey: ['admin-tech-stacks'] });
+      // 메인 페이지 캐시도 무효화
+      mainQueryClient.invalidateQueries({ queryKey: ['techStacks'] });
     },
   });
 };
@@ -67,10 +74,13 @@ export const useUpdateSortOrderMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ techName, newSortOrder }: { techName: string; newSortOrder: number }) => 
+    mutationFn: ({ techName, newSortOrder }: { techName: string; newSortOrder: number }) =>
       adminTechStackApi.updateSortOrder(techName, newSortOrder),
     onSuccess: () => {
+      // 어드민 캐시 무효화
       queryClient.invalidateQueries({ queryKey: ['admin-tech-stacks'] });
+      // 메인 페이지 캐시도 무효화
+      mainQueryClient.invalidateQueries({ queryKey: ['techStacks'] });
     },
   });
 };

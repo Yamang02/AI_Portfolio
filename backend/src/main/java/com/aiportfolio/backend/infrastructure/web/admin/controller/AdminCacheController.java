@@ -135,4 +135,61 @@ public class AdminCacheController {
             ));
         }
     }
+
+    /**
+     * 프론트엔드 캐시 버전 조회
+     * 모든 사용자가 접근 가능 (인증 불필요)
+     */
+    @GetMapping("/frontend-version")
+    public ResponseEntity<Map<String, Object>> getFrontendCacheVersion() {
+        log.info("Frontend cache version requested");
+
+        try {
+            String version = manageCacheUseCase.getFrontendCacheVersion();
+            log.info("Frontend cache version retrieved: {}", version);
+
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "version", version,
+                "timestamp", System.currentTimeMillis()
+            ));
+        } catch (Exception e) {
+            log.error("Frontend cache version retrieval failed", e);
+
+            return ResponseEntity.internalServerError().body(Map.of(
+                "success", false,
+                "message", "프론트엔드 캐시 버전 조회 중 오류가 발생했습니다: " + e.getMessage(),
+                "timestamp", System.currentTimeMillis()
+            ));
+        }
+    }
+
+    /**
+     * 프론트엔드 캐시 버전 업데이트 (관리자 전용)
+     * 모든 사용자의 localStorage 캐시를 무효화합니다.
+     */
+    @PostMapping("/frontend-version")
+    public ResponseEntity<Map<String, Object>> updateFrontendCacheVersion() {
+        log.info("Frontend cache version update requested");
+
+        try {
+            String newVersion = manageCacheUseCase.updateFrontendCacheVersion();
+            log.info("Frontend cache version updated to: {}", newVersion);
+
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "message", "모든 사용자의 프론트엔드 캐시가 무효화됩니다.",
+                "newVersion", newVersion,
+                "timestamp", System.currentTimeMillis()
+            ));
+        } catch (Exception e) {
+            log.error("Frontend cache version update failed", e);
+
+            return ResponseEntity.internalServerError().body(Map.of(
+                "success", false,
+                "message", "프론트엔드 캐시 버전 업데이트 중 오류가 발생했습니다: " + e.getMessage(),
+                "timestamp", System.currentTimeMillis()
+            ));
+        }
+    }
 }
