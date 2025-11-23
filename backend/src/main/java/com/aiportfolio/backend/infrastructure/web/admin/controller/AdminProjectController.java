@@ -9,7 +9,6 @@ import com.aiportfolio.backend.infrastructure.web.admin.dto.AdminProjectCreateRe
 import com.aiportfolio.backend.infrastructure.web.admin.dto.AdminProjectUpdateRequest;
 import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
@@ -25,14 +24,21 @@ import java.util.stream.Collectors;
  */
 @RestController
 @RequestMapping("/api/admin/projects")
-@RequiredArgsConstructor
 @Slf4j
 public class AdminProjectController {
 
-    @Qualifier("manageProjectService")
     private final ManageProjectService manageProjectService;
     private final SearchProjectsUseCase searchProjectsUseCase;
     private final TechStackMetadataJpaRepository techStackMetadataJpaRepository;
+
+    public AdminProjectController(
+            @Qualifier("manageProjectService") ManageProjectService manageProjectService,
+            SearchProjectsUseCase searchProjectsUseCase,
+            TechStackMetadataJpaRepository techStackMetadataJpaRepository) {
+        this.manageProjectService = manageProjectService;
+        this.searchProjectsUseCase = searchProjectsUseCase;
+        this.techStackMetadataJpaRepository = techStackMetadataJpaRepository;
+    }
 
     /**
      * 프로젝트 목록 조회 (필터링 지원)

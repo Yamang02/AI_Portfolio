@@ -4,6 +4,7 @@ import com.aiportfolio.backend.application.admin.mapper.ProjectResponseMapper;
 import com.aiportfolio.backend.application.common.util.BusinessIdGenerator;
 import com.aiportfolio.backend.application.common.util.MetadataHelper;
 import com.aiportfolio.backend.domain.admin.dto.response.ProjectResponse;
+import com.aiportfolio.backend.domain.admin.model.ProjectAssetSnapshot;
 import com.aiportfolio.backend.domain.admin.model.command.ProjectCreateCommand;
 import com.aiportfolio.backend.domain.admin.model.command.ProjectUpdateCommand;
 import com.aiportfolio.backend.domain.admin.port.in.ManageProjectUseCase;
@@ -222,13 +223,13 @@ public class ManageProjectService implements ManageProjectUseCase {
         }
 
         try {
-            Optional<com.aiportfolio.backend.domain.admin.model.ProjectAssetSnapshot> assetSnapshotOpt =
+            Optional<ProjectAssetSnapshot> assetSnapshotOpt =
                     portfolioRepositoryPort.findProjectAssets(id);
 
             if (assetSnapshotOpt.isEmpty()) {
                 log.warn("프로젝트 자산 정보를 찾을 수 없어 이미지 삭제를 건너뜁니다: {}", id);
             } else {
-                com.aiportfolio.backend.domain.admin.model.ProjectAssetSnapshot assetSnapshot = assetSnapshotOpt.get();
+                ProjectAssetSnapshot assetSnapshot = assetSnapshotOpt.get();
                 deleteThumbnailIfNecessary(assetSnapshot.getThumbnailUrl());
                 deleteScreenshots(assetSnapshot);
             }
@@ -297,12 +298,12 @@ public class ManageProjectService implements ManageProjectUseCase {
         }
     }
 
-    private void deleteScreenshots(com.aiportfolio.backend.domain.admin.model.ProjectAssetSnapshot assetSnapshot) {
+    private void deleteScreenshots(ProjectAssetSnapshot assetSnapshot) {
         if (assetSnapshot.getScreenshots() == null || assetSnapshot.getScreenshots().isEmpty()) {
             return;
         }
 
-        for (com.aiportfolio.backend.domain.admin.model.ProjectAssetSnapshot.ProjectScreenshotAsset screenshot : assetSnapshot.getScreenshots()) {
+        for (ProjectAssetSnapshot.ProjectScreenshotAsset screenshot : assetSnapshot.getScreenshots()) {
             try {
                 String publicId = screenshot.getCloudinaryPublicId();
                 if ((publicId == null || publicId.isEmpty())
