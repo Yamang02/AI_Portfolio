@@ -129,4 +129,11 @@ public interface ProjectJpaRepository extends JpaRepository<ProjectJpaEntity, Lo
      */
     @Query(value = "SELECT p.business_id FROM projects p WHERE p.business_id LIKE :prefix || '%' ORDER BY p.business_id DESC LIMIT 1", nativeQuery = true)
     Optional<String> findLastBusinessIdByPrefix(@Param("prefix") String prefix);
+    
+    /**
+     * 최대 정렬 순서 조회
+     * @return 최대 정렬 순서
+     */
+    @Query("SELECT MAX(p.sortOrder) FROM ProjectJpaEntity p")
+    Integer findMaxSortOrder();
 }
