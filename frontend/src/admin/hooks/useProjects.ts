@@ -25,18 +25,25 @@ export const useCreateProject = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (project: ProjectCreateRequest) => adminProjectApi.createProject(project),
-    onSuccess: () => {
+    mutationFn: (project: ProjectCreateRequest) => {
+      console.log('[useCreateProject] Creating project:', project);
+      return adminProjectApi.createProject(project);
+    },
+    onSuccess: (response) => {
+      console.log('[useCreateProject] Project created successfully:', response);
       // 어드민 캐시 무효화 후 즉시 리패치
-      queryClient.invalidateQueries({ 
+      queryClient.invalidateQueries({
         queryKey: ['admin-projects'],
         refetchType: 'active', // 활성 쿼리 즉시 리패치
       });
       // 메인 페이지 캐시도 무효화 (다른 QueryClient이므로 직접 접근)
-      mainQueryClient.invalidateQueries({ 
+      mainQueryClient.invalidateQueries({
         queryKey: ['projects'],
         refetchType: 'active',
       });
+    },
+    onError: (error) => {
+      console.error('[useCreateProject] Error creating project:', error);
     },
   });
 };

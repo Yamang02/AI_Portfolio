@@ -2,6 +2,7 @@ package com.aiportfolio.backend.application.admin.service;
 
 import com.aiportfolio.backend.application.common.util.BusinessIdGenerator;
 import com.aiportfolio.backend.application.common.util.MetadataHelper;
+import com.aiportfolio.backend.application.common.util.TextFieldHelper;
 import com.aiportfolio.backend.domain.portfolio.model.Education;
 import com.aiportfolio.backend.domain.portfolio.port.in.ManageEducationUseCase;
 import com.aiportfolio.backend.domain.portfolio.port.out.PortfolioRepositoryPort;
@@ -69,7 +70,6 @@ public class ManageEducationService implements ManageEducationUseCase {
             Optional<String> lastBusinessId = portfolioRepositoryPort.findLastBusinessIdByPrefix(BusinessIdGenerator.Prefix.EDUCATION);
             String generatedId = BusinessIdGenerator.generate(BusinessIdGenerator.Prefix.EDUCATION, lastBusinessId);
             education.setId(generatedId);
-            log.debug("Generated education ID: {}", generatedId);
         }
 
         // 정렬 순서 자동 할당 (DB 쿼리 방식 - 더 효율적)
@@ -77,6 +77,14 @@ public class ManageEducationService implements ManageEducationUseCase {
             int maxSortOrder = portfolioRepositoryPort.findMaxEducationSortOrder();
             education.setSortOrder(maxSortOrder + 1);
         }
+
+        // 필수 필드: 정규화 없음 (유효성 검증에서 처리)
+        // title, organization은 필수 필드이므로 정규화하지 않음
+
+        // 선택 필드: 정규화 적용
+        education.setDescription(TextFieldHelper.normalizeText(education.getDescription()));
+        education.setDegree(TextFieldHelper.normalizeText(education.getDegree()));
+        education.setMajor(TextFieldHelper.normalizeText(education.getMajor()));
 
         // 메타데이터 설정
         education.setCreatedAt(MetadataHelper.setupCreatedAt(education.getCreatedAt()));
@@ -102,6 +110,14 @@ public class ManageEducationService implements ManageEducationUseCase {
 
         // 생성 시간 유지
         education.setCreatedAt(existing.getCreatedAt());
+
+        // 필수 필드: 정규화 없음 (유효성 검증에서 처리)
+        // title, organization은 필수 필드이므로 정규화하지 않음
+
+        // 선택 필드: 정규화 적용
+        education.setDescription(TextFieldHelper.normalizeText(education.getDescription()));
+        education.setDegree(TextFieldHelper.normalizeText(education.getDegree()));
+        education.setMajor(TextFieldHelper.normalizeText(education.getMajor()));
 
         // 수정 시간 갱신
         education.setUpdatedAt(MetadataHelper.setupUpdatedAt());
@@ -138,7 +154,6 @@ public class ManageEducationService implements ManageEducationUseCase {
             .orElseThrow(() -> new IllegalArgumentException("Education not found: " + educationBusinessId));
 
         educationTechStackJpaRepository.deleteByEducationId(education.getId());
-        log.debug("Cleared existing tech stack relationships for education {}", educationBusinessId);
 
         if (relationships == null || relationships.isEmpty()) {
             return;
@@ -161,8 +176,6 @@ public class ManageEducationService implements ManageEducationUseCase {
 
             educationTechStackJpaRepository.save(relation);
         }
-
-        log.debug("Created {} tech stack relationships for education {}", relationships.size(), educationBusinessId);
     }
 
     private void replaceProjects(String educationBusinessId, List<ProjectRelation> relationships) {
@@ -170,7 +183,6 @@ public class ManageEducationService implements ManageEducationUseCase {
             .orElseThrow(() -> new IllegalArgumentException("Education not found: " + educationBusinessId));
 
         educationProjectJpaRepository.deleteByEducationId(education.getId());
-        log.debug("Cleared existing project relationships for education {}", educationBusinessId);
 
         if (relationships == null || relationships.isEmpty()) {
             return;
@@ -193,8 +205,6 @@ public class ManageEducationService implements ManageEducationUseCase {
 
             educationProjectJpaRepository.save(relation);
         }
-
-        log.debug("Created {} project relationships for education {}", relationships.size(), educationBusinessId);
     }
 
     @Override
@@ -255,8 +265,6 @@ public class ManageEducationService implements ManageEducationUseCase {
                 
                 // sortOrder가 변경된 것만 저장 (updatedAt 갱신)
                 if (original != null && !original.getSortOrder().equals(edu.getSortOrder())) {
-                    log.debug("Updating sortOrder for education {}: {} -> {}", 
-                        edu.getId(), original.getSortOrder(), edu.getSortOrder());
                     edu.setUpdatedAt(MetadataHelper.setupUpdatedAt());
                     portfolioRepositoryPort.saveEducation(edu);
                 }

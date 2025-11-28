@@ -3,6 +3,7 @@ package com.aiportfolio.backend.application.admin.service;
 import com.aiportfolio.backend.application.admin.mapper.ProjectResponseMapper;
 import com.aiportfolio.backend.application.common.util.BusinessIdGenerator;
 import com.aiportfolio.backend.application.common.util.MetadataHelper;
+import com.aiportfolio.backend.application.common.util.TextFieldHelper;
 import com.aiportfolio.backend.domain.admin.dto.response.ProjectResponse;
 import com.aiportfolio.backend.domain.admin.model.ProjectAssetSnapshot;
 import com.aiportfolio.backend.domain.admin.model.command.ProjectCreateCommand;
@@ -92,22 +93,22 @@ public class ManageProjectService implements ManageProjectUseCase {
 
         Project project = Project.builder()
                 .id(projectId)
-                .title(command.getTitle())
-                .description(command.getDescription())
-                .readme(command.getReadme())
-                .type(command.getType())
-                .status(command.getStatus())
+                .title(command.getTitle()) // 필수 필드: 정규화 없음 (유효성 검증에서 처리)
+                .description(command.getDescription()) // 필수 필드: 정규화 없음 (유효성 검증에서 처리)
+                .readme(TextFieldHelper.normalizeText(command.getReadme())) // 선택 필드
+                .type(TextFieldHelper.normalizeText(command.getType())) // 선택 필드
+                .status(TextFieldHelper.normalizeText(command.getStatus())) // 선택 필드
                 .isTeam(isTeam)
                 .teamSize(normalizedTeamSize)
-                .role(command.getRole())
-                .myContributions(command.getMyContributions())
+                .role(TextFieldHelper.normalizeText(command.getRole())) // 선택 필드
+                .myContributions(TextFieldHelper.normalizeTextList(command.getMyContributions())) // 선택 필드
                 .startDate(command.getStartDate())
                 .endDate(command.getEndDate())
-                .imageUrl(command.getImageUrl())
+                .imageUrl(TextFieldHelper.normalizeText(command.getImageUrl())) // 선택 필드
                 .screenshots(command.getScreenshots())
-                .githubUrl(command.getGithubUrl())
-                .liveUrl(command.getLiveUrl())
-                .externalUrl(command.getExternalUrl())
+                .githubUrl(TextFieldHelper.normalizeText(command.getGithubUrl())) // 선택 필드
+                .liveUrl(TextFieldHelper.normalizeText(command.getLiveUrl())) // 선택 필드
+                .externalUrl(TextFieldHelper.normalizeText(command.getExternalUrl())) // 선택 필드
                 .sortOrder(sortOrder)
                 .createdAt(MetadataHelper.setupCreatedAt(null))
                 .updatedAt(MetadataHelper.setupUpdatedAt())
@@ -134,35 +135,53 @@ public class ManageProjectService implements ManageProjectUseCase {
                 : null;
 
         // 필드 업데이트
+        // 필수 필드: 정규화 없음 (유효성 검증에서 처리)
         if (command.getTitle() != null) project.setTitle(command.getTitle());
         if (command.getDescription() != null) project.setDescription(command.getDescription());
-        if (command.getReadme() != null) project.setReadme(command.getReadme());
-        if (command.getType() != null) project.setType(command.getType());
-        if (command.getStatus() != null) project.setStatus(command.getStatus());
-        if (command.getRole() != null) project.setRole(command.getRole());
-        if (command.getMyContributions() != null) project.setMyContributions(command.getMyContributions());
+        
+        // 선택 필드: 정규화 적용
+        if (command.getReadme() != null) {
+            project.setReadme(TextFieldHelper.normalizeText(command.getReadme()));
+        }
+        if (command.getType() != null) {
+            project.setType(TextFieldHelper.normalizeText(command.getType()));
+        }
+        if (command.getStatus() != null) {
+            project.setStatus(TextFieldHelper.normalizeText(command.getStatus()));
+        }
+        if (command.getRole() != null) {
+            project.setRole(TextFieldHelper.normalizeText(command.getRole()));
+        }
+        if (command.getMyContributions() != null) {
+            project.setMyContributions(TextFieldHelper.normalizeTextList(command.getMyContributions()));
+        }
         if (command.getStartDate() != null) project.setStartDate(command.getStartDate());
         if (command.getEndDate() != null) project.setEndDate(command.getEndDate());
 
         applyTeamAttributes(project, command.getIsTeam(), command.getTeamSize());
 
-        // 이미지 URL 업데이트
+        // 이미지 URL 업데이트 (선택 필드: 정규화 적용)
         if (command.getImageUrl() != null) {
-            project.setImageUrl(command.getImageUrl());
+            project.setImageUrl(TextFieldHelper.normalizeText(command.getImageUrl()));
         }
 
-        // 스크린샷 업데이트
+        // 스크린샷 업데이트 (선택 필드: 정규화 적용)
         if (command.getScreenshots() != null) {
             List<String> validScreenshots = command.getScreenshots().stream()
-                    .filter(url -> url != null && !url.trim().isEmpty())
+                    .map(TextFieldHelper::normalizeText)
+                    .filter(url -> url != null)
                     .collect(java.util.stream.Collectors.toList());
-            project.setScreenshots(validScreenshots);
-            log.debug("Filtered invalid screenshot URLs: {} -> {}",
-                    command.getScreenshots().size(), validScreenshots.size());
+            project.setScreenshots(validScreenshots.isEmpty() ? null : validScreenshots);
         }
-        if (command.getGithubUrl() != null) project.setGithubUrl(command.getGithubUrl());
-        if (command.getLiveUrl() != null) project.setLiveUrl(command.getLiveUrl());
-        if (command.getExternalUrl() != null) project.setExternalUrl(command.getExternalUrl());
+        if (command.getGithubUrl() != null) {
+            project.setGithubUrl(TextFieldHelper.normalizeText(command.getGithubUrl()));
+        }
+        if (command.getLiveUrl() != null) {
+            project.setLiveUrl(TextFieldHelper.normalizeText(command.getLiveUrl()));
+        }
+        if (command.getExternalUrl() != null) {
+            project.setExternalUrl(TextFieldHelper.normalizeText(command.getExternalUrl()));
+        }
         if (command.getSortOrder() != null) project.setSortOrder(command.getSortOrder());
 
         // 수정 시간 갱신
@@ -251,7 +270,6 @@ public class ManageProjectService implements ManageProjectUseCase {
                 .orElseThrow(() -> new IllegalArgumentException("Project not found: " + projectBusinessId));
 
         projectTechStackJpaRepository.deleteByProjectId(project.getId());
-        log.debug("Cleared existing tech stack relationships for project {}", projectBusinessId);
 
         if (relationships == null || relationships.isEmpty()) {
             return;
@@ -274,8 +292,6 @@ public class ManageProjectService implements ManageProjectUseCase {
 
             projectTechStackJpaRepository.save(relation);
         }
-
-        log.debug("Created {} tech stack relationships for project {}", relationships.size(), projectBusinessId);
     }
 
     /**
@@ -337,8 +353,6 @@ public class ManageProjectService implements ManageProjectUseCase {
             if (project.isTeam()) {
                 Integer normalized = normalizeTeamSize(true, teamSizeUpdate);
                 project.setTeamSize(normalized);
-            } else {
-                log.debug("Ignoring teamSize update for non-team project: {}", project.getId());
             }
         }
     }
