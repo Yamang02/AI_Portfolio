@@ -2,6 +2,7 @@ package com.aiportfolio.backend.application.admin.service;
 
 import com.aiportfolio.backend.application.common.util.BusinessIdGenerator;
 import com.aiportfolio.backend.application.common.util.MetadataHelper;
+import com.aiportfolio.backend.application.common.util.TextFieldHelper;
 import com.aiportfolio.backend.domain.portfolio.model.Certification;
 import com.aiportfolio.backend.domain.portfolio.port.in.ManageCertificationUseCase;
 import com.aiportfolio.backend.domain.portfolio.port.out.PortfolioRepositoryPort;
@@ -37,7 +38,6 @@ public class ManageCertificationService implements ManageCertificationUseCase {
             Optional<String> lastBusinessId = portfolioRepositoryPort.findLastBusinessIdByPrefix(BusinessIdGenerator.Prefix.CERTIFICATION);
             String generatedId = BusinessIdGenerator.generate(BusinessIdGenerator.Prefix.CERTIFICATION, lastBusinessId);
             certification.setId(generatedId);
-            log.debug("Generated certification ID: {}", generatedId);
         }
 
         // 정렬 순서 자동 할당
@@ -45,6 +45,15 @@ public class ManageCertificationService implements ManageCertificationUseCase {
             int maxSortOrder = portfolioRepositoryPort.findMaxCertificationSortOrder();
             certification.setSortOrder(maxSortOrder + 1);
         }
+
+        // 필수 필드: 정규화 없음 (유효성 검증에서 처리)
+        // name, issuer는 필수 필드이므로 정규화하지 않음
+
+        // 선택 필드: 정규화 적용
+        certification.setDescription(TextFieldHelper.normalizeText(certification.getDescription()));
+        certification.setCredentialId(TextFieldHelper.normalizeText(certification.getCredentialId()));
+        certification.setCredentialUrl(TextFieldHelper.normalizeText(certification.getCredentialUrl()));
+        certification.setCategory(TextFieldHelper.normalizeText(certification.getCategory()));
 
         // 메타데이터 설정
         certification.setCreatedAt(MetadataHelper.setupCreatedAt(certification.getCreatedAt()));
@@ -70,6 +79,15 @@ public class ManageCertificationService implements ManageCertificationUseCase {
 
         // 생성 시간 유지
         certification.setCreatedAt(existing.getCreatedAt());
+
+        // 필수 필드: 정규화 없음 (유효성 검증에서 처리)
+        // name, issuer는 필수 필드이므로 정규화하지 않음
+
+        // 선택 필드: 정규화 적용
+        certification.setDescription(TextFieldHelper.normalizeText(certification.getDescription()));
+        certification.setCredentialId(TextFieldHelper.normalizeText(certification.getCredentialId()));
+        certification.setCredentialUrl(TextFieldHelper.normalizeText(certification.getCredentialUrl()));
+        certification.setCategory(TextFieldHelper.normalizeText(certification.getCategory()));
 
         // 수정 시간 갱신
         certification.setUpdatedAt(MetadataHelper.setupUpdatedAt());

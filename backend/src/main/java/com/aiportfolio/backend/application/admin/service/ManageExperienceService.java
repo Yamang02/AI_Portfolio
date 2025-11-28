@@ -2,6 +2,7 @@ package com.aiportfolio.backend.application.admin.service;
 
 import com.aiportfolio.backend.application.common.util.BusinessIdGenerator;
 import com.aiportfolio.backend.application.common.util.MetadataHelper;
+import com.aiportfolio.backend.application.common.util.TextFieldHelper;
 import com.aiportfolio.backend.domain.portfolio.model.Experience;
 import com.aiportfolio.backend.domain.portfolio.port.in.ManageExperienceUseCase;
 import com.aiportfolio.backend.domain.portfolio.port.out.PortfolioRepositoryPort;
@@ -37,7 +38,6 @@ public class ManageExperienceService implements ManageExperienceUseCase {
             Optional<String> lastBusinessId = portfolioRepositoryPort.findLastBusinessIdByPrefix(BusinessIdGenerator.Prefix.EXPERIENCE);
             String generatedId = BusinessIdGenerator.generate(BusinessIdGenerator.Prefix.EXPERIENCE, lastBusinessId);
             experience.setId(generatedId);
-            log.debug("Generated experience ID: {}", generatedId);
         }
 
         // 정렬 순서 자동 할당 (DB 쿼리 방식 - 더 효율적)
@@ -45,6 +45,16 @@ public class ManageExperienceService implements ManageExperienceUseCase {
             int maxSortOrder = portfolioRepositoryPort.findMaxExperienceSortOrder();
             experience.setSortOrder(maxSortOrder + 1);
         }
+
+        // 필수 필드: 정규화 없음 (유효성 검증에서 처리)
+        // title, organization, role은 필수 필드이므로 정규화하지 않음
+
+        // 선택 필드: 정규화 적용
+        experience.setDescription(TextFieldHelper.normalizeText(experience.getDescription()));
+        experience.setJobField(TextFieldHelper.normalizeText(experience.getJobField()));
+        experience.setEmploymentType(TextFieldHelper.normalizeText(experience.getEmploymentType()));
+        experience.setMainResponsibilities(TextFieldHelper.normalizeTextList(experience.getMainResponsibilities()));
+        experience.setAchievements(TextFieldHelper.normalizeTextList(experience.getAchievements()));
 
         // 메타데이터 설정
         experience.setCreatedAt(MetadataHelper.setupCreatedAt(experience.getCreatedAt()));
@@ -70,6 +80,16 @@ public class ManageExperienceService implements ManageExperienceUseCase {
 
         // 생성 시간 유지
         experience.setCreatedAt(existing.getCreatedAt());
+
+        // 필수 필드: 정규화 없음 (유효성 검증에서 처리)
+        // title, organization, role은 필수 필드이므로 정규화하지 않음
+
+        // 선택 필드: 정규화 적용
+        experience.setDescription(TextFieldHelper.normalizeText(experience.getDescription()));
+        experience.setJobField(TextFieldHelper.normalizeText(experience.getJobField()));
+        experience.setEmploymentType(TextFieldHelper.normalizeText(experience.getEmploymentType()));
+        experience.setMainResponsibilities(TextFieldHelper.normalizeTextList(experience.getMainResponsibilities()));
+        experience.setAchievements(TextFieldHelper.normalizeTextList(experience.getAchievements()));
 
         // 수정 시간 갱신
         experience.setUpdatedAt(MetadataHelper.setupUpdatedAt());
@@ -153,8 +173,6 @@ public class ManageExperienceService implements ManageExperienceUseCase {
                 
                 // sortOrder가 변경된 것만 저장 (updatedAt 갱신)
                 if (original != null && !original.getSortOrder().equals(exp.getSortOrder())) {
-                    log.debug("Updating sortOrder for experience {}: {} -> {}", 
-                        exp.getId(), original.getSortOrder(), exp.getSortOrder());
                     exp.setUpdatedAt(MetadataHelper.setupUpdatedAt());
                     portfolioRepositoryPort.saveExperience(exp);
                 }

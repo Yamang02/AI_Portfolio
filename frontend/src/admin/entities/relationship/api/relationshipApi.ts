@@ -301,6 +301,82 @@ class RelationshipApi {
       throw new Error(error.message || '프로젝트 관계 일괄 업데이트 실패');
     }
   }
+
+  // ==================== Project 관계 ====================
+
+  /**
+   * Project 기술스택 관계 조회
+   */
+  async getProjectTechStacks(projectId: string): Promise<any[]> {
+    const response = await fetch(`${this.baseUrl}/projects/${projectId}/tech-stacks`, {
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      throw new Error('기술스택 관계 조회 실패');
+    }
+
+    const result = await response.json();
+    return result.data || [];
+  }
+
+  /**
+   * Project 기술스택 관계 추가
+   */
+  async addProjectTechStack(
+    projectId: string,
+    request: TechStackRelationshipRequest
+  ): Promise<void> {
+    const response = await fetch(`${this.baseUrl}/projects/${projectId}/tech-stacks`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify(request),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || '기술스택 관계 추가 실패');
+    }
+  }
+
+  /**
+   * Project 기술스택 관계 삭제
+   */
+  async deleteProjectTechStack(projectId: string, techStackId: number): Promise<void> {
+    const response = await fetch(
+      `${this.baseUrl}/projects/${projectId}/tech-stacks/${techStackId}`,
+      {
+        method: 'DELETE',
+        credentials: 'include',
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || '기술스택 관계 삭제 실패');
+    }
+  }
+
+  /**
+   * Project 기술스택 관계 일괄 업데이트 (원자적 트랜잭션)
+   */
+  async updateProjectTechStacks(
+    projectId: string,
+    request: any
+  ): Promise<void> {
+    const response = await fetch(`${this.baseUrl}/projects/${projectId}/tech-stacks`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify(request),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || '기술스택 관계 일괄 업데이트 실패');
+    }
+  }
 }
 
 export const relationshipApi = new RelationshipApi();

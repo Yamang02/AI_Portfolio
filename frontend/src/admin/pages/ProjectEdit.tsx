@@ -40,8 +40,17 @@ const ProjectEdit: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [form] = Form.useForm();
-  
-  const isNew = id === 'new';
+
+  // 디버깅: URL 파라미터 확인
+  console.log('[ProjectEdit] Component mounted/updated', {
+    id,
+    isIdUndefined: id === undefined,
+    isIdNew: id === 'new',
+    location: window.location.href,
+  });
+
+  // id가 'new'이거나 undefined인 경우 새 프로젝트로 간주
+  const isNew = !id || id === 'new';
   const { data: project, isLoading, isError } = useProject(id!, { enabled: !isNew && !!id });
   const updateProjectMutation = useUpdateProject();
   const createProjectMutation = useCreateProject();
@@ -64,6 +73,11 @@ const ProjectEdit: React.FC = () => {
 
   useEffect(() => {
     if (project) {
+      // myContributions 배열을 문자열로 변환 (줄바꿈으로 join)
+      const myContributionsString = project.myContributions
+        ? project.myContributions.join('\n')
+        : '';
+
       form.setFieldsValue({
         title: project.title,
         description: project.description,
@@ -72,6 +86,7 @@ const ProjectEdit: React.FC = () => {
         isTeam: project.isTeam,
         teamSize: project.teamSize,
         role: project.role,
+        myContributions: myContributionsString,
         startDate: project.startDate ? dayjs(project.startDate) : undefined,
         endDate: project.endDate ? dayjs(project.endDate) : undefined,
         imageUrl: project.imageUrl,
@@ -100,12 +115,20 @@ const ProjectEdit: React.FC = () => {
 
   const handleSubmit = async (values: any) => {
     try {
+      console.log('[ProjectEdit] handleSubmit called', { isNew, id, values });
+
       // screenshots를 문자열 배열로 변환 (객체 배열인 경우 imageUrl 추출, 이미 문자열 배열인 경우 그대로 사용)
       const screenshotsArray = screenshots && screenshots.length > 0
         ? screenshots.map((s: any) => typeof s === 'string' ? s : s?.imageUrl || s).filter(Boolean)
         : [];
 
+      // myContributions: 문자열을 배열로 변환 (줄바꿈 기준)
+      const myContributionsArray = values.myContributions
+        ? values.myContributions.split('\n').filter((line: string) => line.trim())
+        : undefined;
+
       if (isNew) {
+        console.log('[ProjectEdit] Creating new project');
         // 새 프로젝트 생성
         const createData: ProjectCreateRequest = {
           title: values.title,
@@ -116,7 +139,7 @@ const ProjectEdit: React.FC = () => {
           isTeam: values.isTeam,
           teamSize: values.teamSize,
           role: values.role,
-          myContributions: values.myContributions,
+          myContributions: myContributionsArray,
           startDate: values.startDate ? values.startDate.format('YYYY-MM-DD') : undefined,
           endDate: values.endDate?.format('YYYY-MM-DD') || undefined,
           imageUrl: values.imageUrl,
@@ -128,9 +151,11 @@ const ProjectEdit: React.FC = () => {
           sortOrder: values.sortOrder,
         };
 
+        console.log('[ProjectEdit] Create data:', createData);
         await createProjectMutation.mutateAsync(createData);
         message.success('프로젝트가 성공적으로 생성되었습니다');
       } else {
+        console.log('[ProjectEdit] Updating existing project');
         // 프로젝트 수정
         const updateData: ProjectUpdateRequest = {
           title: values.title,
@@ -141,7 +166,7 @@ const ProjectEdit: React.FC = () => {
           isTeam: values.isTeam,
           teamSize: values.teamSize,
           role: values.role,
-          myContributions: values.myContributions,
+          myContributions: myContributionsArray,
           startDate: values.startDate ? values.startDate.format('YYYY-MM-DD') : undefined,
           endDate: values.endDate?.format('YYYY-MM-DD') || undefined,
           imageUrl: values.imageUrl,
@@ -153,11 +178,13 @@ const ProjectEdit: React.FC = () => {
           sortOrder: values.sortOrder,
         };
 
+        console.log('[ProjectEdit] Update data:', { id, updateData });
         await updateProjectMutation.mutateAsync({ id: id!, project: updateData });
         message.success('프로젝트가 성공적으로 수정되었습니다');
       }
       navigate('/admin/projects');
     } catch (error: any) {
+      console.error('[ProjectEdit] Submit error:', error);
       message.error(error.message || '프로젝트 저장 중 오류가 발생했습니다');
     }
   };

@@ -20,9 +20,25 @@ interface EasterEggStoreValue extends EasterEggState {
 
 const EasterEggContext = createContext<EasterEggStoreValue | undefined>(undefined);
 
+/**
+ * 이스터에그 발견 추적 시스템
+ * 
+ * 발견 추적 흐름:
+ * 1. 사용자가 이스터에그 트리거 조건을 만족 (스크롤, 키보드 입력, 채팅 등)
+ * 2. triggerEasterEgg(id, context) 호출
+ * 3. 이스터에그 실행 가능 여부 확인 후 activeEffects에 추가
+ * 4. useEffect가 activeEffects 변경을 감지하여 새로 추가된 이스터에그 발견 기록
+ * 5. localStorage에 즉시 저장 (saveDiscoveredEasterEggs)
+ * 
+ * 중요: 실제로 이스터에그가 실행되어야만 발견으로 기록됨
+ */
+
 const DISCOVERED_EASTER_EGGS_KEY = 'portfolio-discovered-easter-eggs';
 
-// localStorage에서 발견된 이스터에그 목록 로드
+/**
+ * localStorage에서 발견된 이스터에그 목록 로드
+ * 앱 초기화 시 호출되어 이전 세션의 발견 기록을 복원
+ */
 const loadDiscoveredEasterEggs = (): Set<string> => {
   if (typeof window === 'undefined') return new Set();
   
@@ -39,7 +55,10 @@ const loadDiscoveredEasterEggs = (): Set<string> => {
   return new Set();
 };
 
-// localStorage에 발견된 이스터에그 목록 저장
+/**
+ * localStorage에 발견된 이스터에그 목록 저장
+ * 발견 기록 시마다 즉시 저장하여 데이터 손실 방지
+ */
 const saveDiscoveredEasterEggs = (discovered: Set<string>) => {
   if (typeof window === 'undefined') return;
   
@@ -72,6 +91,39 @@ export const EasterEggProvider: React.FC<EasterEggProviderProps> = ({
   const [preloadStatus, setPreloadStatus] = useState<PreloadStatus | null>(null);
   const [isPreloading, setIsPreloading] = useState(false);
 
+  /**
+   * activeEffects 변경 감지하여 새로 실행된 이스터에그를 발견으로 기록
+   * 실제로 이스터에그가 실행되어야만 발견으로 인정
+   */
+  useEffect(() => {
+    activeEffects.forEach(effect => {
+      setDiscoveredEasterEggs(prev => {
+        // 이미 발견된 경우 중복 기록 방지
+        if (prev.has(effect.id)) {
+          return prev;
+        }
+        // 새로 실행된 이스터에그 발견 기록
+        const newSet = new Set(prev);
+        newSet.add(effect.id);
+        // localStorage에 즉시 저장
+        saveDiscoveredEasterEggs(newSet);
+        return newSet;
+      });
+    });
+  }, [activeEffects]);
+
+  /**
+   * 이스터에그 트리거
+   * 
+   * 실행 로직:
+   * - 이미 실행 중인 이스터에그는 무시
+   * - 다른 이스터에그가 실행 중이면 새로운 것을 차단
+   * - 실행 가능하면 activeEffects에 추가
+   * 
+   * 발견 기록:
+   * - useEffect가 activeEffects 변경을 감지하여 자동으로 수행
+   * - 실제로 실행된 이스터에그만 발견으로 기록됨
+   */
   const triggerEasterEgg = useCallback(
     (id: string, context: EasterEggContext) => {
       if (!isEnabled) return;
@@ -85,8 +137,7 @@ export const EasterEggProvider: React.FC<EasterEggProviderProps> = ({
         return;
       }
 
-      // 다른 이스터에그가 실행 중이면 새로운 이스터에그 시작 차단
-      let shouldAdd = false;
+      // 이스터에그 실행 시도
       setActiveEffects(prev => {
         // 이미 동일한 이스터에그가 실행 중이면 무시
         if (prev.some(effect => effect.id === id)) {
@@ -98,9 +149,7 @@ export const EasterEggProvider: React.FC<EasterEggProviderProps> = ({
           return prev;
         }
 
-        // 이스터에그가 실제로 추가될 예정임을 표시
-        shouldAdd = true;
-
+        // 이스터에그 실행
         const newEffect: ActiveEasterEgg = {
           id,
           context,
@@ -110,19 +159,6 @@ export const EasterEggProvider: React.FC<EasterEggProviderProps> = ({
 
         return [newEffect];
       });
-
-      // 이스터에그가 실제로 시작될 때만 발견 기록
-      if (shouldAdd) {
-        setDiscoveredEasterEggs(prev => {
-          if (prev.has(id)) {
-            return prev;
-          }
-          const newSet = new Set(prev);
-          newSet.add(id);
-          saveDiscoveredEasterEggs(newSet);
-          return newSet;
-        });
-      }
     },
     [isEnabled, isEasterEggMode]
   );

@@ -34,6 +34,16 @@ public interface ProjectTechStackJpaRepository extends JpaRepository<ProjectTech
      */
     void deleteByTechStackId(Long techStackId);
     
+    /**
+     * 프로젝트 ID로 모든 관계 삭제
+     */
+    void deleteByProjectId(Long projectId);
+    
+    /**
+     * 특정 관계 삭제
+     */
+    void deleteByProjectIdAndTechStackId(Long projectId, Long techStackId);
+    
     // 기존 메서드들은 호환성을 위해 유지 (deprecated로 표시)
     /**
      * @deprecated tech_stack_id 기반으로 변경됨. findByTechStackId 사용 권장
