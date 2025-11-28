@@ -56,7 +56,7 @@ public class AdminProjectCreateRequest {
     private String externalUrl;
 
     @NotNull(message = "기술 스택은 필수입니다")
-    private List<String> technologies;
+    private List<Long> technologies;
 
     private Integer sortOrder = 0;
 

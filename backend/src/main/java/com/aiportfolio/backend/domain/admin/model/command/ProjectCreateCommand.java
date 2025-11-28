@@ -28,7 +28,7 @@ public class ProjectCreateCommand {
     private final String githubUrl;
     private final String liveUrl;
     private final String externalUrl;
-    private final List<String> technologies;
+    private final List<Long> technologies;
     private final Integer sortOrder;
 
 }

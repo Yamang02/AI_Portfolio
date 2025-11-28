@@ -5,6 +5,7 @@ import com.aiportfolio.backend.domain.portfolio.port.in.GetTechStackMetadataUseC
 import com.aiportfolio.backend.domain.portfolio.port.in.ManageTechStackMetadataUseCase;
 import com.aiportfolio.backend.domain.portfolio.port.in.GetProjectsByTechStackUseCase;
 import com.aiportfolio.backend.domain.portfolio.port.in.UpdateTechStackSortOrderUseCase;
+import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.TechStackMetadataJpaRepository;
 import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;
 import com.aiportfolio.backend.infrastructure.web.dto.techstack.TechStackMetadataDto;
 import com.aiportfolio.backend.infrastructure.web.dto.techstack.TechStackStatisticsDto;
@@ -30,6 +31,7 @@ public class TechStackController {
     private final ManageTechStackMetadataUseCase manageTechStackMetadataUseCase;
     private final GetProjectsByTechStackUseCase getProjectsByTechStackUseCase;
     private final UpdateTechStackSortOrderUseCase updateTechStackSortOrderUseCase;
+    private final TechStackMetadataJpaRepository techStackMetadataJpaRepository;
     
     /**
      * 모든 활성화된 기술 스택 메타데이터 조회
@@ -199,7 +201,13 @@ public class TechStackController {
      * 도메인 모델을 DTO로 변환
      */
     private TechStackMetadataDto convertToDto(TechStackMetadata techStackMetadata) {
+        // 이름으로 ID 조회
+        Long id = techStackMetadataJpaRepository.findByName(techStackMetadata.getName())
+                .map(entity -> entity.getId())
+                .orElse(null);
+        
         return TechStackMetadataDto.builder()
+                .id(id)
                 .name(techStackMetadata.getName())
                 .displayName(techStackMetadata.getDisplayName())
                 .category(techStackMetadata.getCategory())

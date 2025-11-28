@@ -18,6 +18,9 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class TechStackMetadataDto {
     
+    @JsonProperty("id")
+    private Long id;
+    
     @JsonProperty("name")
     private String name;
     

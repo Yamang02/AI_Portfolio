@@ -139,11 +139,23 @@ public class AdminProjectController {
             @Valid @RequestBody AdminProjectUpdateRequest request) {
 
         log.info("Updating project: {}", id);
+        log.debug("Update request data: title={}, description length={}, startDate={}, endDate={}, technologies={}", 
+                request.getTitle(), 
+                request.getDescription() != null ? request.getDescription().length() : 0,
+                request.getStartDate(), 
+                request.getEndDate(),
+                request.getTechnologies());
 
         try {
             List<ManageProjectService.TechStackRelation> techStackRelations = null;
-            if (request.getTechnologies() != null) {
-                techStackRelations = toTechStackRelations(request.getTechnologies());
+            if (request.getTechnologies() != null && !request.getTechnologies().isEmpty()) {
+                try {
+                    techStackRelations = toTechStackRelations(request.getTechnologies());
+                } catch (IllegalArgumentException e) {
+                    log.error("Invalid technologies provided for project {}: {}", id, request.getTechnologies(), e);
+                    return ResponseEntity.badRequest()
+                            .body(ApiResponse.error("기술 스택 처리 중 오류가 발생했습니다: " + e.getMessage()));
+                }
             }
             ProjectResponse project = manageProjectService.updateProjectWithRelations(
                 id,
@@ -152,6 +164,7 @@ public class AdminProjectController {
             );
             return ResponseEntity.ok(ApiResponse.success(project, "프로젝트 수정 성공"));
         } catch (IllegalArgumentException e) {
+            log.warn("Invalid argument for project update {}: {}", id, e.getMessage());
             return ResponseEntity.badRequest()
                     .body(ApiResponse.error(e.getMessage()));
         } catch (Exception e) {
@@ -185,23 +198,24 @@ public class AdminProjectController {
     // ==================== 변환 메서드 ====================
 
     /**
-     * TechStack 이름 목록을 TechStackRelation 리스트로 변환
+     * TechStack ID 목록을 TechStackRelation 리스트로 변환
      */
-    private List<ManageProjectService.TechStackRelation> toTechStackRelations(List<String> techStackNames) {
-        if (techStackNames == null || techStackNames.isEmpty()) {
+    private List<ManageProjectService.TechStackRelation> toTechStackRelations(List<Long> techStackIds) {
+        if (techStackIds == null || techStackIds.isEmpty()) {
             return new ArrayList<>();
         }
 
-        return techStackNames.stream()
-            .map(name -> {
-                return techStackMetadataJpaRepository.findByName(name)
+        return techStackIds.stream()
+            .filter(id -> id != null) // null 필터링
+            .map(id -> {
+                return techStackMetadataJpaRepository.findById(id)
                     .map(techStack -> new ManageProjectService.TechStackRelation(
                         techStack.getId(),
                         false, // 기본값: isPrimary = false
                         null   // 기본값: usageDescription = null
                     ))
                     .orElseThrow(() -> new IllegalArgumentException(
-                        "TechStack을 찾을 수 없습니다: " + name));
+                        "TechStack을 찾을 수 없습니다: ID=" + id));
             })
             .collect(Collectors.toList());
     }

@@ -49,7 +49,7 @@ public class AdminProjectUpdateRequest {
 
     private String externalUrl;
 
-    private List<String> technologies;
+    private List<Long> technologies;
 
     private Integer sortOrder;
 

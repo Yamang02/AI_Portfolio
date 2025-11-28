@@ -55,7 +55,7 @@ export interface ProjectCreateRequest {
   githubUrl?: string;
   liveUrl?: string;
   externalUrl?: string;
-  technologies: string[];
+  technologies: number[];
   sortOrder?: number;
 }
 
@@ -97,8 +97,11 @@ class AdminProjectApi {
       try {
         const errorData = await response.json();
         errorMessage = errorData.message || errorMessage;
+        // 디버깅을 위해 에러 데이터 로깅
+        console.error('[AdminProjectApi] Error response:', errorData);
       } catch {
         // JSON 파싱 실패 시 기본 메시지 사용
+        console.error('[AdminProjectApi] Failed to parse error response');
       }
       throw new Error(errorMessage);
     }
