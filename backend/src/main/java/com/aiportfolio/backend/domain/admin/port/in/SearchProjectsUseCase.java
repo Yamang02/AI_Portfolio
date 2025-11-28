@@ -1,7 +1,7 @@
 package com.aiportfolio.backend.domain.admin.port.in;
 
 import com.aiportfolio.backend.domain.admin.model.vo.ProjectFilter;
-import com.aiportfolio.backend.domain.admin.dto.response.ProjectResponse;
+import com.aiportfolio.backend.domain.portfolio.model.Project;
 
 import java.util.List;
 
@@ -15,15 +15,15 @@ public interface SearchProjectsUseCase {
      * 필터 조건에 따라 프로젝트를 검색합니다.
      * 
      * @param filter 검색 필터
-     * @return 프로젝트 목록
+     * @return 프로젝트 도메인 모델 목록
      */
-    List<ProjectResponse> searchProjects(ProjectFilter filter);
+    List<Project> searchProjects(ProjectFilter filter);
     
     /**
      * ID로 프로젝트를 조회합니다.
      * 
      * @param id 프로젝트 ID
-     * @return 프로젝트 응답
+     * @return 프로젝트 도메인 모델
      */
-    ProjectResponse getProjectById(String id);
+    Project getProjectById(String id);
 }

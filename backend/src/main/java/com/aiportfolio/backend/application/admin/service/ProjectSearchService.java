@@ -2,17 +2,14 @@ package com.aiportfolio.backend.application.admin.service;
 
 import com.aiportfolio.backend.domain.admin.port.in.SearchProjectsUseCase;
 import com.aiportfolio.backend.domain.portfolio.port.out.PortfolioRepositoryPort;
-import com.aiportfolio.backend.domain.admin.dto.response.ProjectResponse;
 import com.aiportfolio.backend.domain.admin.model.vo.ProjectFilter;
 import com.aiportfolio.backend.domain.portfolio.model.Project;
-import com.aiportfolio.backend.application.admin.mapper.ProjectResponseMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 프로젝트 검색 서비스
@@ -25,26 +22,19 @@ import java.util.stream.Collectors;
 public class ProjectSearchService implements SearchProjectsUseCase {
     
     private final PortfolioRepositoryPort portfolioRepositoryPort;
-    private final ProjectResponseMapper projectResponseMapper;
     
     @Override
-    public List<ProjectResponse> searchProjects(ProjectFilter filter) {
+    public List<Project> searchProjects(ProjectFilter filter) {
         log.debug("Searching projects with filter: {}", filter);
         
-        List<Project> projects = portfolioRepositoryPort.findByFilter(filter);
-        
-        return projects.stream()
-                .map(projectResponseMapper::toDetailedResponse)
-                .collect(Collectors.toList());
+        return portfolioRepositoryPort.findByFilter(filter);
     }
     
     @Override
-    public ProjectResponse getProjectById(String id) {
+    public Project getProjectById(String id) {
         log.debug("Getting project by id: {}", id);
 
-        Project project = portfolioRepositoryPort.findProjectById(id)
+        return portfolioRepositoryPort.findProjectById(id)
                 .orElseThrow(() -> new IllegalArgumentException("프로젝트를 찾을 수 없습니다: " + id));
-
-        return projectResponseMapper.toDetailedResponse(project);
     }
 }

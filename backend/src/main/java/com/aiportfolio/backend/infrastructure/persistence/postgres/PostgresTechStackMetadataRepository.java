@@ -41,6 +41,12 @@ public class PostgresTechStackMetadataRepository implements TechStackMetadataRep
     }
     
     @Override
+    public Optional<TechStackMetadata> findById(Long id) {
+        Optional<TechStackMetadataJpaEntity> entity = jpaRepository.findById(id);
+        return entity.map(mapper::toDomain);
+    }
+    
+    @Override
     public Optional<TechStackMetadata> findByName(String name) {
         Optional<TechStackMetadataJpaEntity> entity = jpaRepository.findByName(name);
         return entity.map(mapper::toDomain);

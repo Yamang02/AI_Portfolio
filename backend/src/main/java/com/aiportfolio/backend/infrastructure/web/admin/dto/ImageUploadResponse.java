@@ -1,4 +1,4 @@
-package com.aiportfolio.backend.domain.admin.model.dto;
+package com.aiportfolio.backend.infrastructure.web.admin.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,3 +30,4 @@ class MultiImageUploadResponse {
     private List<String> urls;
     private List<String> publicIds;
 }
+

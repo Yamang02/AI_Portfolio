@@ -21,6 +21,11 @@ import java.time.LocalDateTime;
 public class TechStackMetadata {
 
     /**
+     * 데이터베이스 ID (관계 테이블에서 사용)
+     */
+    private Long id;
+
+    /**
      * 기술명 (JavaScript, React 등)
      */
     private String name;

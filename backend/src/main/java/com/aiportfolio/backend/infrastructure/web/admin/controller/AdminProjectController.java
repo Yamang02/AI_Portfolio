@@ -1,10 +1,10 @@
 package com.aiportfolio.backend.infrastructure.web.admin.controller;
 
+import com.aiportfolio.backend.application.admin.mapper.ProjectResponseMapper;
 import com.aiportfolio.backend.application.admin.service.ManageProjectService;
 import com.aiportfolio.backend.domain.admin.port.in.SearchProjectsUseCase;
-import com.aiportfolio.backend.domain.admin.dto.response.ProjectResponse;
+import com.aiportfolio.backend.infrastructure.web.admin.dto.response.ProjectResponse;
 import com.aiportfolio.backend.domain.admin.model.vo.ProjectFilter;
-import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.TechStackMetadataJpaRepository;
 import com.aiportfolio.backend.infrastructure.web.admin.dto.AdminProjectCreateRequest;
 import com.aiportfolio.backend.infrastructure.web.admin.dto.AdminProjectUpdateRequest;
 import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;
@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,15 +28,15 @@ public class AdminProjectController {
 
     private final ManageProjectService manageProjectService;
     private final SearchProjectsUseCase searchProjectsUseCase;
-    private final TechStackMetadataJpaRepository techStackMetadataJpaRepository;
+    private final ProjectResponseMapper projectResponseMapper;
 
     public AdminProjectController(
             @Qualifier("manageProjectService") ManageProjectService manageProjectService,
             SearchProjectsUseCase searchProjectsUseCase,
-            TechStackMetadataJpaRepository techStackMetadataJpaRepository) {
+            ProjectResponseMapper projectResponseMapper) {
         this.manageProjectService = manageProjectService;
         this.searchProjectsUseCase = searchProjectsUseCase;
-        this.techStackMetadataJpaRepository = techStackMetadataJpaRepository;
+        this.projectResponseMapper = projectResponseMapper;
     }
 
     /**
@@ -71,7 +70,9 @@ public class AdminProjectController {
                     .size(size)
                     .build();
 
-            List<ProjectResponse> projects = searchProjectsUseCase.searchProjects(filter);
+            List<ProjectResponse> projects = searchProjectsUseCase.searchProjects(filter).stream()
+                    .map(projectResponseMapper::toDetailedResponse)
+                    .collect(Collectors.toList());
             
             return ResponseEntity.ok(ApiResponse.success(projects, "프로젝트 목록 조회 성공"));
         } catch (Exception e) {
@@ -91,7 +92,8 @@ public class AdminProjectController {
         log.debug("Getting project by id: {}", id);
         
         try {
-            ProjectResponse project = searchProjectsUseCase.getProjectById(id);
+            ProjectResponse project = projectResponseMapper.toDetailedResponse(
+                    searchProjectsUseCase.getProjectById(id));
             return ResponseEntity.ok(ApiResponse.success(project, "프로젝트 조회 성공"));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(404)
@@ -113,11 +115,9 @@ public class AdminProjectController {
         log.info("Creating new project: {}", request.getTitle());
 
         try {
-            List<ManageProjectService.TechStackRelation> techStackRelations = 
-                toTechStackRelations(request.getTechnologies());
             ProjectResponse project = manageProjectService.createProjectWithRelations(
                 request.toCommand(), 
-                techStackRelations
+                request.getTechnologies()
             );
             return ResponseEntity.ok(ApiResponse.success(project, "프로젝트 생성 성공"));
         } catch (IllegalArgumentException e) {
@@ -147,20 +147,10 @@ public class AdminProjectController {
                 request.getTechnologies());
 
         try {
-            List<ManageProjectService.TechStackRelation> techStackRelations = null;
-            if (request.getTechnologies() != null && !request.getTechnologies().isEmpty()) {
-                try {
-                    techStackRelations = toTechStackRelations(request.getTechnologies());
-                } catch (IllegalArgumentException e) {
-                    log.error("Invalid technologies provided for project {}: {}", id, request.getTechnologies(), e);
-                    return ResponseEntity.badRequest()
-                            .body(ApiResponse.error("기술 스택 처리 중 오류가 발생했습니다: " + e.getMessage()));
-                }
-            }
             ProjectResponse project = manageProjectService.updateProjectWithRelations(
                 id,
                 request.toCommand(),
-                techStackRelations
+                request.getTechnologies()
             );
             return ResponseEntity.ok(ApiResponse.success(project, "프로젝트 수정 성공"));
         } catch (IllegalArgumentException e) {
@@ -193,30 +183,5 @@ public class AdminProjectController {
             return ResponseEntity.badRequest()
                     .body(ApiResponse.error("프로젝트 삭제 중 오류가 발생했습니다: " + e.getMessage()));
         }
-    }
-
-    // ==================== 변환 메서드 ====================
-
-    /**
-     * TechStack ID 목록을 TechStackRelation 리스트로 변환
-     */
-    private List<ManageProjectService.TechStackRelation> toTechStackRelations(List<Long> techStackIds) {
-        if (techStackIds == null || techStackIds.isEmpty()) {
-            return new ArrayList<>();
-        }
-
-        return techStackIds.stream()
-            .filter(id -> id != null) // null 필터링
-            .map(id -> {
-                return techStackMetadataJpaRepository.findById(id)
-                    .map(techStack -> new ManageProjectService.TechStackRelation(
-                        techStack.getId(),
-                        false, // 기본값: isPrimary = false
-                        null   // 기본값: usageDescription = null
-                    ))
-                    .orElseThrow(() -> new IllegalArgumentException(
-                        "TechStack을 찾을 수 없습니다: ID=" + id));
-            })
-            .collect(Collectors.toList());
     }
 }

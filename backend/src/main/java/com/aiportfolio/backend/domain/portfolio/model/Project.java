@@ -4,13 +4,7 @@ import lombok.Data;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
-import org.hibernate.validator.constraints.URL;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,63 +15,29 @@ import java.util.List;
 @AllArgsConstructor
 public class Project {
     
-    @NotBlank(message = "프로젝트 ID는 필수입니다")
     private String id;
-    
-    @NotBlank(message = "프로젝트 제목은 필수입니다")
-    @Size(max = 200, message = "프로젝트 제목은 200자를 초과할 수 없습니다")
     private String title;
-    
-    @NotBlank(message = "프로젝트 설명은 필수입니다")
-    @Size(max = 2000, message = "프로젝트 설명은 2000자를 초과할 수 없습니다")
     private String description;
-    
     
     // 기존 technologies 필드 제거됨 - techStackMetadata 관계 필드로 대체
     private List<TechStackMetadata> techStackMetadata;
     
-    @URL(message = "올바른 GitHub URL 형식이어야 합니다")
     private String githubUrl;
-    
-    @URL(message = "올바른 라이브 URL 형식이어야 합니다")
     private String liveUrl;
-    
-    @URL(message = "올바른 이미지 URL 형식이어야 합니다")
     private String imageUrl;
-    
-    @Size(max = 10000, message = "README는 10000자를 초과할 수 없습니다")
     private String readme;
-    
-    @Size(max = 50, message = "프로젝트 타입은 50자를 초과할 수 없습니다")
     private String type; // 'project' 또는 'certification'
-    
-    @Size(max = 100, message = "소스 정보는 100자를 초과할 수 없습니다")
     private String source;
-
-    @Size(max = 50, message = "상태는 50자를 초과할 수 없습니다")
     private String status; // 프로젝트 상태 (completed, in_progress, maintenance 등)
-
     private Integer sortOrder; // 정렬 순서
-
-    @NotNull(message = "시작일은 필수입니다")
     private LocalDate startDate;
-
     private LocalDate endDate; // 종료일은 선택사항 (진행중인 프로젝트)
-    
-    @JsonProperty("isTeam")
     private boolean isTeam;
-
     private Integer teamSize;
-
-    @URL(message = "올바른 외부 URL 형식이어야 합니다")
     private String externalUrl;
-
     private List<String> myContributions;
-
-    @Size(max = 255, message = "역할은 255자를 초과할 수 없습니다")
     private String role; // 팀 프로젝트에서의 역할
-
-    private List<@URL(message = "올바른 스크린샷 URL 형식이어야 합니다") String> screenshots; // 추가 스크린샷 URL 배열
+    private List<String> screenshots; // 추가 스크린샷 URL 배열
 
     private LocalDateTime createdAt; // 생성일시
     
@@ -86,7 +46,6 @@ public class Project {
     /**
      * 프로젝트가 진행중인지 확인
      */
-    @JsonIgnore
     public boolean isOngoing() {
         return endDate == null;
     }
@@ -94,7 +53,6 @@ public class Project {
     /**
      * 프로젝트 기간을 월 단위로 계산
      */
-    @JsonIgnore
     public long getDurationInMonths() {
         if (endDate == null) {
             return java.time.temporal.ChronoUnit.MONTHS.between(startDate, LocalDate.now());
@@ -131,6 +89,39 @@ public class Project {
                    .filter(TechStackMetadata::isCoreTechnology)
                    .collect(java.util.stream.Collectors.toList()) : 
                new java.util.ArrayList<>();
+    }
+
+    /**
+     * 팀 정보 업데이트 (비즈니스 규칙 포함)
+     * 
+     * @param isTeam 팀 프로젝트 여부
+     * @param teamSize 팀 크기
+     */
+    public void updateTeamInfo(Boolean isTeam, Integer teamSize) {
+        if (isTeam != null) {
+            this.isTeam = isTeam;
+            if (!isTeam) {
+                this.teamSize = null; // 개인 프로젝트면 팀 크기 무효화
+                return;
+            }
+        }
+
+        if (teamSize != null && this.isTeam) {
+            this.teamSize = validateTeamSize(teamSize);
+        }
+    }
+
+    /**
+     * 팀 크기 검증
+     * 
+     * @param size 팀 크기
+     * @return 검증된 팀 크기 (유효하지 않으면 null)
+     */
+    private Integer validateTeamSize(Integer size) {
+        if (size == null || size <= 0) {
+            return null; // 유효하지 않은 크기는 null 처리
+        }
+        return size;
     }
 }
 

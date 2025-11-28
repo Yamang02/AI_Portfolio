@@ -1,6 +1,6 @@
 package com.aiportfolio.backend.application.admin.mapper;
 
-import com.aiportfolio.backend.domain.admin.dto.response.ProjectResponse;
+import com.aiportfolio.backend.infrastructure.web.admin.dto.response.ProjectResponse;
 import com.aiportfolio.backend.domain.portfolio.model.Project;
 import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.TechStackMetadataJpaRepository;
 import lombok.RequiredArgsConstructor;

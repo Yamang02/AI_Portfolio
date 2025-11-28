@@ -1,6 +1,6 @@
 package com.aiportfolio.backend.infrastructure.web.admin.controller;
 
-import com.aiportfolio.backend.domain.admin.dto.response.CloudUsageDashboardResponse;
+import com.aiportfolio.backend.infrastructure.web.admin.dto.response.CloudUsageDashboardResponse;
 import com.aiportfolio.backend.domain.admin.port.in.GetCloudUsageUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

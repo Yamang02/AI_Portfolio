@@ -817,5 +817,52 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
             return Optional.empty();
         }
     }
+
+    // === Batch Update 구현 ===
+
+    @Override
+    public void batchUpdateEducations(List<Education> educations) {
+        if (educations == null || educations.isEmpty()) {
+            return;
+        }
+
+        log.debug("Batch updating {} educations", educations.size());
+        List<EducationJpaEntity> entities = educations.stream()
+                .map(educationMapper::toJpaEntity)
+                .collect(Collectors.toList());
+
+        educationJpaRepository.saveAll(entities); // JPA Batch Update
+        log.debug("Successfully batch updated {} educations", educations.size());
+    }
+
+    @Override
+    public void batchUpdateExperiences(List<Experience> experiences) {
+        if (experiences == null || experiences.isEmpty()) {
+            return;
+        }
+
+        log.debug("Batch updating {} experiences", experiences.size());
+        List<ExperienceJpaEntity> entities = experiences.stream()
+                .map(experienceMapper::toJpaEntity)
+                .collect(Collectors.toList());
+
+        experienceJpaRepository.saveAll(entities); // JPA Batch Update
+        log.debug("Successfully batch updated {} experiences", experiences.size());
+    }
+
+    @Override
+    public void batchUpdateCertifications(List<Certification> certifications) {
+        if (certifications == null || certifications.isEmpty()) {
+            return;
+        }
+
+        log.debug("Batch updating {} certifications", certifications.size());
+        List<CertificationJpaEntity> entities = certifications.stream()
+                .map(certificationMapper::toJpaEntity)
+                .collect(Collectors.toList());
+
+        certificationJpaRepository.saveAll(entities); // JPA Batch Update
+        log.debug("Successfully batch updated {} certifications", certifications.size());
+    }
 }
 

@@ -2,7 +2,7 @@ package com.aiportfolio.backend.application.admin;
 
 import com.aiportfolio.backend.application.admin.exception.AdminAuthenticationException;
 import com.aiportfolio.backend.domain.admin.model.AdminUser;
-import com.aiportfolio.backend.domain.admin.model.dto.AdminUserInfo;
+import com.aiportfolio.backend.infrastructure.web.admin.dto.AdminUserInfo;
 import com.aiportfolio.backend.domain.admin.port.out.AdminUserRepository;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;

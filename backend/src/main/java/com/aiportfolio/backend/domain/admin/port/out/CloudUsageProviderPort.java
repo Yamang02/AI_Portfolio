@@ -1,6 +1,6 @@
 package com.aiportfolio.backend.domain.admin.port.out;
 
-import com.aiportfolio.backend.domain.admin.model.dto.CloudUsageSnapshot;
+import com.aiportfolio.backend.infrastructure.web.admin.dto.CloudUsageSnapshot;
 import com.aiportfolio.backend.domain.admin.model.vo.CloudProvider;
 
 /**

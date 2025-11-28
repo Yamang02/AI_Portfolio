@@ -1,4 +1,4 @@
-package com.aiportfolio.backend.domain.admin.model.dto;
+package com.aiportfolio.backend.infrastructure.web.admin.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,3 +25,4 @@ public class AdminUserInfo implements Serializable {
     private String role;
     private LocalDateTime lastLogin;
 }
+

@@ -1,5 +1,6 @@
 package com.aiportfolio.backend.domain.portfolio.model;
 
+import com.aiportfolio.backend.application.common.util.Sortable;
 import lombok.Data;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
@@ -18,7 +19,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Experience {
+public class Experience implements Sortable {
 
     /**
      * 비즈니스 ID (exp-001, exp-002 등)

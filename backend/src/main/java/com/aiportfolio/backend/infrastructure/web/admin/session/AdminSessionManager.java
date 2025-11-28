@@ -1,7 +1,7 @@
 package com.aiportfolio.backend.infrastructure.web.admin.session;
 
 import com.aiportfolio.backend.application.admin.exception.AdminAuthenticationException;
-import com.aiportfolio.backend.domain.admin.model.dto.AdminUserInfo;
+import com.aiportfolio.backend.infrastructure.web.admin.dto.AdminUserInfo;
 import jakarta.servlet.http.HttpSession;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;

@@ -23,6 +23,7 @@ public class TechStackMetadataMapper {
         }
         
         return TechStackMetadata.builder()
+                .id(entity.getId())
                 .name(entity.getName())
                 .displayName(entity.getDisplayName())
                 .category(entity.getCategory())

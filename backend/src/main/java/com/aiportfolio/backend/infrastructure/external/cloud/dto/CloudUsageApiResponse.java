@@ -1,6 +1,6 @@
 package com.aiportfolio.backend.infrastructure.external.cloud.dto;
 
-import com.aiportfolio.backend.domain.admin.model.dto.CloudUsageMetric;
+import com.aiportfolio.backend.infrastructure.web.admin.dto.CloudUsageMetric;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
