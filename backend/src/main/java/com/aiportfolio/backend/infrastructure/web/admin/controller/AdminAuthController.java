@@ -2,7 +2,7 @@ package com.aiportfolio.backend.infrastructure.web.admin.controller;
 
 import com.aiportfolio.backend.application.admin.AuthService;
 import com.aiportfolio.backend.application.admin.exception.AdminAuthenticationException;
-import com.aiportfolio.backend.domain.admin.model.dto.AdminUserInfo;
+import com.aiportfolio.backend.infrastructure.web.admin.dto.AdminUserInfo;
 import com.aiportfolio.backend.infrastructure.web.admin.dto.AdminLoginRequest;
 import com.aiportfolio.backend.infrastructure.web.admin.session.AdminSessionManager;
 import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;

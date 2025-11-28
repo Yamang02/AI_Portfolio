@@ -4,7 +4,7 @@ import com.aiportfolio.backend.domain.admin.port.in.UploadImageUseCase;
 import com.aiportfolio.backend.domain.admin.port.in.ManageProjectUseCase;
 import com.aiportfolio.backend.domain.admin.port.in.SearchProjectsUseCase;
 import com.aiportfolio.backend.domain.admin.model.command.ProjectUpdateCommand;
-import com.aiportfolio.backend.domain.admin.model.dto.ImageUploadResponse;
+import com.aiportfolio.backend.infrastructure.web.admin.dto.ImageUploadResponse;
 import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -93,7 +93,6 @@ public class AdminUploadController {
                         var existingProject = searchProjectsUseCase.getProjectById(projectId);
                         List<String> existingScreenshots = existingProject.getScreenshots() != null
                             ? existingProject.getScreenshots().stream()
-                                .map(s -> s.getImageUrl())
                                 .filter(imageUrl -> imageUrl != null && !imageUrl.trim().isEmpty())
                                 .collect(Collectors.toList())
                             : new ArrayList<String>();
@@ -212,7 +211,6 @@ public class AdminUploadController {
                     var existingProject = searchProjectsUseCase.getProjectById(projectId);
                     List<String> existingScreenshots = existingProject.getScreenshots() != null
                         ? existingProject.getScreenshots().stream()
-                            .map(s -> s.getImageUrl())
                             .filter(imageUrl -> imageUrl != null && !imageUrl.trim().isEmpty())
                             .collect(Collectors.toList())
                         : new ArrayList<String>();

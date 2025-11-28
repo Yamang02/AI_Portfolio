@@ -193,4 +193,23 @@ public interface PortfolioRepositoryPort {
      * 프로젝트에 연결된 자산 정보를 조회합니다 (썸네일 및 스크린샷 메타데이터).
      */
     Optional<ProjectAssetSnapshot> findProjectAssets(String projectId);
+
+    // === Batch Update 메서드 ===
+    /**
+     * 여러 Education을 일괄 업데이트합니다.
+     * 성능 최적화를 위해 사용됩니다.
+     */
+    void batchUpdateEducations(List<Education> educations);
+
+    /**
+     * 여러 Experience를 일괄 업데이트합니다.
+     * 성능 최적화를 위해 사용됩니다.
+     */
+    void batchUpdateExperiences(List<Experience> experiences);
+
+    /**
+     * 여러 Certification을 일괄 업데이트합니다.
+     * 성능 최적화를 위해 사용됩니다.
+     */
+    void batchUpdateCertifications(List<Certification> certifications);
 }

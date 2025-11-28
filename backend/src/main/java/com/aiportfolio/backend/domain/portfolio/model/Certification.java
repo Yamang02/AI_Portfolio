@@ -1,5 +1,7 @@
 package com.aiportfolio.backend.domain.portfolio.model;
 
+import com.aiportfolio.backend.application.common.util.Sortable;
+
 // Java 표준 라이브러리 imports
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -20,7 +22,7 @@ import lombok.AllArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Certification {
+public class Certification implements Sortable {
 
     /**
      * 비즈니스 ID (CRT001, CRT002 등)

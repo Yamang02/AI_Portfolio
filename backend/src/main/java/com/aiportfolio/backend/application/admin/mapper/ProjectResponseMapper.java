@@ -1,6 +1,6 @@
 package com.aiportfolio.backend.application.admin.mapper;
 
-import com.aiportfolio.backend.domain.admin.dto.response.ProjectResponse;
+import com.aiportfolio.backend.infrastructure.web.admin.dto.response.ProjectResponse;
 import com.aiportfolio.backend.domain.portfolio.model.Project;
 import org.springframework.stereotype.Component;
 
@@ -85,7 +85,7 @@ public class ProjectResponseMapper {
                                 }
                             }
                             return ProjectResponse.TechnologyResponse.builder()
-                                    .id(null) // TechStackMetadata에는 id가 없음
+                                    .id(tech.getId())
                                     .name(tech.getName())
                                     .category(tech.getCategory())
                                     .proficiencyLevel(proficiencyLevel)
