@@ -2,8 +2,6 @@ package com.aiportfolio.backend.application.admin.mapper;
 
 import com.aiportfolio.backend.infrastructure.web.admin.dto.response.ProjectResponse;
 import com.aiportfolio.backend.domain.portfolio.model.Project;
-import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.TechStackMetadataJpaRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -14,10 +12,7 @@ import java.util.stream.Collectors;
  * 도메인 객체를 응답 DTO로 변환하는 책임을 담당합니다.
  */
 @Component
-@RequiredArgsConstructor
 public class ProjectResponseMapper {
-    
-    private final TechStackMetadataJpaRepository techStackMetadataJpaRepository;
     
     /**
      * Project 도메인 객체를 ProjectResponse로 변환합니다.
@@ -89,13 +84,8 @@ public class ProjectResponseMapper {
                                         proficiencyLevel = 1;
                                 }
                             }
-                            // 이름으로 ID 조회
-                            Long techStackId = techStackMetadataJpaRepository.findByName(tech.getName())
-                                    .map(entity -> entity.getId())
-                                    .orElse(null);
-                            
                             return ProjectResponse.TechnologyResponse.builder()
-                                    .id(techStackId)
+                                    .id(tech.getId())
                                     .name(tech.getName())
                                     .category(tech.getCategory())
                                     .proficiencyLevel(proficiencyLevel)

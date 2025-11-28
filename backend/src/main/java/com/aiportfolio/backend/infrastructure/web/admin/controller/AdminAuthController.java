@@ -37,26 +37,16 @@ public class AdminAuthController {
             HttpServletRequest httpRequest) {
         log.debug("Login request received for user: {}", request.getUsername());
 
-        try {
-            HttpSession session = httpRequest.getSession(true);
-            AdminUserInfo userInfo = authService.login(
+        HttpSession session = httpRequest.getSession(true);
+        AdminUserInfo userInfo = authService.login(
                 request.getUsername(),
                 request.getPassword()
-            );
+        );
 
-            adminSessionManager.establishSession(session, userInfo);
+        adminSessionManager.establishSession(session, userInfo);
 
-            log.info("Login successful for user: {}", request.getUsername());
-            return ResponseEntity.ok(ApiResponse.success(userInfo, "로그인 성공"));
-        } catch (AdminAuthenticationException e) {
-            log.warn("Login failed for user: {} - {}", request.getUsername(), e.getMessage());
-            return ResponseEntity.status(401)
-                    .body(ApiResponse.error(e.getMessage(), "인증 실패"));
-        } catch (Exception e) {
-            log.error("Login error for user: {}", request.getUsername(), e);
-            return ResponseEntity.status(500)
-                    .body(ApiResponse.error("로그인 처리 중 오류가 발생했습니다.", "서버 오류"));
-        }
+        log.info("Login successful for user: {}", request.getUsername());
+        return ResponseEntity.ok(ApiResponse.success(userInfo, "로그인 성공"));
     }
 
     /**
@@ -65,15 +55,10 @@ public class AdminAuthController {
     @PostMapping("/logout")
     public ResponseEntity<ApiResponse<Void>> logout(HttpServletRequest httpRequest) {
         log.debug("Logout request received");
-        try {
-            HttpSession session = httpRequest.getSession(false);
-            adminSessionManager.clearSession(session);
-            
-            return ResponseEntity.ok(ApiResponse.success(null, "로그아웃 성공"));
-        } catch (Exception e) {
-            log.error("Logout error", e);
-            return ResponseEntity.ok(ApiResponse.success(null, "로그아웃 성공"));
-        }
+        HttpSession session = httpRequest.getSession(false);
+        adminSessionManager.clearSession(session);
+        
+        return ResponseEntity.ok(ApiResponse.success(null, "로그아웃 성공"));
     }
 
     /**
@@ -103,15 +88,9 @@ public class AdminAuthController {
             log.warn("No cookies found in request");
         }
 
-        try {
-            AdminUserInfo userInfo = adminSessionManager.resolveCurrentUser(session)
-                    .orElseThrow(() -> new AdminAuthenticationException("세션이 없습니다."));
-            log.info("Session check successful for user: {}", userInfo.getUsername());
-            return ResponseEntity.ok(ApiResponse.success(userInfo, "세션이 유효합니다"));
-        } catch (AdminAuthenticationException e) {
-            log.warn("Session check failed: {}", e.getMessage());
-            return ResponseEntity.status(401)
-                    .body(ApiResponse.error(e.getMessage(), "인증되지 않음"));
-        }
+        AdminUserInfo userInfo = adminSessionManager.resolveCurrentUser(session)
+                .orElseThrow(() -> new AdminAuthenticationException("세션이 없습니다."));
+        log.info("Session check successful for user: {}", userInfo.getUsername());
+        return ResponseEntity.ok(ApiResponse.success(userInfo, "세션이 유효합니다"));
     }
 }

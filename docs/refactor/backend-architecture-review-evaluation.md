@@ -445,3 +445,4 @@ public class ManageProjectService implements ManageProjectUseCase {
 **작성자**: Claude Agent
 **최종 업데이트**: 2025-01-28
 
+

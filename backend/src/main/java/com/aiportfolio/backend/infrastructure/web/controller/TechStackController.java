@@ -5,7 +5,6 @@ import com.aiportfolio.backend.domain.portfolio.port.in.GetTechStackMetadataUseC
 import com.aiportfolio.backend.domain.portfolio.port.in.ManageTechStackMetadataUseCase;
 import com.aiportfolio.backend.domain.portfolio.port.in.GetProjectsByTechStackUseCase;
 import com.aiportfolio.backend.domain.portfolio.port.in.UpdateTechStackSortOrderUseCase;
-import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.TechStackMetadataJpaRepository;
 import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;
 import com.aiportfolio.backend.infrastructure.web.dto.techstack.TechStackMetadataDto;
 import com.aiportfolio.backend.infrastructure.web.dto.techstack.TechStackStatisticsDto;
@@ -31,24 +30,18 @@ public class TechStackController {
     private final ManageTechStackMetadataUseCase manageTechStackMetadataUseCase;
     private final GetProjectsByTechStackUseCase getProjectsByTechStackUseCase;
     private final UpdateTechStackSortOrderUseCase updateTechStackSortOrderUseCase;
-    private final TechStackMetadataJpaRepository techStackMetadataJpaRepository;
     
     /**
      * 모든 활성화된 기술 스택 메타데이터 조회
      */
     @GetMapping
     public ResponseEntity<ApiResponse<List<TechStackMetadataDto>>> getAllTechStackMetadata() {
-        try {
-            List<TechStackMetadata> techStackMetadataList = getTechStackMetadataUseCase.getAllActiveTechStackMetadata();
-            List<TechStackMetadataDto> dtoList = techStackMetadataList.stream()
-                    .map(this::convertToDto)
-                    .collect(Collectors.toList());
-            
-            return ResponseEntity.ok(ApiResponse.success(dtoList));
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError()
-                    .body(ApiResponse.error("기술 스택 메타데이터 조회 중 오류가 발생했습니다: " + e.getMessage()));
-        }
+        List<TechStackMetadata> techStackMetadataList = getTechStackMetadataUseCase.getAllActiveTechStackMetadata();
+        List<TechStackMetadataDto> dtoList = techStackMetadataList.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+        
+        return ResponseEntity.ok(ApiResponse.success(dtoList));
     }
     
     /**
@@ -56,17 +49,12 @@ public class TechStackController {
      */
     @GetMapping("/core")
     public ResponseEntity<ApiResponse<List<TechStackMetadataDto>>> getCoreTechStackMetadata() {
-        try {
-            List<TechStackMetadata> techStackMetadataList = getTechStackMetadataUseCase.getCoreTechStackMetadata();
-            List<TechStackMetadataDto> dtoList = techStackMetadataList.stream()
-                    .map(this::convertToDto)
-                    .collect(Collectors.toList());
-            
-            return ResponseEntity.ok(ApiResponse.success(dtoList));
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError()
-                    .body(ApiResponse.error("핵심 기술 스택 메타데이터 조회 중 오류가 발생했습니다: " + e.getMessage()));
-        }
+        List<TechStackMetadata> techStackMetadataList = getTechStackMetadataUseCase.getCoreTechStackMetadata();
+        List<TechStackMetadataDto> dtoList = techStackMetadataList.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+        
+        return ResponseEntity.ok(ApiResponse.success(dtoList));
     }
     
     /**
@@ -74,18 +62,13 @@ public class TechStackController {
      */
     @GetMapping("/{name}")
     public ResponseEntity<ApiResponse<TechStackMetadataDto>> getTechStackMetadataByName(@PathVariable String name) {
-        try {
-            Optional<TechStackMetadata> techStackMetadata = getTechStackMetadataUseCase.getTechStackMetadataByName(name);
-            
-            if (techStackMetadata.isPresent()) {
-                TechStackMetadataDto dto = convertToDto(techStackMetadata.get());
-                return ResponseEntity.ok(ApiResponse.success(dto));
-            } else {
-                return ResponseEntity.notFound().build();
-            }
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError()
-                    .body(ApiResponse.error("기술 스택 메타데이터 조회 중 오류가 발생했습니다: " + e.getMessage()));
+        Optional<TechStackMetadata> techStackMetadata = getTechStackMetadataUseCase.getTechStackMetadataByName(name);
+        
+        if (techStackMetadata.isPresent()) {
+            TechStackMetadataDto dto = convertToDto(techStackMetadata.get());
+            return ResponseEntity.ok(ApiResponse.success(dto));
+        } else {
+            return ResponseEntity.notFound().build();
         }
     }
     
@@ -94,17 +77,12 @@ public class TechStackController {
      */
     @GetMapping("/category/{category}")
     public ResponseEntity<ApiResponse<List<TechStackMetadataDto>>> getTechStackMetadataByCategory(@PathVariable String category) {
-        try {
-            List<TechStackMetadata> techStackMetadataList = getTechStackMetadataUseCase.getTechStackMetadataByCategory(category);
-            List<TechStackMetadataDto> dtoList = techStackMetadataList.stream()
-                    .map(this::convertToDto)
-                    .collect(Collectors.toList());
-            
-            return ResponseEntity.ok(ApiResponse.success(dtoList));
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError()
-                    .body(ApiResponse.error("카테고리별 기술 스택 메타데이터 조회 중 오류가 발생했습니다: " + e.getMessage()));
-        }
+        List<TechStackMetadata> techStackMetadataList = getTechStackMetadataUseCase.getTechStackMetadataByCategory(category);
+        List<TechStackMetadataDto> dtoList = techStackMetadataList.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+        
+        return ResponseEntity.ok(ApiResponse.success(dtoList));
     }
     
     /**
@@ -112,17 +90,12 @@ public class TechStackController {
      */
     @GetMapping("/level/{level}")
     public ResponseEntity<ApiResponse<List<TechStackMetadataDto>>> getTechStackMetadataByLevel(@PathVariable String level) {
-        try {
-            List<TechStackMetadata> techStackMetadataList = getTechStackMetadataUseCase.getTechStackMetadataByLevel(level);
-            List<TechStackMetadataDto> dtoList = techStackMetadataList.stream()
-                    .map(this::convertToDto)
-                    .collect(Collectors.toList());
-            
-            return ResponseEntity.ok(ApiResponse.success(dtoList));
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError()
-                    .body(ApiResponse.error("레벨별 기술 스택 메타데이터 조회 중 오류가 발생했습니다: " + e.getMessage()));
-        }
+        List<TechStackMetadata> techStackMetadataList = getTechStackMetadataUseCase.getTechStackMetadataByLevel(level);
+        List<TechStackMetadataDto> dtoList = techStackMetadataList.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+        
+        return ResponseEntity.ok(ApiResponse.success(dtoList));
     }
     
     /**
@@ -132,17 +105,12 @@ public class TechStackController {
     public ResponseEntity<ApiResponse<List<TechStackMetadataDto>>> getTechStackMetadataByCategoryAndLevel(
             @PathVariable String category, 
             @PathVariable String level) {
-        try {
-            List<TechStackMetadata> techStackMetadataList = getTechStackMetadataUseCase.getTechStackMetadataByCategoryAndLevel(category, level);
-            List<TechStackMetadataDto> dtoList = techStackMetadataList.stream()
-                    .map(this::convertToDto)
-                    .collect(Collectors.toList());
-            
-            return ResponseEntity.ok(ApiResponse.success(dtoList));
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError()
-                    .body(ApiResponse.error("카테고리와 레벨별 기술 스택 메타데이터 조회 중 오류가 발생했습니다: " + e.getMessage()));
-        }
+        List<TechStackMetadata> techStackMetadataList = getTechStackMetadataUseCase.getTechStackMetadataByCategoryAndLevel(category, level);
+        List<TechStackMetadataDto> dtoList = techStackMetadataList.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+        
+        return ResponseEntity.ok(ApiResponse.success(dtoList));
     }
     
     /**
@@ -150,17 +118,12 @@ public class TechStackController {
      */
     @GetMapping("/search")
     public ResponseEntity<ApiResponse<List<TechStackMetadataDto>>> searchTechStackMetadata(@RequestParam String name) {
-        try {
-            List<TechStackMetadata> techStackMetadataList = getTechStackMetadataUseCase.searchTechStackMetadataByName(name);
-            List<TechStackMetadataDto> dtoList = techStackMetadataList.stream()
-                    .map(this::convertToDto)
-                    .collect(Collectors.toList());
-            
-            return ResponseEntity.ok(ApiResponse.success(dtoList));
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError()
-                    .body(ApiResponse.error("기술 스택 메타데이터 검색 중 오류가 발생했습니다: " + e.getMessage()));
-        }
+        List<TechStackMetadata> techStackMetadataList = getTechStackMetadataUseCase.searchTechStackMetadataByName(name);
+        List<TechStackMetadataDto> dtoList = techStackMetadataList.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+        
+        return ResponseEntity.ok(ApiResponse.success(dtoList));
     }
     
     /**
@@ -168,17 +131,12 @@ public class TechStackController {
      */
     @GetMapping("/used-in-projects")
     public ResponseEntity<ApiResponse<List<TechStackMetadataDto>>> getTechnologiesUsedInProjects() {
-        try {
-            List<TechStackMetadata> techStackMetadataList = getTechStackMetadataUseCase.getTechnologiesUsedInProjects();
-            List<TechStackMetadataDto> dtoList = techStackMetadataList.stream()
-                    .map(this::convertToDto)
-                    .collect(Collectors.toList());
-            
-            return ResponseEntity.ok(ApiResponse.success(dtoList));
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError()
-                    .body(ApiResponse.error("프로젝트에서 사용된 기술 스택 메타데이터 조회 중 오류가 발생했습니다: " + e.getMessage()));
-        }
+        List<TechStackMetadata> techStackMetadataList = getTechStackMetadataUseCase.getTechnologiesUsedInProjects();
+        List<TechStackMetadataDto> dtoList = techStackMetadataList.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+        
+        return ResponseEntity.ok(ApiResponse.success(dtoList));
     }
     
     /**
@@ -186,28 +144,18 @@ public class TechStackController {
      */
     @GetMapping("/statistics")
     public ResponseEntity<ApiResponse<TechStackStatisticsDto>> getTechStackStatistics() {
-        try {
-            GetTechStackMetadataUseCase.TechStackStatistics statistics = getTechStackMetadataUseCase.getTechStackStatistics();
-            TechStackStatisticsDto dto = convertToDto(statistics);
-            
-            return ResponseEntity.ok(ApiResponse.success(dto));
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError()
-                    .body(ApiResponse.error("기술 스택 통계 조회 중 오류가 발생했습니다: " + e.getMessage()));
-        }
+        GetTechStackMetadataUseCase.TechStackStatistics statistics = getTechStackMetadataUseCase.getTechStackStatistics();
+        TechStackStatisticsDto dto = convertToDto(statistics);
+        
+        return ResponseEntity.ok(ApiResponse.success(dto));
     }
     
     /**
      * 도메인 모델을 DTO로 변환
      */
     private TechStackMetadataDto convertToDto(TechStackMetadata techStackMetadata) {
-        // 이름으로 ID 조회
-        Long id = techStackMetadataJpaRepository.findByName(techStackMetadata.getName())
-                .map(entity -> entity.getId())
-                .orElse(null);
-        
         return TechStackMetadataDto.builder()
-                .id(id)
+                .id(techStackMetadata.getId())
                 .name(techStackMetadata.getName())
                 .displayName(techStackMetadata.getDisplayName())
                 .category(techStackMetadata.getCategory())
@@ -257,19 +205,11 @@ public class TechStackController {
      */
     @PostMapping
     public ResponseEntity<ApiResponse<TechStackMetadataDto>> createTechStackMetadata(@RequestBody TechStackMetadataDto dto) {
-        try {
-            TechStackMetadata techStackMetadata = convertToDomain(dto);
-            TechStackMetadata created = manageTechStackMetadataUseCase.createTechStackMetadata(techStackMetadata);
-            TechStackMetadataDto responseDto = convertToDto(created);
-            
-            return ResponseEntity.ok(ApiResponse.success(responseDto));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest()
-                    .body(ApiResponse.error(e.getMessage()));
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError()
-                    .body(ApiResponse.error("기술 스택 메타데이터 생성 중 오류가 발생했습니다: " + e.getMessage()));
-        }
+        TechStackMetadata techStackMetadata = convertToDomain(dto);
+        TechStackMetadata created = manageTechStackMetadataUseCase.createTechStackMetadata(techStackMetadata);
+        TechStackMetadataDto responseDto = convertToDto(created);
+        
+        return ResponseEntity.ok(ApiResponse.success(responseDto));
     }
     
     /**
@@ -279,27 +219,11 @@ public class TechStackController {
     public ResponseEntity<ApiResponse<TechStackMetadataDto>> updateTechStackMetadata(
             @PathVariable String name, 
             @RequestBody TechStackMetadataDto dto) {
-        try {
-            System.out.println("=== 기술스택 수정 요청 수신 ===");
-            System.out.println("Name: " + name);
-            System.out.println("DTO: " + dto);
-            
-            TechStackMetadata techStackMetadata = convertToDomain(dto);
-            TechStackMetadata updated = manageTechStackMetadataUseCase.updateTechStackMetadata(name, techStackMetadata);
-            TechStackMetadataDto responseDto = convertToDto(updated);
-            
-            System.out.println("수정 완료: " + responseDto);
-            return ResponseEntity.ok(ApiResponse.success(responseDto));
-        } catch (IllegalArgumentException e) {
-            System.out.println("수정 실패 (IllegalArgumentException): " + e.getMessage());
-            return ResponseEntity.badRequest()
-                    .body(ApiResponse.error(e.getMessage()));
-        } catch (Exception e) {
-            System.out.println("수정 실패 (Exception): " + e.getMessage());
-            e.printStackTrace();
-            return ResponseEntity.internalServerError()
-                    .body(ApiResponse.error("기술 스택 메타데이터 수정 중 오류가 발생했습니다: " + e.getMessage()));
-        }
+        TechStackMetadata techStackMetadata = convertToDomain(dto);
+        TechStackMetadata updated = manageTechStackMetadataUseCase.updateTechStackMetadata(name, techStackMetadata);
+        TechStackMetadataDto responseDto = convertToDto(updated);
+        
+        return ResponseEntity.ok(ApiResponse.success(responseDto));
     }
     
     /**
@@ -307,16 +231,8 @@ public class TechStackController {
      */
     @DeleteMapping("/{name}")
     public ResponseEntity<ApiResponse<Void>> deleteTechStackMetadata(@PathVariable String name) {
-        try {
-            manageTechStackMetadataUseCase.deleteTechStackMetadata(name);
-            return ResponseEntity.ok(ApiResponse.success(null));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest()
-                    .body(ApiResponse.error(e.getMessage()));
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError()
-                    .body(ApiResponse.error("기술 스택 메타데이터 삭제 중 오류가 발생했습니다: " + e.getMessage()));
-        }
+        manageTechStackMetadataUseCase.deleteTechStackMetadata(name);
+        return ResponseEntity.ok(ApiResponse.success(null));
     }
     
     /**
@@ -324,18 +240,10 @@ public class TechStackController {
      */
     @PatchMapping("/{name}/toggle-status")
     public ResponseEntity<ApiResponse<TechStackMetadataDto>> toggleTechStackMetadataStatus(@PathVariable String name) {
-        try {
-            TechStackMetadata updated = manageTechStackMetadataUseCase.toggleTechStackMetadataStatus(name);
-            TechStackMetadataDto responseDto = convertToDto(updated);
-            
-            return ResponseEntity.ok(ApiResponse.success(responseDto));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest()
-                    .body(ApiResponse.error(e.getMessage()));
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError()
-                    .body(ApiResponse.error("기술 스택 메타데이터 상태 변경 중 오류가 발생했습니다: " + e.getMessage()));
-        }
+        TechStackMetadata updated = manageTechStackMetadataUseCase.toggleTechStackMetadataStatus(name);
+        TechStackMetadataDto responseDto = convertToDto(updated);
+        
+        return ResponseEntity.ok(ApiResponse.success(responseDto));
     }
     
     // ==================== 프로젝트 조회 기능 ====================
@@ -345,21 +253,16 @@ public class TechStackController {
      */
     @GetMapping("/{name}/projects")
     public ResponseEntity<ApiResponse<List<TechStackProjectDto>>> getProjectsByTechStack(@PathVariable String name) {
-        try {
-            // UseCase를 통해 비즈니스 로직 실행
-            List<com.aiportfolio.backend.domain.portfolio.model.Project> projects = 
-                getProjectsByTechStackUseCase.getProjectsByTechStack(name);
-            
-            // 도메인 모델을 DTO로 변환
-            List<TechStackProjectDto> projectDtos = projects.stream()
-                .map(this::convertProjectToDto)
-                .collect(Collectors.toList());
-            
-            return ResponseEntity.ok(ApiResponse.success(projectDtos));
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError()
-                    .body(ApiResponse.error("프로젝트 조회 중 오류가 발생했습니다: " + e.getMessage()));
-        }
+        // UseCase를 통해 비즈니스 로직 실행
+        List<com.aiportfolio.backend.domain.portfolio.model.Project> projects = 
+            getProjectsByTechStackUseCase.getProjectsByTechStack(name);
+        
+        // 도메인 모델을 DTO로 변환
+        List<TechStackProjectDto> projectDtos = projects.stream()
+            .map(this::convertProjectToDto)
+            .collect(Collectors.toList());
+        
+        return ResponseEntity.ok(ApiResponse.success(projectDtos));
     }
     
     // ==================== 정렬 순서 관리 기능 ====================
@@ -371,27 +274,22 @@ public class TechStackController {
     public ResponseEntity<ApiResponse<List<TechStackMetadataDto>>> updateSortOrder(
             @PathVariable String name,
             @RequestBody Map<String, Integer> request) {
-        try {
-            Integer newSortOrder = request.get("sortOrder");
-            if (newSortOrder == null) {
-                return ResponseEntity.badRequest()
-                        .body(ApiResponse.error("정렬 순서가 필요합니다."));
-            }
-            
-            // UseCase를 통해 정렬 순서 업데이트
-            List<TechStackMetadata> updatedTechStacks = 
-                updateTechStackSortOrderUseCase.updateSortOrder(name, newSortOrder);
-            
-            // 도메인 모델을 DTO로 변환
-            List<TechStackMetadataDto> techStackDtos = updatedTechStacks.stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
-            
-            return ResponseEntity.ok(ApiResponse.success(techStackDtos));
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError()
-                    .body(ApiResponse.error("정렬 순서 업데이트 중 오류가 발생했습니다: " + e.getMessage()));
+        Integer newSortOrder = request.get("sortOrder");
+        if (newSortOrder == null) {
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error("정렬 순서가 필요합니다."));
         }
+        
+        // UseCase를 통해 정렬 순서 업데이트
+        List<TechStackMetadata> updatedTechStacks = 
+            updateTechStackSortOrderUseCase.updateSortOrder(name, newSortOrder);
+        
+        // 도메인 모델을 DTO로 변환
+        List<TechStackMetadataDto> techStackDtos = updatedTechStacks.stream()
+            .map(this::convertToDto)
+            .collect(Collectors.toList());
+        
+        return ResponseEntity.ok(ApiResponse.success(techStackDtos));
     }
     
     /**

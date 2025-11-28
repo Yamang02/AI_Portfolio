@@ -57,29 +57,23 @@ public class AdminProjectController {
         log.debug("Getting projects with filters - search: {}, isTeam: {}, type: {}, status: {}", 
                 search, isTeam, projectType, status);
 
-        try {
-            ProjectFilter filter = ProjectFilter.builder()
-                    .searchQuery(search)
-                    .isTeam(isTeam)
-                    .projectType(projectType)
-                    .status(status)
-                    .selectedTechs(techs)
-                    .sortBy(sortBy)
-                    .sortOrder(sortOrder)
-                    .page(page)
-                    .size(size)
-                    .build();
+        ProjectFilter filter = ProjectFilter.builder()
+                .searchQuery(search)
+                .isTeam(isTeam)
+                .projectType(projectType)
+                .status(status)
+                .selectedTechs(techs)
+                .sortBy(sortBy)
+                .sortOrder(sortOrder)
+                .page(page)
+                .size(size)
+                .build();
 
-            List<ProjectResponse> projects = searchProjectsUseCase.searchProjects(filter).stream()
-                    .map(projectResponseMapper::toDetailedResponse)
-                    .collect(Collectors.toList());
-            
-            return ResponseEntity.ok(ApiResponse.success(projects, "프로젝트 목록 조회 성공"));
-        } catch (Exception e) {
-            log.error("Failed to get projects", e);
-            return ResponseEntity.status(500)
-                    .body(ApiResponse.error("프로젝트 목록 조회 중 오류가 발생했습니다: " + e.getMessage(), "서버 오류"));
-        }
+        List<ProjectResponse> projects = searchProjectsUseCase.searchProjects(filter).stream()
+                .map(projectResponseMapper::toDetailedResponse)
+                .collect(Collectors.toList());
+        
+        return ResponseEntity.ok(ApiResponse.success(projects, "프로젝트 목록 조회 성공"));
     }
 
     /**
@@ -91,18 +85,9 @@ public class AdminProjectController {
         
         log.debug("Getting project by id: {}", id);
         
-        try {
-            ProjectResponse project = projectResponseMapper.toDetailedResponse(
-                    searchProjectsUseCase.getProjectById(id));
-            return ResponseEntity.ok(ApiResponse.success(project, "프로젝트 조회 성공"));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(404)
-                    .body(ApiResponse.error(e.getMessage(), "프로젝트를 찾을 수 없습니다"));
-        } catch (Exception e) {
-            log.error("Failed to get project: {}", id, e);
-            return ResponseEntity.status(500)
-                    .body(ApiResponse.error("프로젝트 조회 중 오류가 발생했습니다: " + e.getMessage(), "서버 오류"));
-        }
+        ProjectResponse project = projectResponseMapper.toDetailedResponse(
+                searchProjectsUseCase.getProjectById(id));
+        return ResponseEntity.ok(ApiResponse.success(project, "프로젝트 조회 성공"));
     }
 
     /**
@@ -114,20 +99,11 @@ public class AdminProjectController {
 
         log.info("Creating new project: {}", request.getTitle());
 
-        try {
-            ProjectResponse project = manageProjectService.createProjectWithRelations(
+        ProjectResponse project = manageProjectService.createProjectWithRelations(
                 request.toCommand(), 
                 request.getTechnologies()
-            );
-            return ResponseEntity.ok(ApiResponse.success(project, "프로젝트 생성 성공"));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest()
-                    .body(ApiResponse.error(e.getMessage()));
-        } catch (Exception e) {
-            log.error("Failed to create project", e);
-            return ResponseEntity.badRequest()
-                    .body(ApiResponse.error("프로젝트 생성 중 오류가 발생했습니다: " + e.getMessage()));
-        }
+        );
+        return ResponseEntity.ok(ApiResponse.success(project, "프로젝트 생성 성공"));
     }
 
     /**
@@ -146,22 +122,12 @@ public class AdminProjectController {
                 request.getEndDate(),
                 request.getTechnologies());
 
-        try {
-            ProjectResponse project = manageProjectService.updateProjectWithRelations(
+        ProjectResponse project = manageProjectService.updateProjectWithRelations(
                 id,
                 request.toCommand(),
                 request.getTechnologies()
-            );
-            return ResponseEntity.ok(ApiResponse.success(project, "프로젝트 수정 성공"));
-        } catch (IllegalArgumentException e) {
-            log.warn("Invalid argument for project update {}: {}", id, e.getMessage());
-            return ResponseEntity.badRequest()
-                    .body(ApiResponse.error(e.getMessage()));
-        } catch (Exception e) {
-            log.error("Failed to update project: {}", id, e);
-            return ResponseEntity.badRequest()
-                    .body(ApiResponse.error("프로젝트 수정 중 오류가 발생했습니다: " + e.getMessage()));
-        }
+        );
+        return ResponseEntity.ok(ApiResponse.success(project, "프로젝트 수정 성공"));
     }
 
     /**
@@ -173,15 +139,7 @@ public class AdminProjectController {
 
         log.info("Deleting project: {}", id);
 
-        try {
-            manageProjectService.deleteProject(id);
-            return ResponseEntity.ok(ApiResponse.success(null, "프로젝트 삭제 성공"));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.notFound().build();
-        } catch (Exception e) {
-            log.error("Failed to delete project: {}", id, e);
-            return ResponseEntity.badRequest()
-                    .body(ApiResponse.error("프로젝트 삭제 중 오류가 발생했습니다: " + e.getMessage()));
-        }
+        manageProjectService.deleteProject(id);
+        return ResponseEntity.ok(ApiResponse.success(null, "프로젝트 삭제 성공"));
     }
 }

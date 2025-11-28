@@ -10,7 +10,7 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 /**
  * 전역 예외 처리기
- * 애플리케이션 전역에서 발생하는 예외를 처리합니다.
+ * Main 앱 전역에서 발생하는 예외를 처리합니다.
  */
 @ControllerAdvice
 @Slf4j
@@ -28,6 +28,26 @@ public class GlobalExceptionHandler {
         
         return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
                 .body(ApiResponse.error(message, "파일 크기 제한 초과"));
+    }
+
+    /**
+     * 잘못된 인자 예외 처리
+     */
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ApiResponse<Object>> handleIllegalArgument(IllegalArgumentException exception) {
+        log.warn("Illegal argument: {}", exception.getMessage());
+        return ResponseEntity.badRequest()
+                .body(ApiResponse.error(exception.getMessage(), "잘못된 요청"));
+    }
+
+    /**
+     * 예상치 못한 예외 처리
+     */
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ApiResponse<Object>> handleUnexpected(Exception exception) {
+        log.error("Unexpected error", exception);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.error("요청 처리 중 오류가 발생했습니다.", "서버 오류"));
     }
 }
 

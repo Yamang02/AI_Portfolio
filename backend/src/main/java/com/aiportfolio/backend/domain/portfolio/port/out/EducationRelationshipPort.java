@@ -39,3 +39,4 @@ public interface EducationRelationshipPort {
     record ProjectRelation(String projectBusinessId, String projectType, String grade) {}
 }
 
+
