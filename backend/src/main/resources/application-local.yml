@@ -134,9 +134,7 @@ springdoc:
 
 # 앱 설정
 app:
-  ai-service:
-    url: http://localhost:8001
-    timeout: 30000
+  # ai-service: 제거됨 - AI_portfolio_agent로 분리
   github:
     username: yamang02
   contact:
