@@ -1,0 +1,92 @@
+import React from 'react';
+import { Card, Spin, Alert, Empty, Table } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
+import { UsageTrend } from '../../../entities/cloud-usage';
+
+interface UsageTrendChartProps {
+  trends: UsageTrend[] | undefined;
+  isLoading: boolean;
+  error: Error | null;
+  title: string;
+}
+
+/**
+ * 비용 추이 차트 컴포넌트
+ */
+export const UsageTrendChart: React.FC<UsageTrendChartProps> = ({
+  trends,
+  isLoading,
+  error,
+  title,
+}) => {
+  if (error) {
+    return (
+      <Card title={title}>
+        <Alert
+          message="데이터 조회 실패"
+          description={error.message}
+          type="error"
+          showIcon
+        />
+      </Card>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <Card title={title}>
+        <Spin size="large" style={{ display: 'block', textAlign: 'center', padding: '40px' }} />
+      </Card>
+    );
+  }
+
+  if (!trends || trends.length === 0) {
+    return (
+      <Card title={title}>
+        <Empty description="추이 데이터가 없습니다." />
+      </Card>
+    );
+  }
+
+  const columns: ColumnsType<UsageTrend> = [
+    {
+      title: '날짜',
+      dataIndex: 'date',
+      key: 'date',
+      render: (date: string) => new Date(date).toLocaleDateString('ko-KR'),
+      sorter: (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+    },
+    {
+      title: '총 비용',
+      dataIndex: 'cost',
+      key: 'cost',
+      render: (cost: number) => `$${cost.toFixed(2)}`,
+      sorter: (a, b) => a.cost - b.cost,
+      defaultSortOrder: 'descend',
+    },
+    {
+      title: 'AWS 비용',
+      dataIndex: 'awsCost',
+      key: 'awsCost',
+      render: (cost: number) => `$${cost.toFixed(2)}`,
+    },
+    {
+      title: 'GCP 비용',
+      dataIndex: 'gcpCost',
+      key: 'gcpCost',
+      render: (cost: number) => `$${cost.toFixed(2)}`,
+    },
+  ];
+
+  return (
+    <Card title={title}>
+      <Table
+        columns={columns}
+        dataSource={trends.map((trend, index) => ({ ...trend, key: index }))}
+        pagination={{ pageSize: 10 }}
+        size="small"
+      />
+    </Card>
+  );
+};
+
