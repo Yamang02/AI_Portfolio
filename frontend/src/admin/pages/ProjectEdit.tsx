@@ -58,7 +58,7 @@ const ProjectEdit: React.FC = () => {
 
   const [isTeam, setIsTeam] = useState(false);
   const [screenshots, setScreenshots] = useState<any[]>([]);
-  const [technologies, setTechnologies] = useState<string[]>([]);
+  const [technologies, setTechnologies] = useState<number[]>([]);
   const [thumbPreviewVisible, setThumbPreviewVisible] = useState(false);
   const [isUploadingScreenshots, setIsUploadingScreenshots] = useState(false);
   const [lastScreenshotsSelectionKey, setLastScreenshotsSelectionKey] = useState<string | null>(null);
@@ -105,7 +105,7 @@ const ProjectEdit: React.FC = () => {
           : { imageUrl: s?.imageUrl || s, displayOrder: s?.displayOrder || 0, cloudinaryPublicId: s?.cloudinaryPublicId }
       );
       setScreenshots(screenshotsData);
-      setTechnologies(project.technologies?.map(t => t.name) || []);
+      setTechnologies(project.technologies?.map(t => t.id).filter((id): id is number => id !== null && id !== undefined) || []);
     }
   }, [project, form]);
 
@@ -174,7 +174,7 @@ const ProjectEdit: React.FC = () => {
           githubUrl: values.githubUrl,
           liveUrl: values.liveUrl,
           externalUrl: values.externalUrl,
-          technologies: technologies,
+          technologies: technologies && technologies.length > 0 ? technologies : undefined,
           sortOrder: values.sortOrder,
         };
 

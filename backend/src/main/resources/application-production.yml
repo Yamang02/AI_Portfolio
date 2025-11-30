@@ -149,6 +149,16 @@ cloudinary:
   api-secret: ${CLOUDINARY_API_SECRET}
 
 cloud:
+  aws:
+    # GitHub Secrets와 일치: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
+    access-key: ${AWS_ACCESS_KEY_ID:${AWS_ACCESS_KEY:}}
+    secret-key: ${AWS_SECRET_ACCESS_KEY:${AWS_SECRET_KEY:}}
+    region: ${AWS_REGION:us-east-1}
+  gcp:
+    project-id: ${GCP_PROJECT_ID:yamang02-ai-portfolio}
+    billing-dataset: ${GCP_BILLING_DATASET:billing_export}
+    billing-table: ${GCP_BILLING_TABLE:gcp_billing_export_v1_012659_03CA1D_2D9F35}
+    credentials-path: ${GCP_CREDENTIALS_PATH:}
   usage:
     providers:
       aws:

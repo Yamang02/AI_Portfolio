@@ -1,1 +1,0 @@
-# Outbound Vector Database Adapters

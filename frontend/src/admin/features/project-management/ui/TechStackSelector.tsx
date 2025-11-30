@@ -6,6 +6,7 @@ import { SearchOutlined } from '@ant-design/icons';
 const { Option } = Select;
 
 interface TechStackOption {
+  id: number;
   name: string;
   displayName: string;
   category: string;
@@ -16,8 +17,8 @@ interface TechStackOption {
 }
 
 interface TechStackSelectorProps {
-  value?: string[];
-  onChange?: (value: string[]) => void;
+  value?: number[];
+  onChange?: (value: number[]) => void;
 }
 
 const TechStackSelector: React.FC<TechStackSelectorProps> = ({ value = [], onChange }) => {
@@ -80,16 +81,16 @@ const TechStackSelector: React.FC<TechStackSelectorProps> = ({ value = [], onCha
   // 프론트엔드 카테고리 목록
   const frontendCategories = ['language', 'framework', 'database', 'tool', 'other'];
 
-  const handleTechToggle = (techName: string, checked: boolean) => {
+  const handleTechToggle = (techId: number, checked: boolean) => {
     if (checked) {
-      onChange?.([...value, techName]);
+      onChange?.([...value, techId]);
     } else {
-      onChange?.(value.filter(name => name !== techName));
+      onChange?.(value.filter(id => id !== techId));
     }
   };
 
-  const handleRemoveTech = (techName: string) => {
-    onChange?.(value.filter(name => name !== techName));
+  const handleRemoveTech = (techId: number) => {
+    onChange?.(value.filter(id => id !== techId));
   };
 
   const getCategoryColor = (category: string) => {
@@ -155,15 +156,15 @@ const TechStackSelector: React.FC<TechStackSelectorProps> = ({ value = [], onCha
             선택된 기술 ({value.length}개)
           </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-            {value.map((techName) => {
-              const tech = techStacks?.find((t) => t.name === techName);
+            {value.map((techId) => {
+              const tech = techStacks?.find((t) => t.id === techId);
               const color = tech ? getCategoryColor(tech.category) : '#8c8c8c';
               
               return (
                 <Tag
-                  key={techName}
+                  key={techId}
                   closable
-                  onClose={() => handleRemoveTech(techName)}
+                  onClose={() => handleRemoveTech(techId)}
                   style={{
                     backgroundColor: color,
                     color: 'white',
@@ -174,7 +175,7 @@ const TechStackSelector: React.FC<TechStackSelectorProps> = ({ value = [], onCha
                     fontWeight: '500',
                   }}
                 >
-                  {tech?.displayName || techName}
+                  {tech?.displayName || `ID: ${techId}`}
                 </Tag>
               );
             })}
@@ -194,23 +195,23 @@ const TechStackSelector: React.FC<TechStackSelectorProps> = ({ value = [], onCha
         ) : (
           <Row gutter={[8, 8]}>
             {filteredTechStacks.map((tech) => (
-              <Col xs={24} sm={12} md={8} lg={6} key={tech.name}>
+              <Col xs={24} sm={12} md={8} lg={6} key={tech.id}>
                 <Card
                   size="small"
                   hoverable
-                  onClick={() => handleTechToggle(tech.name, !value.includes(tech.name))}
+                  onClick={() => handleTechToggle(tech.id, !value.includes(tech.id))}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault();
-                      handleTechToggle(tech.name, !value.includes(tech.name));
+                      handleTechToggle(tech.id, !value.includes(tech.id));
                     }
                   }}
                   tabIndex={0}
                   role="checkbox"
-                  aria-checked={value.includes(tech.name)}
+                  aria-checked={value.includes(tech.id)}
                   style={{
                     cursor: 'pointer',
-                    border: value.includes(tech.name) ? `2px solid ${getCategoryColor(tech.category)}` : '1px solid #d9d9d9',
+                    border: value.includes(tech.id) ? `2px solid ${getCategoryColor(tech.category)}` : '1px solid #d9d9d9',
                     backgroundColor: value.includes(tech.name) ? `${getCategoryColor(tech.category)}10` : 'white',
                   }}
                   styles={{ body: { padding: '8px 12px' } }}

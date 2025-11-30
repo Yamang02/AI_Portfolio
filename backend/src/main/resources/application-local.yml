@@ -134,9 +134,7 @@ springdoc:
 
 # 앱 설정
 app:
-  ai-service:
-    url: http://localhost:8001
-    timeout: 30000
+  # ai-service: 제거됨 - AI_portfolio_agent로 분리
   github:
     username: yamang02
   contact:
@@ -158,6 +156,25 @@ cloudinary:
   api-secret: ${CLOUDINARY_API_SECRET:}
 
 cloud:
+  aws:
+    # GitHub Secrets와 일치: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
+    # 로컬 개발 시 .env 파일에 설정 필요
+    access-key: ${AWS_ACCESS_KEY_ID:${AWS_ACCESS_KEY:}}
+    secret-key: ${AWS_SECRET_ACCESS_KEY:${AWS_SECRET_KEY:}}
+    region: ${AWS_REGION:us-east-1}
+    # Mock 모드 활성화 (로컬 개발용, 실제 AWS 연결 없이 테스트 가능)
+    # 실제 AWS를 사용하려면 false로 변경
+    mock:
+      enabled: true
+  gcp:
+    project-id: ${GCP_PROJECT_ID:yamang02-ai-portfolio}
+    billing-dataset: ${GCP_BILLING_DATASET:billing_export}
+    billing-table: ${GCP_BILLING_TABLE:gcp_billing_export_v1_012659_03CA1D_2D9F35}
+    credentials-path: ${GCP_CREDENTIALS_PATH:}
+    # Mock 모드 활성화 (로컬 개발용, 실제 GCP 연결 없이 테스트 가능)
+    # 실제 GCP를 사용하려면 false로 변경
+    mock:
+      enabled: true
   usage:
     providers:
       aws:

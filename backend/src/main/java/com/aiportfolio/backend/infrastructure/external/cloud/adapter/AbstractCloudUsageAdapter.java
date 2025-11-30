@@ -1,6 +1,6 @@
 package com.aiportfolio.backend.infrastructure.external.cloud.adapter;
 
-import com.aiportfolio.backend.domain.admin.model.dto.CloudUsageSnapshot;
+import com.aiportfolio.backend.infrastructure.web.admin.dto.CloudUsageSnapshot;
 import com.aiportfolio.backend.domain.admin.model.vo.CloudProvider;
 import com.aiportfolio.backend.domain.admin.model.vo.CloudUsageStatus;
 import com.aiportfolio.backend.domain.admin.port.out.CloudUsageProviderPort;

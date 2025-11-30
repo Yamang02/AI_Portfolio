@@ -142,6 +142,20 @@
             <artifactId>langchain4j-core</artifactId>
             <version>1.1.0</version>
         </dependency>
+
+        <!-- AWS SDK for Cost Explorer -->
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>costexplorer</artifactId>
+            <version>2.20.26</version>
+        </dependency>
+
+        <!-- GCP BigQuery -->
+        <dependency>
+            <groupId>com.google.cloud</groupId>
+            <artifactId>google-cloud-bigquery</artifactId>
+            <version>2.23.0</version>
+        </dependency>
     </dependencies>
 
     <build>

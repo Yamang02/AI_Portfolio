@@ -1,7 +1,7 @@
 package com.aiportfolio.backend.application.admin.service;
 
-import com.aiportfolio.backend.domain.admin.dto.response.CloudUsageDashboardResponse;
-import com.aiportfolio.backend.domain.admin.model.dto.CloudUsageSnapshot;
+import com.aiportfolio.backend.infrastructure.web.admin.dto.response.CloudUsageDashboardResponse;
+import com.aiportfolio.backend.infrastructure.web.admin.dto.CloudUsageSnapshot;
 import com.aiportfolio.backend.domain.admin.port.in.GetCloudUsageUseCase;
 import com.aiportfolio.backend.domain.admin.port.out.CloudUsageProviderPort;
 import lombok.RequiredArgsConstructor;

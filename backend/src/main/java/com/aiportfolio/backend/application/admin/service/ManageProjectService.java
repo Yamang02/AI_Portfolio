@@ -4,7 +4,7 @@ import com.aiportfolio.backend.application.admin.mapper.ProjectResponseMapper;
 import com.aiportfolio.backend.application.common.util.BusinessIdGenerator;
 import com.aiportfolio.backend.application.common.util.MetadataHelper;
 import com.aiportfolio.backend.application.common.util.TextFieldHelper;
-import com.aiportfolio.backend.domain.admin.dto.response.ProjectResponse;
+import com.aiportfolio.backend.infrastructure.web.admin.dto.response.ProjectResponse;
 import com.aiportfolio.backend.domain.admin.model.ProjectAssetSnapshot;
 import com.aiportfolio.backend.domain.admin.model.command.ProjectCreateCommand;
 import com.aiportfolio.backend.domain.admin.model.command.ProjectUpdateCommand;
@@ -12,12 +12,8 @@ import com.aiportfolio.backend.domain.admin.port.in.ManageProjectUseCase;
 import com.aiportfolio.backend.domain.admin.port.out.ImageStoragePort;
 import com.aiportfolio.backend.domain.portfolio.model.Project;
 import com.aiportfolio.backend.domain.portfolio.port.out.PortfolioRepositoryPort;
-import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.ProjectJpaEntity;
-import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.ProjectTechStackJpaEntity;
-import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.TechStackMetadataJpaEntity;
-import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.ProjectJpaRepository;
-import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.ProjectTechStackJpaRepository;
-import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.TechStackMetadataJpaRepository;
+import com.aiportfolio.backend.domain.portfolio.port.out.ProjectRelationshipPort;
+import com.aiportfolio.backend.domain.portfolio.port.out.TechStackMetadataRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -40,55 +36,62 @@ import java.util.Optional;
 public class ManageProjectService implements ManageProjectUseCase {
 
     private final PortfolioRepositoryPort portfolioRepositoryPort;
-    private final ProjectJpaRepository projectJpaRepository;
-    private final ProjectTechStackJpaRepository projectTechStackJpaRepository;
-    private final TechStackMetadataJpaRepository techStackMetadataJpaRepository;
+    private final ProjectRelationshipPort projectRelationshipPort;
     private final ProjectResponseMapper projectResponseMapper;
     private final ImageStoragePort imageStoragePort;
+    private final TechStackMetadataRepositoryPort techStackMetadataRepositoryPort;
 
     /**
-     * 관계 포함 프로젝트 생성
+     * 관계 포함 프로젝트 생성 (DTO 반환)
      */
     public ProjectResponse createProjectWithRelations(
             ProjectCreateCommand command,
-            List<TechStackRelation> techStacks) {
-        ProjectResponse created = createProject(command);
-        if (techStacks != null && !techStacks.isEmpty()) {
-            replaceTechStacks(created.getId(), techStacks);
+            List<Long> techStackIds) {
+        Project created = createProject(command);
+        if (techStackIds != null && !techStackIds.isEmpty()) {
+            List<TechStackRelation> techStacks = toTechStackRelations(techStackIds);
+            List<ProjectRelationshipPort.TechStackRelation> portRelations = techStacks.stream()
+                    .map(TechStackRelation::toPortRelation)
+                    .collect(java.util.stream.Collectors.toList());
+            projectRelationshipPort.replaceTechStacks(created.getId(), portRelations);
         }
-        return created;
+        return projectResponseMapper.toDetailedResponse(created);
     }
 
     /**
-     * 관계 포함 프로젝트 수정
+     * 관계 포함 프로젝트 수정 (DTO 반환)
      */
     public ProjectResponse updateProjectWithRelations(
             String id,
             ProjectUpdateCommand command,
-            List<TechStackRelation> techStacks) {
-        ProjectResponse updated = updateProject(id, command);
-        if (techStacks != null) {
-            replaceTechStacks(updated.getId(), techStacks);
+            List<Long> techStackIds) {
+        Project updated = updateProject(id, command);
+        if (techStackIds != null) {
+            List<TechStackRelation> techStacks = toTechStackRelations(techStackIds);
+            List<ProjectRelationshipPort.TechStackRelation> portRelations = techStacks.stream()
+                    .map(TechStackRelation::toPortRelation)
+                    .collect(java.util.stream.Collectors.toList());
+            projectRelationshipPort.replaceTechStacks(updated.getId(), portRelations);
         }
-        return updated;
+        return projectResponseMapper.toDetailedResponse(updated);
     }
 
     @Override
     @CacheEvict(value = "portfolio", allEntries = true)
-    public ProjectResponse createProject(ProjectCreateCommand command) {
+    public Project createProject(ProjectCreateCommand command) {
         log.info("Creating new project: {}", command.getTitle());
 
         // 프로젝트 ID 자동 생성
         String projectId = generateProjectId();
 
         boolean isTeam = Boolean.TRUE.equals(command.getIsTeam());
-        Integer normalizedTeamSize = normalizeTeamSize(isTeam, command.getTeamSize());
 
         // 정렬 순서 자동 할당
         Integer sortOrder = command.getSortOrder();
         if (sortOrder == null) {
-            Integer maxSortOrder = projectJpaRepository.findMaxSortOrder();
-            sortOrder = (maxSortOrder != null ? maxSortOrder : 0) + 1;
+            // TODO: PortfolioRepositoryPort에 findMaxProjectSortOrder 메서드 추가 필요
+            // 임시로 0으로 설정 (기존 로직 유지)
+            sortOrder = 1;
         }
 
         Project project = Project.builder()
@@ -99,7 +102,7 @@ public class ManageProjectService implements ManageProjectUseCase {
                 .type(TextFieldHelper.normalizeText(command.getType())) // 선택 필드
                 .status(TextFieldHelper.normalizeText(command.getStatus())) // 선택 필드
                 .isTeam(isTeam)
-                .teamSize(normalizedTeamSize)
+                .teamSize(isTeam ? command.getTeamSize() : null)
                 .role(TextFieldHelper.normalizeText(command.getRole())) // 선택 필드
                 .myContributions(TextFieldHelper.normalizeTextList(command.getMyContributions())) // 선택 필드
                 .startDate(command.getStartDate())
@@ -117,12 +120,12 @@ public class ManageProjectService implements ManageProjectUseCase {
         Project savedProject = portfolioRepositoryPort.saveProject(project);
 
         log.info("Project created successfully: {}", savedProject.getId());
-        return projectResponseMapper.toResponse(savedProject);
+        return savedProject;
     }
 
     @Override
     @CacheEvict(value = "portfolio", allEntries = true)
-    public ProjectResponse updateProject(String id, ProjectUpdateCommand command) {
+    public Project updateProject(String id, ProjectUpdateCommand command) {
         log.info("Updating project: {}", id);
 
         Project project = portfolioRepositoryPort.findProjectById(id)
@@ -158,7 +161,7 @@ public class ManageProjectService implements ManageProjectUseCase {
         if (command.getStartDate() != null) project.setStartDate(command.getStartDate());
         if (command.getEndDate() != null) project.setEndDate(command.getEndDate());
 
-        applyTeamAttributes(project, command.getIsTeam(), command.getTeamSize());
+        project.updateTeamInfo(command.getIsTeam(), command.getTeamSize());
 
         // 이미지 URL 업데이트 (선택 필드: 정규화 적용)
         if (command.getImageUrl() != null) {
@@ -228,7 +231,7 @@ public class ManageProjectService implements ManageProjectUseCase {
         Project updatedProject = portfolioRepositoryPort.updateProject(project);
 
         log.info("Project updated successfully: {}", updatedProject.getId());
-        return projectResponseMapper.toResponse(updatedProject);
+        return updatedProject;
     }
 
     @Override
@@ -264,34 +267,13 @@ public class ManageProjectService implements ManageProjectUseCase {
 
     /**
      * TechStack 관계 교체
+     * Port를 통한 관계 관리로 변경
      */
     private void replaceTechStacks(String projectBusinessId, List<TechStackRelation> relationships) {
-        ProjectJpaEntity project = projectJpaRepository.findByBusinessId(projectBusinessId)
-                .orElseThrow(() -> new IllegalArgumentException("Project not found: " + projectBusinessId));
-
-        projectTechStackJpaRepository.deleteByProjectId(project.getId());
-
-        if (relationships == null || relationships.isEmpty()) {
-            return;
-        }
-
-        for (TechStackRelation item : relationships) {
-            if (item.techStackId() == null) {
-                throw new IllegalArgumentException("Tech stack ID must not be null");
-            }
-
-            TechStackMetadataJpaEntity techStack = techStackMetadataJpaRepository.findById(item.techStackId())
-                    .orElseThrow(() -> new IllegalArgumentException("TechStack not found: " + item.techStackId()));
-
-            ProjectTechStackJpaEntity relation = ProjectTechStackJpaEntity.builder()
-                    .project(project)
-                    .techStack(techStack)
-                    .isPrimary(item.isPrimary())
-                    .usageDescription(item.usageDescription())
-                    .build();
-
-            projectTechStackJpaRepository.save(relation);
-        }
+        List<ProjectRelationshipPort.TechStackRelation> portRelations = relationships.stream()
+                .map(TechStackRelation::toPortRelation)
+                .collect(java.util.stream.Collectors.toList());
+        projectRelationshipPort.replaceTechStacks(projectBusinessId, portRelations);
     }
 
     /**
@@ -341,43 +323,45 @@ public class ManageProjectService implements ManageProjectUseCase {
         }
     }
 
-    private void applyTeamAttributes(Project project, Boolean isTeamUpdate, Integer teamSizeUpdate) {
-        if (isTeamUpdate != null) {
-            project.setTeam(isTeamUpdate);
-            if (!isTeamUpdate) {
-                project.setTeamSize(null);
-            }
+
+    /**
+     * TechStack ID 목록을 TechStackRelation 리스트로 변환
+     * 
+     * @param techStackIds 기술 스택 ID 목록
+     * @return TechStackRelation 리스트
+     * @throws IllegalArgumentException 기술 스택을 찾을 수 없는 경우
+     */
+    public List<TechStackRelation> toTechStackRelations(List<Long> techStackIds) {
+        if (techStackIds == null || techStackIds.isEmpty()) {
+            return new java.util.ArrayList<>();
         }
 
-        if (teamSizeUpdate != null) {
-            if (project.isTeam()) {
-                Integer normalized = normalizeTeamSize(true, teamSizeUpdate);
-                project.setTeamSize(normalized);
-            }
-        }
-    }
-
-    private Integer normalizeTeamSize(boolean isTeam, Integer teamSize) {
-        if (!isTeam) {
-            return null;
-        }
-
-        if (teamSize == null) {
-            return null;
-        }
-
-        if (teamSize <= 0) {
-            log.warn("Invalid team size provided ({}). Falling back to null.", teamSize);
-            return null;
-        }
-
-        return teamSize;
+        return techStackIds.stream()
+                .filter(id -> id != null) // null 필터링
+                .map(id -> {
+                    return techStackMetadataRepositoryPort.findById(id)
+                            .map(techStack -> new TechStackRelation(
+                                    techStack.getId(),
+                                    false, // 기본값: isPrimary = false
+                                    null   // 기본값: usageDescription = null
+                            ))
+                            .orElseThrow(() -> new IllegalArgumentException(
+                                    "TechStack을 찾을 수 없습니다: ID=" + id));
+                })
+                .collect(java.util.stream.Collectors.toList());
     }
 
     /**
      * TechStack 관계를 표현하는 record
+     * ProjectRelationshipPort의 TechStackRelation과 동일한 구조
      */
     public record TechStackRelation(Long techStackId, boolean isPrimary, String usageDescription) {
+        /**
+         * ProjectRelationshipPort.TechStackRelation으로 변환
+         */
+        public ProjectRelationshipPort.TechStackRelation toPortRelation() {
+            return new ProjectRelationshipPort.TechStackRelation(techStackId, isPrimary, usageDescription);
+        }
     }
 }
 

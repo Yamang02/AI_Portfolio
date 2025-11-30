@@ -57,10 +57,6 @@ public class CacheConfig {
         // GitHub API: 30분 캐시
         cacheConfigurations.put("github", defaultConfig
             .entryTtl(Duration.ofMinutes(30)));
-        
-        // AI 서비스 헬스체크: 5분 캐시
-        cacheConfigurations.put("ai-service", defaultConfig
-            .entryTtl(Duration.ofMinutes(5)));
 
         return RedisCacheManager.builder(connectionFactory)
             .cacheDefaults(defaultConfig)
@@ -72,7 +68,7 @@ public class CacheConfig {
     @ConditionalOnMissingBean(CacheManager.class)
     public CacheManager memoryCacheManager() {
         ConcurrentMapCacheManager cacheManager = new ConcurrentMapCacheManager();
-        cacheManager.setCacheNames(Arrays.asList("portfolio", "github", "ai-service"));
+        cacheManager.setCacheNames(Arrays.asList("portfolio", "github"));
         return cacheManager;
     }
 }

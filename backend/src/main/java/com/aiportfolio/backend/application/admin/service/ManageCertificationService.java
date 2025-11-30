@@ -2,6 +2,7 @@ package com.aiportfolio.backend.application.admin.service;
 
 import com.aiportfolio.backend.application.common.util.BusinessIdGenerator;
 import com.aiportfolio.backend.application.common.util.MetadataHelper;
+import com.aiportfolio.backend.application.common.util.SortOrderService;
 import com.aiportfolio.backend.application.common.util.TextFieldHelper;
 import com.aiportfolio.backend.domain.portfolio.model.Certification;
 import com.aiportfolio.backend.domain.portfolio.port.in.ManageCertificationUseCase;
@@ -27,6 +28,7 @@ import java.util.*;
 public class ManageCertificationService implements ManageCertificationUseCase {
 
     private final PortfolioRepositoryPort portfolioRepositoryPort;
+    private final SortOrderService sortOrderService;
 
     @Override
     @CacheEvict(value = "portfolio", allEntries = true)
@@ -120,92 +122,25 @@ public class ManageCertificationService implements ManageCertificationUseCase {
         // 모든 Certification 조회
         List<Certification> allCertifications = portfolioRepositoryPort.findAllCertificationsWithoutCache();
 
+        // 원본 정렬 순서 저장 (변경 추적용)
+        Map<String, Integer> originalSortOrders = allCertifications.stream()
+                .collect(java.util.stream.Collectors.toMap(Certification::getId, Certification::getSortOrder));
+
         // 각 업데이트에 대해 자동 재정렬 수행
         for (Map.Entry<String, Integer> entry : sortOrderUpdates.entrySet()) {
-            String id = entry.getKey();
-            Integer newSortOrder = entry.getValue();
+            allCertifications = sortOrderService.reorder(allCertifications, entry.getKey(), entry.getValue());
+        }
 
-            // 현재 Certification 찾기
-            Certification targetCertification = allCertifications.stream()
-                .filter(c -> c.getId().equals(id))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Certification not found: " + id));
+        // 변경된 항목만 저장
+        List<Certification> toUpdate = allCertifications.stream()
+                .filter(cert -> !Objects.equals(cert.getSortOrder(), originalSortOrders.get(cert.getId())))
+                .peek(cert -> cert.setUpdatedAt(MetadataHelper.setupUpdatedAt()))
+                .collect(java.util.stream.Collectors.toList());
 
-            Integer oldSortOrder = targetCertification.getSortOrder();
-
-            // 자동 재정렬 수행
-            List<Certification> reordered = reorderCertifications(
-                allCertifications,
-                targetCertification,
-                oldSortOrder,
-                newSortOrder
-            );
-
-            // 재정렬된 Certification들을 저장
-            for (Certification cert : reordered) {
-                cert.setUpdatedAt(MetadataHelper.setupUpdatedAt());
-                portfolioRepositoryPort.saveCertification(cert);
-            }
-
-            allCertifications = reordered; // 다음 업데이트를 위해 목록 갱신
+        if (!toUpdate.isEmpty()) {
+            portfolioRepositoryPort.batchUpdateCertifications(toUpdate);
         }
 
         log.info("Certification sort orders updated successfully");
-    }
-
-    /**
-     * Certification 자동 재정렬
-     */
-    private List<Certification> reorderCertifications(
-            List<Certification> allCertifications,
-            Certification targetCertification,
-            Integer oldSortOrder,
-            Integer newSortOrder) {
-
-        List<Certification> result = new ArrayList<>();
-        String targetId = targetCertification.getId();
-
-        if (oldSortOrder == newSortOrder) {
-            return allCertifications;
-        }
-
-        if (oldSortOrder < newSortOrder) {
-            // 뒤로 이동
-            for (Certification cert : allCertifications) {
-                if (cert.getId().equals(targetId)) {
-                    result.add(createUpdatedCertification(cert, newSortOrder));
-                } else if (cert.getSortOrder() != null &&
-                          cert.getSortOrder() > oldSortOrder &&
-                          cert.getSortOrder() <= newSortOrder) {
-                    result.add(createUpdatedCertification(cert, cert.getSortOrder() - 1));
-                } else {
-                    result.add(cert);
-                }
-            }
-        } else {
-            // 앞으로 이동
-            for (Certification cert : allCertifications) {
-                if (cert.getId().equals(targetId)) {
-                    result.add(createUpdatedCertification(cert, newSortOrder));
-                } else if (cert.getSortOrder() != null &&
-                          cert.getSortOrder() >= newSortOrder &&
-                          cert.getSortOrder() < oldSortOrder) {
-                    result.add(createUpdatedCertification(cert, cert.getSortOrder() + 1));
-                } else {
-                    result.add(cert);
-                }
-            }
-        }
-
-        return result;
-    }
-
-    /**
-     * sortOrder만 변경된 Certification 생성
-     */
-    private Certification createUpdatedCertification(Certification original, Integer newSortOrder) {
-        original.setSortOrder(newSortOrder);
-        original.setUpdatedAt(MetadataHelper.setupUpdatedAt());
-        return original;
     }
 }

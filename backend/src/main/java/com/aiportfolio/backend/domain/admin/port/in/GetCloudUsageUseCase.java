@@ -1,6 +1,6 @@
 package com.aiportfolio.backend.domain.admin.port.in;
 
-import com.aiportfolio.backend.domain.admin.dto.response.CloudUsageDashboardResponse;
+import com.aiportfolio.backend.infrastructure.web.admin.dto.response.CloudUsageDashboardResponse;
 
 /**
  * 클라우드 사용량 정보를 조회하는 유스케이스입니다.

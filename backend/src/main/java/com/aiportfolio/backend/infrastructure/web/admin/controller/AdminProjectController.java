@@ -1,10 +1,10 @@
 package com.aiportfolio.backend.infrastructure.web.admin.controller;
 
+import com.aiportfolio.backend.application.admin.mapper.ProjectResponseMapper;
 import com.aiportfolio.backend.application.admin.service.ManageProjectService;
 import com.aiportfolio.backend.domain.admin.port.in.SearchProjectsUseCase;
-import com.aiportfolio.backend.domain.admin.dto.response.ProjectResponse;
+import com.aiportfolio.backend.infrastructure.web.admin.dto.response.ProjectResponse;
 import com.aiportfolio.backend.domain.admin.model.vo.ProjectFilter;
-import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.TechStackMetadataJpaRepository;
 import com.aiportfolio.backend.infrastructure.web.admin.dto.AdminProjectCreateRequest;
 import com.aiportfolio.backend.infrastructure.web.admin.dto.AdminProjectUpdateRequest;
 import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;
@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,15 +28,15 @@ public class AdminProjectController {
 
     private final ManageProjectService manageProjectService;
     private final SearchProjectsUseCase searchProjectsUseCase;
-    private final TechStackMetadataJpaRepository techStackMetadataJpaRepository;
+    private final ProjectResponseMapper projectResponseMapper;
 
     public AdminProjectController(
             @Qualifier("manageProjectService") ManageProjectService manageProjectService,
             SearchProjectsUseCase searchProjectsUseCase,
-            TechStackMetadataJpaRepository techStackMetadataJpaRepository) {
+            ProjectResponseMapper projectResponseMapper) {
         this.manageProjectService = manageProjectService;
         this.searchProjectsUseCase = searchProjectsUseCase;
-        this.techStackMetadataJpaRepository = techStackMetadataJpaRepository;
+        this.projectResponseMapper = projectResponseMapper;
     }
 
     /**
@@ -58,27 +57,23 @@ public class AdminProjectController {
         log.debug("Getting projects with filters - search: {}, isTeam: {}, type: {}, status: {}", 
                 search, isTeam, projectType, status);
 
-        try {
-            ProjectFilter filter = ProjectFilter.builder()
-                    .searchQuery(search)
-                    .isTeam(isTeam)
-                    .projectType(projectType)
-                    .status(status)
-                    .selectedTechs(techs)
-                    .sortBy(sortBy)
-                    .sortOrder(sortOrder)
-                    .page(page)
-                    .size(size)
-                    .build();
+        ProjectFilter filter = ProjectFilter.builder()
+                .searchQuery(search)
+                .isTeam(isTeam)
+                .projectType(projectType)
+                .status(status)
+                .selectedTechs(techs)
+                .sortBy(sortBy)
+                .sortOrder(sortOrder)
+                .page(page)
+                .size(size)
+                .build();
 
-            List<ProjectResponse> projects = searchProjectsUseCase.searchProjects(filter);
-            
-            return ResponseEntity.ok(ApiResponse.success(projects, "프로젝트 목록 조회 성공"));
-        } catch (Exception e) {
-            log.error("Failed to get projects", e);
-            return ResponseEntity.status(500)
-                    .body(ApiResponse.error("프로젝트 목록 조회 중 오류가 발생했습니다: " + e.getMessage(), "서버 오류"));
-        }
+        List<ProjectResponse> projects = searchProjectsUseCase.searchProjects(filter).stream()
+                .map(projectResponseMapper::toDetailedResponse)
+                .collect(Collectors.toList());
+        
+        return ResponseEntity.ok(ApiResponse.success(projects, "프로젝트 목록 조회 성공"));
     }
 
     /**
@@ -90,17 +85,9 @@ public class AdminProjectController {
         
         log.debug("Getting project by id: {}", id);
         
-        try {
-            ProjectResponse project = searchProjectsUseCase.getProjectById(id);
-            return ResponseEntity.ok(ApiResponse.success(project, "프로젝트 조회 성공"));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(404)
-                    .body(ApiResponse.error(e.getMessage(), "프로젝트를 찾을 수 없습니다"));
-        } catch (Exception e) {
-            log.error("Failed to get project: {}", id, e);
-            return ResponseEntity.status(500)
-                    .body(ApiResponse.error("프로젝트 조회 중 오류가 발생했습니다: " + e.getMessage(), "서버 오류"));
-        }
+        ProjectResponse project = projectResponseMapper.toDetailedResponse(
+                searchProjectsUseCase.getProjectById(id));
+        return ResponseEntity.ok(ApiResponse.success(project, "프로젝트 조회 성공"));
     }
 
     /**
@@ -112,22 +99,11 @@ public class AdminProjectController {
 
         log.info("Creating new project: {}", request.getTitle());
 
-        try {
-            List<ManageProjectService.TechStackRelation> techStackRelations = 
-                toTechStackRelations(request.getTechnologies());
-            ProjectResponse project = manageProjectService.createProjectWithRelations(
+        ProjectResponse project = manageProjectService.createProjectWithRelations(
                 request.toCommand(), 
-                techStackRelations
-            );
-            return ResponseEntity.ok(ApiResponse.success(project, "프로젝트 생성 성공"));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest()
-                    .body(ApiResponse.error(e.getMessage()));
-        } catch (Exception e) {
-            log.error("Failed to create project", e);
-            return ResponseEntity.badRequest()
-                    .body(ApiResponse.error("프로젝트 생성 중 오류가 발생했습니다: " + e.getMessage()));
-        }
+                request.getTechnologies()
+        );
+        return ResponseEntity.ok(ApiResponse.success(project, "프로젝트 생성 성공"));
     }
 
     /**
@@ -139,26 +115,19 @@ public class AdminProjectController {
             @Valid @RequestBody AdminProjectUpdateRequest request) {
 
         log.info("Updating project: {}", id);
+        log.debug("Update request data: title={}, description length={}, startDate={}, endDate={}, technologies={}", 
+                request.getTitle(), 
+                request.getDescription() != null ? request.getDescription().length() : 0,
+                request.getStartDate(), 
+                request.getEndDate(),
+                request.getTechnologies());
 
-        try {
-            List<ManageProjectService.TechStackRelation> techStackRelations = null;
-            if (request.getTechnologies() != null) {
-                techStackRelations = toTechStackRelations(request.getTechnologies());
-            }
-            ProjectResponse project = manageProjectService.updateProjectWithRelations(
+        ProjectResponse project = manageProjectService.updateProjectWithRelations(
                 id,
                 request.toCommand(),
-                techStackRelations
-            );
-            return ResponseEntity.ok(ApiResponse.success(project, "프로젝트 수정 성공"));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest()
-                    .body(ApiResponse.error(e.getMessage()));
-        } catch (Exception e) {
-            log.error("Failed to update project: {}", id, e);
-            return ResponseEntity.badRequest()
-                    .body(ApiResponse.error("프로젝트 수정 중 오류가 발생했습니다: " + e.getMessage()));
-        }
+                request.getTechnologies()
+        );
+        return ResponseEntity.ok(ApiResponse.success(project, "프로젝트 수정 성공"));
     }
 
     /**
@@ -170,39 +139,7 @@ public class AdminProjectController {
 
         log.info("Deleting project: {}", id);
 
-        try {
-            manageProjectService.deleteProject(id);
-            return ResponseEntity.ok(ApiResponse.success(null, "프로젝트 삭제 성공"));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.notFound().build();
-        } catch (Exception e) {
-            log.error("Failed to delete project: {}", id, e);
-            return ResponseEntity.badRequest()
-                    .body(ApiResponse.error("프로젝트 삭제 중 오류가 발생했습니다: " + e.getMessage()));
-        }
-    }
-
-    // ==================== 변환 메서드 ====================
-
-    /**
-     * TechStack 이름 목록을 TechStackRelation 리스트로 변환
-     */
-    private List<ManageProjectService.TechStackRelation> toTechStackRelations(List<String> techStackNames) {
-        if (techStackNames == null || techStackNames.isEmpty()) {
-            return new ArrayList<>();
-        }
-
-        return techStackNames.stream()
-            .map(name -> {
-                return techStackMetadataJpaRepository.findByName(name)
-                    .map(techStack -> new ManageProjectService.TechStackRelation(
-                        techStack.getId(),
-                        false, // 기본값: isPrimary = false
-                        null   // 기본값: usageDescription = null
-                    ))
-                    .orElseThrow(() -> new IllegalArgumentException(
-                        "TechStack을 찾을 수 없습니다: " + name));
-            })
-            .collect(Collectors.toList());
+        manageProjectService.deleteProject(id);
+        return ResponseEntity.ok(ApiResponse.success(null, "프로젝트 삭제 성공"));
     }
 }

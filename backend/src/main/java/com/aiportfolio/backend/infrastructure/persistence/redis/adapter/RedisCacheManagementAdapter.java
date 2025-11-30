@@ -98,9 +98,6 @@ public class RedisCacheManagementAdapter implements CacheManagementPort {
             Set<String> githubCacheSet = scanKeys("github::*");
             int githubCacheKeys = githubCacheSet != null ? githubCacheSet.size() : 0;
             
-            Set<String> aiServiceCacheSet = scanKeys("ai-service::*");
-            int aiServiceCacheKeys = aiServiceCacheSet != null ? aiServiceCacheSet.size() : 0;
-            
             // 메모리 사용량 정보
             Map<String, Object> memoryInfo = getMemoryInfo();
             
@@ -108,11 +105,10 @@ public class RedisCacheManagementAdapter implements CacheManagementPort {
             stats.put("sessionKeys", sessionKeys);
             stats.put("portfolioCacheKeys", portfolioCacheKeys);
             stats.put("githubCacheKeys", githubCacheKeys);
-            stats.put("aiServiceCacheKeys", aiServiceCacheKeys);
             stats.put("memoryInfo", memoryInfo);
             
-            log.info("Cache stats retrieved successfully: {} total keys (sessions: {}, portfolio: {}, github: {}, ai-service: {})",
-                totalKeys, sessionKeys, portfolioCacheKeys, githubCacheKeys, aiServiceCacheKeys);
+            log.info("Cache stats retrieved successfully: {} total keys (sessions: {}, portfolio: {}, github: {})",
+                totalKeys, sessionKeys, portfolioCacheKeys, githubCacheKeys);
             
         } catch (Exception e) {
             log.error("Error retrieving cache stats", e);

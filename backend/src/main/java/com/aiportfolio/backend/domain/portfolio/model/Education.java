@@ -1,5 +1,6 @@
 package com.aiportfolio.backend.domain.portfolio.model;
 
+import com.aiportfolio.backend.application.common.util.Sortable;
 import lombok.Data;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
@@ -13,7 +14,7 @@ import java.time.LocalDate;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Education {
+public class Education implements Sortable {
     private String id;
     private String title;
     private String description;

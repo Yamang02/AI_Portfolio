@@ -27,6 +27,11 @@ public interface TechStackMetadataRepositoryPort {
     List<TechStackMetadata> findCoreTechnologies();
     
     /**
+     * ID로 기술 스택 메타데이터 조회
+     */
+    Optional<TechStackMetadata> findById(Long id);
+    
+    /**
      * 기술명으로 기술 스택 메타데이터 조회
      */
     Optional<TechStackMetadata> findByName(String name);
