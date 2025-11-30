@@ -39,61 +39,96 @@ public class GetCloudUsageService implements GetCloudUsageUseCase {
             ));
     }
 
+    // ==================== AWS ====================
+
+    @Override
+    public CloudUsage getAwsCurrentMonthUsage() {
+        Period period = Period.currentMonth();
+        return getUsageWithCache(CloudProvider.AWS, period.getStartDate(), period.getEndDate());
+    }
+
+    @Override
+    public List<UsageTrend> getAwsUsageTrend(int days) {
+        Period period = Period.lastNDays(days);
+
+        // Redis에서 날짜별 히스토리 조회
+        List<CloudUsage> dailyUsages = cachePort.getDailyUsageRange(
+            CloudProvider.AWS, period.getStartDate(), period.getEndDate());
+
+        // 일별 데이터가 있으면 사용, 없으면 기간 합계 사용
+        if (!dailyUsages.isEmpty()) {
+            return convertDailyUsagesToTrends(dailyUsages, CloudProvider.AWS);
+        } else {
+            CloudUsage usage = getUsageWithCache(CloudProvider.AWS, period.getStartDate(), period.getEndDate());
+            return convertToTrends(usage, period, CloudProvider.AWS);
+        }
+    }
+
+    @Override
+    public List<ServiceCost> getAwsTopServices(int limit) {
+        CloudUsage usage = getAwsCurrentMonthUsage();
+        return usage.getServices() != null ? usage.getTopServices(limit) : Collections.emptyList();
+    }
+
+    // ==================== GCP ====================
+
+    @Override
+    public CloudUsage getGcpCurrentMonthUsage() {
+        Period period = Period.currentMonth();
+        return getUsageWithCache(CloudProvider.GCP, period.getStartDate(), period.getEndDate());
+    }
+
+    @Override
+    public List<UsageTrend> getGcpUsageTrend(int days) {
+        Period period = Period.lastNDays(days);
+
+        // Redis에서 날짜별 히스토리 조회
+        List<CloudUsage> dailyUsages = cachePort.getDailyUsageRange(
+            CloudProvider.GCP, period.getStartDate(), period.getEndDate());
+
+        // 일별 데이터가 있으면 사용, 없으면 기간 합계 사용
+        if (!dailyUsages.isEmpty()) {
+            return convertDailyUsagesToTrends(dailyUsages, CloudProvider.GCP);
+        } else {
+            CloudUsage usage = getUsageWithCache(CloudProvider.GCP, period.getStartDate(), period.getEndDate());
+            return convertToTrends(usage, period, CloudProvider.GCP);
+        }
+    }
+
+    @Override
+    public List<ServiceCost> getGcpTopServices(int limit) {
+        CloudUsage usage = getGcpCurrentMonthUsage();
+        return usage.getServices() != null ? usage.getTopServices(limit) : Collections.emptyList();
+    }
+
+    // ==================== Consolidated ====================
+
     @Override
     public ConsolidatedUsage getCurrentMonthUsage() {
-        Period period = Period.currentMonth();
-
-        CloudUsage awsUsage = getUsageWithCache(
-            CloudProvider.AWS,
-            period.getStartDate(),
-            period.getEndDate()
-        );
-
-        CloudUsage gcpUsage = getUsageWithCache(
-            CloudProvider.GCP,
-            period.getStartDate(),
-            period.getEndDate()
-        );
-
+        CloudUsage awsUsage = getAwsCurrentMonthUsage();
+        CloudUsage gcpUsage = getGcpCurrentMonthUsage();
         return ConsolidatedUsage.of(awsUsage, gcpUsage);
     }
 
     @Override
     public List<UsageTrend> getUsageTrend(int days) {
-        Period period = Period.lastNDays(days);
-
-        CloudUsage awsUsage = getUsageWithCache(
-            CloudProvider.AWS,
-            period.getStartDate(),
-            period.getEndDate()
-        );
-
-        CloudUsage gcpUsage = getUsageWithCache(
-            CloudProvider.GCP,
-            period.getStartDate(),
-            period.getEndDate()
-        );
-
-        return mergeTrends(awsUsage, gcpUsage, period);
+        List<UsageTrend> awsTrends = getAwsUsageTrend(days);
+        List<UsageTrend> gcpTrends = getGcpUsageTrend(days);
+        return mergeProviderTrends(awsTrends, gcpTrends);
     }
 
     @Override
     public ServiceBreakdown getServiceBreakdown() {
-        ConsolidatedUsage usage = getCurrentMonthUsage();
-
-        List<ServiceCost> awsTop5 = usage.getAwsUsage() != null && usage.getAwsUsage().getServices() != null
-            ? usage.getAwsUsage().getTopServices(5)
-            : Collections.emptyList();
-
-        List<ServiceCost> gcpTop5 = usage.getGcpUsage() != null && usage.getGcpUsage().getServices() != null
-            ? usage.getGcpUsage().getTopServices(5)
-            : Collections.emptyList();
+        List<ServiceCost> awsTop5 = getAwsTopServices(5);
+        List<ServiceCost> gcpTop5 = getGcpTopServices(5);
 
         return ServiceBreakdown.builder()
             .awsTop5(awsTop5)
             .gcpTop5(gcpTop5)
             .build();
     }
+
+    // ==================== Private Methods ====================
 
     /**
      * 캐시를 확인하고 없으면 외부 API 호출 후 캐시 저장
@@ -123,8 +158,16 @@ public class GetCloudUsageService implements GetCloudUsageUseCase {
 
         CloudUsage usage = port.fetchUsage(start, end);
 
-        // 캐시 저장
+        // 기간별 캐시 저장 (6시간 TTL)
         cachePort.saveUsage(cacheKey, usage, CACHE_TTL_SECONDS);
+
+        // 날짜별 히스토리 저장 (90일 TTL) - DB 스키마 변경 없이 임시 저장
+        // 오늘 날짜의 데이터만 저장 (매일 API 호출 시 자동으로 히스토리 쌓임)
+        LocalDate today = LocalDate.now();
+        if (end.equals(today) || end.isAfter(today.minusDays(1))) {
+            cachePort.saveDailyUsage(provider, today, usage);
+            log.debug("Saved daily usage history: provider={}, date={}", provider, today);
+        }
 
         return usage;
     }
@@ -141,21 +184,17 @@ public class GetCloudUsageService implements GetCloudUsageUseCase {
     }
 
     /**
-     * AWS와 GCP 사용량을 날짜별로 합산하여 추이 데이터 생성
-     * TODO: 실제로는 일별 데이터를 조회해야 하지만, 현재는 전체 기간 합계만 반환
+     * CloudUsage를 UsageTrend 리스트로 변환 (기간 합계)
+     * 히스토리 데이터가 없을 때 사용
      */
-    private List<UsageTrend> mergeTrends(
-            CloudUsage aws,
-            CloudUsage gcp,
-            Period period) {
-        
-        // 간단한 구현: 전체 기간을 하나의 트렌드로 반환
-        // 향후 개선: 일별 데이터를 조회하여 날짜별 추이 제공
-        BigDecimal awsCost = aws != null && aws.getTotalCost() != null 
-            ? aws.getTotalCost() : BigDecimal.ZERO;
-        BigDecimal gcpCost = gcp != null && gcp.getTotalCost() != null 
-            ? gcp.getTotalCost() : BigDecimal.ZERO;
-        BigDecimal totalCost = awsCost.add(gcpCost);
+    private List<UsageTrend> convertToTrends(
+            CloudUsage usage,
+            Period period,
+            CloudProvider provider) {
+
+        BigDecimal totalCost = usage.getTotalCost() != null ? usage.getTotalCost() : BigDecimal.ZERO;
+        BigDecimal awsCost = provider == CloudProvider.AWS ? totalCost : BigDecimal.ZERO;
+        BigDecimal gcpCost = provider == CloudProvider.GCP ? totalCost : BigDecimal.ZERO;
 
         UsageTrend trend = UsageTrend.builder()
             .date(period.getEndDate())
@@ -165,6 +204,84 @@ public class GetCloudUsageService implements GetCloudUsageUseCase {
             .build();
 
         return Collections.singletonList(trend);
+    }
+
+    /**
+     * 일별 CloudUsage 리스트를 UsageTrend 리스트로 변환
+     * Redis에 저장된 날짜별 히스토리 데이터를 일별 추이로 변환
+     */
+    private List<UsageTrend> convertDailyUsagesToTrends(
+            List<CloudUsage> dailyUsages,
+            CloudProvider provider) {
+
+        return dailyUsages.stream()
+            .map(usage -> {
+                BigDecimal totalCost = usage.getTotalCost() != null ? usage.getTotalCost() : BigDecimal.ZERO;
+                BigDecimal awsCost = provider == CloudProvider.AWS ? totalCost : BigDecimal.ZERO;
+                BigDecimal gcpCost = provider == CloudProvider.GCP ? totalCost : BigDecimal.ZERO;
+
+                // CloudUsage의 period에서 날짜 추출 (또는 lastUpdated 사용)
+                LocalDate date = usage.getLastUpdated() != null
+                    ? usage.getLastUpdated()
+                    : (usage.getPeriod() != null ? usage.getPeriod().getEndDate() : LocalDate.now());
+
+                return UsageTrend.builder()
+                    .date(date)
+                    .cost(totalCost)
+                    .awsCost(awsCost)
+                    .gcpCost(gcpCost)
+                    .build();
+            })
+            .sorted((a, b) -> a.getDate().compareTo(b.getDate())) // 날짜순 정렬
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * AWS와 GCP의 일별 추이를 날짜별로 합산
+     */
+    private List<UsageTrend> mergeProviderTrends(
+            List<UsageTrend> awsTrends,
+            List<UsageTrend> gcpTrends) {
+
+        // 날짜별로 그룹화하여 합산
+        Map<LocalDate, UsageTrend> mergedMap = new HashMap<>();
+
+        // AWS 추이 추가
+        for (UsageTrend trend : awsTrends) {
+            mergedMap.put(trend.getDate(), UsageTrend.builder()
+                .date(trend.getDate())
+                .cost(trend.getAwsCost())
+                .awsCost(trend.getAwsCost())
+                .gcpCost(BigDecimal.ZERO)
+                .build());
+        }
+
+        // GCP 추이 합산
+        for (UsageTrend trend : gcpTrends) {
+            UsageTrend existing = mergedMap.get(trend.getDate());
+            if (existing != null) {
+                // 같은 날짜가 있으면 합산
+                mergedMap.put(trend.getDate(), UsageTrend.builder()
+                    .date(trend.getDate())
+                    .cost(existing.getAwsCost().add(trend.getGcpCost()))
+                    .awsCost(existing.getAwsCost())
+                    .gcpCost(trend.getGcpCost())
+                    .build());
+            } else {
+                // 없으면 새로 추가
+                mergedMap.put(trend.getDate(), UsageTrend.builder()
+                    .date(trend.getDate())
+                    .cost(trend.getGcpCost())
+                    .awsCost(BigDecimal.ZERO)
+                    .gcpCost(trend.getGcpCost())
+                    .build());
+            }
+        }
+
+        // 날짜순 정렬하여 반환
+        return mergedMap.values().stream()
+            .sorted((a, b) -> a.getDate().compareTo(b.getDate()))
+            .collect(Collectors.toList());
     }
 }
 
