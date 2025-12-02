@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, Spin, Alert, Empty, Table } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { UsageTrend } from '../../../entities/cloud-usage';
+import { UsageTrend, CloudProvider } from '../../../entities/cloud-usage';
 import { formatCurrency } from '../../../shared/lib';
 
 interface UsageTrendChartProps {
@@ -9,6 +9,7 @@ interface UsageTrendChartProps {
   isLoading: boolean;
   error: Error | null;
   title: string;
+  provider?: CloudProvider;
 }
 
 /**
@@ -19,6 +20,7 @@ export const UsageTrendChart: React.FC<UsageTrendChartProps> = ({
   isLoading,
   error,
   title,
+  provider,
 }) => {
   if (error) {
     return (
@@ -49,6 +51,7 @@ export const UsageTrendChart: React.FC<UsageTrendChartProps> = ({
     );
   }
 
+  // Provider에 따라 컬럼 동적 생성
   const columns: ColumnsType<UsageTrend> = [
     {
       title: '날짜',
@@ -58,21 +61,44 @@ export const UsageTrendChart: React.FC<UsageTrendChartProps> = ({
       sorter: (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
       defaultSortOrder: 'descend',
     },
-    {
+  ];
+
+  // Provider가 지정된 경우 해당 provider의 컬럼만 추가
+  if (provider === CloudProvider.AWS) {
+    columns.push({
       title: 'AWS 비용 (USD)',
       dataIndex: 'awsCost',
       key: 'awsCost',
       render: (cost: number) => formatCurrency(cost, 'USD'),
       sorter: (a, b) => a.awsCost - b.awsCost,
-    },
-    {
+    });
+  } else if (provider === CloudProvider.GCP) {
+    columns.push({
       title: 'GCP 비용 (KRW)',
       dataIndex: 'gcpCost',
       key: 'gcpCost',
       render: (cost: number) => formatCurrency(cost, 'KRW'),
       sorter: (a, b) => a.gcpCost - b.gcpCost,
-    },
-  ];
+    });
+  } else {
+    // Provider가 지정되지 않은 경우 (통합 뷰) - 기존처럼 둘 다 표시
+    columns.push(
+      {
+        title: 'AWS 비용 (USD)',
+        dataIndex: 'awsCost',
+        key: 'awsCost',
+        render: (cost: number) => formatCurrency(cost, 'USD'),
+        sorter: (a, b) => a.awsCost - b.awsCost,
+      },
+      {
+        title: 'GCP 비용 (KRW)',
+        dataIndex: 'gcpCost',
+        key: 'gcpCost',
+        render: (cost: number) => formatCurrency(cost, 'KRW'),
+        sorter: (a, b) => a.gcpCost - b.gcpCost,
+      }
+    );
+  }
 
   return (
     <Card title={title}>

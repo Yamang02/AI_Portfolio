@@ -46,15 +46,8 @@ class CloudUsageApi {
    */
   async getAwsTrend(days: number = 30): Promise<UsageTrend[]> {
     const result = await this.request<{ trends: UsageTrend[] }>(`/aws/trend?days=${days}`);
-    // ApiResponse로 감싸져 있으므로 result.data.trends 또는 result.trends 확인
-    if (result && 'trends' in result) {
-      return result.trends || [];
-    }
-    // ApiResponse 형태인 경우
-    if (result && 'data' in result && result.data && 'trends' in result.data) {
-      return (result.data as { trends: UsageTrend[] }).trends || [];
-    }
-    return [];
+    // request() 메서드가 이미 result.data를 반환하므로 result.trends 사용
+    return result?.trends || [];
   }
 
   /**
@@ -78,15 +71,8 @@ class CloudUsageApi {
    */
   async getGcpTrend(days: number = 30): Promise<UsageTrend[]> {
     const result = await this.request<{ trends: UsageTrend[] }>(`/gcp/trend?days=${days}`);
-    // ApiResponse로 감싸져 있으므로 result.data.trends 또는 result.trends 확인
-    if (result && 'trends' in result) {
-      return result.trends || [];
-    }
-    // ApiResponse 형태인 경우
-    if (result && 'data' in result && result.data && 'trends' in result.data) {
-      return (result.data as { trends: UsageTrend[] }).trends || [];
-    }
-    return [];
+    // request() 메서드가 이미 result.data를 반환하므로 result.trends 사용
+    return result?.trends || [];
   }
 
   /**

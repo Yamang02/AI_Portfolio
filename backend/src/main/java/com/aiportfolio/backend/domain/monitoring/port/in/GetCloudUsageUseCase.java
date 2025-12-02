@@ -1,11 +1,13 @@
 package com.aiportfolio.backend.domain.monitoring.port.in;
 
+import com.aiportfolio.backend.domain.monitoring.model.CloudProvider;
 import com.aiportfolio.backend.domain.monitoring.model.CloudUsage;
 import com.aiportfolio.backend.domain.monitoring.model.ConsolidatedUsage;
 import com.aiportfolio.backend.domain.monitoring.model.ServiceBreakdown;
 import com.aiportfolio.backend.domain.monitoring.model.ServiceCost;
 import com.aiportfolio.backend.domain.monitoring.model.UsageTrend;
 
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -25,6 +27,16 @@ public interface GetCloudUsageUseCase {
     List<UsageTrend> getAwsUsageTrend(int days);
 
     /**
+     * AWS 지난 30일간 비용 추이 조회 (일별 또는 월별)
+     */
+    List<UsageTrend> getAwsUsageTrend30Days(String granularity);
+
+    /**
+     * AWS 지난 6개월간 비용 추이 조회 (월별)
+     */
+    List<UsageTrend> getAwsUsageTrend6Months();
+
+    /**
      * AWS 서비스별 비용 Top N 조회
      */
     List<ServiceCost> getAwsTopServices(int limit);
@@ -40,6 +52,16 @@ public interface GetCloudUsageUseCase {
      * GCP 지난 N일간의 비용 추이 조회 (일별)
      */
     List<UsageTrend> getGcpUsageTrend(int days);
+
+    /**
+     * GCP 지난 30일간 비용 추이 조회 (일별 또는 월별)
+     */
+    List<UsageTrend> getGcpUsageTrend30Days(String granularity);
+
+    /**
+     * GCP 지난 6개월간 비용 추이 조회 (월별)
+     */
+    List<UsageTrend> getGcpUsageTrend6Months();
 
     /**
      * GCP 서비스별 비용 Top N 조회
@@ -62,6 +84,17 @@ public interface GetCloudUsageUseCase {
      * 서비스별 비용 분석 (Top 5) - AWS와 GCP 각각
      */
     ServiceBreakdown getServiceBreakdown();
+
+    // ==================== Custom Search ====================
+
+    /**
+     * 커스텀 기간 비용 추이 조회
+     * @param provider 클라우드 프로바이더 (AWS 또는 GCP)
+     * @param startDate 시작 날짜
+     * @param endDate 종료 날짜
+     * @param granularity 세분성 (daily 또는 monthly)
+     */
+    List<UsageTrend> getCustomUsageTrend(CloudProvider provider, LocalDate startDate, LocalDate endDate, String granularity);
 }
 
 

@@ -1,18 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Row, Col, Typography, Divider } from 'antd';
 import { CloudOutlined } from '@ant-design/icons';
 import {
   useAwsCurrentUsage,
-  useAwsUsageTrend,
+  useAwsUsageTrend30Days,
+  useAwsUsageTrend6Months,
   useAwsBreakdown,
   useGcpCurrentUsage,
-  useGcpUsageTrend,
+  useGcpUsageTrend30Days,
+  useGcpUsageTrend6Months,
   useGcpBreakdown,
   CloudProvider,
 } from '../../../entities/cloud-usage';
 import { CloudUsageCard } from './CloudUsageCard';
 import { UsageTrendChart } from './UsageTrendChart';
 import { ServiceBreakdownTable } from './ServiceBreakdownTable';
+import { CostSearchSection } from './CostSearchSection';
 
 const { Title } = Typography;
 
@@ -22,12 +25,20 @@ const { Title } = Typography;
 export const CloudUsageSection: React.FC = () => {
   // AWS 데이터
   const { data: awsUsage, isLoading: awsLoading, error: awsError } = useAwsCurrentUsage();
-  const { data: awsTrends, isLoading: awsTrendLoading, error: awsTrendError } = useAwsUsageTrend(30);
+  const [awsGranularity, setAwsGranularity] = useState<'daily' | 'monthly'>('monthly');
+  const { data: awsTrends30Days, isLoading: awsTrend30DaysLoading, error: awsTrend30DaysError } = 
+    useAwsUsageTrend30Days(awsGranularity);
+  const { data: awsTrends6Months, isLoading: awsTrend6MonthsLoading, error: awsTrend6MonthsError } = 
+    useAwsUsageTrend6Months();
   const { data: awsBreakdown, isLoading: awsBreakdownLoading, error: awsBreakdownError } = useAwsBreakdown();
 
   // GCP 데이터
   const { data: gcpUsage, isLoading: gcpLoading, error: gcpError } = useGcpCurrentUsage();
-  const { data: gcpTrends, isLoading: gcpTrendLoading, error: gcpTrendError } = useGcpUsageTrend(30);
+  const [gcpGranularity, setGcpGranularity] = useState<'daily' | 'monthly'>('daily');
+  const { data: gcpTrends30Days, isLoading: gcpTrend30DaysLoading, error: gcpTrend30DaysError } = 
+    useGcpUsageTrend30Days(gcpGranularity);
+  const { data: gcpTrends6Months, isLoading: gcpTrend6MonthsLoading, error: gcpTrend6MonthsError } = 
+    useGcpUsageTrend6Months();
   const { data: gcpBreakdown, isLoading: gcpBreakdownLoading, error: gcpBreakdownError } = useGcpBreakdown();
 
   return (
@@ -48,16 +59,24 @@ export const CloudUsageSection: React.FC = () => {
               isLoading={awsLoading}
               error={awsError}
               provider={CloudProvider.AWS}
+              trends30Days={{
+                daily: awsTrends30Days,
+                monthly: awsTrends30Days,
+                isLoading: awsTrend30DaysLoading,
+                error: awsTrend30DaysError,
+              }}
+              onGranularityChange={setAwsGranularity}
             />
           </Col>
         </Row>
         <Row gutter={[16, 16]}>
           <Col xs={24} lg={12}>
             <UsageTrendChart
-              trends={awsTrends}
-              isLoading={awsTrendLoading}
-              error={awsTrendError}
-              title="AWS 비용 추이 (최근 30일)"
+              trends={awsTrends6Months}
+              isLoading={awsTrend6MonthsLoading}
+              error={awsTrend6MonthsError}
+              title="AWS 비용 추이 (지난 6개월, 월별)"
+              provider={CloudProvider.AWS}
             />
           </Col>
           <Col xs={24} lg={12}>
@@ -85,16 +104,24 @@ export const CloudUsageSection: React.FC = () => {
               isLoading={gcpLoading}
               error={gcpError}
               provider={CloudProvider.GCP}
+              trends30Days={{
+                daily: gcpTrends30Days,
+                monthly: gcpTrends30Days,
+                isLoading: gcpTrend30DaysLoading,
+                error: gcpTrend30DaysError,
+              }}
+              onGranularityChange={setGcpGranularity}
             />
           </Col>
         </Row>
         <Row gutter={[16, 16]}>
           <Col xs={24} lg={12}>
             <UsageTrendChart
-              trends={gcpTrends}
-              isLoading={gcpTrendLoading}
-              error={gcpTrendError}
-              title="GCP 비용 추이 (최근 30일)"
+              trends={gcpTrends6Months}
+              isLoading={gcpTrend6MonthsLoading}
+              error={gcpTrend6MonthsError}
+              title="GCP 비용 추이 (지난 6개월, 월별)"
+              provider={CloudProvider.GCP}
             />
           </Col>
           <Col xs={24} lg={12}>
@@ -107,6 +134,9 @@ export const CloudUsageSection: React.FC = () => {
           </Col>
         </Row>
       </div>
+
+      {/* 비용 검색 섹션 (아코디언) */}
+      <CostSearchSection />
     </div>
   );
 };
