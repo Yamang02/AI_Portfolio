@@ -37,6 +37,32 @@ export const useAwsUsageTrend = (days: number = 30) => {
 };
 
 /**
+ * AWS 지난 30일 비용 추이 조회 (일별/월별)
+ */
+export const useAwsUsageTrend30Days = (granularity: 'daily' | 'monthly' = 'monthly') => {
+  return useQuery<UsageTrend[]>({
+    queryKey: ['cloudUsage', 'aws', 'trend30days', granularity],
+    queryFn: () => cloudUsageApi.getAwsTrend30Days(granularity),
+    staleTime: CACHE_TTL_MS,
+    refetchInterval: CACHE_TTL_MS,
+    refetchOnWindowFocus: false,
+  });
+};
+
+/**
+ * AWS 지난 6개월 비용 추이 조회 (월별)
+ */
+export const useAwsUsageTrend6Months = () => {
+  return useQuery<UsageTrend[]>({
+    queryKey: ['cloudUsage', 'aws', 'trend6months'],
+    queryFn: () => cloudUsageApi.getAwsTrend6Months(),
+    staleTime: CACHE_TTL_MS,
+    refetchInterval: CACHE_TTL_MS,
+    refetchOnWindowFocus: false,
+  });
+};
+
+/**
  * AWS 서비스별 비용 분석
  */
 export const useAwsBreakdown = () => {
@@ -78,6 +104,32 @@ export const useGcpUsageTrend = (days: number = 30) => {
 };
 
 /**
+ * GCP 지난 30일 비용 추이 조회 (일별/월별)
+ */
+export const useGcpUsageTrend30Days = (granularity: 'daily' | 'monthly' = 'daily') => {
+  return useQuery<UsageTrend[]>({
+    queryKey: ['cloudUsage', 'gcp', 'trend30days', granularity],
+    queryFn: () => cloudUsageApi.getGcpTrend30Days(granularity),
+    staleTime: CACHE_TTL_MS,
+    refetchInterval: CACHE_TTL_MS,
+    refetchOnWindowFocus: false,
+  });
+};
+
+/**
+ * GCP 지난 6개월 비용 추이 조회 (월별)
+ */
+export const useGcpUsageTrend6Months = () => {
+  return useQuery<UsageTrend[]>({
+    queryKey: ['cloudUsage', 'gcp', 'trend6months'],
+    queryFn: () => cloudUsageApi.getGcpTrend6Months(),
+    staleTime: CACHE_TTL_MS,
+    refetchInterval: CACHE_TTL_MS,
+    refetchOnWindowFocus: false,
+  });
+};
+
+/**
  * GCP 서비스별 비용 분석
  */
 export const useGcpBreakdown = () => {
@@ -86,6 +138,32 @@ export const useGcpBreakdown = () => {
     queryFn: () => cloudUsageApi.getGcpBreakdown(),
     staleTime: CACHE_TTL_MS,
     refetchInterval: CACHE_TTL_MS,
+    refetchOnWindowFocus: false,
+  });
+};
+
+// ==================== Custom Search Hooks ====================
+
+/**
+ * 커스텀 기간 비용 추이 조회
+ */
+export const useSearchUsageTrend = (
+  provider: 'AWS' | 'GCP' | null,
+  startDate: string | null,
+  endDate: string | null,
+  granularity: 'daily' | 'monthly' = 'daily',
+  enabled: boolean = false
+) => {
+  return useQuery<UsageTrend[]>({
+    queryKey: ['cloudUsage', 'search', provider, startDate, endDate, granularity],
+    queryFn: () => {
+      if (!provider || !startDate || !endDate) {
+        throw new Error('Provider, startDate, and endDate are required');
+      }
+      return cloudUsageApi.searchUsageTrend(provider, startDate, endDate, granularity);
+    },
+    enabled: enabled && !!provider && !!startDate && !!endDate,
+    staleTime: CACHE_TTL_MS,
     refetchOnWindowFocus: false,
   });
 };

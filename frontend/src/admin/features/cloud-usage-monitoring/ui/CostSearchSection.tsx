@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Collapse, Form, DatePicker, Select, Button, Space, Alert, Card } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
-import { useSearchUsageTrend, CloudProvider } from '../../../entities/cloud-usage';
+import { CloudProvider } from '../../../entities/cloud-usage';
+import { useSearchUsageTrend } from '../../../entities/cloud-usage/api/useCloudUsageQuery';
 import { UsageTrendChart } from './UsageTrendChart';
 import dayjs from 'dayjs';
 import type { Dayjs } from 'dayjs';
@@ -28,7 +29,7 @@ export const CostSearchSection: React.FC<CostSearchSectionProps> = () => {
     granularity: 'daily',
   });
 
-  const { data: trends, isLoading, error, refetch } = useSearchUsageTrend(
+  const { data: trends, isLoading, error } = useSearchUsageTrend(
     searchParams.provider,
     searchParams.startDate,
     searchParams.endDate,
