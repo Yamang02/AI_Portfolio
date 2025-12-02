@@ -53,6 +53,8 @@ public class AwsCostExplorerClient {
      */
     public GetCostAndUsageResponse getCostAndUsage(LocalDate startDate, LocalDate endDate) {
         try {
+            log.info("Querying AWS Cost Explorer from {} to {}", startDate, endDate);
+
             GetCostAndUsageRequest request = GetCostAndUsageRequest.builder()
                 .timePeriod(DateInterval.builder()
                     .start(startDate.format(DATE_FORMAT))
@@ -68,9 +70,18 @@ public class AwsCostExplorerClient {
                 )
                 .build();
 
-            return getClient().getCostAndUsage(request);
+            log.debug("AWS Cost Explorer request: timePeriod={} to {}, granularity=DAILY, metrics=BlendedCost",
+                     startDate, endDate.plusDays(1));
+
+            GetCostAndUsageResponse response = getClient().getCostAndUsage(request);
+
+            log.info("Successfully fetched {} result periods from AWS Cost Explorer",
+                    response.resultsByTime() != null ? response.resultsByTime().size() : 0);
+
+            return response;
         } catch (Exception e) {
-            log.error("Failed to fetch AWS cost and usage data", e);
+            log.error("Failed to fetch AWS cost and usage data: region=US_EAST_1, startDate={}, endDate={}",
+                     startDate, endDate, e);
             throw new RuntimeException("Failed to fetch AWS cost data: " + e.getMessage(), e);
         }
     }

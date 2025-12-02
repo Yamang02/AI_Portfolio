@@ -23,10 +23,9 @@ public class CloudUsage {
     private LocalDate lastUpdated;
 
     /**
-     * USD로 변환된 총 비용 반환 (현재는 단순 반환, 향후 환율 변환 로직 추가 가능)
+     * 총 비용 반환 (각 클라우드의 청구 통화 그대로 사용)
      */
     public BigDecimal getTotalCostInUSD() {
-        // TODO: 환율 변환 로직 필요시 추가
         return totalCost != null ? totalCost : BigDecimal.ZERO;
     }
 
@@ -57,4 +56,7 @@ public class CloudUsage {
             .build();
     }
 }
+
+
+
 

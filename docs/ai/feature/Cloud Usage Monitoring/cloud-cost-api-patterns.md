@@ -221,3 +221,6 @@ CloudUsage getCurrent() {
 - GCP Billing Export: BigQuery에 자동 저장 (배치)
 - Datadog, New Relic: 배치 수집 + 실시간 폴링
 
+
+
+

@@ -59,16 +59,24 @@ public class GcpBillingAdapter implements CloudUsagePort {
 
         BigDecimal totalCost = BigDecimal.ZERO;
         List<ServiceCost> services = new ArrayList<>();
-        String currency = "USD";
+        String currency = null; // 첫 번째 행에서 결정
 
         for (FieldValueList row : result.iterateAll()) {
             try {
                 String serviceName = row.get("service_name").getStringValue();
                 Double costValue = row.get("total_cost").getDoubleValue();
                 String rowCurrency = row.get("currency").getStringValue();
-                
-                if (currency == null || currency.equals("USD")) {
-                    currency = rowCurrency != null ? rowCurrency : "USD";
+
+                // 첫 번째 유효한 currency를 사용
+                if (currency == null && rowCurrency != null) {
+                    currency = rowCurrency;
+                    log.info("Using GCP billing currency: {}", currency);
+                }
+
+                // Currency가 혼재되어 있으면 경고
+                if (rowCurrency != null && !rowCurrency.equals(currency)) {
+                    log.warn("Mixed currencies detected in GCP billing data: {} and {}. Using first detected: {}",
+                             currency, rowCurrency, currency);
                 }
 
                 BigDecimal cost = BigDecimal.valueOf(costValue != null ? costValue : 0.0);
@@ -76,13 +84,19 @@ public class GcpBillingAdapter implements CloudUsagePort {
                 services.add(ServiceCost.builder()
                     .serviceName(serviceName != null ? serviceName : "Unknown")
                     .cost(cost)
-                    .unit(currency)
+                    .unit(currency != null ? currency : "USD")
                     .build());
 
                 totalCost = totalCost.add(cost);
             } catch (Exception e) {
                 log.warn("Failed to parse row in BigQuery result", e);
             }
+        }
+
+        // 데이터가 없으면 기본값 USD
+        if (currency == null) {
+            currency = "USD";
+            log.warn("No billing data found, defaulting to USD");
         }
 
         return CloudUsage.builder()

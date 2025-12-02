@@ -175,15 +175,3 @@ cloud:
     # 실제 GCP를 사용하려면 false로 변경
     mock:
       enabled: true
-  usage:
-    providers:
-      aws:
-        enabled: false
-        endpoint:
-        region: ${AWS_USAGE_REGION:}
-        api-key: ${AWS_USAGE_API_KEY:}
-      gcp:
-        enabled: false
-        endpoint:
-        project-id: ${GCP_USAGE_PROJECT_ID:}
-        api-key: ${GCP_USAGE_API_KEY:}

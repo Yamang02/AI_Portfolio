@@ -48,6 +48,17 @@ export const ServiceBreakdownTable: React.FC<ServiceBreakdownTableProps> = ({
     );
   }
 
+  const formatCurrency = (cost: number, unit: string): string => {
+    switch (unit) {
+      case 'USD':
+        return `$${cost.toFixed(2)}`;
+      case 'KRW':
+        return `₩${cost.toLocaleString('ko-KR', { maximumFractionDigits: 0 })}`;
+      default:
+        return `${cost.toFixed(2)} ${unit}`;
+    }
+  };
+
   const columns: ColumnsType<ServiceCost> = [
     {
       title: '서비스명',
@@ -58,8 +69,8 @@ export const ServiceBreakdownTable: React.FC<ServiceBreakdownTableProps> = ({
       title: '비용',
       dataIndex: 'cost',
       key: 'cost',
-      render: (cost: number, record: ServiceCost) => 
-        `$${cost.toFixed(2)} ${record.unit}`,
+      render: (cost: number, record: ServiceCost) =>
+        formatCurrency(cost, record.unit),
       sorter: (a, b) => a.cost - b.cost,
       defaultSortOrder: 'descend',
     },
@@ -76,4 +87,7 @@ export const ServiceBreakdownTable: React.FC<ServiceBreakdownTableProps> = ({
     </Card>
   );
 };
+
+
+
 
