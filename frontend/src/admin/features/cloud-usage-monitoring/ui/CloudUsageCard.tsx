@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { Card, Statistic, Spin, Alert, Row, Col } from 'antd';
-import { DollarOutlined, CalendarOutlined } from '@ant-design/icons';
 import { CloudUsage, CloudProvider } from '../../../entities/cloud-usage';
+import { formatCurrencySeparate } from '../../../shared/lib';
 
 interface CloudUsageCardProps {
   usage: CloudUsage | undefined;
@@ -9,34 +9,6 @@ interface CloudUsageCardProps {
   error: Error | null;
   provider: CloudProvider;
 }
-
-/**
- * Currency에 맞는 포맷 반환
- */
-const formatCurrency = (value: number, currency: string): string => {
-  switch (currency) {
-    case 'USD':
-      return value.toFixed(2);
-    case 'KRW':
-      return value.toLocaleString('ko-KR', { maximumFractionDigits: 0 });
-    default:
-      return value.toFixed(2);
-  }
-};
-
-/**
- * Currency에 맞는 접두사 기호 반환
- */
-const getCurrencyPrefix = (currency: string): string => {
-  switch (currency) {
-    case 'USD':
-      return '$';
-    case 'KRW':
-      return '₩';
-    default:
-      return '';
-  }
-};
 
 /**
  * 이번달 예상 청구비용 계산
@@ -110,7 +82,10 @@ export const CloudUsageCard: React.FC<CloudUsageCardProps> = ({
 
   const providerName = provider === CloudProvider.AWS ? 'AWS' : 'GCP';
   const color = provider === CloudProvider.AWS ? '#ff9900' : '#4285f4';
-  const currencyPrefix = getCurrencyPrefix(usage.currency);
+  const { prefix, value: currentCostFormatted } = formatCurrencySeparate(usage.totalCost, usage.currency);
+  const { value: estimatedBillFormatted } = estimatedBill !== null
+    ? formatCurrencySeparate(estimatedBill, usage.currency)
+    : { value: '' };
 
   return (
     <Card>
@@ -118,8 +93,8 @@ export const CloudUsageCard: React.FC<CloudUsageCardProps> = ({
         <Col xs={24} sm={12}>
           <Statistic
             title={`${providerName} 현재 월 비용`}
-            value={formatCurrency(usage.totalCost, usage.currency)}
-            prefix={currencyPrefix}
+            value={currentCostFormatted}
+            prefix={prefix}
             valueStyle={{ color }}
           />
         </Col>
@@ -127,8 +102,8 @@ export const CloudUsageCard: React.FC<CloudUsageCardProps> = ({
           {estimatedBill !== null && (
             <Statistic
               title={`${providerName} 이번달 예상 청구비용`}
-              value={formatCurrency(estimatedBill, usage.currency)}
-              prefix={currencyPrefix}
+              value={estimatedBillFormatted}
+              prefix={prefix}
               valueStyle={{ color: '#52c41a' }}
             />
           )}
