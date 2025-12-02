@@ -3,7 +3,13 @@
  */
 import { CloudUsage, UsageTrend, ServiceBreakdown } from '../model/cloudUsage.types';
 
-// 환경 변수에서 API Base URL 가져오기
+interface ApiResponse<T> {
+  success?: boolean;
+  message?: string;
+  error?: string;
+  data: T;
+}
+
 const API_BASE_URL = typeof window !== 'undefined'
   ? (import.meta.env.VITE_API_BASE_URL || '')
   : (import.meta.env?.VITE_API_BASE_URL || '');
@@ -11,91 +17,107 @@ const API_BASE_URL = typeof window !== 'undefined'
 class CloudUsageApi {
   private baseUrl = `${API_BASE_URL}/api/admin/cloud-usage`;
 
-  private async request<T>(endpoint: string): Promise<T> {
+  private async request<T>(
+    endpoint: string,
+    errorMessage: string,
+    init?: RequestInit
+  ): Promise<T> {
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
       credentials: 'include',
+      ...init,
     });
 
+    const result = await response.json() as ApiResponse<T>;
+
     if (!response.ok) {
-      let errorMessage = `HTTP ${response.status}`;
-      try {
-        const errorData = await response.json();
-        errorMessage = errorData.message || errorMessage;
-        console.error('[CloudUsageApi] Error response:', errorData);
-      } catch {
-        console.error('[CloudUsageApi] Failed to parse error response');
-      }
-      throw new Error(errorMessage);
+      throw new Error(result?.message || result?.error || errorMessage);
     }
 
-    const result = await response.json();
-    return result.data || result;
+    return result.data;
   }
 
   // ==================== AWS API ====================
 
-  /**
-   * AWS 현재 월 사용량 조회
-   */
   async getAwsCurrent(): Promise<CloudUsage> {
-    return this.request<CloudUsage>('/aws/current');
+    return this.request<CloudUsage>('/aws/current', 'AWS 현재 월 사용량 조회 실패');
   }
 
-  /**
-   * AWS 비용 추이 조회
-   */
   async getAwsTrend(days: number = 30): Promise<UsageTrend[]> {
-    const result = await this.request<{ trends: UsageTrend[] }>(`/aws/trend?days=${days}`);
-    // ApiResponse로 감싸져 있으므로 result.data.trends 또는 result.trends 확인
-    if (result && 'trends' in result) {
-      return result.trends || [];
-    }
-    // ApiResponse 형태인 경우
-    if (result && 'data' in result && result.data && 'trends' in result.data) {
-      return (result.data as { trends: UsageTrend[] }).trends || [];
-    }
-    return [];
+    const data = await this.request<UsageTrend[] | undefined>(
+      `/aws/trend?days=${days}`,
+      'AWS 비용 추이 조회 실패'
+    );
+    return data ?? [];
   }
 
-  /**
-   * AWS 서비스별 비용 분석
-   */
+  async getAwsTrend30Days(granularity: 'daily' | 'monthly' = 'monthly'): Promise<UsageTrend[]> {
+    const data = await this.request<UsageTrend[] | undefined>(
+      `/aws/trend/30days?granularity=${granularity}`,
+      'AWS 30일 비용 추이 조회 실패'
+    );
+    return data ?? [];
+  }
+
+  async getAwsTrend6Months(): Promise<UsageTrend[]> {
+    const data = await this.request<UsageTrend[] | undefined>(
+      '/aws/trend/6months',
+      'AWS 6개월 비용 추이 조회 실패'
+    );
+    return data ?? [];
+  }
+
   async getAwsBreakdown(): Promise<ServiceBreakdown> {
-    return this.request<ServiceBreakdown>('/aws/breakdown');
+    return this.request<ServiceBreakdown>('/aws/breakdown', 'AWS 서비스별 비용 분석 조회 실패');
   }
 
   // ==================== GCP API ====================
 
-  /**
-   * GCP 현재 월 사용량 조회
-   */
   async getGcpCurrent(): Promise<CloudUsage> {
-    return this.request<CloudUsage>('/gcp/current');
+    return this.request<CloudUsage>('/gcp/current', 'GCP 현재 월 사용량 조회 실패');
   }
 
-  /**
-   * GCP 비용 추이 조회
-   */
   async getGcpTrend(days: number = 30): Promise<UsageTrend[]> {
-    const result = await this.request<{ trends: UsageTrend[] }>(`/gcp/trend?days=${days}`);
-    // ApiResponse로 감싸져 있으므로 result.data.trends 또는 result.trends 확인
-    if (result && 'trends' in result) {
-      return result.trends || [];
-    }
-    // ApiResponse 형태인 경우
-    if (result && 'data' in result && result.data && 'trends' in result.data) {
-      return (result.data as { trends: UsageTrend[] }).trends || [];
-    }
-    return [];
+    const data = await this.request<UsageTrend[] | undefined>(
+      `/gcp/trend?days=${days}`,
+      'GCP 비용 추이 조회 실패'
+    );
+    return data ?? [];
   }
 
-  /**
-   * GCP 서비스별 비용 분석
-   */
+  async getGcpTrend30Days(granularity: 'daily' | 'monthly' = 'daily'): Promise<UsageTrend[]> {
+    const data = await this.request<UsageTrend[] | undefined>(
+      `/gcp/trend/30days?granularity=${granularity}`,
+      'GCP 30일 비용 추이 조회 실패'
+    );
+    return data ?? [];
+  }
+
+  async getGcpTrend6Months(): Promise<UsageTrend[]> {
+    const data = await this.request<UsageTrend[] | undefined>(
+      '/gcp/trend/6months',
+      'GCP 6개월 비용 추이 조회 실패'
+    );
+    return data ?? [];
+  }
+
   async getGcpBreakdown(): Promise<ServiceBreakdown> {
-    return this.request<ServiceBreakdown>('/gcp/breakdown');
+    return this.request<ServiceBreakdown>('/gcp/breakdown', 'GCP 서비스별 비용 분석 조회 실패');
+  }
+
+  // ==================== Custom Search API ====================
+
+  async searchUsageTrend(
+    provider: 'AWS' | 'GCP',
+    startDate: string,
+    endDate: string,
+    granularity: 'daily' | 'monthly' = 'daily'
+  ): Promise<UsageTrend[]> {
+    const data = await this.request<UsageTrend[] | undefined>(
+      `/search?provider=${provider}&startDate=${startDate}&endDate=${endDate}&granularity=${granularity}`,
+      '비용 검색 실패'
+    );
+    return data ?? [];
   }
 }
 
 export const cloudUsageApi = new CloudUsageApi();
-

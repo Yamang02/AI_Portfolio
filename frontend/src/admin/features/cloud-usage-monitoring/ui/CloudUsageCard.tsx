@@ -1,35 +1,70 @@
-import React, { useMemo } from 'react';
-import { Card, Statistic, Spin, Alert, Row, Col } from 'antd';
+import React, { useMemo, useState } from 'react';
+import { Card, Statistic, Spin, Alert, Row, Col, Radio } from 'antd';
 import { CloudUsage, CloudProvider } from '../../../entities/cloud-usage';
-import { formatCurrencySeparate } from '../../../shared/lib';
 
 interface CloudUsageCardProps {
   usage: CloudUsage | undefined;
   isLoading: boolean;
   error: Error | null;
   provider: CloudProvider;
+  trends30Days?: {
+    daily: any;
+    monthly: any;
+    isLoading: boolean;
+    error: Error | null;
+  };
+  onGranularityChange?: (granularity: 'daily' | 'monthly') => void;
 }
 
 /**
- * 이번달 예상 청구비용 계산
+ * Currency에 맞는 포맷 반환
+ * @param value - 금액
+ * @param currency - 통화
+ * @param provider - 클라우드 프로바이더 (GCP는 소수점 없이, AWS는 소수점 2자리)
  */
-const calculateEstimatedBill = (currentCost: number, period: { startDate: string; endDate: string }): number => {
-  const today = new Date();
+const formatCurrency = (value: number, currency: string, provider?: CloudProvider): string => {
+  const isGCP = provider === CloudProvider.GCP;
+
+  switch (currency) {
+    case 'USD':
+      return isGCP ? value.toFixed(0) : value.toFixed(2);
+    case 'KRW':
+      return value.toLocaleString('ko-KR', { maximumFractionDigits: 0 });
+    default:
+      return isGCP ? value.toFixed(0) : value.toFixed(2);
+  }
+};
+
+/**
+ * Currency에 맞는 접두사 기호 반환
+ */
+const getCurrencyPrefix = (currency: string): string => {
+  switch (currency) {
+    case 'USD':
+      return '$';
+    case 'KRW':
+      return '₩';
+    default:
+      return '';
+  }
+};
+
+/**
+ * 기간 평균 일일 비용 계산
+ */
+const calculateAverageDailyCost = (currentCost: number, period: { startDate: string; endDate: string }): number => {
   const startDate = new Date(period.startDate);
   const endDate = new Date(period.endDate);
 
-  // 이번달 총 일수
+  // 기간 총 일수
   const totalDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
 
-  // 오늘까지 경과 일수
-  const elapsedDays = Math.max(1, Math.floor((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1);
-
-  // 예상 청구비용 = 현재 비용 * (총 일수 / 경과 일수)
-  if (elapsedDays >= totalDays) {
-    return currentCost; // 이미 월말이면 현재 비용 반환
+  if (totalDays <= 0) {
+    return currentCost;
   }
 
-  return (currentCost / elapsedDays) * totalDays;
+  // 평균 일일 비용
+  return currentCost / totalDays;
 };
 
 /**
@@ -40,11 +75,23 @@ export const CloudUsageCard: React.FC<CloudUsageCardProps> = ({
   isLoading,
   error,
   provider,
+  trends30Days,
+  onGranularityChange,
 }) => {
-  const estimatedBill = useMemo(() => {
+  // AWS는 기본 월별, GCP는 기본 일별
+  const [granularity, setGranularity] = useState<'daily' | 'monthly'>(
+    provider === CloudProvider.AWS ? 'monthly' : 'daily'
+  );
+
+  const averageDailyCost = useMemo(() => {
     if (!usage || !usage.period) return null;
-    return calculateEstimatedBill(usage.totalCost, usage.period);
+    return calculateAverageDailyCost(usage.totalCost, usage.period);
   }, [usage]);
+
+  const handleGranularityChange = (value: 'daily' | 'monthly') => {
+    setGranularity(value);
+    onGranularityChange?.(value);
+  };
 
   if (error) {
     return (
@@ -82,28 +129,45 @@ export const CloudUsageCard: React.FC<CloudUsageCardProps> = ({
 
   const providerName = provider === CloudProvider.AWS ? 'AWS' : 'GCP';
   const color = provider === CloudProvider.AWS ? '#ff9900' : '#4285f4';
-  const { prefix, value: currentCostFormatted } = formatCurrencySeparate(usage.totalCost, usage.currency);
-  const { value: estimatedBillFormatted } = estimatedBill !== null
-    ? formatCurrencySeparate(estimatedBill, usage.currency)
-    : { value: '' };
+
+  // GCP는 KRW, AWS는 USD (프로바이더에 따라 강제 설정)
+  const displayCurrency = provider === CloudProvider.AWS ? 'USD' : 'KRW';
+  const currencyPrefix = getCurrencyPrefix(displayCurrency);
+
+  // AWS는 지난 6개월, GCP는 최근 30일
+  const periodLabel = provider === CloudProvider.AWS ? '지난 6개월' : '최근 30일';
 
   return (
     <Card>
+      {/* 일별/월별 토글 (지난 30일간) */}
+      {trends30Days && (
+        <div style={{ marginBottom: '16px', textAlign: 'right' }}>
+          <Radio.Group
+            value={granularity}
+            onChange={(e) => handleGranularityChange(e.target.value)}
+            size="small"
+          >
+            <Radio.Button value="daily">일별</Radio.Button>
+            <Radio.Button value="monthly">월별</Radio.Button>
+          </Radio.Group>
+        </div>
+      )}
+
       <Row gutter={[16, 16]}>
         <Col xs={24} sm={12}>
           <Statistic
-            title={`${providerName} 현재 월 비용`}
-            value={currentCostFormatted}
-            prefix={prefix}
+            title={`${providerName} ${periodLabel} 비용`}
+            value={formatCurrency(usage.totalCost, displayCurrency, provider)}
+            prefix={currencyPrefix}
             valueStyle={{ color }}
           />
         </Col>
         <Col xs={24} sm={12}>
-          {estimatedBill !== null && (
+          {averageDailyCost !== null && (
             <Statistic
-              title={`${providerName} 이번달 예상 청구비용`}
-              value={estimatedBillFormatted}
-              prefix={prefix}
+              title={`${providerName} 평균 일일 비용`}
+              value={formatCurrency(averageDailyCost, displayCurrency, provider)}
+              prefix={currencyPrefix}
               valueStyle={{ color: '#52c41a' }}
             />
           )}
@@ -117,4 +181,3 @@ export const CloudUsageCard: React.FC<CloudUsageCardProps> = ({
     </Card>
   );
 };
-
