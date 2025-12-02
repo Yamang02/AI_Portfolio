@@ -36,35 +36,36 @@ public class GcpBillingClient {
 
     /**
      * BigQuery에서 비용 데이터 조회
-     * 
+     *
      * 참고: _PARTITIONDATE 필터는 파티션 날짜와 실제 사용 날짜가 다를 수 있어
-     * usage_start_time 기준으로 필터링하거나 WHERE 조건 없이 전체 조회합니다.
-     * MVP 단계에서는 WHERE 조건 없이 전체 데이터 조회 (트러블슈팅 문서 참고)
+     * usage_start_time 기준으로 필터링합니다.
      */
     public TableResult queryBillingData(LocalDate startDate, LocalDate endDate) {
         try {
-            // MVP 단계: WHERE 조건 없이 전체 데이터 조회 (cost > 0만 필터링)
-            // 이유: _PARTITIONDATE와 실제 사용 날짜가 불일치할 수 있고,
-            // Billing Export가 불규칙하게 업데이트될 수 있음
+            log.info("Querying GCP billing data from {} to {}", startDate, endDate);
+
+            // 날짜 필터링 추가: usage_start_time 기준
+            // _PARTITIONDATE로도 스캔량 최적화
             String query = String.format("""
                 SELECT
                   service.description as service_name,
                   SUM(cost) as total_cost,
                   currency
                 FROM `%s.%s.%s`
-                WHERE cost > 0
+                WHERE _PARTITIONDATE >= DATE_SUB(CURRENT_DATE(), INTERVAL 90 DAY)
+                  AND DATE(usage_start_time) BETWEEN DATE('%s') AND DATE('%s')
+                  AND cost > 0
                 GROUP BY service_name, currency
                 ORDER BY total_cost DESC
                 """,
                 config.getProjectId(),
                 config.getBillingDataset(),
-                config.getBillingTable()
+                config.getBillingTable(),
+                startDate.toString(),
+                endDate.toString()
             );
-            
-            // 향후 프로덕션 최적화 시 아래 쿼리 사용 가능:
-            // WHERE _PARTITIONDATE >= DATE_SUB(CURRENT_DATE(), INTERVAL 90 DAY)
-            //   AND DATE(usage_start_time) BETWEEN '%s' AND '%s'
-            //   AND cost > 0
+
+            log.debug("Executing BigQuery query: {}", query);
 
             QueryJobConfiguration queryConfig = QueryJobConfiguration
                 .newBuilder(query)
@@ -78,19 +79,26 @@ public class GcpBillingClient {
             queryJob = queryJob.waitFor();
 
             if (queryJob == null) {
+                log.error("BigQuery job no longer exists");
                 throw new RuntimeException("Job no longer exists");
             }
 
             if (queryJob.getStatus().getError() != null) {
+                log.error("BigQuery job failed: {}", queryJob.getStatus().getError());
                 throw new RuntimeException("Query job failed: " + queryJob.getStatus().getError());
             }
 
-            return queryJob.getQueryResults();
+            TableResult result = queryJob.getQueryResults();
+            log.info("Successfully queried {} rows from GCP billing data", result.getTotalRows());
+
+            return result;
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+            log.error("BigQuery query interrupted", e);
             throw new RuntimeException("BigQuery query interrupted", e);
         } catch (Exception e) {
-            log.error("Failed to query BigQuery billing data", e);
+            log.error("Failed to query BigQuery billing data: project={}, dataset={}, table={}",
+                     config.getProjectId(), config.getBillingDataset(), config.getBillingTable(), e);
             throw new RuntimeException("Failed to query BigQuery billing data: " + e.getMessage(), e);
         }
     }

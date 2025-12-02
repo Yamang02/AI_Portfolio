@@ -17,3 +17,6 @@ public class GcpConfig {
     private String credentialsPath; // 서비스 계정 JSON 키 파일 경로
 }
 
+
+
+
