@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card, Table, Spin, Alert, Empty } from 'antd';
 import { ServiceCost } from '../../../entities/cloud-usage';
+import { formatCurrency } from '../../../shared/lib';
 import type { ColumnsType } from 'antd/es/table';
 
 interface ServiceBreakdownTableProps {
@@ -47,17 +48,6 @@ export const ServiceBreakdownTable: React.FC<ServiceBreakdownTableProps> = ({
       </Card>
     );
   }
-
-  const formatCurrency = (cost: number, unit: string): string => {
-    switch (unit) {
-      case 'USD':
-        return `$${cost.toFixed(2)}`;
-      case 'KRW':
-        return `₩${cost.toLocaleString('ko-KR', { maximumFractionDigits: 0 })}`;
-      default:
-        return `${cost.toFixed(2)} ${unit}`;
-    }
-  };
 
   const columns: ColumnsType<ServiceCost> = [
     {

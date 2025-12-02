@@ -237,33 +237,36 @@ public class GetCloudUsageService implements GetCloudUsageUseCase {
     }
 
     /**
-     * AWS와 GCP의 일별 추이를 날짜별로 합산
+     * AWS와 GCP의 일별 추이를 날짜별로 병합
+     *
+     * 주의: cost 필드는 사용하지 않음 (USD와 KRW를 합산할 수 없으므로)
+     * 프론트엔드에서는 awsCost와 gcpCost를 각각 표시해야 함
      */
     private List<UsageTrend> mergeProviderTrends(
             List<UsageTrend> awsTrends,
             List<UsageTrend> gcpTrends) {
 
-        // 날짜별로 그룹화하여 합산
+        // 날짜별로 그룹화하여 병합
         Map<LocalDate, UsageTrend> mergedMap = new HashMap<>();
 
         // AWS 추이 추가
         for (UsageTrend trend : awsTrends) {
             mergedMap.put(trend.getDate(), UsageTrend.builder()
                 .date(trend.getDate())
-                .cost(trend.getAwsCost())
+                .cost(BigDecimal.ZERO)  // Deprecated: 사용하지 않음
                 .awsCost(trend.getAwsCost())
                 .gcpCost(BigDecimal.ZERO)
                 .build());
         }
 
-        // GCP 추이 합산
+        // GCP 추이 병합
         for (UsageTrend trend : gcpTrends) {
             UsageTrend existing = mergedMap.get(trend.getDate());
             if (existing != null) {
-                // 같은 날짜가 있으면 합산
+                // 같은 날짜가 있으면 병합
                 mergedMap.put(trend.getDate(), UsageTrend.builder()
                     .date(trend.getDate())
-                    .cost(existing.getAwsCost().add(trend.getGcpCost()))
+                    .cost(BigDecimal.ZERO)  // Deprecated: 사용하지 않음
                     .awsCost(existing.getAwsCost())
                     .gcpCost(trend.getGcpCost())
                     .build());
@@ -271,7 +274,7 @@ public class GetCloudUsageService implements GetCloudUsageUseCase {
                 // 없으면 새로 추가
                 mergedMap.put(trend.getDate(), UsageTrend.builder()
                     .date(trend.getDate())
-                    .cost(trend.getGcpCost())
+                    .cost(BigDecimal.ZERO)  // Deprecated: 사용하지 않음
                     .awsCost(BigDecimal.ZERO)
                     .gcpCost(trend.getGcpCost())
                     .build());

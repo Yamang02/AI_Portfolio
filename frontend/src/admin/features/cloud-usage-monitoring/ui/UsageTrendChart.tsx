@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, Spin, Alert, Empty, Table } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { UsageTrend } from '../../../entities/cloud-usage';
+import { formatCurrency } from '../../../shared/lib';
 
 interface UsageTrendChartProps {
   trends: UsageTrend[] | undefined;
@@ -55,26 +56,21 @@ export const UsageTrendChart: React.FC<UsageTrendChartProps> = ({
       key: 'date',
       render: (date: string) => new Date(date).toLocaleDateString('ko-KR'),
       sorter: (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
-    },
-    {
-      title: '총 비용',
-      dataIndex: 'cost',
-      key: 'cost',
-      render: (cost: number) => `$${cost.toFixed(2)}`,
-      sorter: (a, b) => a.cost - b.cost,
       defaultSortOrder: 'descend',
     },
     {
-      title: 'AWS 비용',
+      title: 'AWS 비용 (USD)',
       dataIndex: 'awsCost',
       key: 'awsCost',
-      render: (cost: number) => `$${cost.toFixed(2)}`,
+      render: (cost: number) => formatCurrency(cost, 'USD'),
+      sorter: (a, b) => a.awsCost - b.awsCost,
     },
     {
-      title: 'GCP 비용',
+      title: 'GCP 비용 (KRW)',
       dataIndex: 'gcpCost',
       key: 'gcpCost',
-      render: (cost: number) => `$${cost.toFixed(2)}`,
+      render: (cost: number) => formatCurrency(cost, 'KRW'),
+      sorter: (a, b) => a.gcpCost - b.gcpCost,
     },
   ];
 
