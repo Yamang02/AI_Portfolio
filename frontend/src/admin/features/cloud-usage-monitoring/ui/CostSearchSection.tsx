@@ -6,8 +6,8 @@ import { useSearchUsageTrend } from '../../../entities/cloud-usage/api/useCloudU
 import { UsageTrendChart } from './UsageTrendChart';
 import dayjs from 'dayjs';
 import type { Dayjs } from 'dayjs';
+import type { CollapseProps } from 'antd';
 
-const { Panel } = Collapse;
 const { RangePicker } = DatePicker;
 
 interface CostSearchSectionProps {}
@@ -67,16 +67,15 @@ export const CostSearchSection: React.FC<CostSearchSectionProps> = () => {
     dayjs(),
   ];
 
-  return (
-    <Collapse style={{ marginTop: '24px' }}>
-      <Panel
-        header={
-          <span>
-            <SearchOutlined /> 비용 검색 (커스텀 기간 조회)
-          </span>
-        }
-        key="search"
-      >
+  const collapseItems: CollapseProps['items'] = [
+    {
+      key: 'search',
+      label: (
+        <span>
+          <SearchOutlined /> 비용 검색 (커스텀 기간 조회)
+        </span>
+      ),
+      children: (
         <Card>
           <Form
             form={form}
@@ -159,8 +158,12 @@ export const CostSearchSection: React.FC<CostSearchSectionProps> = () => {
             </div>
           )}
         </Card>
-      </Panel>
-    </Collapse>
+      ),
+    },
+  ];
+
+  return (
+    <Collapse style={{ marginTop: '24px' }} items={collapseItems} />
   );
 };
 

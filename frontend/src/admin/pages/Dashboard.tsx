@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, Row, Col, Statistic, Typography } from 'antd';
 import { FolderOutlined, ToolOutlined, UserOutlined, BookOutlined } from '@ant-design/icons';
-import { CloudUsageSection } from '../features/cloud-usage-monitoring';
+import { CloudUsageSectionWithErrorBoundary } from '../features/cloud-usage-monitoring';
 
 const { Title } = Typography;
 
@@ -72,7 +72,7 @@ const Dashboard: React.FC = () => {
             </Row>
 
             {/* 클라우드 사용량 모니터링 섹션 */}
-            <CloudUsageSection />
+            <CloudUsageSectionWithErrorBoundary />
         </div>
     );
 };

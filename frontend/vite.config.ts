@@ -19,6 +19,20 @@ export default defineConfig(({ mode }) => {
             // 쿠키 전송을 위한 설정
             cookieDomainRewrite: '',
             cookiePathRewrite: '/',
+            // 타임아웃 설정 (기본 30초 -> 60초)
+            timeout: 60000,
+            // 연결 유지 설정
+            configure: (proxy, _options) => {
+              proxy.on('error', (err, _req, _res) => {
+                console.log('proxy error', err);
+              });
+              proxy.on('proxyReq', (proxyReq, req, _res) => {
+                console.log('Sending Request to the Target:', req.method, req.url);
+              });
+              proxy.on('proxyRes', (proxyRes, req, _res) => {
+                console.log('Received Response from the Target:', proxyRes.statusCode, req.url);
+              });
+            },
           }
         }
       },
