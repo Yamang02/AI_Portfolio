@@ -26,8 +26,10 @@ export const CloudUsageSection: React.FC = () => {
   // AWS 데이터
   const { data: awsUsage, isLoading: awsLoading, error: awsError } = useAwsCurrentUsage();
   const [awsGranularity, setAwsGranularity] = useState<'daily' | 'monthly'>('monthly');
-  const { data: awsTrends30Days, isLoading: awsTrend30DaysLoading, error: awsTrend30DaysError } = 
-    useAwsUsageTrend30Days(awsGranularity);
+  const { data: awsTrends30DaysDaily, isLoading: awsTrend30DaysDailyLoading, error: awsTrend30DaysDailyError } = 
+    useAwsUsageTrend30Days('daily');
+  const { data: awsTrends30DaysMonthly, isLoading: awsTrend30DaysMonthlyLoading, error: awsTrend30DaysMonthlyError } = 
+    useAwsUsageTrend30Days('monthly');
   const { data: awsTrends6Months, isLoading: awsTrend6MonthsLoading, error: awsTrend6MonthsError } = 
     useAwsUsageTrend6Months();
   const { data: awsBreakdown, isLoading: awsBreakdownLoading, error: awsBreakdownError } = useAwsBreakdown();
@@ -35,8 +37,10 @@ export const CloudUsageSection: React.FC = () => {
   // GCP 데이터
   const { data: gcpUsage, isLoading: gcpLoading, error: gcpError } = useGcpCurrentUsage();
   const [gcpGranularity, setGcpGranularity] = useState<'daily' | 'monthly'>('daily');
-  const { data: gcpTrends30Days, isLoading: gcpTrend30DaysLoading, error: gcpTrend30DaysError } = 
-    useGcpUsageTrend30Days(gcpGranularity);
+  const { data: gcpTrends30DaysDaily, isLoading: gcpTrend30DaysDailyLoading, error: gcpTrend30DaysDailyError } = 
+    useGcpUsageTrend30Days('daily');
+  const { data: gcpTrends30DaysMonthly, isLoading: gcpTrend30DaysMonthlyLoading, error: gcpTrend30DaysMonthlyError } = 
+    useGcpUsageTrend30Days('monthly');
   const { data: gcpTrends6Months, isLoading: gcpTrend6MonthsLoading, error: gcpTrend6MonthsError } = 
     useGcpUsageTrend6Months();
   const { data: gcpBreakdown, isLoading: gcpBreakdownLoading, error: gcpBreakdownError } = useGcpBreakdown();
@@ -60,10 +64,10 @@ export const CloudUsageSection: React.FC = () => {
               error={awsError}
               provider={CloudProvider.AWS}
               trends30Days={{
-                daily: awsTrends30Days,
-                monthly: awsTrends30Days,
-                isLoading: awsTrend30DaysLoading,
-                error: awsTrend30DaysError,
+                daily: awsTrends30DaysDaily,
+                monthly: awsTrends30DaysMonthly,
+                isLoading: awsTrend30DaysDailyLoading || awsTrend30DaysMonthlyLoading,
+                error: awsTrend30DaysDailyError || awsTrend30DaysMonthlyError,
               }}
               onGranularityChange={setAwsGranularity}
             />
@@ -105,10 +109,10 @@ export const CloudUsageSection: React.FC = () => {
               error={gcpError}
               provider={CloudProvider.GCP}
               trends30Days={{
-                daily: gcpTrends30Days,
-                monthly: gcpTrends30Days,
-                isLoading: gcpTrend30DaysLoading,
-                error: gcpTrend30DaysError,
+                daily: gcpTrends30DaysDaily,
+                monthly: gcpTrends30DaysMonthly,
+                isLoading: gcpTrend30DaysDailyLoading || gcpTrend30DaysMonthlyLoading,
+                error: gcpTrend30DaysDailyError || gcpTrend30DaysMonthlyError,
               }}
               onGranularityChange={setGcpGranularity}
             />
