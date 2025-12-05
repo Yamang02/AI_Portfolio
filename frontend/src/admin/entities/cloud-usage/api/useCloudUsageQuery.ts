@@ -20,6 +20,8 @@ export const useAwsCurrentUsage = () => {
     staleTime: CACHE_TTL_MS,
     refetchInterval: CACHE_TTL_MS,
     refetchOnWindowFocus: false,
+    retry: 1,
+    retryDelay: 1000,
   });
 };
 
@@ -87,6 +89,8 @@ export const useGcpCurrentUsage = () => {
     staleTime: CACHE_TTL_MS,
     refetchInterval: CACHE_TTL_MS,
     refetchOnWindowFocus: false,
+    retry: 1,
+    retryDelay: 1000,
   });
 };
 

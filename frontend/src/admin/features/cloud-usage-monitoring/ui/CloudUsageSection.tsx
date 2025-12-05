@@ -25,7 +25,7 @@ const { Title } = Typography;
 export const CloudUsageSection: React.FC = () => {
   // AWS 데이터
   const { data: awsUsage, isLoading: awsLoading, error: awsError } = useAwsCurrentUsage();
-  const [awsGranularity, setAwsGranularity] = useState<'daily' | 'monthly'>('monthly');
+  const [, setAwsGranularity] = useState<'daily' | 'monthly'>('monthly');
   const { data: awsTrends30DaysDaily, isLoading: awsTrend30DaysDailyLoading, error: awsTrend30DaysDailyError } = 
     useAwsUsageTrend30Days('daily');
   const { data: awsTrends30DaysMonthly, isLoading: awsTrend30DaysMonthlyLoading, error: awsTrend30DaysMonthlyError } = 
@@ -36,7 +36,7 @@ export const CloudUsageSection: React.FC = () => {
 
   // GCP 데이터
   const { data: gcpUsage, isLoading: gcpLoading, error: gcpError } = useGcpCurrentUsage();
-  const [gcpGranularity, setGcpGranularity] = useState<'daily' | 'monthly'>('daily');
+  const [, setGcpGranularity] = useState<'daily' | 'monthly'>('daily');
   const { data: gcpTrends30DaysDaily, isLoading: gcpTrend30DaysDailyLoading, error: gcpTrend30DaysDailyError } = 
     useGcpUsageTrend30Days('daily');
   const { data: gcpTrends30DaysMonthly, isLoading: gcpTrend30DaysMonthlyLoading, error: gcpTrend30DaysMonthlyError } = 
@@ -164,4 +164,60 @@ export const CloudUsageSection: React.FC = () => {
     </div>
   );
 };
+
+// Error Boundary로 감싸기 위한 래퍼
+export const CloudUsageSectionWithErrorBoundary: React.FC = () => {
+  return (
+    <ErrorBoundary>
+      <CloudUsageSection />
+    </ErrorBoundary>
+  );
+};
+
+// 간단한 Error Boundary
+class ErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { hasError: boolean; error?: Error }
+> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error('CloudUsageSection 에러:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ padding: '24px', background: '#fff2f0', border: '1px solid #ffccc7', borderRadius: '4px', marginTop: '24px' }}>
+          <h3 style={{ color: '#cf1322' }}>클라우드 사용량 모니터링 로드 실패</h3>
+          <p>컴포넌트를 렌더링하는 중 오류가 발생했습니다.</p>
+          {this.state.error && (
+            <details style={{ marginTop: '16px' }}>
+              <summary>에러 상세 정보</summary>
+              <pre style={{ background: '#f5f5f5', padding: '12px', borderRadius: '4px', overflow: 'auto' }}>
+                {this.state.error.toString()}
+                {this.state.error.stack}
+              </pre>
+            </details>
+          )}
+          <button 
+            onClick={() => this.setState({ hasError: false, error: undefined })}
+            style={{ marginTop: '16px', padding: '8px 16px', background: '#1890ff', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+          >
+            다시 시도
+          </button>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
 
