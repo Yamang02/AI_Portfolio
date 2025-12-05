@@ -43,7 +43,7 @@ const getCurrencyPrefix = (currency: string): string => {
     case 'USD':
       return '$';
     case 'KRW':
-      return '₩';
+      return '\u20A9'; // 원화 기호 (₩) - 유니코드로 명시
     default:
       return '';
   }
@@ -134,8 +134,25 @@ export const CloudUsageCard: React.FC<CloudUsageCardProps> = ({
   const displayCurrency = provider === CloudProvider.AWS ? 'USD' : 'KRW';
   const currencyPrefix = getCurrencyPrefix(displayCurrency);
 
-  // AWS는 지난 6개월, GCP는 최근 30일
-  const periodLabel = provider === CloudProvider.AWS ? '지난 6개월' : '최근 30일';
+  // 30일 트렌드 데이터에서 선택된 granularity에 따른 비용 계산
+  const trendCost = useMemo(() => {
+    if (!trends30Days) return null;
+    
+    const trendData = granularity === 'daily' ? trends30Days.daily : trends30Days.monthly;
+    if (!trendData || !Array.isArray(trendData) || trendData.length === 0) return null;
+    
+    // 선택된 granularity의 총 비용 합계
+    return trendData.reduce((sum, item) => {
+      const cost = provider === CloudProvider.AWS ? item.awsCost : item.gcpCost;
+      return sum + (cost || 0);
+    }, 0);
+  }, [trends30Days, granularity, provider]);
+
+  // 표시할 비용: trends30Days가 있으면 트렌드 합계, 없으면 현재 월 비용
+  const displayCost = trendCost !== null ? trendCost : usage.totalCost;
+  const periodLabel = trends30Days 
+    ? (granularity === 'daily' ? '최근 30일 일별 합계' : '최근 30일 월별 합계')
+    : (provider === CloudProvider.AWS ? '현재 월 비용' : '현재 월 비용');
 
   return (
     <Card>
@@ -156,8 +173,8 @@ export const CloudUsageCard: React.FC<CloudUsageCardProps> = ({
       <Row gutter={[16, 16]}>
         <Col xs={24} sm={12}>
           <Statistic
-            title={`${providerName} ${periodLabel} 비용`}
-            value={formatCurrency(usage.totalCost, displayCurrency, provider)}
+            title={`${providerName} ${periodLabel}`}
+            value={formatCurrency(displayCost, displayCurrency, provider)}
             prefix={currencyPrefix}
             valueStyle={{ color }}
           />
