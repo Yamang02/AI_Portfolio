@@ -202,10 +202,14 @@ public class GetCloudUsageService implements GetCloudUsageUseCase {
         if (cachePort.exists(cacheKey)) {
             CloudUsage cached = cachePort.getUsage(cacheKey);
             if (cached != null) {
-                log.debug("Cache hit for cloud usage: {}", cacheKey);
+                log.info("Cache HIT for cloud usage: provider={}, period={} to {}, totalCost={}, currency={}", 
+                        provider, start, end, cached.getTotalCost(), cached.getCurrency());
                 return cached;
             }
         }
+
+        log.info("Cache MISS for cloud usage: provider={}, period={} to {}, fetching from external API", 
+                provider, start, end);
 
         // 외부 API 호출
         CloudUsagePort port = getPortMap().get(provider);
@@ -214,7 +218,12 @@ public class GetCloudUsageService implements GetCloudUsageUseCase {
             return CloudUsage.empty(provider, new Period(start, end));
         }
 
+        long startTime = System.currentTimeMillis();
         CloudUsage usage = port.fetchUsage(start, end);
+        long duration = System.currentTimeMillis() - startTime;
+        
+        log.info("Fetched cloud usage from external API: provider={}, period={} to {}, totalCost={}, currency={}, duration={}ms", 
+                provider, start, end, usage.getTotalCost(), usage.getCurrency(), duration);
 
         // 기간별 캐시 저장 (6시간 TTL)
         cachePort.saveUsage(cacheKey, usage, CACHE_TTL_SECONDS);

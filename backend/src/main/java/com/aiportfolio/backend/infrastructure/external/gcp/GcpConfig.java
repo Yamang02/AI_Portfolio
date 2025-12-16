@@ -12,9 +12,11 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "cloud.gcp")
 public class GcpConfig {
     private String projectId;
-    private String billingDataset;
-    private String billingTable;
+    private String billingAccountId; // Billing API 사용 시 필요
+    private String billingDataset; // BigQuery 사용 시 필요 (선택적)
+    private String billingTable; // BigQuery 사용 시 필요 (선택적)
     private String credentialsPath; // 서비스 계정 JSON 키 파일 경로
+    private boolean useBillingApi = true; // Billing API 사용 여부 (기본값: true)
 }
 
 
