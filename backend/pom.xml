@@ -23,6 +23,8 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- gRPC 버전 명시적 지정 (GCP 라이브러리 간 충돌 방지) -->
+        <grpc.version>1.60.1</grpc.version>
     </properties>
 
     <dependencies>
@@ -150,11 +152,40 @@
             <version>2.20.26</version>
         </dependency>
 
-        <!-- GCP BigQuery -->
+        <!-- GCP BigQuery (기존 호환성을 위해 유지) -->
         <dependency>
             <groupId>com.google.cloud</groupId>
             <artifactId>google-cloud-bigquery</artifactId>
             <version>2.23.0</version>
+        </dependency>
+
+        <!-- Google Cloud Billing API -->
+        <dependency>
+            <groupId>com.google.cloud</groupId>
+            <artifactId>google-cloud-billing</artifactId>
+            <version>2.20.0</version>
+        </dependency>
+
+        <!-- gRPC 버전 명시적 지정 (GCP 라이브러리 간 충돌 방지) -->
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-core</artifactId>
+            <version>${grpc.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-netty-shaded</artifactId>
+            <version>${grpc.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-stub</artifactId>
+            <version>${grpc.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-protobuf</artifactId>
+            <version>${grpc.version}</version>
         </dependency>
     </dependencies>
 

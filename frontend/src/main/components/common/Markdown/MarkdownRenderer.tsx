@@ -4,7 +4,60 @@ import remarkGfm from 'remark-gfm';
 import remarkHeadingId from 'remark-heading-id';
 import rehypeSanitize from 'rehype-sanitize';
 import rehypeHighlight from 'rehype-highlight';
+import { visit } from 'unist-util-visit';
+import type { Root, Element } from 'hast';
+import { scrollToSection } from '@features/project-gallery/hooks/useActiveSection';
 import 'highlight.js/styles/github-dark.css'; // 코드 블록 스타일
+
+// useTOC와 동일한 ID 생성 함수
+const generateHeadingId = (text: string, index: number): string => {
+  let id = text
+    .toLowerCase()
+    .replace(/[^\w\s-가-힣]/g, '') // 특수문자 제거
+    .replace(/\s+/g, '-') // 공백을 하이픈으로 변경
+    .replace(/-+/g, '-') // 연속된 하이픈을 하나로
+    .replace(/^-|-$/g, ''); // 앞뒤 하이픈 제거
+
+  // ID가 비어있으면 fallback으로 인덱스 사용
+  if (!id) {
+    id = `heading-${index}`;
+  }
+
+  return id;
+};
+
+// 노드에서 텍스트 추출 헬퍼 함수
+const extractTextFromNode = (node: any): string => {
+  if (node.type === 'text') {
+    return node.value || '';
+  }
+  if (node.children && Array.isArray(node.children)) {
+    return node.children.map(extractTextFromNode).join('').trim();
+  }
+  return '';
+};
+
+// rehype 플러그인: 헤딩 ID를 useTOC와 동일한 방식으로 수정
+const rehypeFixHeadingIds = () => {
+  return (tree: Root) => {
+    let headingIndex = 0;
+    visit(tree, 'element', (node: Element) => {
+      if (['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(node.tagName)) {
+        // 헤딩 텍스트 추출
+        const text = extractTextFromNode(node);
+        if (text) {
+          // useTOC와 동일한 방식으로 ID 생성
+          const newId = generateHeadingId(text, headingIndex);
+          if (!node.properties) {
+            node.properties = {};
+          }
+          node.properties.id = newId;
+          headingIndex++;
+        }
+      }
+    });
+  };
+};
 
 interface MarkdownRendererProps {
   content: string;
@@ -88,16 +141,30 @@ const markdownComponents = {
   ),
   
   // 링크 스타일링
-  a: ({ href, children }: { href?: string; children: React.ReactNode }) => (
-    <a 
-      href={href}
-      className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 underline transition-colors"
-      target="_blank"
-      rel="noopener noreferrer"
-    >
-      {children}
-    </a>
-  ),
+  a: ({ href, children }: { href?: string; children: React.ReactNode }) => {
+    // 앵커 링크인지 확인 (#로 시작하는 경우)
+    const isAnchorLink = href?.startsWith('#');
+    
+    const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+      if (isAnchorLink && href) {
+        e.preventDefault();
+        const sectionId = href.substring(1); // # 제거
+        scrollToSection(sectionId, 100, 'smooth');
+      }
+    };
+
+    return (
+      <a 
+        href={href}
+        onClick={handleClick}
+        className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 underline transition-colors"
+        target={isAnchorLink ? undefined : '_blank'}
+        rel={isAnchorLink ? undefined : 'noopener noreferrer'}
+      >
+        {children}
+      </a>
+    );
+  },
   
   // 코드 스타일링
   code: ({ children, className }: { children: React.ReactNode; className?: string }) => {
@@ -198,9 +265,10 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
       <ReactMarkdown
         remarkPlugins={[
           remarkGfm, // GitHub Flavored Markdown (테이블, 체크박스 등)
-          [remarkHeadingId, { defaults: true }] // 헤딩에 자동 ID 생성
+          remarkHeadingId // 헤딩에 자동 ID 생성 (기본 방식)
         ]}
         rehypePlugins={[
+          rehypeFixHeadingIds, // useTOC와 동일한 방식으로 ID 수정
           rehypeSanitize, // XSS 방지
           rehypeHighlight // 코드 블록 신택스 하이라이트
         ]}

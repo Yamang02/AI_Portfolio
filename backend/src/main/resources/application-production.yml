@@ -116,7 +116,14 @@ management:
 logging:
   level:
     com.aiportfolio.backend: INFO
+    com.aiportfolio.backend.infrastructure.external.gcp: INFO  # GCP BigQuery 쿼리 로그
+    com.aiportfolio.backend.application.monitoring: INFO  # Cloud Usage 서비스 로그
+    com.aiportfolio.backend.infrastructure.web.controller.CloudUsageController: INFO  # API 엔드포인트 로그
     org.springframework.web: WARN
+    com.google.cloud.bigquery: WARN  # BigQuery 라이브러리 내부 로그는 WARN으로 제한
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
 
 # Server configuration
 server:

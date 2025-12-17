@@ -28,6 +28,7 @@ import { ProjectLinksForm } from '../features/project-management/ui/ProjectLinks
 import { DateRangeWithOngoing } from '../../shared/ui/date-range';
 import dayjs from 'dayjs';
 import { useUploadImage, useUploadImages, useDeleteImage } from '../hooks/useUpload';
+import { transformMyContributions, transformTechnologies, transformScreenshots } from '../utils/dataTransformers';
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -117,15 +118,10 @@ const ProjectEdit: React.FC = () => {
     try {
       console.log('[ProjectEdit] handleSubmit called', { isNew, id, values });
 
-      // screenshots를 문자열 배열로 변환 (객체 배열인 경우 imageUrl 추출, 이미 문자열 배열인 경우 그대로 사용)
-      const screenshotsArray = screenshots && screenshots.length > 0
-        ? screenshots.map((s: any) => typeof s === 'string' ? s : s?.imageUrl || s).filter(Boolean)
-        : [];
-
-      // myContributions: 문자열을 배열로 변환 (줄바꿈 기준)
-      const myContributionsArray = values.myContributions
-        ? values.myContributions.split('\n').filter((line: string) => line.trim())
-        : undefined;
+      // 데이터 변환 유틸리티 사용 (타입 안전성 보장)
+      const screenshotsArray = transformScreenshots(screenshots);
+      const myContributionsArray = transformMyContributions(values.myContributions);
+      const technologiesArray = transformTechnologies(technologies);
 
       if (isNew) {
         console.log('[ProjectEdit] Creating new project');
@@ -143,11 +139,11 @@ const ProjectEdit: React.FC = () => {
           startDate: values.startDate ? values.startDate.format('YYYY-MM-DD') : undefined,
           endDate: values.endDate?.format('YYYY-MM-DD') || undefined,
           imageUrl: values.imageUrl,
-          screenshots: screenshotsArray.length > 0 ? screenshotsArray : undefined,
+          screenshots: screenshotsArray,
           githubUrl: values.githubUrl,
           liveUrl: values.liveUrl,
           externalUrl: values.externalUrl,
-          technologies: technologies,
+          technologies: technologiesArray || [],
           sortOrder: values.sortOrder,
         };
 
@@ -170,11 +166,11 @@ const ProjectEdit: React.FC = () => {
           startDate: values.startDate ? values.startDate.format('YYYY-MM-DD') : undefined,
           endDate: values.endDate?.format('YYYY-MM-DD') || undefined,
           imageUrl: values.imageUrl,
-          screenshots: screenshotsArray.length > 0 ? screenshotsArray : undefined,
+          screenshots: screenshotsArray,
           githubUrl: values.githubUrl,
           liveUrl: values.liveUrl,
           externalUrl: values.externalUrl,
-          technologies: technologies && technologies.length > 0 ? technologies : undefined,
+          technologies: technologiesArray && technologiesArray.length > 0 ? technologiesArray : undefined,
           sortOrder: values.sortOrder,
         };
 
@@ -212,8 +208,12 @@ const ProjectEdit: React.FC = () => {
     setScreenshots(newScreenshots);
   };
 
-  const handleTechnologiesChange = (newTechs: string[]) => {
-    setTechnologies(newTechs);
+  const handleTechnologiesChange = (newTechs: number[]) => {
+    // 타입 안전성 보장: number[]만 허용
+    const validTechs = Array.isArray(newTechs)
+      ? newTechs.filter((id): id is number => typeof id === 'number' && !isNaN(id) && id > 0)
+      : [];
+    setTechnologies(validTechs);
   };
 
   if (!isNew && isLoading) {

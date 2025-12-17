@@ -39,8 +39,11 @@ public class CloudUsageController {
      */
     @GetMapping("/aws/current")
     public ResponseEntity<ApiResponse<CloudUsageDto>> getAwsCurrent() {
-        log.debug("Fetching AWS current month usage");
+        log.info("API Request: GET /api/admin/cloud-usage/aws/current");
         var usage = getCloudUsageUseCase.getAwsCurrentMonthUsage();
+        log.info("API Response: AWS current usage - totalCost={}, currency={}, services={}", 
+                usage.getTotalCost(), usage.getCurrency(), 
+                usage.getServices() != null ? usage.getServices().size() : 0);
         return ResponseEntity.ok(ApiResponse.success(CloudUsageDto.from(usage), "AWS 현재 월 사용량 조회 성공"));
     }
 
@@ -112,8 +115,11 @@ public class CloudUsageController {
      */
     @GetMapping("/gcp/current")
     public ResponseEntity<ApiResponse<CloudUsageDto>> getGcpCurrent() {
-        log.debug("Fetching GCP current month usage");
+        log.info("API Request: GET /api/admin/cloud-usage/gcp/current");
         var usage = getCloudUsageUseCase.getGcpCurrentMonthUsage();
+        log.info("API Response: GCP current usage - totalCost={}, currency={}, services={}", 
+                usage.getTotalCost(), usage.getCurrency(), 
+                usage.getServices() != null ? usage.getServices().size() : 0);
         return ResponseEntity.ok(ApiResponse.success(CloudUsageDto.from(usage), "GCP 현재 월 사용량 조회 성공"));
     }
 
@@ -137,11 +143,12 @@ public class CloudUsageController {
     @GetMapping("/gcp/trend/30days")
     public ResponseEntity<ApiResponse<List<UsageTrendDto.TrendItemDto>>> getGcpTrend30Days(
             @RequestParam(defaultValue = "daily") String granularity) {
-        log.debug("Fetching GCP usage trend for 30 days, granularity={}", granularity);
+        log.info("API Request: GET /api/admin/cloud-usage/gcp/trend/30days?granularity={}", granularity);
         var trends = getCloudUsageUseCase.getGcpUsageTrend30Days(granularity);
         List<UsageTrendDto.TrendItemDto> dtos = trends.stream()
             .map(UsageTrendDto.TrendItemDto::from)
             .collect(Collectors.toList());
+        log.info("API Response: GCP 30days trend - granularity={}, dataPoints={}", granularity, dtos.size());
         return ResponseEntity.ok(ApiResponse.success(dtos, "GCP 30일 비용 추이 조회 성공"));
     }
 
