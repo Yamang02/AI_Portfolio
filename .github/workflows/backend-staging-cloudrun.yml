@@ -131,4 +131,4 @@ jobs:
           --max-instances 20 \
           --timeout 600 \
           --cpu-boost \
-          --startup-probe="httpGet.path=/actuator/health,httpGet.port=8080,initialDelaySeconds=30,timeoutSeconds=5,periodSeconds=10,failureThreshold=6"
+          --startup-probe="httpGet.path=/actuator/health,httpGet.port=8080,initialDelaySeconds=60,timeoutSeconds=5,periodSeconds=10,failureThreshold=6"
