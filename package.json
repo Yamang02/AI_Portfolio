@@ -48,6 +48,7 @@
     "url": "https://github.com/Yamang02/AI_Portfolio"
   },
   "dependencies": {
-    "aws": "^0.0.3-2"
+    "aws": "^0.0.3-2",
+    "gradlew": "^0.0.1-security"
   }
 }

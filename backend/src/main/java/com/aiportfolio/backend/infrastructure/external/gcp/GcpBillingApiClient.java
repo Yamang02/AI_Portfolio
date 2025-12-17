@@ -1,12 +1,7 @@
 package com.aiportfolio.backend.infrastructure.external.gcp;
 
-import com.google.api.services.cloudbilling.v1.CloudBilling;
-import com.google.api.services.cloudbilling.v1.CloudBillingScopes;
-import com.google.api.services.cloudbilling.v1.model.ProjectBillingInfo;
-import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.billing.v1.*;
-import com.google.protobuf.Timestamp;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
@@ -14,7 +9,6 @@ import org.springframework.stereotype.Component;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,11 +20,11 @@ import java.util.List;
  */
 @Slf4j
 @Component
-@ConditionalOnProperty(name = "cloud.gcp.use-billing-api", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(name = "cloud.gcp.mock.enabled", havingValue = "false", matchIfMissing = true)
 public class GcpBillingApiClient {
 
     private final GcpConfig config;
-    private final CloudBillingServiceClient billingClient;
+    private final CloudBillingClient billingClient;
 
     public GcpBillingApiClient(GcpConfig config) throws IOException {
         this.config = config;
@@ -40,24 +34,26 @@ public class GcpBillingApiClient {
     /**
      * Cloud Billing API 클라이언트 초기화
      */
-    private CloudBillingServiceClient initializeBillingClient() throws IOException {
+    private CloudBillingClient initializeBillingClient() throws IOException {
         log.info("Initializing Google Cloud Billing API client for project: {}", config.getProjectId());
         
-        GoogleCredentials credentials;
+        // Cloud Billing API 스코프
+        String billingScope = "https://www.googleapis.com/auth/cloud-billing";
+        
         if (config.getCredentialsPath() != null && !config.getCredentialsPath().isEmpty()) {
-            credentials = GoogleCredentials.fromStream(new FileInputStream(config.getCredentialsPath()))
-                    .createScoped(CloudBillingServiceClient.getServiceScopes());
+            // 서비스 계정 키 파일 사용
+            GoogleCredentials credentials = GoogleCredentials.fromStream(new FileInputStream(config.getCredentialsPath()))
+                    .createScoped(billingScope);
+            
+            return CloudBillingClient.create(
+                CloudBillingSettings.newBuilder()
+                    .setCredentialsProvider(() -> credentials)
+                    .build()
+            );
         } else {
-            // Application Default Credentials 사용
-            credentials = GoogleCredentials.getApplicationDefault()
-                    .createScoped(CloudBillingServiceClient.getServiceScopes());
+            // Application Default Credentials 사용 (자동으로 인증 처리)
+            return CloudBillingClient.create();
         }
-
-        return CloudBillingServiceClient.create(
-            CloudBillingServiceSettings.newBuilder()
-                .setCredentialsProvider(() -> credentials)
-                .build()
-        );
     }
 
     /**
@@ -69,9 +65,7 @@ public class GcpBillingApiClient {
             String projectName = "projects/" + config.getProjectId();
             log.debug("Fetching billing info for project: {}", projectName);
             
-            // REST API를 사용하기 위해 CloudBilling 클라이언트 사용
-            // (gRPC 클라이언트는 프로젝트 청구 정보 조회에 제한적)
-            return null; // TODO: REST API 클라이언트 구현 필요
+            return billingClient.getProjectBillingInfo(projectName);
         } catch (Exception e) {
             log.error("Failed to get project billing info", e);
             throw new RuntimeException("Failed to get project billing info: " + e.getMessage(), e);
@@ -114,6 +108,7 @@ public class GcpBillingApiClient {
         if (billingClient != null) {
             billingClient.close();
         }
+        log.debug("GcpBillingApiClient closed");
     }
 }
 
