@@ -21,39 +21,48 @@ import java.util.List;
 @Slf4j
 @Component
 @ConditionalOnProperty(name = "cloud.gcp.mock.enabled", havingValue = "false", matchIfMissing = true)
+@org.springframework.context.annotation.Lazy
 public class GcpBillingApiClient {
 
     private final GcpConfig config;
-    private final CloudBillingClient billingClient;
+    private CloudBillingClient billingClient;
 
-    public GcpBillingApiClient(GcpConfig config) throws IOException {
+    public GcpBillingApiClient(GcpConfig config) {
         this.config = config;
-        this.billingClient = initializeBillingClient();
+        // Lazy initialization: 클라이언트는 첫 사용 시점에 초기화
     }
 
     /**
-     * Cloud Billing API 클라이언트 초기화
+     * Cloud Billing API 클라이언트 초기화 (Lazy)
      */
-    private CloudBillingClient initializeBillingClient() throws IOException {
-        log.info("Initializing Google Cloud Billing API client for project: {}", config.getProjectId());
-        
-        // Cloud Billing API 스코프
-        String billingScope = "https://www.googleapis.com/auth/cloud-billing";
-        
-        if (config.getCredentialsPath() != null && !config.getCredentialsPath().isEmpty()) {
-            // 서비스 계정 키 파일 사용
-            GoogleCredentials credentials = GoogleCredentials.fromStream(new FileInputStream(config.getCredentialsPath()))
-                    .createScoped(billingScope);
-            
-            return CloudBillingClient.create(
-                CloudBillingSettings.newBuilder()
-                    .setCredentialsProvider(() -> credentials)
-                    .build()
-            );
-        } else {
-            // Application Default Credentials 사용 (자동으로 인증 처리)
-            return CloudBillingClient.create();
+    private synchronized CloudBillingClient getBillingClient() {
+        if (billingClient == null) {
+            try {
+                log.info("Initializing Google Cloud Billing API client for project: {}", config.getProjectId());
+                
+                // Cloud Billing API 스코프
+                String billingScope = "https://www.googleapis.com/auth/cloud-billing";
+                
+                if (config.getCredentialsPath() != null && !config.getCredentialsPath().isEmpty()) {
+                    // 서비스 계정 키 파일 사용
+                    GoogleCredentials credentials = GoogleCredentials.fromStream(new FileInputStream(config.getCredentialsPath()))
+                            .createScoped(billingScope);
+                    
+                    billingClient = CloudBillingClient.create(
+                        CloudBillingSettings.newBuilder()
+                            .setCredentialsProvider(() -> credentials)
+                            .build()
+                    );
+                } else {
+                    // Application Default Credentials 사용 (자동으로 인증 처리)
+                    billingClient = CloudBillingClient.create();
+                }
+            } catch (IOException e) {
+                log.error("Failed to initialize Cloud Billing API client", e);
+                throw new RuntimeException("Failed to initialize Cloud Billing API client: " + e.getMessage(), e);
+            }
         }
+        return billingClient;
     }
 
     /**
@@ -65,7 +74,7 @@ public class GcpBillingApiClient {
             String projectName = "projects/" + config.getProjectId();
             log.debug("Fetching billing info for project: {}", projectName);
             
-            return billingClient.getProjectBillingInfo(projectName);
+            return getBillingClient().getProjectBillingInfo(projectName);
         } catch (Exception e) {
             log.error("Failed to get project billing info", e);
             throw new RuntimeException("Failed to get project billing info: " + e.getMessage(), e);
