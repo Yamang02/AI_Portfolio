@@ -1,5 +1,6 @@
 package com.aiportfolio.backend.infrastructure.web.admin.controller;
 
+import com.aiportfolio.backend.domain.portfolio.port.out.ExperienceRelationshipPort;
 import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.*;
 import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.*;
 import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Collectors;
 
 /**
@@ -31,6 +33,7 @@ public class AdminExperienceRelationshipController {
     private final ProjectJpaRepository projectJpaRepository;
     private final ExperienceTechStackJpaRepository experienceTechStackJpaRepository;
     private final ExperienceProjectJpaRepository experienceProjectJpaRepository;
+    private final ExperienceRelationshipPort experienceRelationshipPort;
 
     // ==================== 기술스택 관계 ====================
 
@@ -155,37 +158,18 @@ public class AdminExperienceRelationshipController {
             @PathVariable String id,
             @RequestBody BulkTechStackRelationshipRequest request) {
         try {
-            ExperienceJpaEntity experience = experienceJpaRepository.findByBusinessId(id)
-                .orElseThrow(() -> new IllegalArgumentException("Experience not found"));
+            List<ExperienceRelationshipPort.TechStackRelation> relationships =
+                request.getTechStackRelationships() == null
+                    ? List.of()
+                    : request.getTechStackRelationships().stream()
+                        .map(item -> new ExperienceRelationshipPort.TechStackRelation(
+                            item.getTechStackId(),
+                            item.getIsPrimary() != null ? item.getIsPrimary() : false,
+                            item.getUsageDescription()
+                        ))
+                        .collect(Collectors.toList());
 
-            // 1. 기존 관계 전체 삭제
-            List<ExperienceTechStackJpaEntity> existingRelations =
-                experienceTechStackJpaRepository.findByExperienceId(experience.getId());
-
-            experienceTechStackJpaRepository.deleteAll(existingRelations);
-            log.info("Deleted {} existing tech stack relationships", existingRelations.size());
-
-            // 2. 새 관계 생성
-            if (request.getTechStackRelationships() != null) {
-                for (BulkTechStackRelationshipRequest.TechStackRelationshipItem item : request.getTechStackRelationships()) {
-                    // ID로 기술스택 조회
-                    TechStackMetadataJpaEntity techStack = techStackMetadataJpaRepository
-                        .findById(item.getTechStackId())
-                        .orElseThrow(() -> new IllegalArgumentException(
-                            "TechStack not found: " + item.getTechStackId()));
-
-                    // 새 관계 생성
-                    ExperienceTechStackJpaEntity relationship = ExperienceTechStackJpaEntity.builder()
-                        .experience(experience)
-                        .techStack(techStack)
-                        .isPrimary(item.getIsPrimary() != null ? item.getIsPrimary() : false)
-                        .usageDescription(item.getUsageDescription())
-                        .build();
-
-                    experienceTechStackJpaRepository.save(relationship);
-                }
-                log.info("Created {} new tech stack relationships", request.getTechStackRelationships().size());
-            }
+            experienceRelationshipPort.replaceTechStacks(id, relationships);
 
             return ResponseEntity.ok(ApiResponse.success(null, "기술스택 관계 일괄 업데이트 성공"));
         } catch (IllegalArgumentException e) {
