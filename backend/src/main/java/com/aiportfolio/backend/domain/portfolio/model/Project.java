@@ -124,4 +124,3 @@ public class Project {
         return size;
     }
 }
-
