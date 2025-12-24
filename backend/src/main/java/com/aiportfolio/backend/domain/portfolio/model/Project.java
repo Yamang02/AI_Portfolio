@@ -1,5 +1,6 @@
 package com.aiportfolio.backend.domain.portfolio.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
@@ -71,7 +72,9 @@ public class Project {
     
     /**
      * 기술 스택 이름 리스트 반환 (호환성용)
+     * Redis 캐시 직렬화/역직렬화에서 제외 (computed property)
      */
+    @JsonIgnore
     public List<String> getTechnologies() {
         return techStackMetadata != null ? 
                techStackMetadata.stream()
@@ -82,7 +85,9 @@ public class Project {
     
     /**
      * 핵심 기술 스택만 반환
+     * Redis 캐시 직렬화/역직렬화에서 제외 (computed property)
      */
+    @JsonIgnore
     public List<TechStackMetadata> getCoreTechnologies() {
         return techStackMetadata != null ? 
                techStackMetadata.stream()
