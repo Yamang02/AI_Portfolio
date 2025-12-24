@@ -63,7 +63,8 @@ public class DataController {
     @GetMapping("/projects")
     @Operation(summary = "프로젝트 데이터 조회", description = "모든 프로젝트 정보를 조회합니다.")
     public ResponseEntity<ApiResponse<List<ProjectDataResponse>>> getProjects() {
-        List<ProjectDataResponse> projects = getProjectsUseCase.getAllProjects().stream()
+        List<?> rawProjects = getProjectsUseCase.getAllProjects();
+        List<ProjectDataResponse> projects = rawProjects.stream()
             .map(this::toProjectResponse)
             .collect(Collectors.toList());
         return ResponseEntity.ok(ApiResponse.success(projects, "프로젝트 목록 조회 성공"));
