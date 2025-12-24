@@ -1,5 +1,6 @@
 package com.aiportfolio.backend.infrastructure.web.admin.controller;
 
+import com.aiportfolio.backend.domain.portfolio.port.out.ProjectRelationshipPort;
 import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.ProjectJpaEntity;
 import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.ProjectTechStackJpaEntity;
 import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.TechStackMetadataJpaEntity;
@@ -35,6 +36,7 @@ public class AdminProjectRelationshipController {
     private final ProjectJpaRepository projectJpaRepository;
     private final TechStackMetadataJpaRepository techStackMetadataJpaRepository;
     private final ProjectTechStackJpaRepository projectTechStackJpaRepository;
+    private final ProjectRelationshipPort projectRelationshipPort;
 
     // ==================== 기술스택 관계 ====================
 
@@ -145,37 +147,18 @@ public class AdminProjectRelationshipController {
             @PathVariable String id,
             @RequestBody BulkTechStackRelationshipRequest request) {
         try {
-            ProjectJpaEntity project = projectJpaRepository.findByBusinessId(id)
-                .orElseThrow(() -> new IllegalArgumentException("Project not found"));
+            List<ProjectRelationshipPort.TechStackRelation> relationships =
+                request.getTechStackRelationships() == null
+                    ? List.of()
+                    : request.getTechStackRelationships().stream()
+                        .map(item -> new ProjectRelationshipPort.TechStackRelation(
+                            item.getTechStackId(),
+                            item.getIsPrimary() != null ? item.getIsPrimary() : false,
+                            item.getUsageDescription()
+                        ))
+                        .collect(Collectors.toList());
 
-            // 1. 기존 관계 전체 삭제
-            List<ProjectTechStackJpaEntity> existingRelations =
-                projectTechStackJpaRepository.findByProjectId(project.getId());
-
-            projectTechStackJpaRepository.deleteAll(existingRelations);
-            log.info("Deleted {} existing tech stack relationships", existingRelations.size());
-
-            // 2. 새 관계 생성
-            if (request.getTechStackRelationships() != null) {
-                for (BulkTechStackRelationshipRequest.TechStackRelationshipItem item : request.getTechStackRelationships()) {
-                    // ID로 기술스택 조회
-                    TechStackMetadataJpaEntity techStack = techStackMetadataJpaRepository
-                        .findById(item.getTechStackId())
-                        .orElseThrow(() -> new IllegalArgumentException(
-                            "TechStack not found: " + item.getTechStackId()));
-
-                    // 새 관계 생성
-                    ProjectTechStackJpaEntity relationship = ProjectTechStackJpaEntity.builder()
-                        .project(project)
-                        .techStack(techStack)
-                        .isPrimary(item.getIsPrimary() != null ? item.getIsPrimary() : false)
-                        .usageDescription(item.getUsageDescription())
-                        .build();
-
-                    projectTechStackJpaRepository.save(relationship);
-                }
-                log.info("Created {} new tech stack relationships", request.getTechStackRelationships().size());
-            }
+            projectRelationshipPort.replaceTechStacks(id, relationships);
 
             return ResponseEntity.ok(ApiResponse.success(null, "기술스택 관계 일괄 업데이트 성공"));
         } catch (IllegalArgumentException e) {
