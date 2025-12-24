@@ -16,7 +16,6 @@ import com.aiportfolio.backend.infrastructure.persistence.postgres.specification
 // 외부 라이브러리 imports
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -58,7 +57,7 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
     // === 프로젝트 관련 구현 ===
 
     @Override
-    @Cacheable(value = "portfolio", key = "'projects'")
+    // @Cacheable 어노테이션 제거 - Repository는 순수 데이터 접근만 담당
     public List<Project> findAllProjects() {
         log.info("PostgreSQL에서 프로젝트 데이터를 조회합니다.");
         try {
@@ -77,7 +76,7 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
             return projects;
         } catch (Exception e) {
             log.error("프로젝트 조회 중 오류 발생", e);
-            return new ArrayList<>();
+            throw new RuntimeException("프로젝트 조회 실패", e);
         }
     }
 
@@ -161,7 +160,7 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
     // === 경력 관련 구현 ===
 
     @Override
-    @Cacheable(value = "portfolio", key = "'experiences'")
+    // @Cacheable 어노테이션 제거 - Repository는 순수 데이터 접근만 담당
     public List<Experience> findAllExperiences() {
         return findAllExperiencesInternal();
     }
@@ -254,7 +253,7 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
     // === 교육 관련 구현 ===
 
     @Override
-    @Cacheable(value = "portfolio", key = "'educations'")
+    // @Cacheable 어노테이션 제거 - Repository는 순수 데이터 접근만 담당
     public List<Education> findAllEducations() {
         return findAllEducationsInternal();
     }
@@ -346,7 +345,7 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
     // === 자격증 관련 구현 ===
 
     @Override
-    @Cacheable(value = "portfolio", key = "'certifications'")
+    // @Cacheable 어노테이션 제거 - Repository는 순수 데이터 접근만 담당
     public List<Certification> findAllCertifications() {
         return findAllCertificationsInternal();
     }

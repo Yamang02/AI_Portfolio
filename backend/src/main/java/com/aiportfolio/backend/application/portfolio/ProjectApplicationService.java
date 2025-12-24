@@ -74,10 +74,15 @@ public class ProjectApplicationService implements GetProjectsUseCase, ManageProj
     }
     
     @Override
+    @CacheEvict(value = "portfolio", key = "'projects:all'")
+    public void refreshProjectsCache() {
+        log.info("프로젝트 캐시 무효화");
+    }
+
+    @Override
     @CacheEvict(value = {"portfolio", "github"}, allEntries = true)
     public void refreshCache() {
-        log.info("프로젝트 캐시 무효화 요청");
-        log.info("프로젝트 캐시가 무효화되었습니다");
+        log.info("전체 포트폴리오 캐시 무효화");
     }
     
     @Override
