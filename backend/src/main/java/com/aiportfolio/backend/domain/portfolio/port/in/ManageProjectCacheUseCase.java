@@ -7,12 +7,17 @@ package com.aiportfolio.backend.domain.portfolio.port.in;
 public interface ManageProjectCacheUseCase {
     
     /**
-     * 프로젝트 데이터 캐시를 무효화합니다
+     * 프로젝트 캐시만 무효화
+     */
+    void refreshProjectsCache();
+    
+    /**
+     * 모든 포트폴리오 캐시 무효화
      */
     void refreshCache();
     
     /**
-     * 캐시 상태를 확인합니다
+     * 캐시 상태를 확인합니다 (Redis TTL 기반)
      */
     boolean isCacheValid();
 }

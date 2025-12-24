@@ -12,6 +12,7 @@ import com.aiportfolio.backend.domain.portfolio.model.Project;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -52,57 +53,57 @@ public class PortfolioService implements GetAllDataUseCase, GetProjectsUseCase, 
     }
     
     @Override
+    @Cacheable(
+        value = "portfolio",
+        key = "'experiences:all'",
+        unless = "#result == null || #result.isEmpty()"
+    )
     public List<Experience> getAllExperiences() {
-        try {
-            log.debug("모든 경험 데이터 조회 요청");
-            List<Experience> experiences = portfolioRepositoryPort.findAllExperiences();
-            log.info("경험 데이터 조회 완료: {} 개", experiences.size());
-            return experiences;
-        } catch (Exception e) {
-            log.error("경험 데이터 조회 중 오류 발생", e);
-            throw new RuntimeException("경험 데이터 조회 실패", e);
-        }
+        log.debug("캐시 미스 - PostgreSQL에서 경험 조회");
+        List<Experience> experiences = portfolioRepositoryPort.findAllExperiences();
+        log.info("경험 데이터 조회 완료: {} 개", experiences.size());
+        return experiences;
     }
     
     @Override
+    @Cacheable(
+        value = "portfolio",
+        key = "'educations:all'",
+        unless = "#result == null || #result.isEmpty()"
+    )
     public List<Education> getAllEducations() {
-        try {
-            log.debug("모든 교육 데이터 조회 요청");
-            List<Education> educations = portfolioRepositoryPort.findAllEducations();
-            log.info("교육 데이터 조회 완료: {} 개", educations.size());
-            return educations;
-        } catch (Exception e) {
-            log.error("교육 데이터 조회 중 오류 발생", e);
-            throw new RuntimeException("교육 데이터 조회 실패", e);
-        }
+        log.debug("캐시 미스 - PostgreSQL에서 교육 조회");
+        List<Education> educations = portfolioRepositoryPort.findAllEducations();
+        log.info("교육 데이터 조회 완료: {} 개", educations.size());
+        return educations;
     }
     
     @Override
+    @Cacheable(
+        value = "portfolio",
+        key = "'certifications:all'",
+        unless = "#result == null || #result.isEmpty()"
+    )
     public List<Certification> getAllCertifications() {
-        try {
-            log.debug("모든 자격증 데이터 조회 요청");
-            List<Certification> certifications = portfolioRepositoryPort.findAllCertifications();
-            log.info("자격증 데이터 조회 완료: {} 개", certifications.size());
-            return certifications;
-        } catch (Exception e) {
-            log.error("자격증 데이터 조회 중 오류 발생", e);
-            throw new RuntimeException("자격증 데이터 조회 실패", e);
-        }
+        log.debug("캐시 미스 - PostgreSQL에서 자격증 조회");
+        List<Certification> certifications = portfolioRepositoryPort.findAllCertifications();
+        log.info("자격증 데이터 조회 완료: {} 개", certifications.size());
+        return certifications;
     }
     
     // === GetProjectsUseCase 구현 ===
     
     @Override
+    @Cacheable(
+        value = "portfolio",
+        key = "'projects:all'",
+        unless = "#result == null || #result.isEmpty()"
+    )
     public List<Project> getAllProjects() {
-        try {
-            log.debug("모든 프로젝트 조회 요청");
-            List<Project> projects = portfolioRepositoryPort.findAllProjects();
-            log.info("프로젝트 조회 완료: {} 개", projects.size());
-            return projects;
-        } catch (Exception e) {
-            log.error("프로젝트 데이터 조회 중 오류 발생", e);
-            throw new RuntimeException("프로젝트 데이터 조회 실패", e);
-        }
+        log.debug("캐시 미스 - PostgreSQL에서 프로젝트 조회");
+        List<Project> projects = portfolioRepositoryPort.findAllProjects();
+        log.info("프로젝트 조회 완료: {} 개", projects.size());
+        return projects;
     }
     
     @Override
@@ -150,10 +151,15 @@ public class PortfolioService implements GetAllDataUseCase, GetProjectsUseCase, 
     // === ManageProjectCacheUseCase 구현 ===
     
     @Override
+    @CacheEvict(value = "portfolio", key = "'projects:all'")
+    public void refreshProjectsCache() {
+        log.info("프로젝트 캐시 무효화");
+    }
+
+    @Override
     @CacheEvict(value = {"portfolio", "github"}, allEntries = true)
     public void refreshCache() {
-        log.info("포트폴리오 캐시 무효화 요청");
-        log.info("포트폴리오 캐시가 무효화되었습니다");
+        log.info("전체 포트폴리오 캐시 무효화");
     }
     
     @Override
