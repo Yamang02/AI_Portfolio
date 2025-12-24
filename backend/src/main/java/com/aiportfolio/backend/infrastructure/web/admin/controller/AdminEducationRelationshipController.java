@@ -1,5 +1,6 @@
 package com.aiportfolio.backend.infrastructure.web.admin.controller;
 
+import com.aiportfolio.backend.domain.portfolio.port.out.EducationRelationshipPort;
 import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.*;
 import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.*;
 import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;
@@ -31,6 +32,7 @@ public class AdminEducationRelationshipController {
     private final ProjectJpaRepository projectJpaRepository;
     private final EducationTechStackJpaRepository educationTechStackJpaRepository;
     private final EducationProjectJpaRepository educationProjectJpaRepository;
+    private final EducationRelationshipPort educationRelationshipPort;
 
     // ==================== 기술스택 관계 ====================
 
@@ -141,37 +143,18 @@ public class AdminEducationRelationshipController {
             @PathVariable String id,
             @RequestBody BulkTechStackRelationshipRequest request) {
         try {
-            EducationJpaEntity education = educationJpaRepository.findByBusinessId(id)
-                .orElseThrow(() -> new IllegalArgumentException("Education not found"));
+            List<EducationRelationshipPort.TechStackRelation> relationships =
+                request.getTechStackRelationships() == null
+                    ? List.of()
+                    : request.getTechStackRelationships().stream()
+                        .map(item -> new EducationRelationshipPort.TechStackRelation(
+                            item.getTechStackId(),
+                            item.getIsPrimary() != null ? item.getIsPrimary() : false,
+                            item.getUsageDescription()
+                        ))
+                        .collect(Collectors.toList());
 
-            // 1. 기존 관계 전체 삭제
-            List<EducationTechStackJpaEntity> existingRelations =
-                educationTechStackJpaRepository.findByEducationId(education.getId());
-
-            educationTechStackJpaRepository.deleteAll(existingRelations);
-            log.info("Deleted {} existing tech stack relationships", existingRelations.size());
-
-            // 2. 새 관계 생성
-            if (request.getTechStackRelationships() != null) {
-                for (BulkTechStackRelationshipRequest.TechStackRelationshipItem item : request.getTechStackRelationships()) {
-                    // ID로 기술스택 조회
-                    TechStackMetadataJpaEntity techStack = techStackMetadataJpaRepository
-                        .findById(item.getTechStackId())
-                        .orElseThrow(() -> new IllegalArgumentException(
-                            "TechStack not found: " + item.getTechStackId()));
-
-                    // 새 관계 생성
-                    EducationTechStackJpaEntity relationship = EducationTechStackJpaEntity.builder()
-                        .education(education)
-                        .techStack(techStack)
-                        .isPrimary(item.getIsPrimary() != null ? item.getIsPrimary() : false)
-                        .usageDescription(item.getUsageDescription())
-                        .build();
-
-                    educationTechStackJpaRepository.save(relationship);
-                }
-                log.info("Created {} new tech stack relationships", request.getTechStackRelationships().size());
-            }
+            educationRelationshipPort.replaceTechStacks(id, relationships);
 
             return ResponseEntity.ok(ApiResponse.success(null, "기술스택 관계 일괄 업데이트 성공"));
         } catch (IllegalArgumentException e) {
