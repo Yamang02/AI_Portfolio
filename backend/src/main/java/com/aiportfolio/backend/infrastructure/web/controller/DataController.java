@@ -8,6 +8,7 @@ import com.aiportfolio.backend.domain.portfolio.model.Experience;
 import com.aiportfolio.backend.domain.portfolio.model.Project;
 import com.aiportfolio.backend.domain.portfolio.port.in.GetProjectsUseCase;
 import com.aiportfolio.backend.domain.portfolio.port.in.GetAllDataUseCase;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
@@ -31,12 +32,15 @@ public class DataController {
     
     private final GetProjectsUseCase getProjectsUseCase;
     private final GetAllDataUseCase getAllDataUseCase;
+    private final ObjectMapper objectMapper;
     
     public DataController(
             @Qualifier("portfolioService") GetProjectsUseCase getProjectsUseCase,
-            @Qualifier("portfolioApplicationService") GetAllDataUseCase getAllDataUseCase) {
+            @Qualifier("portfolioApplicationService") GetAllDataUseCase getAllDataUseCase,
+            ObjectMapper objectMapper) {
         this.getProjectsUseCase = getProjectsUseCase;
         this.getAllDataUseCase = getAllDataUseCase;
+        this.objectMapper = objectMapper;
     }
     
     @GetMapping("/all")
@@ -48,9 +52,7 @@ public class DataController {
         Object projects = allData.get("projects");
         if (projects instanceof List<?> projectList) {
             List<ProjectDataResponse> mappedProjects = projectList.stream()
-                .filter(Project.class::isInstance)
-                .map(Project.class::cast)
-                .map(ProjectDataResponse::from)
+                .map(this::toProjectResponse)
                 .collect(Collectors.toList());
             responseData.put("projects", mappedProjects);
         }
@@ -62,7 +64,7 @@ public class DataController {
     @Operation(summary = "프로젝트 데이터 조회", description = "모든 프로젝트 정보를 조회합니다.")
     public ResponseEntity<ApiResponse<List<ProjectDataResponse>>> getProjects() {
         List<ProjectDataResponse> projects = getProjectsUseCase.getAllProjects().stream()
-            .map(ProjectDataResponse::from)
+            .map(this::toProjectResponse)
             .collect(Collectors.toList());
         return ResponseEntity.ok(ApiResponse.success(projects, "프로젝트 목록 조회 성공"));
     }
@@ -86,5 +88,14 @@ public class DataController {
     public ResponseEntity<ApiResponse<List<Education>>> getEducation() {
         List<Education> education = getAllDataUseCase.getAllEducations();
         return ResponseEntity.ok(ApiResponse.success(education, "교육 목록 조회 성공"));
+    }
+
+    private ProjectDataResponse toProjectResponse(Object value) {
+        if (value instanceof Project project) {
+            return ProjectDataResponse.from(project);
+        }
+
+        Project project = objectMapper.convertValue(value, Project.class);
+        return ProjectDataResponse.from(project);
     }
 }
