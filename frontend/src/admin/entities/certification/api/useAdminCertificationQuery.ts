@@ -6,6 +6,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { adminCertificationApi } from './adminCertificationApi';
+import { STALE_TIME } from '../../../../main/config/queryCacheConfig';
 import { Certification, CertificationFormData } from '../model/certification.types';
 import { queryClient as mainQueryClient } from '../../../../main/config/queryClient';
 
@@ -30,7 +31,7 @@ export const useAdminCertificationsQuery = () => {
   return useQuery({
     queryKey: CERTIFICATION_KEYS.lists(),
     queryFn: () => adminCertificationApi.getCertifications(),
-    staleTime: 5 * 60 * 1000, // 5분
+    staleTime: STALE_TIME.NONE,
   });
 };
 

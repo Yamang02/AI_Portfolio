@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Project } from '@features/project-gallery/types';
-import { useTOC, useActiveSection } from '@features/project-gallery/hooks';
+import { useTOCFromDOM, useActiveSection } from '@features/project-gallery/hooks';
 
 interface ProjectModalProps {
   isOpen: boolean;
@@ -15,8 +15,11 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ isOpen, onClose, project })
   // 마크다운 컨텐츠 결정 (readme 우선, 없으면 description)
   const markdownContent = project?.readme || project?.description || '';
   
-  // TOC 생성 (항상 호출되어야 함)
-  const tocItems = useTOC(markdownContent);
+  // 마크다운 컨테이너 ref (DOM 기반 TOC 생성용)
+  const markdownContainerRef = useRef<HTMLElement>(null);
+  
+  // TOC 생성 (DOM 기반 - 실제 렌더된 헤딩 기준)
+  const tocItems = useTOCFromDOM(markdownContainerRef);
   
   // 현재 활성 섹션 추적 (항상 호출되어야 함)
   const activeSection = useActiveSection(tocItems);
@@ -87,6 +90,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ isOpen, onClose, project })
               content={markdownContent}
               project={project}
               className="flex-1"
+              containerRef={markdownContainerRef}
             />
           </div>
 

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { TOCItem } from './useTOC';
+import { TOCItem } from '@features/project-gallery/hooks';
 
 interface UseActiveSectionOptions {
   /**
@@ -206,6 +206,11 @@ function throttle<T extends (...args: any[]) => any>(
 /**
  * 특정 섹션으로 스크롤하는 유틸리티 함수
  * 
+ * 개선사항:
+ * - MutationObserver를 사용하여 DOM 변경 감지
+ * - 최대 재시도 횟수 증가 (10 -> 20)
+ * - 렌더 완료를 더 안정적으로 감지
+ * 
  * @param sectionId - 스크롤할 섹션 ID
  * @param offset - 추가 오프셋 (헤더 높이 등)
  * @param behavior - 스크롤 동작 ('smooth' | 'auto')
@@ -215,16 +220,84 @@ export const scrollToSection = (
   offset: number = 100,
   behavior: ScrollBehavior = 'smooth'
 ): void => {
-  const element = document.getElementById(sectionId);
-  if (element) {
-    const elementTop = element.offsetTop;
-    const scrollTop = elementTop - offset;
+  let retryCount = 0;
+  const maxRetries = 20; // 최대 재시도 횟수 증가
+  const retryInterval = 100;
+  let observer: MutationObserver | null = null;
+  let isResolved = false;
+
+  const tryScroll = (): void => {
+    if (isResolved) return;
+
+    const element = document.getElementById(sectionId);
     
-    window.scrollTo({
-      top: scrollTop,
-      behavior
+    if (element) {
+      // getBoundingClientRect를 사용하여 정확한 위치 계산
+      const rect = element.getBoundingClientRect();
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      const elementTop = rect.top + scrollTop;
+      
+      // CSS scroll-margin-top을 고려 (scroll-mt-20 = 5rem = 80px)
+      const computedStyle = window.getComputedStyle(element);
+      const scrollMarginTop = parseInt(computedStyle.scrollMarginTop) || 0;
+      const finalOffset = offset + scrollMarginTop;
+      
+      const targetScrollTop = elementTop - finalOffset;
+      
+      window.scrollTo({
+        top: Math.max(0, targetScrollTop),
+        behavior
+      });
+
+      // 성공적으로 스크롤했으면 observer 정리
+      if (observer) {
+        observer.disconnect();
+        observer = null;
+      }
+      isResolved = true;
+    } else if (retryCount < maxRetries) {
+      retryCount++;
+      
+      // MutationObserver가 아직 설정되지 않았으면 설정
+      if (!observer && document.body) {
+        observer = new MutationObserver(() => {
+          if (!isResolved) {
+            tryScroll();
+          }
+        });
+
+        observer.observe(document.body, {
+          childList: true,
+          subtree: true,
+          attributes: true,
+          attributeFilter: ['id']
+        });
+      }
+
+      // 재시도
+      setTimeout(() => {
+        if (!isResolved) {
+          tryScroll();
+        }
+      }, retryInterval);
+    } else {
+      // 최대 재시도 횟수 초과
+      console.warn(`요소를 찾을 수 없습니다: #${sectionId}`);
+      
+      if (observer) {
+        observer.disconnect();
+        observer = null;
+      }
+      isResolved = true;
+    }
+  };
+  
+  // requestAnimationFrame을 사용하여 DOM 업데이트 후 실행
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      tryScroll();
     });
-  }
+  });
 };
 
 /**

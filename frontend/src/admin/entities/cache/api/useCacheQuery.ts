@@ -6,6 +6,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { message } from 'antd';
 import * as cacheApi from './cacheApi';
+import { STALE_TIME } from '../../../../main/config/queryCacheConfig';
 import { queryClient as mainQueryClient } from '../../../../main/config/queryClient';
 
 /**
@@ -16,7 +17,7 @@ export const useCacheStats = () => {
     queryKey: ['cache', 'stats'],
     queryFn: cacheApi.getCacheStats,
     refetchInterval: 10000, // 10초마다 자동 갱신 (성능 개선)
-    staleTime: 8000, // 8초간 캐시 유지
+    staleTime: STALE_TIME.NONE,
   });
 };
 

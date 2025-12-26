@@ -4,6 +4,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { adminTechStackApi } from './adminTechStackApi';
+import { STALE_TIME } from '../../../../main/config/queryCacheConfig';
 import type {
   TechStackFormData
 } from '../model/techStack.types';
@@ -14,7 +15,7 @@ export const useAdminTechStacksQuery = () => {
   return useQuery({
     queryKey: ['admin-tech-stacks'],
     queryFn: () => adminTechStackApi.getTechStacks(),
-    staleTime: 5 * 60 * 1000, // 5분
+    staleTime: STALE_TIME.NONE,
   });
 };
 

@@ -4,6 +4,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { adminExperienceApi } from './adminExperienceApi';
+import { STALE_TIME } from '../../../../main/config/queryCacheConfig';
 import type { Experience, ExperienceFormData } from '../model/experience.types';
 import { message } from 'antd';
 import { queryClient as mainQueryClient } from '../../../../main/config/queryClient';
@@ -26,7 +27,7 @@ export const useAdminExperiencesQuery = () => {
   return useQuery({
     queryKey: EXPERIENCE_KEYS.lists(),
     queryFn: () => adminExperienceApi.getExperiences(),
-    staleTime: 5 * 60 * 1000, // 5분
+    staleTime: STALE_TIME.NONE,
   });
 };
 

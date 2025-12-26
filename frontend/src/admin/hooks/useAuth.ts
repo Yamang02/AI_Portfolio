@@ -1,6 +1,7 @@
 import React, { useState, useEffect, createContext, useContext, ReactNode } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { adminAuthApi, AdminUserInfo } from '../api/adminAuthApi';
+import { STALE_TIME } from '../../main/config/queryCacheConfig';
 
 // AuthContext 타입 정의
 interface AuthContextType {
@@ -32,7 +33,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
     },
     retry: false,
-    staleTime: 0, // 캐시 사용 안함 - 항상 최신 상태 확인
+    staleTime: STALE_TIME.NONE, // 캐시 사용 안함 - 항상 최신 상태 확인
     gcTime: 0, // 가비지 컬렉션 즉시 (이전 cacheTime)
     refetchOnWindowFocus: true,
     refetchOnMount: true,

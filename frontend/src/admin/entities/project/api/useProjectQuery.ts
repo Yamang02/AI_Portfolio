@@ -4,6 +4,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { message } from 'antd';
 import { projectApi } from './projectApi';
+import { STALE_TIME } from '../../../../main/config/queryCacheConfig';
 import { Project } from '../model/project.types';
 import { queryClient as mainQueryClient } from '../../../../main/config/queryClient';
 
@@ -21,7 +22,7 @@ export const useProjectsQuery = () => {
   return useQuery({
     queryKey: PROJECT_KEYS.lists(),
     queryFn: () => projectApi.getProjects(),
-    staleTime: 5 * 60 * 1000, // 5분
+    staleTime: STALE_TIME.NONE,
   });
 };
 

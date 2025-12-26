@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
 import { visit } from 'unist-util-visit';
+import { generateHeadingId, resetHeadingIdCounters } from '@shared/lib/markdown/generateHeadingId';
 
 export interface TOCItem {
   id: string;
@@ -37,6 +38,9 @@ export const useTOC = (markdown: string): TOCItem[] => {
         .use(remarkParse)
         .parse(markdown);
 
+      // ID 카운터 초기화 (마크다운 렌더러와 동일한 카운터 사용)
+      resetHeadingIdCounters();
+
       // 헤딩 노드만 추출
       const headings: TOCItem[] = [];
       
@@ -49,18 +53,8 @@ export const useTOC = (markdown: string): TOCItem[] => {
           .trim();
 
         if (text) {
-          // ID 생성 (한글, 영문, 숫자, 하이픈만 허용)
-          let id = text
-            .toLowerCase()
-            .replace(/[^\w\s-가-힣]/g, '') // 특수문자 제거
-            .replace(/\s+/g, '-') // 공백을 하이픈으로 변경
-            .replace(/-+/g, '-') // 연속된 하이픈을 하나로
-            .replace(/^-|-$/g, ''); // 앞뒤 하이픈 제거
-
-          // ID가 비어있으면 fallback으로 인덱스 사용
-          if (!id) {
-            id = `heading-${headings.length}`;
-          }
+          // 공유 ID 생성 함수 사용 (중복 ID 처리 포함)
+          const id = generateHeadingId(text, headings.length);
 
           headings.push({
             id,

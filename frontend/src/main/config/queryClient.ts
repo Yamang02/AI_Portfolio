@@ -1,7 +1,7 @@
 import { QueryClient } from '@tanstack/react-query';
 import { persistQueryClient } from '@tanstack/react-query-persist-client';
 import type { Persister, PersistedClient } from '@tanstack/react-query-persist-client';
-import { DEFAULT_CACHE_TIME, CACHE_VERSION, CACHE_KEYS } from './queryCacheConfig';
+import { DEFAULT_CACHE_TIME, CACHE_VERSION, CACHE_KEYS, STALE_TIME } from './queryCacheConfig';
 
 /**
  * React Query 클라이언트 설정
@@ -13,7 +13,7 @@ const isDevelopment = import.meta.env.DEV;
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: DEFAULT_CACHE_TIME,
+      staleTime: STALE_TIME.NONE, // stale time 제거 - 항상 최신 데이터 확인
       gcTime: DEFAULT_CACHE_TIME,
       retry: 3, // 최대 3회 재시도
       retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // 지수 백오프
