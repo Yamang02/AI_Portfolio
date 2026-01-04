@@ -89,10 +89,18 @@ phase-2-completion.md    # 완료 보고서 (작업 완료 시)
 ### 작업 개요
 
 1. **페이지 구조 확정**
-   - Landing, Profile, Archive, Archive Detail
+   - Landing (Home), Archive (Projects List)
+   - "AI 적극 활용 개발자" 컨셉 및 "AX 프로젝트" 중심 설계
 
 2. **페이지별 허용 콘텐츠 정의**
    - 각 페이지의 역할과 콘텐츠 범위 명확화
+   - 사용자 여정 및 인터랙션 플로우 정의
+
+### 주요 결정 사항
+
+- **컨셉**: "AI 적극 활용 개발자" + "AX 프로젝트"
+- **Featured Projects**: Genpresso, AI Chatbot, 노루 ERP
+- **Tech Stack Section**: 제거 (프로젝트 중심 단순화)
 
 ### 상세 내용
 
