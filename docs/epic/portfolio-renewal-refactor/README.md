@@ -44,183 +44,168 @@ Landing / Profile / Archive 3단 구조로 리뉴얼한다.
 
 ---
 
-## Phase 1 — Content Inventory (UI 제거 단계)
+## Phase 1 — Content Inventory (DB 기반 콘텐츠 인벤토리)
 
-### Task 1.1: 프로젝트 콘텐츠 정리
+> **전략**: DB를 단일 소스로 유지하고 리뉴얼 설계를 위한 인벤토리 문서를 작성합니다.
 
-각 프로젝트를 UI와 분리된 텍스트로 정리한다.
-
-```text
-프로젝트 템플릿:
-- Project Name
-- Time Period
-- My Role (Developer / Collaborator / Other)
-- Initial Situation
-- Key Problems Observed
-- Direction / Decision Made
-- Outcome
-- References (GitHub / Service / Docs)
-```
-
-### Task 1.2: 프로필 정보 정리
+### 문서 구조
 
 ```text
-- 역할 이력 요약
-- 기술 스택 단순 나열
-- 협업/의사결정 관련 경험 요약
+phase-1-design.md        # 설계 문서
+phase-1-checklist.md     # 작업 체크리스트
+phase-1-completion.md    # 완료 보고서 (작업 완료 시)
 ```
 
-### Output
+### 작업 개요
 
-```text
-/docs/epic/portfolio-renewal-refactor/content/projects.md
-/docs/epic/portfolio-renewal-refactor/content/profile.md
-```
+1. **DB 데이터 추출 및 분석**
+   - `projects`, `experiences`, `education`, `certifications` 테이블 분석
+   - 리뉴얼 템플릿과 DB 필드 매핑
+   - 누락된 정보 또는 개선이 필요한 필드 식별
+
+2. **콘텐츠 구조 문서화**
+   - DB 데이터를 리뉴얼 템플릿 형식으로 정리
+   - 각 프로젝트의 현재 상태와 리뉴얼 시 필요한 정보 정리
+
+3. **DB 스키마 개선 제안** (필요 시)
+   - 리뉴얼에 필요한 필드가 없으면 DB 스키마 확장 제안
+
+### 상세 내용
+
+자세한 작업 내용은 [phase-1-design.md](./phase-1-design.md)를 참조하세요.
 
 ---
 
 ## Phase 2 — Site Structure Definition
 
-### Task 2.1: 페이지 구조 확정
+### 문서 구조
 
 ```text
-Pages:
-- Landing
-- Profile
-- Archive
-- Archive Detail
+phase-2-design.md        # 설계 문서
+phase-2-checklist.md     # 작업 체크리스트
+phase-2-completion.md    # 완료 보고서 (작업 완료 시)
 ```
 
-### Task 2.2: 페이지별 허용 콘텐츠 정의
+### 작업 개요
 
-```text
-Landing:
-- 소개 문장
-- 내부 페이지 링크
-- 요약된 사고 방식
+1. **페이지 구조 확정**
+   - Landing, Profile, Archive, Archive Detail
 
-Profile:
-- 역할/경험 요약
-- 판단 스타일
-- 이력 정보
+2. **페이지별 허용 콘텐츠 정의**
+   - 각 페이지의 역할과 콘텐츠 범위 명확화
 
-Archive:
-- 프로젝트 목록
-- 최소 필터
-- 상세 페이지 진입
+### 상세 내용
 
-Archive Detail:
-- 프로젝트 서술
-- 판단 과정
-- 결과 및 링크
-```
-
-### Output
-
-```text
-/docs/epic/portfolio-renewal-refactor/structure/pages.md
-```
+자세한 작업 내용은 [phase-2-design.md](./phase-2-design.md)를 참조하세요.
 
 ---
 
 ## Phase 3 — Design System Minimalization
 
-### Task 3.1: 토큰 정의
+### 문서 구조
 
 ```text
-- Color: Base / Accent
-- Typography: Heading / Body
-- Spacing: XS / S / M / L
+phase-3-design.md        # 설계 문서
+phase-3-checklist.md     # 작업 체크리스트
+phase-3-completion.md    # 완료 보고서 (작업 완료 시)
 ```
 
-### Task 3.2: 컴포넌트 정의
+### 작업 개요
 
-```text
-- Button (Primary 1종)
-- Text Link
-- Section Title
-- Divider
-```
+1. **토큰 정의**
+   - Color, Typography, Spacing
+
+2. **컴포넌트 정의**
+   - Button, Text Link, Section Title, Divider
 
 ⚠️ 이 단계에서 페이지 UI 생성 금지
 
-### Output
+### 상세 내용
 
-```text
-/docs/epic/portfolio-renewal-refactor/design-system/tokens.md
-/docs/epic/portfolio-renewal-refactor/design-system/components.md
-```
+자세한 작업 내용은 [phase-3-design.md](./phase-3-design.md)를 참조하세요.
 
 ---
 
 ## Phase 4 — Wireframe (Low Fidelity)
 
-### Task 4.1: Landing Wireframe
-
-* 첫 화면 정보 밀도 검증
-* 페이지 이동 동선 명확화
-
-### Task 4.2: Profile Wireframe
-
-* 스크롤 길이 최소화
-* 정보 계층 명확화
-
-### Task 4.3: Archive Wireframe
-
-* 목록 부담 최소화
-* 클릭 이유 명확화
-
-### Output
+### 문서 구조
 
 ```text
-/docs/epic/portfolio-renewal-refactor/wireframe/landing.png
-/docs/epic/portfolio-renewal-refactor/wireframe/profile.png
-/docs/epic/portfolio-renewal-refactor/wireframe/archive.png
+phase-4-design.md        # 설계 문서
+phase-4-checklist.md     # 작업 체크리스트
+phase-4-completion.md    # 완료 보고서 (작업 완료 시)
 ```
 
-(또는 Figma 링크)
+### 작업 개요
+
+1. **Landing Wireframe**
+   - 첫 화면 정보 밀도 검증
+   - 페이지 이동 동선 명확화
+
+2. **Profile Wireframe**
+   - 스크롤 길이 최소화
+   - 정보 계층 명확화
+
+3. **Archive Wireframe**
+   - 목록 부담 최소화
+   - 클릭 이유 명확화
+
+### 상세 내용
+
+자세한 작업 내용은 [phase-4-design.md](./phase-4-design.md)를 참조하세요.
 
 ---
 
 ## Phase 5 — UI Implementation
 
-### Task 5.1: Landing UI 적용
-
-* 디자인 시스템만 사용
-* 새로운 컴포넌트 추가 금지
-
-### Task 5.2: Profile UI 적용
-
-### Task 5.3: Archive + Detail UI 적용
-
-### Output
+### 문서 구조
 
 ```text
-/src/pages/*
+phase-5-design.md        # 설계 문서
+phase-5-checklist.md     # 작업 체크리스트
+phase-5-completion.md    # 완료 보고서 (작업 완료 시)
 ```
+
+### 작업 개요
+
+1. **Landing UI 적용**
+   - 디자인 시스템만 사용
+   - 새로운 컴포넌트 추가 금지
+
+2. **Profile UI 적용**
+
+3. **Archive + Detail UI 적용**
+
+### 상세 내용
+
+자세한 작업 내용은 [phase-5-design.md](./phase-5-design.md)를 참조하세요.
 
 ---
 
 ## Phase 6 — Cut & Validation
 
-### Task 6.1: 제거 대상 식별
+### 문서 구조
 
 ```text
-- 없어도 되는 기능
-- 설명 없으면 오해되는 UI
-- 신뢰를 해치는 요소
+phase-6-design.md        # 설계 문서
+phase-6-checklist.md     # 작업 체크리스트
+phase-6-completion.md    # 완료 보고서 (작업 완료 시)
 ```
 
-### Task 6.2: 최종 정리
+### 작업 개요
 
-* 불필요한 요소 삭제
-* 페이지 간 중복 제거
+1. **제거 대상 식별**
+   - 없어도 되는 기능
+   - 설명 없으면 오해되는 UI
+   - 신뢰를 해치는 요소
 
-### Output
+2. **최종 정리**
+   - 불필요한 요소 삭제
+   - 페이지 간 중복 제거
 
-```text
-/docs/epic/portfolio-renewal-refactor/cleanup-report.md
-```
+### 상세 내용
+
+자세한 작업 내용은 [phase-6-design.md](./phase-6-design.md)를 참조하세요.
 
 ---
 
