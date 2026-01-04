@@ -38,7 +38,7 @@ export default defineConfig(({ mode }) => {
       },
       resolve: {
         alias: {
-          '@': path.resolve(__dirname, '.'),
+          '@': path.resolve(__dirname, './src'),
           '@shared': path.resolve(__dirname, './src/shared'),
           '@entities': path.resolve(__dirname, './src/entities'),
           '@features': path.resolve(__dirname, './src/features'),
@@ -46,6 +46,7 @@ export default defineConfig(({ mode }) => {
           '@pages': path.resolve(__dirname, './src/pages'),
           '@processes': path.resolve(__dirname, './src/processes'),
           '@app': path.resolve(__dirname, './src/app'),
+          '@design-system': path.resolve(__dirname, './src/design-system'),
         }
       },
       build: {

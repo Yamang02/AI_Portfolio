@@ -1,0 +1,149 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  border-radius: var(--border-radius-md);
+  border: 1px solid;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+/* Variants */
+.badge.default {
+  background-color: var(--color-bg-secondary);
+  border-color: var(--color-border-default);
+  color: var(--color-text-primary);
+}
+
+.badge.primary {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #ffffff;
+}
+
+.badge.accent {
+  background-color: var(--color-accent);
+  border-color: var(--color-accent);
+  color: #ffffff;
+}
+
+.badge.success {
+  background-color: var(--color-success);
+  border-color: var(--color-success);
+  color: var(--color-text-primary);
+}
+
+.badge.outline {
+  background-color: transparent;
+  border-color: var(--color-border-default);
+  color: var(--color-text-primary);
+}
+
+/* Sizes */
+.badge.sm {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.6875rem; /* 11px */
+  gap: 0.125rem;
+}
+
+.badge.md {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.75rem; /* 12px */
+  gap: 0.25rem;
+}
+
+.badge.lg {
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem; /* 14px */
+  gap: 0.375rem;
+}
+
+/* Clickable */
+.badge.clickable {
+  cursor: pointer;
+}
+
+.badge.clickable:hover:not(.selected) {
+  transform: translateY(-1px);
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.1);
+}
+
+.badge.clickable.default:hover:not(.selected) {
+  background-color: var(--color-bg-tertiary);
+  border-color: var(--color-border-hover);
+}
+
+.badge.clickable.outline:hover:not(.selected) {
+  background-color: var(--color-bg-secondary);
+  border-color: var(--color-border-accent);
+}
+
+.badge.clickable:active:not(.selected) {
+  transform: translateY(0);
+}
+
+/* Selected */
+.badge.selected {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #ffffff;
+}
+
+.badge.selected.outline {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #ffffff;
+}
+
+/* Content */
+.content {
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Count */
+.count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1rem;
+  padding: 0 0.25rem;
+  font-size: 0.625rem;
+  font-weight: 600;
+  border-radius: var(--border-radius-full);
+  background-color: rgba(0, 0, 0, 0.1);
+  color: inherit;
+}
+
+.badge.primary .count,
+.badge.accent .count,
+.badge.selected .count {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Focus */
+.badge.clickable:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  .badge.default {
+    background-color: var(--color-bg-secondary);
+    border-color: var(--color-border-default);
+  }
+
+  .badge.clickable.default:hover:not(.selected) {
+    background-color: var(--color-bg-tertiary);
+  }
+
+  .badge.outline {
+    border-color: var(--color-border-default);
+  }
+
+  .count {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+}

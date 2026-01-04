@@ -1,0 +1,22 @@
+.about {
+  padding: 64px 32px;
+}
+
+.container {
+  max-width: 768px;
+  margin: 0 auto;
+}
+
+.summary {
+  margin-top: 24px;
+  line-height: 1.75;
+  color: var(--color-text-primary);
+  font-size: 1rem;
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+  .about {
+    padding: 48px 24px;
+  }
+}

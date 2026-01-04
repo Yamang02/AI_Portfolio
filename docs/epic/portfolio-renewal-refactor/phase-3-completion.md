@@ -180,13 +180,110 @@
 
 - [x] `index.ts` export 파일 생성
 
-#### 3.2.5 Components Export ✅
+#### 3.2.5 Badge Component ✅
 
-- [x] `frontend/src/design-system/components/index.ts` 파일 생성
+- [x] `frontend/src/design-system/components/Badge/` 디렉토리 생성
+
+- [x] `Badge.tsx` 컴포넌트 구현
+  - [x] Props 인터페이스 정의 (BadgeProps)
+    - [x] variant: 'default' | 'primary' | 'accent' | 'success' | 'outline'
+    - [x] size: 'sm' | 'md' | 'lg'
+    - [x] selected, showCount, count, onClick, className
+  - [x] 모든 variant 구현
+  - [x] Size variants 구현
+  - [x] Clickable 기능 구현
+  - [x] Selected state 구현
+  - [x] Count 표시 기능 구현
+  - [x] 접근성 속성 추가 (role, tabIndex, onKeyDown)
+
+- [x] `Badge.module.css` 스타일 구현
+  - [x] Base 스타일
+  - [x] Variant 스타일 (default, primary, accent, success, outline)
+  - [x] Size variants 스타일
+  - [x] Clickable state 스타일 (hover, active)
+  - [x] Selected state 스타일
+  - [x] Count 스타일
+  - [x] Focus state 스타일
+
+- [x] `Badge.stories.tsx` Storybook 스토리 작성
+  - [x] 모든 variant stories
+  - [x] 모든 size stories
+  - [x] WithCount story
+  - [x] Clickable story
+  - [x] Selected story
+
+- [x] `index.ts` export 파일 생성
+
+#### 3.2.6 Skeleton Component ✅
+
+- [x] `frontend/src/design-system/components/Skeleton/` 디렉토리 생성
+
+- [x] `Skeleton.tsx` 컴포넌트 구현
+  - [x] Props 인터페이스 정의 (SkeletonProps)
+    - [x] variant: 'text' | 'circular' | 'rectangular'
+    - [x] width, height, className
+  - [x] 모든 variant 구현
+  - [x] 접근성 속성 추가 (aria-busy, aria-label)
+
+- [x] `SkeletonCard.tsx` 컴포넌트 구현
+  - [x] Props 인터페이스 정의 (SkeletonCardProps)
+    - [x] showImage, showTitle, showDescription, showActions, lines
+  - [x] 카드 레이아웃 구현
+  - [x] 커스터마이징 옵션 구현
+
+- [x] `Skeleton.module.css` 스타일 구현
+  - [x] Base 스타일
+  - [x] Variant 스타일
+  - [x] Pulse 애니메이션
+
+- [x] `SkeletonCard.module.css` 스타일 구현
+  - [x] Card 레이아웃
+  - [x] Content 영역 스타일
+
+- [x] `Skeleton.stories.tsx` Storybook 스토리 작성
+  - [x] 모든 variant stories
+  - [x] Card stories
+
+- [x] `index.ts` export 파일 생성
+
+#### 3.2.7 Tooltip Component ✅
+
+- [x] `frontend/src/design-system/components/Tooltip/` 디렉토리 생성
+
+- [x] `Tooltip.tsx` 컴포넌트 구현
+  - [x] Props 인터페이스 정의 (TooltipProps)
+    - [x] placement: 'top' | 'bottom' | 'left' | 'right'
+    - [x] delay, showOnMount, content, children, className
+  - [x] 모든 placement 구현
+  - [x] Hover 이벤트 처리
+  - [x] Delay 기능 구현
+  - [x] ShowOnMount 기능 구현
+  - [x] 접근성 속성 추가 (role="tooltip")
+
+- [x] `Tooltip.module.css` 스타일 구현
+  - [x] Base 스타일
+  - [x] Placement 스타일 (top, bottom, left, right)
+  - [x] Arrow 스타일
+  - [x] 다크 모드 스타일
+
+- [x] `Tooltip.stories.tsx` Storybook 스토리 작성
+  - [x] 모든 placement stories
+  - [x] WithDelay story
+  - [x] ShowOnMount story
+  - [x] LongContent story
+
+- [x] `index.ts` export 파일 생성
+
+#### 3.2.8 Components Export ✅
+
+- [x] `frontend/src/design-system/components/index.ts` 파일 업데이트
   - [x] Button export
   - [x] TextLink export
   - [x] SectionTitle export
   - [x] Divider export
+  - [x] Badge export
+  - [x] Skeleton export
+  - [x] Tooltip export
 
 ---
 
@@ -251,6 +348,10 @@
 
 - [x] `frontend/src/design-system/styles/globals.css` 업데이트
   - [x] CSS Variables 정의
+    - [x] Color variables (light/dark mode)
+    - [x] Spacing variables
+    - [x] Border radius variables
+    - [x] Shadow variables
   - [x] Body 기본 스타일
     - [x] Font family: system font stack
     - [x] Background color: `var(--color-bg-primary)`
@@ -290,8 +391,12 @@
 - [x] TextLink 컴포넌트가 외부 링크 및 접근성 지원
 - [x] SectionTitle 컴포넌트가 모든 heading levels 지원
 - [x] Divider 컴포넌트가 horizontal/vertical variants 지원
+- [x] Badge 컴포넌트가 모든 variants/sizes/states 지원 (기존 TechStackBadge 기반)
+- [x] Skeleton 컴포넌트가 모든 variants 지원 (기존 SkeletonCard 기반)
+- [x] Tooltip 컴포넌트가 모든 placements 지원 (기존 Tooltip 기반)
 - [x] 모든 컴포넌트가 CSS Modules 사용
 - [x] 모든 컴포넌트가 TypeScript로 타입 안전하게 구현됨
+- [x] 기존 재사용 가능한 컴포넌트를 새로운 브랜드 컬러에 맞게 업데이트하여 디자인 시스템에 통합
 
 ### 접근성 ✅
 
@@ -339,7 +444,17 @@
 
 ## 🎨 주요 성과
 
-### 1. 색상 팔레트 정의
+### 1. 기존 컴포넌트 통합 및 브랜드 컬러 적용
+
+기존 프로젝트의 재사용 가능한 컴포넌트들을 식별하고, 새로운 브랜드 컬러에 맞게 업데이트하여 디자인 시스템에 통합했습니다:
+
+- **TechStackBadge** → **Badge 컴포넌트**: Tailwind CSS에서 CSS Modules로 전환, 새로운 브랜드 컬러 적용
+- **SkeletonCard** → **Skeleton 컴포넌트**: Tailwind CSS에서 CSS Modules로 전환, 새로운 브랜드 컬러 적용
+- **Tooltip** → **Tooltip 컴포넌트**: Tailwind CSS에서 CSS Modules로 전환, 새로운 브랜드 컬러 적용
+
+모든 컴포넌트가 일관된 디자인 토큰을 사용하도록 업데이트되었습니다.
+
+### 2. 색상 팔레트 정의
 
 **Green/Olive Tones** 색상 팔레트를 적용하여 독특하고 전문적인 디자인 정체성을 확립했습니다:
 
@@ -353,23 +468,26 @@
 - **Accent**: Soft Green (#90AB8B)
 - **Highlight**: Light Mint (#EBF4DD)
 
-### 2. 디자인 토큰 체계 구축
+### 3. 디자인 토큰 체계 구축
 
 - **Color Tokens**: 라이트/다크 모드 완전 지원
 - **Typography Tokens**: 시스템 폰트 기반, 모바일 반응형
 - **Spacing Tokens**: 8px 기반 일관된 여백 체계
 - **Border Radius & Shadow**: 최소한의 스타일 정의
 
-### 3. 기본 컴포넌트 구현
+### 4. 기본 컴포넌트 구현
 
-4개의 핵심 컴포넌트를 구현했습니다:
+7개의 핵심 컴포넌트를 구현했습니다:
 
 1. **Button**: Primary/Secondary variants, 3가지 크기, Link 기능
 2. **TextLink**: 외부 링크 지원, 밑줄 옵션, 접근성 완비
 3. **SectionTitle**: H1-H4 레벨, 모바일 반응형
 4. **Divider**: Horizontal/Vertical variants, 커스텀 spacing
+5. **Badge**: 5가지 variant (default, primary, accent, success, outline), 클릭 가능, 선택 상태 지원 (기존 TechStackBadge 기반)
+6. **Skeleton**: 3가지 variant (text, circular, rectangular), SkeletonCard 포함 (기존 SkeletonCard 기반)
+7. **Tooltip**: 4가지 placement (top, bottom, left, right), delay 및 showOnMount 지원 (기존 Tooltip 기반)
 
-### 4. 문서화
+### 5. 문서화
 
 - **색상 팔레트 문서**: `docs/technical/design-system/color-palette.md`
 - **Storybook 스토리**: 모든 컴포넌트 및 토큰 문서화
@@ -410,9 +528,26 @@ frontend/src/design-system/
 │   │   ├── Divider.module.css ✅
 │   │   ├── Divider.stories.tsx ✅
 │   │   └── index.ts           ✅
+│   ├── Badge/
+│   │   ├── Badge.tsx          ✅ (기존 TechStackBadge 기반)
+│   │   ├── Badge.module.css   ✅
+│   │   ├── Badge.stories.tsx  ✅
+│   │   └── index.ts           ✅
+│   ├── Skeleton/
+│   │   ├── Skeleton.tsx       ✅ (기존 SkeletonCard 기반)
+│   │   ├── SkeletonCard.tsx   ✅
+│   │   ├── Skeleton.module.css ✅
+│   │   ├── SkeletonCard.module.css ✅
+│   │   ├── Skeleton.stories.tsx ✅
+│   │   └── index.ts           ✅
+│   ├── Tooltip/
+│   │   ├── Tooltip.tsx        ✅ (기존 Tooltip 기반)
+│   │   ├── Tooltip.module.css  ✅
+│   │   ├── Tooltip.stories.tsx ✅
+│   │   └── index.ts           ✅
 │   └── index.ts               ✅
 ├── styles/
-│   ├── globals.css            ✅
+│   ├── globals.css            ✅ (Spacing, BorderRadius, Shadow CSS Variables 추가)
 │   └── reset.css              ✅
 └── index.ts                   ✅
 

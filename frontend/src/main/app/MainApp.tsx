@@ -4,8 +4,9 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from '../config/queryClient';
 import { AppProvider, useApp } from '../app/providers/AppProvider';
 import { ThemeProvider } from '@shared/providers/ThemeProvider';
-import { Header } from '../layout/components/Header';
-import { HomePage } from '../layout/components/HomePage';
+import { Header } from '@/widgets/layout/Header';
+import { HomePage } from '@/pages/HomePage';
+import { ProjectsListPage } from '@/pages/ProjectsListPage';
 import { ProjectDetailPage } from '../pages/ProjectDetail/ProjectDetailPage';
 import {
   EasterEggProvider,
@@ -138,21 +139,10 @@ const MainAppContent: React.FC = () => {
 
       <Routes>
         {/* 홈 페이지 */}
-        <Route path="/" element={
-          <HomePage
-            projects={projects}
-            experiences={experiences}
-            educations={educations}
-            certifications={certifications}
-            isLoading={isLoading}
-            loadingStates={loadingStates}
-            isChatbotOpen={isChatbotOpen}
-            isHistoryPanelOpen={isHistoryPanelOpen}
-            isWideScreen={isWideScreen}
-            onChatbotToggle={handleChatbotToggle}
-            onHistoryPanelToggle={handleHistoryPanelToggle}
-          />
-        } />
+        <Route path="/" element={<HomePage />} />
+
+        {/* 프로젝트 목록 페이지 */}
+        <Route path="/projects" element={<ProjectsListPage />} />
 
         {/* 프로젝트 상세 페이지 */}
         <Route path="/projects/:id" element={<ProjectDetailPage />} />

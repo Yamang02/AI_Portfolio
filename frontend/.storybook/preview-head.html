@@ -1,0 +1,60 @@
+<style>
+  /* 다크 모드 클래스가 있을 때 prefers-color-scheme을 오버라이드 */
+  html.dark-mode {
+    color-scheme: dark;
+  }
+  
+  html.dark-mode body {
+    background-color: var(--color-bg-primary);
+    color: var(--color-text-primary);
+  }
+  
+  /* 다크 모드일 때 CSS 변수 오버라이드 - globals.css의 다크 모드 변수와 동일 */
+  html.dark-mode {
+    --color-bg-primary: #0f172a;
+    --color-bg-secondary: #1e293b;
+    --color-bg-tertiary: #3B4953;
+    --color-text-primary: #f1f5f9;
+    --color-text-secondary: #94a3b8;
+    --color-text-tertiary: #64748b;
+    --color-border-default: #334155;
+    --color-border-hover: #475569;
+    --color-border-accent: #5A7863;
+    --color-primary: #5A7863;
+    --color-primary-hover: #6B8F75;
+    --color-primary-active: #4A6352;
+    --color-accent: #90AB8B;
+    --color-accent-hover: #5A7863;
+    --color-success: #C5D89D;
+    --color-success-hover: #B4C88A;
+    --color-highlight: #EBF4DD;
+    --color-link-default: #90AB8B;
+    --color-link-hover: #5A7863;
+    --color-link-visited: #4A6352;
+  }
+  
+  /* 라이트 모드 (기본값) */
+  html:not(.dark-mode) {
+    color-scheme: light;
+    --color-bg-primary: #ffffff;
+    --color-bg-secondary: #f9fafb;
+    --color-bg-tertiary: #F6F0D7;
+    --color-text-primary: #111827;
+    --color-text-secondary: #6b7280;
+    --color-text-tertiary: #9ca3af;
+    --color-border-default: #e5e7eb;
+    --color-border-hover: #d1d5db;
+    --color-border-accent: #9CAB84;
+    --color-primary: #89986D;
+    --color-primary-hover: #9CAB84;
+    --color-primary-active: #6F7D56;
+    --color-accent: #9CAB84;
+    --color-accent-hover: #89986D;
+    --color-success: #C5D89D;
+    --color-success-hover: #B4C88A;
+    --color-highlight: #F6F0D7;
+    --color-link-default: #9CAB84;
+    --color-link-hover: #89986D;
+    --color-link-visited: #6F7D56;
+  }
+</style>

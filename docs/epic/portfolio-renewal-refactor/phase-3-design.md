@@ -51,6 +51,7 @@ Phase 3에서는 **토큰과 컴포넌트 정의만** 수행합니다. 실제 �
 
 2. **기본 컴포넌트 정의**
    - Button, Text Link, Section Title, Divider 컴포넌트 정의
+   - Badge, Skeleton, Tooltip 컴포넌트 정의
    - 최소한의 컴포넌트만 구현
 
 3. **시스템 폰트 우선 사용**
@@ -61,7 +62,7 @@ Phase 3에서는 **토큰과 컴포넌트 정의만** 수행합니다. 실제 �
 
 ```text
 ✅ 디자인 토큰 정의 완료 (Color, Typography, Spacing)
-✅ 기본 컴포넌트 정의 완료 (Button, Text Link, Section Title, Divider)
+✅ 기본 컴포넌트 정의 완료 (Button, Text Link, Section Title, Divider, Badge, Skeleton, Tooltip)
 ✅ 토큰 및 컴포넌트가 TypeScript로 타입 안전하게 구현됨
 ✅ Storybook 문서 작성 완료 (컴포넌트 사용 예시)
 ✅ 다크 모드 지원 준비 완료
@@ -83,6 +84,9 @@ Phase 3에서는 **토큰과 컴포넌트 정의만** 수행합니다. 실제 �
   - Text Link
   - Section Title
   - Divider
+  - Badge (Default/Primary/Accent/Success/Outline)
+  - Skeleton (Text/Circular/Rectangular) + SkeletonCard
+  - Tooltip (Top/Bottom/Left/Right)
 - [x] Storybook 문서
   - 각 컴포넌트 사용 예시
   - 토큰 사용 가이드
@@ -819,6 +823,360 @@ margin: 0 16px;
 
 ---
 
+### 5. Badge Component
+
+#### 5.1 Props 및 Variants
+
+```typescript
+type BadgeVariant = 'default' | 'primary' | 'accent' | 'success' | 'outline';
+type BadgeSize = 'sm' | 'md' | 'lg';
+
+export interface BadgeProps {
+  variant?: BadgeVariant;
+  size?: BadgeSize;
+  children: React.ReactNode;
+  className?: string;
+  onClick?: () => void;
+  selected?: boolean;
+  showCount?: boolean;
+  count?: number;
+}
+```
+
+#### 5.2 Variants 설명
+
+- **default**: 기본 배지 (회색 배경)
+- **primary**: Primary 색상 배지 (Dark Olive)
+- **accent**: Accent 색상 배지 (Muted Olive)
+- **success**: Success 색상 배지 (Light Sage)
+- **outline**: 테두리만 있는 배지
+
+#### 5.3 Sizes
+
+```typescript
+const badgeSizes = {
+  sm: {
+    padding: '4px 8px',
+    fontSize: '0.75rem', // 12px
+  },
+  md: {
+    padding: '6px 12px',
+    fontSize: '0.875rem', // 14px
+  },
+  lg: {
+    padding: '8px 16px',
+    fontSize: '1rem', // 16px
+  },
+} as const;
+```
+
+#### 5.4 사용 예시
+
+**기본 사용**:
+```tsx
+<Badge>React</Badge>
+<Badge variant="primary">TypeScript</Badge>
+<Badge variant="accent">Node.js</Badge>
+```
+
+**프로젝트 태그 표시**:
+```tsx
+<div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+  {project.tags.map((tag) => (
+    <Badge key={tag} variant="default" size="sm">
+      {tag}
+    </Badge>
+  ))}
+</div>
+```
+
+**클릭 가능한 배지 (필터링)**:
+```tsx
+<Badge
+  onClick={() => handleFilter(tag)}
+  selected={selectedTags.includes(tag)}
+>
+  {tag}
+</Badge>
+```
+
+**카운트 표시**:
+```tsx
+<Badge variant="primary" showCount count={5}>
+  Notifications
+</Badge>
+```
+
+#### 5.5 접근성
+
+```tsx
+<div
+  className={classNames}
+  onClick={handleClick}
+  role={onClick ? 'button' : undefined}
+  tabIndex={onClick ? 0 : undefined}
+  onKeyDown={(e) => {
+    if (onClick && (e.key === 'Enter' || e.key === ' ')) {
+      e.preventDefault();
+      handleClick();
+    }
+  }}
+>
+  {children}
+</div>
+```
+
+---
+
+### 6. Skeleton Component
+
+#### 6.1 Props
+
+```typescript
+export interface SkeletonProps {
+  width?: string | number;
+  height?: string | number;
+  className?: string;
+  variant?: 'text' | 'circular' | 'rectangular';
+}
+```
+
+#### 6.2 Variants 설명
+
+- **text**: 텍스트 라인용 (둥근 모서리)
+- **circular**: 원형 (아바타 등)
+- **rectangular**: 직사각형 (이미지, 카드 등)
+
+#### 6.3 사용 예시
+
+**기본 사용**:
+```tsx
+<Skeleton width={200} height={20} />
+<Skeleton variant="text" width="100%" />
+<Skeleton variant="circular" width={40} height={40} />
+<Skeleton variant="rectangular" width={200} height={100} />
+```
+
+**텍스트 스켈레톤**:
+```tsx
+<div>
+  <Skeleton variant="text" height={24} width="60%" style={{ marginBottom: '1rem' }} />
+  <Skeleton variant="text" height={16} width="100%" style={{ marginBottom: '0.5rem' }} />
+  <Skeleton variant="text" height={16} width="90%" style={{ marginBottom: '0.5rem' }} />
+  <Skeleton variant="text" height={16} width="75%" />
+</div>
+```
+
+---
+
+### 7. SkeletonCard Component
+
+#### 7.1 Props
+
+```typescript
+export interface SkeletonCardProps {
+  className?: string;
+  showImage?: boolean;
+  showTitle?: boolean;
+  showDescription?: boolean;
+  showActions?: boolean;
+  lines?: number;
+}
+```
+
+#### 7.2 사용 예시
+
+**기본 카드 스켈레톤**:
+```tsx
+<SkeletonCard />
+```
+
+**이미지 없는 카드**:
+```tsx
+<SkeletonCard showImage={false} />
+```
+
+**커스텀 라인 수**:
+```tsx
+<SkeletonCard lines={5} />
+```
+
+**프로젝트 리스트 로딩 상태**:
+```tsx
+{isLoading ? (
+  <div style={{ 
+    display: 'grid', 
+    gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', 
+    gap: '1.5rem' 
+  }}>
+    {Array.from({ length: 6 }).map((_, index) => (
+      <SkeletonCard key={index} />
+    ))}
+  </div>
+) : (
+  <div>
+    {projects.map((project) => (
+      <ProjectCard key={project.id} project={project} />
+    ))}
+  </div>
+)}
+```
+
+#### 7.3 접근성
+
+```tsx
+<div
+  className={classNames}
+  aria-busy="true"
+  aria-label="Loading"
+/>
+```
+
+---
+
+### 8. Tooltip Component
+
+#### 8.1 Props
+
+```typescript
+type TooltipPlacement = 'top' | 'bottom' | 'left' | 'right';
+
+export interface TooltipProps {
+  children: React.ReactNode;
+  content: React.ReactNode;
+  placement?: TooltipPlacement;
+  delay?: number;
+  showOnMount?: boolean;
+  className?: string;
+}
+```
+
+#### 8.2 Placement 옵션
+
+- **top**: 위쪽 표시 (기본값)
+- **bottom**: 아래쪽 표시
+- **left**: 왼쪽 표시
+- **right**: 오른쪽 표시
+
+#### 8.3 사용 예시
+
+**기본 사용**:
+```tsx
+<Tooltip content="This is a tooltip">
+  <Button>Hover me</Button>
+</Tooltip>
+```
+
+**다양한 위치**:
+```tsx
+<Tooltip content="Top tooltip" placement="top">
+  <Button>Top</Button>
+</Tooltip>
+
+<Tooltip content="Bottom tooltip" placement="bottom">
+  <Button>Bottom</Button>
+</Tooltip>
+```
+
+**지연 표시**:
+```tsx
+<Tooltip content="Delayed tooltip" delay={500}>
+  <Button>Hover me</Button>
+</Tooltip>
+```
+
+**마운트 시 자동 표시**:
+```tsx
+<Tooltip content="Auto show tooltip" showOnMount>
+  <Button>Auto Show</Button>
+</Tooltip>
+```
+
+**텍스트와 함께 사용**:
+```tsx
+<p>
+  Hover over{' '}
+  <Tooltip content="This is a helpful tooltip">
+    <span style={{ color: 'var(--color-link-default)', cursor: 'help', textDecoration: 'underline' }}>
+      this text
+    </span>
+  </Tooltip>
+  {' '}to see the tooltip.
+</p>
+```
+
+#### 8.4 접근성
+
+```tsx
+<div
+  className={styles.tooltip}
+  role="tooltip"
+>
+  {content}
+  <div className={styles.arrow} />
+</div>
+```
+
+---
+
+## ⚠️ 중요: 기존 Card 컴포넌트 사용 금지
+
+### 원칙
+
+**Phase 3 디자인 시스템에서는 복잡한 Card 컴포넌트를 제공하지 않습니다.**
+
+#### 금지 사항
+
+- ❌ `ProjectCard` 컴포넌트 사용 금지
+- ❌ `ExperienceCard` 컴포넌트 사용 금지
+- ❌ 기타 복잡한 카드 컴포넌트 사용 금지
+
+#### 대체 방법
+
+**디자인 시스템 컴포넌트를 조합하여 사용**:
+
+```tsx
+// ❌ 잘못된 방법
+<ProjectCard project={project} />
+
+// ✅ 올바른 방법
+<div
+  style={{
+    background: 'var(--color-bg-primary)',
+    border: '1px solid var(--color-border-default)',
+    borderRadius: 'var(--border-radius-lg)',
+    padding: 'var(--spacing-6)',
+    boxShadow: 'var(--shadow-md)',
+  }}
+>
+  <SectionTitle level="h3">{project.title}</SectionTitle>
+  <p style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--spacing-4)' }}>
+    {project.description}
+  </p>
+  <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+    {project.tags.map((tag) => (
+      <Badge key={tag} variant="default" size="sm">
+        {tag}
+      </Badge>
+    ))}
+  </div>
+  <div style={{ marginTop: 'var(--spacing-4)' }}>
+    <Button variant="primary" href={project.url}>
+      View Project
+    </Button>
+  </div>
+</div>
+```
+
+#### 이유
+
+1. **디자인 시스템 최소화 원칙**: 복잡한 컴포넌트는 디자인 시스템 범위를 벗어남
+2. **유연성**: 각 페이지/섹션의 요구사항에 맞게 자유롭게 구성 가능
+3. **일관성**: 디자인 토큰을 직접 사용하여 일관된 스타일 유지
+4. **유지보수성**: 단순한 구조로 유지보수 용이
+
+---
+
 ## 파일 구조
 
 ### 디자인 시스템 디렉토리
@@ -849,6 +1207,23 @@ frontend/src/design-system/
 │   │   ├── Divider.tsx
 │   │   ├── Divider.stories.tsx
 │   │   └── index.ts
+│   ├── Badge/
+│   │   ├── Badge.tsx
+│   │   ├── Badge.module.css
+│   │   ├── Badge.stories.tsx
+│   │   └── index.ts
+│   ├── Skeleton/
+│   │   ├── Skeleton.tsx
+│   │   ├── Skeleton.module.css
+│   │   ├── SkeletonCard.tsx
+│   │   ├── SkeletonCard.module.css
+│   │   ├── Skeleton.stories.tsx
+│   │   └── index.ts
+│   ├── Tooltip/
+│   │   ├── Tooltip.tsx
+│   │   ├── Tooltip.module.css
+│   │   ├── Tooltip.stories.tsx
+│   │   └── index.ts
 │   └── index.ts
 ├── styles/
 │   ├── globals.css        # CSS Variables
@@ -860,857 +1235,24 @@ frontend/src/design-system/
 
 ## 구현 가이드
 
-### Task 3.1: 디자인 토큰 구현
-
-#### 3.1.1 Color Tokens 구현
-
-**파일**: `frontend/src/design-system/tokens/colors.ts`
-
-```typescript
-/**
- * Color Tokens
- *
- * Phase 3: Design System Minimalization
- * 사용자 정의 색상 팔레트를 정의합니다.
- * 상세 정의는 phase-3-color-palette.md 참조
- */
-
-export const brandColors = {
-  // Primary: Deep Purple (#571F4E)
-  primary: '#571F4E',
-  primaryHover: '#6D2861',
-  primaryActive: '#451838',
-
-  // Accent: Rich Cerulean (#4F759B)
-  accent: '#4F759B',
-  accentHover: '#3E5D7A',
-  accentActive: '#60A5FA',
-
-  // Success: Muted Teal (#92C9B1)
-  success: '#92C9B1',
-  successHover: '#7AB49B',
-
-  // Highlight: Light Green (#A2FAA3)
-  highlight: '#A2FAA3',
-  highlightHover: '#8AE88B',
-} as const;
-
-export const lightModeColors = {
-  background: {
-    primary: '#ffffff',
-    secondary: '#f9fafb',
-    tertiary: '#f3f4f6',
-  },
-  text: {
-    primary: '#111827',
-    secondary: '#6b7280',
-    tertiary: '#9ca3af',
-  },
-  border: {
-    default: '#e5e7eb',
-    hover: '#d1d5db',
-  },
-  link: {
-    default: '#4F759B', // Rich Cerulean (Accent)
-    hover: '#3E5D7A',
-    visited: '#571F4E', // Deep Purple (Primary)
-  },
-  status: {
-    info: '#4F759B', // Rich Cerulean
-    success: '#92C9B1', // Muted Teal
-    warning: '#f59e0b', // Amber-500
-    error: '#ef4444', // Red-500
-  },
-} as const;
-
-export const darkModeColors = {
-  background: {
-    primary: '#0f172a',
-    secondary: '#1e293b',
-    tertiary: '#334155',
-  },
-  text: {
-    primary: '#f1f5f9',
-    secondary: '#94a3b8',
-    tertiary: '#64748b',
-  },
-  border: {
-    default: '#334155',
-    hover: '#475569',
-  },
-  link: {
-    default: '#60A5FA', // Blue-400 (lighter for dark mode)
-    hover: '#3b82f6',
-    visited: '#a78bfa',
-  },
-  status: {
-    info: '#60a5fa',
-    success: '#92C9B1', // Muted Teal (그대로 유지)
-    warning: '#fbbf24',
-    error: '#f87171',
-  },
-} as const;
-
-export type BrandColor = keyof typeof brandColors;
-export type LightModeColor = keyof typeof lightModeColors;
-export type DarkModeColor = keyof typeof darkModeColors;
-```
-
-**CSS Variables**: `frontend/src/design-system/styles/globals.css`
-
-```css
-/**
- * CSS Variables - Color Tokens
- *
- * Phase 3: Design System Minimalization
- */
-
-:root {
-  /* Background */
-  --color-bg-primary: #ffffff;
-  --color-bg-secondary: #f9fafb;
-  --color-bg-tertiary: #f3f4f6;
-
-  /* Text */
-  --color-text-primary: #111827;
-  --color-text-secondary: #6b7280;
-  --color-text-tertiary: #9ca3af;
-
-  /* Border */
-  --color-border-default: #e5e7eb;
-  --color-border-hover: #d1d5db;
-
-  /* Link */
-  --color-link-default: #2563eb;
-  --color-link-hover: #1d4ed8;
-  --color-link-visited: #7c3aed;
-
-  /* Brand */
-  --color-primary: #2563eb;
-  --color-primary-hover: #1d4ed8;
-  --color-primary-active: #1e40af;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    /* Background */
-    --color-bg-primary: #0f172a;
-    --color-bg-secondary: #1e293b;
-    --color-bg-tertiary: #334155;
-
-    /* Text */
-    --color-text-primary: #f1f5f9;
-    --color-text-secondary: #94a3b8;
-    --color-text-tertiary: #64748b;
-
-    /* Border */
-    --color-border-default: #334155;
-    --color-border-hover: #475569;
-
-    /* Link */
-    --color-link-default: #60a5fa;
-    --color-link-hover: #3b82f6;
-    --color-link-visited: #a78bfa;
-
-    /* Brand */
-    --color-primary: #60a5fa;
-    --color-primary-hover: #3b82f6;
-    --color-primary-active: #2563eb;
-  }
-}
-```
-
-#### 3.1.2 Typography Tokens 구현
-
-**파일**: `frontend/src/design-system/tokens/typography.ts`
-
-```typescript
-/**
- * Typography Tokens
- *
- * Phase 3: Design System Minimalization
- * 시스템 폰트 기반 타이포그래피를 정의합니다.
- */
-
-export const fontFamily = {
-  sans: [
-    '-apple-system',
-    'BlinkMacSystemFont',
-    '"Segoe UI"',
-    'Roboto',
-    '"Helvetica Neue"',
-    'Arial',
-    'sans-serif',
-    '"Apple Color Emoji"',
-    '"Segoe UI Emoji"',
-    '"Segoe UI Symbol"',
-  ].join(', '),
-  mono: [
-    '"SF Mono"',
-    'Monaco',
-    '"Cascadia Code"',
-    '"Roboto Mono"',
-    'Consolas',
-    '"Courier New"',
-    'monospace',
-  ].join(', '),
-} as const;
-
-export const fontSize = {
-  display: '3.75rem', // 60px
-  h1: '2.25rem', // 36px
-  h2: '1.875rem', // 30px
-  h3: '1.5rem', // 24px
-  h4: '1.25rem', // 20px
-  base: '1rem', // 16px
-  lg: '1.125rem', // 18px
-  sm: '0.875rem', // 14px
-  xs: '0.75rem', // 12px
-} as const;
-
-export const fontSizeMobile = {
-  display: '2.5rem', // 40px
-  h1: '1.875rem', // 30px
-  h2: '1.5rem', // 24px
-  h3: '1.25rem', // 20px
-  h4: '1.125rem', // 18px
-} as const;
-
-export const fontWeight = {
-  regular: 400,
-  medium: 500,
-  semibold: 600,
-  bold: 700,
-} as const;
-
-export const lineHeight = {
-  tight: 1.25,
-  normal: 1.5,
-  relaxed: 1.75,
-} as const;
-
-export const letterSpacing = {
-  tight: '-0.025em',
-  normal: '0',
-  wide: '0.025em',
-} as const;
-
-export type FontFamily = keyof typeof fontFamily;
-export type FontSize = keyof typeof fontSize;
-export type FontWeight = keyof typeof fontWeight;
-export type LineHeight = keyof typeof lineHeight;
-export type LetterSpacing = keyof typeof letterSpacing;
-```
-
-#### 3.1.3 Spacing Tokens 구현
-
-**파일**: `frontend/src/design-system/tokens/spacing.ts`
-
-```typescript
-/**
- * Spacing Tokens
- *
- * Phase 3: Design System Minimalization
- * 8px 기반 여백 체계를 정의합니다.
- */
-
-export const spacing = {
-  0: '0',
-  1: '0.25rem', // 4px
-  2: '0.5rem', // 8px
-  3: '0.75rem', // 12px
-  4: '1rem', // 16px
-  5: '1.25rem', // 20px
-  6: '1.5rem', // 24px
-  8: '2rem', // 32px
-  10: '2.5rem', // 40px
-  12: '3rem', // 48px
-  16: '4rem', // 64px
-  20: '5rem', // 80px
-  24: '6rem', // 96px
-} as const;
-
-export const semanticSpacing = {
-  componentGap: {
-    xs: spacing[2], // 8px
-    sm: spacing[3], // 12px
-    md: spacing[4], // 16px
-    lg: spacing[6], // 24px
-    xl: spacing[8], // 32px
-  },
-  sectionPadding: {
-    mobile: spacing[6], // 24px
-    tablet: spacing[10], // 40px
-    desktop: spacing[12], // 48px
-  },
-  containerMaxWidth: {
-    sm: '640px',
-    md: '768px',
-    lg: '1024px',
-    xl: '1280px',
-  },
-  containerPadding: {
-    mobile: spacing[4], // 16px
-    tablet: spacing[6], // 24px
-    desktop: spacing[8], // 32px
-  },
-} as const;
-
-export type Spacing = keyof typeof spacing;
-```
-
-#### 3.1.4 기타 Tokens 구현
-
-**Border Radius**: `frontend/src/design-system/tokens/borderRadius.ts`
-
-```typescript
-export const borderRadius = {
-  none: '0',
-  sm: '0.25rem', // 4px
-  md: '0.375rem', // 6px
-  lg: '0.5rem', // 8px
-  xl: '0.75rem', // 12px
-  full: '9999px',
-} as const;
-
-export type BorderRadius = keyof typeof borderRadius;
-```
-
-**Shadow**: `frontend/src/design-system/tokens/shadow.ts`
-
-```typescript
-export const shadow = {
-  none: 'none',
-  sm: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
-  md: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-  lg: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-} as const;
-
-export type Shadow = keyof typeof shadow;
-```
+> **상세 구현 가이드**: [Phase 3 구현 가이드](../../technical/design-system/phase-3-implementation-guide.md) 참조
+> 
+> 구현 가이드에는 다음 내용이 포함되어 있습니다:
+> - Task 3.1: 디자인 토큰 구현 (Color, Typography, Spacing, Border Radius, Shadow)
+> - Task 3.2: 기본 컴포넌트 구현 (Button, TextLink, SectionTitle, Divider)
+> - Task 3.3: Storybook 설정 및 문서화
+> - Task 3.4: Badge, Skeleton, Tooltip 컴포넌트 구현
 
 ---
 
-### Task 3.2: 기본 컴포넌트 구현
-
-#### 3.2.1 Button Component 구현
-
-**파일**: `frontend/src/design-system/components/Button/Button.tsx`
-
-```tsx
-import React from 'react';
-import styles from './Button.module.css';
-
-type ButtonVariant = 'primary' | 'secondary';
-type ButtonSize = 'sm' | 'md' | 'lg';
-
-export interface ButtonProps {
-  variant?: ButtonVariant;
-  size?: ButtonSize;
-  disabled?: boolean;
-  children: React.ReactNode;
-  onClick?: () => void;
-  href?: string;
-  target?: '_blank' | '_self';
-  ariaLabel?: string;
-  className?: string;
-}
-
-export const Button: React.FC<ButtonProps> = ({
-  variant = 'primary',
-  size = 'md',
-  disabled = false,
-  children,
-  onClick,
-  href,
-  target = '_self',
-  ariaLabel,
-  className,
-}) => {
-  const classNames = [
-    styles.button,
-    styles[variant],
-    styles[size],
-    className,
-  ].filter(Boolean).join(' ');
-
-  if (href && !disabled) {
-    return (
-      <a
-        href={href}
-        target={target}
-        rel={target === '_blank' ? 'noopener noreferrer' : undefined}
-        className={classNames}
-        aria-label={ariaLabel || (typeof children === 'string' ? children : undefined)}
-      >
-        {children}
-      </a>
-    );
-  }
-
-  return (
-    <button
-      type="button"
-      disabled={disabled}
-      onClick={onClick}
-      className={classNames}
-      aria-label={ariaLabel || (typeof children === 'string' ? children : undefined)}
-    >
-      {children}
-    </button>
-  );
-};
-```
-
-**스타일**: `frontend/src/design-system/components/Button/Button.module.css`
-
-```css
-.button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-family: inherit;
-  font-weight: 600;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
-  text-decoration: none;
-  transition: all 0.15s ease;
-}
-
-/* Primary Variant */
-.button.primary {
-  background-color: var(--color-primary);
-  color: #ffffff;
-}
-
-.button.primary:hover:not(:disabled) {
-  background-color: var(--color-primary-hover);
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-}
-
-.button.primary:active:not(:disabled) {
-  background-color: var(--color-primary-active);
-}
-
-/* Secondary Variant */
-.button.secondary {
-  background-color: transparent;
-  color: var(--color-text-primary);
-  border: 1px solid var(--color-border-default);
-}
-
-.button.secondary:hover:not(:disabled) {
-  background-color: var(--color-bg-secondary);
-  border-color: var(--color-border-hover);
-}
-
-.button.secondary:active:not(:disabled) {
-  background-color: var(--color-bg-tertiary);
-}
-
-/* Sizes */
-.button.sm {
-  padding: 8px 16px;
-  font-size: 0.875rem; /* 14px */
-}
-
-.button.md {
-  padding: 12px 24px;
-  font-size: 1rem; /* 16px */
-}
-
-.button.lg {
-  padding: 16px 32px;
-  font-size: 1.125rem; /* 18px */
-}
-
-/* Disabled */
-.button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* Focus */
-.button:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
-}
-```
-
-**Storybook**: `frontend/src/design-system/components/Button/Button.stories.tsx`
-
-```tsx
-import type { Meta, StoryObj } from '@storybook/react';
-import { Button } from './Button';
-
-const meta: Meta<typeof Button> = {
-  title: 'Design System/Button',
-  component: Button,
-  tags: ['autodocs'],
-  argTypes: {
-    variant: {
-      control: 'select',
-      options: ['primary', 'secondary'],
-    },
-    size: {
-      control: 'select',
-      options: ['sm', 'md', 'lg'],
-    },
-  },
-};
-
-export default meta;
-type Story = StoryObj<typeof Button>;
-
-export const Primary: Story = {
-  args: {
-    variant: 'primary',
-    children: 'View Projects',
-  },
-};
-
-export const Secondary: Story = {
-  args: {
-    variant: 'secondary',
-    children: 'Contact',
-  },
-};
-
-export const Small: Story = {
-  args: {
-    size: 'sm',
-    children: 'Small Button',
-  },
-};
-
-export const Large: Story = {
-  args: {
-    size: 'lg',
-    children: 'Large Button',
-  },
-};
-
-export const Disabled: Story = {
-  args: {
-    disabled: true,
-    children: 'Disabled Button',
-  },
-};
-
-export const AsLink: Story = {
-  args: {
-    href: '/projects',
-    children: 'Go to Projects',
-  },
-};
-```
-
-#### 3.2.2 TextLink Component 구현
-
-**파일**: `frontend/src/design-system/components/TextLink/TextLink.tsx`
-
-```tsx
-import React from 'react';
-import styles from './TextLink.module.css';
-
-export interface TextLinkProps {
-  href: string;
-  children: React.ReactNode;
-  external?: boolean;
-  underline?: boolean;
-  ariaLabel?: string;
-  className?: string;
-}
-
-export const TextLink: React.FC<TextLinkProps> = ({
-  href,
-  children,
-  external = false,
-  underline = false,
-  ariaLabel,
-  className,
-}) => {
-  const classNames = [
-    styles.textLink,
-    underline && styles.underline,
-    className,
-  ].filter(Boolean).join(' ');
-
-  return (
-    <a
-      href={href}
-      target={external ? '_blank' : '_self'}
-      rel={external ? 'noopener noreferrer' : undefined}
-      className={classNames}
-      aria-label={ariaLabel || (typeof children === 'string' ? children : undefined)}
-    >
-      {children}
-      {external && <span className={styles.srOnly}> (새 탭에서 열기)</span>}
-    </a>
-  );
-};
-```
-
-**스타일**: `frontend/src/design-system/components/TextLink/TextLink.module.css`
-
-```css
-.textLink {
-  color: var(--color-link-default);
-  text-decoration: none;
-  font-weight: 500;
-  transition: color 0.15s ease;
-}
-
-.textLink:hover {
-  color: var(--color-link-hover);
-  text-decoration: underline;
-}
-
-.textLink:visited {
-  color: var(--color-link-visited);
-}
-
-.textLink:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
-  border-radius: 2px;
-}
-
-.textLink.underline {
-  text-decoration: underline;
-}
-
-.srOnly {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border-width: 0;
-}
-```
-
-#### 3.2.3 SectionTitle Component 구현
-
-**파일**: `frontend/src/design-system/components/SectionTitle/SectionTitle.tsx`
-
-```tsx
-import React from 'react';
-import styles from './SectionTitle.module.css';
-
-type SectionTitleLevel = 'h1' | 'h2' | 'h3' | 'h4';
-
-export interface SectionTitleProps {
-  level: SectionTitleLevel;
-  children: React.ReactNode;
-  className?: string;
-}
-
-export const SectionTitle: React.FC<SectionTitleProps> = ({
-  level,
-  children,
-  className,
-}) => {
-  const Tag = level;
-  const classNames = [styles.sectionTitle, styles[level], className]
-    .filter(Boolean)
-    .join(' ');
-
-  return <Tag className={classNames}>{children}</Tag>;
-};
-```
-
-**스타일**: `frontend/src/design-system/components/SectionTitle/SectionTitle.module.css`
-
-```css
-.sectionTitle {
-  font-family: inherit;
-  color: var(--color-text-primary);
-  line-height: 1.25;
-  margin: 0;
-}
-
-.h1 {
-  font-size: 2.25rem; /* 36px */
-  font-weight: 700;
-  margin-bottom: 1.5rem; /* 24px */
-}
-
-.h2 {
-  font-size: 1.875rem; /* 30px */
-  font-weight: 700;
-  margin-bottom: 1.25rem; /* 20px */
-}
-
-.h3 {
-  font-size: 1.5rem; /* 24px */
-  font-weight: 600;
-  margin-bottom: 1rem; /* 16px */
-}
-
-.h4 {
-  font-size: 1.25rem; /* 20px */
-  font-weight: 600;
-  margin-bottom: 0.75rem; /* 12px */
-}
-
-/* Mobile */
-@media (max-width: 767px) {
-  .h1 {
-    font-size: 1.875rem; /* 30px */
-  }
-
-  .h2 {
-    font-size: 1.5rem; /* 24px */
-  }
-
-  .h3 {
-    font-size: 1.25rem; /* 20px */
-  }
-
-  .h4 {
-    font-size: 1.125rem; /* 18px */
-  }
-}
-```
-
-#### 3.2.4 Divider Component 구현
-
-**파일**: `frontend/src/design-system/components/Divider/Divider.tsx`
-
-```tsx
-import React from 'react';
-import styles from './Divider.module.css';
-
-type DividerVariant = 'horizontal' | 'vertical';
-
-export interface DividerProps {
-  variant?: DividerVariant;
-  spacing?: number; // spacing token key
-  className?: string;
-}
-
-export const Divider: React.FC<DividerProps> = ({
-  variant = 'horizontal',
-  spacing = 6, // 24px default
-  className,
-}) => {
-  const classNames = [styles.divider, styles[variant], className]
-    .filter(Boolean)
-    .join(' ');
-
-  const style = {
-    ...(variant === 'horizontal' && { marginTop: `${spacing * 4}px`, marginBottom: `${spacing * 4}px` }),
-    ...(variant === 'vertical' && { marginLeft: `${spacing * 4}px`, marginRight: `${spacing * 4}px` }),
-  };
-
-  return <hr className={classNames} style={style} />;
-};
-```
-
-**스타일**: `frontend/src/design-system/components/Divider/Divider.module.css`
-
-```css
-.divider {
-  border: none;
-  background-color: var(--color-border-default);
-}
-
-.divider.horizontal {
-  width: 100%;
-  height: 1px;
-  margin: 24px 0;
-}
-
-.divider.vertical {
-  width: 1px;
-  height: 100%;
-  margin: 0 16px;
-}
-```
-
----
-
-### Task 3.3: Storybook 설정 및 문서화
-
-#### 3.3.1 Storybook 설치
-
-```bash
-npm install --save-dev @storybook/react @storybook/react-vite storybook
-```
-
-#### 3.3.2 Storybook 초기화
-
-```bash
-npx storybook init
-```
-
-#### 3.3.3 Tokens 문서화
-
-**파일**: `frontend/src/design-system/tokens/Tokens.stories.mdx`
-
-```mdx
-import { Meta } from '@storybook/blocks';
-
-<Meta title="Design System/Tokens" />
-
-# Design Tokens
-
-Phase 3: Design System Minimalization에서 정의한 디자인 토큰입니다.
-
-## Color Tokens
-
-### Brand Colors
-- **Primary**: `#571F4E` (Deep Purple) - CTA 버튼, 강조 요소
-- **Accent**: `#4F759B` (Rich Cerulean) - 링크, 보조 강조
-- **Success**: `#92C9B1` (Muted Teal) - 성공 메시지
-- **Highlight**: `#A2FAA3` (Light Green) - 강조 배지
-
-> 상세한 색상 정의는 [phase-3-color-palette.md](./phase-3-color-palette.md) 참조
-
-### Light Mode Colors
-- Background Primary: `#ffffff`
-- Background Secondary: `#f9fafb` (Gray-50)
-- Text Primary: `#111827` (Gray-900)
-- Text Secondary: `#6b7280` (Gray-500)
-
-### Dark Mode Colors
-- Background Primary: `#0f172a` (Slate-900)
-- Background Secondary: `#1e293b` (Slate-800)
-- Text Primary: `#f1f5f9` (Slate-100)
-- Text Secondary: `#94a3b8` (Slate-400)
-
-## Typography Tokens
-
-### Font Family
-- Sans: System font stack
-- Mono: System monospace font stack
-
-### Font Size
-- Display: `3.75rem` (60px)
-- H1: `2.25rem` (36px)
-- H2: `1.875rem` (30px)
-- Base: `1rem` (16px)
-
-### Font Weight
-- Regular: `400`
-- Medium: `500`
-- Semibold: `600`
-- Bold: `700`
-
-## Spacing Tokens
-
-8px 기반 여백 체계:
-- 1: `0.25rem` (4px)
-- 2: `0.5rem` (8px)
-- 4: `1rem` (16px)
-- 6: `1.5rem` (24px)
-- 8: `2rem` (32px)
-```
+## 실제 사용 예시
+
+> **상세 사용 예시**: [Phase 3 사용 예시](../../technical/design-system/phase-3-usage-examples.md) 참조
+>
+> 사용 예시에는 다음 내용이 포함되어 있습니다:
+> - Featured Projects Section - Badge 적용 예시
+> - Archive Projects Grid - Badge + Skeleton 적용 예시
+> - Tooltip 사용 예시
 
 ---
 
@@ -1743,6 +1285,22 @@ Phase 3: Design System Minimalization에서 정의한 디자인 토큰입니다.
 - [ ] Divider 컴포넌트 구현 완료
   - [ ] Horizontal/Vertical variants
   - [ ] Spacing customization
+- [ ] Badge 컴포넌트 구현 완료
+  - [ ] Default/Primary/Accent/Success/Outline variants
+  - [ ] Small/Medium/Large sizes
+  - [ ] Clickable 기능 (`onClick` props)
+  - [ ] Selected state
+  - [ ] Count 표시 (`showCount`, `count` props)
+- [ ] Skeleton 컴포넌트 구현 완료
+  - [ ] Text/Circular/Rectangular variants
+  - [ ] Width/Height customization
+- [ ] SkeletonCard 컴포넌트 구현 완료
+  - [ ] Image/Title/Description/Actions 표시 옵션
+  - [ ] Custom lines 수
+- [ ] Tooltip 컴포넌트 구현 완료
+  - [ ] Top/Bottom/Left/Right placement
+  - [ ] Delay 옵션
+  - [ ] Show on mount 옵션
 - [ ] 모든 컴포넌트 접근성 준수 (WCAG 2.1 AA)
 - [ ] 모든 컴포넌트 키보드 네비게이션 지원
 
@@ -1753,8 +1311,42 @@ Phase 3: Design System Minimalization에서 정의한 디자인 토큰입니다.
 - [ ] TextLink 컴포넌트 스토리 작성
 - [ ] SectionTitle 컴포넌트 스토리 작성
 - [ ] Divider 컴포넌트 스토리 작성
+- [ ] Badge 컴포넌트 스토리 작성
+  - [ ] 모든 variants 표시
+  - [ ] 모든 sizes 표시
+  - [ ] Interactive 예시 (클릭 가능한 배지)
+  - [ ] Count 표시 예시
+- [ ] Skeleton 컴포넌트 스토리 작성
+  - [ ] 모든 variants 표시
+  - [ ] SkeletonCard 예시
+  - [ ] Card Grid 예시
+- [ ] Tooltip 컴포넌트 스토리 작성
+  - [ ] 모든 placements 표시
+  - [ ] Delay 예시
+  - [ ] Show on mount 예시
 - [ ] Tokens 문서 작성 (`Tokens.stories.mdx`)
 - [ ] Storybook 로컬 실행 확인 (`npm run storybook`)
+
+### Task 3.4: Badge, Skeleton, Tooltip 컴포넌트 구현
+
+- [ ] Badge 컴포넌트 구현 완료
+- [ ] Skeleton 컴포넌트 구현 완료
+- [ ] SkeletonCard 컴포넌트 구현 완료
+- [ ] Tooltip 컴포넌트 구현 완료
+- [ ] 모든 컴포넌트 Storybook 스토리 작성 완료
+
+### Task 3.5: 실제 사용 예시 적용
+
+- [ ] Featured Projects Section에 Badge 적용
+  - [ ] 기존 `project.tags.join(', ')` 제거
+  - [ ] Badge 컴포넌트로 태그 표시
+- [ ] Archive Projects Grid에 Skeleton 추가
+  - [ ] 로딩 상태에 SkeletonCard 표시
+  - [ ] 태그 필터링에 Badge 사용
+- [ ] 기존 Card 컴포넌트 사용 금지 원칙 준수
+  - [ ] ProjectCard 컴포넌트 사용 안 함
+  - [ ] ExperienceCard 컴포넌트 사용 안 함
+  - [ ] 디자인 시스템 컴포넌트 조합으로 대체
 
 ### 품질 검증
 
