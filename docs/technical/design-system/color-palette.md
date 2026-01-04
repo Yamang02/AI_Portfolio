@@ -1,8 +1,11 @@
 # Color Palette - 색상 팔레트 정의
 
-**작성일**: 2025-01-04
-**작성자**: AI Agent (Claude)
-**최종 업데이트**: 2025-01-04 (RGB 값 기반 정확한 정의)
+**작성일**: 2025-01-04  
+**작성자**: AI Agent (Claude)  
+**최종 업데이트**: 2025-01-XX (Phase 4.5 Enhancement - Revised Green Palette)
+
+> ⚠️ **참고**: 이 문서는 기존 컬러 팔레트를 기록합니다.  
+> 최신 개선된 컬러 팔레트는 [Revised Color Palette](./color-palette-revised.md)를 참조하세요.
 
 ---
 
@@ -12,23 +15,25 @@
 
 제공된 RGB 값을 기반으로 정확한 Hex 코드로 변환했습니다.
 
-#### 라이트 모드 - Green/Olive Tones
+#### 라이트 모드 - Green/Olive Tones (Phase 3 → Phase 4.5 개선)
 
-| 색상명 | RGB | Hex Code | 용도 |
-|--------|-----|----------|------|
-| **Cream Beige** | rgb(246, 240, 215) | `#F6F0D7` | Background Tertiary, Subtle Highlight |
-| **Light Sage** | rgb(197, 216, 157) | `#C5D89D` | Success, Positive State |
-| **Muted Olive** | rgb(156, 171, 132) | `#9CAB84` | Primary Accent, Links |
-| **Dark Olive** | rgb(137, 152, 109) | `#89986D` | **Primary**, CTA Buttons |
+| 색상명 | RGB | Hex Code | 용도 | 상태 |
+|--------|-----|----------|------|------|
+| **Soft Green** | rgb(238, 245, 232) | `#EEF5E8` | Background Tertiary, Highlight | ✅ NEW |
+| **Light Sage** | rgb(168, 208, 141) | `#A8D08D` | Success, Positive State | ✅ UPDATED |
+| **Muted Olive** | rgb(158, 191, 150) | `#9EBF96` | Primary Accent, Links | ✅ UPDATED |
+| **Fresh Olive Green** | rgb(127, 168, 116) | `#7FA874` | **Primary**, CTA Buttons | ✅ NEW |
+| ~~**Dark Olive**~~ | ~~rgb(137, 152, 109)~~ | ~~`#89986D`~~ | ~~이전 Primary~~ | ❌ DEPRECATED |
 
-#### 다크 모드 - Cool Green Tones
+#### 다크 모드 - Vital Green Tones (Phase 3 → Phase 4.5 개선)
 
-| 색상명 | RGB | Hex Code | 용도 |
-|--------|-----|----------|------|
-| **Light Mint** | rgb(235, 244, 221) | `#EBF4DD` | Highlight (다크모드에서 배지) |
-| **Soft Green** | rgb(144, 171, 139) | `#90AB8B` | Success, Links (다크모드) |
-| **Deep Teal** | rgb(90, 120, 99) | `#5A7863` | **Primary** (다크모드) |
-| **Dark Forest** | rgb(59, 73, 83) | `#3B4953` | Background Elevated (다크모드) |
+| 색상명 | RGB | Hex Code | 용도 | 상태 |
+|--------|-----|----------|------|------|
+| **Highlight** | rgb(30, 51, 40) | `#1E3328` | Background Tertiary, Highlight | ✅ NEW |
+| **Success** | rgb(159, 214, 178) | `#9FD6B2` | Success, Positive State | ✅ NEW |
+| **Accent** | rgb(127, 184, 154) | `#7FB89A` | Links, 보조 강조 | ✅ NEW |
+| **Vital Deep Green** | rgb(78, 127, 99) | `#4E7F63` | **Primary** (다크모드) | ✅ NEW |
+| ~~**Deep Teal**~~ | ~~rgb(90, 120, 99)~~ | ~~`#5A7863`~~ | ~~이전 Primary~~ | ❌ DEPRECATED |
 
 ---
 
@@ -36,40 +41,45 @@
 
 ### 1. Brand Colors
 
-#### Primary (Dark Olive 계열)
+#### Primary (Fresh Olive Green / Vital Deep Green 계열)
 
 ```typescript
 export const brandColors = {
-  // Primary: Dark Olive (#89986D)
-  primary: '#89986D',        // Dark Olive - CTA 버튼, 강조
-  primaryHover: '#9CAB84',   // Muted Olive (lighter)
-  primaryActive: '#6F7D56',  // Dark Olive + 20% darker
+  // Primary: Fresh Olive Green (#7FA874) - 라이트 모드
+  primary: '#7FA874',        // Fresh Olive Green - CTA 버튼, 강조 (더 생기있고 밝음)
+  primaryHover: '#8FBF84',  // Fresh Olive Green (lighter)
+  primaryActive: '#678F5E',  // Fresh Olive Green (darker)
 
-  // Accent: Muted Olive (#9CAB84)
-  accent: '#9CAB84',         // Muted Olive - 링크, 보조 강조
-  accentHover: '#89986D',    // Dark Olive (darker)
-  accentActive: '#B4C4A0',   // Muted Olive + 15% lighter
+  // Accent: Muted Olive (#9EBF96)
+  accent: '#9EBF96',         // Muted Olive - 링크, 보조 강조
+  accentHover: '#7FA874',   // Fresh Olive Green (darker)
+  accentActive: '#B4D4A8',  // Muted Olive (lighter)
 
-  // Success: Light Sage (#C5D89D)
-  success: '#C5D89D',        // Light Sage - 성공 메시지
-  successHover: '#B4C88A',   // Light Sage + 10% darker
+  // Success: Light Sage (#A8D08D)
+  success: '#A8D08D',       // Light Sage - 성공 메시지
+  successHover: '#98C07D',  // Light Sage (darker)
 
-  // Highlight: Cream Beige (#F6F0D7)
-  highlight: '#F6F0D7',      // Cream Beige - 배경 강조
-  highlightHover: '#EDE7C8', // Cream Beige + 5% darker
+  // Highlight: Soft Green (#EEF5E8)
+  highlight: '#EEF5E8',      // Soft Green - 배경 강조
+  highlightHover: '#E0EDD8', // Soft Green (darker)
 
-  // Dark Mode - Primary: Deep Teal (#5A7863)
-  primaryDark: '#5A7863',    // Deep Teal - 다크모드 CTA
-  primaryDarkHover: '#6B8F75', // Deep Teal + 15% lighter
-  primaryDarkActive: '#4A6352', // Deep Teal + 15% darker
+  // Dark Mode - Primary: Vital Deep Green (#4E7F63)
+  primaryDark: '#4E7F63',    // Vital Deep Green - 다크모드 CTA (더 그린 중심, 생명력 있음)
+  primaryDarkHover: '#5F9A78', // Vital Deep Green (lighter)
+  primaryDarkActive: '#3E6650', // Vital Deep Green (darker)
 } as const;
 ```
 
 **사용 가이드**:
-- **Primary (Dark Olive)**: CTA 버튼, 활성 상태, 중요 요소
+- **Primary (Fresh Olive Green)**: CTA 버튼, 활성 상태, 중요 요소 (라이트 모드)
+- **Primary (Vital Deep Green)**: CTA 버튼, 활성 상태, 중요 요소 (다크 모드)
 - **Accent (Muted Olive)**: 링크, 보조 버튼, 네비게이션
 - **Success (Light Sage)**: 성공 메시지, 완료 상태, 긍정적 피드백
-- **Highlight (Cream Beige)**: 배경 강조, 섹션 구분
+- **Highlight (Soft Green)**: 배경 강조, 섹션 구분
+
+**개선 사항** (Phase 4.5):
+- 라이트 모드 Primary: 더 밝고 생기있음 (명도·채도 증가)
+- 다크 모드 Primary: 더 그린 중심, 생명력 있음 (청록 기운 감소, 초록 기운 증가)
 
 ---
 
@@ -79,36 +89,36 @@ export const brandColors = {
 export const lightModeColors = {
   // Background
   background: {
-    primary: '#ffffff',       // 기본 배경
+    primary: '#F7F9F4',       // 거의 흰색, 녹색기 아주 미세
     secondary: '#f9fafb',     // Gray-50 (섹션 구분)
-    tertiary: '#F6F0D7',      // Cream Beige (강조 배경)
+    tertiary: '#EEF5E8',      // Soft Green (강조 배경)
   },
 
   // Text
   text: {
-    primary: '#111827',       // Gray-900 (본문)
+    primary: '#1F2321',       // 더 부드러운 다크 그레이
     secondary: '#6b7280',     // Gray-500 (보조 텍스트)
     tertiary: '#9ca3af',      // Gray-400 (비활성)
   },
 
   // Border
   border: {
-    default: '#e5e7eb',       // Gray-200 (기본 테두리)
-    hover: '#d1d5db',         // Gray-300 (호버)
-    accent: '#9CAB84',        // Muted Olive (강조 테두리)
+    default: '#D9E2D6',       // 부드러운 그린 톤
+    hover: '#C5D4C0',         // Border hover
+    accent: '#9EBF96',        // Muted Olive (강조 테두리)
   },
 
   // Link
   link: {
-    default: '#9CAB84',       // Muted Olive (Accent)
-    hover: '#89986D',         // Dark Olive (Primary)
-    visited: '#6F7D56',       // Dark Olive (darker)
+    default: '#9EBF96',       // Muted Olive (Accent)
+    hover: '#7FA874',         // Fresh Olive Green (Primary)
+    visited: '#678F5E',       // Fresh Olive Green (darker)
   },
 
   // Status
   status: {
-    info: '#9CAB84',          // Muted Olive
-    success: '#C5D89D',       // Light Sage
+    info: '#9EBF96',          // Muted Olive
+    success: '#A8D08D',       // Light Sage
     warning: '#f59e0b',       // Amber-500
     error: '#ef4444',         // Red-500
   },
@@ -123,36 +133,36 @@ export const lightModeColors = {
 export const darkModeColors = {
   // Background
   background: {
-    primary: '#0f172a',       // Slate-900
-    secondary: '#1e293b',     // Slate-800
-    tertiary: '#3B4953',      // Dark Forest (사용자 정의)
+    primary: '#0F1A14',       // 그린 기운 아주 약한 다크
+    secondary: '#16241C',     // Background Alt
+    tertiary: '#1E3328',      // Highlight (그린 톤 다크)
   },
 
   // Text
   text: {
-    primary: '#f1f5f9',       // Slate-100 (본문)
+    primary: '#E6F1EA',       // 부드러운 라이트 그린 톤
     secondary: '#94a3b8',     // Slate-400 (보조 텍스트)
     tertiary: '#64748b',      // Slate-500 (비활성)
   },
 
   // Border
   border: {
-    default: '#334155',       // Slate-700
-    hover: '#475569',         // Slate-600
-    accent: '#5A7863',        // Deep Teal (강조 테두리)
+    default: '#2E4A3B',       // 그린 톤 다크 보더
+    hover: '#3A5A48',         // Border hover
+    accent: '#4E7F63',        // Vital Deep Green (강조 테두리)
   },
 
   // Link
   link: {
-    default: '#90AB8B',       // Soft Green (lighter for dark mode)
-    hover: '#5A7863',         // Deep Teal
-    visited: '#4A6352',       // Deep Teal (darker)
+    default: '#7FB89A',       // Accent (lighter for dark mode)
+    hover: '#4E7F63',         // Vital Deep Green
+    visited: '#3E6650',       // Vital Deep Green (darker)
   },
 
   // Status
   status: {
-    info: '#90AB8B',          // Soft Green
-    success: '#C5D89D',       // Light Sage (라이트 모드와 동일)
+    info: '#7FB89A',          // Accent
+    success: '#9FD6B2',       // Success (다크 모드용)
     warning: '#fbbf24',       // Amber-400
     error: '#f87171',         // Red-400
   },
@@ -279,29 +289,31 @@ export const darkModeColors = {
 
 ---
 
-## 🎯 Primary 컬러 추천
+## 🎯 Primary 컬러 (Phase 4.5 개선)
 
-현재 **Dark Olive (#89986D)**를 Primary로 사용하고 있으며, 이는 다음과 같은 이유로 적합합니다:
+현재 **Fresh Olive Green (#7FA874)**를 Primary로 사용하고 있으며 (라이트 모드), 이는 다음과 같은 이유로 적합합니다:
 
 ### ✅ 장점
-1. **접근성**: White 텍스트와 4.52:1 대비 (AA Large Text 기준 충족)
-2. **독특함**: 일반적인 블루/퍼플과 차별화된 Green/Olive 톤
-3. **전문성**: 차분하고 신뢰감 있는 느낌
-4. **다크 모드 호환**: Deep Teal (#5A7863)로 자연스럽게 전환
+1. **생동감**: 기존 Dark Olive보다 더 밝고 생기있음 (명도·채도 증가)
+2. **신뢰감 유지**: 여전히 차분하고 신뢰감 있는 느낌
+3. **접근성**: White 텍스트와 적절한 대비 유지
+4. **다크 모드 호환**: Vital Deep Green (#4E7F63)로 자연스럽게 전환
 
-### 💡 대안 Primary 컬러 추천
+### 개선 사항 (Phase 4.5)
 
-만약 더 강한 대비가 필요하다면:
+**라이트 모드**:
+- 기존: `#89986D` (Dark Olive) → 개선: `#7FA874` (Fresh Olive Green)
+- 노란기 ↑ (생동감), 회기 ↓ (탁함 제거)
+- 첫 히어로에서 "숨 쉬는 느낌" 확보
 
-1. **더 어두운 Olive**: `#6F7D56` (현재 primaryActive)
-   - White 텍스트 대비: 5.8:1 ✅ (AA)
-   - 더 강한 대비, 하지만 다소 무거운 느낌
+**다크 모드**:
+- 기존: `#5A7863` (Deep Teal) → 개선: `#4E7F63` (Vital Deep Green)
+- 청록 ↓, 초록 ↑, 회색기 제거
+- 어둡지만 생명력 있는 느낌
 
-2. **Muted Olive을 Primary로**: `#9CAB84` (현재 accent)
-   - White 텍스트 대비: 3.84:1 ⚠️ (Large Text만)
-   - 더 밝고 부드러운 느낌, 하지만 접근성 제약
+**결론**: **Fresh Olive Green (#7FA874)** / **Vital Deep Green (#4E7F63)**가 현재 Primary로 가장 적합합니다.
 
-**결론**: 현재 **Dark Olive (#89986D)**가 Primary로 가장 적합합니다.
+> 📖 **상세 정보**: [Revised Color Palette](./color-palette-revised.md) 참조
 
 ---
 
@@ -311,5 +323,12 @@ export const darkModeColors = {
 
 ---
 
-**작성자**: AI Agent (Claude)
-**최종 업데이트**: 2025-01-04 (RGB 값 기반 정확한 재정의)
+**작성자**: AI Agent (Claude)  
+**최종 업데이트**: 2025-01-XX (Phase 4.5 Enhancement - Revised Green Palette)
+
+---
+
+## 🔗 관련 문서
+
+- [Revised Color Palette](./color-palette-revised.md) - Phase 4.5 개선된 컬러 팔레트
+- [Phase 4.5 Enhancement Design](../../epic/portfolio-renewal-refactor/phase-4-5-enhancement-design.md)

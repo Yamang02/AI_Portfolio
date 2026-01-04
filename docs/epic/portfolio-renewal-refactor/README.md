@@ -164,6 +164,42 @@ phase-4-completion.md    # 완료 보고서 (작업 완료 시)
 
 ---
 
+## Phase 4.5 — Landing Page Enhancement (Scroll-Driven Animations)
+
+### 문서 구조
+
+```text
+phase-4-5-enhancement-design.md  # 설계 문서
+phase-4-5-checklist.md           # 작업 체크리스트
+phase-4-5-completion.md          # 완료 보고서 (작업 완료 시)
+```
+
+### 작업 개요
+
+1. **브랜드 컬러 시스템 개선**
+   - 그라데이션 컬러 추가
+   - 애니메이션 강조 컬러 확장
+   - 다크 모드 대응 개선
+
+2. **Scroll-Driven Animations 구현**
+   - Hero Section: 페이드인 + 스케일 애니메이션
+   - About Section: 스크롤 기반 텍스트 등장
+   - Featured Projects: 카드 순차 등장 애니메이션
+
+3. **성능 및 접근성 최적화**
+   - GPU 가속 활용
+   - `prefers-reduced-motion` 지원
+
+### 목적
+
+Phase 4 완료 후 랜딩 페이지의 **임팩트 부족 문제**를 해결하기 위한 개선 작업입니다.
+
+### 상세 내용
+
+자세한 작업 내용은 [phase-4-5-enhancement-design.md](./phase-4-5-enhancement-design.md)를 참조하세요.
+
+---
+
 ## Phase 5 — UI Implementation
 
 ### 문서 구조

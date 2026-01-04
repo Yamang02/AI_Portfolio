@@ -1,96 +1,97 @@
 /**
  * Color Tokens
  *
- * Phase 3: Design System Minimalization
+ * Phase 4.5: Landing Page Enhancement
  * 사용자 정의 색상 팔레트를 정의합니다.
  * 
- * 색상 팔레트: Green/Olive Tones
- * - Primary: Dark Olive (#89986D)
- * - Accent: Muted Olive (#9CAB84)
- * - Success: Light Sage (#C5D89D)
- * - Highlight: Cream Beige (#F6F0D7)
+ * 색상 팔레트: Green/Olive Tones (Revised - More Lively)
+ * - Primary: Fresh Olive Green (#7FA874) - 라이트 모드
+ * - Primary: Vital Deep Green (#4E7F63) - 다크 모드
+ * - Accent: Muted Olive (#9EBF96)
+ * - Success: Light Sage (#A8D08D)
+ * - Highlight: Soft Green (#EEF5E8)
  * 
  * 상세 정의는 docs/technical/design-system/color-palette.md 참조
  */
 
 export const brandColors = {
-  // Primary: Dark Olive (#89986D)
-  primary: '#89986D',        // Dark Olive - CTA 버튼, 강조
-  primaryHover: '#9CAB84',   // Muted Olive (lighter)
-  primaryActive: '#6F7D56',  // Dark Olive + 20% darker
+  // Primary: Fresh Olive Green (#7FA874) - 라이트 모드
+  primary: '#7FA874',        // Fresh Olive Green - CTA 버튼, 강조 (더 생기있고 밝음)
+  primaryHover: '#8FBF84',  // Fresh Olive Green (lighter)
+  primaryActive: '#678F5E',  // Fresh Olive Green (darker)
 
-  // Accent: Muted Olive (#9CAB84)
-  accent: '#9CAB84',         // Muted Olive - 링크, 보조 강조
-  accentHover: '#89986D',    // Dark Olive (darker)
-  accentActive: '#B4C4A0',   // Muted Olive + 15% lighter
+  // Accent: Muted Olive (#9EBF96)
+  accent: '#9EBF96',         // Muted Olive - 링크, 보조 강조
+  accentHover: '#7FA874',   // Fresh Olive Green (darker)
+  accentActive: '#B4D4A8',  // Muted Olive (lighter)
 
-  // Success: Light Sage (#C5D89D)
-  success: '#C5D89D',        // Light Sage - 성공 메시지
-  successHover: '#B4C88A',   // Light Sage + 10% darker
+  // Success: Light Sage (#A8D08D)
+  success: '#A8D08D',       // Light Sage - 성공 메시지
+  successHover: '#98C07D',  // Light Sage (darker)
 
-  // Highlight: Cream Beige (#F6F0D7)
-  highlight: '#F6F0D7',      // Cream Beige - 배경 강조
-  highlightHover: '#EDE7C8', // Cream Beige + 5% darker
+  // Highlight: Soft Green (#EEF5E8)
+  highlight: '#EEF5E8',      // Soft Green - 배경 강조
+  highlightHover: '#E0EDD8', // Soft Green (darker)
 
-  // Dark Mode - Primary: Deep Teal (#5A7863)
-  primaryDark: '#5A7863',    // Deep Teal - 다크모드 CTA
-  primaryDarkHover: '#6B8F75', // Deep Teal + 15% lighter
-  primaryDarkActive: '#4A6352', // Deep Teal + 15% darker
+  // Dark Mode - Primary: Vital Deep Green (#4E7F63)
+  primaryDark: '#4E7F63',    // Vital Deep Green - 다크모드 CTA (더 그린 중심, 생명력 있음)
+  primaryDarkHover: '#5F9A78', // Vital Deep Green (lighter)
+  primaryDarkActive: '#3E6650', // Vital Deep Green (darker)
 } as const;
 
 export const lightModeColors = {
   background: {
-    primary: '#ffffff',
+    primary: '#F7F9F4',      // 거의 흰색, 녹색기 아주 미세
     secondary: '#f9fafb',
-    tertiary: '#F6F0D7',      // Cream Beige (강조 배경)
+    tertiary: '#EEF5E8',      // Soft Green (강조 배경)
   },
   text: {
-    primary: '#111827',
+    primary: '#1F2321',      // 더 부드러운 다크 그레이
     secondary: '#6b7280',
     tertiary: '#9ca3af',
   },
   border: {
-    default: '#e5e7eb',
-    hover: '#d1d5db',
-    accent: '#9CAB84',        // Muted Olive (강조 테두리)
+    default: '#D9E2D6',      // 부드러운 그린 톤
+    hover: '#C5D4C0',        // Border hover
+    accent: '#9EBF96',       // Muted Olive (강조 테두리)
   },
   link: {
-    default: '#9CAB84',       // Muted Olive (Accent)
-    hover: '#89986D',         // Dark Olive (Primary)
-    visited: '#6F7D56',       // Dark Olive (darker)
+    default: '#9EBF96',     // Muted Olive (Accent)
+    hover: '#7FA874',       // Fresh Olive Green (Primary)
+    visited: '#678F5E',     // Fresh Olive Green (darker)
   },
   status: {
-    info: '#9CAB84',          // Muted Olive
-    success: '#C5D89D',       // Light Sage
-    warning: '#f59e0b', // Amber-500
-    error: '#ef4444', // Red-500
+    info: '#9EBF96',         // Muted Olive
+    success: '#A8D08D',       // Light Sage
+    warning: '#f59e0b',      // Amber-500
+    error: '#ef4444',        // Red-500
   },
 } as const;
 
 export const darkModeColors = {
   background: {
-    primary: '#0f172a',
-    secondary: '#1e293b',
-    tertiary: '#3B4953',      // Dark Forest (사용자 정의)
+    primary: '#0F1A14',      // 그린 기운 아주 약한 다크
+    secondary: '#16241C',     // Background Alt
+    tertiary: '#1E3328',      // Highlight (그린 톤 다크)
   },
   text: {
-    primary: '#f1f5f9',
+    primary: '#E6F1EA',       // 부드러운 라이트 그린 톤
     secondary: '#94a3b8',
     tertiary: '#64748b',
   },
   border: {
-    default: '#334155',
-    hover: '#475569',
-    accent: '#5A7863',        // Deep Teal (강조 테두리)
+    default: '#2E4A3B',      // 그린 톤 다크 보더
+    hover: '#3A5A48',        // Border hover
+    accent: '#4E7F63',       // Vital Deep Green (강조 테두리)
   },
   link: {
-    default: '#90AB8B',       // Soft Green (lighter for dark mode)
-    hover: '#5A7863',         // Deep Teal
-    visited: '#4A6352',       // Deep Teal (darker)
+    default: '#7FB89A',       // Accent (lighter for dark mode)
+    hover: '#4E7F63',         // Vital Deep Green
+    visited: '#3E6650',       // Vital Deep Green (darker)
   },
   status: {
-    info: '#90AB8B',          // Soft Green
-    success: '#C5D89D',       // Light Sage (라이트 모드와 동일)
+    info: '#7FB89A',          // Accent
+    success: '#9FD6B2',       // Success (다크 모드용)
     warning: '#fbbf24',
     error: '#f87171',
   },

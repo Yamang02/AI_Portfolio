@@ -2,42 +2,112 @@
   min-height: 100vh;
   display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 80px 32px;
+  padding: 64px 32px;
 }
 
-.container {
-  max-width: 768px;
-  text-align: center;
+.hero .container {
+  max-width: 1280px;
+  margin: 0 auto;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  align-items: center;
 }
 
-.intro {
+.hero .content {
+  /* 텍스트 콘텐츠 스타일 */
+  opacity: 0;
+  transform: translateY(20px) scale(0.95);
+  animation: heroFadeIn 1s ease-out forwards;
+}
+
+.hero .intro {
   margin-top: 24px;
   font-size: 1.125rem;
   line-height: 1.75;
   color: var(--color-text-secondary);
 }
 
-.cta {
+.hero .cta {
   margin-top: 32px;
   display: flex;
   gap: 16px;
-  justify-content: center;
   flex-wrap: wrap;
 }
 
-/* Mobile */
-@media (max-width: 767px) {
+.hero .imageWrapper {
+  position: relative;
+  opacity: 0;
+  transform: translateX(40px);
+  animation: heroImageSlideIn 1s ease-out 0.3s forwards;
+}
+
+.hero .image {
+  width: 100%;
+  height: auto;
+  border-radius: 16px;
+  object-fit: cover;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+.hero .imagePlaceholder {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(to-br, var(--color-bg-secondary), var(--color-bg-primary));
+  border-radius: 16px;
+  font-size: 4rem;
+  color: var(--color-text-muted);
+}
+
+@keyframes heroFadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes heroImageSlideIn {
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* 반응형: 모바일에서는 세로 배치 */
+@media (max-width: 768px) {
   .hero {
     padding: 48px 24px;
   }
 
-  .intro {
+  .hero .container {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+  
+  .hero .imageWrapper {
+    order: -1; /* 모바일에서 이미지를 위로 */
+  }
+
+  .hero .intro {
     font-size: 1rem;
   }
 
-  .cta {
+  .hero .cta {
     flex-direction: column;
-    align-items: center;
+    align-items: stretch;
+  }
+}
+
+/* 접근성: 애니메이션 비활성화 */
+@media (prefers-reduced-motion: reduce) {
+  .hero .content,
+  .hero .imageWrapper {
+    animation: none;
+    opacity: 1;
+    transform: none;
   }
 }
