@@ -700,5 +700,5 @@ public Project updateProject(Project project) {
 - [CacheConfig.java](../../backend/src/main/java/com/aiportfolio/backend/infrastructure/config/CacheConfig.java)
 
 ### 아키텍처 문서
-- [Backend Hexagonal Architecture Guide](../ai/agent_guideline/backend/hexagonal-architecture-guide.md)
+- [Backend Hexagonal Architecture Guide](../../technical/guides/backend/hexagonal-architecture-guide.md)
 - [CLAUDE.md - 프로젝트 가이드라인](../../.claude/CLAUDE.md)

@@ -794,8 +794,8 @@ llm:
 ---
 
 **참고 문서**:
-- [`docs/guides/backend-architecture-guide.md`](./guides/backend-architecture-guide.md) - 상세한 아키텍처 가이드
-- [`docs/ai/agent_guideline/backend/hexagonal-architecture-guide.md`](./ai/agent_guideline/backend/hexagonal-architecture-guide.md) - 헥사고날 아키텍처 가이드
+- [Backend Architecture Guide](./backend-architecture-guide.md) - 상세한 아키텍처 가이드
+- [Hexagonal Architecture Guide](../guides/backend/hexagonal-architecture-guide.md) - 헥사고날 아키텍처 가이드
 
 
 

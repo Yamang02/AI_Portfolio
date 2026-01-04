@@ -4,12 +4,7 @@
 
 ## 📁 현재 에픽
 
-- `admin-dashboard/` - Admin Dashboard 구현
-- `ai-service-migration/` - AI 서비스 마이그레이션
-- `cloud-usage-monitoring/` - 클라우드 사용량 모니터링
-- `frontend-migration/` - 프론트엔드 마이그레이션
-- `portfolio-site-renewal/` - 포트폴리오 사이트 리뉴얼
-- `refactor/` - 리팩토링 작업
+- `portfolio-renewal-refactor/` - Portfolio Site Renewal (Structural Refactor)
 
 ## 📝 에픽 문서 구조
 
@@ -17,4 +12,15 @@
 - PRD (Product Requirements Document)
 - 설계 문서
 - 작업 목록 (todo.md, task.md)
-- 마이그레이션 가이드 등
+- 마이그레이션 가이드
+- Epic 회고 문서 (완료 시)
+
+## 📚 아카이브된 에픽
+
+완료된 에픽들은 `docs/archive/` 폴더에 보관되어 있습니다:
+- `admin-dashboard/` - Admin Dashboard 구현
+- `ai-service-migration/` - AI 서비스 마이그레이션
+- `cloud-usage-monitoring/` - 클라우드 사용량 모니터링
+- `frontend-migration/` - 프론트엔드 마이그레이션
+- `portfolio-site-renewal/` - 포트폴리오 사이트 리뉴얼(2025년버전)
+- `refactor/` - 리팩토링 작업

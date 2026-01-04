@@ -153,7 +153,7 @@ public List<Education> findAllEducationsWithoutCache() { ... }
 public Education updateEducation(...) { ... }
 ```
 
-**상세 내용**: [`main-admin-separation-guide.md`](../ai/agent_guideline/backend/main-admin-separation-guide.md) 참고
+**상세 내용**: [`crud-template-guide.md`](../guides/backend/crud-template-guide.md)의 캐시 관리 섹션 참고
 
 ---
 
@@ -1138,7 +1138,7 @@ public ResponseEntity<ApiResponse<SomeDto>> getData() {  // ✅ ApiResponse 래�
 
 ## 참고 자료
 
-- [Main/Admin 분리 가이드](../ai/agent_guideline/backend/main-admin-separation-guide.md) - 상세한 분리 원칙 및 캐시 전략
+- [백엔드 CRUD 템플릿 가이드](../guides/backend/crud-template-guide.md) - Main/Admin 분리, 캐시 전략 포함
 
 ---
 

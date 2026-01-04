@@ -435,8 +435,8 @@ describe('Project Update with TechStacks', () => {
 - `backend/src/main/resources/db/migration/V002__add_admin_features.sql`
 
 ### 관련 문서
-- [Hexagonal Architecture Guide](../ai/agent_guideline/backend/hexagonal-architecture-guide.md)
-- [CRUD Template Guide](../ai/agent_guideline/backend/crud-template-guide.md)
+- [Hexagonal Architecture Guide](../../technical/guides/backend/hexagonal-architecture-guide.md)
+- [CRUD Template Guide](../../technical/guides/backend/crud-template-guide.md)
 - [JPA Best Practices](https://docs.spring.io/spring-data/jpa/reference/jpa/transactions.html)
 
 ### JPA 관련

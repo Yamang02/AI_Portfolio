@@ -38,5 +38,6 @@ docs/
 
 ## 🔗 관련 문서
 
-- 프론트엔드 개발 가이드: `frontend/docs/developmentGuide.md`
-- 백엔드 개발 가이드: `backend/docs/developmentGuide.md`
+- 프론트엔드 개발 가이드: `frontend/developmentGuide.md`
+- 백엔드 개발 가이드: `backend/developmentGuide.md`
+- 기술 문서 상세: `docs/technical/README.md`
