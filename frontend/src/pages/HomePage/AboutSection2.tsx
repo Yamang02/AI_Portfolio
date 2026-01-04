@@ -1,17 +1,17 @@
 import React from 'react';
 import { SectionTitle } from '@/design-system';
-import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 import styles from './AboutSection.module.css';
 
+/**
+ * AboutSection2 - 개발 효율성 향상 소개
+ * 
+ * CSS Scroll-Driven Animations 사용 (Pure CSS)
+ * - Chrome/Edge/Firefox: 스크롤 기반 이미지 fade-in 애니메이션
+ * - Safari: 정적 표시 (애니메이션 없음, 콘텐츠는 정상 표시)
+ */
 export const AboutSection2: React.FC = () => {
-  const [ref, isVisible] = useScrollAnimation();
-  
   return (
-    <section 
-      id="about-2" 
-      ref={ref}
-      className={`${styles.aboutSection} ${styles.aboutSection2} ${isVisible ? styles.visible : ''}`}
-    >
+    <section id="about-2" className={`${styles.aboutSection} ${styles.aboutSection2}`}>
       <div className={styles.container}>
         {/* 왼쪽: Cursor 사용 통계 이미지 */}
         <div className={styles.imageWrapper}>

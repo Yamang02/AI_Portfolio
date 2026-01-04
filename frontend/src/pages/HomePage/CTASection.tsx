@@ -1,30 +1,17 @@
-import React, { forwardRef, useEffect } from 'react';
+import React, { forwardRef } from 'react';
 import { SectionTitle, Button } from '@/design-system';
-import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 import styles from './CTASection.module.css';
 
-export const CTASection = forwardRef<HTMLElement, {}>((props, externalRef) => {
-  const [internalRef, isVisible] = useScrollAnimation({
-    threshold: 0.3,
-  });
-  
-  // externalRef와 internalRef 병합
-  useEffect(() => {
-    if (externalRef && internalRef.current) {
-      if (typeof externalRef === 'function') {
-        externalRef(internalRef.current);
-      } else if (externalRef && 'current' in externalRef) {
-        (externalRef as React.MutableRefObject<HTMLElement | null>).current = internalRef.current;
-      }
-    }
-  }, [externalRef, internalRef]);
-  
+/**
+ * CTASection - 프로필/프로젝트 페이지로 이동하는 CTA
+ * 
+ * CSS Scroll-Driven Animations 사용 (Pure CSS)
+ * - Chrome/Edge/Firefox: 스크롤 기반 fade-in 애니메이션
+ * - Safari: 정적 표시 (애니메이션 없음, 콘텐츠는 정상 표시)
+ */
+export const CTASection = forwardRef<HTMLElement, {}>((props, ref) => {
   return (
-    <section 
-      id="cta" 
-      ref={internalRef}
-      className={`${styles.ctaSection} ${isVisible ? styles.visible : ''}`}
-    >
+    <section id="cta" ref={ref} className={styles.ctaSection}>
       <div className={styles.container}>
         <div className={styles.content}>
           <SectionTitle level="h2">더 알아보기</SectionTitle>

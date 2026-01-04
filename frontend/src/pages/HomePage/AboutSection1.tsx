@@ -1,17 +1,17 @@
 import React from 'react';
 import { SectionTitle } from '@/design-system';
-import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 import styles from './AboutSection.module.css';
 
+/**
+ * AboutSection1 - AI 활용 개발 소개
+ * 
+ * CSS Scroll-Driven Animations 사용 (Pure CSS)
+ * - Chrome/Edge/Firefox: 스크롤 기반 로고 모임 애니메이션
+ * - Safari: 정적 표시 (애니메이션 없음, 콘텐츠는 정상 표시)
+ */
 export const AboutSection1: React.FC = () => {
-  const [ref, isVisible] = useScrollAnimation();
-  
   return (
-    <section 
-      id="about-1" 
-      ref={ref}
-      className={`${styles.aboutSection} ${isVisible ? styles.visible : ''}`}
-    >
+    <section id="about-1" className={styles.aboutSection}>
       <div className={styles.container}>
         {/* 왼쪽: 텍스트 콘텐츠 */}
         <div className={styles.content}>

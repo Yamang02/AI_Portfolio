@@ -1,121 +1,180 @@
 .featuredProjects {
-  position: relative;
-  padding: 64px 32px;
-  margin-top: 100vh; /* AboutSection2와의 간격 확보 */
-}
-
-.featuredProjects .cardsContainer {
-  max-width: 1200px;
-  margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 100vh; /* 각 카드 사이에 충분한 스크롤 공간 */
+  gap: 160px;
+  padding: 160px 32px 200px;
+  background: var(--color-bg-primary);
 }
 
-.featuredProjects .cardWrapper {
-  position: sticky;
-  top: 50%;
+.projectSection {
+  min-height: 100vh;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 48px;
-  transition: opacity 0.3s ease-out, transform 0.3s ease-out;
-  will-change: opacity, transform;
+  justify-content: center;
 }
 
-.featuredProjects .projectCard {
-  width: 100%;
-  max-width: 500px;
-  height: auto;
-  min-height: 400px;
-  display: flex;
-  flex-direction: column;
+.projectContent {
+  width: min(900px, 100%);
+  display: grid;
+  gap: 32px;
+  justify-items: center;
+  text-align: center;
+}
+
+.projectCard {
+  width: min(520px, 100%);
   background: var(--color-bg-primary);
   border: 1px solid var(--color-border-default);
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-  transition: box-shadow 0.3s ease-out;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
 }
 
-.featuredProjects .cardWrapper.active .projectCard {
-  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2);
-}
-
-.featuredProjects .projectCard .imageArea {
+.imageArea {
   width: 100%;
-  height: 192px; /* h-48, 기존 메인페이지 카드와 동일 */
-  background: linear-gradient(to-br, var(--color-bg-secondary), var(--color-bg-primary));
+  height: 220px;
+  background: linear-gradient(to bottom right, var(--color-bg-secondary), var(--color-bg-primary));
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
 }
 
-.featuredProjects .projectCard .imageArea img {
+.imageArea img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.featuredProjects .projectCard .imagePlaceholder {
-  font-size: 4rem;
+.imagePlaceholder {
+  font-size: 3rem;
   color: var(--color-text-muted);
 }
 
-.featuredProjects .projectCard .cardContent {
-  padding: 24px; /* p-6, 기존 메인페이지 카드와 동일 */
-  flex: 1;
+.cardContent {
+  padding: 24px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
+  align-items: center;
 }
 
-.featuredProjects .projectCard .projectTitle {
-  font-size: 1.5rem; /* text-2xl */
-  font-weight: 800; /* font-extrabold */
+.projectTitle {
+  font-size: 1.5rem;
+  font-weight: 800;
   color: var(--color-text-primary);
-  line-height: 1.2;
   margin: 0;
 }
 
-.featuredProjects .projectCard .techStack {
+.techStack {
   margin: 0;
 }
 
-.featuredProjects .description {
-  max-width: 800px;
-  text-align: center;
+.description {
+  max-width: 720px;
   font-size: 1.125rem;
   line-height: 1.75;
   color: var(--color-text-secondary);
-  min-height: 80px;
 }
 
-/* 반응형 */
+/* ================================
+   Safari 폴백: 정적 표시 (기본값)
+   ================================ */
+.projectSection {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* ================================
+   CSS Scroll-Driven Animations
+   Chrome 115+, Edge 115+, Firefox 110+
+   ================================ */
+@supports (animation-timeline: view()) {
+  .projectSection {
+    opacity: 0;
+  }
+
+  /* 모든 프로젝트: 왼쪽에서 등장해서 오른쪽으로 사라짐 */
+  .projectSection {
+    transform: translateX(-100px);
+    animation: slideInFromLeftAndOutToRight linear;
+    animation-timeline: view(block);
+    animation-range: cover 0% cover 100%;
+    animation-fill-mode: both;
+  }
+
+  @keyframes slideInFromLeftAndOutToRight {
+    0% {
+      opacity: 0;
+      transform: translateX(-100px);
+    }
+    50% {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    70% {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    100% {
+      opacity: 0;
+      transform: translateX(150px);
+    }
+  }
+}
+
+/* ================================
+   Safari/구버전 브라우저 폴백
+   view timeline을 지원하지 않는 경우
+   ================================ */
+@supports not (animation-timeline: view()) {
+  .projectSection {
+    opacity: 1 !important;
+    transform: translateX(0) translateY(0) !important;
+  }
+}
+
+/* ================================
+   접근성: 애니메이션 비활성화
+   ================================ */
+@media (prefers-reduced-motion: reduce) {
+  .projectSection {
+    animation: none !important;
+    transition: none !important;
+    opacity: 1 !important;
+    transform: translateX(0) translateY(0) !important;
+  }
+}
+
+@media (max-width: 1024px) {
+  .featuredProjects {
+    padding: 120px 24px 160px;
+    gap: 120px;
+  }
+
+  .imageArea {
+    height: 200px;
+  }
+}
+
 @media (max-width: 768px) {
   .featuredProjects {
-    padding: 48px 24px;
+    padding: 96px 20px 140px;
+    gap: 100px;
   }
 
-  .featuredProjects .cardsContainer {
-    gap: 80vh;
+  .projectSection {
+    min-height: auto;
   }
 
-  .featuredProjects .projectCard {
-    max-width: 100%;
-    min-height: 350px;
+  .projectCard {
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
   }
-}
 
-/* 접근성: 애니메이션 비활성화 */
-@media (prefers-reduced-motion: reduce) {
-  .featuredProjects .carouselTrack {
-    transition: none;
-  }
-  
-  .featuredProjects .projectCard {
-    transform: scale(1);
-    opacity: 1;
+  .description {
+    font-size: 1rem;
   }
 }

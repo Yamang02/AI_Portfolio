@@ -14,17 +14,6 @@
   text-align: center;
 }
 
-.ctaSection .content {
-  opacity: 0;
-  transform: translateY(40px) scale(0.95);
-  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
-}
-
-.ctaSection.visible .content {
-  opacity: 1;
-  transform: translateY(0) scale(1);
-}
-
 .ctaSection .description {
   margin: 24px 0 48px;
   font-size: 1.125rem;
@@ -39,28 +28,119 @@
   flex-wrap: wrap;
 }
 
+/* ================================
+   Safari 폴백: 정적 표시 (기본값)
+   ================================ */
+.ctaSection .content {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
 .ctaSection .ctaButton {
   min-width: 200px;
   padding: 16px 32px;
   font-size: 1.125rem;
-  opacity: 0;
-  transform: translateY(20px) scale(0.9);
-  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
-}
-
-.ctaSection.visible .ctaButton:nth-child(1) {
   opacity: 1;
   transform: translateY(0) scale(1);
-  transition-delay: 0.2s;
 }
 
-.ctaSection.visible .ctaButton:nth-child(2) {
-  opacity: 1;
-  transform: translateY(0) scale(1);
-  transition-delay: 0.4s;
+/* ================================
+   CSS Scroll-Driven Animations
+   Chrome 115+, Edge 115+, Firefox 110+
+   
+   view(block): 요소가 뷰포트에 들어올 때부터 나갈 때까지
+   cover: 요소가 뷰포트에 들어올 때부터 나갈 때까지 전체 범위
+   ================================ */
+@supports (animation-timeline: view()) {
+  .ctaSection .content {
+    opacity: 0;
+    transform: translateY(40px) scale(0.95);
+    animation: ctaContentFadeIn linear;
+    animation-timeline: view(block);
+    animation-range: cover 0% cover 80%;
+    animation-fill-mode: both;
+  }
+
+  .ctaSection .ctaButton {
+    opacity: 0;
+    transform: translateY(20px) scale(0.9);
+  }
+
+  .ctaSection .ctaButton:nth-child(1) {
+    animation: ctaButtonFadeIn1 linear;
+    animation-timeline: view(block);
+    animation-range: cover 0% cover 80%;
+    animation-fill-mode: both;
+  }
+
+  .ctaSection .ctaButton:nth-child(2) {
+    animation: ctaButtonFadeIn2 linear;
+    animation-timeline: view(block);
+    animation-range: cover 0% cover 80%;
+    animation-fill-mode: both;
+  }
+
+  @keyframes ctaContentFadeIn {
+    0% {
+      opacity: 0;
+      transform: translateY(40px) scale(0.95);
+    }
+    50% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  @keyframes ctaButtonFadeIn1 {
+    0% {
+      opacity: 0;
+      transform: translateY(20px) scale(0.9);
+    }
+    60% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  @keyframes ctaButtonFadeIn2 {
+    0% {
+      opacity: 0;
+      transform: translateY(20px) scale(0.9);
+    }
+    70% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
 }
 
-/* 반응형 */
+/* ================================
+   Safari/구버전 브라우저 폴백
+   view timeline을 지원하지 않는 경우
+   ================================ */
+@supports not (animation-timeline: view()) {
+  .ctaSection .content,
+  .ctaSection .ctaButton {
+    opacity: 1 !important;
+    transform: translateY(0) scale(1) !important;
+  }
+}
+
+/* ================================
+   반응형
+   ================================ */
 @media (max-width: 768px) {
   .ctaSection {
     padding: 48px 24px;
@@ -76,12 +156,15 @@
   }
 }
 
-/* 접근성: 애니메이션 비활성화 */
+/* ================================
+   접근성: 애니메이션 비활성화
+   ================================ */
 @media (prefers-reduced-motion: reduce) {
   .ctaSection .content,
   .ctaSection .ctaButton {
-    transition: none;
-    opacity: 1;
-    transform: none;
+    animation: none !important;
+    transition: none !important;
+    opacity: 1 !important;
+    transform: none !important;
   }
 }
