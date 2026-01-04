@@ -275,3 +275,6 @@ ai-service/run_dev.py
 test-results/
 ai-service/demo/tests/e2e/test-results/
 ai-service/demo/tests/e2e/reports/ 
+
+*storybook.log
+storybook-static

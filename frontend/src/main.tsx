@@ -2,6 +2,9 @@ import React, { lazy, Suspense } from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { MainApp } from './main/app/MainApp';
+// Design System Styles (Phase 3)
+import './design-system/styles/reset.css';
+import './design-system/styles/globals.css';
 import './index.css';
 
 // AdminApp을 lazy loading으로 분리하여 메인 번들에 포함되지 않도록 함
