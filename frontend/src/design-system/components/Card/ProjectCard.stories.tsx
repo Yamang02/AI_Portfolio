@@ -16,7 +16,6 @@ const sampleProject = {
   description: 'This is a sample project description that demonstrates how the ProjectCard component displays project information.',
   imageUrl: undefined,
   isTeam: true,
-  type: 'BUILD' as const,
   technologies: ['React', 'TypeScript', 'Node.js', 'PostgreSQL', 'Docker'],
   startDate: '2024-01',
   endDate: '2024-06',
@@ -35,38 +34,7 @@ export const IndividualProject: Story = {
     project: {
       ...sampleProject,
       isTeam: false,
-      type: 'LAB',
-      title: 'Personal Lab Project',
-    },
-  },
-};
-
-export const BuildProject: Story = {
-  args: {
-    project: {
-      ...sampleProject,
-      type: 'BUILD',
-      title: 'Build Project',
-    },
-  },
-};
-
-export const LabProject: Story = {
-  args: {
-    project: {
-      ...sampleProject,
-      type: 'LAB',
-      title: 'Lab Project',
-    },
-  },
-};
-
-export const MaintenanceProject: Story = {
-  args: {
-    project: {
-      ...sampleProject,
-      type: 'MAINTENANCE',
-      title: 'Maintenance Project',
+      title: 'Personal Project',
     },
   },
 };
@@ -137,33 +105,6 @@ export const Clickable: Story = {
   },
 };
 
-export const AllTypes: Story = {
-  render: () => (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
-      <ProjectCard
-        project={{
-          ...sampleProject,
-          type: 'BUILD',
-          title: 'Build Project',
-        }}
-      />
-      <ProjectCard
-        project={{
-          ...sampleProject,
-          type: 'LAB',
-          title: 'Lab Project',
-        }}
-      />
-      <ProjectCard
-        project={{
-          ...sampleProject,
-          type: 'MAINTENANCE',
-          title: 'Maintenance Project',
-        }}
-      />
-    </div>
-  ),
-};
 
 export const TeamVsIndividual: Story = {
   render: () => (

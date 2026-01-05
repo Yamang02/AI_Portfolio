@@ -17,7 +17,8 @@ export const TechStackBadge: React.FC<TechStackBadgeProps> = ({
   className = ''
 }) => {
   const getBaseClasses = () => {
-    return 'inline-flex items-center gap-1 rounded-md border transition-all duration-200 ease-in-out select-none whitespace-nowrap';
+    // 배지처럼 보이도록 스타일 조정 (버튼과 구분)
+    return 'inline-flex items-center gap-1 rounded-full border transition-all duration-200 ease-in-out select-none whitespace-nowrap';
   };
 
   const getSizeClasses = () => {
@@ -63,7 +64,8 @@ export const TechStackBadge: React.FC<TechStackBadgeProps> = ({
 
   const getClickableClasses = () => {
     if (!onClick) return '';
-    return 'cursor-pointer hover:-translate-y-0.5 hover:shadow-md active:translate-y-0';
+    // 배지는 미묘한 hover 효과만 (버튼과 구분)
+    return 'cursor-pointer hover:opacity-85 hover:scale-105 active:scale-100';
   };
 
   const getSelectedClasses = () => {

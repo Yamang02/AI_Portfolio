@@ -116,15 +116,11 @@ export const TechStackList: React.FC<TechStackListProps> = ({
     return null;
   }
 
-  // 로딩 중일 때는 기본 렌더링
-  if (isLoading) {
-    return null;
-  }
-
-  // TechStackMetadata 배열로 변환
+  // TechStackMetadata 배열로 변환 (로딩 중에도 표시)
+  // 로딩 중에는 빈 Set을 사용하여 기본 정보로 표시
   const techMetadataList: TechStackMetadata[] = technologies.map(tech => {
     if (typeof tech === 'string') {
-      return convertToTechStackMetadata(tech, coreTechnologies);
+      return convertToTechStackMetadata(tech, isLoading ? new Set() : coreTechnologies);
     }
     return tech;
   });

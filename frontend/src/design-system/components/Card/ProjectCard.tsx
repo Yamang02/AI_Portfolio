@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Card } from './Card';
+import { Badge } from '../Badge/Badge';
 import { TeamBadge } from '../Badge/TeamBadge';
-import { ProjectTypeBadge, ProjectType } from '../Badge/ProjectTypeBadge';
 import { SocialIcon } from '../Icon/SocialIcon';
 import { ProjectIcon, ProjectIconType } from '../Icon/ProjectIcon';
-import { TechStackList } from '@shared/ui/tech-stack';
 import { formatDateRange, safeSplit } from '@shared/utils/safeStringUtils';
 import styles from './ProjectCard.module.css';
 
@@ -14,7 +13,6 @@ export interface ProjectCardProject {
   description: string;
   imageUrl?: string;
   isTeam: boolean;
-  type?: ProjectType;
   technologies: string[];
   startDate: string;
   endDate?: string;
@@ -34,22 +32,28 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   className,
 }) => {
   const [imageError, setImageError] = useState(false);
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  const [fontSize, setFontSize] = useState<number | undefined>(undefined);
 
   // 프로젝트명 줄바꿈 처리
   const formatTitle = (title: string) => {
-    const parts = safeSplit(title, /[()]/);
-    if (parts.length > 1) {
+    if (!title) return '';
+    
+    // 괄호 안의 내용을 추출하는 정규식
+    const match = title.match(/^(.+?)\s*\(([^)]+)\)(.*)$/);
+    
+    if (match) {
+      const [, mainTitle, subTitle, rest] = match;
       return (
         <>
-          {parts[0]}
-          {parts[1] && (
-            <span className={styles.titleSubtext}>({parts[1]})</span>
-          )}
-          {parts[2] && parts[2]}
+          {mainTitle.trim()}
+          <span className={styles.titleSubtext}> ({subTitle.trim()})</span>
+          {rest && rest.trim()}
         </>
       );
     }
-    return title || '';
+    
+    return title;
   };
 
   // 이미지 URL이 유효한지 확인
@@ -58,6 +62,74 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
     project.imageUrl !== '#' &&
     project.imageUrl !== '' &&
     !imageError;
+
+  // 제목 글자 크기 자동 조정 (한 줄로 제한)
+  useEffect(() => {
+    const adjustFontSize = () => {
+      if (!titleRef.current) return;
+
+      const titleElement = titleRef.current;
+      const container = titleElement.parentElement;
+      if (!container) return;
+
+      const containerWidth = container.clientWidth - 32; // padding 양쪽 고려
+      const minFontSize = 0.75; // 12px (더 작게 조정 가능)
+      const maxFontSize = 1.5; // 24px
+
+      // 임시 스타일로 실제 너비 측정
+      const originalStyles = {
+        fontSize: titleElement.style.fontSize,
+        whiteSpace: titleElement.style.whiteSpace,
+        visibility: titleElement.style.visibility,
+        position: titleElement.style.position,
+        display: titleElement.style.display,
+      };
+
+      // 측정을 위한 임시 스타일
+      titleElement.style.fontSize = `${maxFontSize}rem`;
+      titleElement.style.whiteSpace = 'nowrap';
+      titleElement.style.visibility = 'hidden';
+      titleElement.style.position = 'absolute';
+      titleElement.style.display = 'block';
+      titleElement.style.width = 'auto';
+
+      const textWidth = titleElement.scrollWidth;
+
+      // 원래 스타일 복원
+      Object.entries(originalStyles).forEach(([key, value]) => {
+        (titleElement.style as any)[key] = value || '';
+      });
+
+      let currentFontSize = maxFontSize;
+
+      // 텍스트가 컨테이너보다 크면 크기 조정
+      if (textWidth > containerWidth) {
+        // 여유 공간을 고려하여 조금 더 작게 조정
+        const ratio = (containerWidth / textWidth) * 0.95; // 5% 여유 공간
+        currentFontSize = ratio * maxFontSize;
+        currentFontSize = Math.max(minFontSize, Math.min(maxFontSize, currentFontSize));
+      }
+
+      setFontSize(currentFontSize);
+    };
+
+    // 초기 조정 (약간의 지연을 두어 DOM이 완전히 렌더링된 후 실행)
+    const timeoutId = setTimeout(adjustFontSize, 10);
+
+    // 리사이즈 이벤트 리스너
+    const resizeObserver = new ResizeObserver(() => {
+      adjustFontSize();
+    });
+
+    if (titleRef.current?.parentElement) {
+      resizeObserver.observe(titleRef.current.parentElement);
+    }
+
+    return () => {
+      clearTimeout(timeoutId);
+      resizeObserver.disconnect();
+    };
+  }, [project.title]);
 
   // 프로젝트 타입에 따른 아이콘 타입 결정
   const getProjectIconType = (): ProjectIconType => {
@@ -96,12 +168,9 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
     >
       {/* 상단 이미지/아이콘 영역 */}
       <div className={styles.imageContainer}>
-        {/* 배지들 */}
+        {/* 팀/개인 배지 (왼쪽 상단) */}
         <div className={styles.badges}>
           <TeamBadge isTeam={project.isTeam} size="sm" />
-          {project.type && (
-            <ProjectTypeBadge type={project.type} size="sm" />
-          )}
         </div>
 
         {/* 이미지 또는 아이콘 */}
@@ -121,20 +190,41 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
 
       {/* 본문 */}
       <div className={styles.content}>
-        <h3 className={styles.title} title={project.title}>
+        <h3
+          ref={titleRef}
+          className={styles.title}
+          title={project.title}
+          style={fontSize ? { fontSize: `${fontSize}rem` } : undefined}
+        >
           {formatTitle(project.title)}
         </h3>
         <div className={styles.divider}></div>
         <p className={styles.description}>{project.description}</p>
 
         {/* 기술 스택 */}
-        <TechStackList
-          technologies={project.technologies}
-          maxVisible={3}
-          variant="default"
-          size="sm"
-          className={styles.techStack}
-        />
+        {project.technologies && project.technologies.length > 0 && (
+          <div className={styles.techStack}>
+            {project.technologies.slice(0, 4).map((tech, index) => (
+              <Badge
+                key={`${tech}-${index}`}
+                variant="accent"
+                size="sm"
+                className={styles.techBadge}
+              >
+                {tech}
+              </Badge>
+            ))}
+            {project.technologies.length > 4 && (
+              <Badge
+                variant="accent"
+                size="sm"
+                className={styles.techBadge}
+              >
+                +{project.technologies.length - 4}
+              </Badge>
+            )}
+          </div>
+        )}
 
         {/* 하단 정보 */}
         <div className={styles.footer}>

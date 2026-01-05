@@ -1,5 +1,5 @@
 # Development Dockerfile for Spring Boot Backend with optimized caching
-FROM openjdk:17-jdk-slim
+FROM eclipse-temurin:17-jdk
 
 # Install Maven and curl
 RUN apt-get update && \

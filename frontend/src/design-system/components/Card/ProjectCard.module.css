@@ -39,11 +39,7 @@
 .badges {
   position: absolute;
   top: var(--spacing-3);
-  right: var(--spacing-3);
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2);
-  align-items: flex-end;
+  left: var(--spacing-3);
   z-index: 10;
 }
 
@@ -56,18 +52,20 @@
 }
 
 .title {
-  font-size: 1.5rem; /* 24px */
+  font-size: 1.5rem; /* 24px - 기본값, JavaScript로 조정됨 */
   font-weight: 800;
-  color: var(--color-text-primary);
+  color: var(--color-primary-dark);
   margin-bottom: var(--spacing-4);
   line-height: 1.2;
+  text-align: center;
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
+  max-height: calc(1.2em * 1); /* 한 줄 높이로 제한 */
 }
 
 .titleSubtext {
-  color: var(--color-text-secondary);
+  color: var(--color-primary-dark);
 }
 
 .divider {
@@ -80,19 +78,29 @@
   color: var(--color-text-secondary);
   font-size: 0.875rem; /* 14px */
   margin-bottom: var(--spacing-6);
-  flex-grow: 1;
   line-height: 1.6;
-  min-height: 4.5rem; /* 72px */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .techStack {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: var(--spacing-2);
   margin-bottom: var(--spacing-4);
+  overflow: hidden;
+  height: 1.75rem; /* 한 줄 높이 고정 (약 28px) */
+  align-items: center;
+}
+
+.techBadge {
+  flex-shrink: 0;
 }
 
 /* 하단 정보 */
 .footer {
   padding-top: var(--spacing-4);
-  border-top: 1px solid var(--color-border-default);
   margin-top: auto;
   display: flex;
   align-items: center;

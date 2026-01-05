@@ -173,31 +173,33 @@
 ## 📋 Task 5.2: Archive Page UI 구현
 
 ### 페이지 구조
-- [ ] `frontend/src/pages/ProjectsListPage/ProjectsListPage.tsx` 수정
-- [ ] 페이지 제목: SectionTitle 컴포넌트 사용
-- [ ] 프로젝트 그리드 레이아웃 구현
-- [ ] 필터/정렬 UI 구현 (간단하게)
+- [x] `frontend/src/pages/ProjectsListPage/ProjectsListPage.tsx` 수정
+- [x] 페이지 제목: SectionTitle 컴포넌트 사용
+- [x] 프로젝트 그리드 레이아웃 구현
+- [x] Featured Projects 섹션 상단에 추가 (설정 파일에서 데이터 가져오기)
+- [x] 프로젝트 타입별 섹션 구성 (BUILD, LAB, MAINTENANCE)
+- [x] 히스토리 패널, 챗봇 패널, 하단 채팅 UI 제거 (프로젝트 카드와 배지만 존재)
 
 ### 프로젝트 카드
-- [ ] 디자인 시스템 ProjectCard 컴포넌트 import
-- [ ] API에서 받은 프로젝트 데이터를 ProjectCard로 렌더링
-- [ ] 카드 클릭 시 상세 페이지 이동 구현
+- [x] 디자인 시스템 ProjectCard 컴포넌트 import
+- [x] API에서 받은 프로젝트 데이터를 ProjectCard로 렌더링
+- [x] 카드 클릭 시 상세 페이지 이동 구현
 
 ### API 연동
-- [ ] `useProjects()` 훅 사용
-- [ ] 로딩 상태 UI 구현 (Skeleton 또는 로딩 인디케이터)
-- [ ] 에러 상태 UI 구현 (에러 메시지 표시)
+- [x] `useProjectsQuery()` 훅 사용
+- [x] 로딩 상태 UI 구현 (SkeletonCard 사용)
+- [x] 에러 상태 UI 구현 (에러 메시지 표시)
 
 ### 검증
-- [ ] API에서 프로젝트 목록 정상 로드
-- [ ] 디자인 시스템 ProjectCard로 프로젝트 그리드 렌더링
-- [ ] TeamBadge, ProjectTypeBadge가 올바르게 표시
-- [ ] 디자인 시스템 컴포넌트만 사용
-- [ ] 반응형 레이아웃 정상 동작
-  - [ ] 모바일: 1단 레이아웃
-  - [ ] 태블릿: 2단 레이아웃
-  - [ ] 데스크톱: 3단 레이아웃
-- [ ] 로딩/에러 상태 UI 정상 표시
+- [x] API에서 프로젝트 목록 정상 로드
+- [x] 디자인 시스템 ProjectCard로 프로젝트 그리드 렌더링
+- [x] TeamBadge, ProjectTypeBadge가 올바르게 표시
+- [x] 디자인 시스템 컴포넌트만 사용
+- [x] 반응형 레이아웃 정상 동작
+  - [x] 모바일: 1단 레이아웃
+  - [x] 태블릿: 2단 레이아웃
+  - [x] 데스크톱: 3단 레이아웃
+- [x] 로딩/에러 상태 UI 정상 표시
 
 ---
 
