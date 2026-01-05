@@ -4,7 +4,7 @@
   align-items: center;
   justify-content: center;
   padding: 64px 32px;
-  background: var(--color-bg-primary);
+  background: transparent;
 }
 
 .ctaSection .container {

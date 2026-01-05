@@ -15,6 +15,7 @@
   margin-bottom: 80px; /* 하단 여백 축소 (160px → 80px) */
 }
 
+
 .aboutSection .container {
   max-width: 1280px;
   margin: 0 auto;
@@ -24,6 +25,8 @@
   gap: 64px;
   align-items: center;
   background: transparent;
+  position: relative;
+  z-index: 1;
 }
 
 /* 스크롤 인디케이터 래퍼 - 그리드의 다음 행에 배치 (전체 너비) */

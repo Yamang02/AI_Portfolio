@@ -45,7 +45,7 @@ export const HeroSection: React.FC = () => {
   };
 
   return (
-    <section className={styles.hero}>
+    <section id="hero" className={styles.hero}>
       <div className={styles.container}>
         <div className={styles.content}>
           <div className={styles.nameContainer}>
@@ -58,7 +58,7 @@ export const HeroSection: React.FC = () => {
             Software Engineer
           </SectionTitle>
           <p className={`${styles.intro} ${styles.sequentialItem} ${showIntro ? styles.show : ''}`}>
-            AI 시대에 발맞춰 도전을 두려워하지 않는 개발자 이정준입니다
+            AI와 함께 성장하는 개발자 이정준입니다
           </p>
           <div className={`${styles.cta} ${styles.sequentialItem} ${showButton ? styles.show : ''}`}>
             <Button variant="primary" onClick={scrollToAbout} ariaLabel="더 알아보기">

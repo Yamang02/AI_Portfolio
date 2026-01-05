@@ -51,6 +51,13 @@ a {
   color: inherit;
 }
 
+a:hover,
+a:focus,
+a:active,
+a:visited {
+  text-decoration: none;
+}
+
 /* Remove default heading margins */
 h1,
 h2,

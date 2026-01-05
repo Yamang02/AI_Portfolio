@@ -104,7 +104,7 @@ export const ProjectsListPage: React.FC = () => {
                   ))}
                 </div>
                 <div className={styles.link}>
-                  <TextLink href={`/projects/${project.id}`} underline>
+                  <TextLink href={`/projects/${project.id}`}>
                     자세히 보기 →
                   </TextLink>
                 </div>

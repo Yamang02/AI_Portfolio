@@ -1,0 +1,52 @@
+/* HomePage 전체 배경 그라데이션 */
+/* Hero → About: 흰색 배경 유지 */
+/* AboutSection2 중간부터 FeaturedProjects까지: 흰색 → bg-primary 자연스러운 그라데이션 */
+
+.homePage {
+  position: relative;
+  min-height: 100vh;
+
+  /* CSS 변수 초기값 (JS에서 동적 계산 후 덮어씀) */
+  --gradient-start: 35%;
+  --gradient-end: 60%; /* 그라데이션 끝 지점을 더 넓게 설정 */
+  --total-height: 100vh;
+
+  /* 동적 그라데이션: AboutSection2 중간 → 하단 */
+  /* 흰색 → bg-primary로 자연스럽게 전환 */
+  /* 그라데이션 전환 구간을 넓게 설정하여 천천히 전환 */
+  background: linear-gradient(
+    to bottom,
+    #ffffff 0%,
+    #ffffff var(--gradient-start),
+    #FCFDFA calc(var(--gradient-start) + (var(--gradient-end) - var(--gradient-start)) * 0.15),
+    #F9FAF7 calc(var(--gradient-start) + (var(--gradient-end) - var(--gradient-start)) * 0.3),
+    #F8F9F5 calc(var(--gradient-start) + (var(--gradient-end) - var(--gradient-start)) * 0.5),
+    #F7F9F5 calc(var(--gradient-start) + (var(--gradient-end) - var(--gradient-start)) * 0.7),
+    var(--color-bg-primary) calc(var(--gradient-start) + (var(--gradient-end) - var(--gradient-start)) * 0.85),
+    var(--color-bg-primary) var(--gradient-end),
+    var(--color-bg-primary) 100%
+  );
+
+  background-size: 100% var(--total-height);
+  background-repeat: no-repeat;
+  background-position: top;
+}
+
+/* 다크 모드: 다크 배경색 사용 */
+@media (prefers-color-scheme: dark) {
+  .homePage {
+    background: linear-gradient(
+      to bottom,
+      #0F1A14 0%,
+      #0F1A14 var(--gradient-start),
+      #0F1B15 calc(var(--gradient-start) + (var(--gradient-end) - var(--gradient-start)) * 0.15),
+      #0F1C16 calc(var(--gradient-start) + (var(--gradient-end) - var(--gradient-start)) * 0.3),
+      #0F1D17 calc(var(--gradient-start) + (var(--gradient-end) - var(--gradient-start)) * 0.5),
+      #0F1E18 calc(var(--gradient-start) + (var(--gradient-end) - var(--gradient-start)) * 0.7),
+      var(--color-bg-primary) calc(var(--gradient-start) + (var(--gradient-end) - var(--gradient-start)) * 0.85),
+      var(--color-bg-primary) var(--gradient-end),
+      var(--color-bg-primary) 100%
+    );
+    background-size: 100% var(--total-height);
+  }
+}

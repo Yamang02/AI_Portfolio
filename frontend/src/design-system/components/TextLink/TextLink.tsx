@@ -5,7 +5,6 @@ export interface TextLinkProps {
   href: string;
   children: React.ReactNode;
   external?: boolean;
-  underline?: boolean;
   ariaLabel?: string;
   className?: string;
 }
@@ -14,11 +13,10 @@ export const TextLink: React.FC<TextLinkProps> = ({
   href,
   children,
   external = false,
-  underline = false,
   ariaLabel,
   className,
 }) => {
-  const classNames = [styles.textLink, underline && styles.underline, className]
+  const classNames = [styles.textLink, className]
     .filter(Boolean)
     .join(' ');
 

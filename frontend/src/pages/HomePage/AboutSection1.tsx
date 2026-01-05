@@ -86,7 +86,7 @@ export const AboutSection1: React.FC = () => {
               <span className={styles.processStep}>운영</span>
             </div>
             <p className={styles.summary}>
-              전 과정에 AI를 접목하여 생산성을 높이고,
+              전 과정에 AI를 접목하여 생산성을 높이고
             </p>
             <p className={styles.summary}>
               <span className={styles.highlight}>장기적인 유지보수</span>까지 고려한 개발을 실천합니다.

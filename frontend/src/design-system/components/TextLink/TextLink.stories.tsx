@@ -9,9 +9,6 @@ const meta: Meta<typeof TextLink> = {
     external: {
       control: 'boolean',
     },
-    underline: {
-      control: 'boolean',
-    },
   },
 };
 
@@ -33,10 +30,3 @@ export const External: Story = {
   },
 };
 
-export const WithUnderline: Story = {
-  args: {
-    href: '/about',
-    underline: true,
-    children: 'About Me',
-  },
-};
