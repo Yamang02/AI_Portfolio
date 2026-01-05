@@ -25,6 +25,7 @@
   --color-primary: #7FA874;              /* 더 생기있고 밝음 */
   --color-primary-hover: #8FBF84;
   --color-primary-active: #678F5E;
+  --color-primary-dark: #3D5A32;          /* Primary보다 훨씬 진한 색상 (높은 가시성, 폰트 강조용) */
 
   /* Brand - Accent (Muted Olive) */
   --color-accent: #9EBF96;
@@ -93,6 +94,7 @@
     --color-primary: #4E7F63;          /* 더 그린 중심, 생명력 있음 */
     --color-primary-hover: #5F9A78;
     --color-primary-active: #3E6650;
+    --color-primary-dark: #1E3A2A;      /* Primary보다 훨씬 진한 색상 (높은 가시성, 폰트 강조용) */
 
     /* Brand - Accent */
     --color-accent: #7FB89A;

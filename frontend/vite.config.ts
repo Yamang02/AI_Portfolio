@@ -23,14 +23,30 @@ export default defineConfig(({ mode }) => {
             timeout: 60000,
             // 연결 유지 설정
             configure: (proxy, _options) => {
-              proxy.on('error', (err, _req, _res) => {
-                console.log('proxy error', err);
+              proxy.on('error', (err, req, res) => {
+                console.error('❌ 프록시 오류 발생:', {
+                  url: req.url,
+                  method: req.method,
+                  error: err.message,
+                  code: err.code,
+                  hint: '백엔드 서버가 실행 중인지 확인하세요. (http://localhost:8080)'
+                });
+                if (!res.headersSent) {
+                  res.writeHead(502, {
+                    'Content-Type': 'application/json',
+                  });
+                  res.end(JSON.stringify({
+                    success: false,
+                    message: '백엔드 서버에 연결할 수 없습니다. 서버가 실행 중인지 확인하세요.',
+                    error: err.message
+                  }));
+                }
               });
               proxy.on('proxyReq', (proxyReq, req, _res) => {
-                console.log('Sending Request to the Target:', req.method, req.url);
+                console.log('📤 프록시 요청:', req.method, req.url, '→', _options.target);
               });
               proxy.on('proxyRes', (proxyRes, req, _res) => {
-                console.log('Received Response from the Target:', proxyRes.statusCode, req.url);
+                console.log('📥 프록시 응답:', proxyRes.statusCode, req.url);
               });
             },
           }

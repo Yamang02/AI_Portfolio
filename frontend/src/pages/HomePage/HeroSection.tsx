@@ -1,8 +1,42 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { SectionTitle, Button } from '@/design-system';
 import styles from './HeroSection.module.css';
 
 export const HeroSection: React.FC = () => {
+  const [showYamang02, setShowYamang02] = useState(false);
+  const [showH2, setShowH2] = useState(false);
+  const [showIntro, setShowIntro] = useState(false);
+  const [showButton, setShowButton] = useState(false);
+
+  useEffect(() => {
+    // 컴포넌트 마운트 후 1초 뒤에 Yamang02 나타나기
+    const timer1 = setTimeout(() => {
+      setShowYamang02(true);
+    }, 1000);
+
+    // Yamang02 나타난 후 0.6초 뒤에 h2 나타나기
+    const timer2 = setTimeout(() => {
+      setShowH2(true);
+    }, 1600);
+
+    // h2 나타난 후 0.6초 뒤에 intro 나타나기
+    const timer3 = setTimeout(() => {
+      setShowIntro(true);
+    }, 2200);
+
+    // intro 나타난 후 0.6초 뒤에 버튼 나타나기
+    const timer4 = setTimeout(() => {
+      setShowButton(true);
+    }, 2800);
+
+    return () => {
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+      clearTimeout(timer3);
+      clearTimeout(timer4);
+    };
+  }, []);
+
   const scrollToAbout = () => {
     const aboutSection = document.getElementById('about-1');
     if (aboutSection) {
@@ -13,38 +47,39 @@ export const HeroSection: React.FC = () => {
   return (
     <section className={styles.hero}>
       <div className={styles.container}>
-        {/* 왼쪽: 텍스트 콘텐츠 */}
         <div className={styles.content}>
-          <SectionTitle level="h1">이준경</SectionTitle>
-          <SectionTitle level="h2">AI 적극 활용 개발자</SectionTitle>
-          <p className={styles.intro}>
-            AI 도구를 적극 활용하여 개발 효율성과 사용자 경험을 개선하는 개발자입니다.
+          <div className={styles.nameContainer}>
+            <SectionTitle level="h1">이정준</SectionTitle>
+            <h1 className={`${styles.secondaryName} ${showYamang02 ? styles.show : ''}`}>
+              Yamang02
+            </h1>
+          </div>
+          <SectionTitle level="h2" className={`${styles.sequentialItem} ${showH2 ? styles.show : ''}`}>
+            Software Engineer
+          </SectionTitle>
+          <p className={`${styles.intro} ${styles.sequentialItem} ${showIntro ? styles.show : ''}`}>
+            AI 시대에 발맞춰 도전을 두려워하지 않는 개발자 이정준입니다
           </p>
-          <div className={styles.cta}>
-            <Button variant="primary" href="/projects">
-              프로젝트 보기
-            </Button>
-            <Button variant="secondary" onClick={scrollToAbout} ariaLabel="더 알아보기">
-              더 알아보기 ↓
+          <div className={`${styles.cta} ${styles.sequentialItem} ${showButton ? styles.show : ''}`}>
+            <Button variant="primary" onClick={scrollToAbout} ariaLabel="더 알아보기">
+              <span>더 알아보기</span>
+              <svg 
+                className={styles.arrowIcon}
+                width="20" 
+                height="20" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M7 13l5 5 5-5" />
+                <path d="M7 6l5 5 5-5" />
+              </svg>
             </Button>
           </div>
-        </div>
-        
-        {/* 오른쪽: 이미지 */}
-        <div className={styles.imageWrapper}>
-          <img 
-            src="/images/hero-image.jpg" 
-            alt="Hero" 
-            className={styles.image}
-            onError={(e) => {
-              // 이미지가 없을 경우 placeholder 표시
-              const target = e.target as HTMLImageElement;
-              target.style.display = 'none';
-              if (target.parentElement) {
-                target.parentElement.innerHTML = '<div class="' + styles.imagePlaceholder + '"><span>👨‍💻</span></div>';
-              }
-            }}
-          />
         </div>
       </div>
     </section>

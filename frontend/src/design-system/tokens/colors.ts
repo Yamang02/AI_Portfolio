@@ -19,6 +19,7 @@ export const brandColors = {
   primary: '#7FA874',        // Fresh Olive Green - CTA 버튼, 강조 (더 생기있고 밝음)
   primaryHover: '#8FBF84',  // Fresh Olive Green (lighter)
   primaryActive: '#678F5E',  // Fresh Olive Green (darker)
+  primaryDark: '#3D5A32',   // Primary보다 훨씬 진한 색상 (높은 가시성, 폰트 강조용)
 
   // Accent: Muted Olive (#9EBF96)
   accent: '#9EBF96',         // Muted Olive - 링크, 보조 강조

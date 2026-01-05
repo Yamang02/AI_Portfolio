@@ -1,25 +1,81 @@
 .hero {
-  min-height: 100vh;
+  min-height: calc(100vh - 64px); /* Header 높이(64px) 제외 */
   display: flex;
   align-items: center;
-  padding: 64px 32px;
+  justify-content: center;
+  padding: 32px 32px 64px; /* 위 여백 줄임 (64px -> 32px) */
 }
 
 .hero .container {
-  max-width: 1280px;
+  max-width: 800px;
   margin: 0 auto;
   width: 100%;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 64px;
-  align-items: center;
+  text-align: center;
 }
 
 .hero .content {
-  /* 텍스트 콘텐츠 스타일 */
   opacity: 0;
   transform: translateY(20px) scale(0.95);
   animation: heroFadeIn 1s ease-out forwards;
+}
+
+.hero .nameContainer {
+  display: block;
+  width: 100%;
+  text-align: center;
+  margin: 0 auto;
+}
+
+.hero .nameContainer > :first-child {
+  margin-bottom: 0 !important; /* 이정준과 Yamang02 사이 간격 제거 */
+  font-size: 2.7rem; /* 1.2배 (2.25rem * 1.2 = 2.7rem) */
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+  width: fit-content;
+}
+
+.hero .secondaryName {
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+  transform: translateY(-10px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out, max-height 0.6s ease-out, margin-top 0.6s ease-out;
+  margin: 0 auto;
+  padding: 0;
+  padding-left: 0.1em; /* Y 앞에 아주 미세한 여백 */
+  color: var(--color-text-muted);
+  font-size: 1.35rem; /* 이정준의 0.5배 (2.7rem * 0.5 = 1.35rem) */
+  font-weight: 700;
+  letter-spacing: 0.05em; /* 자간 줄여서 컴팩트하게 */
+  line-height: 1.25;
+  text-align: center;
+  font-family: inherit;
+  display: block;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.hero .secondaryName.show {
+  opacity: 0.5; /* 옅은 색상 */
+  max-height: 80px; /* 높이 추가하여 글자 아래가 잘리지 않도록 */
+  transform: translateY(0);
+  margin-top: 0; /* 간격 제거 */
+  padding-bottom: 0.25rem; /* 하단 여백 추가 */
+}
+
+/* 순차적으로 나타나는 요소들 (h2, intro) */
+.hero .sequentialItem {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.hero .sequentialItem.show {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .hero .intro {
@@ -34,33 +90,31 @@
   display: flex;
   gap: 16px;
   flex-wrap: wrap;
-}
-
-.hero .imageWrapper {
-  position: relative;
-  opacity: 0;
-  transform: translateX(40px);
-  animation: heroImageSlideIn 1s ease-out 0.3s forwards;
-}
-
-.hero .image {
-  width: 100%;
-  height: auto;
-  border-radius: 16px;
-  object-fit: cover;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-}
-
-.hero .imagePlaceholder {
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  display: flex;
-  align-items: center;
   justify-content: center;
-  background: linear-gradient(to-br, var(--color-bg-secondary), var(--color-bg-primary));
-  border-radius: 16px;
-  font-size: 4rem;
-  color: var(--color-text-muted);
+  align-items: center;
+}
+
+/* 트렌디한 화살표 아이콘 스타일 */
+.hero .arrowIcon {
+  margin-left: 8px;
+  display: inline-block;
+  vertical-align: middle;
+  animation: arrowBounce 2s ease-in-out infinite;
+  transition: transform 0.3s ease;
+}
+
+.hero .cta button:hover .arrowIcon,
+.hero .cta a:hover .arrowIcon {
+  transform: translateY(4px);
+}
+
+@keyframes arrowBounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(6px);
+  }
 }
 
 @keyframes heroFadeIn {
@@ -70,26 +124,24 @@
   }
 }
 
-@keyframes heroImageSlideIn {
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-/* 반응형: 모바일에서는 세로 배치 */
+/* 반응형: 모바일 */
 @media (max-width: 768px) {
   .hero {
-    padding: 48px 24px;
+    min-height: calc(100vh - 56px); /* 모바일 Header 높이(56px) 제외 */
+    padding: 24px 24px 48px; /* 위 여백 줄임 */
   }
 
-  .hero .container {
-    grid-template-columns: 1fr;
-    gap: 32px;
+  .hero .nameContainer > :first-child {
+    font-size: 2.25rem; /* 모바일 1.2배 (1.875rem * 1.2 = 2.25rem) */
   }
-  
-  .hero .imageWrapper {
-    order: -1; /* 모바일에서 이미지를 위로 */
+
+  .hero .secondaryName {
+    font-size: 0.9375rem; /* 모바일 이정준의 0.5배 (1.875rem * 0.5 = 0.9375rem) */
+    letter-spacing: 0.03em; /* 모바일에서도 자간 줄여서 컴팩트하게 */
+  }
+
+  .hero .secondaryName.show {
+    max-height: 60px; /* 모바일에서도 높이 추가 */
   }
 
   .hero .intro {
@@ -105,8 +157,13 @@
 /* 접근성: 애니메이션 비활성화 */
 @media (prefers-reduced-motion: reduce) {
   .hero .content,
-  .hero .imageWrapper {
+  .hero .secondaryName {
     animation: none;
+    opacity: 1;
+    transform: none;
+  }
+  
+  .hero .secondaryName.show {
     opacity: 1;
     transform: none;
   }
