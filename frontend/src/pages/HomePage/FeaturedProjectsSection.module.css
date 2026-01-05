@@ -4,6 +4,24 @@
   gap: 160px;
   padding: 160px 32px 200px;
   background: var(--color-bg-primary);
+  position: relative;
+}
+
+/* 상단 그라데이션 오버레이 - 이전 영역과 자연스럽게 섞이도록 */
+.featuredProjects::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 200px;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    var(--color-bg-primary)
+  );
+  pointer-events: none;
+  z-index: 1;
 }
 
 .projectSection {

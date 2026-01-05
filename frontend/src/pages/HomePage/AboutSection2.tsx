@@ -44,9 +44,12 @@ export const AboutSection2: React.FC = () => {
   }, [showScrollIndicator]);
 
   const scrollToNext = () => {
-    const nextSection = document.getElementById('featured-projects');
-    if (nextSection) {
-      nextSection.scrollIntoView({ behavior: 'smooth' });
+    // 첫 번째 프로젝트 섹션 찾기
+    const firstProject = document.querySelector('#featured-projects article[data-project-index="0"]');
+    if (firstProject) {
+      const rect = firstProject.getBoundingClientRect();
+      const scrollY = window.scrollY + rect.top + rect.height / 2 - window.innerHeight / 2;
+      window.scrollTo({ top: scrollY, behavior: 'smooth' });
     }
   };
 
@@ -71,33 +74,41 @@ export const AboutSection2: React.FC = () => {
         
         {/* 오른쪽: 텍스트 콘텐츠 */}
         <div className={styles.content}>
-          <SectionTitle level="h2">개발 효율성 향상</SectionTitle>
+          <SectionTitle level="h2">능숙한 AI 활용</SectionTitle>
           <p className={styles.summary}>
-            AI 도구를 활용하여 반복적인 작업을 자동화하고, 복잡한 문제를 빠르게 해결합니다.
-            이를 통해 더 나은 사용자 경험에 집중할 수 있습니다.
+            SDD, BMAD 등 다양한 AI기반 개발 방법론을 탐구합니다.
+          </p>
+          <p className={styles.summary}>
+            에이전틱 코딩의 한계를 극복하기 위해 지속적으로 연구합니다.
+          </p>
+          <p className={styles.belief}>
+            2025년 Cursor 사용량 <span style={{ color: 'var(--color-primary)', fontWeight: '700', fontSize: '1.5rem' }}>상위 5%</span>
           </p>
         </div>
+        
+        {/* 스크롤 인디케이터 - 그리드의 다음 행에 배치 */}
+        <div className={styles.scrollIndicatorWrapper}>
+          <button
+            className={`${styles.scrollIndicator} ${showScrollIndicator ? styles.show : ''}`}
+            onClick={scrollToNext}
+            aria-label="다음 섹션으로"
+          >
+            <svg 
+              width="20" 
+              height="20" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2.5" 
+              strokeLinecap="round" 
+              strokeLinejoin="round"
+            >
+              <path d="M7 13l5 5 5-5" />
+              <path d="M7 6l5 5 5-5" />
+            </svg>
+          </button>
+        </div>
       </div>
-      {/* 스크롤 인디케이터 */}
-      <button
-        className={`${styles.scrollIndicator} ${showScrollIndicator ? styles.show : ''}`}
-        onClick={scrollToNext}
-        aria-label="다음 섹션으로"
-      >
-        <svg 
-          width="20" 
-          height="20" 
-          viewBox="0 0 24 24" 
-          fill="none" 
-          stroke="currentColor" 
-          strokeWidth="2.5" 
-          strokeLinecap="round" 
-          strokeLinejoin="round"
-        >
-          <path d="M7 13l5 5 5-5" />
-          <path d="M7 6l5 5 5-5" />
-        </svg>
-      </button>
     </section>
   );
 };

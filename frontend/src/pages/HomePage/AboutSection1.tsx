@@ -45,7 +45,9 @@ export const AboutSection1: React.FC = () => {
   const scrollToNext = () => {
     const nextSection = document.getElementById('about-2');
     if (nextSection) {
-      nextSection.scrollIntoView({ behavior: 'smooth' });
+      const rect = nextSection.getBoundingClientRect();
+      const scrollY = window.scrollY + rect.top + rect.height / 2 - window.innerHeight / 2;
+      window.scrollTo({ top: scrollY, behavior: 'smooth' });
     }
   };
 
@@ -120,27 +122,30 @@ export const AboutSection1: React.FC = () => {
             />
           </div>
         </div>
+        
+        {/* 스크롤 인디케이터 - 그리드의 다음 행에 배치 */}
+        <div className={styles.scrollIndicatorWrapper}>
+          <button
+            className={`${styles.scrollIndicator} ${showScrollIndicator ? styles.show : ''}`}
+            onClick={scrollToNext}
+            aria-label="다음 섹션으로"
+          >
+            <svg 
+              width="20" 
+              height="20" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2.5" 
+              strokeLinecap="round" 
+              strokeLinejoin="round"
+            >
+              <path d="M7 13l5 5 5-5" />
+              <path d="M7 6l5 5 5-5" />
+            </svg>
+          </button>
+        </div>
       </div>
-      {/* 스크롤 인디케이터 */}
-      <button
-        className={`${styles.scrollIndicator} ${showScrollIndicator ? styles.show : ''}`}
-        onClick={scrollToNext}
-        aria-label="다음 섹션으로"
-      >
-        <svg 
-          width="20" 
-          height="20" 
-          viewBox="0 0 24 24" 
-          fill="none" 
-          stroke="currentColor" 
-          strokeWidth="2.5" 
-          strokeLinecap="round" 
-          strokeLinejoin="round"
-        >
-          <path d="M7 13l5 5 5-5" />
-          <path d="M7 6l5 5 5-5" />
-        </svg>
-      </button>
     </section>
   );
 };
