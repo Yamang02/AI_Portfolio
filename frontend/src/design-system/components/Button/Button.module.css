@@ -3,12 +3,13 @@
   align-items: center;
   justify-content: center;
   font-family: inherit;
-  font-weight: 600;
-  border-radius: 6px;
+  font-weight: 600; /* 배지(400)보다 굵게 */
+  border-radius: 6px; /* 배지(pill)와 구분되는 덜 둥근 모서리 */
   border: none;
   cursor: pointer;
   text-decoration: none;
   transition: all 0.15s ease;
+  /* 버튼은 액션 요소이므로 더 명확하고 강한 느낌 */
 }
 
 /* Primary Variant */
@@ -19,11 +20,14 @@
 
 .button.primary:hover:not(:disabled) {
   background-color: var(--color-primary-hover);
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1); /* 배지보다 더 강한 shadow */
+  transform: translateY(-1px); /* 버튼은 더 명확한 hover 효과 */
 }
 
 .button.primary:active:not(:disabled) {
   background-color: var(--color-primary-active);
+  transform: translateY(0); /* Active 시 원위치 */
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
 
 /* Secondary Variant */
@@ -36,10 +40,14 @@
 .button.secondary:hover:not(:disabled) {
   background-color: var(--color-bg-secondary);
   border-color: var(--color-border-hover);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.08); /* Secondary도 hover 시 shadow 추가 */
+  transform: translateY(-1px);
 }
 
 .button.secondary:active:not(:disabled) {
   background-color: var(--color-bg-tertiary);
+  transform: translateY(0); /* Active 시 원위치 */
+  box-shadow: none;
 }
 
 /* Sizes */

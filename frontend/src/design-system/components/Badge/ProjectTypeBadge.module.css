@@ -1,0 +1,107 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-1) var(--spacing-2);
+  border-radius: var(--border-radius-md);
+  border: 1px solid;
+  font-weight: 500;
+  white-space: nowrap;
+  backdrop-filter: blur(4px);
+  box-shadow: var(--shadow-md);
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.svg {
+  width: 100%;
+  height: 100%;
+}
+
+.text {
+  white-space: nowrap;
+}
+
+/* Sizes */
+.badge.sm {
+  padding: var(--spacing-1) var(--spacing-2);
+  font-size: 0.6875rem; /* 11px */
+  gap: var(--spacing-1);
+}
+
+.badge.sm .icon {
+  width: 0.75rem; /* 12px */
+  height: 0.75rem; /* 12px */
+}
+
+.badge.md {
+  padding: var(--spacing-1) var(--spacing-2);
+  font-size: 0.75rem; /* 12px */
+  gap: var(--spacing-2);
+}
+
+.badge.md .icon {
+  width: 0.75rem; /* 12px */
+  height: 0.75rem; /* 12px */
+}
+
+.badge.lg {
+  padding: var(--spacing-2) var(--spacing-3);
+  font-size: 0.875rem; /* 14px */
+  gap: var(--spacing-2);
+}
+
+.badge.lg .icon {
+  width: 1rem; /* 16px */
+  height: 1rem; /* 16px */
+}
+
+/* BUILD variant */
+.badge.build {
+  background-color: color-mix(in srgb, var(--color-status-error) 90%, transparent);
+  border-color: color-mix(in srgb, var(--color-status-error) 50%, transparent);
+  color: var(--color-text-primary);
+}
+
+@media (prefers-color-scheme: dark) {
+  .badge.build {
+    background-color: color-mix(in srgb, var(--color-status-error) 80%, transparent);
+    border-color: color-mix(in srgb, var(--color-status-error) 70%, transparent);
+    color: var(--color-text-primary);
+  }
+}
+
+/* LAB variant */
+.badge.lab {
+  background-color: color-mix(in srgb, var(--color-status-warning) 90%, transparent);
+  border-color: color-mix(in srgb, var(--color-status-warning) 50%, transparent);
+  color: var(--color-text-primary);
+}
+
+@media (prefers-color-scheme: dark) {
+  .badge.lab {
+    background-color: color-mix(in srgb, var(--color-status-warning) 80%, transparent);
+    border-color: color-mix(in srgb, var(--color-status-warning) 70%, transparent);
+    color: var(--color-text-primary);
+  }
+}
+
+/* MAINTENANCE variant */
+.badge.maintenance {
+  background-color: color-mix(in srgb, var(--color-success) 90%, transparent);
+  border-color: color-mix(in srgb, var(--color-success) 50%, transparent);
+  color: var(--color-text-primary);
+}
+
+@media (prefers-color-scheme: dark) {
+  .badge.maintenance {
+    background-color: color-mix(in srgb, var(--color-success) 80%, transparent);
+    border-color: color-mix(in srgb, var(--color-success) 70%, transparent);
+    color: var(--color-text-primary);
+  }
+}

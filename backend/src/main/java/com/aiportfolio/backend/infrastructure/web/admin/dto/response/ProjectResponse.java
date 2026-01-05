@@ -31,6 +31,9 @@ public class ProjectResponse {
     @JsonProperty("isTeam")
     private Boolean isTeam;
     
+    @JsonProperty("isFeatured")
+    private Boolean isFeatured;
+    
     private Integer teamSize;
     private String role;
     private List<String> myContributions;

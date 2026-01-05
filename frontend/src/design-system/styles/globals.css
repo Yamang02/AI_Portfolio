@@ -43,6 +43,12 @@
   --color-link-hover: #7FA874;          /* Fresh Olive Green */
   --color-link-visited: #678F5E;        /* Fresh Olive Green (darker) */
 
+  /* Status */
+  --color-status-info: #9EBF96;         /* Muted Olive */
+  --color-status-success: #A8D08D;      /* Light Sage */
+  --color-status-warning: #f59e0b;      /* Amber-500 */
+  --color-status-error: #ef4444;        /* Red-500 */
+
   /* Spacing */
   --spacing-0: 0;
   --spacing-1: 0.25rem;   /* 4px */
@@ -111,6 +117,12 @@
     --color-link-default: #7FB89A;     /* Accent */
     --color-link-hover: #4E7F63;       /* Vital Deep Green */
     --color-link-visited: #3E6650;     /* Vital Deep Green (darker) */
+
+    /* Status */
+    --color-status-info: #7FB89A;       /* Accent */
+    --color-status-success: #9FD6B2;    /* Success (다크 모드용) */
+    --color-status-warning: #fbbf24;    /* Amber-400 */
+    --color-status-error: #f87171;      /* Red-400 */
 
     /* Spacing (다크 모드에서도 동일) */
     --spacing-0: 0;

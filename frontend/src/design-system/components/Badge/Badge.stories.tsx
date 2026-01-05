@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import React from 'react';
 import { Badge } from './Badge';
+import { Button } from '../Button/Button';
 
 const meta: Meta<typeof Badge> = {
   title: 'Design System/Components/Badge',
@@ -144,4 +145,54 @@ export const TechStackExample: Story = {
       <Badge variant="success" size="sm">Docker</Badge>
     </div>
   ),
+};
+
+export const ComparisonWithButton: Story = {
+  render: () => {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+        <div>
+          <h3 style={{ marginBottom: '1rem', fontSize: '1rem', fontWeight: 600 }}>
+            Badge (정보 표시용 - Pill shape, 가벼운 폰트)
+          </h3>
+          <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
+            <Badge variant="default">Default Badge</Badge>
+            <Badge variant="primary">Primary Badge</Badge>
+            <Badge variant="accent">Accent Badge</Badge>
+            <Badge variant="outline">Outline Badge</Badge>
+            <Badge variant="primary" size="sm">Small</Badge>
+            <Badge variant="primary" size="md">Medium</Badge>
+            <Badge variant="primary" size="lg">Large</Badge>
+          </div>
+        </div>
+        <div>
+          <h3 style={{ marginBottom: '1rem', fontSize: '1rem', fontWeight: 600 }}>
+            Button (액션 요소 - 둥근 사각형, 굵은 폰트)
+          </h3>
+          <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
+            <Button variant="primary">Primary Button</Button>
+            <Button variant="secondary">Secondary Button</Button>
+            <Button variant="primary" size="sm">Small</Button>
+            <Button variant="primary" size="md">Medium</Button>
+            <Button variant="primary" size="lg">Large</Button>
+          </div>
+        </div>
+        <div>
+          <h3 style={{ marginBottom: '1rem', fontSize: '1rem', fontWeight: 600 }}>
+            Side by Side Comparison
+          </h3>
+          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'flex-start' }}>
+              <span style={{ fontSize: '0.75rem', color: '#666' }}>Badge</span>
+              <Badge variant="primary">Primary</Badge>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'flex-start' }}>
+              <span style={{ fontSize: '0.75rem', color: '#666' }}>Button</span>
+              <Button variant="primary">Primary</Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  },
 };

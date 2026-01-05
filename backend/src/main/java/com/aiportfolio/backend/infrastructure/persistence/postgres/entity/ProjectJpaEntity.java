@@ -77,6 +77,10 @@ public class ProjectJpaEntity {
     @Builder.Default
     private Boolean isTeam = false;
     
+    @Column(name = "is_featured")
+    @Builder.Default
+    private Boolean isFeatured = false;
+    
     @Column(name = "status", length = 50)
     @Builder.Default
     private String status = "completed";
