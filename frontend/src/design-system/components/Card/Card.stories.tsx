@@ -115,7 +115,7 @@ export const WithContent: Story = {
       <button
         style={{
           padding: '0.5rem 1rem',
-          backgroundColor: '#7FA874',
+          backgroundColor: '#7FAF8A',  /* 새로운 브랜드 그린 */
           color: 'white',
           border: 'none',
           borderRadius: '0.375rem',

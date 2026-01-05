@@ -26,44 +26,44 @@ export const BrandColors = () => (
       }} />
       <div style={{ fontWeight: '600' }}>Primary</div>
       <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>{brandColors.primary}</div>
-      <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>Fresh Olive Green</div>
+      <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>Brand Green (#7FAF8A)</div>
     </div>
     <div style={{ padding: '1rem', backgroundColor: '#f9fafb', borderRadius: '8px' }}>
       <div style={{ 
         width: '100%', 
         height: '80px', 
-        backgroundColor: brandColors.accent, 
+        backgroundColor: '#3b82f6',  /* 표준 Blue-500 (Info/Accent) */ 
         borderRadius: '4px',
         marginBottom: '0.5rem'
       }} />
-      <div style={{ fontWeight: '600' }}>Accent</div>
-      <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>{brandColors.accent}</div>
-      <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>Muted Olive (Updated)</div>
+      <div style={{ fontWeight: '600' }}>Info / Accent</div>
+      <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>#3b82f6</div>
+      <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>Standard Blue-500</div>
     </div>
     <div style={{ padding: '1rem', backgroundColor: '#f9fafb', borderRadius: '8px' }}>
       <div style={{ 
         width: '100%', 
         height: '80px', 
-        backgroundColor: brandColors.success, 
+        backgroundColor: '#10b981',  /* 표준 Green-500 */ 
         borderRadius: '4px',
         marginBottom: '0.5rem'
       }} />
       <div style={{ fontWeight: '600' }}>Success</div>
-      <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>{brandColors.success}</div>
-      <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>Light Sage (Updated)</div>
+      <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>#10b981</div>
+      <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>Standard Green-500</div>
     </div>
     <div style={{ padding: '1rem', backgroundColor: '#f9fafb', borderRadius: '8px' }}>
       <div style={{ 
         width: '100%', 
         height: '80px', 
-        backgroundColor: brandColors.highlight, 
+        backgroundColor: '#f3f4f6',  /* 표준 Gray-100 */ 
         borderRadius: '4px',
         marginBottom: '0.5rem',
         border: '1px solid #e5e7eb'
       }} />
       <div style={{ fontWeight: '600' }}>Highlight</div>
-      <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>{brandColors.highlight}</div>
-      <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>Soft Green (Updated)</div>
+      <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>#f3f4f6</div>
+      <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>Standard Gray-100</div>
     </div>
   </div>
 );
@@ -148,10 +148,10 @@ export const LightModeColors = () => (
       </div>
       <div style={{ 
         padding: '1rem', 
-        border: `2px solid ${lightModeColors.border.accent}`,
+        border: `2px solid ${lightModeColors.border.default}`,
         borderRadius: '4px'
       }}>
-        Accent: {lightModeColors.border.accent}
+        Default: {lightModeColors.border.default}
       </div>
     </div>
   </div>

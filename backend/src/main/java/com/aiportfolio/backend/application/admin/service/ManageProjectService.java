@@ -102,6 +102,7 @@ public class ManageProjectService implements ManageProjectUseCase {
                 .type(TextFieldHelper.normalizeText(command.getType())) // 선택 필드
                 .status(TextFieldHelper.normalizeText(command.getStatus())) // 선택 필드
                 .isTeam(isTeam)
+                .isFeatured(command.getIsFeatured() != null ? command.getIsFeatured() : false)
                 .teamSize(isTeam ? command.getTeamSize() : null)
                 .role(TextFieldHelper.normalizeText(command.getRole())) // 선택 필드
                 .myContributions(TextFieldHelper.normalizeTextList(command.getMyContributions())) // 선택 필드
@@ -162,6 +163,12 @@ public class ManageProjectService implements ManageProjectUseCase {
         if (command.getEndDate() != null) project.setEndDate(command.getEndDate());
 
         project.updateTeamInfo(command.getIsTeam(), command.getTeamSize());
+        
+        // isFeatured 업데이트
+        if (command.getIsFeatured() != null) {
+            // boolean primitive 타입이므로 직접 할당
+            project.setFeatured(command.getIsFeatured());
+        }
 
         // 이미지 URL 업데이트 (선택 필드: 정규화 적용)
         if (command.getImageUrl() != null) {

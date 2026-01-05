@@ -34,6 +34,8 @@ public class AdminProjectUpdateRequest {
 
     private Boolean isTeam;
 
+    private Boolean isFeatured;
+
     private Integer teamSize;
 
     @Size(max = 255, message = "역할은 255자를 초과할 수 없습니다")
@@ -71,6 +73,7 @@ public class AdminProjectUpdateRequest {
                 .type(type)
                 .status(status)
                 .isTeam(isTeam)
+                .isFeatured(isFeatured)
                 .teamSize(teamSize)
                 .role(role)
                 .myContributions(myContributions)

@@ -192,7 +192,7 @@
   border-radius: 50%;
   border: none;
   background: var(--color-primary);
-  color: #ffffff;
+  color: var(--color-white);
   display: flex;
   align-items: center;
   justify-content: center;

@@ -18,6 +18,7 @@ public class ProjectUpdateCommand {
     private final String type;
     private final String status;
     private final Boolean isTeam;
+    private final Boolean isFeatured;
     private final Integer teamSize;
     private final String role;
     private final List<String> myContributions;

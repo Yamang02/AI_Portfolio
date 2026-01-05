@@ -16,8 +16,8 @@
   /* 그라데이션 전환 구간을 넓게 설정하여 천천히 전환 */
   background: linear-gradient(
     to bottom,
-    #ffffff 0%,
-    #ffffff var(--gradient-start),
+    var(--color-white) 0%,
+    var(--color-white) var(--gradient-start),
     #FCFDFA calc(var(--gradient-start) + (var(--gradient-end) - var(--gradient-start)) * 0.15),
     #F9FAF7 calc(var(--gradient-start) + (var(--gradient-end) - var(--gradient-start)) * 0.3),
     #F8F9F5 calc(var(--gradient-start) + (var(--gradient-end) - var(--gradient-start)) * 0.5),

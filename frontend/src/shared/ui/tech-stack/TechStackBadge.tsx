@@ -35,7 +35,7 @@ export const TechStackBadge: React.FC<TechStackBadgeProps> = ({
   const getVariantClasses = () => {
     switch (variant) {
       case 'core':
-        return 'bg-gradient-to-br from-blue-500 to-blue-700 border-blue-700 text-white font-semibold';
+        return 'bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold';  /* 기본은 neutral, hover에 브랜드 그린 */
       case 'filter':
         return cn(
           'bg-surface dark:bg-slate-800 border-border text-text-primary',
@@ -54,7 +54,7 @@ export const TechStackBadge: React.FC<TechStackBadgeProps> = ({
       case 'expert':
         return 'border-l-4 border-l-green-500 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20';
       case 'intermediate':
-        return 'border-l-4 border-l-blue-500 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20';
+        return 'border-l-4 border-l-gray-400 dark:border-l-gray-500 bg-gray-50 dark:bg-gray-800/50';  /* Neutral Gray */
       case 'beginner':
         return 'border-l-4 border-l-amber-500 bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20';
       default:
@@ -65,12 +65,13 @@ export const TechStackBadge: React.FC<TechStackBadgeProps> = ({
   const getClickableClasses = () => {
     if (!onClick) return '';
     // 배지는 미묘한 hover 효과만 (버튼과 구분)
-    return 'cursor-pointer hover:opacity-85 hover:scale-105 active:scale-100';
+    // hover 시 테두리에 브랜드 그린 톤 추가
+    return 'cursor-pointer hover:opacity-85 hover:scale-105 active:scale-100 hover:border-[#7FAF8A] hover:border-opacity-40';
   };
 
   const getSelectedClasses = () => {
     if (!selected) return '';
-    return 'ring-2 ring-blue-500 ring-opacity-50';
+    return 'ring-2 ring-gray-400 dark:ring-gray-500 ring-opacity-50';  /* Neutral Gray */
   };
 
   const handleClick = () => {

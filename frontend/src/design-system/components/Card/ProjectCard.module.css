@@ -54,7 +54,7 @@
 .title {
   font-size: 1.5rem; /* 24px - 기본값, JavaScript로 조정됨 */
   font-weight: 800;
-  color: var(--color-primary-dark);
+  color: color-mix(in srgb, var(--color-primary) 15%, var(--color-text-primary) 85%);  /* 미묘한 브랜드 그린 톤 15% */
   margin-bottom: var(--spacing-4);
   line-height: 1.2;
   text-align: center;
@@ -62,10 +62,11 @@
   overflow: hidden;
   text-overflow: ellipsis;
   max-height: calc(1.2em * 1); /* 한 줄 높이로 제한 */
+  transition: color 0.2s ease;
 }
 
 .titleSubtext {
-  color: var(--color-primary-dark);
+  color: color-mix(in srgb, var(--color-primary) 20%, var(--color-text-primary) 80%);  /* 미묘한 브랜드 그린 톤 20% */
 }
 
 .divider {
@@ -132,7 +133,7 @@
 }
 
 .link:hover {
-  background-color: var(--color-accent);
+  background-color: var(--color-bg-tertiary);  /* Gray-100 (표준) */
   color: var(--color-text-primary);
 }
 
@@ -156,7 +157,7 @@
   }
 
   .link:hover {
-    background-color: var(--color-accent);
+    background-color: var(--color-bg-tertiary);  /* Gray-700 (표준) */
     color: var(--color-text-primary);
   }
 }

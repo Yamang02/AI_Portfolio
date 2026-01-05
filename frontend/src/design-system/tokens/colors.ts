@@ -1,100 +1,84 @@
 /**
  * Color Tokens
  *
- * Phase 4.5: Landing Page Enhancement
- * 사용자 정의 색상 팔레트를 정의합니다.
+ * 80% 표준 + 20% 브랜드 접근법
  * 
- * 색상 팔레트: Green/Olive Tones (Revised - More Lively)
- * - Primary: Fresh Olive Green (#7FA874) - 라이트 모드
- * - Primary: Vital Deep Green (#4E7F63) - 다크 모드
- * - Accent: Muted Olive (#9EBF96)
- * - Success: Light Sage (#A8D08D)
- * - Highlight: Soft Green (#EEF5E8)
+ * 브랜드 컬러: #7FAF8A (하나만 사용)
+ * - Primary 버튼
+ * - Hover / Focus 상태
+ * - 강조 링크 (제한적)
  * 
- * 상세 정의는 docs/technical/design-system/color-palette.md 참조
+ * 나머지는 표준 색상 사용 (Tailwind/Material 계열)
  */
 
 export const brandColors = {
-  // Primary: Fresh Olive Green (#7FA874) - 라이트 모드
-  primary: '#7FA874',        // Fresh Olive Green - CTA 버튼, 강조 (더 생기있고 밝음)
-  primaryHover: '#8FBF84',  // Fresh Olive Green (lighter)
-  primaryActive: '#678F5E',  // Fresh Olive Green (darker)
-  primaryDark: '#3D5A32',   // Primary보다 훨씬 진한 색상 (높은 가시성, 폰트 강조용)
-
-  // Accent: Muted Olive (#9EBF96)
-  accent: '#9EBF96',         // Muted Olive - 링크, 보조 강조
-  accentHover: '#7FA874',   // Fresh Olive Green (darker)
-  accentActive: '#B4D4A8',  // Muted Olive (lighter)
-
-  // Success: Light Sage (#A8D08D)
-  success: '#A8D08D',       // Light Sage - 성공 메시지
-  successHover: '#98C07D',  // Light Sage (darker)
-
-  // Highlight: Soft Green (#EEF5E8)
-  highlight: '#EEF5E8',      // Soft Green - 배경 강조
-  highlightHover: '#E0EDD8', // Soft Green (darker)
-
-  // Dark Mode - Primary: Vital Deep Green (#4E7F63)
-  primaryDark: '#4E7F63',    // Vital Deep Green - 다크모드 CTA (더 그린 중심, 생명력 있음)
-  primaryDarkHover: '#5F9A78', // Vital Deep Green (lighter)
-  primaryDarkActive: '#3E6650', // Vital Deep Green (darker)
+  // 브랜드 그린: #7FAF8A (하나만 사용)
+  primary: '#7FAF8A',        // 브랜드 그린 - Primary CTA 버튼, Focus, 강조 링크
+  primaryHover: '#6FA07A',   // 약간 진한 hover
+  primaryActive: '#5F9070',  // Active 상태
+  primaryFocus: '#7FAF8A',   // Focus ring
+  
+  // 다크 모드용 (약간 밝게 조정)
+  primaryDark: '#6FA07A',    // 다크 모드 Primary
+  primaryDarkHover: '#7FAF8A',
+  primaryDarkActive: '#5F9070',
 } as const;
 
 export const lightModeColors = {
   background: {
-    primary: '#F7F9F4',      // 거의 흰색, 녹색기 아주 미세
-    secondary: '#f9fafb',
-    tertiary: '#EEF5E8',      // Soft Green (강조 배경)
+    primary: '#ffffff',      // 순수 흰색 (neutral)
+    secondary: '#f9fafb',     // Gray-50 (표준)
+    tertiary: '#f3f4f6',     // Gray-100 (표준)
   },
   text: {
-    primary: '#1F2321',      // 더 부드러운 다크 그레이
-    secondary: '#6b7280',
-    tertiary: '#9ca3af',
+    primary: '#111827',       // Gray-900 (표준)
+    secondary: '#6b7280',    // Gray-500 (표준)
+    tertiary: '#9ca3af',     // Gray-400 (표준)
   },
   border: {
-    default: '#D9E2D6',      // 부드러운 그린 톤
-    hover: '#C5D4C0',        // Border hover
-    accent: '#9EBF96',       // Muted Olive (강조 테두리)
+    default: '#e5e7eb',      // Gray-200 (표준 neutral)
+    hover: '#d1d5db',        // Gray-300 (표준)
+    accent: '#e5e7eb',        // Gray-200 (브랜드 색상 제거)
   },
   link: {
-    default: '#9EBF96',     // Muted Olive (Accent)
-    hover: '#7FA874',       // Fresh Olive Green (Primary)
-    visited: '#678F5E',     // Fresh Olive Green (darker)
+    default: '#6b7280',      // Gray-500 (neutral, 브랜드 제거)
+    hover: '#7FAF8A',        // 브랜드 그린 (강조 링크만)
+    visited: '#6b7280',      // Gray-500 (neutral)
   },
   status: {
-    info: '#9EBF96',         // Muted Olive
-    success: '#A8D08D',       // Light Sage
-    warning: '#f59e0b',      // Amber-500
-    error: '#ef4444',        // Red-500
+    info: '#3b82f6',         // Blue-500 (표준)
+    success: '#10b981',      // Green-500 (표준, 브랜드 그린 아님)
+    warning: '#f59e0b',       // Amber-500 (표준)
+    error: '#ef4444',        // Red-500 (표준)
   },
 } as const;
 
 export const darkModeColors = {
   background: {
-    primary: '#0F1A14',      // 그린 기운 아주 약한 다크
-    secondary: '#16241C',     // Background Alt
-    tertiary: '#1E3328',      // Highlight (그린 톤 다크)
+    primary: '#111827',       // Gray-900 (표준 neutral)
+    secondary: '#1f2937',     // Gray-800 (표준)
+    tertiary: '#374151',      // Gray-700 (표준)
   },
   text: {
-    primary: '#E6F1EA',       // 부드러운 라이트 그린 톤
-    secondary: '#94a3b8',
-    tertiary: '#64748b',
+    primary: '#f9fafb',       // Gray-50 (표준)
+    secondary: '#d1d5db',    // Gray-300 (표준)
+    tertiary: '#9ca3af',      // Gray-400 (표준)
   },
   border: {
-    default: '#2E4A3B',      // 그린 톤 다크 보더
-    hover: '#3A5A48',        // Border hover
-    accent: '#4E7F63',       // Vital Deep Green (강조 테두리)
+    default: '#374151',       // Gray-700 (표준 neutral)
+    hover: '#4b5563',         // Gray-600 (표준)
+    accent: '#374151',         // Gray-700 (브랜드 색상 제거)
   },
   link: {
-    default: '#7FB89A',       // Accent (lighter for dark mode)
-    hover: '#4E7F63',         // Vital Deep Green
-    visited: '#3E6650',       // Vital Deep Green (darker)
+    default: '#d1d5db',       // Gray-300 (neutral, 브랜드 제거)
+    hover: '#6FA07A',         // 브랜드 그린 (다크 모드용, 약간 어둡게)
+    visited: '#9ca3af',       // Gray-400 (neutral)
   },
   status: {
-    info: '#7FB89A',          // Accent
-    success: '#9FD6B2',       // Success (다크 모드용)
-    warning: '#fbbf24',
-    error: '#f87171',
+    info: '#60a5fa',          // Blue-400 (표준)
+    success: '#34d399',        // Green-400 (표준, 브랜드 그린 아님)
+    warning: '#fbbf24',       // Amber-400 (표준)
+    error: '#f87171',         // Red-400 (표준)
   },
 } as const;
 

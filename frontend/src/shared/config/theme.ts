@@ -1,30 +1,34 @@
 /**
  * 디자인 토큰 모듈
- * Tailwind 설정과 동기화된 디자인 시스템 토큰
+ * 디자인 시스템 색상과 동기화된 토큰
+ * 
+ * 디자인 시스템 색상 정의는 design-system/tokens/colors.ts 참조
  */
 
-// 색상 팔레트 (Tailwind primary 색상과 동기화)
+import { brandColors, lightModeColors, darkModeColors } from '../../design-system/tokens/colors';
+
+// 색상 팔레트 (디자인 시스템 - 브랜드 그린 #7FAF8A 기반)
 export const colors = {
   primary: {
-    50: '#f5f3ff',
-    100: '#ede9fe',
-    200: '#ddd6fe',
-    300: '#c4b5fd',
-    400: '#a78bfa',
-    500: '#8b5cf6',
-    600: '#7c3aed',
-    700: '#6d28d9',
-    800: '#5b21b6',
-    900: '#4c1d95',
-    950: '#2e1065',
+    50: '#f0f9f4',   // 매우 연한 그린
+    100: '#dcf4e6',  // 연한 그린
+    200: '#b8e9cd',  // 밝은 그린
+    300: '#94deb4',  // 중간 밝기 그린
+    400: '#7FAF8A',  // 브랜드 그린 (primary)
+    500: '#6FA07A',  // 약간 진한 그린 (hover)
+    600: '#5F9070',  // 진한 그린 (active)
+    700: '#4F8060',  // 더 진한 그린
+    800: '#3F7050',  // 매우 진한 그린
+    900: '#2F6040',  // 가장 진한 그린
+    950: '#1F5030',  // 최대 진한 그린
   },
   gray: {
-    50: '#f9fafb',
+    50: '#f9fafb',   // lightModeColors.background.secondary
     100: '#f3f4f6',
     200: '#e5e7eb',
     300: '#d1d5db',
-    400: '#9ca3af',
-    500: '#6b7280',
+    400: '#9ca3af',  // lightModeColors.text.tertiary
+    500: '#6b7280',  // lightModeColors.text.secondary
     600: '#4b5563',
     700: '#374151',
     800: '#1f2937',
@@ -74,36 +78,36 @@ export const borderRadius = {
   full: '9999px',   // 완전히 둥근 형태
 } as const;
 
-// 포커스 링 색상
+// 포커스 링 색상 (디자인 시스템 primary 사용)
 export const focusRing = {
-  color: colors.primary[500],
+  color: brandColors.primary,
   width: '2px',
 } as const;
 
-// 라이트 모드 색상 토큰
+// 라이트 모드 색상 토큰 (디자인 시스템 색상 사용)
 export const lightTheme = {
-  background: colors.white,
-  backgroundSecondary: colors.gray[50],
-  surface: colors.white,
-  surfaceElevated: colors.gray[50],
-  textPrimary: colors.gray[900],
-  textSecondary: colors.gray[700],
-  textMuted: colors.gray[500],
-  border: colors.gray[200],
-  borderLight: colors.gray[100],
+  background: lightModeColors.background.primary,
+  backgroundSecondary: lightModeColors.background.secondary,
+  surface: lightModeColors.background.primary,
+  surfaceElevated: lightModeColors.background.secondary,
+  textPrimary: lightModeColors.text.primary,
+  textSecondary: lightModeColors.text.secondary,
+  textMuted: lightModeColors.text.tertiary,
+  border: lightModeColors.border.default,
+  borderLight: lightModeColors.border.hover,
 } as const;
 
-// 다크 모드 색상 토큰
+// 다크 모드 색상 토큰 (디자인 시스템 색상 사용)
 export const darkTheme = {
-  background: '#0f172a', // slate-900
-  backgroundSecondary: '#1e293b', // slate-800
-  surface: '#1e293b', // slate-800
-  surfaceElevated: '#334155', // slate-700
-  textPrimary: '#f1f5f9', // slate-100
-  textSecondary: '#cbd5e1', // slate-300
-  textMuted: '#94a3b8', // slate-400
-  border: '#334155', // slate-700
-  borderLight: '#475569', // slate-600
+  background: darkModeColors.background.primary,
+  backgroundSecondary: darkModeColors.background.secondary,
+  surface: darkModeColors.background.secondary,
+  surfaceElevated: darkModeColors.background.tertiary,
+  textPrimary: darkModeColors.text.primary,
+  textSecondary: darkModeColors.text.secondary,
+  textMuted: darkModeColors.text.tertiary,
+  border: darkModeColors.border.default,
+  borderLight: darkModeColors.border.hover,
 } as const;
 
 // Demon Slayer 테마 색상 토큰 (무한성편) - 따뜻한 오렌지/레드 톤

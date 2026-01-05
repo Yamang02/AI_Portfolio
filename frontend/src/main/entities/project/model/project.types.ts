@@ -29,6 +29,7 @@ export interface Project extends BaseItem {
   externalUrl?: string;
   // === [추가] 팀/기여 관련 필드 ===
   isTeam: boolean; // 팀 프로젝트 여부
+  isFeatured?: boolean; // 추천/특별 프로젝트 여부
   myContributions?: string[]; // 내가 맡은 역할/기여
   teamSize?: number; // 팀원 수(선택)
   role?: string; // 내 역할(선택)

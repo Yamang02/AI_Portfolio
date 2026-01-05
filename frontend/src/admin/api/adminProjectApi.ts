@@ -8,6 +8,7 @@ export interface Project {
   type: 'BUILD' | 'LAB' | 'MAINTENANCE';
   status: 'completed' | 'in_progress' | 'maintenance';
   isTeam: boolean;
+  isFeatured?: boolean;
   teamSize?: number;
   role?: string;
   myContributions?: string[];
@@ -45,6 +46,7 @@ export interface ProjectCreateRequest {
   type: 'BUILD' | 'LAB' | 'MAINTENANCE';
   status: 'completed' | 'in_progress' | 'maintenance';
   isTeam?: boolean;
+  isFeatured?: boolean;
   teamSize?: number;
   role?: string;
   myContributions?: string[];

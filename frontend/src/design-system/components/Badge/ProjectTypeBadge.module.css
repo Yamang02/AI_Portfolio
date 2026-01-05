@@ -93,15 +93,15 @@
 
 /* MAINTENANCE variant */
 .badge.maintenance {
-  background-color: color-mix(in srgb, var(--color-success) 90%, transparent);
-  border-color: color-mix(in srgb, var(--color-success) 50%, transparent);
+  background-color: color-mix(in srgb, var(--color-status-success) 90%, transparent);  /* Green-500 (표준) */
+  border-color: color-mix(in srgb, var(--color-status-success) 50%, transparent);
   color: var(--color-text-primary);
 }
 
 @media (prefers-color-scheme: dark) {
   .badge.maintenance {
-    background-color: color-mix(in srgb, var(--color-success) 80%, transparent);
-    border-color: color-mix(in srgb, var(--color-success) 70%, transparent);
+    background-color: color-mix(in srgb, var(--color-status-success) 80%, transparent);
+    border-color: color-mix(in srgb, var(--color-status-success) 70%, transparent);
     color: var(--color-text-primary);
   }
 }

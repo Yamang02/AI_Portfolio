@@ -27,7 +27,7 @@
 /* Featured Projects 섹션 */
 .featuredSection {
   padding: 48px 32px;
-  background-color: var(--color-bg-secondary);
+  background-color: var(--color-bg-secondary); /* Gray-50 (표준 neutral) */
 }
 
 /* 프로젝트 타입별 섹션 */
