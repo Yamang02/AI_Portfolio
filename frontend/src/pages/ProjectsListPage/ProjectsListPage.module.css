@@ -31,6 +31,12 @@
   color: var(--color-text-tertiary);
 }
 
+/* 프로젝트 히스토리 섹션 */
+.historySection {
+  padding: 24px 32px;
+  background-color: var(--color-bg-secondary);
+}
+
 /* Featured Projects 섹션 */
 .featuredSection {
   padding: 48px 32px;
@@ -97,6 +103,12 @@
   grid-template-columns: repeat(3, 1fr);
   gap: 32px;
   margin-top: 32px;
+}
+
+/* 프로젝트 카드를 감싼 div가 grid 아이템으로 작동하도록 */
+.grid > div {
+  min-width: 0; /* grid 아이템이 제대로 작동하도록 */
+  scroll-margin-top: 100px; /* 스크롤 시 여백 추가 */
 }
 
 /* 에러/빈 상태 */

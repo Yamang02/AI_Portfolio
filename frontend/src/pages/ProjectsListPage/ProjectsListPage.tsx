@@ -7,6 +7,7 @@ import type { Project } from '@/entities/project/model/project.types';
 import type { ProjectCardProject } from '@/design-system/components/Card/ProjectCard';
 import { FEATURED_PROJECTS } from '@/pages/HomePage/config/featuredProjects.config';
 import { ProjectSearchModal } from './components/ProjectSearchModal';
+import { ProjectHistoryTimeline } from './components/ProjectHistoryTimeline';
 import styles from './ProjectsListPage.module.css';
 
 // 프로젝트 타입별 섹션 구성
@@ -15,6 +16,7 @@ type ProjectCategory = 'BUILD' | 'LAB' | 'MAINTENANCE';
 export const ProjectsListPage: React.FC = () => {
   const navigate = useNavigate();
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+  const [highlightedProjectId, setHighlightedProjectId] = useState<string | undefined>();
   
   // API에서 프로젝트 목록 가져오기
   const { data: projects = [], isLoading, isError } = useProjectsQuery({
@@ -105,6 +107,42 @@ export const ProjectsListPage: React.FC = () => {
     navigate(`/projects/${projectId}`);
   };
 
+  // 프로젝트가 어느 섹션에 있는지 찾기
+  const findProjectSection = (projectId: string): string | null => {
+    // 주요 프로젝트 섹션 확인
+    if (featuredProjects.some(p => p.id === projectId)) {
+      return 'featured-section';
+    }
+    
+    // 타입별 섹션 확인
+    for (const section of projectsByType) {
+      if (section.projects.some(p => p.id === projectId)) {
+        return `project-section-${projectId}`;
+      }
+    }
+    
+    return null;
+  };
+
+  // 타임라인에서 프로젝트 클릭 핸들러
+  const handleTimelineProjectClick = (projectId: string) => {
+    setHighlightedProjectId(projectId);
+    
+    // 해당 프로젝트가 있는 섹션으로 스크롤
+    const sectionId = findProjectSection(projectId);
+    if (sectionId) {
+      const sectionElement = document.getElementById(sectionId);
+      if (sectionElement) {
+        sectionElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+    
+    // 2초 후 하이라이트 제거
+    setTimeout(() => {
+      setHighlightedProjectId(undefined);
+    }, 2000);
+  };
+
   // 로딩 상태
   if (isLoading) {
     return (
@@ -189,7 +227,7 @@ export const ProjectsListPage: React.FC = () => {
       </section>
 
       {/* 주요 프로젝트 섹션 */}
-      <section className={styles.featuredSection}>
+      <section id="featured-section" className={styles.featuredSection}>
         <div className={styles.container}>
           <div className={styles.featuredHeader}>
             <SectionTitle level="h2">주요 프로젝트</SectionTitle>
@@ -197,11 +235,12 @@ export const ProjectsListPage: React.FC = () => {
           <div className={styles.grid}>
             {featuredProjects.length > 0 ? (
               featuredProjects.map((project) => (
-                <ProjectCard
-                  key={project.id}
-                  project={convertToProjectCard(project)}
-                  onClick={() => handleCardClick(project.id)}
-                />
+                <div key={project.id} id={`project-section-${project.id}`}>
+                  <ProjectCard
+                    project={convertToProjectCard(project)}
+                    onClick={() => handleCardClick(project.id)}
+                  />
+                </div>
               ))
             ) : (
               // 주요 프로젝트가 없을 때 빈 카드 표시
@@ -210,6 +249,19 @@ export const ProjectsListPage: React.FC = () => {
           </div>
         </div>
       </section>
+
+      {/* 프로젝트 히스토리 타임라인 섹션 */}
+      {projects.length > 0 && (
+        <section className={styles.historySection}>
+          <div className={styles.container}>
+            <ProjectHistoryTimeline
+              projects={projects}
+              onProjectClick={handleTimelineProjectClick}
+              highlightedProjectId={highlightedProjectId}
+            />
+          </div>
+        </section>
+      )}
 
       {/* 프로젝트 타입별 섹션 */}
       {projectsByType.map((section) => (
@@ -223,11 +275,12 @@ export const ProjectsListPage: React.FC = () => {
             <div className={styles.grid}>
               {section.projects.length > 0 ? (
                 section.projects.map((project) => (
-                  <ProjectCard
-                    key={project.id}
-                    project={convertToProjectCard(project)}
-                    onClick={() => handleCardClick(project.id)}
-                  />
+                  <div key={project.id} id={`project-section-${project.id}`}>
+                    <ProjectCard
+                      project={convertToProjectCard(project)}
+                      onClick={() => handleCardClick(project.id)}
+                    />
+                  </div>
                 ))
               ) : (
                 // 프로젝트가 없을 때 빈 카드 표시
