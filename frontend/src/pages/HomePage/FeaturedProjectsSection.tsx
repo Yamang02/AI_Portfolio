@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { TechStackList } from '@/main/components/common/TechStack';
+import { Badge, Button } from '@/design-system';
 import { FEATURED_PROJECTS, FEATURED_CONFIG } from './config/featuredProjects.config';
 import styles from './FeaturedProjectsSection.module.css';
 
@@ -73,19 +73,31 @@ export const FeaturedProjectsSection: React.FC = () => {
 
               <div className={styles.cardContent}>
                 <h3 className={styles.projectTitle}>{project.title}</h3>
-                <TechStackList
-                  technologies={project.tags}
-                  maxVisible={3}
-                  variant="default"
-                  size="sm"
-                  className={styles.techStack}
-                />
+                <div className={styles.techStack}>
+                  {project.tags.map((tag, index) => (
+                    <Badge
+                      key={`${project.id}-${tag}-${index}`}
+                      variant="outline"
+                      size="sm"
+                    >
+                      {tag}
+                    </Badge>
+                  ))}
+                </div>
               </div>
             </div>
 
             <div className={styles.description}>
               <p>{project.subtitle}</p>
             </div>
+            <Button
+              variant="secondary"
+              size="md"
+              href={project.link}
+              className={styles.detailButton}
+            >
+              프로젝트 상세보기
+            </Button>
           </div>
           {/* 마지막 프로젝트에만 스크롤 인디케이터 표시 */}
           {index === projectsToDisplay.length - 1 && (

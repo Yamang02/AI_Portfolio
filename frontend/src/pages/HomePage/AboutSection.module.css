@@ -40,11 +40,17 @@
 .aboutSection .content h2,
 .aboutSection .content .sectionTitle {
   text-align: center;
-  color: var(--color-primary-dark);
+  color: var(--color-primary);
   display: block;
   width: fit-content;
   margin-left: auto;
   margin-right: auto;
+}
+
+/* 다크 모드: 브랜드 컬러 제거, 중립 색상 사용 */
+:root.dark .aboutSection .content h2,
+:root.dark .aboutSection .content .sectionTitle {
+  color: var(--color-text-primary);
 }
 
 .aboutSection .processFlow {
@@ -67,15 +73,21 @@
 .aboutSection .processStep {
   padding: 8px 16px;
   background: var(--color-primary);
-  color: white;
+  color: var(--color-white);
   border-radius: 6px;
   font-size: 0.875rem;
   font-weight: 600;
   white-space: nowrap;
 }
 
+/* 다크 모드: 브랜드 컬러 제거, 중립 색상 사용 */
+:root.dark .aboutSection .processStep {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+}
+
 .aboutSection .processArrow {
-  color: var(--color-text-muted);
+  color: var(--color-text-tertiary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -93,6 +105,18 @@
 .aboutSection .highlight {
   color: var(--color-primary);
   font-weight: 600;
+}
+
+.aboutSection .highlightText {
+  color: var(--color-primary);
+  font-weight: 700;
+  font-size: 1.5rem;
+}
+
+/* 다크 모드: 브랜드 컬러 제거, 중립 색상 사용 */
+:root.dark .aboutSection .highlight,
+:root.dark .aboutSection .highlightText {
+  color: var(--color-text-primary);
 }
 
 .aboutSection .belief {
@@ -134,6 +158,20 @@
 
 .aboutSection .scrollIndicator:active {
   background: var(--color-primary-active);
+}
+
+/* 다크 모드: 브랜드 컬러 제거, 중립 색상 사용 */
+:root.dark .aboutSection .scrollIndicator {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+}
+
+:root.dark .aboutSection .scrollIndicator:hover {
+  background: var(--color-border-hover);
+}
+
+:root.dark .aboutSection .scrollIndicator:active {
+  background: var(--color-border-default);
 }
 
 .aboutSection .scrollIndicator.show {
@@ -347,30 +385,30 @@
 @supports not (animation-timeline: view()) {
   .aboutSection .content,
   .aboutSection2 .content {
-    opacity: 1 !important;
-    transform: translateY(0) !important;
+    opacity: 1;
+    transform: translateY(0);
   }
 
-  .aboutSection .logoWrapper {
-    opacity: 1 !important;
+  .aboutSection .logoContainer .logoWrapper {
+    opacity: 1;
   }
 
-  .aboutSection .logoWrapper[data-logo="cursor"] {
-    transform: translate(-80px, -40px) scale(1) !important;
+  .aboutSection .logoContainer .logoWrapper[data-logo="cursor"] {
+    transform: translate(-80px, -40px) scale(1);
   }
 
-  .aboutSection .logoWrapper[data-logo="claude"] {
-    transform: translate(80px, -40px) scale(1) !important;
+  .aboutSection .logoContainer .logoWrapper[data-logo="claude"] {
+    transform: translate(80px, -40px) scale(1);
   }
 
-  .aboutSection .logoWrapper[data-logo="codex"] {
-    transform: translate(0, 60px) scale(1) !important;
+  .aboutSection .logoContainer .logoWrapper[data-logo="codex"] {
+    transform: translate(0, 60px) scale(1);
   }
 }
 
 /* 호버 효과 */
-.aboutSection .logoWrapper:hover {
-  transform: translate(0, 0) scale(1.1) !important;
+.aboutSection .logoContainer .logoWrapper:hover {
+  transform: translate(0, 0) scale(1.1);
   transition: transform 0.3s ease-out;
 }
 
@@ -435,23 +473,23 @@
    접근성: 애니메이션 비활성화
    ================================ */
 @media (prefers-reduced-motion: reduce) {
-  .aboutSection .logoWrapper,
+  .aboutSection .logoContainer .logoWrapper,
   .aboutSection .content {
-    animation: none !important;
-    transition: none !important;
-    opacity: 1 !important;
-    transform: translate(0, 0) scale(1) !important;
+    animation: none;
+    transition: none;
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
   }
   
-  .aboutSection .logoWrapper[data-logo="cursor"] {
-    transform: translate(-80px, -40px) scale(1) !important;
+  .aboutSection .logoContainer .logoWrapper[data-logo="cursor"] {
+    transform: translate(-80px, -40px) scale(1);
   }
-  
-  .aboutSection .logoWrapper[data-logo="claude"] {
-    transform: translate(80px, -40px) scale(1) !important;
+
+  .aboutSection .logoContainer .logoWrapper[data-logo="claude"] {
+    transform: translate(80px, -40px) scale(1);
   }
-  
-  .aboutSection .logoWrapper[data-logo="codex"] {
-    transform: translate(0, 60px) scale(1) !important;
+
+  .aboutSection .logoContainer .logoWrapper[data-logo="codex"] {
+    transform: translate(0, 60px) scale(1);
   }
 }

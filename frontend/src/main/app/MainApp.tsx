@@ -3,7 +3,6 @@ import { Routes, Route } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from '../config/queryClient';
 import { AppProvider, useApp } from '../app/providers/AppProvider';
-import { ThemeProvider } from '@shared/providers/ThemeProvider';
 import { Header } from '@/widgets/layout/Header';
 import { HomePage } from '@/pages/HomePage';
 import { ProjectsListPage } from '@/pages/ProjectsListPage';
@@ -158,6 +157,14 @@ const MainAppContent: React.FC = () => {
 };
 
 const MainApp: React.FC = () => {
+  // 테마 초기화 (localStorage에서 테마 로드)
+  useEffect(() => {
+    const theme = localStorage.getItem('portfolio-theme') || 'light';
+    const root = document.documentElement;
+    root.classList.remove('light', 'dark');
+    root.classList.add(theme === 'dark' ? 'dark' : 'light');
+  }, []);
+
   // 이스터에그 초기화 - JSON 설정 파일에서 로드
   useEffect(() => {
     try {
@@ -179,13 +186,11 @@ const MainApp: React.FC = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <AppProvider>
-          <EasterEggProvider maxConcurrent={1} initialEnabled={true}>
-            <MainAppContent />
-          </EasterEggProvider>
-        </AppProvider>
-      </ThemeProvider>
+      <AppProvider>
+        <EasterEggProvider maxConcurrent={1} initialEnabled={true}>
+          <MainAppContent />
+        </EasterEggProvider>
+      </AppProvider>
     </QueryClientProvider>
   );
 };

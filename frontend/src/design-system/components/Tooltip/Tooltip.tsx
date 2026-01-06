@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import styles from './Tooltip.module.css';
 
 type TooltipPlacement = 'top' | 'bottom' | 'left' | 'right';
@@ -21,19 +22,10 @@ export const Tooltip: React.FC<TooltipProps> = ({
   className,
 }) => {
   const [isVisible, setIsVisible] = useState(showOnMount);
-  const [isFirstShow, setIsFirstShow] = useState(showOnMount);
+  const [position, setPosition] = useState({ top: 0, left: 0 });
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hideTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const isVisibleRef = useRef(isVisible);
-  const isFirstShowRef = useRef(isFirstShow);
-
-  useEffect(() => {
-    isVisibleRef.current = isVisible;
-  }, [isVisible]);
-
-  useEffect(() => {
-    isFirstShowRef.current = isFirstShow;
-  }, [isFirstShow]);
+  const wrapperRef = useRef<HTMLDivElement>(null);
 
   const clearTimers = useCallback(() => {
     if (timeoutRef.current) {
@@ -46,62 +38,111 @@ export const Tooltip: React.FC<TooltipProps> = ({
     }
   }, []);
 
+  const updatePosition = useCallback(() => {
+    if (!wrapperRef.current) return;
+
+    const rect = wrapperRef.current.getBoundingClientRect();
+
+    // position: fixed uses viewport coordinates, not document coordinates
+    let top = 0;
+    let left = 0;
+
+    switch (placement) {
+      case 'top':
+        top = rect.top;
+        left = rect.left + rect.width / 2;
+        break;
+      case 'bottom':
+        top = rect.bottom;
+        left = rect.left + rect.width / 2;
+        break;
+      case 'left':
+        top = rect.top + rect.height / 2;
+        left = rect.left;
+        break;
+      case 'right':
+        top = rect.top + rect.height / 2;
+        left = rect.right;
+        break;
+    }
+
+    setPosition({ top, left });
+  }, [placement]);
+
+  useEffect(() => {
+    if (isVisible) {
+      updatePosition();
+
+      const handleUpdate = () => {
+        updatePosition();
+      };
+
+      window.addEventListener('scroll', handleUpdate, true);
+      window.addEventListener('resize', handleUpdate);
+
+      return () => {
+        window.removeEventListener('scroll', handleUpdate, true);
+        window.removeEventListener('resize', handleUpdate);
+      };
+    }
+  }, [isVisible, updatePosition]);
+
   useEffect(() => {
     if (showOnMount) {
       setIsVisible(true);
-      setIsFirstShow(true);
+      updatePosition();
+
       hideTimeoutRef.current = setTimeout(() => {
         setIsVisible(false);
-        setIsFirstShow(false);
       }, 5000);
 
       return () => {
         clearTimers();
       };
     }
-  }, [showOnMount, clearTimers]);
+  }, [showOnMount, clearTimers, updatePosition]);
 
   const handleMouseEnter = useCallback(() => {
     clearTimers();
-    if (isVisibleRef.current || isFirstShowRef.current) {
+
+    timeoutRef.current = setTimeout(() => {
       setIsVisible(true);
-    } else {
-      timeoutRef.current = setTimeout(() => {
-        setIsVisible(true);
-      }, delay);
-    }
-  }, [delay, clearTimers]);
+      updatePosition();
+    }, delay);
+  }, [delay, clearTimers, updatePosition]);
 
   const handleMouseLeave = useCallback(() => {
     clearTimers();
-    if (!isFirstShowRef.current) {
-      setIsVisible(false);
-    } else {
-      hideTimeoutRef.current = setTimeout(() => {
-        setIsVisible(false);
-        setIsFirstShow(false);
-      }, 5000);
-    }
+    setIsVisible(false);
   }, [clearTimers]);
 
   const placementClass = styles[placement];
 
-  return (
+  const tooltipElement = isVisible ? (
     <div
-      className={styles.wrapper}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+      className={`${styles.tooltip} ${placementClass} ${className || ''}`}
+      style={{
+        top: `${position.top}px`,
+        left: `${position.left}px`,
+      }}
+      role="tooltip"
     >
-      {children}
-      {isVisible && (
-        <div
-          className={`${styles.tooltip} ${placementClass} ${className || ''}`}
-          role="tooltip"
-        >
-          {content}
-          <div className={styles.arrow} />
-        </div>
-      )}
+      {content}
+      <div className={styles.arrow} />
     </div>
+  ) : null;
+
+  return (
+    <>
+      <div
+        ref={wrapperRef}
+        className={styles.wrapper}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
+        {children}
+      </div>
+      {tooltipElement && createPortal(tooltipElement, document.body)}
+    </>
   );
 };

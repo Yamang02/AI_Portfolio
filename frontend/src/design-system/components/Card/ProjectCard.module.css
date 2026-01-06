@@ -7,18 +7,18 @@
 }
 
 /* Card 컴포넌트의 기본 hover 효과 비활성화 */
-.noCardHover:hover {
-  transform: none !important;
-  box-shadow: var(--shadow-sm) !important;
-  border-color: var(--color-border-default) !important;
+.projectCard.noCardHover.card.clickable:hover {
+  transform: none;
+  box-shadow: var(--shadow-sm);
+  border-color: var(--color-border-default);
 }
 
 /* 프로젝트 카드 자체 호버 효과 - 브랜드 컬러 테두리와 그림자 */
-.projectCard:hover {
-  border-color: var(--color-primary) !important;
+.projectCard.card.clickable:hover {
+  border-color: var(--color-primary);
   box-shadow: 0 4px 12px 0 color-mix(in srgb, var(--color-primary) 20%, transparent),
-              0 2px 4px 0 color-mix(in srgb, var(--color-primary) 10%, transparent) !important;
-  transform: translateY(-2px) scale(1.02) !important;
+              0 2px 4px 0 color-mix(in srgb, var(--color-primary) 10%, transparent);
+  transform: translateY(-2px) scale(1.02);
 }
 
 /* 이미지/아이콘 영역 */

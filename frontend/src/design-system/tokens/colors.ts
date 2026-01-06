@@ -226,10 +226,15 @@ export const brandSemantic = {
 export const utilitySemantic = {
   white: 'var(--color-white)',
   black: 'var(--color-black)',
+  tooltip: {
+    background: 'var(--color-tooltip-bg)',
+    text: 'var(--color-tooltip-text)',
+  },
   shadow: {
     light: 'var(--color-shadow-light)',
     medium: 'var(--color-shadow-medium)',
     heavy: 'var(--color-shadow-heavy)',
+    tooltip: 'var(--color-shadow-tooltip)',
   },
   glass: {
     light: 'var(--color-glass-light)',

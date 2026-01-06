@@ -1,5 +1,6 @@
-import React from 'react';
-import { TextLink } from '@/design-system';
+import React, { useState } from 'react';
+import { SocialIcon } from '@/design-system';
+import { ContactModal } from '../../../main/components/common/Modal';
 import styles from './Footer.module.css';
 
 interface FooterProps {
@@ -7,26 +8,45 @@ interface FooterProps {
 }
 
 export const Footer: React.FC<FooterProps> = ({ isVisible = false }) => {
-  // TODO: 실제 GitHub URL과 Email 주소로 교체 필요
-  const githubUrl = 'https://github.com/username'; // 실제 GitHub URL로 교체
-  const email = 'mailto:your-email@example.com'; // 실제 Email 주소로 교체
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+  const githubUrl = 'https://github.com/Yamang02';
 
   return (
-    <footer 
-      id="footer" 
-      className={`${styles.footer} ${isVisible ? styles.visible : ''}`}
-    >
-      <div className={styles.container}>
-        <p className={styles.copyright}>© 2025 이준경</p>
-        <div className={styles.links}>
-          <TextLink href={githubUrl} external>
-            GitHub
-          </TextLink>
-          <TextLink href={email}>
-            Email
-          </TextLink>
+    <>
+      <footer 
+        id="footer" 
+        className={`${styles.footer} ${isVisible ? styles.visible : ''}`}
+      >
+        <div className={styles.container}>
+          <p className={styles.copyright}>© 2026, Lee Jeongjun(Yamang02)</p>
+          <div className={styles.links}>
+            <a
+              href={githubUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`${styles.link} ${styles.githubLink}`}
+              title="GitHub 저장소"
+              aria-label="GitHub"
+            >
+              <SocialIcon type="github" size="sm" />
+            </a>
+            <button
+              onClick={() => setIsContactModalOpen(true)}
+              className={`${styles.link} ${styles.emailLink}`}
+              title="이메일 보내기"
+              aria-label="Email"
+            >
+              <SocialIcon type="email" size="sm" />
+            </button>
+          </div>
         </div>
-      </div>
-    </footer>
+      </footer>
+
+      {/* 문의 모달 */}
+      <ContactModal 
+        isOpen={isContactModalOpen}
+        onClose={() => setIsContactModalOpen(false)}
+      />
+    </>
   );
 };

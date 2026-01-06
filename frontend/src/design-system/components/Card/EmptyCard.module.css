@@ -12,10 +12,10 @@
 }
 
 /* Card 컴포넌트의 기본 hover 효과 비활성화 */
-.noCardHover:hover {
-  transform: none !important;
-  box-shadow: var(--shadow-sm) !important;
-  border-color: var(--color-border-default) !important;
+.emptyCard.noCardHover.card.clickable:hover {
+  transform: none;
+  box-shadow: var(--shadow-sm);
+  border-color: var(--color-border-default);
 }
 
 /* 이미지/아이콘 영역 */

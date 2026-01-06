@@ -82,7 +82,7 @@ export const AboutSection2: React.FC = () => {
             에이전틱 코딩의 한계를 극복하기 위해 다방면으로 접근합니다.
           </p>
           <p className={styles.belief}>
-            2025년 Cursor 사용량 <span style={{ color: 'var(--color-primary)', fontWeight: '700', fontSize: '1.5rem' }}>상위 5%</span>
+            2025년 Cursor 사용량 <span className={styles.highlightText}>상위 5%</span>
           </p>
         </div>
         

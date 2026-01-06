@@ -6,3 +6,5 @@
 
 export * from './tokens';
 export * from './components';
+export * from './providers';
+export type { Theme } from './types';

@@ -96,9 +96,9 @@
     padding: 16px;
   }
 
-  .modal {
+  .overlay .modal {
     max-height: 95vh;
-    width: 100% !important;
+    width: 100%;
   }
 
   .header {

@@ -131,10 +131,10 @@
    view timeline을 지원하지 않는 경우
    ================================ */
 @supports not (animation-timeline: view()) {
-  .ctaSection .content,
-  .ctaSection .ctaButton {
-    opacity: 1 !important;
-    transform: translateY(0) scale(1) !important;
+  .ctaSection .container .content,
+  .ctaSection .buttonGroup .ctaButton {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 }
 
@@ -160,11 +160,11 @@
    접근성: 애니메이션 비활성화
    ================================ */
 @media (prefers-reduced-motion: reduce) {
-  .ctaSection .content,
-  .ctaSection .ctaButton {
-    animation: none !important;
-    transition: none !important;
-    opacity: 1 !important;
-    transform: none !important;
+  .ctaSection .container .content,
+  .ctaSection .buttonGroup .ctaButton {
+    animation: none;
+    transition: none;
+    opacity: 1;
+    transform: none;
   }
 }

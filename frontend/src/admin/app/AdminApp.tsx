@@ -1,10 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { ConfigProvider, App as AntdApp } from 'antd';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { adminQueryClient } from '../config/queryClient';
 import { AuthProvider } from '../hooks/useAuth';
-import { ThemeProvider } from '@shared/providers/ThemeProvider';
 import { Header } from '../../main/layout/components/Header';
 import { LoginForm, ProtectedRoute } from '../features/auth';
 import { AdminLayout } from '../shared/components/AdminLayout';
@@ -17,9 +16,16 @@ import { CertificationManagement } from '../pages/CertificationManagement';
 import { Settings } from '../pages/Settings';
 
 const AdminApp: React.FC = () => {
+  // 테마 초기화 (localStorage에서 테마 로드)
+  useEffect(() => {
+    const theme = localStorage.getItem('portfolio-theme') || 'light';
+    const root = document.documentElement;
+    root.classList.remove('light', 'dark');
+    root.classList.add(theme === 'dark' ? 'dark' : 'light');
+  }, []);
+
   return (
-    <ThemeProvider>
-      <ConfigProvider
+    <ConfigProvider
         theme={{
           token: {
             colorPrimary: '#8b5cf6', // 기존 프로젝트 색상
@@ -72,7 +78,6 @@ const AdminApp: React.FC = () => {
           </QueryClientProvider>
         </AntdApp>
       </ConfigProvider>
-    </ThemeProvider>
   );
 };
 
