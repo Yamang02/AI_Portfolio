@@ -30,6 +30,11 @@
   background-color: var(--color-featured-bg);
 }
 
+/* Featured Section 헤더 */
+.featuredHeader {
+  text-align: center;
+}
+
 /* Featured Section 내 SectionTitle 색상 */
 .featuredSection h2 {
   color: var(--color-featured-header);
@@ -44,9 +49,35 @@
   border-bottom: 1px solid var(--color-border-default);
 }
 
+/* 섹션 헤더 */
+.sectionHeader {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  margin-bottom: 0;
+}
+
 /* 일반 섹션 내 SectionTitle 색상 - 텍스트용 진한 그린 */
 .typeSection h2 {
   color: var(--color-primary-text);
+  margin: 0;
+}
+
+/* 타이틀과 설명 사이 구분선 */
+.sectionHeader .divider {
+  width: 1px;
+  height: 16px;
+  background-color: var(--color-border-default);
+  flex-shrink: 0;
+}
+
+/* 섹션 설명 */
+.sectionDescription {
+  color: var(--color-text-secondary);
+  font-size: 0.875rem; /* 14px */
+  line-height: 1.5;
+  margin: 0;
+  flex-shrink: 0;
 }
 
 /* 프로젝트 그리드 */
@@ -121,5 +152,10 @@
   .grid {
     grid-template-columns: 1fr;
     gap: 24px;
+  }
+
+  .sectionHeader {
+    flex-direction: column;
+    gap: 8px;
   }
 }

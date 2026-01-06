@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { SectionTitle, Divider, ProjectCard, SkeletonCard } from '@/design-system';
+import { SectionTitle, Divider, ProjectCard, SkeletonCard, EmptyCard } from '@/design-system';
 import { Footer } from '@widgets/layout/Footer';
 import { useProjectsQuery } from '@/entities/project/api/useProjectQuery';
 import type { Project } from '@/entities/project/model/project.types';
@@ -53,7 +53,7 @@ export const ProjectsListPage: React.FC = () => {
     return projects.filter(p => p.isFeatured !== true);
   }, [projects]);
 
-  // 프로젝트 타입별로 그룹화
+  // 프로젝트 타입별로 그룹화 (모든 섹션 표시, 순서: MAINTENANCE → BUILD → LAB)
   const projectsByType = useMemo(() => {
     const grouped: Record<ProjectCategory, Project[]> = {
       BUILD: [],
@@ -68,10 +68,10 @@ export const ProjectsListPage: React.FC = () => {
     });
 
     return [
-      { type: 'BUILD' as ProjectCategory, title: 'BUILD', projects: grouped.BUILD },
-      { type: 'LAB' as ProjectCategory, title: 'LAB', projects: grouped.LAB },
-      { type: 'MAINTENANCE' as ProjectCategory, title: 'MAINTENANCE', projects: grouped.MAINTENANCE },
-    ].filter(section => section.projects.length > 0);
+      { type: 'MAINTENANCE' as ProjectCategory, title: 'MAINTENANCE', description: '유지보수 단계까지 경험한 모든 프로젝트를 포함합니다. 회사 경력 프로젝트도 포함됩니다.', projects: grouped.MAINTENANCE },
+      { type: 'BUILD' as ProjectCategory, title: 'BUILD', description: '서비스 형태로 구축 경험이 있는 프로젝트입니다.', projects: grouped.BUILD },
+      { type: 'LAB' as ProjectCategory, title: 'LAB', description: '관심사에 따른 실험적인 프로젝트입니다.', projects: grouped.LAB },
+    ];
   }, [otherProjects]);
 
   // 설정 파일에서 프로젝트 오버라이드 정보 가져오기
@@ -172,7 +172,9 @@ export const ProjectsListPage: React.FC = () => {
       {/* 주요 프로젝트 섹션 */}
       <section className={styles.featuredSection}>
         <div className={styles.container}>
-          <SectionTitle level="h2">주요 프로젝트</SectionTitle>
+          <div className={styles.featuredHeader}>
+            <SectionTitle level="h2">주요 프로젝트</SectionTitle>
+          </div>
           <div className={styles.grid}>
             {featuredProjects.length > 0 ? (
               featuredProjects.map((project) => (
@@ -183,10 +185,8 @@ export const ProjectsListPage: React.FC = () => {
                 />
               ))
             ) : (
-              // 추천 프로젝트가 없을 때 스켈레톤 카드 표시
-              [...Array(3)].map((_, i) => (
-                <SkeletonCard key={`skeleton-${i}`} />
-              ))
+              // 주요 프로젝트가 없을 때 빈 카드 표시
+              <EmptyCard message="등록된 주요 프로젝트가 없습니다" />
             )}
           </div>
         </div>
@@ -196,15 +196,24 @@ export const ProjectsListPage: React.FC = () => {
       {projectsByType.map((section) => (
         <section key={section.type} className={styles.typeSection}>
           <div className={styles.container}>
-            <SectionTitle level="h2">{section.title}</SectionTitle>
+            <div className={styles.sectionHeader}>
+              <SectionTitle level="h2">{section.title}</SectionTitle>
+              <div className={styles.divider}></div>
+              <p className={styles.sectionDescription}>{section.description}</p>
+            </div>
             <div className={styles.grid}>
-              {section.projects.map((project) => (
-                <ProjectCard
-                  key={project.id}
-                  project={convertToProjectCard(project)}
-                  onClick={() => handleCardClick(project.id)}
-                />
-              ))}
+              {section.projects.length > 0 ? (
+                section.projects.map((project) => (
+                  <ProjectCard
+                    key={project.id}
+                    project={convertToProjectCard(project)}
+                    onClick={() => handleCardClick(project.id)}
+                  />
+                ))
+              ) : (
+                // 프로젝트가 없을 때 빈 카드 표시
+                <EmptyCard message="등록된 프로젝트가 없습니다" />
+              )}
             </div>
           </div>
         </section>

@@ -6,3 +6,6 @@ export type {
   ProjectCardProps,
   ProjectCardProject,
 } from './ProjectCard';
+
+export { EmptyCard } from './EmptyCard';
+export type { EmptyCardProps } from './EmptyCard';

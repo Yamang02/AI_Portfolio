@@ -34,6 +34,9 @@ export type {
   ProjectCardProject,
 } from './Card';
 
+export { EmptyCard } from './Card';
+export type { EmptyCardProps } from './Card';
+
 export { TeamBadge, ProjectTypeBadge } from './Badge';
 export type {
   TeamBadgeProps,
