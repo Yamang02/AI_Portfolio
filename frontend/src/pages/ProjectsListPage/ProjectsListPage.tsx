@@ -230,7 +230,7 @@ export const ProjectsListPage: React.FC = () => {
         <div className={styles.featuredHeaderWrapper}>
           <div className={styles.container}>
             <div className={styles.featuredHeader}>
-              <SectionTitle level="h2">주요 프로젝트</SectionTitle>
+              <SectionTitle level="h2">Featured Projects</SectionTitle>
             </div>
           </div>
         </div>
