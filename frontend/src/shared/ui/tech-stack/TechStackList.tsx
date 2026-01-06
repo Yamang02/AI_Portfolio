@@ -159,14 +159,20 @@ export const TechStackList: React.FC<TechStackListProps> = ({
   return (
     <div className={`flex flex-wrap gap-2 ${className}`}>
       {/* 표시할 기술 스택 배지들 */}
-      {visibleTechs.map((tech, index) => (
-        <TechStackBadge
-          key={`${tech.name}-${index}`}
-          tech={tech}
-          variant={variant}
-          size={size}
-        />
-      ))}
+      {visibleTechs.map((tech, index) => {
+        // 프로그래밍 언어, 프레임워크, 데이터베이스는 accent variant 사용
+        const shouldUseAccent = ['language', 'framework', 'database'].includes(tech.category);
+        const badgeVariant = shouldUseAccent ? 'accent' : variant;
+        
+        return (
+          <TechStackBadge
+            key={`${tech.name}-${index}`}
+            tech={tech}
+            variant={badgeVariant}
+            size={size}
+          />
+        );
+      })}
 
       {/* 숨겨진 항목 개수 표시 */}
       {hiddenCount > 0 && (

@@ -44,6 +44,8 @@ export const TechStackBadge: React.FC<TechStackBadgeProps> = ({
         );
       case 'compact':
         return 'px-1 py-0.5 text-[0.6875rem] bg-surface dark:bg-slate-800 border-border text-text-secondary';
+      case 'accent':
+        return 'bg-[#22c55e] dark:bg-[#22c55e] border-[#22c55e] dark:border-[#22c55e] text-white dark:text-white';  /* Accent green */
       default:
         return 'bg-surface dark:bg-slate-800 border-border text-text-primary';
     }

@@ -68,40 +68,27 @@ export const ProjectNavigation: React.FC<ProjectNavigationProps> = ({
         {/* 이전 프로젝트 */}
         <Tooltip content="Previous Project">
           <Button
-            variant="secondary"
-            size="md"
+            variant="icon"
+            size="sm"
             onClick={handlePrevClick}
             disabled={!prevProject}
             ariaLabel="Previous Project"
-            className={styles.navButton}
           >
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M19 12H5M12 19l-7-7 7-7" />
-            </svg>
+            &lt;
           </Button>
         </Tooltip>
 
         {/* 프로젝트 목록 */}
         <Tooltip content="Project List">
           <Button
-            variant="secondary"
-            size="md"
+            variant="icon"
+            size="sm"
             onClick={handleListClick}
             ariaLabel="Project List"
-            className={styles.navButton}
           >
             <svg
-              width="20"
-              height="20"
+              width="16"
+              height="16"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -120,25 +107,13 @@ export const ProjectNavigation: React.FC<ProjectNavigationProps> = ({
         {/* 다음 프로젝트 */}
         <Tooltip content="Next Project">
           <Button
-            variant="secondary"
-            size="md"
+            variant="icon"
+            size="sm"
             onClick={handleNextClick}
             disabled={!nextProject}
             ariaLabel="Next Project"
-            className={styles.navButton}
           >
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M5 12h14M12 5l7 7-7 7" />
-            </svg>
+            &gt;
           </Button>
         </Tooltip>
       </div>

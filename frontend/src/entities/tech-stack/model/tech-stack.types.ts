@@ -139,7 +139,7 @@ export interface TechStackSortOrderUpdate {
 // 기술 스택 배지 컴포넌트용 Props
 export interface TechStackBadgeProps {
   tech: TechStackMetadata;
-  variant?: 'default' | 'core' | 'filter' | 'compact';
+  variant?: 'default' | 'core' | 'filter' | 'compact' | 'accent';
   size?: 'sm' | 'md' | 'lg';
   showCount?: boolean;
   count?: number;

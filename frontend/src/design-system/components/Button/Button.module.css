@@ -74,6 +74,31 @@
   }
 }
 
+/* Icon Variant - Footer 및 네비게이션 버튼용 */
+.button.icon {
+  width: 2rem; /* 32px */
+  height: 2rem; /* 32px */
+  min-width: 2rem;
+  min-height: 2rem;
+  padding: 0;
+  border-radius: var(--border-radius-md);
+  background-color: transparent;
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border-default);
+  font-size: 0.875rem;
+}
+
+.button.icon:hover:not(:disabled) {
+  transform: scale(1.05);
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-button-text);
+}
+
+.button.icon:active:not(:disabled) {
+  transform: scale(1);
+}
+
 /* Sizes */
 .button.sm {
   padding: 8px 16px;
@@ -90,36 +115,48 @@
   font-size: 1.125rem; /* 18px */
 }
 
-/* Utility Color Variants */
-.button.github:not(:disabled) {
-  background-color: var(--color-github);
+/* Icon variant는 size와 무관하게 고정 크기 */
+.button.icon.sm,
+.button.icon.md,
+.button.icon.lg {
+  width: 2rem;
+  height: 2rem;
+  min-width: 2rem;
+  min-height: 2rem;
+  padding: 0;
+}
+
+/* Brand Variant - GitHub, Live, Notion 등 브랜드 컬러 버튼 */
+.button.brand:not(:disabled) {
   color: white;
+}
+
+.button.brand.github:not(:disabled) {
+  background-color: var(--color-github);
   border-color: var(--color-github);
 }
 
-.button.github:hover:not(:disabled) {
+.button.brand.github:hover:not(:disabled) {
   background-color: var(--color-github-hover);
   color: white;
 }
 
-.button.live:not(:disabled) {
+.button.brand.live:not(:disabled) {
   background-color: var(--color-live);
-  color: white;
   border-color: var(--color-live);
 }
 
-.button.live:hover:not(:disabled) {
+.button.brand.live:hover:not(:disabled) {
   background-color: var(--color-live-hover);
   color: white;
 }
 
-.button.notion:not(:disabled) {
+.button.brand.notion:not(:disabled) {
   background-color: var(--color-notion);
-  color: white;
   border-color: var(--color-notion);
 }
 
-.button.notion:hover:not(:disabled) {
+.button.brand.notion:hover:not(:disabled) {
   background-color: var(--color-notion-hover);
   color: white;
 }
@@ -142,11 +179,10 @@
 }
 
 /* Disabled 상태에서 variant 스타일 오버라이드 */
-.button.github:disabled,
-.button.live:disabled,
-.button.notion:disabled,
+.button.brand:disabled,
 .button.primary:disabled,
-.button.secondary:disabled {
+.button.secondary:disabled,
+.button.icon:disabled {
   background-color: var(--color-disabled);
   color: white;
   border-color: var(--color-disabled);

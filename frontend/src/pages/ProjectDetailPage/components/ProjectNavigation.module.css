@@ -1,7 +1,7 @@
 .navigation {
-  margin-top: var(--spacing-16);
-  padding-top: var(--spacing-8);
-  border-top: 1px solid var(--color-border);
+  margin-top: var(--spacing-2);
+  padding-top: 0;
+  border-top: none;
   display: flex;
   justify-content: center;
 }
@@ -13,12 +13,14 @@
 }
 
 .navButton {
+  /* 아이콘 버튼을 위한 최소 크기만 유지 */
+  min-width: 44px;
+  min-height: 44px;
+  /* 디자인 시스템의 padding을 오버라이드하지 않음 */
+  padding: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 44px;
-  min-height: 44px;
-  padding: var(--spacing-2);
 }
 
 /* 반응형 */

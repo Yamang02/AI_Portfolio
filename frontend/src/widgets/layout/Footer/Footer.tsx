@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { SocialIcon } from '@/design-system';
+import { SocialIcon, Button } from '@/design-system';
 import { ContactModal } from '../../../main/components/common/Modal';
 import styles from './Footer.module.css';
 
@@ -20,24 +20,25 @@ export const Footer: React.FC<FooterProps> = ({ isVisible = false }) => {
         <div className={styles.container}>
           <p className={styles.copyright}>© 2026, Lee Jeongjun(Yamang02)</p>
           <div className={styles.links}>
-            <a
+            <Button
+              variant="icon"
+              size="sm"
               href={githubUrl}
               target="_blank"
-              rel="noopener noreferrer"
-              className={`${styles.link} ${styles.githubLink}`}
-              title="GitHub 저장소"
-              aria-label="GitHub"
+              ariaLabel="GitHub"
+              className={styles.githubLink}
             >
               <SocialIcon type="github" size="sm" />
-            </a>
-            <button
+            </Button>
+            <Button
+              variant="icon"
+              size="sm"
               onClick={() => setIsContactModalOpen(true)}
-              className={`${styles.link} ${styles.emailLink}`}
-              title="이메일 보내기"
-              aria-label="Email"
+              ariaLabel="Email"
+              className={styles.emailLink}
             >
               <SocialIcon type="email" size="sm" />
-            </button>
+            </Button>
           </div>
         </div>
       </footer>

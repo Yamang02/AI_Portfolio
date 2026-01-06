@@ -1,12 +1,14 @@
 import React from 'react';
 import styles from './Button.module.css';
 
-type ButtonVariant = 'primary' | 'secondary' | 'github' | 'live' | 'notion';
+type ButtonVariant = 'primary' | 'secondary' | 'icon' | 'brand';
 type ButtonSize = 'sm' | 'md' | 'lg';
+type BrandType = 'github' | 'live' | 'notion';
 
 export interface ButtonProps {
   variant?: ButtonVariant;
   size?: ButtonSize;
+  brandType?: BrandType; // brand variant일 때 사용
   disabled?: boolean;
   children: React.ReactNode;
   onClick?: () => void;
@@ -19,6 +21,7 @@ export interface ButtonProps {
 export const Button: React.FC<ButtonProps> = ({
   variant = 'primary',
   size = 'md',
+  brandType,
   disabled = false,
   children,
   onClick,
@@ -30,6 +33,7 @@ export const Button: React.FC<ButtonProps> = ({
   const classNames = [
     styles.button,
     styles[variant],
+    variant === 'brand' && brandType ? styles[brandType] : null,
     styles[size],
     className,
   ]

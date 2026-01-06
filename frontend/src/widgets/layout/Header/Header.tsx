@@ -11,6 +11,7 @@ interface MenuItem {
   href?: string;
   onClick?: (e: React.MouseEvent) => void;
   icon: React.ReactNode;
+  isActive?: (pathname: string) => boolean; // 활성 상태 확인 함수
 }
 
 export const Header: React.FC = () => {
@@ -47,19 +48,6 @@ export const Header: React.FC = () => {
     setIsMenuOpen(false);
   };
 
-  const handleProfileClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    if (location.pathname === '/') {
-      const hero = document.getElementById('hero');
-      if (hero) {
-        hero.scrollIntoView({ behavior: 'smooth' });
-      }
-    } else {
-      navigate('/');
-    }
-    setIsMenuOpen(false);
-  };
-
   const handleChatbotClick = (e: React.MouseEvent) => {
     e.preventDefault();
     // 챗봇 열기 이벤트 발생
@@ -78,7 +66,8 @@ export const Header: React.FC = () => {
       id: 'profile',
       label: '프로필',
       tooltip: 'Profile',
-      onClick: handleProfileClick,
+      href: '/profile',
+      isActive: (pathname) => pathname === '/profile',
       icon: (
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
@@ -91,6 +80,7 @@ export const Header: React.FC = () => {
       label: '프로젝트',
       tooltip: 'Projects',
       href: '/projects',
+      isActive: (pathname) => pathname === '/projects' || pathname.startsWith('/projects/'),
       icon: (
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
@@ -113,6 +103,7 @@ export const Header: React.FC = () => {
       label: '설정',
       tooltip: 'Settings',
       onClick: handleSettingsClick,
+      isActive: (pathname) => pathname === '/admin/settings',
       icon: (
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="12" cy="12" r="3" />
@@ -167,17 +158,21 @@ export const Header: React.FC = () => {
             </button>
           </Tooltip>
           <div className={styles.divider} />
-          {menuItems.map((item) => (
-            <Tooltip key={item.id} content={item.tooltip} placement="bottom">
-              <button
-                onClick={(e) => handleMenuItemClick(item, e)}
-                className={styles.navItem}
-                aria-label={item.label}
-              >
-                {item.icon}
-              </button>
-            </Tooltip>
-          ))}
+          {menuItems.map((item) => {
+            const isActive = item.isActive ? item.isActive(location.pathname) : false;
+            return (
+              <Tooltip key={item.id} content={item.tooltip} placement="bottom">
+                <button
+                  onClick={(e) => handleMenuItemClick(item, e)}
+                  className={`${styles.navItem} ${isActive ? styles.navItemActive : ''}`}
+                  aria-label={item.label}
+                  aria-current={isActive ? 'page' : undefined}
+                >
+                  {item.icon}
+                </button>
+              </Tooltip>
+            );
+          })}
         </nav>
 
         {/* Mobile Menu */}
@@ -239,16 +234,20 @@ export const Header: React.FC = () => {
             {/* Mobile Dropdown Menu */}
             {isMenuOpen && (
               <div className={styles.dropdown}>
-                {menuItems.map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={(e) => handleMenuItemClick(item, e)}
-                    className={styles.dropdownLink}
-                  >
-                    <span className={styles.icon}>{item.icon}</span>
-                    <span>{item.tooltip}</span>
-                  </button>
-                ))}
+                {menuItems.map((item) => {
+                  const isActive = item.isActive ? item.isActive(location.pathname) : false;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={(e) => handleMenuItemClick(item, e)}
+                      className={`${styles.dropdownLink} ${isActive ? styles.dropdownLinkActive : ''}`}
+                      aria-current={isActive ? 'page' : undefined}
+                    >
+                      <span className={styles.icon}>{item.icon}</span>
+                      <span>{item.tooltip}</span>
+                    </button>
+                  );
+                })}
               </div>
             )}
           </div>

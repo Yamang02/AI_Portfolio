@@ -56,7 +56,8 @@ export const ProjectDetailHeader: React.FC<ProjectDetailHeaderProps> = ({
         <div className={styles.links}>
           {/* GitHub */}
           <Button
-            variant="github"
+            variant="brand"
+            brandType="github"
             size="sm"
             href={project.githubUrl && project.githubUrl !== '#' ? project.githubUrl : undefined}
             target={project.githubUrl && project.githubUrl !== '#' ? '_blank' : undefined}
@@ -70,7 +71,8 @@ export const ProjectDetailHeader: React.FC<ProjectDetailHeaderProps> = ({
 
           {/* Live Service */}
           <Button
-            variant="live"
+            variant="brand"
+            brandType="live"
             size="sm"
             href={project.liveUrl && project.liveUrl !== '#' ? project.liveUrl : undefined}
             target={project.liveUrl && project.liveUrl !== '#' ? '_blank' : undefined}
@@ -84,7 +86,8 @@ export const ProjectDetailHeader: React.FC<ProjectDetailHeaderProps> = ({
 
           {/* Notion */}
           <Button
-            variant="notion"
+            variant="brand"
+            brandType="notion"
             size="sm"
             href={project.externalUrl && project.externalUrl !== '#' ? project.externalUrl : undefined}
             target={project.externalUrl && project.externalUrl !== '#' ? '_blank' : undefined}

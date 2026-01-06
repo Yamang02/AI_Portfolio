@@ -59,6 +59,11 @@
   color: var(--color-primary);
 }
 
+.navItemActive {
+  background-color: var(--color-primary);
+  color: #ffffff;
+}
+
 .navItem svg {
   width: 20px;
   height: 20px;
@@ -163,6 +168,11 @@
 .dropdownLink:hover {
   background-color: var(--color-bg-secondary);
   color: var(--color-primary);
+}
+
+.dropdownLinkActive {
+  background-color: var(--color-primary);
+  color: #ffffff;
 }
 
 .dropdownLink .icon {
