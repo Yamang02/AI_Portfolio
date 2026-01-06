@@ -1,81 +1,10 @@
 .container {
   width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-12);
 }
 
 .sectionTitle {
   margin-bottom: var(--spacing-6);
   color: var(--color-primary-dark);
-}
-
-/* 통합 타임라인 섹션 */
-.timelineSection {
-  width: 100%;
-}
-
-/* 세로형 타임라인 */
-.timeline {
-  position: relative;
-  padding-left: var(--spacing-6);
-}
-
-.timeline::before {
-  content: '';
-  position: absolute;
-  left: 8px;
-  top: 0;
-  bottom: 0;
-  width: 2px;
-  background: var(--color-border);
-}
-
-.timelineItem {
-  position: relative;
-  display: flex;
-  align-items: flex-start;
-  margin-bottom: var(--spacing-8);
-}
-
-.timelineItem:last-child {
-  margin-bottom: 0;
-}
-
-.timelineDot {
-  position: absolute;
-  left: -20px;
-  top: 4px;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: var(--color-primary);
-  border: 2px solid var(--color-background);
-  z-index: 1;
-}
-
-.timelineContent {
-  flex: 1;
-  padding-left: var(--spacing-4);
-}
-
-.timelinePeriod {
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-  color: var(--color-primary);
-  margin-bottom: var(--spacing-2);
-}
-
-.timelineOrganization {
-  font-size: var(--font-size-base);
-  font-weight: 600;
-  color: var(--color-text-primary);
-  margin-bottom: var(--spacing-1);
-}
-
-.timelineRole {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
 }
 
 /* 기존 경력/교육 상세 섹션 */
@@ -114,28 +43,6 @@
 
 /* 반응형 레이아웃 */
 @media (max-width: 767px) {
-  .container {
-    gap: var(--spacing-8);
-  }
-
-  .timeline {
-    padding-left: var(--spacing-4);
-  }
-
-  .timeline::before {
-    left: 6px;
-  }
-
-  .timelineDot {
-    left: -16px;
-    width: 10px;
-    height: 10px;
-  }
-
-  .timelineContent {
-    padding-left: var(--spacing-3);
-  }
-
   .sectionTitle {
     margin-bottom: var(--spacing-4);
   }
