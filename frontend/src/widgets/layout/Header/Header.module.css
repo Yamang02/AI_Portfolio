@@ -64,9 +64,39 @@
   height: 20px;
 }
 
-.mobileMenu {
+.mobileMenuWrapper {
   display: none;
+  align-items: center;
+  gap: 8px;
+}
+
+.mobileMenu {
   position: relative;
+}
+
+.mobileThemeToggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  background: none;
+  border: none;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.mobileThemeToggle:hover {
+  background-color: var(--color-bg-secondary);
+  color: var(--color-primary);
+}
+
+.mobileThemeToggle svg {
+  width: 20px;
+  height: 20px;
 }
 
 .menuButton {
@@ -155,7 +185,7 @@
     display: none;
   }
 
-  .mobileMenu {
-    display: block;
+  .mobileMenuWrapper {
+    display: flex;
   }
 }

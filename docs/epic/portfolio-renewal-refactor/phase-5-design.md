@@ -85,13 +85,17 @@ design-system/components/
 ### 2. 콘텐츠 관리 전략
 
 #### 주요 프로젝트 (Featured Projects)
-**결정**: 설정 파일 전용 관리 (API 사용 안 함)
+**결정**: API의 `isFeatured` 필드 + 설정 파일 오버라이드
+
+**구현 방식**:
+- **Archive Page**: API의 `isFeatured` 필드를 사용하여 주요 프로젝트 필터링
+- **설정 파일 오버라이드**: `featuredProjects.config.ts`에서 이미지, 설명, 태그를 오버라이드 가능
+- **Landing Page**: 설정 파일에서 직접 데이터 가져오기 (기존 방식 유지)
 
 **이유**:
-- "주요 프로젝트"는 선별된 소수의 프로젝트
-- 소개문구는 랜딩 페이지 맥락에서만 유효
-- API 장애와 독립적으로 동작해야 함
-- 명시적 관리가 유지보수에 유리
+- API와 동기화하여 관리 편의성 향상
+- 설정 파일로 랜딩 페이지 전용 콘텐츠(이미지, 설명) 오버라이드 가능
+- API 장애 시에도 설정 파일로 독립 운영 가능
 
 **구조**:
 ```
@@ -141,7 +145,21 @@ export const FEATURED_CONFIG = {
 **구현**:
 ```typescript
 // frontend/src/pages/ProjectsListPage/ProjectsListPage.tsx
-const { data: projects } = useProjects(); // API 호출
+const { data: projects } = useProjectsQuery(); // API 호출
+
+// 주요 프로젝트 필터링
+const featuredProjects = projects.filter(p => p.isFeatured === true);
+
+// 설정 파일 오버라이드 적용
+const convertToProjectCard = (project: Project): ProjectCardProject => {
+  const featuredConfig = getFeaturedConfig(project.id);
+  return {
+    ...project,
+    imageUrl: featuredConfig?.imageUrl || project.imageUrl,
+    description: featuredConfig?.subtitle || project.description,
+    technologies: featuredConfig?.tags || project.technologies,
+  };
+};
 ```
 
 ### 3. 컴포넌트 구조
@@ -174,7 +192,10 @@ frontend/src/
     │       └── featuredProjects.config.ts
     │
     ├── ProjectsListPage/
-    │   └── ProjectsListPage.tsx      # 프로젝트 목록 (디자인 시스템 ProjectCard 사용)
+    │   ├── ProjectsListPage.tsx      # 프로젝트 목록 (디자인 시스템 ProjectCard 사용)
+    │   └── components/
+    │       ├── ProjectSearchModal.tsx    # 프로젝트 검색 모달
+    │       └── ProjectHistoryTimeline.tsx # 프로젝트 히스토리 타임라인
     │
     └── ProjectDetailPage/
         └── ProjectDetailPage.tsx     # 프로젝트 상세
@@ -219,10 +240,12 @@ frontend/src/
    - 타입별 색상 매핑 유지 (BUILD: 빨강, LAB: 주황, MAINTENANCE: 초록)
 
 **검증**:
-- [ ] TeamBadge 컴포넌트가 팀/개인을 아이콘+텍스트로 표시
-- [ ] ProjectTypeBadge 컴포넌트가 타입을 아이콘+텍스트로 표시
-- [ ] 애니메이션 없이 항상 전체 내용 표시
-- [ ] 디자인 토큰만 사용 (하드코딩된 색상 없음)
+- [x] TeamBadge 컴포넌트가 팀/개인을 아이콘+텍스트로 표시
+- [x] ProjectTypeBadge 컴포넌트가 타입을 아이콘+텍스트로 표시
+- [x] 애니메이션 없이 항상 전체 내용 표시
+- [x] 디자인 토큰만 사용 (하드코딩된 색상 없음)
+- [x] CSS 변수에 status 색상 추가 (error, warning, success, info)
+- [x] Storybook 스토리 작성
 
 ---
 
@@ -252,9 +275,10 @@ frontend/src/
    ```
 
 **검증**:
-- [ ] SocialIcon이 GitHub, ExternalLink 등을 올바르게 표시
-- [ ] ProjectIcon이 프로젝트 타입별 fallback 아이콘 올바르게 표시
-- [ ] 디자인 토큰으로 크기 조절 가능
+- [x] SocialIcon이 GitHub, ExternalLink 등을 올바르게 표시
+- [x] ProjectIcon이 프로젝트 타입별 fallback 아이콘 올바르게 표시
+- [x] 디자인 토큰으로 크기 조절 가능
+- [x] Storybook 스토리 작성
 
 ---
 
@@ -298,13 +322,14 @@ frontend/src/
    ```
 
 **검증**:
-- [ ] ProjectCard가 기존 카드와 동일한 레이아웃 구조
-- [ ] 썸네일, 배지, 제목, 설명, 기술 스택, 메타 정보 모두 표시
-- [ ] TeamBadge, ProjectTypeBadge가 올바르게 렌더링
-- [ ] SocialIcon(GitHub, ExternalLink)이 올바르게 렌더링
-- [ ] 이미지 없을 시 ProjectIcon fallback 표시
-- [ ] 디자인 시스템 컴포넌트만 사용
-- [ ] 배지 hover 애니메이션 없음 (항상 전체 표시)
+- [x] ProjectCard가 기존 카드와 동일한 레이아웃 구조
+- [x] 썸네일, 배지, 제목, 설명, 기술 스택, 메타 정보 모두 표시
+- [x] TeamBadge가 올바르게 렌더링 (프로젝트 타입 배지는 제거됨)
+- [x] SocialIcon(GitHub, ExternalLink)이 올바르게 렌더링
+- [x] 이미지 없을 시 ProjectIcon fallback 표시
+- [x] 디자인 시스템 컴포넌트만 사용
+- [x] 배지 hover 애니메이션 없음 (항상 전체 표시)
+- [x] Storybook 스토리 작성
 
 ---
 
@@ -317,11 +342,13 @@ frontend/src/
 2. 타입 정의 (`FeaturedProject`, `FeaturedConfig`)
 3. 주요 프로젝트 데이터 마이그레이션 (Phase 4 하드코딩 → 설정 파일)
 4. `FeaturedProjectsSection` 컴포넌트에서 설정 파일 import
+5. API의 `isFeatured` 필드와 연동 (ProjectsListPage에서 사용)
 
 **검증**:
-- [ ] 설정 파일에서 데이터를 import하여 렌더링 성공
-- [ ] 기존 하드코딩된 데이터 제거 완료
-- [ ] 설정 파일 수정 시 UI 즉시 반영
+- [x] 설정 파일에서 데이터를 import하여 렌더링 성공
+- [x] 기존 하드코딩된 데이터 제거 완료
+- [x] 설정 파일 수정 시 UI 즉시 반영
+- [x] 설정 파일 오버라이드 기능 정상 동작 (이미지, 설명, 태그)
 
 ---
 
@@ -333,25 +360,51 @@ frontend/src/
 1. **페이지 구조**
    - 페이지 제목: SectionTitle 컴포넌트
    - 프로젝트 그리드 레이아웃
-   - 필터/정렬 UI (간단하게)
+   - Featured Projects 섹션 상단 추가
+     - API의 `isFeatured` 필드 사용하여 주요 프로젝트 필터링
+     - 설정 파일(featuredProjects.config.ts)에서 이미지, 설명, 태그 오버라이드 지원
+   - 프로젝트 타입별 섹션 구성 (MAINTENANCE → BUILD → LAB 순서)
+   - 프로젝트 히스토리 타임라인 섹션 추가 (ProjectHistoryTimeline)
+   - 프로젝트 검색 모달 추가 (ProjectSearchModal)
+   - Footer 추가
+   - EmptyCard 컴포넌트 사용 (프로젝트 없을 때)
 
 2. **프로젝트 카드**
    - **디자인 시스템의 ProjectCard 컴포넌트 사용**
-   - 썸네일, TeamBadge, ProjectTypeBadge, 제목, 설명, 기술 스택, 메타 정보 모두 자동 표시
+   - 썸네일, TeamBadge, 제목, 설명, 기술 스택, 메타 정보 모두 자동 표시
    - SocialIcon (GitHub, ExternalLink) 자동 표시
+   - **ProjectCard 개선 사항**:
+     - 프로젝트 타입 배지 제거 (ProjectTypeBadge 제거)
+     - 팀/개인 배지 왼쪽 상단으로 이동
+     - Featured 별 배지 추가 (isFeatured일 때 우측 상단)
+     - 기술 스택을 디자인 시스템 Badge로 변경 (default variant)
+     - 기술 스택 최대 4개 표시, 나머지 +N 표시
+     - 기술 스택 한 줄 제한
+     - title 색상을 primary-dark로 변경
+     - title 가운데 정렬 및 자동 글자 크기 조정 (한 줄 제한)
+     - 설명 한 줄 제한
+     - 괄호 안 문자 처리 개선
+     - 하단 구분선 제거
 
 3. **API 연동**
-   - `useProjects()` 훅 사용
-   - 로딩 상태 처리
+   - `useProjectsQuery()` 훅 사용
+   - 로딩 상태 처리 (SkeletonCard 사용)
    - 에러 상태 처리
+   - TechStackList 로딩 처리 개선
 
 **검증**:
-- [ ] API에서 프로젝트 목록 정상 로드
-- [ ] 디자인 시스템 ProjectCard로 프로젝트 그리드 렌더링
-- [ ] TeamBadge, ProjectTypeBadge가 올바르게 표시
-- [ ] 디자인 시스템 컴포넌트만 사용
-- [ ] 반응형 레이아웃 정상 동작
-- [ ] 로딩/에러 상태 UI 정상 표시
+- [x] API에서 프로젝트 목록 정상 로드
+- [x] 디자인 시스템 ProjectCard로 프로젝트 그리드 렌더링
+- [x] TeamBadge가 올바르게 표시 (프로젝트 타입 배지는 제거됨)
+- [x] Featured Projects 섹션에서 isFeatured 필드 기반 필터링 정상 동작
+- [x] 설정 파일 오버라이드 기능 정상 동작
+- [x] 프로젝트 히스토리 타임라인 정상 동작
+- [x] 프로젝트 검색 모달 정상 동작
+- [x] EmptyCard 컴포넌트 정상 표시
+- [x] Footer 정상 표시
+- [x] 디자인 시스템 컴포넌트만 사용
+- [x] 반응형 레이아웃 정상 동작
+- [x] 로딩/에러 상태 UI 정상 표시
 
 ---
 
@@ -510,16 +563,21 @@ frontend/src/
 
 ### Functional
 - [x] Landing Page가 Phase 4/4.5 와이어프레임과 일치
-- [ ] Archive Page에서 프로젝트 목록 정상 표시
+- [x] Archive Page에서 프로젝트 목록 정상 표시
+- [x] Archive Page에 Featured Projects 섹션 추가
+- [x] Archive Page에 프로젝트 히스토리 타임라인 추가
+- [x] Archive Page에 프로젝트 검색 모달 추가
 - [ ] Project Detail Page에서 프로젝트 상세 정보 정상 표시
-- [ ] 모든 페이지가 반응형으로 동작
+- [x] 모든 페이지가 반응형으로 동작
 
 ### Non-Functional
-- [ ] 디자인 시스템만 사용 (100% 준수)
-- [ ] Task 5.0에서 추가된 컴포넌트 외 새로운 컴포넌트 추가 없음
-- [ ] 기존 ProjectCard의 UX 요소가 디자인 시스템으로 완전히 편입됨
-- [ ] 배지 hover 애니메이션 제거됨 (항상 전체 표시)
-- [ ] 설정 파일로 콘텐츠 관리
+- [x] 디자인 시스템만 사용 (100% 준수)
+- [x] Task 5.0에서 추가된 컴포넌트 외 새로운 컴포넌트 추가 없음
+- [x] 기존 ProjectCard의 UX 요소가 디자인 시스템으로 완전히 편입됨
+- [x] 배지 hover 애니메이션 제거됨 (항상 전체 표시)
+- [x] 설정 파일로 콘텐츠 관리
+- [x] CSS 변수에 status 색상 추가
+- [x] Storybook 스토리 작성 완료
 - [ ] 모든 페이지가 Performance Targets 충족
 
 ### User Experience
@@ -557,17 +615,22 @@ frontend/src/
 
 ## Definition of Done
 
-- [ ] **Task 5.0 완료**: TeamBadge, ProjectTypeBadge, SocialIcon, ProjectIcon, Card, ProjectCard 컴포넌트가 디자인 시스템에 추가됨
-- [ ] **기존 UX 보존**: 기존 ProjectCard의 배지, 아이콘, 레이아웃이 디자인 시스템 ProjectCard에 완전히 통합됨
-- [ ] **애니메이션 제거**: 배지 hover 확장 애니메이션이 제거되고 항상 전체 내용 표시됨
-- [ ] Landing Page가 디자인 시스템으로 완성됨
-- [ ] Archive Page가 디자인 시스템 ProjectCard로 완성됨
+- [x] **Task 5.0 완료**: TeamBadge, ProjectTypeBadge, SocialIcon, ProjectIcon, Card, ProjectCard 컴포넌트가 디자인 시스템에 추가됨
+- [x] **기존 UX 보존**: 기존 ProjectCard의 배지, 아이콘, 레이아웃이 디자인 시스템 ProjectCard에 완전히 통합됨
+- [x] **애니메이션 제거**: 배지 hover 확장 애니메이션이 제거되고 항상 전체 내용 표시됨
+- [x] **CSS 변수 확장**: status 색상 추가 (error, warning, success, info)
+- [x] **Storybook 스토리**: 모든 새 컴포넌트에 대한 Storybook 스토리 작성 완료
+- [x] Landing Page가 디자인 시스템으로 완성됨
+- [x] Archive Page가 디자인 시스템 ProjectCard로 완성됨
+- [x] Archive Page에 Featured Projects 섹션 추가 (API isFeatured 필드 사용)
+- [x] Archive Page에 프로젝트 히스토리 타임라인 추가
+- [x] Archive Page에 프로젝트 검색 모달 추가
+- [x] Featured Projects 설정 파일로 관리됨 (오버라이드 기능 포함)
+- [x] 모든 페이지가 반응형으로 동작
 - [ ] Project Detail Page가 디자인 시스템으로 완성됨
-- [ ] Featured Projects 설정 파일로 관리됨
-- [ ] 모든 페이지가 반응형으로 동작
 - [ ] 모든 페이지가 Performance Targets 충족
-- [ ] 디자인 시스템 외 스타일 사용 없음
-- [ ] Task 5.0 외 새로운 컴포넌트 추가 없음
+- [x] 디자인 시스템 외 스타일 사용 없음
+- [x] Task 5.0 외 새로운 컴포넌트 추가 없음
 - [ ] Manual Testing 체크리스트 100% 완료
 - [ ] Browser Testing 체크리스트 100% 완료
 

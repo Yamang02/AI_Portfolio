@@ -55,21 +55,23 @@
 }
 
 /* 다크 모드: transparent 배경 */
-:root.dark .button.secondary {
-  background-color: transparent;
-}
+@media (prefers-color-scheme: dark) {
+  .button.secondary {
+    background-color: transparent;
+  }
 
-:root.dark .button.secondary:hover:not(:disabled) {
-  background-color: var(--color-bg-secondary);
-  border-color: var(--color-border-hover);
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.08);
-  transform: translateY(-1px);
-}
+  .button.secondary:hover:not(:disabled) {
+    background-color: var(--color-bg-secondary);
+    border-color: var(--color-border-hover);
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.08);
+    transform: translateY(-1px);
+  }
 
-:root.dark .button.secondary:active:not(:disabled) {
-  background-color: var(--color-bg-tertiary);
-  transform: translateY(0);
-  box-shadow: none;
+  .button.secondary:active:not(:disabled) {
+    background-color: var(--color-bg-tertiary);
+    transform: translateY(0);
+    box-shadow: none;
+  }
 }
 
 /* Sizes */

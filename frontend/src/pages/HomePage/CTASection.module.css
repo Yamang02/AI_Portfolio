@@ -31,12 +31,14 @@
 }
 
 /* 다크 모드: 기존 색상 유지 */
-:root.dark .ctaSection .description {
-  color: var(--color-text-secondary);
-}
+@media (prefers-color-scheme: dark) {
+  .ctaSection .description {
+    color: var(--color-text-secondary);
+  }
 
-:root.dark .ctaSection .sectionTitle {
-  color: var(--color-text-primary);
+  .ctaSection .sectionTitle {
+    color: var(--color-text-primary);
+  }
 }
 
 .ctaSection .buttonGroup {

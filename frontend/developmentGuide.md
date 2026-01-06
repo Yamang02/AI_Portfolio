@@ -39,6 +39,20 @@ npm run dev
   - 스토리북: `npm run storybook` 실행 후 `Design System/Tokens/Colors` 참조
   - 코드: `frontend/src/design-system/tokens/colors.ts`
 
+## 🌓 다크모드 처리 방식
+
+프로젝트는 **CSS 기반 다크모드**를 사용합니다:
+
+- **시스템 설정 자동 감지**: `@media (prefers-color-scheme: dark)` 미디어 쿼리 사용
+- **수동 토글 지원**: `:root.dark` 클래스를 통한 수동 토글 (시스템 설정보다 우선)
+- **통일된 방식**: 모든 컴포넌트는 `@media (prefers-color-scheme: dark)`를 사용하여 다크모드 스타일 정의
+- **변수 정의 위치**: 
+  - 라이트모드: `globals.css`의 `:root`에 정의
+  - 다크모드: `globals.css`의 `@media (prefers-color-scheme: dark)`와 `:root.dark`에 정의
+- **주의사항**: 
+  - 새로운 컴포넌트 작성 시 `:root.dark` 대신 `@media (prefers-color-scheme: dark)` 사용
+  - ThemeProvider는 사용하지 않음 (CSS 기반 처리)
+
 ## 🤖 AI 에이전트 활용 가이드
 
 프로젝트에 설정된 AI 에이전트들을 다음과 같이 활용하세요:

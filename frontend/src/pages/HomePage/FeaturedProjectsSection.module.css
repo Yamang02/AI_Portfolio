@@ -238,17 +238,19 @@
 }
 
 /* 다크 모드: 브랜드 컬러 제거, 중립 색상 사용 */
-:root.dark .featuredProjects .scrollIndicator {
-  background: var(--color-bg-tertiary);
-  color: var(--color-text-primary);
-}
+@media (prefers-color-scheme: dark) {
+  .featuredProjects .scrollIndicator {
+    background: var(--color-bg-tertiary);
+    color: var(--color-text-primary);
+  }
 
-:root.dark .featuredProjects .scrollIndicator:hover {
-  background: var(--color-border-hover);
-}
+  .featuredProjects .scrollIndicator:hover {
+    background: var(--color-border-hover);
+  }
 
-:root.dark .featuredProjects .scrollIndicator:active {
-  background: var(--color-border-default);
+  .featuredProjects .scrollIndicator:active {
+    background: var(--color-border-default);
+  }
 }
 
 .featuredProjects .scrollIndicator.show {

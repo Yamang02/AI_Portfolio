@@ -48,9 +48,11 @@
 }
 
 /* 다크 모드: 브랜드 컬러 제거, 중립 색상 사용 */
-:root.dark .aboutSection .content h2,
-:root.dark .aboutSection .content .sectionTitle {
-  color: var(--color-text-primary);
+@media (prefers-color-scheme: dark) {
+  .aboutSection .content h2,
+  .aboutSection .content .sectionTitle {
+    color: var(--color-text-primary);
+  }
 }
 
 .aboutSection .processFlow {
@@ -81,9 +83,11 @@
 }
 
 /* 다크 모드: 브랜드 컬러 제거, 중립 색상 사용 */
-:root.dark .aboutSection .processStep {
-  background: var(--color-bg-tertiary);
-  color: var(--color-text-primary);
+@media (prefers-color-scheme: dark) {
+  .aboutSection .processStep {
+    background: var(--color-bg-tertiary);
+    color: var(--color-text-primary);
+  }
 }
 
 .aboutSection .processArrow {
@@ -114,9 +118,11 @@
 }
 
 /* 다크 모드: 브랜드 컬러 제거, 중립 색상 사용 */
-:root.dark .aboutSection .highlight,
-:root.dark .aboutSection .highlightText {
-  color: var(--color-text-primary);
+@media (prefers-color-scheme: dark) {
+  .aboutSection .highlight,
+  .aboutSection .highlightText {
+    color: var(--color-text-primary);
+  }
 }
 
 .aboutSection .belief {
@@ -161,17 +167,19 @@
 }
 
 /* 다크 모드: 브랜드 컬러 제거, 중립 색상 사용 */
-:root.dark .aboutSection .scrollIndicator {
-  background: var(--color-bg-tertiary);
-  color: var(--color-text-primary);
-}
+@media (prefers-color-scheme: dark) {
+  .aboutSection .scrollIndicator {
+    background: var(--color-bg-tertiary);
+    color: var(--color-text-primary);
+  }
 
-:root.dark .aboutSection .scrollIndicator:hover {
-  background: var(--color-border-hover);
-}
+  .aboutSection .scrollIndicator:hover {
+    background: var(--color-border-hover);
+  }
 
-:root.dark .aboutSection .scrollIndicator:active {
-  background: var(--color-border-default);
+  .aboutSection .scrollIndicator:active {
+    background: var(--color-border-default);
+  }
 }
 
 .aboutSection .scrollIndicator.show {

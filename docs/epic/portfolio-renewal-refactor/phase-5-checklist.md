@@ -38,7 +38,7 @@
 - [x] ProjectTypeBadge가 타입을 아이콘+텍스트로 표시
 - [x] 애니메이션 없이 항상 전체 내용 표시
 - [x] 디자인 토큰만 사용 (하드코딩된 색상 없음)
-- [ ] Storybook 스토리 작성 (선택)
+- [x] Storybook 스토리 작성 (TeamBadge, ProjectTypeBadge)
 
 ---
 
@@ -80,7 +80,7 @@
 - [x] SocialIcon이 GitHub, ExternalLink 등을 올바르게 표시
 - [x] ProjectIcon이 프로젝트 타입별 fallback 아이콘 올바르게 표시
 - [x] 디자인 토큰으로 크기 조절 가능
-- [ ] Storybook 스토리 작성 (선택)
+- [x] Storybook 스토리 작성 (SocialIcon, ProjectIcon)
 
 ---
 
@@ -123,6 +123,7 @@
 - [x] formatTitle 함수 구현 (괄호 처리)
 - [x] formatDateRange 유틸 함수 사용
 - [x] 다크모드 지원 확인
+- [x] CSS 변수에 status 색상 추가 (error, warning, success, info)
 
 #### Card 컴포넌트 Export
 - [x] `design-system/components/Card/index.ts` 생성
@@ -141,7 +142,7 @@
 - [x] 디자인 시스템 컴포넌트만 사용
 - [x] 배지 hover 애니메이션 없음 (항상 전체 표시)
 - [x] 카드 hover 효과 정상 동작 (scale, shadow)
-- [ ] Storybook 스토리 작성 (선택)
+- [x] Storybook 스토리 작성 (Card, ProjectCard)
 
 ---
 
@@ -176,24 +177,52 @@
 - [x] `frontend/src/pages/ProjectsListPage/ProjectsListPage.tsx` 수정
 - [x] 페이지 제목: SectionTitle 컴포넌트 사용
 - [x] 프로젝트 그리드 레이아웃 구현
-- [x] Featured Projects 섹션 상단에 추가 (설정 파일에서 데이터 가져오기)
+- [x] Featured Projects 섹션 상단에 추가
+  - [x] API의 isFeatured 필드 사용하여 주요 프로젝트 필터링
+  - [x] 설정 파일(featuredProjects.config.ts)에서 이미지, 설명, 태그 오버라이드 지원
 - [x] 프로젝트 타입별 섹션 구성 (BUILD, LAB, MAINTENANCE)
-- [x] 히스토리 패널, 챗봇 패널, 하단 채팅 UI 제거 (프로젝트 카드와 배지만 존재)
+  - [x] 섹션 순서: MAINTENANCE → BUILD → LAB
+  - [x] 각 섹션에 제목, 설명, Divider 포함
+- [x] 프로젝트 히스토리 타임라인 섹션 추가 (ProjectHistoryTimeline)
+  - [x] 프로젝트 클릭 시 해당 섹션으로 스크롤 이동
+  - [x] 하이라이트 효과 (2초간)
+- [x] 프로젝트 검색 모달 추가 (ProjectSearchModal)
+- [x] Footer 추가
+- [x] EmptyCard 컴포넌트 사용 (프로젝트 없을 때)
 
 ### 프로젝트 카드
 - [x] 디자인 시스템 ProjectCard 컴포넌트 import
 - [x] API에서 받은 프로젝트 데이터를 ProjectCard로 렌더링
 - [x] 카드 클릭 시 상세 페이지 이동 구현
+- [x] ProjectCard 컴포넌트 개선
+  - [x] 프로젝트 타입 배지 제거 (ProjectTypeBadge 제거)
+  - [x] 팀/개인 배지 왼쪽 상단으로 이동
+  - [x] Featured 별 배지 추가 (isFeatured일 때 우측 상단)
+  - [x] 기술 스택을 디자인 시스템 Badge로 변경 (default variant)
+  - [x] 기술 스택 최대 4개 표시, 나머지 +N 표시
+  - [x] 기술 스택 한 줄 제한
+  - [x] title 색상을 primary-dark로 변경
+  - [x] title 가운데 정렬 및 자동 글자 크기 조정 (한 줄 제한)
+  - [x] 설명 한 줄 제한
+  - [x] 괄호 안 문자 처리 개선 (formatTitle)
+  - [x] 하단 구분선 제거
 
 ### API 연동
 - [x] `useProjectsQuery()` 훅 사용
 - [x] 로딩 상태 UI 구현 (SkeletonCard 사용)
 - [x] 에러 상태 UI 구현 (에러 메시지 표시)
+- [x] TechStackList 로딩 처리 개선 (로딩 중에도 기술 스택 표시)
 
 ### 검증
 - [x] API에서 프로젝트 목록 정상 로드
 - [x] 디자인 시스템 ProjectCard로 프로젝트 그리드 렌더링
-- [x] TeamBadge, ProjectTypeBadge가 올바르게 표시
+- [x] TeamBadge가 올바르게 표시 (프로젝트 타입 배지는 제거됨)
+- [x] Featured Projects 섹션에서 isFeatured 필드 기반 필터링 정상 동작
+- [x] 설정 파일 오버라이드 기능 정상 동작 (이미지, 설명, 태그)
+- [x] 프로젝트 히스토리 타임라인 정상 동작
+- [x] 프로젝트 검색 모달 정상 동작
+- [x] EmptyCard 컴포넌트 정상 표시
+- [x] Footer 정상 표시
 - [x] 디자인 시스템 컴포넌트만 사용
 - [x] 반응형 레이아웃 정상 동작
   - [x] 모바일: 1단 레이아웃
