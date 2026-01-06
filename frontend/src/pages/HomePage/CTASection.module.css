@@ -17,8 +17,26 @@
 .ctaSection .description {
   margin: 24px 0 48px;
   font-size: 1.125rem;
-  color: var(--color-text-secondary);
   line-height: 1.75;
+}
+
+/* 라이트 모드: 배경색에 어울리는 featured 색상 사용 */
+:root:not(.dark) .ctaSection .description {
+  color: var(--color-featured-text);
+}
+
+/* 라이트 모드: SectionTitle도 featured 색상 사용 */
+:root:not(.dark) .ctaSection .sectionTitle {
+  color: var(--color-featured-header);
+}
+
+/* 다크 모드: 기존 색상 유지 */
+:root.dark .ctaSection .description {
+  color: var(--color-text-secondary);
+}
+
+:root.dark .ctaSection .sectionTitle {
+  color: var(--color-text-primary);
 }
 
 .ctaSection .buttonGroup {

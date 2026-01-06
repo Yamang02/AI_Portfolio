@@ -32,21 +32,43 @@
 
 /* Secondary Variant */
 .button.secondary {
-  background-color: transparent;
   color: var(--color-text-primary);
   border: 1px solid var(--color-border-default);
 }
 
-.button.secondary:hover:not(:disabled) {
+/* 라이트 모드: 배경색 설정 (투명 아님) */
+:root:not(.dark) .button.secondary {
+  background-color: var(--color-bg-primary);
+}
+
+:root:not(.dark) .button.secondary:hover:not(:disabled) {
   background-color: var(--color-bg-secondary);
   border-color: var(--color-border-hover);
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.08); /* Secondary도 hover 시 shadow 추가 */
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.08);
   transform: translateY(-1px);
 }
 
-.button.secondary:active:not(:disabled) {
+:root:not(.dark) .button.secondary:active:not(:disabled) {
   background-color: var(--color-bg-tertiary);
-  transform: translateY(0); /* Active 시 원위치 */
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+/* 다크 모드: transparent 배경 */
+:root.dark .button.secondary {
+  background-color: transparent;
+}
+
+:root.dark .button.secondary:hover:not(:disabled) {
+  background-color: var(--color-bg-secondary);
+  border-color: var(--color-border-hover);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+:root.dark .button.secondary:active:not(:disabled) {
+  background-color: var(--color-bg-tertiary);
+  transform: translateY(0);
   box-shadow: none;
 }
 

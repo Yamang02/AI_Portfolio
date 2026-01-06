@@ -81,11 +81,12 @@
   --color-glass-light: rgba(255, 255, 255, 0.1);
   --color-glass-medium: rgba(255, 255, 255, 0.2);
   
-  /* 그라데이션 색상 (HomePage 배경용) */
-  --color-gradient-light-start: #FCFDFA;
-  --color-gradient-light-mid1: #F9FAF7;
-  --color-gradient-light-mid2: #F8F9F5;
-  --color-gradient-light-mid3: #F7F9F5;
+  /* 그라데이션 색상 (HomePage 배경용 - Featured Projects 섹션부터 하단까지) */
+  /* 흰색에서 featured-bg 색상(#EAF8EF)으로 자연스럽게 전환 */
+  --color-gradient-light-start: #F5FBF8;   /* 흰색과 featured-bg 사이 */
+  --color-gradient-light-mid1: #F0F9F4;    /* featured-bg에 가까워짐 */
+  --color-gradient-light-mid2: #EDF7F1;    /* featured-bg에 더 가까움 */
+  --color-gradient-light-mid3: #EAF8EF;    /* featured-bg 최종 색상 */
 
   /* Link - Neutral 기본, 브랜드 hover만 */
   --color-link-default: #6b7280;        /* Gray-500 (neutral) */

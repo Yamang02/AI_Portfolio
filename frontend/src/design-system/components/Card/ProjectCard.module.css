@@ -7,18 +7,18 @@
 }
 
 /* Card 컴포넌트의 기본 hover 효과 비활성화 */
-.projectCard.noCardHover.card.clickable:hover {
-  transform: none;
-  box-shadow: var(--shadow-sm);
-  border-color: var(--color-border-default);
+.noCardHover:hover {
+  transform: none !important;
+  box-shadow: var(--shadow-sm) !important;
+  border-color: var(--color-border-default) !important;
 }
 
-/* 프로젝트 카드 자체 호버 효과 - 브랜드 컬러 테두리와 그림자 */
-.projectCard.card.clickable:hover {
-  border-color: var(--color-primary);
+/* 프로젝트 카드 자체 호버 효과 - 브랜드 컬러 테두리와 그림자 (라이트모드 기준) */
+.projectCard:hover {
+  border-color: var(--color-primary) !important;
   box-shadow: 0 4px 12px 0 color-mix(in srgb, var(--color-primary) 20%, transparent),
-              0 2px 4px 0 color-mix(in srgb, var(--color-primary) 10%, transparent);
-  transform: translateY(-2px) scale(1.02);
+              0 2px 4px 0 color-mix(in srgb, var(--color-primary) 10%, transparent) !important;
+  transform: translateY(-2px) scale(1.02) !important;
 }
 
 /* 이미지/아이콘 영역 */
@@ -210,53 +210,3 @@
   transform: scale(1.05);
 }
 
-/* Dark mode */
-@media (prefers-color-scheme: dark) {
-  .imageContainer {
-    background: linear-gradient(
-      135deg,
-      var(--color-bg-secondary),
-      var(--color-bg-tertiary)
-    );
-  }
-
-  .iconContainer {
-    color: var(--color-text-tertiary);
-  }
-
-  .link {
-    background-color: transparent;
-    color: var(--color-text-secondary);
-    border-color: var(--color-border-default);
-  }
-
-  /* 프로젝트 카드 hover 시 GitHub 링크 연한 색상 (다크 모드) */
-  .projectCard:hover .githubLink:not(:hover) {
-    background-color: color-mix(in srgb, var(--color-github) 25%, transparent);
-    color: color-mix(in srgb, var(--color-github) 70%, var(--color-text-secondary) 30%);
-    border-color: color-mix(in srgb, var(--color-github) 50%, var(--color-border-default) 50%);
-  }
-
-  /* GitHub 링크 직접 hover 시 진한 색상 유지 (다크 모드) */
-  .githubLink:hover {
-    background-color: var(--color-github);
-    color: var(--color-white);
-    border-color: var(--color-github);
-    transform: scale(1.05);
-  }
-
-  /* 프로젝트 카드 hover 시 Live URL 링크 연한 색상 (다크 모드) */
-  .projectCard:hover .liveLink:not(:hover) {
-    background-color: color-mix(in srgb, var(--color-primary) 25%, transparent);
-    color: color-mix(in srgb, var(--color-primary) 70%, var(--color-text-secondary) 30%);
-    border-color: color-mix(in srgb, var(--color-primary) 50%, var(--color-border-default) 50%);
-  }
-
-  /* Live URL 링크 직접 hover 시 진한 색상 유지 (다크 모드) */
-  .liveLink:hover {
-    background-color: var(--color-primary);
-    color: var(--color-white);
-    border-color: var(--color-primary);
-    transform: scale(1.05);
-  }
-}

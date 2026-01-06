@@ -25,18 +25,21 @@ export const HomePage: React.FC = () => {
       const heroRect = hero.getBoundingClientRect();
       const about1Rect = about1.getBoundingClientRect();
       const about2Rect = about2.getBoundingClientRect();
+      const featuredProjectsRect = featuredProjects.getBoundingClientRect();
 
       // 페이지 최상단 기준 오프셋 계산
       const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
       const heroTop = heroRect.top + scrollTop;
       const about1Top = about1Rect.top + scrollTop;
       const about2Top = about2Rect.top + scrollTop;
+      const featuredProjectsTop = featuredProjectsRect.top + scrollTop;
 
-      // AboutSection2 중간 지점부터 그라데이션 시작 (30% 지점)
+      // AboutSection2 중간 지점부터 그라데이션 시작 (더 넓은 범위로 자연스러운 전환)
       const gradientStartPos = about2Top + (about2Rect.height * 0.3);
 
-      // AboutSection2 하단에서 그라데이션 완료
-      const gradientEndPos = about2Top + about2Rect.height;
+      // Featured Projects 섹션 시작 지점에서 그라데이션 완료
+      // Featured Projects를 볼 때는 이미 배경색이 모두 적용되어 있어야 함
+      const gradientEndPos = featuredProjectsTop;
 
       // 전체 페이지 높이
       const totalHeight = pageRef.current.scrollHeight;

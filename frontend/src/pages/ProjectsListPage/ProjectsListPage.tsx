@@ -223,15 +223,18 @@ export const ProjectsListPage: React.FC = () => {
             </Button>
           </div>
         </div>
-        <Divider variant="horizontal" />
       </section>
 
       {/* 주요 프로젝트 섹션 */}
       <section id="featured-section" className={styles.featuredSection}>
-        <div className={styles.container}>
-          <div className={styles.featuredHeader}>
-            <SectionTitle level="h2">주요 프로젝트</SectionTitle>
+        <div className={styles.featuredHeaderWrapper}>
+          <div className={styles.container}>
+            <div className={styles.featuredHeader}>
+              <SectionTitle level="h2">주요 프로젝트</SectionTitle>
+            </div>
           </div>
+        </div>
+        <div className={styles.container}>
           <div className={styles.grid}>
             {featuredProjects.length > 0 ? (
               featuredProjects.map((project) => (
