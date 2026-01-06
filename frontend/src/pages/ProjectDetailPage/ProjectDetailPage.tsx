@@ -12,7 +12,7 @@ import { ProjectDetailHeader } from '@design-system/components/ProjectDetailHead
 import { TableOfContents } from '@design-system/components/TableOfContents';
 import { ProjectNavigation } from '@design-system/components/ProjectNavigation';
 import { ProjectThumbnailCarousel } from '@design-system/components/Carousel';
-import { Footer } from '@widgets/layout/Footer';
+import { PageLayout } from '@widgets/layout';
 import styles from './ProjectDetailPage.module.css';
 
 const ProjectDetailPage: React.FC = () => {
@@ -90,35 +90,40 @@ const ProjectDetailPage: React.FC = () => {
   // 로딩 상태
   if (isLoading) {
     return (
-      <div className={styles.container}>
-        <div className={styles.content}>
-          <div className={styles.loading}>로딩 중...</div>
+      <PageLayout>
+        <div className={styles.container}>
+          <div className={styles.content}>
+            <div className={styles.loading}>로딩 중...</div>
+          </div>
         </div>
-      </div>
+      </PageLayout>
     );
   }
 
   // 에러 상태
   if (!project) {
     return (
-      <div className={styles.container}>
-        <div className={styles.content}>
-          <div className={styles.error}>
-            <h2>프로젝트를 찾을 수 없습니다</h2>
-            <p>요청한 프로젝트가 존재하지 않습니다.</p>
-            <TextLink href="/projects" className={styles.backLink}>
-              프로젝트 목록으로 돌아가기
-            </TextLink>
+      <PageLayout>
+        <div className={styles.container}>
+          <div className={styles.content}>
+            <div className={styles.error}>
+              <h2>프로젝트를 찾을 수 없습니다</h2>
+              <p>요청한 프로젝트가 존재하지 않습니다.</p>
+              <TextLink href="/projects" className={styles.backLink}>
+                프로젝트 목록으로 돌아가기
+              </TextLink>
+            </div>
           </div>
         </div>
-      </div>
+      </PageLayout>
     );
   }
 
 
   return (
-    <div className={styles.container}>
-      <div ref={contentRef} className={styles.content}>
+    <PageLayout>
+      <div className={styles.container}>
+        <div ref={contentRef} className={styles.content}>
         {/* 프로젝트 헤더 (고정 제거) */}
         <ProjectDetailHeader project={project} />
 
@@ -203,11 +208,9 @@ const ProjectDetailPage: React.FC = () => {
           }))}
           currentProjectId={project.id}
         />
+        </div>
       </div>
-      
-      {/* 푸터 */}
-      <Footer isVisible={true} />
-    </div>
+    </PageLayout>
   );
 };
 

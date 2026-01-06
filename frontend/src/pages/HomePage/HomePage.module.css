@@ -4,7 +4,6 @@
 
 .homePage {
   position: relative;
-  min-height: 100vh;
 
   /* 기본 배경 (다크 모드용) */
   background: var(--color-bg-primary);
@@ -13,6 +12,11 @@
   --gradient-start: 50%;
   --gradient-end: 60%; /* 그라데이션 끝 지점 */
   --total-height: 100vh;
+}
+
+.homePageContent {
+  position: relative;
+  min-height: 100vh;
 }
 
 /* 라이트 모드: 그라데이션 배경 */

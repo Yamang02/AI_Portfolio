@@ -3,10 +3,11 @@ import { Routes, Route } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from '../config/queryClient';
 import { AppProvider, useApp } from '../app/providers/AppProvider';
-import { Header } from '@/widgets/layout/Header';
+import { PageLayout } from '@/widgets/layout';
 import { HomePage } from '@/pages/HomePage';
 import { ProjectsListPage } from '@/pages/ProjectsListPage';
 import { ProjectDetailPage } from '@/pages/ProjectDetailPage';
+import { ProfilePage } from '@/pages/ProfilePage';
 import {
   EasterEggProvider,
   EasterEggLayer,
@@ -126,9 +127,6 @@ const MainAppContent: React.FC = () => {
         color: 'var(--color-text-primary)',
       }}
     >
-      {/* 공통 헤더 - Admin 페이지를 제외한 모든 페이지에 표시 */}
-      <Header />
-
       {/* 모바일 기능 안내 메시지 */}
       {shouldShowMobileNotice && (
         <div className="container mx-auto px-4 pt-4">
@@ -139,6 +137,9 @@ const MainAppContent: React.FC = () => {
       <Routes>
         {/* 홈 페이지 */}
         <Route path="/" element={<HomePage />} />
+
+        {/* 프로필 페이지 */}
+        <Route path="/profile" element={<ProfilePage />} />
 
         {/* 프로젝트 목록 페이지 */}
         <Route path="/projects" element={<ProjectsListPage />} />

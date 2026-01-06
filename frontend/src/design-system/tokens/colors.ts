@@ -149,6 +149,7 @@ export const lightModeSemantic = {
     primary: 'var(--color-text-primary)',
     secondary: 'var(--color-text-secondary)',
     tertiary: 'var(--color-text-tertiary)',
+    title: 'var(--color-text-title)',
   },
   // Border
   border: {
@@ -186,6 +187,7 @@ export const darkModeSemantic = {
     primary: 'var(--color-text-primary)',
     secondary: 'var(--color-text-secondary)',
     tertiary: 'var(--color-text-tertiary)',
+    title: 'var(--color-text-title)',
   },
   // Border
   border: {

@@ -1,0 +1,49 @@
+.container {
+  width: 100%;
+}
+
+/* 2열 그리드: Work | Education */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-8);
+  align-items: start;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+}
+
+.sectionTitle {
+  margin-bottom: var(--spacing-6);
+  color: var(--color-primary-dark);
+}
+
+.cards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+}
+
+.empty {
+  text-align: center;
+  padding: var(--spacing-8);
+}
+
+.emptyText {
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+}
+
+/* 반응형 레이아웃 */
+@media (max-width: 767px) {
+  .grid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-6);
+  }
+
+  .sectionTitle {
+    margin-bottom: var(--spacing-4);
+  }
+}

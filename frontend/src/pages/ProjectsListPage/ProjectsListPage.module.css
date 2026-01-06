@@ -16,6 +16,17 @@
   justify-content: space-between;
   align-items: flex-start;
   gap: 24px;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.headerContent > div:first-child {
+  padding-left: 48px;
+}
+
+.headerContent > button {
+  padding-right: 48px;
 }
 
 .description {
@@ -117,6 +128,9 @@
   grid-template-columns: repeat(3, 1fr);
   gap: 32px;
   margin-top: 0;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 /* 프로젝트 카드를 감싼 div가 grid 아이템으로 작동하도록 */
@@ -172,6 +186,14 @@
     grid-template-columns: repeat(2, 1fr);
     gap: 24px;
   }
+
+  .headerContent > div:first-child {
+    padding-left: 40px;
+  }
+
+  .headerContent > button {
+    padding-right: 40px;
+  }
 }
 
 /* Mobile (< 768px) */
@@ -183,6 +205,14 @@
   .headerContent {
     flex-direction: column;
     gap: 16px;
+  }
+
+  .headerContent > div:first-child {
+    padding-left: 24px;
+  }
+
+  .headerContent > button {
+    padding-right: 24px;
   }
 
   .featuredHeaderWrapper {

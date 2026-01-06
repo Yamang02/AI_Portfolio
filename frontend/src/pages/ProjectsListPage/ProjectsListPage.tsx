@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SectionTitle, Divider, ProjectCard, SkeletonCard, EmptyCard, Button } from '@/design-system';
-import { Footer } from '@widgets/layout/Footer';
+import { PageLayout } from '@widgets/layout';
 import { useProjectsQuery } from '@/entities/project/api/useProjectQuery';
 import type { Project } from '@/entities/project/model/project.types';
 import type { ProjectCardProject } from '@/design-system/components/Card/ProjectCard';
@@ -146,51 +146,56 @@ export const ProjectsListPage: React.FC = () => {
   // 로딩 상태
   if (isLoading) {
     return (
-      <div className={styles.page}>
-        <section className={styles.header}>
-          <div className={styles.container}>
-            <SectionTitle level="h1">Projects</SectionTitle>
-          </div>
-          <Divider variant="horizontal" />
-        </section>
-
-        <section className={styles.projects}>
-          <div className={styles.container}>
-            <div className={styles.grid}>
-              {[...Array(6)].map((_, i) => (
-                <SkeletonCard key={i} />
-              ))}
+      <PageLayout>
+        <div className={styles.page}>
+          <section className={styles.header}>
+            <div className={styles.container}>
+              <SectionTitle level="h1">Projects</SectionTitle>
             </div>
-          </div>
-        </section>
-      </div>
+            <Divider variant="horizontal" />
+          </section>
+
+          <section className={styles.projects}>
+            <div className={styles.container}>
+              <div className={styles.grid}>
+                {[...Array(6)].map((_, i) => (
+                  <SkeletonCard key={i} />
+                ))}
+              </div>
+            </div>
+          </section>
+        </div>
+      </PageLayout>
     );
   }
 
   // 에러 상태
   if (isError) {
     return (
-      <div className={styles.page}>
-        <section className={styles.header}>
-          <div className={styles.container}>
-            <SectionTitle level="h1">Projects</SectionTitle>
-          </div>
-          <Divider variant="horizontal" />
-        </section>
-
-        <section className={styles.projects}>
-          <div className={styles.container}>
-            <div className={styles.error}>
-              <p>프로젝트를 불러오는 중 오류가 발생했습니다.</p>
+      <PageLayout>
+        <div className={styles.page}>
+          <section className={styles.header}>
+            <div className={styles.container}>
+              <SectionTitle level="h1">Projects</SectionTitle>
             </div>
-          </div>
-        </section>
-      </div>
+            <Divider variant="horizontal" />
+          </section>
+
+          <section className={styles.projects}>
+            <div className={styles.container}>
+              <div className={styles.error}>
+                <p>프로젝트를 불러오는 중 오류가 발생했습니다.</p>
+              </div>
+            </div>
+          </section>
+        </div>
+      </PageLayout>
     );
   }
 
   return (
-    <div className={styles.page}>
+    <PageLayout>
+      <div className={styles.page}>
       {/* 헤더 */}
       <section className={styles.header}>
         <div className={styles.container}>
@@ -305,15 +310,13 @@ export const ProjectsListPage: React.FC = () => {
         </section>
       )}
 
-      {/* Footer */}
-      <Footer isVisible={true} />
-
       {/* 프로젝트 검색 모달 */}
       <ProjectSearchModal
         isOpen={isSearchModalOpen}
         onClose={() => setIsSearchModalOpen(false)}
         projects={projects}
       />
-    </div>
+      </div>
+    </PageLayout>
   );
 };

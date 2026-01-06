@@ -106,6 +106,28 @@
   --color-status-warning: #f59e0b;     /* Amber-500 */
   --color-status-error: #ef4444;       /* Red-500 */
 
+  /* Typography - Font Size */
+  --font-size-display: 3.75rem;   /* 60px */
+  --font-size-h1: 2.25rem;        /* 36px */
+  --font-size-h2: 1.875rem;       /* 30px */
+  --font-size-h3: 1.5rem;         /* 24px */
+  --font-size-h4: 1.25rem;        /* 20px */
+  --font-size-base: 1rem;         /* 16px */
+  --font-size-lg: 1.125rem;       /* 18px */
+  --font-size-sm: 0.875rem;        /* 14px */
+  --font-size-xs: 0.75rem;         /* 12px */
+
+  /* Typography - Font Weight */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* Typography - Line Height */
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+
   /* Spacing */
   --spacing-0: 0;
   --spacing-1: 0.25rem;   /* 4px */
@@ -228,6 +250,28 @@
     --color-status-warning: #fbbf24;    /* Amber-400 */
     --color-status-error: #f87171;      /* Red-400 */
 
+    /* Typography - Font Size (다크 모드에서도 동일) */
+    --font-size-display: 3.75rem;   /* 60px */
+    --font-size-h1: 2.25rem;        /* 36px */
+    --font-size-h2: 1.875rem;       /* 30px */
+    --font-size-h3: 1.5rem;         /* 24px */
+    --font-size-h4: 1.25rem;        /* 20px */
+    --font-size-base: 1rem;         /* 16px */
+    --font-size-lg: 1.125rem;       /* 18px */
+    --font-size-sm: 0.875rem;        /* 14px */
+    --font-size-xs: 0.75rem;         /* 12px */
+
+    /* Typography - Font Weight (다크 모드에서도 동일) */
+    --font-weight-regular: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+
+    /* Typography - Line Height (다크 모드에서도 동일) */
+    --line-height-tight: 1.25;
+    --line-height-normal: 1.5;
+    --line-height-relaxed: 1.75;
+
     /* Spacing (다크 모드에서도 동일) */
     --spacing-0: 0;
     --spacing-1: 0.25rem;
@@ -344,14 +388,36 @@
   --color-link-hover: #f3f4f6;       /* Gray-100 (밝게) */
   --color-link-visited: #9ca3af;      /* Gray-400 */
 
-  /* Status - 표준 색상 */
-  --color-status-info: #60a5fa;       /* Blue-400 */
-  --color-status-success: #34d399;    /* Green-400 (표준, 브랜드 아님) */
-  --color-status-warning: #fbbf24;    /* Amber-400 */
-  --color-status-error: #f87171;      /* Red-400 */
+    /* Status - 표준 색상 */
+    --color-status-info: #60a5fa;       /* Blue-400 */
+    --color-status-success: #34d399;    /* Green-400 (표준, 브랜드 아님) */
+    --color-status-warning: #fbbf24;    /* Amber-400 */
+    --color-status-error: #f87171;      /* Red-400 */
 
-  /* Spacing (다크 모드에서도 동일) */
-  --spacing-0: 0;
+    /* Typography - Font Size (다크 모드에서도 동일) */
+    --font-size-display: 3.75rem;   /* 60px */
+    --font-size-h1: 2.25rem;        /* 36px */
+    --font-size-h2: 1.875rem;       /* 30px */
+    --font-size-h3: 1.5rem;         /* 24px */
+    --font-size-h4: 1.25rem;        /* 20px */
+    --font-size-base: 1rem;         /* 16px */
+    --font-size-lg: 1.125rem;       /* 18px */
+    --font-size-sm: 0.875rem;        /* 14px */
+    --font-size-xs: 0.75rem;         /* 12px */
+
+    /* Typography - Font Weight (다크 모드에서도 동일) */
+    --font-weight-regular: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+
+    /* Typography - Line Height (다크 모드에서도 동일) */
+    --line-height-tight: 1.25;
+    --line-height-normal: 1.5;
+    --line-height-relaxed: 1.75;
+
+    /* Spacing (다크 모드에서도 동일) */
+    --spacing-0: 0;
   --spacing-1: 0.25rem;
   --spacing-2: 0.5rem;
   --spacing-3: 0.75rem;
