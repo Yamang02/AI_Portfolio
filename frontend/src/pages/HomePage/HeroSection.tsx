@@ -3,33 +3,40 @@ import { SectionTitle, Button } from '@/design-system';
 import styles from './HeroSection.module.css';
 
 export const HeroSection: React.FC = () => {
+  const [showContainer, setShowContainer] = useState(false);
   const [showYamang02, setShowYamang02] = useState(false);
   const [showH2, setShowH2] = useState(false);
   const [showIntro, setShowIntro] = useState(false);
   const [showButton, setShowButton] = useState(false);
 
   useEffect(() => {
-    // 컴포넌트 마운트 후 1초 뒤에 Yamang02 나타나기
+    // 영역이 아래에서 위로 fade-in
+    const containerTimer = setTimeout(() => {
+      setShowContainer(true);
+    }, 100);
+
+    // 영역이 나타난 후 텍스트 등장 시작
     const timer1 = setTimeout(() => {
       setShowYamang02(true);
-    }, 1000);
+    }, 800);
 
     // Yamang02 나타난 후 0.6초 뒤에 h2 나타나기
     const timer2 = setTimeout(() => {
       setShowH2(true);
-    }, 1600);
+    }, 1400);
 
     // h2 나타난 후 0.6초 뒤에 intro 나타나기
     const timer3 = setTimeout(() => {
       setShowIntro(true);
-    }, 2200);
+    }, 2000);
 
     // intro 나타난 후 0.6초 뒤에 버튼 나타나기
     const timer4 = setTimeout(() => {
       setShowButton(true);
-    }, 2800);
+    }, 2600);
 
     return () => {
+      clearTimeout(containerTimer);
       clearTimeout(timer1);
       clearTimeout(timer2);
       clearTimeout(timer3);
@@ -46,7 +53,7 @@ export const HeroSection: React.FC = () => {
 
   return (
     <section id="hero" className={styles.hero}>
-      <div className={styles.container}>
+      <div className={`${styles.container} ${showContainer ? styles.show : ''}`}>
         <div className={styles.content}>
           <div className={styles.nameContainer}>
             <SectionTitle level="h1">이정준</SectionTitle>

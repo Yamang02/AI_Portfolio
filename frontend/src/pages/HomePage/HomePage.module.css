@@ -4,6 +4,11 @@
 
 .homePage {
   position: relative;
+}
+
+.homePageContent {
+  position: relative;
+  min-height: 100vh;
 
   /* 기본 배경 (다크 모드용) */
   background: var(--color-bg-primary);
@@ -14,13 +19,8 @@
   --total-height: 100vh;
 }
 
-.homePageContent {
-  position: relative;
-  min-height: 100vh;
-}
-
 /* 라이트 모드: 그라데이션 배경 */
-:root:not(.dark) .homePage {
+:root:not(.dark) .homePageContent {
   /* 동적 그라데이션: About 섹션 중간(30%) → Featured Projects 시작 */
   /* 넓은 범위로 자연스럽게 전환하여 더 부드러운 색상 변화 */
   /* Featured Projects 섹션을 볼 때는 이미 배경색이 모두 적용되어 있음 */

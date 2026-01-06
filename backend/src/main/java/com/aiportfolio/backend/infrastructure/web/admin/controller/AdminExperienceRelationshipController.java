@@ -11,9 +11,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Collectors;
 
 /**
@@ -294,9 +294,10 @@ public class AdminExperienceRelationshipController {
     }
 
     /**
-     * 프로젝트 관계 일괄 업데이트 (원자적 트랜잭션 보장)
+     * 프로젝트 관계 일괄 업데이트 (Merge 전략 사용)
      * 
-     * 기존 관계 전체 삭제 후 새 관계 생성
+     * 기존 관계와 요청된 관계를 비교하여
+     * 삭제할 것만 삭제하고 추가할 것만 추가합니다.
      * 하나라도 실패하면 전체 롤백
      */
     @PutMapping("/projects")
@@ -304,38 +305,22 @@ public class AdminExperienceRelationshipController {
             @PathVariable String id,
             @RequestBody BulkProjectRelationshipRequest request) {
         try {
-            ExperienceJpaEntity experience = experienceJpaRepository.findByBusinessId(id)
-                .orElseThrow(() -> new IllegalArgumentException("Experience not found"));
+            // BulkProjectRelationshipRequest를 ExperienceRelationshipPort.ProjectRelation으로 변환
+            List<ExperienceRelationshipPort.ProjectRelation> projectRelations = 
+                (request.getProjectRelationships() == null || request.getProjectRelationships().isEmpty())
+                    ? Collections.emptyList()
+                    : request.getProjectRelationships().stream()
+                        .map(item -> new ExperienceRelationshipPort.ProjectRelation(
+                            item.getProjectBusinessId(),
+                            item.getRoleInProject(),
+                            item.getContributionDescription()
+                        ))
+                        .collect(Collectors.toList());
 
-            // 1. 기존 관계 전체 삭제
-            List<ExperienceProjectJpaEntity> existingRelations = 
-                experienceProjectJpaRepository.findByExperienceId(experience.getId());
+            // Merge 전략을 사용하여 관계 업데이트
+            experienceRelationshipPort.replaceProjects(id, projectRelations);
             
-            experienceProjectJpaRepository.deleteAll(existingRelations);
-            log.info("Deleted {} existing project relationships", existingRelations.size());
-
-            // 2. 새 관계 생성
-            if (request.getProjectRelationships() != null) {
-                for (BulkProjectRelationshipRequest.ProjectRelationshipItem item : request.getProjectRelationships()) {
-                    // Business ID로 프로젝트 조회
-                    ProjectJpaEntity project = projectJpaRepository
-                        .findByBusinessId(item.getProjectBusinessId())
-                        .orElseThrow(() -> new IllegalArgumentException(
-                            "Project not found: " + item.getProjectBusinessId()));
-
-                    // 새 관계 생성
-                    ExperienceProjectJpaEntity relationship = ExperienceProjectJpaEntity.builder()
-                        .experience(experience)
-                        .project(project)
-                        .roleInProject(item.getRoleInProject())
-                        .contributionDescription(item.getContributionDescription())
-                        .build();
-
-                    experienceProjectJpaRepository.save(relationship);
-                }
-                log.info("Created {} new project relationships", request.getProjectRelationships().size());
-            }
-
+            log.info("Updated project relationships for experience: {} (using merge strategy)", id);
             return ResponseEntity.ok(ApiResponse.success(null, "프로젝트 관계 일괄 업데이트 성공"));
         } catch (IllegalArgumentException e) {
             log.error("Invalid request: {}", e.getMessage());

@@ -2,8 +2,8 @@
   width: 100%;
   display: flex;
   flex-direction: column;
-  background-color: #ffffff;
-  color: #000000;
+  /* Card 컴포넌트의 배경색을 더 밝게 오버라이드 */
+  background-color: var(--color-bg-primary) !important;
 }
 
 /* 헤더: 아이콘, 조직/회사, title, 근무기간 */
@@ -12,7 +12,7 @@
   gap: var(--spacing-4);
   margin-bottom: var(--spacing-4);
   padding-bottom: var(--spacing-4);
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--color-border-default);
 }
 
 .iconWrapper {
@@ -40,28 +40,28 @@
 .organization {
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-semibold);
-  color: #000000;
+  color: var(--color-text-primary);
   margin-bottom: var(--spacing-1);
   line-height: var(--line-height-tight);
 }
 
 .title {
   font-size: var(--font-size-sm);
-  color: #000000;
+  color: var(--color-text-primary);
   margin-bottom: var(--spacing-1);
   line-height: var(--line-height-normal);
 }
 
 .degree {
   font-size: var(--font-size-sm);
-  color: #000000;
+  color: var(--color-text-primary);
   margin-bottom: var(--spacing-2);
   line-height: var(--line-height-normal);
 }
 
 .date {
   font-size: var(--font-size-xs);
-  color: #000000;
+  color: var(--color-text-primary);
   text-align: right;
   white-space: nowrap;
   flex-shrink: 0;
@@ -100,7 +100,7 @@
 .sectionTitle {
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
-  color: #000000;
+  color: var(--color-text-primary);
   margin-bottom: var(--spacing-2);
   line-height: var(--line-height-normal);
 }
@@ -113,7 +113,7 @@
 
 .listItem {
   font-size: var(--font-size-sm);
-  color: #000000;
+  color: var(--color-text-primary);
   line-height: var(--line-height-relaxed);
   margin-bottom: var(--spacing-1);
   padding-left: var(--spacing-4);
@@ -124,7 +124,7 @@
   content: '•';
   position: absolute;
   left: 0;
-  color: #000000;
+  color: var(--color-text-primary);
   font-weight: var(--font-weight-bold);
 }
 
@@ -137,13 +137,13 @@
 }
 
 .descriptionCard {
-  background-color: #f9fafb;
-  border: 1px solid #e5e7eb;
+  background-color: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border-default);
 }
 
 .description {
   font-size: var(--font-size-sm);
-  color: #000000;
+  color: var(--color-text-primary);
   line-height: var(--line-height-relaxed);
   white-space: pre-wrap; /* 줄바꿈 유지 */
   word-wrap: break-word;

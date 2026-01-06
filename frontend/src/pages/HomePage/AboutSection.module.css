@@ -40,19 +40,11 @@
 .aboutSection .content h2,
 .aboutSection .content .sectionTitle {
   text-align: center;
-  color: var(--color-primary);
+  color: var(--color-primary-text);
   display: block;
   width: fit-content;
   margin-left: auto;
   margin-right: auto;
-}
-
-/* 다크 모드: 브랜드 컬러 제거, 중립 색상 사용 */
-@media (prefers-color-scheme: dark) {
-  .aboutSection .content h2,
-  .aboutSection .content .sectionTitle {
-    color: var(--color-text-primary);
-  }
 }
 
 .aboutSection .processFlow {
@@ -107,22 +99,14 @@
 }
 
 .aboutSection .highlight {
-  color: var(--color-primary);
+  color: var(--color-primary-text);
   font-weight: 600;
 }
 
 .aboutSection .highlightText {
-  color: var(--color-primary);
+  color: var(--color-primary-text);
   font-weight: 700;
   font-size: 1.5rem;
-}
-
-/* 다크 모드: 브랜드 컬러 제거, 중립 색상 사용 */
-@media (prefers-color-scheme: dark) {
-  .aboutSection .highlight,
-  .aboutSection .highlightText {
-    color: var(--color-text-primary);
-  }
 }
 
 .aboutSection .belief {
