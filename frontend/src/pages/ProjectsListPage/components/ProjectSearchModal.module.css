@@ -1,0 +1,246 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.filters {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 16px;
+  align-items: end;
+}
+
+.filterGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.searchInput {
+  width: 100%;
+  padding: 10px 16px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 6px;
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  font-size: 0.875rem;
+  transition: all 0.15s ease;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(127, 175, 138, 0.1);
+}
+
+.select {
+  padding: 10px 16px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 6px;
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(127, 175, 138, 0.1);
+}
+
+.techFilterSection {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  background-color: var(--color-bg-secondary);
+  border-radius: 6px;
+  border: 1px solid var(--color-border-default);
+}
+
+.techCategoryGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.techCategoryHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--color-border-default);
+}
+
+.techCategoryName {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.techCategoryCount {
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary);
+}
+
+.techBadges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.techBadgeButton {
+  white-space: nowrap;
+  padding: 4px 10px !important;
+  font-size: 0.75rem !important;
+  font-weight: 500 !important;
+  min-height: auto !important;
+  height: auto !important;
+  line-height: 1.2 !important;
+  border-radius: 4px !important;
+}
+
+.clearTechsButton {
+  align-self: flex-start;
+  margin-top: 8px;
+}
+
+.resultCount {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+.tableContainer {
+  border: 1px solid var(--color-border-default);
+  border-radius: 6px;
+  overflow: hidden;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: var(--color-bg-primary);
+}
+
+.table thead {
+  background-color: var(--color-bg-secondary);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.table th {
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  border-bottom: 2px solid var(--color-border-default);
+}
+
+.table th:first-child {
+  width: 30%;
+}
+
+.table th:nth-child(2) {
+  width: 15%;
+}
+
+.table th:last-child {
+  width: 55%;
+}
+
+.tableRow {
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  border-bottom: 1px solid var(--color-border-default);
+}
+
+.tableRow:hover {
+  background-color: var(--color-bg-secondary);
+}
+
+.tableRow:last-child {
+  border-bottom: none;
+}
+
+.table td {
+  padding: 16px;
+  font-size: 0.875rem;
+  color: var(--color-text-primary);
+  vertical-align: middle;
+}
+
+.projectName {
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.emptyCell {
+  text-align: center;
+  padding: 48px 16px;
+  color: var(--color-text-tertiary);
+}
+
+.techStackCell {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.techStackGroup {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.techStackGroupLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  padding-top: 2px;
+}
+
+/* 모바일 반응형 */
+@media (max-width: 767px) {
+  .filters {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .tableContainer {
+    max-height: 300px;
+  }
+
+  .table th,
+  .table td {
+    padding: 12px;
+    font-size: 0.8125rem;
+  }
+
+  .table th:first-child {
+    width: 40%;
+  }
+
+  .table th:nth-child(2) {
+    width: 20%;
+  }
+
+  .table th:last-child {
+    width: 40%;
+  }
+}

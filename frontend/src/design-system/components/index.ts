@@ -55,3 +55,6 @@ export type {
   ProjectIconSize,
   ProjectIconType,
 } from './Icon';
+
+export { Modal } from './Modal';
+export type { ModalProps } from './Modal';

@@ -1,11 +1,12 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { SectionTitle, Divider, ProjectCard, SkeletonCard, EmptyCard } from '@/design-system';
+import { SectionTitle, Divider, ProjectCard, SkeletonCard, EmptyCard, Button } from '@/design-system';
 import { Footer } from '@widgets/layout/Footer';
 import { useProjectsQuery } from '@/entities/project/api/useProjectQuery';
 import type { Project } from '@/entities/project/model/project.types';
 import type { ProjectCardProject } from '@/design-system/components/Card/ProjectCard';
 import { FEATURED_PROJECTS } from '@/pages/HomePage/config/featuredProjects.config';
+import { ProjectSearchModal } from './components/ProjectSearchModal';
 import styles from './ProjectsListPage.module.css';
 
 // 프로젝트 타입별 섹션 구성
@@ -13,6 +14,7 @@ type ProjectCategory = 'BUILD' | 'LAB' | 'MAINTENANCE';
 
 export const ProjectsListPage: React.FC = () => {
   const navigate = useNavigate();
+  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   
   // API에서 프로젝트 목록 가져오기
   const { data: projects = [], isLoading, isError } = useProjectsQuery({
@@ -110,9 +112,6 @@ export const ProjectsListPage: React.FC = () => {
         <section className={styles.header}>
           <div className={styles.container}>
             <SectionTitle level="h1">Projects</SectionTitle>
-            <p className={styles.description}>
-              AI를 적극 활용한 프로젝트 모음입니다.
-            </p>
           </div>
           <Divider variant="horizontal" />
         </section>
@@ -137,9 +136,6 @@ export const ProjectsListPage: React.FC = () => {
         <section className={styles.header}>
           <div className={styles.container}>
             <SectionTitle level="h1">Projects</SectionTitle>
-            <p className={styles.description}>
-              AI를 적극 활용한 프로젝트 모음입니다.
-            </p>
           </div>
           <Divider variant="horizontal" />
         </section>
@@ -160,11 +156,34 @@ export const ProjectsListPage: React.FC = () => {
       {/* 헤더 */}
       <section className={styles.header}>
         <div className={styles.container}>
-          <SectionTitle level="h1">Projects</SectionTitle>
-          <p className={styles.description}>
-            AI를 적극 활용한 프로젝트 모음입니다.
-          </p>
-          <p className={styles.count}>총 {projects.length}개의 프로젝트</p>
+          <div className={styles.headerContent}>
+            <div>
+              <SectionTitle level="h1">Projects</SectionTitle>
+              <p className={styles.count}>총 {projects.length}개의 프로젝트</p>
+            </div>
+            <Button
+              variant="secondary"
+              size="md"
+              onClick={() => setIsSearchModalOpen(true)}
+              ariaLabel="프로젝트 검색"
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                style={{ marginRight: '8px', verticalAlign: 'middle' }}
+              >
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.35-4.35"></path>
+              </svg>
+              프로젝트 검색
+            </Button>
+          </div>
         </div>
         <Divider variant="horizontal" />
       </section>
@@ -232,6 +251,13 @@ export const ProjectsListPage: React.FC = () => {
 
       {/* Footer */}
       <Footer isVisible={true} />
+
+      {/* 프로젝트 검색 모달 */}
+      <ProjectSearchModal
+        isOpen={isSearchModalOpen}
+        onClose={() => setIsSearchModalOpen(false)}
+        projects={projects}
+      />
     </div>
   );
 };
