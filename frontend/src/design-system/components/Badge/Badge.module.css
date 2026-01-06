@@ -24,8 +24,8 @@
 }
 
 .badge.accent {
-  background-color: var(--color-status-info);  /* Blue-500 (표준) */
-  border-color: var(--color-status-info);
+  background-color: #22c55e;  /* Vivid Green-500 - 브랜드 컬러와 어울리는 선명한 초록색 */
+  border-color: #22c55e;
   color: var(--color-white);
 }
 

@@ -32,6 +32,54 @@ export const BrandColors = () => (
       <div style={{ 
         width: '100%', 
         height: '80px', 
+        backgroundColor: brandColors.heroBackground, 
+        borderRadius: '4px',
+        marginBottom: '0.5rem'
+      }} />
+      <div style={{ fontWeight: '600' }}>Hero Background</div>
+      <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>{brandColors.heroBackground}</div>
+      <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>Emerald Green (Light Mode)</div>
+    </div>
+    <div style={{ padding: '1rem', backgroundColor: '#f9fafb', borderRadius: '8px' }}>
+      <div style={{ 
+        width: '100%', 
+        height: '80px', 
+        backgroundColor: brandColors.heroBackgroundDark, 
+        borderRadius: '4px',
+        marginBottom: '0.5rem'
+      }} />
+      <div style={{ fontWeight: '600' }}>Hero Background (Dark)</div>
+      <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>{brandColors.heroBackgroundDark}</div>
+      <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>Sea Green (Dark Mode)</div>
+    </div>
+    <div style={{ padding: '1rem', backgroundColor: '#f9fafb', borderRadius: '8px' }}>
+      <div style={{ 
+        width: '100%', 
+        height: '80px', 
+        backgroundColor: brandColors.featuredBadge, 
+        borderRadius: '4px',
+        marginBottom: '0.5rem'
+      }} />
+      <div style={{ fontWeight: '600' }}>Featured Badge</div>
+      <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>{brandColors.featuredBadge}</div>
+      <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>Gold (톤 다운)</div>
+    </div>
+    <div style={{ padding: '1rem', backgroundColor: '#f9fafb', borderRadius: '8px' }}>
+      <div style={{ 
+        width: '100%', 
+        height: '80px', 
+        backgroundColor: brandColors.github, 
+        borderRadius: '4px',
+        marginBottom: '0.5rem'
+      }} />
+      <div style={{ fontWeight: '600' }}>GitHub</div>
+      <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>{brandColors.github}</div>
+      <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>GitHub 시그니처 보라색</div>
+    </div>
+    <div style={{ padding: '1rem', backgroundColor: '#f9fafb', borderRadius: '8px' }}>
+      <div style={{ 
+        width: '100%', 
+        height: '80px', 
         backgroundColor: '#3b82f6',  /* 표준 Blue-500 (Info/Accent) */ 
         borderRadius: '4px',
         marginBottom: '0.5rem'
@@ -64,6 +112,104 @@ export const BrandColors = () => (
       <div style={{ fontWeight: '600' }}>Highlight</div>
       <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>#f3f4f6</div>
       <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>Standard Gray-100</div>
+    </div>
+  </div>
+);
+
+export const HeroColors = () => (
+  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
+    <div style={{ padding: '1rem', backgroundColor: brandColors.heroBackground, borderRadius: '8px' }}>
+      <div style={{ 
+        width: '100%', 
+        height: '60px', 
+        backgroundColor: brandColors.heroTitle, 
+        borderRadius: '4px',
+        marginBottom: '0.5rem',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color: '#ffffff',
+        fontWeight: '700',
+        fontSize: '1.25rem'
+      }}>
+        Title
+      </div>
+      <div style={{ fontWeight: '600', color: '#ffffff' }}>Hero Title (Light)</div>
+      <div style={{ fontSize: '0.875rem', color: '#ffffff', opacity: 0.9 }}>{brandColors.heroTitle}</div>
+    </div>
+    <div style={{ padding: '1rem', backgroundColor: brandColors.heroBackground, borderRadius: '8px' }}>
+      <div style={{ 
+        width: '100%', 
+        height: '60px', 
+        backgroundColor: brandColors.heroSubtext, 
+        borderRadius: '4px',
+        marginBottom: '0.5rem',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color: '#ffffff',
+        fontSize: '1rem'
+      }}>
+        Subtext
+      </div>
+      <div style={{ fontWeight: '600', color: '#ffffff' }}>Hero Subtext (Light)</div>
+      <div style={{ fontSize: '0.875rem', color: '#ffffff', opacity: 0.9 }}>{brandColors.heroSubtext}</div>
+    </div>
+    <div style={{ padding: '1rem', backgroundColor: brandColors.heroBackgroundDark, borderRadius: '8px' }}>
+      <div style={{ 
+        width: '100%', 
+        height: '60px', 
+        backgroundColor: brandColors.heroTitleDark, 
+        borderRadius: '4px',
+        marginBottom: '0.5rem',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color: '#0F1F17',
+        fontWeight: '700',
+        fontSize: '1.25rem'
+      }}>
+        Title
+      </div>
+      <div style={{ fontWeight: '600', color: '#ECF6F1' }}>Hero Title (Dark)</div>
+      <div style={{ fontSize: '0.875rem', color: '#ECF6F1', opacity: 0.9 }}>{brandColors.heroTitleDark}</div>
+    </div>
+    <div style={{ padding: '1rem', backgroundColor: brandColors.heroBackgroundDark, borderRadius: '8px' }}>
+      <div style={{ 
+        width: '100%', 
+        height: '60px', 
+        backgroundColor: brandColors.heroSubtextDark, 
+        borderRadius: '4px',
+        marginBottom: '0.5rem',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color: '#0F1F17',
+        fontSize: '1rem'
+      }}>
+        Subtext
+      </div>
+      <div style={{ fontWeight: '600', color: '#ECF6F1' }}>Hero Subtext (Dark)</div>
+      <div style={{ fontSize: '0.875rem', color: '#ECF6F1', opacity: 0.9 }}>{brandColors.heroSubtextDark}</div>
+    </div>
+    <div style={{ padding: '1rem', backgroundColor: brandColors.primary, borderRadius: '8px' }}>
+      <div style={{ 
+        width: '100%', 
+        height: '60px', 
+        backgroundColor: brandColors.heroCtaText, 
+        borderRadius: '4px',
+        marginBottom: '0.5rem',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color: brandColors.primary,
+        fontWeight: '600',
+        fontSize: '1rem'
+      }}>
+        CTA Text
+      </div>
+      <div style={{ fontWeight: '600', color: '#ffffff' }}>Hero CTA Text</div>
+      <div style={{ fontSize: '0.875rem', color: '#ffffff', opacity: 0.9 }}>{brandColors.heroCtaText}</div>
     </div>
   </div>
 );

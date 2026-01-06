@@ -4,7 +4,6 @@
   align-items: center;
   justify-content: center;
   padding: 32px 32px 64px; /* 위 여백 줄임 (64px -> 32px) */
-  background: transparent;
 }
 
 .hero .container {
@@ -35,6 +34,7 @@
   margin-right: auto;
   display: block;
   width: fit-content;
+  color: var(--color-hero-title);
 }
 
 .hero .secondaryName {
@@ -74,6 +74,11 @@
   transition: opacity 0.6s ease-out, transform 0.6s ease-out;
 }
 
+/* 히어로 섹션 내 SectionTitle (H2) 색상 */
+.hero .sequentialItem h2 {
+  color: var(--color-hero-title);
+}
+
 .hero .sequentialItem.show {
   opacity: 1;
   transform: translateY(0);
@@ -83,7 +88,7 @@
   margin-top: 24px;
   font-size: 1.125rem;
   line-height: 1.75;
-  color: var(--color-text-secondary);
+  color: var(--color-hero-subtext);
 }
 
 .hero .cta {
@@ -93,6 +98,11 @@
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
+}
+
+/* 히어로 CTA 버튼 텍스트 색상 - Primary 버튼만 */
+.hero .cta button.primary {
+  color: var(--color-hero-cta-text) !important;
 }
 
 /* 트렌디한 화살표 아이콘 스타일 */

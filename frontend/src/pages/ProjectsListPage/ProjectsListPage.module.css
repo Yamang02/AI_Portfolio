@@ -27,7 +27,12 @@
 /* Featured Projects 섹션 */
 .featuredSection {
   padding: 48px 32px;
-  background-color: var(--color-bg-secondary); /* Gray-50 (표준 neutral) */
+  background-color: var(--color-featured-bg);
+}
+
+/* Featured Section 내 SectionTitle 색상 */
+.featuredSection h2 {
+  color: var(--color-featured-header);
 }
 
 /* 프로젝트 타입별 섹션 */
@@ -37,6 +42,11 @@
 
 .typeSection:not(:last-child) {
   border-bottom: 1px solid var(--color-border-default);
+}
+
+/* 일반 섹션 내 SectionTitle 색상 - 텍스트용 진한 그린 */
+.typeSection h2 {
+  color: var(--color-primary-text);
 }
 
 /* 프로젝트 그리드 */

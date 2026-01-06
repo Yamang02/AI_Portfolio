@@ -126,3 +126,63 @@ export const TeamVsIndividual: Story = {
     </div>
   ),
 };
+
+export const Featured: Story = {
+  args: {
+    project: {
+      ...sampleProject,
+      isFeatured: true,
+      title: 'Featured Project',
+    },
+  },
+};
+
+export const FeaturedWithImage: Story = {
+  args: {
+    project: {
+      ...sampleProject,
+      isFeatured: true,
+      imageUrl: 'https://via.placeholder.com/400x200',
+      title: 'Featured Project with Image',
+    },
+  },
+};
+
+export const AllVariants: Story = {
+  render: () => (
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
+      <ProjectCard
+        project={{
+          ...sampleProject,
+          isTeam: true,
+          isFeatured: false,
+          title: 'Team Project',
+        }}
+      />
+      <ProjectCard
+        project={{
+          ...sampleProject,
+          isTeam: false,
+          isFeatured: false,
+          title: 'Individual Project',
+        }}
+      />
+      <ProjectCard
+        project={{
+          ...sampleProject,
+          isTeam: true,
+          isFeatured: true,
+          title: 'Featured Team Project',
+        }}
+      />
+      <ProjectCard
+        project={{
+          ...sampleProject,
+          isTeam: false,
+          isFeatured: true,
+          title: 'Featured Individual Project',
+        }}
+      />
+    </div>
+  ),
+};

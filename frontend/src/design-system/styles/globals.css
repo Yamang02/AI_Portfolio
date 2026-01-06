@@ -12,10 +12,13 @@
   --color-bg-secondary: #f9fafb;       /* Gray-50 */
   --color-bg-tertiary: #f3f4f6;        /* Gray-100 */
 
-  /* Text - Neutral (표준) */
-  --color-text-primary: #111827;       /* Gray-900 */
-  --color-text-secondary: #6b7280;     /* Gray-500 */
-  --color-text-tertiary: #9ca3af;      /* Gray-400 */
+  /* Text - 브랜드 그린 톤 */
+  --color-text-primary: #1F2A23;       /* 브랜드 그린 톤 - 부드러운 블랙 */
+  --color-text-secondary: #5F6F66;     /* 브랜드 그린 톤 - 서브 텍스트 */
+  --color-text-tertiary: #9ca3af;      /* Gray-400 (표준) */
+  
+  /* Button Text - Primary 버튼 위 텍스트용 */
+  --color-button-text: #F8FBF9;        /* 버튼 텍스트 (라이트/다크 공통) */
 
   /* Border - Neutral (표준) */
   --color-border-default: #e5e7eb;     /* Gray-200 */
@@ -27,10 +30,51 @@
   --color-primary-hover: #6FA07A;       /* 약간 진한 hover */
   --color-primary-active: #5F9070;      /* Active 상태 */
   --color-primary-focus: #7FAF8A;      /* Focus ring */
+  --color-primary-text: #4F8060;        /* 텍스트용 진한 그린 - 섹션 타이틀 등 */
+  
+  /* Hero Section Background - 임팩트 있는 초록색 */
+  --color-hero-bg: #50C878;              /* Emerald Green - 히어로 섹션 배경용 */
+  
+  /* Hero Section Text Colors */
+  --color-hero-title: #0F1F17;           /* 히어로 메인 헤드라인 (H1) */
+  --color-hero-subtext: #1F3A2C;         /* 히어로 서브 카피/설명 텍스트 */
+  --color-hero-cta-text: #F7FCF9;        /* 히어로 CTA 버튼 텍스트 */
+  --color-hero-badge: #145A32;           /* 히어로 보조 요소 (Badge, Eyebrow) */
+  
+  /* Featured Badge */
+  --color-featured-badge: #f5c842;       /* Featured 별 배지 배경 (노란색, 톤 다운) */
+  
+  /* Featured / Highlight Section Colors */
+  --color-featured-bg: #EAF8EF;          /* 조용한 강조 영역 배경 - 아주 밝은 그린 틴트 */
+  --color-featured-header: #1E2F26;      /* Section Header - 그린 기 살짝 포함된 블랙 */
+  --color-featured-text: #556E62;        /* Body Text - 그린 뉴트럴 */
+  --color-featured-link: #4F8F6B;       /* Link / Accent Text - 한 단계 진한 그린 */
+  --color-featured-divider: #B7D6C6;     /* Divider / Icon - 보조 요소 */
+  
+  /* GitHub Link */
+  --color-github: #6e5494;               /* GitHub 시그니처 보라색 */
+  
+  /* Primary Dark - 섹션 타이틀용 */
+  --color-primary-dark: #4F8060;         /* 텍스트용 진한 그린 */
 
   /* Neutral Colors */
   --color-white: #ffffff;
   --color-black: #000000;
+  
+  /* 그림자 색상 */
+  --color-shadow-light: rgba(0, 0, 0, 0.08);
+  --color-shadow-medium: rgba(0, 0, 0, 0.1);
+  --color-shadow-heavy: rgba(0, 0, 0, 0.15);
+  
+  /* 글라스모피즘 효과 */
+  --color-glass-light: rgba(255, 255, 255, 0.1);
+  --color-glass-medium: rgba(255, 255, 255, 0.2);
+  
+  /* 그라데이션 색상 (HomePage 배경용) */
+  --color-gradient-light-start: #FCFDFA;
+  --color-gradient-light-mid1: #F9FAF7;
+  --color-gradient-light-mid2: #F8F9F5;
+  --color-gradient-light-mid3: #F7F9F5;
 
   /* Link - Neutral 기본, 브랜드 hover만 */
   --color-link-default: #6b7280;        /* Gray-500 (neutral) */
@@ -80,10 +124,13 @@
     --color-bg-secondary: #1f2937;     /* Gray-800 */
     --color-bg-tertiary: #374151;       /* Gray-700 */
 
-    /* Text - Neutral (표준) */
-    --color-text-primary: #f9fafb;     /* Gray-50 */
-    --color-text-secondary: #d1d5db;   /* Gray-300 */
-    --color-text-tertiary: #9ca3af;     /* Gray-400 */
+    /* Text - 브랜드 그린 톤 */
+    --color-text-primary: #E6F1EA;     /* 브랜드 그린 톤 - 부드러운 화이트 */
+    --color-text-secondary: #9FB4A8;   /* 브랜드 그린 톤 - 서브 텍스트 */
+    --color-text-tertiary: #9ca3af;     /* Gray-400 (표준) */
+    
+    /* Button Text - Primary 버튼 위 텍스트용 */
+    --color-button-text: #F8FBF9;      /* 버튼 텍스트 (라이트/다크 공통) */
 
     /* Border - Neutral (표준) */
     --color-border-default: #374151;    /* Gray-700 */
@@ -95,6 +142,48 @@
     --color-primary-hover: #7FAF8A;    /* 약간 밝게 */
     --color-primary-active: #5F9070;    /* Active 상태 */
     --color-primary-focus: #6FA07A;    /* Focus ring */
+    --color-primary-text: #7FB89A;     /* 텍스트용 그린 - 다크 모드용 (약간 밝게) */
+    
+    /* Hero Section Background - 다크 모드용 */
+    --color-hero-bg: #2E8B57;           /* Sea Green - 다크 모드용 (약간 어둡게) */
+    
+    /* Hero Section Text Colors - 다크 모드 */
+    --color-hero-title: #ECF6F1;        /* 히어로 메인 헤드라인 (H1) */
+    --color-hero-subtext: #B7D7C7;      /* 히어로 서브 카피/설명 텍스트 */
+    --color-hero-cta-text: #F7FCF9;     /* 히어로 CTA 버튼 텍스트 */
+    --color-hero-badge: #9FD6B2;        /* 히어로 보조 요소 (Badge, Eyebrow) */
+    
+    /* Featured Badge (다크 모드에서도 동일) */
+    --color-featured-badge: #f5c842;     /* Featured 별 배지 배경 */
+    
+    /* Featured / Highlight Section Colors - 다크 모드 */
+    --color-featured-bg: #1A2E24;        /* 다크 모드 배경 (어두운 그린 틴트) */
+    --color-featured-header: #E6F2EC;    /* Section Header - 밝지만 눈부시지 않음 */
+    --color-featured-text: #A8C2B6;      /* Body Text - 헤더와 명확한 위계 */
+    --color-featured-link: #7FB89A;      /* Link / Accent Text - 클릭 가능 신호 */
+    --color-featured-divider: #4A6B5F;   /* Divider / Icon - 다크 모드용 */
+    
+    /* GitHub Link (다크 모드에서도 동일) */
+    --color-github: #6e5494;            /* GitHub 시그니처 보라색 */
+    
+    /* Primary Dark - 다크 모드용 (텍스트용) */
+    --color-primary-dark: #7FB89A;      /* 텍스트용 그린 - 다크 모드용 (약간 밝게) */
+
+    /* 그림자 색상 (다크 모드에서도 동일) */
+    --color-shadow-light: rgba(0, 0, 0, 0.08);
+    --color-shadow-medium: rgba(0, 0, 0, 0.1);
+    --color-shadow-heavy: rgba(0, 0, 0, 0.15);
+    
+    /* 글라스모피즘 효과 (다크 모드에서도 동일) */
+    --color-glass-light: rgba(255, 255, 255, 0.1);
+    --color-glass-medium: rgba(255, 255, 255, 0.2);
+    
+    /* 그라데이션 색상 (다크 모드) */
+    --color-gradient-dark-start: #0F1A14;
+    --color-gradient-dark-mid1: #0F1B15;
+    --color-gradient-dark-mid2: #0F1C16;
+    --color-gradient-dark-mid3: #0F1D17;
+    --color-gradient-dark-mid4: #0F1E18;
 
     /* Link - Neutral 기본, 브랜드 hover만 */
     --color-link-default: #d1d5db;     /* Gray-300 (neutral) */

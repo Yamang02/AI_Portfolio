@@ -13,6 +13,7 @@ export interface ProjectCardProject {
   description: string;
   imageUrl?: string;
   isTeam: boolean;
+  isFeatured?: boolean;
   technologies: string[];
   startDate: string;
   endDate?: string;
@@ -164,7 +165,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
       variant="default"
       padding="none"
       onClick={onClick}
-      className={`${styles.projectCard} ${className || ''}`}
+      className={`${styles.projectCard} ${styles.noCardHover} ${className || ''}`}
     >
       {/* 상단 이미지/아이콘 영역 */}
       <div className={styles.imageContainer}>
@@ -172,6 +173,21 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         <div className={styles.badges}>
           <TeamBadge isTeam={project.isTeam} size="sm" />
         </div>
+
+        {/* Featured 별 배지 (우측 상단) */}
+        {project.isFeatured && (
+          <div className={styles.featuredBadge} title="주요 프로젝트">
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+            </svg>
+          </div>
+        )}
 
         {/* 이미지 또는 아이콘 */}
         {hasValidImage ? (
@@ -207,7 +223,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
             {project.technologies.slice(0, 4).map((tech, index) => (
               <Badge
                 key={`${tech}-${index}`}
-                variant="accent"
+                variant="default"
                 size="sm"
                 className={styles.techBadge}
               >
@@ -216,7 +232,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
             ))}
             {project.technologies.length > 4 && (
               <Badge
-                variant="accent"
+                variant="default"
                 size="sm"
                 className={styles.techBadge}
               >
@@ -237,7 +253,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                 href={project.githubUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={styles.link}
+                className={`${styles.link} ${styles.githubLink}`}
                 title="GitHub 저장소"
                 onClick={(e) => e.stopPropagation()}
               >
@@ -249,7 +265,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                 href={project.liveUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={styles.link}
+                className={`${styles.link} ${styles.liveLink}`}
                 title="Live 서비스"
                 onClick={(e) => e.stopPropagation()}
               >

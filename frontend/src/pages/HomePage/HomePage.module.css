@@ -18,10 +18,10 @@
     to bottom,
     var(--color-white) 0%,
     var(--color-white) var(--gradient-start),
-    #FCFDFA calc(var(--gradient-start) + (var(--gradient-end) - var(--gradient-start)) * 0.15),
-    #F9FAF7 calc(var(--gradient-start) + (var(--gradient-end) - var(--gradient-start)) * 0.3),
-    #F8F9F5 calc(var(--gradient-start) + (var(--gradient-end) - var(--gradient-start)) * 0.5),
-    #F7F9F5 calc(var(--gradient-start) + (var(--gradient-end) - var(--gradient-start)) * 0.7),
+    var(--color-gradient-light-start) calc(var(--gradient-start) + (var(--gradient-end) - var(--gradient-start)) * 0.15),
+    var(--color-gradient-light-mid1) calc(var(--gradient-start) + (var(--gradient-end) - var(--gradient-start)) * 0.3),
+    var(--color-gradient-light-mid2) calc(var(--gradient-start) + (var(--gradient-end) - var(--gradient-start)) * 0.5),
+    var(--color-gradient-light-mid3) calc(var(--gradient-start) + (var(--gradient-end) - var(--gradient-start)) * 0.7),
     var(--color-bg-primary) calc(var(--gradient-start) + (var(--gradient-end) - var(--gradient-start)) * 0.85),
     var(--color-bg-primary) var(--gradient-end),
     var(--color-bg-primary) 100%
@@ -37,12 +37,12 @@
   .homePage {
     background: linear-gradient(
       to bottom,
-      #0F1A14 0%,
-      #0F1A14 var(--gradient-start),
-      #0F1B15 calc(var(--gradient-start) + (var(--gradient-end) - var(--gradient-start)) * 0.15),
-      #0F1C16 calc(var(--gradient-start) + (var(--gradient-end) - var(--gradient-start)) * 0.3),
-      #0F1D17 calc(var(--gradient-start) + (var(--gradient-end) - var(--gradient-start)) * 0.5),
-      #0F1E18 calc(var(--gradient-start) + (var(--gradient-end) - var(--gradient-start)) * 0.7),
+      var(--color-gradient-dark-start) 0%,
+      var(--color-gradient-dark-start) var(--gradient-start),
+      var(--color-gradient-dark-mid1) calc(var(--gradient-start) + (var(--gradient-end) - var(--gradient-start)) * 0.15),
+      var(--color-gradient-dark-mid2) calc(var(--gradient-start) + (var(--gradient-end) - var(--gradient-start)) * 0.3),
+      var(--color-gradient-dark-mid3) calc(var(--gradient-start) + (var(--gradient-end) - var(--gradient-start)) * 0.5),
+      var(--color-gradient-dark-mid4) calc(var(--gradient-start) + (var(--gradient-end) - var(--gradient-start)) * 0.7),
       var(--color-bg-primary) calc(var(--gradient-start) + (var(--gradient-end) - var(--gradient-start)) * 0.85),
       var(--color-bg-primary) var(--gradient-end),
       var(--color-bg-primary) 100%

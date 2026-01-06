@@ -14,11 +14,11 @@ const preview: Preview = {
       values: [
         {
           name: 'light',
-          value: '#F7F9F4',
+          value: '#ffffff',  /* globals.css의 --color-bg-primary */
         },
         {
           name: 'dark',
-          value: '#0F1A14',
+          value: '#111827',  /* globals.css의 다크 모드 --color-bg-primary */
         },
       ],
     },

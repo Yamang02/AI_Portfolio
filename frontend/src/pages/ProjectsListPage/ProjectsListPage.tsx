@@ -89,6 +89,7 @@ export const ProjectsListPage: React.FC = () => {
       description: featuredConfig?.subtitle || project.description,
       imageUrl: featuredConfig?.imageUrl || project.imageUrl,
       isTeam: project.isTeam,
+      isFeatured: project.isFeatured,
       technologies: featuredConfig?.tags || project.technologies,
       startDate: project.startDate,
       endDate: project.endDate || undefined,
