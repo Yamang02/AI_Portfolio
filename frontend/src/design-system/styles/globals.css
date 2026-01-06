@@ -1,9 +1,15 @@
 /**
- * CSS Variables - Color Tokens
- *
- * 80% 표준 + 20% 브랜드 접근법
- * 브랜드 그린: #7FAF8A (하나만 사용)
- * 나머지는 표준 색상 (Tailwind/Material 계열)
+ * CSS Variables - Semantic Color Tokens
+ * 
+ * 업계 표준 컬러 시스템 구조:
+ * - 단일 소스: 이 파일의 CSS 변수가 모든 컬러 값의 단일 소스
+ * - Semantic Tokens: 의미 기반 컬러 (background, text, border, status 등)
+ * - TypeScript 통합: design-system/tokens/colors.ts에서 이 변수들을 참조
+ * 
+ * 디자인 원칙:
+ * - 80% 표준 + 20% 브랜드 접근법
+ * - 브랜드 그린: #7FAF8A (하나만 사용)
+ * - 나머지는 표준 색상 (Tailwind/Material 계열)
  */
 
 :root {

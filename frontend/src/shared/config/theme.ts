@@ -2,38 +2,32 @@
  * 디자인 토큰 모듈
  * 디자인 시스템 색상과 동기화된 토큰
  * 
+ * 업계 표준 컬러 시스템 기반:
+ * - Primitive tokens: brandScale, grayScale, semanticColors
+ * - Semantic tokens: lightModeSemantic, darkModeSemantic, brandSemantic
+ * 
  * 디자인 시스템 색상 정의는 design-system/tokens/colors.ts 참조
  */
 
-import { brandColors, lightModeColors, darkModeColors } from '../../design-system/tokens/colors';
+import { 
+  brandScale, 
+  grayScale, 
+  semanticColors,
+  lightModeSemantic,
+  darkModeSemantic,
+  brandSemantic,
+} from '../../design-system/tokens/colors';
 
-// 색상 팔레트 (디자인 시스템 - 브랜드 그린 #7FAF8A 기반)
+// 색상 팔레트 (Primitive Tokens - 업계 표준 구조)
 export const colors = {
-  primary: {
-    50: '#f0f9f4',   // 매우 연한 그린
-    100: '#dcf4e6',  // 연한 그린
-    200: '#b8e9cd',  // 밝은 그린
-    300: '#94deb4',  // 중간 밝기 그린
-    400: '#7FAF8A',  // 브랜드 그린 (primary)
-    500: '#6FA07A',  // 약간 진한 그린 (hover)
-    600: '#5F9070',  // 진한 그린 (active)
-    700: '#4F8060',  // 더 진한 그린
-    800: '#3F7050',  // 매우 진한 그린
-    900: '#2F6040',  // 가장 진한 그린
-    950: '#1F5030',  // 최대 진한 그린
-  },
-  gray: {
-    50: '#f9fafb',   // lightModeColors.background.secondary
-    100: '#f3f4f6',
-    200: '#e5e7eb',
-    300: '#d1d5db',
-    400: '#9ca3af',  // lightModeColors.text.tertiary
-    500: '#6b7280',  // lightModeColors.text.secondary
-    600: '#4b5563',
-    700: '#374151',
-    800: '#1f2937',
-    900: '#111827',
-  },
+  primary: brandScale,
+  gray: grayScale,
+  blue: semanticColors.blue,
+  green: semanticColors.green,
+  amber: semanticColors.amber,
+  red: semanticColors.red,
+  purple: semanticColors.purple,
+  yellow: semanticColors.yellow,
   white: '#ffffff',
   black: '#000000',
 } as const;
@@ -78,36 +72,36 @@ export const borderRadius = {
   full: '9999px',   // 완전히 둥근 형태
 } as const;
 
-// 포커스 링 색상 (디자인 시스템 primary 사용)
+// 포커스 링 색상 (Semantic Token 사용 - CSS 변수 참조)
 export const focusRing = {
-  color: brandColors.primary,
+  color: brandSemantic.primaryFocus,
   width: '2px',
 } as const;
 
-// 라이트 모드 색상 토큰 (디자인 시스템 색상 사용)
+// 라이트 모드 색상 토큰 (Semantic Tokens 사용)
 export const lightTheme = {
-  background: lightModeColors.background.primary,
-  backgroundSecondary: lightModeColors.background.secondary,
-  surface: lightModeColors.background.primary,
-  surfaceElevated: lightModeColors.background.secondary,
-  textPrimary: lightModeColors.text.primary,
-  textSecondary: lightModeColors.text.secondary,
-  textMuted: lightModeColors.text.tertiary,
-  border: lightModeColors.border.default,
-  borderLight: lightModeColors.border.hover,
+  background: lightModeSemantic.background.primary,
+  backgroundSecondary: lightModeSemantic.background.secondary,
+  surface: lightModeSemantic.background.primary,
+  surfaceElevated: lightModeSemantic.background.secondary,
+  textPrimary: lightModeSemantic.text.primary,
+  textSecondary: lightModeSemantic.text.secondary,
+  textMuted: lightModeSemantic.text.tertiary,
+  border: lightModeSemantic.border.default,
+  borderLight: lightModeSemantic.border.hover,
 } as const;
 
-// 다크 모드 색상 토큰 (디자인 시스템 색상 사용)
+// 다크 모드 색상 토큰 (Semantic Tokens 사용)
 export const darkTheme = {
-  background: darkModeColors.background.primary,
-  backgroundSecondary: darkModeColors.background.secondary,
-  surface: darkModeColors.background.secondary,
-  surfaceElevated: darkModeColors.background.tertiary,
-  textPrimary: darkModeColors.text.primary,
-  textSecondary: darkModeColors.text.secondary,
-  textMuted: darkModeColors.text.tertiary,
-  border: darkModeColors.border.default,
-  borderLight: darkModeColors.border.hover,
+  background: darkModeSemantic.background.primary,
+  backgroundSecondary: darkModeSemantic.background.secondary,
+  surface: darkModeSemantic.background.secondary,
+  surfaceElevated: darkModeSemantic.background.tertiary,
+  textPrimary: darkModeSemantic.text.primary,
+  textSecondary: darkModeSemantic.text.secondary,
+  textMuted: darkModeSemantic.text.tertiary,
+  border: darkModeSemantic.border.default,
+  borderLight: darkModeSemantic.border.hover,
 } as const;
 
 // Demon Slayer 테마 색상 토큰 (무한성편) - 따뜻한 오렌지/레드 톤

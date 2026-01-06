@@ -8,6 +8,9 @@
 - **개발 가이드**: `docs/technical/guides/frontend/`
 - **AI Agent 개발 가이드**: `docs/technical/guides/agent-development-guide.md`
 - **마이그레이션 가이드**: `docs/archive/frontend-migration/`
+- **디자인 시스템**: `docs/technical/design-system/`
+  - **컬러 시스템**: `docs/technical/design-system/color-palette.md`
+  - **스토리북 문서**: Storybook 실행 후 `Design System/Tokens/Colors` 참조
 
 ## 🚀 빠른 시작
 
@@ -24,6 +27,17 @@ npm run dev
 - Tailwind CSS
 - Vite
 - React Query
+
+## 🎨 컬러 시스템 사용
+
+프로젝트는 업계 표준 컬러 시스템 구조를 따릅니다:
+
+- **Semantic Tokens 사용 권장**: `brandSemantic`, `lightModeSemantic`, `darkModeSemantic` 등
+- **CSS 변수 기반**: 모든 컬러 값은 `globals.css`의 CSS 변수(`--color-*`)가 단일 소스
+- **자세한 가이드**: 
+  - 문서: `docs/technical/design-system/color-palette.md`
+  - 스토리북: `npm run storybook` 실행 후 `Design System/Tokens/Colors` 참조
+  - 코드: `frontend/src/design-system/tokens/colors.ts`
 
 ## 🤖 AI 에이전트 활용 가이드
 

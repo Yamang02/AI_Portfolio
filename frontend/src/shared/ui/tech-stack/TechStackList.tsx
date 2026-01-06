@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { TechStackBadge } from './TechStackBadge';
 import { TechStackMetadata } from '@entities/tech-stack';
 import { apiClient } from '@shared/api/apiClient';
-import { lightModeColors } from '@design-system/tokens/colors';
+import { grayScale } from '@design-system/tokens/colors';
 
 /**
  * 기술 스택 리스트 Props
@@ -82,7 +82,8 @@ const convertToTechStackMetadata = (tech: string, coreTechnologies: Set<string>)
     level,
     isCore,
     isActive: true,
-    colorHex: lightModeColors.text.secondary,
+    // 서브 텍스트 색상: grayScale[500] 사용 (표준 회색)
+    colorHex: grayScale[500],
     description: '',
     sortOrder: 0,
     createdAt: new Date().toISOString(),

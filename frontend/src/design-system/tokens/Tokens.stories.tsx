@@ -1,5 +1,13 @@
 import type { Meta } from '@storybook/react';
-import { brandColors, lightModeColors, darkModeColors } from './colors';
+import { 
+  brandScale, 
+  grayScale, 
+  semanticColors,
+  brandSemantic,
+  lightModeSemantic,
+  darkModeSemantic,
+  specialSemantic,
+} from './colors';
 import { fontSize, fontWeight } from './typography';
 import { spacing } from './spacing';
 import { borderRadius } from './borderRadius';
@@ -14,337 +22,351 @@ const meta: Meta = {
 
 export default meta;
 
-export const BrandColors = () => (
-  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
-    <div style={{ padding: '1rem', backgroundColor: '#f9fafb', borderRadius: '8px' }}>
-      <div style={{ 
-        width: '100%', 
-        height: '80px', 
-        backgroundColor: brandColors.primary, 
-        borderRadius: '4px',
-        marginBottom: '0.5rem'
-      }} />
-      <div style={{ fontWeight: '600' }}>Primary</div>
-      <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>{brandColors.primary}</div>
-      <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>Brand Green (#7FAF8A)</div>
-    </div>
-    <div style={{ padding: '1rem', backgroundColor: '#f9fafb', borderRadius: '8px' }}>
-      <div style={{ 
-        width: '100%', 
-        height: '80px', 
-        backgroundColor: brandColors.heroBackground, 
-        borderRadius: '4px',
-        marginBottom: '0.5rem'
-      }} />
-      <div style={{ fontWeight: '600' }}>Hero Background</div>
-      <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>{brandColors.heroBackground}</div>
-      <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>Emerald Green (Light Mode)</div>
-    </div>
-    <div style={{ padding: '1rem', backgroundColor: '#f9fafb', borderRadius: '8px' }}>
-      <div style={{ 
-        width: '100%', 
-        height: '80px', 
-        backgroundColor: brandColors.heroBackgroundDark, 
-        borderRadius: '4px',
-        marginBottom: '0.5rem'
-      }} />
-      <div style={{ fontWeight: '600' }}>Hero Background (Dark)</div>
-      <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>{brandColors.heroBackgroundDark}</div>
-      <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>Sea Green (Dark Mode)</div>
-    </div>
-    <div style={{ padding: '1rem', backgroundColor: '#f9fafb', borderRadius: '8px' }}>
-      <div style={{ 
-        width: '100%', 
-        height: '80px', 
-        backgroundColor: brandColors.featuredBadge, 
-        borderRadius: '4px',
-        marginBottom: '0.5rem'
-      }} />
-      <div style={{ fontWeight: '600' }}>Featured Badge</div>
-      <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>{brandColors.featuredBadge}</div>
-      <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>Gold (톤 다운)</div>
-    </div>
-    <div style={{ padding: '1rem', backgroundColor: '#f9fafb', borderRadius: '8px' }}>
-      <div style={{ 
-        width: '100%', 
-        height: '80px', 
-        backgroundColor: brandColors.github, 
-        borderRadius: '4px',
-        marginBottom: '0.5rem'
-      }} />
-      <div style={{ fontWeight: '600' }}>GitHub</div>
-      <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>{brandColors.github}</div>
-      <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>GitHub 시그니처 보라색</div>
-    </div>
-    <div style={{ padding: '1rem', backgroundColor: '#f9fafb', borderRadius: '8px' }}>
-      <div style={{ 
-        width: '100%', 
-        height: '80px', 
-        backgroundColor: '#3b82f6',  /* 표준 Blue-500 (Info/Accent) */ 
-        borderRadius: '4px',
-        marginBottom: '0.5rem'
-      }} />
-      <div style={{ fontWeight: '600' }}>Info / Accent</div>
-      <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>#3b82f6</div>
-      <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>Standard Blue-500</div>
-    </div>
-    <div style={{ padding: '1rem', backgroundColor: '#f9fafb', borderRadius: '8px' }}>
-      <div style={{ 
-        width: '100%', 
-        height: '80px', 
-        backgroundColor: '#10b981',  /* 표준 Green-500 */ 
-        borderRadius: '4px',
-        marginBottom: '0.5rem'
-      }} />
-      <div style={{ fontWeight: '600' }}>Success</div>
-      <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>#10b981</div>
-      <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>Standard Green-500</div>
-    </div>
-    <div style={{ padding: '1rem', backgroundColor: '#f9fafb', borderRadius: '8px' }}>
-      <div style={{ 
-        width: '100%', 
-        height: '80px', 
-        backgroundColor: '#f3f4f6',  /* 표준 Gray-100 */ 
-        borderRadius: '4px',
-        marginBottom: '0.5rem',
-        border: '1px solid #e5e7eb'
-      }} />
-      <div style={{ fontWeight: '600' }}>Highlight</div>
-      <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>#f3f4f6</div>
-      <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>Standard Gray-100</div>
+// ============================================================================
+// Primitive Tokens
+// ============================================================================
+
+export const BrandScale = () => (
+  <div>
+    <h3 style={{ marginBottom: '1rem' }}>Brand Color Scale (Primitive Token)</h3>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '0.75rem' }}>
+      {Object.entries(brandScale).map(([key, value]) => (
+        <div key={key} style={{ textAlign: 'center' }}>
+          <div style={{ 
+            width: '100%', 
+            height: '80px', 
+            backgroundColor: value, 
+            borderRadius: '4px',
+            marginBottom: '0.5rem',
+            border: parseInt(key) >= 400 ? 'none' : '1px solid #e5e7eb'
+          }} />
+          <div style={{ fontSize: '0.75rem', fontWeight: '600' }}>{key}</div>
+          <div style={{ fontSize: '0.625rem', color: '#6b7280', wordBreak: 'break-all' }}>
+            {value}
+          </div>
+        </div>
+      ))}
     </div>
   </div>
 );
 
-export const HeroColors = () => (
-  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
-    <div style={{ padding: '1rem', backgroundColor: brandColors.heroBackground, borderRadius: '8px' }}>
-      <div style={{ 
-        width: '100%', 
-        height: '60px', 
-        backgroundColor: brandColors.heroTitle, 
-        borderRadius: '4px',
-        marginBottom: '0.5rem',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        color: '#ffffff',
-        fontWeight: '700',
-        fontSize: '1.25rem'
-      }}>
-        Title
-      </div>
-      <div style={{ fontWeight: '600', color: '#ffffff' }}>Hero Title (Light)</div>
-      <div style={{ fontSize: '0.875rem', color: '#ffffff', opacity: 0.9 }}>{brandColors.heroTitle}</div>
-    </div>
-    <div style={{ padding: '1rem', backgroundColor: brandColors.heroBackground, borderRadius: '8px' }}>
-      <div style={{ 
-        width: '100%', 
-        height: '60px', 
-        backgroundColor: brandColors.heroSubtext, 
-        borderRadius: '4px',
-        marginBottom: '0.5rem',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        color: '#ffffff',
-        fontSize: '1rem'
-      }}>
-        Subtext
-      </div>
-      <div style={{ fontWeight: '600', color: '#ffffff' }}>Hero Subtext (Light)</div>
-      <div style={{ fontSize: '0.875rem', color: '#ffffff', opacity: 0.9 }}>{brandColors.heroSubtext}</div>
-    </div>
-    <div style={{ padding: '1rem', backgroundColor: brandColors.heroBackgroundDark, borderRadius: '8px' }}>
-      <div style={{ 
-        width: '100%', 
-        height: '60px', 
-        backgroundColor: brandColors.heroTitleDark, 
-        borderRadius: '4px',
-        marginBottom: '0.5rem',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        color: '#0F1F17',
-        fontWeight: '700',
-        fontSize: '1.25rem'
-      }}>
-        Title
-      </div>
-      <div style={{ fontWeight: '600', color: '#ECF6F1' }}>Hero Title (Dark)</div>
-      <div style={{ fontSize: '0.875rem', color: '#ECF6F1', opacity: 0.9 }}>{brandColors.heroTitleDark}</div>
-    </div>
-    <div style={{ padding: '1rem', backgroundColor: brandColors.heroBackgroundDark, borderRadius: '8px' }}>
-      <div style={{ 
-        width: '100%', 
-        height: '60px', 
-        backgroundColor: brandColors.heroSubtextDark, 
-        borderRadius: '4px',
-        marginBottom: '0.5rem',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        color: '#0F1F17',
-        fontSize: '1rem'
-      }}>
-        Subtext
-      </div>
-      <div style={{ fontWeight: '600', color: '#ECF6F1' }}>Hero Subtext (Dark)</div>
-      <div style={{ fontSize: '0.875rem', color: '#ECF6F1', opacity: 0.9 }}>{brandColors.heroSubtextDark}</div>
-    </div>
-    <div style={{ padding: '1rem', backgroundColor: brandColors.primary, borderRadius: '8px' }}>
-      <div style={{ 
-        width: '100%', 
-        height: '60px', 
-        backgroundColor: brandColors.heroCtaText, 
-        borderRadius: '4px',
-        marginBottom: '0.5rem',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        color: brandColors.primary,
-        fontWeight: '600',
-        fontSize: '1rem'
-      }}>
-        CTA Text
-      </div>
-      <div style={{ fontWeight: '600', color: '#ffffff' }}>Hero CTA Text</div>
-      <div style={{ fontSize: '0.875rem', color: '#ffffff', opacity: 0.9 }}>{brandColors.heroCtaText}</div>
+export const GrayScale = () => (
+  <div>
+    <h3 style={{ marginBottom: '1rem' }}>Gray Scale (Primitive Token)</h3>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '0.75rem' }}>
+      {Object.entries(grayScale).map(([key, value]) => (
+        <div key={key} style={{ textAlign: 'center' }}>
+          <div style={{ 
+            width: '100%', 
+            height: '80px', 
+            backgroundColor: value, 
+            borderRadius: '4px',
+            marginBottom: '0.5rem',
+            border: parseInt(key) >= 400 ? 'none' : '1px solid #e5e7eb'
+          }} />
+          <div style={{ fontSize: '0.75rem', fontWeight: '600' }}>{key}</div>
+          <div style={{ fontSize: '0.625rem', color: '#6b7280', wordBreak: 'break-all' }}>
+            {value}
+          </div>
+        </div>
+      ))}
     </div>
   </div>
 );
 
-export const LightModeColors = () => (
-  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '1rem' }}>
-    <div>
-      <h4 style={{ marginBottom: '0.5rem' }}>Background</h4>
-      <div style={{ 
-        padding: '1rem', 
-        backgroundColor: lightModeColors.background.primary, 
-        borderRadius: '4px',
-        border: '1px solid #e5e7eb',
-        marginBottom: '0.25rem'
-      }}>
-        Primary: {lightModeColors.background.primary}
+export const SemanticColorScales = () => (
+  <div>
+    <h3 style={{ marginBottom: '1rem' }}>Semantic Color Scales (Primitive Tokens)</h3>
+    {Object.entries(semanticColors).map(([colorName, scale]) => (
+      <div key={colorName} style={{ marginBottom: '2rem' }}>
+        <h4 style={{ marginBottom: '0.75rem', textTransform: 'capitalize' }}>{colorName}</h4>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: '0.5rem' }}>
+          {Object.entries(scale).map(([key, value]) => (
+            <div key={key} style={{ textAlign: 'center' }}>
+              <div style={{ 
+                width: '100%', 
+                height: '60px', 
+                backgroundColor: value, 
+                borderRadius: '4px',
+                marginBottom: '0.25rem',
+                border: parseInt(key) >= 400 ? 'none' : '1px solid #e5e7eb'
+              }} />
+              <div style={{ fontSize: '0.625rem', fontWeight: '600' }}>{key}</div>
+              <div style={{ fontSize: '0.5rem', color: '#6b7280', wordBreak: 'break-all' }}>
+                {value}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
-      <div style={{ 
-        padding: '1rem', 
-        backgroundColor: lightModeColors.background.secondary, 
-        borderRadius: '4px',
-        border: '1px solid #e5e7eb',
-        marginBottom: '0.25rem'
-      }}>
-        Secondary: {lightModeColors.background.secondary}
-      </div>
-      <div style={{ 
-        padding: '1rem', 
-        backgroundColor: lightModeColors.background.tertiary, 
-        borderRadius: '4px',
-        border: '1px solid #e5e7eb'
-      }}>
-        Tertiary: {lightModeColors.background.tertiary}
-      </div>
+    ))}
+  </div>
+);
+
+// ============================================================================
+// Semantic Tokens
+// ============================================================================
+
+export const BrandSemanticTokens = () => (
+  <div>
+    <h3 style={{ marginBottom: '1rem' }}>Brand Semantic Tokens</h3>
+    <p style={{ marginBottom: '1rem', color: '#6b7280', fontSize: '0.875rem' }}>
+      CSS 변수를 참조하는 의미 기반 브랜드 컬러 토큰
+    </p>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+      {Object.entries(brandSemantic).map(([key, value]) => (
+        <div key={key} style={{ padding: '1rem', backgroundColor: '#f9fafb', borderRadius: '8px' }}>
+          <div style={{ 
+            width: '100%', 
+            height: '80px', 
+            backgroundColor: value, 
+            borderRadius: '4px',
+            marginBottom: '0.5rem'
+          }} />
+          <div style={{ fontWeight: '600', marginBottom: '0.25rem' }}>{key}</div>
+          <div style={{ fontSize: '0.75rem', color: '#6b7280', fontFamily: 'monospace' }}>
+            {value}
+          </div>
+        </div>
+      ))}
     </div>
-    <div>
-      <h4 style={{ marginBottom: '0.5rem' }}>Text</h4>
-      <div style={{ 
-        padding: '1rem', 
-        color: lightModeColors.text.primary,
-        borderRadius: '4px',
-        border: '1px solid #e5e7eb',
-        marginBottom: '0.25rem'
-      }}>
-        Primary: {lightModeColors.text.primary}
+  </div>
+);
+
+export const LightModeSemanticTokens = () => (
+  <div>
+    <h3 style={{ marginBottom: '1rem' }}>Light Mode Semantic Tokens</h3>
+    <p style={{ marginBottom: '1rem', color: '#6b7280', fontSize: '0.875rem' }}>
+      CSS 변수를 참조하는 의미 기반 라이트 모드 컬러 토큰
+    </p>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '1rem' }}>
+      <div>
+        <h4 style={{ marginBottom: '0.5rem' }}>Background</h4>
+        {Object.entries(lightModeSemantic.background).map(([key, value]) => (
+          <div key={key} style={{ 
+            padding: '1rem', 
+            backgroundColor: value, 
+            borderRadius: '4px',
+            border: '1px solid #e5e7eb',
+            marginBottom: '0.5rem'
+          }}>
+            <div style={{ fontWeight: '600', marginBottom: '0.25rem' }}>{key}</div>
+            <div style={{ fontSize: '0.75rem', color: '#6b7280', fontFamily: 'monospace' }}>
+              {value}
+            </div>
+          </div>
+        ))}
       </div>
-      <div style={{ 
-        padding: '1rem', 
-        color: lightModeColors.text.secondary,
-        borderRadius: '4px',
-        border: '1px solid #e5e7eb',
-        marginBottom: '0.25rem'
-      }}>
-        Secondary: {lightModeColors.text.secondary}
+      <div>
+        <h4 style={{ marginBottom: '0.5rem' }}>Text</h4>
+        {Object.entries(lightModeSemantic.text).map(([key, value]) => (
+          <div key={key} style={{ 
+            padding: '1rem', 
+            color: value,
+            borderRadius: '4px',
+            border: '1px solid #e5e7eb',
+            marginBottom: '0.5rem'
+          }}>
+            <div style={{ fontWeight: '600', marginBottom: '0.25rem' }}>{key}</div>
+            <div style={{ fontSize: '0.75rem', color: '#6b7280', fontFamily: 'monospace' }}>
+              {value}
+            </div>
+          </div>
+        ))}
       </div>
-      <div style={{ 
-        padding: '1rem', 
-        color: lightModeColors.text.tertiary,
-        borderRadius: '4px',
-        border: '1px solid #e5e7eb'
-      }}>
-        Tertiary: {lightModeColors.text.tertiary}
+      <div>
+        <h4 style={{ marginBottom: '0.5rem' }}>Border</h4>
+        {Object.entries(lightModeSemantic.border).map(([key, value]) => (
+          <div key={key} style={{ 
+            padding: '1rem', 
+            border: `2px solid ${value}`,
+            borderRadius: '4px',
+            marginBottom: '0.5rem'
+          }}>
+            <div style={{ fontWeight: '600', marginBottom: '0.25rem' }}>{key}</div>
+            <div style={{ fontSize: '0.75rem', color: '#6b7280', fontFamily: 'monospace' }}>
+              {value}
+            </div>
+          </div>
+        ))}
       </div>
-    </div>
-    <div>
-      <h4 style={{ marginBottom: '0.5rem' }}>Border</h4>
-      <div style={{ 
-        padding: '1rem', 
-        border: `2px solid ${lightModeColors.border.default}`,
-        borderRadius: '4px',
-        marginBottom: '0.25rem'
-      }}>
-        Default: {lightModeColors.border.default}
-      </div>
-      <div style={{ 
-        padding: '1rem', 
-        border: `2px solid ${lightModeColors.border.hover}`,
-        borderRadius: '4px',
-        marginBottom: '0.25rem'
-      }}>
-        Hover: {lightModeColors.border.hover}
-      </div>
-      <div style={{ 
-        padding: '1rem', 
-        border: `2px solid ${lightModeColors.border.default}`,
-        borderRadius: '4px'
-      }}>
-        Default: {lightModeColors.border.default}
+      <div>
+        <h4 style={{ marginBottom: '0.5rem' }}>Status</h4>
+        {Object.entries(lightModeSemantic.status).map(([key, value]) => (
+          <div key={key} style={{ 
+            padding: '1rem', 
+            backgroundColor: value, 
+            borderRadius: '4px',
+            marginBottom: '0.5rem',
+            color: '#ffffff'
+          }}>
+            <div style={{ fontWeight: '600', marginBottom: '0.25rem' }}>{key}</div>
+            <div style={{ fontSize: '0.75rem', opacity: 0.9, fontFamily: 'monospace' }}>
+              {value}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   </div>
 );
 
-export const DarkModeColors = () => (
-  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '2rem', padding: '1rem', backgroundColor: '#0F1A14', borderRadius: '8px' }}>
-    <div style={{ padding: '1rem', backgroundColor: '#16241C', borderRadius: '8px' }}>
-      <div style={{ 
-        width: '100%', 
-        height: '80px', 
-        backgroundColor: brandColors.primaryDark, 
-        borderRadius: '4px',
-        marginBottom: '0.5rem'
-      }} />
-      <div style={{ fontWeight: '600', color: '#E6F1EA' }}>Primary (Dark)</div>
-      <div style={{ fontSize: '0.875rem', color: '#94a3b8' }}>{brandColors.primaryDark}</div>
-      <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Vital Deep Green</div>
-    </div>
-    <div style={{ padding: '1rem', backgroundColor: '#16241C', borderRadius: '8px' }}>
-      <div style={{ 
-        width: '100%', 
-        height: '80px', 
-        backgroundColor: darkModeColors.background.primary, 
-        borderRadius: '4px',
-        marginBottom: '0.5rem',
-        border: '1px solid #2E4A3B'
-      }} />
-      <div style={{ fontWeight: '600', color: '#E6F1EA' }}>Background</div>
-      <div style={{ fontSize: '0.875rem', color: '#94a3b8' }}>{darkModeColors.background.primary}</div>
-      <div style={{ fontSize: '0.75rem', color: '#64748b' }}>그린 기운 다크</div>
-    </div>
-    <div style={{ padding: '1rem', backgroundColor: '#16241C', borderRadius: '8px' }}>
-      <div style={{ 
-        width: '100%', 
-        height: '80px', 
-        backgroundColor: darkModeColors.text.primary, 
-        borderRadius: '4px',
-        marginBottom: '0.5rem',
-        border: '1px solid #2E4A3B'
-      }} />
-      <div style={{ fontWeight: '600', color: '#E6F1EA' }}>Text Primary</div>
-      <div style={{ fontSize: '0.875rem', color: '#94a3b8' }}>{darkModeColors.text.primary}</div>
-      <div style={{ fontSize: '0.75rem', color: '#64748b' }}>부드러운 라이트 그린</div>
+export const DarkModeSemanticTokens = () => (
+  <div style={{ padding: '1rem', backgroundColor: '#0F1A14', borderRadius: '8px' }}>
+    <h3 style={{ marginBottom: '1rem', color: '#E6F1EA' }}>Dark Mode Semantic Tokens</h3>
+    <p style={{ marginBottom: '1rem', color: '#9FB4A8', fontSize: '0.875rem' }}>
+      CSS 변수를 참조하는 의미 기반 다크 모드 컬러 토큰
+    </p>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '1rem' }}>
+      <div>
+        <h4 style={{ marginBottom: '0.5rem', color: '#E6F1EA' }}>Background</h4>
+        {Object.entries(darkModeSemantic.background).map(([key, value]) => (
+          <div key={key} style={{ 
+            padding: '1rem', 
+            backgroundColor: value, 
+            borderRadius: '4px',
+            border: '1px solid #2E4A3B',
+            marginBottom: '0.5rem'
+          }}>
+            <div style={{ fontWeight: '600', marginBottom: '0.25rem', color: '#E6F1EA' }}>{key}</div>
+            <div style={{ fontSize: '0.75rem', color: '#9FB4A8', fontFamily: 'monospace' }}>
+              {value}
+            </div>
+          </div>
+        ))}
+      </div>
+      <div>
+        <h4 style={{ marginBottom: '0.5rem', color: '#E6F1EA' }}>Text</h4>
+        {Object.entries(darkModeSemantic.text).map(([key, value]) => (
+          <div key={key} style={{ 
+            padding: '1rem', 
+            color: value,
+            borderRadius: '4px',
+            border: '1px solid #2E4A3B',
+            marginBottom: '0.5rem'
+          }}>
+            <div style={{ fontWeight: '600', marginBottom: '0.25rem' }}>{key}</div>
+            <div style={{ fontSize: '0.75rem', color: '#9FB4A8', fontFamily: 'monospace' }}>
+              {value}
+            </div>
+          </div>
+        ))}
+      </div>
+      <div>
+        <h4 style={{ marginBottom: '0.5rem', color: '#E6F1EA' }}>Border</h4>
+        {Object.entries(darkModeSemantic.border).map(([key, value]) => (
+          <div key={key} style={{ 
+            padding: '1rem', 
+            border: `2px solid ${value}`,
+            borderRadius: '4px',
+            marginBottom: '0.5rem'
+          }}>
+            <div style={{ fontWeight: '600', marginBottom: '0.25rem', color: '#E6F1EA' }}>{key}</div>
+            <div style={{ fontSize: '0.75rem', color: '#9FB4A8', fontFamily: 'monospace' }}>
+              {value}
+            </div>
+          </div>
+        ))}
+      </div>
+      <div>
+        <h4 style={{ marginBottom: '0.5rem', color: '#E6F1EA' }}>Status</h4>
+        {Object.entries(darkModeSemantic.status).map(([key, value]) => (
+          <div key={key} style={{ 
+            padding: '1rem', 
+            backgroundColor: value, 
+            borderRadius: '4px',
+            marginBottom: '0.5rem',
+            color: '#ffffff'
+          }}>
+            <div style={{ fontWeight: '600', marginBottom: '0.25rem' }}>{key}</div>
+            <div style={{ fontSize: '0.75rem', opacity: 0.9, fontFamily: 'monospace' }}>
+              {value}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   </div>
 );
+
+export const SpecialSemanticTokens = () => (
+  <div>
+    <h3 style={{ marginBottom: '1rem' }}>Special Purpose Semantic Tokens</h3>
+    <p style={{ marginBottom: '1rem', color: '#6b7280', fontSize: '0.875rem' }}>
+      히어로 섹션, Featured 섹션 등 특수 목적용 컬러 토큰
+    </p>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+      <div>
+        <h4 style={{ marginBottom: '0.5rem' }}>Hero</h4>
+        {Object.entries(specialSemantic.hero).map(([key, value]) => (
+          <div key={key} style={{ 
+            padding: '1rem', 
+            backgroundColor: key === 'background' ? value : undefined,
+            color: key !== 'background' ? value : undefined,
+            borderRadius: '4px',
+            border: key !== 'background' ? `2px solid ${value}` : '1px solid #e5e7eb',
+            marginBottom: '0.5rem'
+          }}>
+            <div style={{ fontWeight: '600', marginBottom: '0.25rem' }}>{key}</div>
+            <div style={{ fontSize: '0.75rem', color: '#6b7280', fontFamily: 'monospace' }}>
+              {value}
+            </div>
+          </div>
+        ))}
+      </div>
+      <div>
+        <h4 style={{ marginBottom: '0.5rem' }}>Featured</h4>
+        {Object.entries(specialSemantic.featured).map(([key, value]) => (
+          <div key={key} style={{ 
+            padding: '1rem', 
+            backgroundColor: key === 'background' ? value : undefined,
+            color: key === 'header' || key === 'text' || key === 'link' ? value : undefined,
+            borderRadius: '4px',
+            border: key === 'divider' ? `2px solid ${value}` : '1px solid #e5e7eb',
+            marginBottom: '0.5rem'
+          }}>
+            <div style={{ fontWeight: '600', marginBottom: '0.25rem' }}>{key}</div>
+            <div style={{ fontSize: '0.75rem', color: '#6b7280', fontFamily: 'monospace' }}>
+              {value}
+            </div>
+          </div>
+        ))}
+      </div>
+      <div>
+        <h4 style={{ marginBottom: '0.5rem' }}>Utility</h4>
+        <div style={{ 
+          padding: '1rem', 
+          backgroundColor: specialSemantic.github, 
+          borderRadius: '4px',
+          marginBottom: '0.5rem',
+          color: '#ffffff'
+        }}>
+          <div style={{ fontWeight: '600', marginBottom: '0.25rem' }}>GitHub</div>
+          <div style={{ fontSize: '0.75rem', opacity: 0.9, fontFamily: 'monospace' }}>
+            {specialSemantic.github}
+          </div>
+        </div>
+        <div style={{ 
+          padding: '1rem', 
+          backgroundColor: '#7FAF8A',
+          color: specialSemantic.buttonText,
+          borderRadius: '4px',
+          marginBottom: '0.5rem'
+        }}>
+          <div style={{ fontWeight: '600', marginBottom: '0.25rem' }}>Button Text</div>
+          <div style={{ fontSize: '0.75rem', opacity: 0.9, fontFamily: 'monospace' }}>
+            {specialSemantic.buttonText}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+
+// ============================================================================
+// Other Tokens
+// ============================================================================
 
 export const Typography = () => (
   <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -381,7 +403,7 @@ export const Spacing = () => (
         <div style={{ 
           width: value, 
           height: '24px', 
-          backgroundColor: brandColors.primary,
+          backgroundColor: brandScale[400],
           borderRadius: '4px'
         }} />
         <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
@@ -399,7 +421,7 @@ export const BorderRadius = () => (
         <div style={{ 
           width: '80px', 
           height: '80px', 
-          backgroundColor: brandColors.primary,
+          backgroundColor: brandScale[400],
           borderRadius: value,
           marginBottom: '0.5rem'
         }} />
