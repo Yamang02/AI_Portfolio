@@ -1,7 +1,7 @@
 import React from 'react';
 import styles from './Button.module.css';
 
-type ButtonVariant = 'primary' | 'secondary';
+type ButtonVariant = 'primary' | 'secondary' | 'github' | 'live' | 'notion';
 type ButtonSize = 'sm' | 'md' | 'lg';
 
 export interface ButtonProps {

@@ -1,0 +1,29 @@
+.navigation {
+  margin-top: var(--spacing-16);
+  padding-top: var(--spacing-8);
+  border-top: 1px solid var(--color-border-default);
+  display: flex;
+  justify-content: center;
+}
+
+.buttonGroup {
+  display: flex;
+  gap: var(--spacing-3);
+  align-items: center;
+}
+
+.navButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: var(--spacing-2);
+}
+
+/* 반응형 */
+@media (max-width: 767px) {
+  .buttonGroup {
+    gap: var(--spacing-2);
+  }
+}

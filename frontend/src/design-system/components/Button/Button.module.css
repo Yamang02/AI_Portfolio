@@ -90,10 +90,66 @@
   font-size: 1.125rem; /* 18px */
 }
 
-/* Disabled */
-.button:disabled {
-  opacity: 0.5;
+/* Utility Color Variants */
+.button.github:not(:disabled) {
+  background-color: var(--color-github);
+  color: white;
+  border-color: var(--color-github);
+}
+
+.button.github:hover:not(:disabled) {
+  background-color: var(--color-github-hover);
+  color: white;
+}
+
+.button.live:not(:disabled) {
+  background-color: var(--color-live);
+  color: white;
+  border-color: var(--color-live);
+}
+
+.button.live:hover:not(:disabled) {
+  background-color: var(--color-live-hover);
+  color: white;
+}
+
+.button.notion:not(:disabled) {
+  background-color: var(--color-notion);
+  color: white;
+  border-color: var(--color-notion);
+}
+
+.button.notion:hover:not(:disabled) {
+  background-color: var(--color-notion-hover);
+  color: white;
+}
+
+/* Disabled - 모든 variant 공통 (우선순위 높임) */
+.button:disabled,
+.button.disabled {
+  background-color: var(--color-disabled);
+  color: white;
+  border-color: var(--color-disabled);
+  opacity: 0.7;
   cursor: not-allowed;
+}
+
+.button:disabled:hover,
+.button.disabled:hover {
+  background-color: var(--color-disabled);
+  transform: none;
+  opacity: 0.7;
+}
+
+/* Disabled 상태에서 variant 스타일 오버라이드 */
+.button.github:disabled,
+.button.live:disabled,
+.button.notion:disabled,
+.button.primary:disabled,
+.button.secondary:disabled {
+  background-color: var(--color-disabled);
+  color: white;
+  border-color: var(--color-disabled);
 }
 
 /* Focus */

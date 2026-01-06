@@ -262,6 +262,12 @@ export const specialSemantic = {
     divider: 'var(--color-featured-divider)',
   },
   github: 'var(--color-github)',
+  githubHover: 'var(--color-github-hover)',
+  live: 'var(--color-live)',
+  liveHover: 'var(--color-live-hover)',
+  notion: 'var(--color-notion)',
+  notionHover: 'var(--color-notion-hover)',
+  disabled: 'var(--color-disabled)',
   buttonText: 'var(--color-button-text)',
 } as const;
 

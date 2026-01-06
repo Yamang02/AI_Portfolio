@@ -3,7 +3,7 @@
   align-items: center;
   gap: var(--spacing-2);
   padding: var(--spacing-1) var(--spacing-2);
-  border-radius: var(--border-radius-md);
+  border-radius: var(--border-radius-full);
   border: 1px solid;
   font-weight: 500;
   white-space: nowrap;
@@ -61,47 +61,11 @@
   height: 1rem; /* 16px */
 }
 
-/* BUILD variant */
-.badge.build {
-  background-color: color-mix(in srgb, var(--color-status-error) 90%, transparent);
-  border-color: color-mix(in srgb, var(--color-status-error) 50%, transparent);
-  color: var(--color-text-primary);
-}
-
-@media (prefers-color-scheme: dark) {
-  .badge.build {
-    background-color: color-mix(in srgb, var(--color-status-error) 80%, transparent);
-    border-color: color-mix(in srgb, var(--color-status-error) 70%, transparent);
-    color: var(--color-text-primary);
-  }
-}
-
-/* LAB variant */
-.badge.lab {
-  background-color: color-mix(in srgb, var(--color-status-warning) 90%, transparent);
-  border-color: color-mix(in srgb, var(--color-status-warning) 50%, transparent);
-  color: var(--color-text-primary);
-}
-
-@media (prefers-color-scheme: dark) {
-  .badge.lab {
-    background-color: color-mix(in srgb, var(--color-status-warning) 80%, transparent);
-    border-color: color-mix(in srgb, var(--color-status-warning) 70%, transparent);
-    color: var(--color-text-primary);
-  }
-}
-
-/* MAINTENANCE variant */
+/* 모든 variant에 기본 스타일 사용 (색상 제거) */
+.badge.build,
+.badge.lab,
 .badge.maintenance {
-  background-color: color-mix(in srgb, var(--color-status-success) 90%, transparent);  /* Green-500 (표준) */
-  border-color: color-mix(in srgb, var(--color-status-success) 50%, transparent);
+  background-color: var(--color-bg-secondary);
+  border-color: var(--color-border-default);
   color: var(--color-text-primary);
-}
-
-@media (prefers-color-scheme: dark) {
-  .badge.maintenance {
-    background-color: color-mix(in srgb, var(--color-status-success) 80%, transparent);
-    border-color: color-mix(in srgb, var(--color-status-success) 70%, transparent);
-    color: var(--color-text-primary);
-  }
 }

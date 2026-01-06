@@ -58,3 +58,9 @@ export type {
 
 export { Modal } from './Modal';
 export type { ModalProps } from './Modal';
+
+export { ProjectThumbnailCarousel } from './Carousel';
+export type {
+  ProjectThumbnailCarouselProps,
+  ProjectThumbnail,
+} from './Carousel';

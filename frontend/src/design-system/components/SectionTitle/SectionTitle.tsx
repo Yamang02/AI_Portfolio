@@ -7,17 +7,19 @@ export interface SectionTitleProps {
   level: SectionTitleLevel;
   children: React.ReactNode;
   className?: string;
+  id?: string;
 }
 
 export const SectionTitle: React.FC<SectionTitleProps> = ({
   level,
   children,
   className,
+  id,
 }) => {
   const Tag = level;
   const classNames = [styles.sectionTitle, styles[level], className]
     .filter(Boolean)
     .join(' ');
 
-  return <Tag className={classNames}>{children}</Tag>;
+  return <Tag id={id} className={classNames}>{children}</Tag>;
 };

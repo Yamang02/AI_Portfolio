@@ -6,7 +6,7 @@ import { AppProvider, useApp } from '../app/providers/AppProvider';
 import { Header } from '@/widgets/layout/Header';
 import { HomePage } from '@/pages/HomePage';
 import { ProjectsListPage } from '@/pages/ProjectsListPage';
-import { ProjectDetailPage } from '../pages/ProjectDetail/ProjectDetailPage';
+import { ProjectDetailPage } from '@/pages/ProjectDetailPage';
 import {
   EasterEggProvider,
   EasterEggLayer,

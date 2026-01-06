@@ -1,0 +1,50 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-1) var(--spacing-2);
+  border-radius: var(--border-radius-full);
+  border: 1px solid;
+  font-weight: 500;
+  white-space: nowrap;
+  backdrop-filter: blur(4px);
+  box-shadow: var(--shadow-md);
+}
+
+.text {
+  white-space: nowrap;
+}
+
+/* Sizes */
+.badge.sm {
+  padding: var(--spacing-1) var(--spacing-2);
+  font-size: 0.6875rem; /* 11px */
+  gap: var(--spacing-1);
+}
+
+.badge.md {
+  padding: var(--spacing-1) var(--spacing-2);
+  font-size: 0.75rem; /* 12px */
+  gap: var(--spacing-2);
+}
+
+.badge.lg {
+  padding: var(--spacing-2) var(--spacing-3);
+  font-size: 0.875rem; /* 14px */
+  gap: var(--spacing-2);
+}
+
+/* Team variant - 팀 배지와 같은 컬러 */
+.badge.team {
+  background-color: #1f2937;  /* Gray-800 - 어두운 배경 */
+  border-color: #374151;     /* Gray-700 - 어두운 테두리 */
+  color: #f9fafb;            /* Gray-50 - 밝은 텍스트 */
+}
+
+@media (prefers-color-scheme: dark) {
+  .badge.team {
+    background-color: #111827;  /* Gray-900 - 더 어두운 배경 */
+    border-color: #1f2937;      /* Gray-800 - 어두운 테두리 */
+    color: #f9fafb;             /* Gray-50 - 밝은 텍스트 */
+  }
+}

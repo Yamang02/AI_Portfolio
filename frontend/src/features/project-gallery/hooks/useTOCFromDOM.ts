@@ -58,7 +58,10 @@ export const useTOCFromDOM = (
     }
 
     // 컨테이너 내부에서 헤딩 찾기
-    const container = containerRef.current.querySelector(containerSelector) || containerRef.current;
+    // containerSelector가 없거나 빈 문자열이면 containerRef.current를 직접 사용
+    const container = containerSelector && containerSelector.trim() 
+      ? containerRef.current.querySelector(containerSelector) || containerRef.current
+      : containerRef.current;
     if (!container) {
       return [];
     }
