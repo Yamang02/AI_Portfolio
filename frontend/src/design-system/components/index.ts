@@ -64,3 +64,12 @@ export type {
   ProjectThumbnailCarouselProps,
   ProjectThumbnail,
 } from './Carousel';
+
+export { ProjectDetailHeader } from './ProjectDetailHeader';
+export type { ProjectDetailHeaderProps } from './ProjectDetailHeader';
+
+export { TableOfContents } from './TableOfContents';
+export type { TableOfContentsProps } from './TableOfContents';
+
+export { ProjectNavigation } from './ProjectNavigation';
+export type { ProjectNavigationProps } from './ProjectNavigation';
