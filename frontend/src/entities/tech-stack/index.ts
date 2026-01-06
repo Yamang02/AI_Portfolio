@@ -19,6 +19,9 @@ export type {
   TechStackSortOrderUpdate,
 } from './model/tech-stack.types';
 
+// Interfaces (export separately for interfaces)
+export type { TechStackBadgeProps } from './model/tech-stack.types';
+
 // API
 export { techStackApi } from './api/techStackApi';
 

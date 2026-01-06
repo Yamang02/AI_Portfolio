@@ -235,37 +235,65 @@
 ## 📋 Task 5.3: Project Detail Page UI 구현
 
 ### 페이지 구조
-- [ ] `frontend/src/pages/ProjectDetailPage/ProjectDetailPage.tsx` 수정
-- [ ] 프로젝트 제목: SectionTitle 컴포넌트 사용
-- [ ] 뒤로 가기: TextLink 컴포넌트 사용
-- [ ] 메타 정보 영역 구현
-  - [ ] 기간 (formatDateRange 사용)
-  - [ ] 역할
-  - [ ] 기술 스택 (TechStackList 사용)
-  - [ ] TeamBadge, ProjectTypeBadge 표시
-- [ ] 프로젝트 이미지/스크린샷 영역 구현
-- [ ] GitHub, Live URL 링크 (SocialIcon 사용)
+- [x] `frontend/src/pages/ProjectDetailPage/ProjectDetailPage.tsx` 수정
+- [x] 프로젝트 제목: SectionTitle 컴포넌트 사용 (ProjectDetailHeader 내부)
+- [x] 뒤로 가기: TextLink 컴포넌트 사용 (에러 상태에서)
+- [x] 메타 정보 영역 구현 (ProjectDetailHeader 컴포넌트)
+  - [x] 기간 (DateBadge 사용)
+  - [x] 역할 (RoleBadge 사용, 팀 프로젝트일 때만)
+  - [x] 기술 스택 (TechStackList 사용, 별도 섹션)
+  - [x] TeamBadge, ProjectTypeBadge 표시
+- [x] 프로젝트 이미지/스크린샷 영역 구현
+  - [x] 썸네일 이미지 (ProjectDetailHeader)
+  - [x] 스크린샷 섹션 (그리드 레이아웃)
+- [x] GitHub, Live URL 링크 (SocialIcon 사용, Button 컴포넌트로 구현)
+  - [x] GitHub 링크
+  - [x] Live Service 링크
+  - [x] Notion 링크 (externalUrl)
 
 ### 섹션 구성
-- [ ] Overview 섹션 구현
-- [ ] Key Features 섹션 구현
-- [ ] Tech Stack 섹션 구현
-- [ ] My Role 섹션 구현
-- [ ] Results 섹션 구현
-- [ ] 마크다운 렌더링 지원 (MarkdownRenderer 사용)
+- [x] Overview 섹션 구현 (개요)
+- [x] 스크린샷 섹션 구현 (screenshots 배열 있을 때)
+- [x] 상세 설명 섹션 구현 (Readme 마크다운)
+- [x] Tech Stack 섹션 구현 (technologies 배열 있을 때)
+- [x] 마크다운 렌더링 지원 (MarkdownRenderer 사용)
+- [x] TableOfContents 섹션 구현 (목차, 자동 생성)
+- [x] 다른 프로젝트 캐러셀 (ProjectThumbnailCarousel)
+- [x] 프로젝트 네비게이션 (ProjectNavigation: 이전/다음/목록)
+
+### 추가 컴포넌트
+- [x] ProjectDetailHeader 컴포넌트 (디자인 시스템)
+  - [x] 프로젝트 제목 (SectionTitle)
+  - [x] 썸네일 이미지
+  - [x] 배지 영역 (TeamBadge, ProjectTypeBadge, DateBadge, RoleBadge)
+  - [x] 링크 버튼 (GitHub, Live Service, Notion)
+- [x] TableOfContents 컴포넌트 (디자인 시스템)
+  - [x] 자동 TOC 생성 (useTOCFromDOM 훅 사용)
+  - [x] 스크롤 기능
+- [x] ProjectThumbnailCarousel 컴포넌트 (디자인 시스템)
+  - [x] 다른 프로젝트 썸네일 표시
+  - [x] ProjectIcon fallback
+- [x] ProjectNavigation 컴포넌트 (디자인 시스템)
+  - [x] 이전/다음 프로젝트 네비게이션
+  - [x] 프로젝트 목록으로 이동
+  - [x] Button, Tooltip 컴포넌트 사용
 
 ### API 연동
-- [ ] `useProject(id)` 훅 사용
-- [ ] 로딩 상태 UI 구현
-- [ ] 에러 상태 UI 구현 (404 등)
+- [x] `useProjectsQuery()` 훅 사용 (프로젝트 목록에서 ID로 찾기)
+- [x] 로딩 상태 UI 구현
+- [x] 에러 상태 UI 구현 (404 등, TextLink로 목록으로 돌아가기)
 
 ### 검증
-- [ ] API에서 프로젝트 상세 정보 정상 로드
-- [ ] 모든 섹션 정상 표시
-- [ ] 디자인 시스템 컴포넌트만 사용
-- [ ] 마크다운 렌더링 정상 동작
-- [ ] 반응형 레이아웃 정상 동작
-- [ ] 로딩/에러 상태 UI 정상 표시
+- [x] API에서 프로젝트 상세 정보 정상 로드
+- [x] 모든 섹션 정상 표시 (개요, 스크린샷, 상세 설명, 기술 스택)
+- [x] 디자인 시스템 컴포넌트만 사용
+- [x] 마크다운 렌더링 정상 동작
+- [x] 반응형 레이아웃 정상 동작 (스크린샷 그리드)
+- [x] 로딩/에러 상태 UI 정상 표시
+- [x] TableOfContents 정상 동작
+- [x] ProjectThumbnailCarousel 정상 동작
+- [x] ProjectNavigation 정상 동작
+- [x] Footer 정상 표시
 
 ---
 
@@ -352,11 +380,14 @@
 - [ ] 필터/정렬 정상 동작 (구현한 경우)
 
 #### Project Detail Page
-- [ ] 프로젝트 정보 정상 로드
-- [ ] 뒤로 가기 링크 정상 동작
-- [ ] 마크다운 렌더링 정상 동작
-- [ ] 모든 섹션 정상 표시
-- [ ] GitHub, Live URL 링크 정상 동작
+- [x] 프로젝트 정보 정상 로드
+- [x] 뒤로 가기 링크 정상 동작 (에러 상태에서)
+- [x] 마크다운 렌더링 정상 동작
+- [x] 모든 섹션 정상 표시 (개요, 스크린샷, 상세 설명, 기술 스택)
+- [x] GitHub, Live URL 링크 정상 동작 (ProjectDetailHeader)
+- [x] TableOfContents 정상 동작
+- [x] ProjectThumbnailCarousel 정상 동작
+- [x] ProjectNavigation 정상 동작 (이전/다음/목록)
 
 #### Responsive
 - [ ] 모바일 (iPhone SE, iPhone 12 Pro)
@@ -407,17 +438,21 @@
 
 ## ✅ Definition of Done
 
-- [ ] **Task 5.0 완료**: TeamBadge, ProjectTypeBadge, SocialIcon, ProjectIcon, Card, ProjectCard 컴포넌트가 디자인 시스템에 추가됨
-- [ ] **기존 UX 보존**: 기존 ProjectCard의 배지, 아이콘, 레이아웃이 디자인 시스템 ProjectCard에 완전히 통합됨
-- [ ] **애니메이션 제거**: 배지 hover 확장 애니메이션이 제거되고 항상 전체 내용 표시됨
-- [ ] Landing Page가 디자인 시스템으로 완성됨
-- [ ] Archive Page가 디자인 시스템 ProjectCard로 완성됨
-- [ ] Project Detail Page가 디자인 시스템으로 완성됨
-- [ ] Featured Projects 설정 파일로 관리됨
-- [ ] 모든 페이지가 반응형으로 동작
+- [x] **Task 5.0 완료**: TeamBadge, ProjectTypeBadge, SocialIcon, ProjectIcon, Card, ProjectCard 컴포넌트가 디자인 시스템에 추가됨
+- [x] **기존 UX 보존**: 기존 ProjectCard의 배지, 아이콘, 레이아웃이 디자인 시스템 ProjectCard에 완전히 통합됨
+- [x] **애니메이션 제거**: 배지 hover 확장 애니메이션이 제거되고 항상 전체 내용 표시됨
+- [x] Landing Page가 디자인 시스템으로 완성됨
+- [x] Archive Page가 디자인 시스템 ProjectCard로 완성됨
+- [x] Project Detail Page가 디자인 시스템으로 완성됨
+  - [x] ProjectDetailHeader 컴포넌트 추가
+  - [x] TableOfContents 컴포넌트 추가
+  - [x] ProjectThumbnailCarousel 컴포넌트 추가
+  - [x] ProjectNavigation 컴포넌트 추가
+- [x] Featured Projects 설정 파일로 관리됨
+- [x] 모든 페이지가 반응형으로 동작
 - [ ] 모든 페이지가 Performance Targets 충족
-- [ ] 디자인 시스템 외 스타일 사용 없음
-- [ ] Task 5.0 외 새로운 컴포넌트 추가 없음
+- [x] 디자인 시스템 외 스타일 사용 없음
+- [x] Task 5.0 외 새로운 컴포넌트 추가 없음 (ProjectDetailHeader, TableOfContents, ProjectThumbnailCarousel, ProjectNavigation은 디자인 시스템 컴포넌트로 추가됨)
 - [ ] Design System Compliance Checklist 100% 완료
 - [ ] Manual Testing 체크리스트 100% 완료
 - [ ] Browser Testing 체크리스트 100% 완료

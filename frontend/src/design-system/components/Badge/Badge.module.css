@@ -24,8 +24,8 @@
 }
 
 .badge.accent {
-  background-color: #22c55e;  /* Vivid Green-500 - 브랜드 컬러와 어울리는 선명한 초록색 */
-  border-color: #22c55e;
+  background-color: var(--color-status-success);  /* Success 색상과 동일 */
+  border-color: var(--color-status-success);
   color: var(--color-white);
 }
 

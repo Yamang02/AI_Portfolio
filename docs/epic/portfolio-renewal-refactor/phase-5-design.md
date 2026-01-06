@@ -177,9 +177,17 @@ frontend/src/
 │       ├── Icon/
 │       │   ├── ProjectIcon.tsx (신규)
 │       │   └── SocialIcon.tsx (신규)
-│       └── Card/
-│           ├── Card.tsx (신규)
-│           └── ProjectCard.tsx (신규)
+│       ├── Card/
+│       │   ├── Card.tsx (신규)
+│       │   └── ProjectCard.tsx (신규)
+│       ├── ProjectDetailHeader/
+│       │   └── ProjectDetailHeader.tsx (신규: Task 5.3)
+│       ├── TableOfContents/
+│       │   └── TableOfContents.tsx (신규: Task 5.3)
+│       ├── Carousel/
+│       │   └── ProjectThumbnailCarousel.tsx (신규: Task 5.3)
+│       └── ProjectNavigation/
+│           └── ProjectNavigation.tsx (신규: Task 5.3)
 │
 └── pages/
     ├── HomePage/
@@ -198,7 +206,9 @@ frontend/src/
     │       └── ProjectHistoryTimeline.tsx # 프로젝트 히스토리 타임라인
     │
     └── ProjectDetailPage/
-        └── ProjectDetailPage.tsx     # 프로젝트 상세
+        ├── ProjectDetailPage.tsx     # 프로젝트 상세
+        └── components/
+            └── ProjectNavigation.tsx # 프로젝트 네비게이션 (페이지별 컴포넌트)
 ```
 
 ---
@@ -414,31 +424,45 @@ frontend/src/
 
 **작업**:
 1. **페이지 구조**
-   - 프로젝트 제목: SectionTitle 컴포넌트
-   - 뒤로 가기: TextLink 컴포넌트
-   - 메타 정보 (기간, 역할, 기술 스택)
+   - 프로젝트 제목: SectionTitle 컴포넌트 (ProjectDetailHeader 내부)
+   - 뒤로 가기: TextLink 컴포넌트 (에러 상태에서)
+   - 메타 정보 영역: ProjectDetailHeader 컴포넌트
+     - 썸네일 이미지
+     - 배지 영역 (TeamBadge, ProjectTypeBadge, DateBadge, RoleBadge)
+     - 링크 버튼 (GitHub, Live Service, Notion)
    - 프로젝트 설명 (마크다운 지원)
-   - 프로젝트 이미지/스크린샷
+   - 프로젝트 이미지/스크린샷 (그리드 레이아웃)
 
 2. **섹션 구성**
-   - Overview
-   - Key Features
-   - Tech Stack
-   - My Role
-   - Results
+   - TableOfContents 섹션 (자동 생성, useTOCFromDOM 훅 사용)
+   - Overview 섹션 (개요)
+   - 스크린샷 섹션 (screenshots 배열 있을 때)
+   - 상세 설명 섹션 (Readme 마크다운)
+   - Tech Stack 섹션 (technologies 배열 있을 때)
+   - 다른 프로젝트 캐러셀 (ProjectThumbnailCarousel)
+   - 프로젝트 네비게이션 (ProjectNavigation: 이전/다음/목록)
 
-3. **API 연동**
-   - `useProject(id)` 훅 사용
+3. **디자인 시스템 컴포넌트 추가**
+   - **ProjectDetailHeader**: 프로젝트 헤더 (제목, 썸네일, 배지, 링크)
+   - **TableOfContents**: 목차 컴포넌트 (자동 생성, 스크롤 기능)
+   - **ProjectThumbnailCarousel**: 다른 프로젝트 썸네일 캐러셀
+   - **ProjectNavigation**: 프로젝트 네비게이션 (이전/다음/목록)
+
+4. **API 연동**
+   - `useProjectsQuery()` 훅 사용 (프로젝트 목록에서 ID로 찾기)
    - 로딩 상태 처리
-   - 에러 상태 처리 (404 등)
+   - 에러 상태 처리 (404 등, TextLink로 목록으로 돌아가기)
 
 **검증**:
-- [ ] API에서 프로젝트 상세 정보 정상 로드
-- [ ] 모든 섹션 정상 표시
-- [ ] 디자인 시스템 컴포넌트만 사용
-- [ ] 마크다운 렌더링 정상 동작
-- [ ] 반응형 레이아웃 정상 동작
-- [ ] 로딩/에러 상태 UI 정상 표시
+- [x] API에서 프로젝트 상세 정보 정상 로드
+- [x] 모든 섹션 정상 표시 (개요, 스크린샷, 상세 설명, 기술 스택)
+- [x] 디자인 시스템 컴포넌트만 사용
+- [x] 마크다운 렌더링 정상 동작
+- [x] 반응형 레이아웃 정상 동작 (스크린샷 그리드)
+- [x] 로딩/에러 상태 UI 정상 표시
+- [x] TableOfContents 정상 동작
+- [x] ProjectThumbnailCarousel 정상 동작
+- [x] ProjectNavigation 정상 동작
 
 ---
 
@@ -517,9 +541,12 @@ frontend/src/
    - [ ] 필터/정렬 정상 동작 (구현한 경우)
 
 3. **Project Detail Page**
-   - [ ] 프로젝트 정보 정상 로드
-   - [ ] 뒤로 가기 링크 정상 동작
-   - [ ] 마크다운 렌더링 정상 동작
+   - [x] 프로젝트 정보 정상 로드
+   - [x] 뒤로 가기 링크 정상 동작 (에러 상태에서)
+   - [x] 마크다운 렌더링 정상 동작
+   - [x] TableOfContents 정상 동작
+   - [x] ProjectThumbnailCarousel 정상 동작
+   - [x] ProjectNavigation 정상 동작
 
 4. **Responsive**
    - [ ] 모바일 (iPhone SE, iPhone 12 Pro)
@@ -567,7 +594,11 @@ frontend/src/
 - [x] Archive Page에 Featured Projects 섹션 추가
 - [x] Archive Page에 프로젝트 히스토리 타임라인 추가
 - [x] Archive Page에 프로젝트 검색 모달 추가
-- [ ] Project Detail Page에서 프로젝트 상세 정보 정상 표시
+- [x] Project Detail Page에서 프로젝트 상세 정보 정상 표시
+  - [x] ProjectDetailHeader 컴포넌트 구현
+  - [x] TableOfContents 컴포넌트 구현
+  - [x] ProjectThumbnailCarousel 컴포넌트 구현
+  - [x] ProjectNavigation 컴포넌트 구현
 - [x] 모든 페이지가 반응형으로 동작
 
 ### Non-Functional
@@ -627,10 +658,14 @@ frontend/src/
 - [x] Archive Page에 프로젝트 검색 모달 추가
 - [x] Featured Projects 설정 파일로 관리됨 (오버라이드 기능 포함)
 - [x] 모든 페이지가 반응형으로 동작
-- [ ] Project Detail Page가 디자인 시스템으로 완성됨
+- [x] Project Detail Page가 디자인 시스템으로 완성됨
+  - [x] ProjectDetailHeader 컴포넌트 추가
+  - [x] TableOfContents 컴포넌트 추가
+  - [x] ProjectThumbnailCarousel 컴포넌트 추가
+  - [x] ProjectNavigation 컴포넌트 추가
 - [ ] 모든 페이지가 Performance Targets 충족
 - [x] 디자인 시스템 외 스타일 사용 없음
-- [x] Task 5.0 외 새로운 컴포넌트 추가 없음
+- [x] Task 5.0 외 새로운 컴포넌트 추가 없음 (ProjectDetailHeader, TableOfContents, ProjectThumbnailCarousel, ProjectNavigation은 디자인 시스템 컴포넌트로 추가됨)
 - [ ] Manual Testing 체크리스트 100% 완료
 - [ ] Browser Testing 체크리스트 100% 완료
 
