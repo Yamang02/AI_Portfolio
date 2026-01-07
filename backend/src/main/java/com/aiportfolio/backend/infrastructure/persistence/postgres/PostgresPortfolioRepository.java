@@ -726,6 +726,8 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
                 if (project.getSortOrder() != null) existing.setSortOrder(project.getSortOrder());
                 // isTeam은 boolean이므로 null 체크 불필요
                 existing.setIsTeam(project.isTeam());
+                // isFeatured도 boolean이므로 null 체크 불필요
+                existing.setIsFeatured(project.isFeatured());
                 if (!project.isTeam()) {
                     existing.setTeamSize(null);
                 } else if (project.getTeamSize() != null) {

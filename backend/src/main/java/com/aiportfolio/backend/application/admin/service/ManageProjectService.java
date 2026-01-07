@@ -164,10 +164,9 @@ public class ManageProjectService implements ManageProjectUseCase {
 
         project.updateTeamInfo(command.getIsTeam(), command.getTeamSize());
         
-        // isFeatured 업데이트
+        // isFeatured 업데이트 (Boolean wrapper를 boolean primitive로 변환)
         if (command.getIsFeatured() != null) {
-            // boolean primitive 타입이므로 직접 할당
-            project.setFeatured(command.getIsFeatured());
+            project.setFeatured(Boolean.TRUE.equals(command.getIsFeatured()));
         }
 
         // 이미지 URL 업데이트 (선택 필드: 정규화 적용)
