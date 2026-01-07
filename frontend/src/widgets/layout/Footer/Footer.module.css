@@ -4,7 +4,7 @@
   padding-left: var(--spacing-6);
   padding-right: var(--spacing-6);
   border-top: 1px solid var(--color-border-default);
-  background-color: var(--color-bg-primary);
+  background-color: var(--color-bg-header-footer, var(--color-bg-primary));
   opacity: 0;
   transform: translateY(100%);
   transition: opacity 0.6s ease-out, transform 0.6s ease-out;
@@ -23,7 +23,7 @@
 
 .copyright {
   font-size: 0.875rem;
-  color: var(--color-text-secondary);
+  color: var(--color-text-primary); /* #000000 대체 - brandScale 1000 (#051A0E) 사용 */
   margin: 0;
 }
 

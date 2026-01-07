@@ -18,14 +18,17 @@
   --color-bg-secondary: #f9fafb;       /* Gray-50 */
   --color-bg-tertiary: #f3f4f6;        /* Gray-100 */
   
+  /* Header/Footer Background - 라이트 모드용 (기본 배경색과 동일) */
+  --color-bg-header-footer: #ffffff;    /* 라이트 모드: 기본 배경색 */
+  
   /* Landing Page Background - 옵션 2 (그린 틴트) */
   --color-landing-bg: #F0F9F4;         /* 라이트 모드: 매우 밝은 그린 틴트 */
 
-  /* Text - 브랜드 그린 톤 (약간의 초록색이 섞인 검정색 대체) */
-  --color-text-primary: #1A4025;       /* 어두운 그린 틴트 - 초록 기운 강화 (#1A2A1F에서 G값 42→64로 증가) */
+  /* Text - 브랜드 그린 톤 (검은색을 #051A0E로 대체) */
+  --color-text-primary: #051A0E;       /* 검은색 대체 - brandScale 1000 */
   --color-text-secondary: #4A5F52;     /* 브랜드 그린 톤 - 서브 텍스트 */
   --color-text-tertiary: #9ca3af;      /* Gray-400 (표준) */
-  --color-text-title: #0F1F17;         /* 타이틀용 어두운 그린 틴트 */
+  --color-text-title: #051A0E;         /* 타이틀용 - 검은색 대체 brandScale 1000 */
   
   /* Button Text - Primary 버튼 위 텍스트용 */
   --color-button-text: #F8FBF9;        /* 버튼 텍스트 (라이트/다크 공통) */
@@ -61,24 +64,27 @@
   --color-featured-link: #3F7050;       /* Link / Accent Text - 새 프라이머리 active 톤 */
   --color-featured-divider: #A8C9B5;     /* Divider / Icon - 보조 요소 (새 프라이머리 톤) */
   
-  /* Utility Colors - 외부 서비스/링크용 */
-  --color-github: #6e5494;                /* GitHub 시그니처 보라색 (기존 톤 유지) */
-  --color-github-hover: #5a3f7a;          /* GitHub hover (기존 톤 기반) */
-  --color-live: #059669;                   /* Green-600 - Live Service (기존 톤에 맞춤) */
-  --color-live-hover: #047857;            /* Green-700 - Live Service hover */
-  --color-notion: #2563eb;                /* Blue-600 - Notion (기존 톤에 맞춤) */
-  --color-notion-hover: #1d4ed8;          /* Blue-700 - Notion hover */
+  /* Utility Colors - 외부 서비스/링크용 (브랜드 톤 조정) */
+  --color-github: #6B7A8F;                /* GitHub 보라색 - 브랜드 그린 톤 추가 (기본 톤 유지, 그린 틴트) */
+  --color-github-hover: #5A6B7F;          /* GitHub hover - 브랜드 톤 조정 */
+  --color-live: #4F9070;                   /* Live Service - 브랜드 그린 톤 (#5F9070 기반, 약간 어둡게) */
+  --color-live-hover: #3F8060;            /* Live Service hover - 브랜드 톤 조정 */
+  --color-notion: #4A7A9F;                /* Notion 블루 - 브랜드 그린 톤 추가 (기본 톤 유지, 그린 틴트) */
+  --color-notion-hover: #3A6A8F;          /* Notion hover - 브랜드 톤 조정 */
   --color-disabled: #6b7280;             /* Gray-500 - 비활성화 버튼 */
   
   /* Primary Dark - 섹션 타이틀용 */
   --color-primary-dark: #2F6040;         /* 텍스트용 진한 그린 */
+  
+  /* Brand Scale 1000 - 매우 진한 초록 (다크모드 헤더/푸터용) */
+  --color-brand-1000: #051A0E;
 
   /* Neutral Colors */
   --color-white: #ffffff;
-  --color-black: #000000;
+  --color-black: #051A0E;                /* #000000 대체 - brandScale 1000 사용 */
 
   /* Tooltip Colors */
-  --color-tooltip-bg: #1a1a1a;           /* 툴팁 배경 - 거의 검은색 */
+  --color-tooltip-bg: #051A0E;           /* 툴팁 배경 - 검은색 대체 brandScale 1000 */
   --color-tooltip-text: #ffffff;         /* 툴팁 텍스트 - 순수 흰색 */
 
   /* 그림자 색상 */
@@ -103,9 +109,9 @@
   --color-link-hover: #5F9070;         /* 브랜드 그린 (강조 링크만) */
   --color-link-visited: #6b7280;        /* Gray-500 (neutral) */
 
-  /* Status - 표준 색상 */
+  /* Status - 표준 색상 (브랜드 톤 조정) */
   --color-status-info: #3b82f6;        /* Blue-500 */
-  --color-status-success: #10b981;     /* Green-500 (표준, 브랜드 아님) */
+  --color-status-success: #4F8060;     /* 브랜드 그린 톤 (brandScale 500) - 톤 다운 */
   --color-status-warning: #f59e0b;     /* Amber-500 */
   --color-status-error: #ef4444;       /* Red-500 */
 
@@ -164,13 +170,16 @@
 /* 시스템 다크모드 설정에 따른 자동 적용 */
 @media (prefers-color-scheme: dark) {
   :root {
-    /* Background - Neutral (표준) - 옵션 1 */
-    --color-bg-primary: #0F1F17;       /* 랜딩페이지와 동일한 어두운 그린 틴트 */
-    --color-bg-secondary: #111111;     /* 약간 밝은 검은색 */
-    --color-bg-tertiary: #1a1a1a;       /* 검은색 */
-    
-    /* Landing Page Background - 옵션 2 (그린 틴트) */
-    --color-landing-bg: #0F1F17;       /* 다크 모드: 매우 어두운 그린 틴트 */
+  /* Background - Neutral (표준) - 옵션 1 */
+  --color-bg-primary: #0F1F17;       /* 랜딩페이지와 동일한 어두운 그린 틴트 */
+  --color-bg-secondary: #111111;     /* 약간 밝은 검은색 */
+  --color-bg-tertiary: #1a1a1a;       /* 검은색 */
+  
+  /* Header/Footer Background - 다크 모드용 */
+  --color-bg-header-footer: #051A0E;  /* 매우 진한 초록 (헤더/푸터 전용) */
+  
+  /* Landing Page Background - 옵션 2 (그린 틴트) */
+  --color-landing-bg: #0F1F17;       /* 다크 모드: 매우 어두운 그린 틴트 */
 
     /* Text - 중립 Gray 톤 (브랜드 컬러 제거) */
     --color-text-primary: #f3f4f6;     /* Gray-100 - 부드러운 화이트 */
@@ -181,10 +190,10 @@
     /* Button Text - Primary 버튼 위 텍스트용 */
     --color-button-text: #F8FBF9;      /* 버튼 텍스트 (라이트/다크 공통) */
 
-    /* Border - Neutral (표준) */
-    --color-border-default: #374151;    /* Gray-700 */
-    --color-border-hover: #4b5563;      /* Gray-600 */
-    --color-border-accent: #374151;     /* Gray-700 (브랜드 색상 제거) */
+    /* Border - 밝은 민트 계열 (다크 모드) */
+    --color-border-default: #A8E6C7;    /* 밝은 민트 - 구분선용 */
+    --color-border-hover: #B5F0D8;      /* 더 밝은 민트 - hover */
+    --color-border-accent: #9FD6B2;     /* 그린민트 - accent */
 
     /* Brand - 다크 모드용 (새 프라이머리 톤 유지, 더 밝게 조정) */
     --color-primary: #7FB089;           /* 다크 모드에서 더 밝은 그린 (대비 향상) */
@@ -205,20 +214,20 @@
     /* Featured Badge (다크 모드에서도 동일) */
     --color-featured-badge: #f5c842;     /* Featured 별 배지 배경 */
     
-    /* Featured / Highlight Section Colors - 다크 모드 (중립색) */
-    --color-featured-bg: #111827;        /* Gray-900 - 다크 모드 배경 */
+    /* Featured / Highlight Section Colors - 다크 모드 (초록색 계통) */
+    --color-featured-bg: #1A2F25;        /* 어두운 초록 틴트 - 다크 모드 배경 (brandScale 기반) */
     --color-featured-header: #f3f4f6;    /* Gray-100 - Section Header */
     --color-featured-text: #d1d5db;      /* Gray-300 - Body Text */
     --color-featured-link: #9ca3af;      /* Gray-400 - Link / Accent Text */
     --color-featured-divider: #4b5563;   /* Gray-600 - Divider / Icon */
     
-    /* Utility Colors - 다크 모드용 (기존 톤 유지, 약간 밝게) */
-    --color-github: #8b6ba8;              /* GitHub (기존 톤 기반, 다크 모드용 약간 밝게) */
-    --color-github-hover: #9d7bb8;        /* GitHub hover */
-    --color-live: #10b981;                 /* Green-500 - 다크 모드용 */
-    --color-live-hover: #059669;           /* Green-600 - 다크 모드 hover */
-    --color-notion: #3b82f6;               /* Blue-500 - 다크 모드용 */
-    --color-notion-hover: #2563eb;         /* Blue-600 - 다크 모드 hover */
+    /* Utility Colors - 다크 모드용 (브랜드 톤 조정, 약간 밝게) */
+    --color-github: #7B8A9F;              /* GitHub - 브랜드 그린 톤 추가 (다크 모드용 밝게) */
+    --color-github-hover: #8B9AAF;        /* GitHub hover - 브랜드 톤 조정 */
+    --color-live: #6FA07A;                 /* Live Service - 브랜드 그린 톤 (다크 모드용 밝게) */
+    --color-live-hover: #5F9070;           /* Live Service hover - 브랜드 primary 톤 */
+    --color-notion: #5A8AAF;               /* Notion 블루 - 브랜드 그린 톤 추가 (다크 모드용) */
+    --color-notion-hover: #4A7A9F;         /* Notion hover - 브랜드 톤 조정 */
     --color-disabled: #4b5563;             /* Gray-600 - 다크 모드 비활성화 */
     
     /* Primary Dark - 다크 모드용 (텍스트용) */
@@ -250,9 +259,9 @@
     --color-link-hover: #6FA07A;       /* 새 프라이머리 (밝은 버전) */
     --color-link-visited: #8FC09A;      /* 밝은 그린 */
 
-    /* Status - 표준 색상 */
+    /* Status - 표준 색상 (브랜드 톤 조정) */
     --color-status-info: #60a5fa;       /* Blue-400 */
-    --color-status-success: #34d399;    /* Green-400 (표준, 브랜드 아님) */
+    --color-status-success: #6FA07A;    /* 브랜드 그린 톤 (다크 모드용 밝게) - 톤 다운 */
     --color-status-warning: #fbbf24;    /* Amber-400 */
     --color-status-error: #f87171;      /* Red-400 */
 
@@ -316,6 +325,9 @@
   --color-bg-secondary: #111111;     /* 약간 밝은 검은색 */
   --color-bg-tertiary: #1a1a1a;       /* 검은색 */
   
+  /* Header/Footer Background - 다크 모드용 */
+  --color-bg-header-footer: #051A0E;  /* 매우 진한 초록 (헤더/푸터 전용) */
+  
   /* Landing Page Background - 옵션 2 (그린 틴트) */
   --color-landing-bg: #0F1F17;       /* 다크 모드: 매우 어두운 그린 틴트 */
 
@@ -328,10 +340,10 @@
   /* Button Text - Primary 버튼 위 텍스트용 */
   --color-button-text: #F8FBF9;      /* 버튼 텍스트 (라이트/다크 공통) */
 
-  /* Border - Neutral (표준) */
-  --color-border-default: #374151;    /* Gray-700 */
-  --color-border-hover: #4b5563;      /* Gray-600 */
-  --color-border-accent: #374151;     /* Gray-700 (브랜드 색상 제거) */
+  /* Border - 밝은 민트 계열 (다크 모드) */
+  --color-border-default: #A8E6C7;    /* 밝은 민트 - 구분선용 */
+  --color-border-hover: #B5F0D8;      /* 더 밝은 민트 - hover */
+  --color-border-accent: #9FD6B2;     /* 그린민트 - accent */
 
   /* Brand - 다크 모드용 (새 프라이머리 톤 유지, 더 밝게 조정) */
   --color-primary: #7FB089;           /* 다크 모드에서 더 밝은 그린 (대비 향상) */
@@ -353,19 +365,19 @@
   --color-featured-badge: #f5c842;     /* Featured 별 배지 배경 */
   
   /* Featured / Highlight Section Colors - 다크 모드 (중립색) */
-  --color-featured-bg: #111827;        /* Gray-900 - 다크 모드 배경 */
+    --color-featured-bg: #1A2F25;        /* 어두운 초록 틴트 - 다크 모드 배경 (brandScale 기반) */
   --color-featured-header: #f3f4f6;    /* Gray-100 - Section Header */
   --color-featured-text: #d1d5db;      /* Gray-300 - Body Text */
     --color-featured-link: #9ca3af;      /* Gray-400 - Link / Accent Text */
     --color-featured-divider: #4b5563;   /* Gray-600 - Divider / Icon */
   
-    /* Utility Colors - 다크 모드용 (기존 톤 유지, 약간 밝게) */
-    --color-github: #8b6ba8;              /* GitHub (기존 톤 기반, 다크 모드용 약간 밝게) */
-    --color-github-hover: #9d7bb8;        /* GitHub hover */
-    --color-live: #10b981;                 /* Green-500 - 다크 모드용 */
-    --color-live-hover: #059669;           /* Green-600 - 다크 모드 hover */
-    --color-notion: #3b82f6;               /* Blue-500 - 다크 모드용 */
-    --color-notion-hover: #2563eb;        /* Blue-600 - 다크 모드 hover */
+    /* Utility Colors - 다크 모드용 (브랜드 톤 조정, 약간 밝게) */
+    --color-github: #7B8A9F;              /* GitHub - 브랜드 그린 톤 추가 (다크 모드용 밝게) */
+    --color-github-hover: #8B9AAF;        /* GitHub hover - 브랜드 톤 조정 */
+    --color-live: #6FA07A;                 /* Live Service - 브랜드 그린 톤 (다크 모드용 밝게) */
+    --color-live-hover: #5F9070;           /* Live Service hover - 브랜드 primary 톤 */
+    --color-notion: #5A8AAF;               /* Notion 블루 - 브랜드 그린 톤 추가 (다크 모드용) */
+    --color-notion-hover: #4A7A9F;         /* Notion hover - 브랜드 톤 조정 */
     --color-disabled: #4b5563;             /* Gray-600 - 다크 모드 비활성화 */
     
     /* Primary Dark - 다크 모드용 (텍스트용) */
@@ -397,9 +409,9 @@
   --color-link-hover: #6FA07A;       /* 새 프라이머리 (밝은 버전) */
   --color-link-visited: #8FC09A;      /* 밝은 그린 */
 
-    /* Status - 표준 색상 */
+    /* Status - 표준 색상 (브랜드 톤 조정) */
     --color-status-info: #60a5fa;       /* Blue-400 */
-    --color-status-success: #34d399;    /* Green-400 (표준, 브랜드 아님) */
+    --color-status-success: #6FA07A;    /* 브랜드 그린 톤 (다크 모드용 밝게) - 톤 다운 */
     --color-status-warning: #fbbf24;    /* Amber-400 */
     --color-status-error: #f87171;      /* Red-400 */
 

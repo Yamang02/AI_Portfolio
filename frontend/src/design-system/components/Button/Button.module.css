@@ -36,6 +36,13 @@
   border: 1px solid var(--color-border-default);
 }
 
+/* Secondary variant 내부의 모든 요소에도 색상 적용 */
+.button.secondary,
+.button.secondary a,
+.button.secondary span {
+  color: var(--color-text-primary);
+}
+
 /* 라이트 모드: 배경색 설정 (투명 아님) */
 :root:not(.dark) .button.secondary {
   background-color: var(--color-bg-primary);

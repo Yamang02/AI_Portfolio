@@ -95,7 +95,7 @@
 }
 
 .hero .cta {
-  margin-top: 32px;
+  margin-top: 16px; /* 32px -> 16px로 줄임 */
   display: flex;
   gap: 16px;
   flex-wrap: wrap;
