@@ -48,13 +48,6 @@ export const Header: React.FC = () => {
     setIsMenuOpen(false);
   };
 
-  const handleChatbotClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    // 챗봇 열기 이벤트 발생
-    window.dispatchEvent(new CustomEvent('openChatbot'));
-    setIsMenuOpen(false);
-  };
-
   const handleSettingsClick = (e: React.MouseEvent) => {
     e.preventDefault();
     navigate('/admin/settings');
@@ -91,7 +84,8 @@ export const Header: React.FC = () => {
       id: 'chatbot',
       label: '챗봇',
       tooltip: 'Chatbot',
-      onClick: handleChatbotClick,
+      href: '/chat',
+      isActive: (pathname) => pathname === '/chat',
       icon: (
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />

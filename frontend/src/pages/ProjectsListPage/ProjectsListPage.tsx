@@ -1,7 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SectionTitle, Divider, ProjectCard, SkeletonCard, EmptyCard, Button } from '@/design-system';
-import { PageLayout } from '@widgets/layout';
 import { useProjectsQuery } from '@/entities/project/api/useProjectQuery';
 import type { Project } from '@/entities/project/model/project.types';
 import type { ProjectCardProject } from '@/design-system/components/Card/ProjectCard';
@@ -146,8 +145,7 @@ export const ProjectsListPage: React.FC = () => {
   // 로딩 상태
   if (isLoading) {
     return (
-      <PageLayout>
-        <div className={styles.page}>
+      <div className={styles.page}>
           <section className={styles.header}>
             <div className={styles.container}>
               <SectionTitle level="h1">Projects</SectionTitle>
@@ -165,15 +163,13 @@ export const ProjectsListPage: React.FC = () => {
             </div>
           </section>
         </div>
-      </PageLayout>
     );
   }
 
   // 에러 상태
   if (isError) {
     return (
-      <PageLayout>
-        <div className={styles.page}>
+      <div className={styles.page}>
           <section className={styles.header}>
             <div className={styles.container}>
               <SectionTitle level="h1">Projects</SectionTitle>
@@ -189,13 +185,11 @@ export const ProjectsListPage: React.FC = () => {
             </div>
           </section>
         </div>
-      </PageLayout>
     );
   }
 
   return (
-    <PageLayout>
-      <div className={styles.page}>
+    <div className={styles.page}>
       {/* 헤더 */}
       <section className={styles.header}>
         <div className={styles.container}>
@@ -317,6 +311,5 @@ export const ProjectsListPage: React.FC = () => {
         projects={projects}
       />
       </div>
-    </PageLayout>
   );
 };

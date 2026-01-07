@@ -1,13 +1,15 @@
 import React, { useEffect } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Route } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from '../config/queryClient';
 import { AppProvider, useApp } from '../app/providers/AppProvider';
 import { PageLayout } from '@/widgets/layout';
+import { useLocation } from 'react-router-dom';
 import { HomePage } from '@/pages/HomePage';
 import { ProjectsListPage } from '@/pages/ProjectsListPage';
 import { ProjectDetailPage } from '@/pages/ProjectDetailPage';
 import { ProfilePage } from '@/pages/ProfilePage';
+import { ChatPage } from '@/pages/ChatPage';
 import {
   EasterEggProvider,
   EasterEggLayer,
@@ -20,8 +22,10 @@ import { AudioIndicator } from '@features/easter-eggs/components/AudioIndicator'
 import { loadEasterEggConfig } from '@features/easter-eggs/config/easterEggConfigLoader';
 import { MobileFeatureNotice } from '../shared/ui/MobileFeatureNotice';
 import { useFeatureAvailability } from '../shared/lib/hooks/useFeatureAvailability';
+import { AnimatedRoutes } from '../shared/ui/page-transition';
 
 const MainAppContent: React.FC = () => {
+  const location = useLocation();
   const {
     projects,
     experiences,
@@ -37,6 +41,9 @@ const MainAppContent: React.FC = () => {
   } = useApp();
 
   const { shouldShowMobileNotice } = useFeatureAvailability();
+  
+  // HomePage에서만 footer를 표시 (간단한 구현)
+  const showFooter = location.pathname === '/';
 
   // ESC 키로 이스터에그 종료
   useEasterEggEscapeKey();
@@ -120,40 +127,40 @@ const MainAppContent: React.FC = () => {
   }
 
   return (
-    <div
-      className="min-h-screen font-sans transition-colors"
-      style={{
-        backgroundColor: 'var(--color-background)',
-        color: 'var(--color-text-primary)',
-      }}
-    >
-      {/* 모바일 기능 안내 메시지 */}
-      {shouldShowMobileNotice && (
-        <div className="container mx-auto px-4 pt-4">
-          <MobileFeatureNotice />
-        </div>
-      )}
+    <PageLayout showFooter={showFooter} footerVisible={true}>
+      <div
+        className="font-sans transition-colors"
+        style={{
+          backgroundColor: 'var(--color-background)',
+          color: 'var(--color-text-primary)',
+          overflowX: 'hidden', // 좌우 슬라이드 애니메이션을 위한 overflow 제어
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        {/* 모바일 기능 안내 메시지 */}
+        {shouldShowMobileNotice && (
+          <div className="container mx-auto px-4 pt-4">
+            <MobileFeatureNotice />
+          </div>
+        )}
 
-      <Routes>
-        {/* 홈 페이지 */}
-        <Route path="/" element={<HomePage />} />
+        <AnimatedRoutes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/projects" element={<ProjectsListPage />} />
+          <Route path="/projects/:id" element={<ProjectDetailPage />} />
+          <Route path="/chat" element={<ChatPage />} />
+        </AnimatedRoutes>
 
-        {/* 프로필 페이지 */}
-        <Route path="/profile" element={<ProfilePage />} />
-
-        {/* 프로젝트 목록 페이지 */}
-        <Route path="/projects" element={<ProjectsListPage />} />
-
-        {/* 프로젝트 상세 페이지 */}
-        <Route path="/projects/:id" element={<ProjectDetailPage />} />
-      </Routes>
-
-      {/* 이스터에그 레이어 */}
-      <EasterEggLayer />
-      
-      {/* 오디오 재생 인디케이터 */}
-      <AudioIndicator />
-    </div>
+        {/* 이스터에그 레이어 */}
+        <EasterEggLayer />
+        
+        {/* 오디오 재생 인디케이터 */}
+        <AudioIndicator />
+      </div>
+    </PageLayout>
   );
 };
 

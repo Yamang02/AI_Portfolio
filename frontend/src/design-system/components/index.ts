@@ -73,3 +73,9 @@ export type { TableOfContentsProps } from './TableOfContents';
 
 export { ProjectNavigation } from './ProjectNavigation';
 export type { ProjectNavigationProps } from './ProjectNavigation';
+
+export { Spinner } from './Spinner';
+export type { SpinnerProps } from './Spinner';
+
+export { ChatBubble } from './ChatBubble';
+export type { ChatBubbleProps, ChatBubbleVariant } from './ChatBubble';

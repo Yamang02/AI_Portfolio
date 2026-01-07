@@ -5,7 +5,6 @@ import { SectionTitle } from '@/design-system';
 import { IntroductionSection } from './components/IntroductionSection';
 import { CareerTimeline } from './components/CareerTimeline';
 import { CareerTimelineSection } from './components/CareerTimelineSection';
-import { PageLayout } from '@widgets/layout';
 import styles from './ProfilePage.module.css';
 
 export const ProfilePage: React.FC = () => {
@@ -20,8 +19,7 @@ export const ProfilePage: React.FC = () => {
   };
 
   return (
-    <PageLayout>
-      <div className={styles.page}>
+    <div className={styles.page}>
         {/* Header Section */}
         <section className={styles.header}>
           <div className={styles.container}>
@@ -63,6 +61,5 @@ export const ProfilePage: React.FC = () => {
           </div>
         </section>
       </div>
-    </PageLayout>
   );
 };

@@ -8,3 +8,4 @@ export { FEATURE_BREAKPOINTS } from './lib/constants';
 
 // UI Components
 export { MobileFeatureNotice } from './ui/MobileFeatureNotice';
+export * from './ui/page-transition';

@@ -1,21 +1,30 @@
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import { ChatMessage as ChatMessageType } from '../types';
+import { ChatBubble } from '@/design-system';
 
 interface ChatMessageProps {
   message: ChatMessageType;
 }
 
 const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
+  const timestamp = message.timestamp.toLocaleTimeString('ko-KR', { 
+    hour: '2-digit', 
+    minute: '2-digit' 
+  });
+
+  // 초기 안내 메시지는 가운데 정렬, 70% 제한 없음
+  const isInitialMessage = message.id === 'initial';
+
   return (
-    <div className={`flex ${message.isUser ? 'justify-end' : 'justify-start'} mb-4`}>
-      <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-        message.isUser 
-          ? 'bg-primary-600 dark:bg-primary-500 text-white rounded-br-none' 
-          : 'bg-surface dark:bg-slate-800 text-text-primary rounded-bl-none border border-border'
-      }`}>
+    <div className={`flex ${isInitialMessage ? 'justify-center' : (message.isUser ? 'justify-end' : 'justify-start')} mb-4`}>
+      <ChatBubble
+        variant={message.isUser ? 'user' : 'assistant'}
+        timestamp={timestamp}
+        className={isInitialMessage ? 'initialMessage' : ''}
+      >
         {message.isUser ? (
-          <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+          <p style={{ margin: 0 }}>{message.content}</p>
         ) : (
           <div className="text-sm prose prose-sm max-w-none">
             {typeof message.content === 'string' ? (
@@ -60,15 +69,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
             )}
           </div>
         )}
-        <p className={`text-xs mt-1 ${
-          message.isUser ? 'text-primary-200 dark:text-primary-300' : 'text-text-muted'
-        }`}>
-          {message.timestamp.toLocaleTimeString('ko-KR', { 
-            hour: '2-digit', 
-            minute: '2-digit' 
-          })}
-        </p>
-      </div>
+      </ChatBubble>
     </div>
   );
 };

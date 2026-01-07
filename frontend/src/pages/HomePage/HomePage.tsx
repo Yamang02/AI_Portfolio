@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from 'react';
 import { HeroSection, AboutSection1, AboutSection2, FeaturedProjectsSection, CTASection } from './';
-import { PageLayout } from '@widgets/layout';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 import styles from './HomePage.module.css';
 
@@ -86,18 +85,12 @@ export const HomePage: React.FC = () => {
   }, []);
 
   return (
-    <PageLayout 
-      showFooter={true} 
-      footerVisible={isCtaVisible}
-      className={styles.homePage}
-    >
-      <div ref={pageRef} className={styles.homePageContent}>
-        <HeroSection />
-        <AboutSection1 />
-        <AboutSection2 />
-        <FeaturedProjectsSection />
-        <CTASection ref={ctaRef} />
-      </div>
-    </PageLayout>
+    <div ref={pageRef} className={styles.homePageContent}>
+      <HeroSection />
+      <AboutSection1 />
+      <AboutSection2 />
+      <FeaturedProjectsSection />
+      <CTASection ref={ctaRef} />
+    </div>
   );
 };
