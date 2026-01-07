@@ -75,7 +75,7 @@ jspm_packages/
 
 # Gatsby files
 .cache/
-# Exclude all public folders except frontend/public/favicons, easter-eggs, landing, placeholder, and projects
+# Exclude all public folders except frontend/public/favicons, easter-eggs, landing, placeholder, and images/projects
 public/
 !frontend/public/
 frontend/public/*
@@ -91,8 +91,9 @@ frontend/public/*
 !frontend/public/landing/**
 !frontend/public/placeholder/
 !frontend/public/placeholder/**
-!frontend/public/projects/
-!frontend/public/projects/**
+!frontend/public/images/
+!frontend/public/images/projects/
+!frontend/public/images/projects/**
 
 # Storybook build outputs
 .out
