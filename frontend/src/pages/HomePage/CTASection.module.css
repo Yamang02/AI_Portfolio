@@ -15,7 +15,7 @@
 }
 
 .ctaSection .description {
-  margin: 24px 0 48px;
+  margin: 24px 0 24px; /* 하단 여백 48px -> 24px로 줄임 */
   font-size: 1.125rem;
   line-height: 1.75;
 }

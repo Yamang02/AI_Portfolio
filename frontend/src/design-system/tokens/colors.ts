@@ -34,21 +34,23 @@ export const grayScale = {
 } as const;
 
 /**
- * Brand Color Scale - 브랜드 그린 (#7FAF8A) 기반
+ * Brand Color Scale - 브랜드 그린 (#5F9070) 기반
  * Primary 컬러의 다양한 명도/채도 변형
  */
 export const brandScale = {
-  50: '#f0f9f4',
-  100: '#dcf4e6',
-  200: '#b8e9cd',
-  300: '#94deb4',
-  400: '#7FAF8A',  // 브랜드 Primary
-  500: '#6FA07A',  // Hover
-  600: '#5F9070',  // Active
-  700: '#4F8060',  // Dark text
-  800: '#3F7050',
-  900: '#2F6040',
-  950: '#1F5030',
+  50: '#f0f7f3',
+  100: '#dceee4',
+  200: '#b8ddc9',
+  300: '#94ccae',
+  400: '#5F9070',  // 브랜드 Primary (NEW)
+  500: '#4F8060',  // Hover
+  600: '#3F7050',  // Active
+  700: '#2F6040',  // Dark text
+  800: '#1F5030',
+  900: '#0F4020',
+  950: '#0A3018',
+  1000: '#051A0E',  // 매우 진한 초록 (다크모드 헤더/푸터용)
+  mint: '#A8E6C7',  // 밝은 민트 (다크모드 구분선용)
 } as const;
 
 /**

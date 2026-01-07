@@ -29,7 +29,7 @@ export const colors = {
   purple: semanticColors.purple,
   yellow: semanticColors.yellow,
   white: '#ffffff',
-  black: '#000000',
+  black: '#051A0E',  /* brandScale 1000 - #000000 대체 */
 } as const;
 
 // 간격 (Tailwind spacing과 동기화)

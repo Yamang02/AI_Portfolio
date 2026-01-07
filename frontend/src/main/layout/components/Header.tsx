@@ -102,7 +102,7 @@ const Header: React.FC = () => {
           {/* 다크모드 토글 버튼 (아이콘만) */}
           <button
             onClick={handleThemeToggle}
-            className="text-text-secondary hover:text-primary-600 dark:hover:text-primary-400 transition-colors cursor-pointer p-2 rounded-md hover:bg-surface-elevated"
+            className="transition-colors cursor-pointer p-2 rounded-md hover:bg-surface-elevated text-text-primary"
             title={theme === 'dark' ? '라이트 모드로 전환' : '다크 모드로 전환'}
             aria-label={theme === 'dark' ? '라이트 모드로 전환' : '다크 모드로 전환'}
           >

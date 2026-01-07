@@ -129,7 +129,7 @@ export const Header: React.FC = () => {
           <Tooltip content={theme === 'dark' ? 'Light Mode' : 'Dark Mode'} placement="bottom">
             <button
               onClick={toggleTheme}
-              className={styles.navItem}
+              className={`${styles.navItem} ${styles.themeToggle}`}
               aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
             >
               {theme === 'dark' ? (

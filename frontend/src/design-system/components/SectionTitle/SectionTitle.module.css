@@ -1,6 +1,6 @@
 .sectionTitle {
   font-family: inherit;
-  color: var(--color-text-primary);
+  color: var(--color-text-title);
   line-height: 1.25;
   margin: 0;
 }
@@ -9,6 +9,7 @@
   font-size: 2.25rem; /* 36px */
   font-weight: 700;
   margin-bottom: 1.5rem; /* 24px */
+  /* color는 부모 .sectionTitle에서 var(--color-text-title) 상속 */
 }
 
 .h2 {
@@ -21,6 +22,7 @@
   font-size: 1.5rem; /* 24px */
   font-weight: 600;
   margin-bottom: 1rem; /* 16px */
+  /* color는 부모 .sectionTitle에서 var(--color-text-title) 상속 */
 }
 
 .h4 {

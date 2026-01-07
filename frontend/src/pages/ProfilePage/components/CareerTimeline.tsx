@@ -50,7 +50,7 @@ export const CareerTimeline: React.FC<CareerTimelineProps> = ({
         type: 'education',
         period: formatDateRange(edu.startDate, edu.endDate, ' ~ '),
         organization: edu.organization,
-        role: '수강',
+        role: '과정 이수',
       });
     });
 

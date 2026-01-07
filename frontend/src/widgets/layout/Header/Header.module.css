@@ -1,7 +1,7 @@
 .header {
   position: sticky;
   top: 0;
-  background-color: var(--color-bg-primary);
+  background-color: var(--color-bg-header-footer, var(--color-bg-primary));
   border-bottom: 1px solid var(--color-border-default);
   z-index: 100;
   overflow: visible;
@@ -22,6 +22,7 @@
   font-size: 1.125rem;
   font-weight: 600;
   text-decoration: none;
+  color: var(--color-text-primary);
 }
 
 .nav {
@@ -54,9 +55,19 @@
   overflow: visible;
 }
 
+/* 테마 토글 버튼 전용 스타일 (데스크톱) - 라이트 모드에서만 #051A0E 사용 */
+.themeToggle {
+  color: var(--color-text-primary);
+}
+
 .navItem:hover {
   background-color: var(--color-bg-secondary);
   color: var(--color-primary);
+}
+
+/* 테마 토글 버튼 hover 시에도 텍스트 색상 유지 */
+.themeToggle:hover {
+  color: var(--color-text-primary) !important;
 }
 
 .navItemActive {
@@ -88,7 +99,7 @@
   padding: 0;
   background: none;
   border: none;
-  color: var(--color-text-secondary);
+  color: var(--color-text-primary);
   cursor: pointer;
   border-radius: 6px;
   transition: all 0.2s;
@@ -96,12 +107,14 @@
 
 .mobileThemeToggle:hover {
   background-color: var(--color-bg-secondary);
-  color: var(--color-primary);
+  color: var(--color-text-primary);
 }
 
 .mobileThemeToggle svg {
   width: 20px;
   height: 20px;
+  /* currentColor를 사용하므로 부모의 color를 상속 */
+  color: inherit;
 }
 
 .menuButton {
