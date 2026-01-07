@@ -91,8 +91,22 @@ export const AnimatedRoutes: React.FC<AnimatedRoutesProps> = ({ children }) => {
     prevPathnameRef.current = location.pathname;
   }, [location.pathname]);
 
+  // 홈페이지로 이동하는지 확인
+  const isNavigatingToHome = location.pathname === '/';
+  
+  // 스크롤 정책 결정: 홈페이지는 scroll-driven animation을 위해 window 스크롤 필요
+  // 챗봇 페이지는 내부 스크롤이 필요하므로 overflow: hidden 유지
+  const isHomePage = location.pathname === '/';
+  const isChatPage = location.pathname === '/chat';
+
   // 페이지 높이를 추적하여 부모 컨테이너 높이 설정
+  // 홈페이지는 이 로직을 건너뛰므로 여기서는 다른 페이지만 처리
   useEffect(() => {
+    // 홈페이지는 조기 리턴으로 이 로직을 건너뜀
+    if (isHomePage) {
+      return;
+    }
+
     const updateContainerHeight = () => {
       if (pageRef.current && containerRef.current) {
         const pageHeight = pageRef.current.scrollHeight;
@@ -135,33 +149,38 @@ export const AnimatedRoutes: React.FC<AnimatedRoutesProps> = ({ children }) => {
       window.removeEventListener('resize', updateContainerHeight);
       observer.disconnect();
     };
-  }, [location.pathname]);
+  }, [location.pathname, isHomePage]);
+  
+  // 홈페이지는 페이지 전환 효과를 완전히 제외하고 자연스러운 문서 플로우 유지
+  // scroll-driven animation과 충돌을 방지하기 위함
+  if (isHomePage) {
+    return (
+      <Routes location={location}>
+        {children}
+      </Routes>
+    );
+  }
 
-  // 홈페이지로 이동하는지 확인
-  const isNavigatingToHome = location.pathname === '/';
-
-  // 애니메이션 variants (좌우 슬라이드 + fade 효과)
-  // 홈페이지로 이동: 왼쪽에서 등장, 기존 페이지는 오른쪽으로 퇴장
-  // 다른 페이지로 이동: 오른쪽에서 등장, 기존 페이지는 왼쪽으로 퇴장
+  // 다른 페이지: 페이지 전환 애니메이션 적용
   const pageVariants = {
     initial: {
       opacity: 0,
-      x: isNavigatingToHome ? '-30%' : '30%', // 슬라이드 거리를 줄여서 더 부드럽게 (100% → 30%)
+      x: '30%', // 오른쪽에서 등장
     },
     animate: {
       opacity: 1,
       x: 0, // 중앙으로 이동
       transition: {
-        duration: 0.5, // 적당한 속도 (0.5초)
-        ease: [0.4, 0, 0.2, 1] as const, // 더 부드러운 이징 (Material Design의 standard easing)
+        duration: 0.5,
+        ease: [0.4, 0, 0.2, 1] as const,
       },
     },
     exit: {
       opacity: 0,
-      x: '-30%', // 홈페이지는 언제나 왼쪽으로 퇴장
+      x: '-30%', // 왼쪽으로 퇴장
       transition: {
-        duration: 0.4, // exit는 조금 더 빠르게 (0.4초)
-        ease: [0.4, 0, 0.2, 1] as const, // 더 부드러운 이징
+        duration: 0.4,
+        ease: [0.4, 0, 0.2, 1] as const,
       },
     },
   };

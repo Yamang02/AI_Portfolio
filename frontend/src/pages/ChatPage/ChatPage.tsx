@@ -7,6 +7,7 @@ import { processQuestion } from '@features/chatbot/utils/questionValidator';
 import { checkEasterEggTrigger, useEasterEggStore, triggerEasterEggs } from '@features/easter-eggs';
 import { ContactModal } from '@shared/ui/modal';
 import { Button, Spinner, Modal } from '@/design-system';
+import { PageMeta } from '@/main/shared/ui/page-meta';
 import styles from './ChatPage.module.css';
 
 const ChatPage: React.FC = () => {
@@ -249,7 +250,13 @@ const ChatPage: React.FC = () => {
   const shouldShowEmptyState = !hasUserMessages;
 
   return (
-    <div style={{ width: '100%', minHeight: '100%' }}>
+    <PageMeta
+      scrollPolicy="internal"
+      enableScrollDrivenAnimations={false}
+      enablePageTransition={true}
+      showFooter={false}
+    >
+      <div style={{ width: '100%', minHeight: '100%' }}>
       {/* 상단 컨트롤 영역 - 왼쪽 상단 배치 */}
       <div className={styles.topBar}>
         <div className={styles.topBarContent}>
@@ -373,6 +380,7 @@ const ChatPage: React.FC = () => {
         </div>
       </Modal>
     </div>
+    </PageMeta>
   );
 };
 

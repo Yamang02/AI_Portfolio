@@ -44,6 +44,9 @@ const MainAppContent: React.FC = () => {
   
   // HomePage에서만 footer를 표시 (간단한 구현)
   const showFooter = location.pathname === '/';
+  
+  // 홈페이지는 스크롤 드리븐 애니메이션을 위해 overflow 제어 제외
+  const isHomePage = location.pathname === '/';
 
   // ESC 키로 이스터에그 종료
   useEasterEggEscapeKey();
@@ -133,7 +136,7 @@ const MainAppContent: React.FC = () => {
         style={{
           backgroundColor: 'var(--color-background)',
           color: 'var(--color-text-primary)',
-          overflowX: 'hidden', // 좌우 슬라이드 애니메이션을 위한 overflow 제어
+          overflowX: isHomePage ? 'visible' : 'hidden', // 홈페이지는 스크롤 드리븐 애니메이션을 위해 overflow 제어 제외
           flex: 1,
           display: 'flex',
           flexDirection: 'column',

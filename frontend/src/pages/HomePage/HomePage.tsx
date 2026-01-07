@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { HeroSection, AboutSection1, AboutSection2, FeaturedProjectsSection, CTASection } from './';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
+import { PageMeta } from '@/main/shared/ui/page-meta';
 import styles from './HomePage.module.css';
 
 export const HomePage: React.FC = () => {
@@ -85,12 +86,19 @@ export const HomePage: React.FC = () => {
   }, []);
 
   return (
-    <div ref={pageRef} className={styles.homePageContent}>
-      <HeroSection />
-      <AboutSection1 />
-      <AboutSection2 />
-      <FeaturedProjectsSection />
-      <CTASection ref={ctaRef} />
-    </div>
+    <PageMeta
+      scrollPolicy="window"
+      enableScrollDrivenAnimations={true}
+      enablePageTransition={true}
+      showFooter={true}
+    >
+      <div ref={pageRef} className={styles.homePageContent}>
+        <HeroSection />
+        <AboutSection1 />
+        <AboutSection2 />
+        <FeaturedProjectsSection />
+        <CTASection ref={ctaRef} />
+      </div>
+    </PageMeta>
   );
 };
