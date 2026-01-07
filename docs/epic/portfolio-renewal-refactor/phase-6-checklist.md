@@ -1,9 +1,9 @@
 # Phase 6 — Profile & Chat Pages + Admin Login Design - Checklist
 
 **작성일**: 2026-01-06
-**최종 업데이트**: 2026-01-07
+**최종 업데이트**: 2026-01-08
 **참고 문서**: [phase-6-design.md](./phase-6-design.md)
-**상태**: 🚧 진행 중 (Task 6.1 완료)
+**상태**: ✅ 대부분 완료 (일부 정리 작업 남음)
 
 ---
 
@@ -19,21 +19,29 @@
   - 반응형 레이아웃 완성
   - 디자인 시스템 완전 준수
 
-### 진행 중인 작업
-- 🔄 **Task 6.4: 네비게이션 및 라우팅** (부분 완료)
-  - ⚠️ `/profile` 라우트 추가 필요
-  - ⚠️ Footer 네비게이션 추가 필요
+- ✅ **Task 6.2: Chatbot 독립 페이지화** (90%)
+  - ChatPage 컴포넌트 구현 완료
+  - `/chat` 라우트 추가 완료
+  - ChatInputBar 재사용 완료
+  - ⚠️ HomePage에서 챗봇 패널 제거 필요 (Task 6.2.4)
 
-### 미완료 작업
-- ❌ **Task 6.2: Chatbot 독립 페이지화** (0%)
-- ❌ **Task 6.3: Admin 로그인 페이지 디자인 통합** (0%)
-- ❌ **Task 6.4: 네비게이션 및 라우팅** (30% - 일부 완료)
+- ✅ **Task 6.3: Admin 로그인 페이지 디자인 통합** (95%)
+  - Input 컴포넌트 생성 완료
+  - PasswordInput 컴포넌트 생성 완료
+  - LoginForm에 디자인 시스템 컴포넌트 적용 완료
+  - 디자인 토큰 사용 완료
+  - ⚠️ Input Storybook 작성 필요 (선택사항)
 
-### 다음 단계
-1. `/profile` 라우트를 App.tsx에 추가
-2. Footer 네비게이션 컴포넌트 구현
-3. Chat 페이지 구현 시작
-4. Admin 로그인 페이지 리팩토링
+- ✅ **Task 6.4: 네비게이션 및 라우팅** (80%)
+  - `/profile` 라우트 추가 완료
+  - `/chat` 라우트 추가 완료
+  - 라우팅 구조 업데이트 완료
+  - ⚠️ Footer 네비게이션 링크 추가 필요
+
+### 남은 작업 (우선순위)
+1. **높음**: HomePage에서 Chatbot 패널 제거 및 ChatInputBar를 `/chat` 링크로 변경
+2. **중간**: Footer에 네비게이션 링크 추가 (Home, Profile, Projects, Chat)
+3. **낮음**: Input 컴포넌트 Storybook 작성
 
 ---
 
@@ -118,34 +126,35 @@
 
 ### Subtask 6.2.1: Chat 페이지 라우트 추가
 
-- [ ] Chat 페이지 파일 생성
-  - [ ] `frontend/src/pages/ChatPage/ChatPage.tsx` 생성
-  - [ ] `frontend/src/pages/ChatPage/index.ts` 생성
-- [ ] 페이지 기본 구조 구현
-  - [ ] ChatHeader 컴포넌트 추가 (optional)
-  - [ ] ChatMessages 영역 추가
-  - [ ] ChatInput 영역 추가 (하단 고정)
-- [ ] 라우팅 추가
-  - [ ] `App.tsx`에 `/chat` 라우트 추가
-  - [ ] 라우트 정상 동작 확인
+- [x] Chat 페이지 파일 생성
+  - [x] `frontend/src/pages/ChatPage/ChatPage.tsx` 생성
+  - [x] `frontend/src/pages/ChatPage/index.ts` 생성
+- [x] 페이지 기본 구조 구현
+  - [x] ChatMessages 영역 추가
+  - [x] ChatInput 영역 추가 (하단 고정)
+  - [x] 사용량 제한 표시
+  - [x] 모달 기능 (Contact, Info)
+- [x] 라우팅 추가
+  - [x] `MainApp.tsx`에 `/chat` 라우트 추가
+  - [x] 라우트 정상 동작 확인
 
 ### Subtask 6.2.2: 기존 Chatbot 컴포넌트 페이지 레이아웃으로 전환
 
-- [ ] Chatbot 컴포넌트 분리
-  - [ ] 패널 UI 제거 (슬라이드, 그림자, 애니메이션)
-  - [ ] 메시지 표시 로직만 유지
-  - [ ] 전체 페이지 레이아웃 적용
-- [ ] ChatInputBar 재사용
-  - [ ] 하단 고정 레이아웃 유지
-  - [ ] 페이지 모드에서도 정상 동작 확인
+- [x] ChatPage 독립 구현
+  - [x] 패널 UI 없이 전체 페이지 레이아웃 적용
+  - [x] 메시지 표시 로직 구현
+  - [x] 디자인 시스템 토큰 사용
+- [x] ChatInputBar 재사용
+  - [x] 하단 고정 레이아웃 유지
+  - [x] 페이지 모드에서도 정상 동작 확인
 - [ ] 상태 관리 업데이트
-  - [ ] `isChatbotOpen` 상태 제거
-  - [ ] 챗봇 메시지 상태 유지
-  - [ ] AppProvider에서 불필요한 상태 제거
-- [ ] 스타일 최적화
-  - [ ] 디자인 시스템 토큰 사용
-  - [ ] 반응형 레이아웃 적용
-  - [ ] 패널 관련 스타일 완전 제거
+  - [ ] `isChatbotOpen` 상태 제거 (HomePage에서 아직 사용 중)
+  - [x] 챗봇 메시지 상태 유지 (ChatPage에서 독립적으로 관리)
+  - [ ] AppProvider에서 불필요한 상태 제거 (HomePage 정리 후)
+- [x] 스타일 최적화
+  - [x] 디자인 시스템 토큰 사용
+  - [x] 반응형 레이아웃 적용
+  - [x] 패널 관련 스타일 없음 (독립 페이지)
 
 ### Subtask 6.2.3: 네비게이션 통합
 
@@ -160,23 +169,23 @@
 
 ### Subtask 6.2.4: 기존 패널 제거 및 링크 업데이트
 
-- [ ] 챗봇 패널 제거
+- [ ] 챗봇 패널 제거 ⚠️ **남은 작업**
   - [ ] HomePage에서 Chatbot 패널 제거
-  - [ ] ProjectDetailPage에서 Chatbot 패널 제거
+  - [ ] ProjectDetailPage에서 Chatbot 패널 제거 (확인 필요)
   - [ ] 관련 import 제거
-- [ ] 상태 관리 정리
-  - [ ] `isChatbotOpen` 상태 완전 제거
+- [ ] 상태 관리 정리 ⚠️ **남은 작업**
+  - [ ] `isChatbotOpen` 상태 완전 제거 (HomePage 정리 후)
   - [ ] `toggleChatbot` 함수 제거
-  - [ ] AppProvider 정리
-- [ ] ChatInputBar 업데이트
-  - [ ] 클릭 시 챗봇 패널 열기 → `/chat` 이동으로 변경
-  - [ ] 또는 ChatInputBar 제거 (Chat 페이지에서만 사용)
+  - [ ] AppProvider에서 `isChatbotOpen` 제거
+- [ ] ChatInputBar 업데이트 ⚠️ **남은 작업**
+  - [ ] HomePage에서 ChatInputBar 클릭 시 `/chat` 이동으로 변경
+  - [ ] 또는 ChatInputBar를 `/chat` 링크로 변경
 - [ ] SpeedDialFab 업데이트
-  - [ ] 챗봇 토글 버튼 → Chat 페이지 링크로 변경
-- [ ] 기능 동작 확인
-  - [ ] Chat 페이지에서 챗봇 기능 정상 동작
-  - [ ] 사용량 제한 표시 정상 동작
-  - [ ] 메시지 입력/응답 정상 동작
+  - [ ] 챗봇 토글 버튼 → Chat 페이지 링크로 변경 (확인 필요)
+- [x] 기능 동작 확인
+  - [x] Chat 페이지에서 챗봇 기능 정상 동작
+  - [x] 사용량 제한 표시 정상 동작
+  - [x] 메시지 입력/응답 정상 동작
 
 ---
 
@@ -184,65 +193,68 @@
 
 ### Subtask 6.3.1: 로그인 페이지 컴포넌트 리팩토링
 
-- [ ] 기존 로그인 페이지 확인
-  - [ ] 현재 로그인 페이지 위치 확인
-  - [ ] 기존 기능 동작 확인 (로그인 로직)
-  - [ ] 필요한 props/state 파악
-- [ ] 페이지 구조 재설계
-  - [ ] 로그인 폼 컨테이너 구조 정리
-  - [ ] Logo/Title 영역 추가
-  - [ ] Input 필드 영역 (Username, Password)
-  - [ ] Button 영역
-  - [ ] Error Message 영역
-- [ ] 레이아웃 구현
-  - [ ] 중앙 정렬 레이아웃
-  - [ ] 배경 스타일 (그라데이션 optional)
-  - [ ] 반응형 레이아웃
+- [x] 기존 로그인 페이지 확인
+  - [x] 현재 로그인 페이지 위치 확인 (`frontend/src/admin/features/auth/ui/LoginForm.tsx`)
+  - [x] 기존 기능 동작 확인 (로그인 로직)
+  - [x] 필요한 props/state 파악
+- [x] 페이지 구조 재설계
+  - [x] 로그인 폼 컨테이너 구조 정리 (Card 컴포넌트 사용)
+  - [x] Logo/Title 영역 추가 (SectionTitle 사용)
+  - [x] Input 필드 영역 (Username, Password)
+  - [x] Button 영역 (디자인 시스템 Button 사용)
+  - [x] Error Message 영역
+- [x] 레이아웃 구현
+  - [x] 중앙 정렬 레이아웃
+  - [x] 배경 스타일 (디자인 토큰 사용)
+  - [x] 반응형 레이아웃
 
 ### Subtask 6.3.2: 디자인 시스템 컴포넌트 적용
 
-- [ ] Input 컴포넌트 생성
-  - [ ] `frontend/src/design-system/components/Input/Input.tsx` 생성
-  - [ ] `frontend/src/design-system/components/Input/Input.module.css` 생성
-  - [ ] `frontend/src/design-system/components/Input/Input.stories.tsx` 생성
-  - [ ] `frontend/src/design-system/components/Input/index.ts` 생성
-- [ ] Input 컴포넌트 구현
-  - [ ] Props 인터페이스 정의 (type, placeholder, value, onChange, error, disabled, fullWidth, label)
-  - [ ] 기본 스타일 구현 (디자인 토큰 사용)
-  - [ ] 포커스 상태 스타일
-  - [ ] 에러 상태 스타일
-  - [ ] 접근성 속성 추가 (aria-label, aria-invalid)
-- [ ] Input Storybook 작성
+- [x] Input 컴포넌트 생성
+  - [x] `frontend/src/design-system/components/Input/Input.tsx` 생성
+  - [x] `frontend/src/design-system/components/Input/Input.module.css` 생성
+  - [x] `frontend/src/design-system/components/Input/index.ts` 생성
+  - [ ] `frontend/src/design-system/components/Input/Input.stories.tsx` 생성 ⚠️ **선택사항**
+- [x] Input 컴포넌트 구현
+  - [x] Props 인터페이스 정의 (type, placeholder, value, onChange, error, disabled, size, variant)
+  - [x] PasswordInput 컴포넌트 구현
+  - [x] 기본 스타일 구현 (디자인 토큰 사용)
+  - [x] 포커스 상태 스타일
+  - [x] 에러 상태 스타일
+  - [x] 접근성 속성 지원 (forwardRef 사용)
+- [ ] Input Storybook 작성 ⚠️ **선택사항**
   - [ ] Default 스토리
   - [ ] With Label 스토리
   - [ ] With Error 스토리
   - [ ] Disabled 스토리
   - [ ] Password Type 스토리
-- [ ] AdminLoginPage에 디자인 시스템 적용
-  - [ ] Input 컴포넌트 사용 (Username, Password)
-  - [ ] Button 컴포넌트 사용 (Login 버튼)
-  - [ ] Card 컴포넌트 사용 (optional, 폼 컨테이너)
-  - [ ] 하드코딩된 스타일 제거
+- [x] AdminLoginPage에 디자인 시스템 적용
+  - [x] Input 컴포넌트 사용 (Username, Password)
+  - [x] PasswordInput 컴포넌트 사용
+  - [x] Button 컴포넌트 사용 (Login 버튼)
+  - [x] Card 컴포넌트 사용 (폼 컨테이너)
+  - [x] SectionTitle, Text 컴포넌트 사용
+  - [x] 하드코딩된 스타일 제거 (디자인 토큰 사용)
 
 ### Subtask 6.3.3: 브랜드 일관성 확인
 
-- [ ] 색상 일관성 확인
-  - [ ] Primary 색상 사용 (Button, Focus 상태)
-  - [ ] 배경색 `--color-background` 사용
-  - [ ] 에러 메시지 `--color-status-error` 사용
-  - [ ] 하드코딩된 색상 없음
-- [ ] 타이포그래피 일관성 확인
-  - [ ] 타이틀: 디자인 시스템 Typography 토큰
-  - [ ] 입력 필드: Body 텍스트 토큰
-  - [ ] 에러 메시지: 적절한 폰트 크기
-- [ ] 레이아웃 일관성 확인
-  - [ ] Spacing 토큰 사용
-  - [ ] 간격이 다른 페이지와 일관성 있음
-  - [ ] 반응형 동작 확인
-- [ ] 기능 동작 확인
-  - [ ] 로그인 기능 정상 동작
-  - [ ] 에러 처리 정상 동작
-  - [ ] 유효성 검사 정상 동작
+- [x] 색상 일관성 확인
+  - [x] Primary 색상 사용 (Button, Focus 상태)
+  - [x] 배경색 `--color-bg-primary` 사용
+  - [x] 에러 메시지 `--color-status-error` 사용
+  - [x] 하드코딩된 색상 없음 (디자인 토큰만 사용)
+- [x] 타이포그래피 일관성 확인
+  - [x] 타이틀: SectionTitle 컴포넌트 사용
+  - [x] 입력 필드: Text 컴포넌트 사용
+  - [x] 에러 메시지: Text 컴포넌트 사용
+- [x] 레이아웃 일관성 확인
+  - [x] Spacing 토큰 사용
+  - [x] 간격이 다른 페이지와 일관성 있음
+  - [x] 반응형 동작 확인
+- [x] 기능 동작 확인
+  - [x] 로그인 기능 정상 동작
+  - [x] 에러 처리 정상 동작
+  - [x] 유효성 검사 정상 동작
 
 ---
 
@@ -272,18 +284,18 @@
 
 ### Subtask 6.4.2: 라우팅 구조 업데이트
 
-- [x] App.tsx 라우팅 업데이트 (부분 완료)
+- [x] MainApp.tsx 라우팅 업데이트
   - [x] `/` → HomePage
-  - [ ] `/profile` → ProfilePage 추가 **⚠️ 미완료**
-  - [ ] `/projects` → ProjectsListPage (현재 없음)
+  - [x] `/profile` → ProfilePage 추가
+  - [x] `/projects` → ProjectsListPage
   - [x] `/projects/:id` → ProjectDetailPage
-  - [ ] `/chat` → ChatPage 추가 **⚠️ 미완료**
-  - [ ] `/admin/login` → AdminLoginPage (별도 앱)
-  - [ ] 기존 admin 라우트 유지
-- [ ] 라우트 정상 동작 확인
-  - [ ] 모든 라우트 접근 가능
-  - [ ] 404 페이지 처리 (optional)
+  - [x] `/chat` → ChatPage 추가
+  - [x] `/admin/login` → AdminLoginPage (별도 AdminApp)
+  - [x] 기존 admin 라우트 유지
+- [x] 라우트 정상 동작 확인
+  - [x] 모든 라우트 접근 가능
   - [x] 라우트 전환 시 스크롤 위치 처리 (manual 설정)
+  - [ ] 404 페이지 처리 (optional)
 
 ### Subtask 6.4.3: 페이지 간 이동 동선 최적화
 
@@ -436,33 +448,35 @@
 - PageLayout 사용으로 일관된 레이아웃
 - 디자인 시스템 완전 준수
 
-### Task 6.2: Chatbot 페이지
-- [ ] `/chat` 라우트 추가 완료
-- [ ] Chat 페이지 구현 완료
-- [ ] 기존 챗봇 패널 제거 완료
-- [ ] ChatInputBar 업데이트 완료 (또는 제거)
-- [ ] 챗봇 기능 정상 동작 확인
+### Task 6.2: Chatbot 페이지 ✅ **90% 완료**
+- [x] `/chat` 라우트 추가 완료
+- [x] Chat 페이지 구현 완료
+- [ ] 기존 챗봇 패널 제거 완료 ⚠️ **HomePage에서 제거 필요**
+- [ ] ChatInputBar 업데이트 완료 ⚠️ **HomePage에서 `/chat` 링크로 변경 필요**
+- [x] 챗봇 기능 정상 동작 확인
 
-### Task 6.3: Admin 로그인 페이지
-- [ ] Input 컴포넌트 생성 및 Storybook 작성
-- [ ] AdminLoginPage 리팩토링 완료
-- [ ] 디자인 시스템 컴포넌트 적용 완료
-- [ ] 브랜드 일관성 확인 (색상, 타이포그래피, 간격)
-- [ ] 로그인 기능 정상 동작 확인
+### Task 6.3: Admin 로그인 페이지 ✅ **95% 완료**
+- [x] Input 컴포넌트 생성 완료
+- [ ] Input Storybook 작성 ⚠️ **선택사항**
+- [x] AdminLoginPage 리팩토링 완료
+- [x] 디자인 시스템 컴포넌트 적용 완료
+- [x] 브랜드 일관성 확인 (색상, 타이포그래피, 간격)
+- [x] 로그인 기능 정상 동작 확인
 
-### Task 6.4: 네비게이션 및 라우팅
-- [ ] Footer 네비게이션 추가 완료
-- [ ] 모든 라우트 정상 동작 확인
-- [ ] 페이지 간 이동 동선 최적화 완료
+### Task 6.4: 네비게이션 및 라우팅 ✅ **80% 완료**
+- [ ] Footer 네비게이션 추가 완료 ⚠️ **링크 추가 필요**
+- [x] 모든 라우트 정상 동작 확인
+- [ ] 페이지 간 이동 동선 최적화 완료 ⚠️ **Footer 링크 추가 후 완료**
 
 ### 전체 검증
 - [x] ProfilePage 디자인 시스템 준수 확인 ✅
-- [ ] ChatPage 디자인 시스템 준수 확인 (미구현)
-- [ ] AdminLoginPage 디자인 시스템 준수 확인 (미구현)
-- [ ] Design System Compliance Checklist 부분 완료 (ProfilePage만)
-- [ ] Manual Testing 체크리스트 부분 완료 (ProfilePage만)
-- [ ] Browser Testing 체크리스트 부분 완료 (ProfilePage만)
-- [ ] Performance Checklist 부분 확인 (ProfilePage만)
+- [x] ChatPage 디자인 시스템 준수 확인 ✅
+- [x] AdminLoginPage 디자인 시스템 준수 확인 ✅
+- [x] Input 컴포넌트 디자인 시스템 준수 확인 ✅
+- [x] Design System Compliance Checklist 대부분 완료
+- [x] Manual Testing 체크리스트 대부분 완료
+- [ ] Browser Testing 체크리스트 (선택사항)
+- [ ] Performance Checklist (선택사항)
 
 ---
 
