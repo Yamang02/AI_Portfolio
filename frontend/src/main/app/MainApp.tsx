@@ -20,8 +20,6 @@ import {
 } from '@features/easter-eggs';
 import { AudioIndicator } from '@features/easter-eggs/components/AudioIndicator';
 import { loadEasterEggConfig } from '@features/easter-eggs/config/easterEggConfigLoader';
-import { MobileFeatureNotice } from '../shared/ui/MobileFeatureNotice';
-import { useFeatureAvailability } from '../shared/lib/hooks/useFeatureAvailability';
 import { AnimatedRoutes } from '../shared/ui/page-transition';
 
 const MainAppContent: React.FC = () => {
@@ -40,13 +38,13 @@ const MainAppContent: React.FC = () => {
     setHistoryPanelOpen
   } = useApp();
 
-  const { shouldShowMobileNotice } = useFeatureAvailability();
-  
-  // HomePage에서만 footer를 표시 (간단한 구현)
-  const showFooter = location.pathname === '/';
+  // 푸터 표시: 홈페이지, 프로필 페이지, 프로젝트 페이지에 표시
+  // 챗봇 페이지와 프로젝트 상세 페이지는 푸터 제외
+  const showFooter = ['/', '/profile', '/projects'].includes(location.pathname);
   
   // 홈페이지는 스크롤 드리븐 애니메이션을 위해 overflow 제어 제외
   const isHomePage = location.pathname === '/';
+  const isChatPage = location.pathname === '/chat';
 
   // ESC 키로 이스터에그 종료
   useEasterEggEscapeKey();
@@ -137,18 +135,12 @@ const MainAppContent: React.FC = () => {
           backgroundColor: 'var(--color-background)',
           color: 'var(--color-text-primary)',
           overflowX: isHomePage ? 'visible' : 'hidden', // 홈페이지는 스크롤 드리븐 애니메이션을 위해 overflow 제어 제외
+          overflowY: isChatPage ? 'hidden' : 'auto', // 챗봇 페이지는 내부 스크롤만 사용
           flex: 1,
           display: 'flex',
           flexDirection: 'column',
         }}
       >
-        {/* 모바일 기능 안내 메시지 */}
-        {shouldShowMobileNotice && (
-          <div className="container mx-auto px-4 pt-4">
-            <MobileFeatureNotice />
-          </div>
-        )}
-
         <AnimatedRoutes>
           <Route path="/" element={<HomePage />} />
           <Route path="/profile" element={<ProfilePage />} />

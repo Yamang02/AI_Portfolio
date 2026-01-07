@@ -1,18 +1,20 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
+
+import { apiClient } from '@shared/api/apiClient';
+import { ChatInputBar } from '@shared/ui/chat';
+import { ContactModal } from '@shared/ui/modal';
+
 import { ChatMessage as ChatMessageType } from '@features/chatbot/types';
 import { ChatMessage } from '@features/chatbot/components/ChatMessage';
-import { ChatInputBar } from '@shared/ui/chat/ChatInputBar';
-import { apiClient } from '@shared/api/apiClient';
 import { processQuestion } from '@features/chatbot/utils/questionValidator';
-import { checkEasterEggTrigger, useEasterEggStore, triggerEasterEggs } from '@features/easter-eggs';
-import { ContactModal } from '@shared/ui/modal';
+
 import { Button, Spinner, Modal } from '@/design-system';
 import { PageMeta } from '@/main/shared/ui/page-meta';
+
 import styles from './ChatPage.module.css';
 
 const ChatPage: React.FC = () => {
   const [messages, setMessages] = useState<ChatMessageType[]>([]);
-  const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
@@ -26,26 +28,26 @@ const ChatPage: React.FC = () => {
   } | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
-  const { triggerEasterEgg, isEasterEggMode } = useEasterEggStore();
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [isScrolling, setIsScrolling] = useState(false);
 
   // 사용자가 메시지를 보냈는지 확인 (초기 메시지 제외)
-  const hasUserMessages = messages.some(msg => msg.isUser || (msg.id !== 'initial' && !msg.isUser));
+  const hasUserMessages = useMemo(() => {
+    return messages.some(msg => msg.isUser || (msg.id !== 'initial' && !msg.isUser));
+  }, [messages]);
 
   // 메시지가 추가되거나 로딩 상태가 변경될 때 하단으로 스크롤
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  useEffect(() => {
-    // 메시지가 추가되거나 로딩 상태가 변경될 때 자동 스크롤
-    if (messages.length > 0 || isLoading) {
-      // 약간의 지연을 두어 DOM 업데이트 후 스크롤
-      const timer = setTimeout(() => {
-        scrollToBottom();
-      }, 100);
-      return () => clearTimeout(timer);
+  const scrollToBottom = (smooth: boolean = true) => {
+    const container = messagesContainerRef.current;
+    if (container) {
+      // 스크롤을 최하단으로 이동 (입력 필드 바로 위까지)
+      container.scrollTo({
+        top: container.scrollHeight,
+        behavior: smooth ? 'smooth' : 'auto'
+      });
     }
-  }, [messages, isLoading]);
+  };
 
   // 사용량 제한 상태 로드
   const loadUsageStatus = async () => {
@@ -61,6 +63,19 @@ const ChatPage: React.FC = () => {
   useEffect(() => {
     loadUsageStatus();
   }, []);
+
+  // 챗봇 완전 초기화
+  const resetChatbot = () => {
+    setSelectedProject(null);
+    setMessages([]);
+    setIsInitialized(false);
+    // 로컬스토리지에서 메시지 삭제
+    try {
+      localStorage.removeItem('chatPageMessages');
+    } catch (error) {
+      console.error('로컬스토리지에서 메시지 삭제 실패:', error);
+    }
+  };
 
   // 모달 열기 이벤트 리스너
   useEffect(() => {
@@ -85,22 +100,46 @@ const ChatPage: React.FC = () => {
   // 챗봇 초기화
   const initializeChatbot = () => {
     if (!isInitialized) {
-      const initialMessage: ChatMessageType = {
-        id: 'initial',
-        content: `안녕하세요! 👋 저는 AI 포트폴리오 비서입니다.\n\n궁금한 점이나 알고 싶은 내용을 자유롭게 질문해 주세요.\n\n예시:\n"A프로젝트 기획의도를 알려줘."\n"B프로젝트 기술스택 알려줘"\n\n💡 AI 답변은 실제 정보와 다를 수 있으니 참고용으로만 활용해 주세요.`,
-        isUser: false,
-        timestamp: new Date()
-      };
-      setMessages([initialMessage]);
-      setIsInitialized(true);
-    }
-  };
+      // 로컬스토리지에서 메시지 불러오기
+      const savedMessages = localStorage.getItem('chatPageMessages');
+      let loadedMessages: ChatMessageType[] = [];
+      
+      if (savedMessages) {
+        try {
+          const parsed = JSON.parse(savedMessages);
+          // 타임스탬프 문자열을 Date 객체로 변환
+          loadedMessages = parsed.map((msg: any) => ({
+            ...msg,
+            timestamp: msg.timestamp ? new Date(msg.timestamp) : new Date()
+          }));
+        } catch (error) {
+          console.error('로컬스토리지에서 메시지 불러오기 실패:', error);
+        }
+      }
 
-  // 챗봇 완전 초기화
-  const resetChatbot = () => {
-    setSelectedProject(null);
-    setMessages([]);
-    setIsInitialized(false);
+      // 불러온 메시지가 없으면 초기 메시지 표시
+      if (loadedMessages.length === 0) {
+        const initialMessage: ChatMessageType = {
+          id: 'initial',
+          content: `안녕하세요! 👋 저는 AI 포트폴리오 비서입니다.\n\n궁금한 점이나 알고 싶은 내용을 자유롭게 질문해 주세요.\n\n예시:\n"A프로젝트 기획의도를 알려줘."\n"B프로젝트 기술스택 알려줘"\n\n💡 AI 답변은 실제 정보와 다를 수 있으니 참고용으로만 활용해 주세요.`,
+          isUser: false,
+          timestamp: new Date()
+        };
+        loadedMessages = [initialMessage];
+      }
+
+      setMessages(loadedMessages);
+      setIsInitialized(true);
+
+      // 로컬스토리지에서 불러온 메시지가 있으면 마지막 메시지가 보이도록 스크롤
+      // 초기 메시지만 있는 경우는 스크롤하지 않음 (중앙 정렬 유지)
+      if (loadedMessages.length > 1 || (loadedMessages.length === 1 && loadedMessages[0].id !== 'initial')) {
+        // DOM 업데이트 후 스크롤
+        setTimeout(() => {
+          scrollToBottom(false); // 즉시 스크롤 (smooth 없이)
+        }, 100);
+      }
+    }
   };
 
   // isInitialized가 false가 될 때 초기화 메시지 세팅
@@ -111,26 +150,27 @@ const ChatPage: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isInitialized]);
 
+  // 메시지가 추가되거나 로딩 상태가 변경될 때 자동 스크롤
+  useEffect(() => {
+    // 빈 상태(초기 메시지만 있는 경우)이면 스크롤하지 않음
+    const isEmptyState = !hasUserMessages;
+    if (isEmptyState) {
+      return;
+    }
+
+    // 메시지가 추가되거나 로딩 상태가 변경될 때 자동 스크롤
+    if (messages.length > 0 || isLoading) {
+      // 약간의 지연을 두어 DOM 업데이트 후 스크롤
+      const timer = setTimeout(() => {
+        scrollToBottom(true); // smooth 스크롤
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [messages, isLoading, hasUserMessages]);
+
   // 메시지 전송 처리
   const handleSendMessage = async (message: string) => {
     if (!message.trim() || isLoading) return;
-
-    // 이스터에그 트리거 체크
-    const { shouldBlock, triggers } = checkEasterEggTrigger(message, isEasterEggMode);
-    
-    if (triggers.length > 0) {
-      triggerEasterEggs(triggers, message, triggerEasterEgg);
-      
-      // 이스터에그 전용 문구는 챗봇으로 전송하지 않음
-      if (shouldBlock) {
-        return;
-      }
-    }
-
-    // 이스터에그 모드가 활성화되어 있으면 모든 입력 차단
-    if (isEasterEggMode) {
-      return;
-    }
 
     const userMessage: ChatMessageType = {
       id: Date.now().toString(),
@@ -140,10 +180,17 @@ const ChatPage: React.FC = () => {
     };
 
     // 첫 대화가 시작되면 초기 안내 메시지 제거
-    setMessages(prev => {
-      const filteredMessages = prev.filter(msg => msg.id !== 'initial');
-      return [...filteredMessages, userMessage];
-    });
+      setMessages(prev => {
+        const filteredMessages = prev.filter(msg => msg.id !== 'initial');
+        const newMessages = [...filteredMessages, userMessage];
+        // 로컬스토리지에 저장
+        try {
+          localStorage.setItem('chatPageMessages', JSON.stringify(newMessages));
+        } catch (error) {
+          console.error('로컬스토리지에 메시지 저장 실패:', error);
+        }
+        return newMessages;
+      });
     setIsLoading(true);
 
     try {
@@ -229,7 +276,16 @@ const ChatPage: React.FC = () => {
         showEmailButton: showEmailButton
       };
 
-      setMessages(prev => [...prev, aiMessage]);
+      setMessages(prev => {
+        const newMessages = [...prev, aiMessage];
+        // 로컬스토리지에 저장
+        try {
+          localStorage.setItem('chatPageMessages', JSON.stringify(newMessages));
+        } catch (error) {
+          console.error('로컬스토리지에 메시지 저장 실패:', error);
+        }
+        return newMessages;
+      });
       
     } catch (error) {
       console.error('메시지 전송 오류:', error);
@@ -240,14 +296,42 @@ const ChatPage: React.FC = () => {
         timestamp: new Date(),
         showEmailButton: true
       };
-      setMessages(prev => [...prev, errorMessage]);
+      setMessages(prev => {
+        const newMessages = [...prev, errorMessage];
+        // 로컬스토리지에 저장
+        try {
+          localStorage.setItem('chatPageMessages', JSON.stringify(newMessages));
+        } catch (error) {
+          console.error('로컬스토리지에 메시지 저장 실패:', error);
+        }
+        return newMessages;
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
   // 사용자가 메시지를 보낸 후에만 하단 레이아웃으로 전환
-  const shouldShowEmptyState = !hasUserMessages;
+  const shouldShowEmptyState = useMemo(() => !hasUserMessages, [hasUserMessages]);
+
+  // 윈도우 스크롤 비활성화 (내부 스크롤만 사용)
+  useEffect(() => {
+    const originalBodyOverflow = document.body.style.overflow;
+    const originalHtmlOverflow = document.documentElement.style.overflow;
+    
+    // body와 html 모두 스크롤 비활성화
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+    
+    return () => {
+      document.body.style.overflow = originalBodyOverflow;
+      document.documentElement.style.overflow = originalHtmlOverflow;
+      // 컴포넌트 언마운트 시 타이머 정리
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+    };
+  }, []);
 
   return (
     <PageMeta
@@ -256,7 +340,7 @@ const ChatPage: React.FC = () => {
       enablePageTransition={true}
       showFooter={false}
     >
-      <div style={{ width: '100%', minHeight: '100%' }}>
+      <div style={{ width: '100%', height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', minHeight: 0 }}>
       {/* 상단 컨트롤 영역 - 왼쪽 상단 배치 */}
       <div className={styles.topBar}>
         <div className={styles.topBarContent}>
@@ -311,7 +395,21 @@ const ChatPage: React.FC = () => {
       >
 
         {/* 메시지 영역 */}
-        <div className={styles.messagesContainer}>
+        <div 
+          className={`${styles.messagesContainer} ${isScrolling ? styles.scrolling : ''}`} 
+          ref={messagesContainerRef}
+          onScroll={() => {
+            setIsScrolling(true);
+            // 기존 타이머가 있으면 취소
+            if (scrollTimeoutRef.current) {
+              clearTimeout(scrollTimeoutRef.current);
+            }
+            // 1초 후 스크롤바 숨김
+            scrollTimeoutRef.current = setTimeout(() => {
+              setIsScrolling(false);
+            }, 1000);
+          }}
+        >
           {messages.map(message => (
             <ChatMessage key={message.id} message={message} />
           ))}

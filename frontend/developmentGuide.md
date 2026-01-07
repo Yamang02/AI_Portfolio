@@ -75,6 +75,76 @@ npm run dev
 
 3. **변경 이력 기록**: 중요한 변경사항은 문서 하단에 변경 이력 추가 (템플릿: `docs/templates/documentation-changelog-template.md`)
 
+## 🎯 페이지별 레이아웃 정책
+
+애플리케이션의 각 페이지는 고유한 레이아웃 요구사항을 가지고 있으며, 이를 조건부로 관리합니다:
+
+### 정책 관리 위치
+- **파일**: `frontend/src/main/app/MainApp.tsx`
+- **적용 지점**: `MainAppContent` 컴포넌트의 메인 컨테이너 div
+
+### 페이지별 정책
+
+#### 1. 홈페이지 (`/`)
+- **Overflow 정책**: `overflowX: 'visible'`
+- **이유**:
+  - 스크롤 드리븐 애니메이션 사용 (`window.pageYOffset`, `getBoundingClientRect()` 계산)
+  - `overflow: hidden`은 스크롤 기준점을 변경하여 애니메이션 오작동 유발
+- **특징**:
+  - 배경 그라데이션 효과 (스크롤 위치 기반)
+  - 섹션별 애니메이션 트리거
+  - 페이지 전환 효과 제외 (자연스러운 문서 플로우 유지)
+
+#### 2. 채팅 페이지 (`/chat`)
+- **Overflow 정책**: `overflowX: 'hidden'`
+- **이유**:
+  - 페이지 전환 시 좌우 슬라이드 애니메이션 적용
+  - 내부 스크롤 컨테이너 사용
+
+#### 3. 기타 페이지 (`/profile`, `/projects`, `/projects/:id`)
+- **Overflow 정책**: `overflowX: 'hidden'`
+- **이유**:
+  - 페이지 전환 애니메이션 적용
+  - 좌우 슬라이드 시 콘텐츠가 화면 밖으로 넘치는 것 방지
+
+### 구현 예시
+
+```typescript
+// MainApp.tsx
+const isHomePage = location.pathname === '/';
+
+<div
+  style={{
+    overflowX: isHomePage ? 'visible' : 'hidden',
+    // ... 기타 스타일
+  }}
+>
+```
+
+### 새 페이지 추가 시 체크리스트
+
+1. **스크롤 드리븐 애니메이션 사용 여부 확인**
+   - 사용한다면: `overflowX: 'visible'` 필요
+   - 사용하지 않는다면: `overflowX: 'hidden'` 유지
+
+2. **페이지 전환 애니메이션 적용 여부 결정**
+   - 적용: `AnimatedRoutes`에 포함 (기본)
+   - 제외: `AnimatedPageTransition.tsx`에서 조건부 처리
+
+3. **스크롤 정책 명시**
+   - `PageMeta` 컴포넌트의 `scrollPolicy` prop 설정
+   - `window` (전역 스크롤) vs `container` (내부 스크롤)
+
+4. **MainApp.tsx 정책 업데이트**
+   - 필요시 `isHomePage`와 유사한 조건 추가
+   - 주석으로 정책 적용 이유 명시
+
+### 주의사항
+
+- **스크롤 관련 CSS 변경 시**: 홈페이지의 스크롤 드리븐 효과가 정상 작동하는지 반드시 확인
+- **애니메이션 추가 시**: 페이지별 overflow 정책과의 충돌 여부 검토
+- **레이아웃 리팩토링 시**: 각 페이지의 특수 요구사항 문서화 유지
+
 ## 🔗 관련 문서
 
 자세한 내용은 루트 `docs/` 폴더의 문서를 참고하세요.

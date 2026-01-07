@@ -5,6 +5,7 @@
   position: sticky;
   top: 0;
   z-index: 10;
+  flex-shrink: 0; /* 높이가 고정되도록 */
 }
 
 .topBarContent {
@@ -145,10 +146,12 @@
 .chatPage {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - var(--spacing-header-height, 80px) - var(--spacing-footer-height, 120px) - 60px);
-  max-width: 56rem; /* max-w-4xl (896px) - ChatInputBar와 동일한 너비 */
+  flex: 1; /* 남은 공간을 모두 차지 */
+  min-height: 0; /* flex 자식이 축소될 수 있도록 */
+  max-width: 72rem; /* max-w-6xl (1152px) - 더 넓은 채팅 영역 */
   margin: 0 auto;
-  padding: var(--spacing-md, 16px);
+  padding: var(--spacing-md, 16px) var(--spacing-md, 16px) var(--spacing-md, 16px) var(--spacing-md, 16px); /* 상단, 좌우, 하단 패딩 */
+  padding-bottom: calc(var(--spacing-md, 16px) + 100px); /* 하단 패딩 + ChatInputBar 높이 여유 공간 (80px → 100px로 증가) */
   position: relative;
   width: 100%;
   overflow: hidden; /* 채팅 영역이 입력 필드 위에 고정되도록 */
@@ -158,7 +161,6 @@
 .chatPage.emptyState {
   justify-content: center;
   align-items: center;
-  height: calc(100vh - var(--spacing-header-height, 80px) - var(--spacing-footer-height, 120px) - 60px);
 }
 
 /* 메시지가 있을 때: 일반 레이아웃 */
@@ -171,9 +173,58 @@
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: var(--spacing-md, 16px) 0;
+  padding: var(--spacing-md, 16px) var(--spacing-lg, 24px); /* 상하 16px, 좌우 24px - 스크롤바와 버블 사이 간격 */
   min-height: 0;
   width: 100%;
+  scrollbar-width: thin; /* Firefox: 얇은 스크롤바 */
+  scrollbar-color: transparent transparent; /* Firefox: 기본적으로 투명 */
+  transition: scrollbar-color 0.5s ease-out; /* Firefox: 스크롤바 색상 전환 */
+}
+
+/* Webkit 브라우저 (Chrome, Safari, Edge) 스크롤바 스타일링 */
+.messagesContainer::-webkit-scrollbar {
+  width: 8px;
+}
+
+.messagesContainer::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.messagesContainer::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 4px;
+  transition: background 0.5s ease-out, opacity 0.5s ease-out; /* 부드러운 전환 효과 */
+  opacity: 0; /* 기본적으로 투명 */
+}
+
+/* 스크롤 중일 때만 스크롤바 표시 */
+.messagesContainer.scrolling {
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent; /* Firefox: 스크롤 중일 때만 표시 */
+}
+
+.messagesContainer.scrolling::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  opacity: 1; /* 스크롤 중일 때 완전히 보임 */
+}
+
+.messagesContainer.scrolling::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+/* 다크 모드 스크롤바 */
+@media (prefers-color-scheme: dark) {
+  .messagesContainer.scrolling {
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent; /* Firefox: 다크 모드 스크롤 중일 때만 표시 */
+  }
+
+  .messagesContainer.scrolling::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    opacity: 1; /* 스크롤 중일 때 완전히 보임 */
+  }
+
+  .messagesContainer.scrolling::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
 }
 
 /* 초기 상태일 때 메시지 영역 중앙 배치 */
@@ -219,6 +270,7 @@
   z-index: 10;
   margin-top: auto;
   padding-top: var(--spacing-md, 16px);
+  padding-bottom: var(--spacing-md, 16px); /* 하단 패딩 추가 */
 }
 
 /* 다크 모드 지원 */
@@ -301,6 +353,6 @@
   }
 
   .messagesContainer {
-    padding: var(--spacing-sm, 12px) 0;
+    padding: var(--spacing-sm, 12px) var(--spacing-md, 16px); /* 모바일에서도 좌우 패딩 유지 */
   }
 }
