@@ -51,12 +51,8 @@ export const ProjectsListPage: React.FC = () => {
     return featured;
   }, [projects]);
 
-  // 나머지 프로젝트 (주요 프로젝트 제외)
-  const otherProjects = useMemo(() => {
-    return projects.filter(p => p.isFeatured !== true);
-  }, [projects]);
-
   // 프로젝트 타입별로 그룹화 (모든 섹션 표시, 순서: MAINTENANCE → BUILD → LAB)
+  // Featured 프로젝트도 원래 타입 섹션에 포함되도록 전체 프로젝트를 사용
   const projectsByType = useMemo(() => {
     const grouped: Record<ProjectCategory, Project[]> = {
       BUILD: [],
@@ -64,7 +60,7 @@ export const ProjectsListPage: React.FC = () => {
       MAINTENANCE: [],
     };
 
-    otherProjects.forEach(project => {
+    projects.forEach(project => {
       if (project.type && grouped[project.type as ProjectCategory]) {
         grouped[project.type as ProjectCategory].push(project);
       }
@@ -75,7 +71,7 @@ export const ProjectsListPage: React.FC = () => {
       { type: 'BUILD' as ProjectCategory, title: 'BUILD', description: '서비스 형태로 구축 경험이 있는 프로젝트입니다.', projects: grouped.BUILD },
       { type: 'LAB' as ProjectCategory, title: 'LAB', description: '관심사에 따른 실험적인 프로젝트입니다.', projects: grouped.LAB },
     ];
-  }, [otherProjects]);
+  }, [projects]);
 
   // 설정 파일에서 프로젝트 오버라이드 정보 가져오기
   const getFeaturedConfig = (projectId: string) => {
@@ -107,17 +103,24 @@ export const ProjectsListPage: React.FC = () => {
   };
 
   // 프로젝트가 어느 섹션에 있는지 찾기
-  const findProjectSection = (projectId: string): string | null => {
-    // 주요 프로젝트 섹션 확인
-    if (featuredProjects.some(p => p.id === projectId)) {
-      return 'featured-section';
-    }
-    
-    // 타입별 섹션 확인
+  // 프로젝트 히스토리에서 클릭 시 프로젝트 타입 섹션을 우선적으로 반환
+  const findProjectSection = (projectId: string): { sectionId: string; projectCardId: string } | null => {
+    // 타입별 섹션을 우선적으로 확인
     for (const section of projectsByType) {
       if (section.projects.some(p => p.id === projectId)) {
-        return `project-section-${projectId}`;
+        return {
+          sectionId: `type-section-${section.type}`,
+          projectCardId: `type-project-section-${projectId}`
+        };
       }
+    }
+    
+    // 타입별 섹션에 없으면 주요 프로젝트 섹션 확인
+    if (featuredProjects.some(p => p.id === projectId)) {
+      return {
+        sectionId: 'featured-section',
+        projectCardId: `project-section-${projectId}`
+      };
     }
     
     return null;
@@ -128,11 +131,20 @@ export const ProjectsListPage: React.FC = () => {
     setHighlightedProjectId(projectId);
     
     // 해당 프로젝트가 있는 섹션으로 스크롤
-    const sectionId = findProjectSection(projectId);
-    if (sectionId) {
-      const sectionElement = document.getElementById(sectionId);
+    const sectionInfo = findProjectSection(projectId);
+    if (sectionInfo) {
+      // 먼저 섹션으로 스크롤
+      const sectionElement = document.getElementById(sectionInfo.sectionId);
       if (sectionElement) {
-        sectionElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        sectionElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        
+        // 섹션 내부의 프로젝트 카드로 추가 스크롤 (약간의 지연 후)
+        setTimeout(() => {
+          const projectCardElement = document.getElementById(sectionInfo.projectCardId);
+          if (projectCardElement) {
+            projectCardElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }, 300);
       }
     }
     
@@ -267,7 +279,7 @@ export const ProjectsListPage: React.FC = () => {
 
       {/* 프로젝트 타입별 섹션 */}
       {projectsByType.map((section) => (
-        <section key={section.type} className={styles.typeSection}>
+        <section key={section.type} id={`type-section-${section.type}`} className={styles.typeSection}>
           <div className={styles.container}>
             <div className={styles.sectionHeader}>
               <SectionTitle level="h2">{section.title}</SectionTitle>
@@ -277,7 +289,7 @@ export const ProjectsListPage: React.FC = () => {
             <div className={styles.grid}>
               {section.projects.length > 0 ? (
                 section.projects.map((project) => (
-                  <div key={project.id} id={`project-section-${project.id}`}>
+                  <div key={project.id} id={`type-project-section-${project.id}`}>
                     <ProjectCard
                       project={convertToProjectCard(project)}
                       onClick={() => handleCardClick(project.id)}

@@ -3,6 +3,7 @@ import { Routes, Route } from 'react-router-dom';
 import { HomePage } from './layout/components/HomePage';
 import { ProjectDetailPage } from './pages/ProjectDetail/ProjectDetailPage';
 import { useApp } from './app/providers/AppProvider';
+import { LoadingScreen } from '@/shared/ui/LoadingScreen';
 
 const App: React.FC = () => {
   const {
@@ -45,12 +46,11 @@ const App: React.FC = () => {
 
   if (isInitialLoading) {
     return (
-      <div className="min-h-screen bg-white text-gray-700 font-sans flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
-          <p className="text-gray-600">포트폴리오를 불러오는 중...</p>
-        </div>
-      </div>
+      <LoadingScreen
+        message="포트폴리오를 불러오는 중..."
+        showProgress={true}
+        loadingStates={loadingStates}
+      />
     );
   }
 

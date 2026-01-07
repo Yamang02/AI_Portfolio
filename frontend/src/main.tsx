@@ -6,17 +6,13 @@ import { MainApp } from './main/app/MainApp';
 import './design-system/styles/reset.css';
 import './design-system/styles/globals.css';
 import './index.css';
+import { LoadingScreen } from './shared/ui/LoadingScreen';
 
 // AdminApp을 lazy loading으로 분리하여 메인 번들에 포함되지 않도록 함
 const AdminApp = lazy(() => import('./admin/app/AdminApp').then(module => ({ default: module.AdminApp })));
 
 const AdminLoadingFallback = () => (
-  <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-    <div className="text-center">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
-      <p className="text-gray-600">관리자 페이지를 불러오는 중...</p>
-    </div>
-  </div>
+  <LoadingScreen message="관리자 페이지를 불러오는 중..." />
 );
 
 const rootElement = document.getElementById('root');

@@ -79,12 +79,16 @@ const ProjectEdit: React.FC = () => {
         ? project.myContributions.join('\n')
         : '';
 
+      // isFeatured 값 처리: null, undefined, false 모두 명확하게 처리
+      const isFeaturedValue = project.isFeatured === true ? true : false;
+
       form.setFieldsValue({
         title: project.title,
         description: project.description,
         type: project.type,
         status: project.status,
-        isTeam: project.isTeam,
+        isTeam: project.isTeam ?? false,
+        isFeatured: isFeaturedValue,
         teamSize: project.teamSize,
         role: project.role,
         myContributions: myContributionsString,
@@ -97,6 +101,7 @@ const ProjectEdit: React.FC = () => {
         sortOrder: project.sortOrder,
         readme: project.readme,
       });
+      
       setIsTeam(project.isTeam || false);
       // screenshots는 백엔드에서 객체 배열로 올 수 있으므로 변환 처리
       const projectScreenshots = project.screenshots || [];
@@ -133,6 +138,7 @@ const ProjectEdit: React.FC = () => {
           type: values.type,
           status: values.status,
           isTeam: values.isTeam,
+          isFeatured: values.isFeatured,
           teamSize: values.teamSize,
           role: values.role,
           myContributions: myContributionsArray,
@@ -160,6 +166,7 @@ const ProjectEdit: React.FC = () => {
           type: values.type,
           status: values.status,
           isTeam: values.isTeam,
+          isFeatured: values.isFeatured,
           teamSize: values.teamSize,
           role: values.role,
           myContributions: myContributionsArray,
@@ -174,7 +181,6 @@ const ProjectEdit: React.FC = () => {
           sortOrder: values.sortOrder,
         };
 
-        console.log('[ProjectEdit] Update data:', { id, updateData });
         await updateProjectMutation.mutateAsync({ id: id!, project: updateData });
         message.success('프로젝트가 성공적으로 수정되었습니다');
       }
@@ -256,6 +262,7 @@ const ProjectEdit: React.FC = () => {
         initialValues={{
           sortOrder: 0,
           isTeam: false,
+          isFeatured: false,
           status: undefined, // 기본값 없음
           type: undefined, // 기본값 없음
         }}
@@ -383,6 +390,17 @@ const ProjectEdit: React.FC = () => {
                 valuePropName="checked"
               >
                 <Switch onChange={handleIsTeamChange} />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={16}>
+            <Col span={6}>
+              <Form.Item
+                name="isFeatured"
+                label="추천 프로젝트"
+                valuePropName="checked"
+              >
+                <Switch />
               </Form.Item>
             </Col>
           </Row>

@@ -152,7 +152,6 @@ export const ProjectHistoryTimeline: React.FC<ProjectHistoryTimelineProps> = ({
     const barHeight = getBarHeight(project);
     const isHighlighted = highlightedProjectId === project.id;
     const isOngoing = !project.endDate;
-    const sectionId = `project-section-${project.id}`;
 
     // 다음 프로젝트와 연결선 그리기
     const nextProject = index < allProjects.length - 1 ? allProjects[index + 1] : null;
@@ -178,13 +177,8 @@ export const ProjectHistoryTimeline: React.FC<ProjectHistoryTimelineProps> = ({
 
     const handleBarClick = () => {
       if (onProjectClick) {
+        // 부모 컴포넌트의 findProjectSection을 통해 프로젝트 타입 섹션을 우선적으로 찾도록 함
         onProjectClick(project.id);
-      }
-      
-      // 해당 프로젝트가 있는 섹션으로 스크롤
-      const sectionElement = document.getElementById(sectionId);
-      if (sectionElement) {
-        sectionElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
     };
 

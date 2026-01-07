@@ -21,6 +21,7 @@ import {
 import { AudioIndicator } from '@features/easter-eggs/components/AudioIndicator';
 import { loadEasterEggConfig } from '@features/easter-eggs/config/easterEggConfigLoader';
 import { AnimatedRoutes } from '../shared/ui/page-transition';
+import { LoadingScreen } from '@/shared/ui/LoadingScreen';
 
 const MainAppContent: React.FC = () => {
   const location = useLocation();
@@ -112,18 +113,11 @@ const MainAppContent: React.FC = () => {
 
   if (isInitialLoading) {
     return (
-      <div 
-        className="min-h-screen font-sans flex items-center justify-center transition-colors"
-        style={{
-          backgroundColor: 'var(--color-background)',
-          color: 'var(--color-text-primary)',
-        }}
-      >
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 dark:border-primary-400 mx-auto mb-4"></div>
-          <p className="text-text-secondary">포트폴리오를 불러오는 중...</p>
-        </div>
-      </div>
+      <LoadingScreen
+        message="포트폴리오를 불러오는 중..."
+        showProgress={true}
+        loadingStates={loadingStates}
+      />
     );
   }
 
@@ -159,7 +153,10 @@ const MainAppContent: React.FC = () => {
           flexDirection: 'column',
         }}
       >
-        <AnimatedRoutes>
+        <AnimatedRoutes
+          isLoading={isLoading}
+          loadingStates={loadingStates}
+        >
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/projects" element={<ProjectsListPage />} />
           <Route path="/projects/:id" element={<ProjectDetailPage />} />

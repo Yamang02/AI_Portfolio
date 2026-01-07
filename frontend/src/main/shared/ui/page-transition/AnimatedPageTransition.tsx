@@ -72,14 +72,26 @@ export const AnimatedPageTransition: React.FC<AnimatedPageTransitionProps> = ({
  */
 interface AnimatedRoutesProps {
   children: React.ReactNode;
+  isLoading?: boolean;
+  loadingStates?: {
+    projects?: boolean;
+    experiences?: boolean;
+    educations?: boolean;
+    certifications?: boolean;
+  };
 }
 
-export const AnimatedRoutes: React.FC<AnimatedRoutesProps> = ({ children }) => {
+export const AnimatedRoutes: React.FC<AnimatedRoutesProps> = ({ 
+  children,
+  isLoading = false,
+  loadingStates,
+}) => {
   const location = useLocation();
   const prevPathnameRef = useRef<string>(location.pathname);
   const exitPathnameRef = useRef<string>(location.pathname);
   const containerRef = useRef<HTMLDivElement>(null);
   const pageRef = useRef<HTMLDivElement>(null);
+  const resizeObserverRef = useRef<ResizeObserver | null>(null);
 
   // 스크롤 정책 결정: 챗봇 페이지는 내부 스크롤이 필요하므로 overflow: hidden 유지
   const isChatPage = location.pathname === '/chat';
@@ -118,51 +130,94 @@ export const AnimatedRoutes: React.FC<AnimatedRoutesProps> = ({ children }) => {
     // 다른 페이지: 동적 높이 추적
     const updateContainerHeight = () => {
       if (pageRef.current && containerRef.current) {
-        // scrollHeight와 offsetHeight 중 더 큰 값을 사용하여 정확한 높이 계산
-        const scrollHeight = pageRef.current.scrollHeight;
-        const offsetHeight = pageRef.current.offsetHeight;
-        const pageHeight = Math.max(scrollHeight, offsetHeight);
-        
-        // 추가로 실제 렌더링된 콘텐츠의 높이를 확인
-        const lastElement = pageRef.current.lastElementChild as HTMLElement;
-        const lastElementBottom = lastElement 
-          ? lastElement.offsetTop + lastElement.offsetHeight 
-          : 0;
-        
-        // 마지막 요소의 하단 위치와 scrollHeight 중 더 큰 값 사용
-        const finalHeight = Math.max(pageHeight, lastElementBottom);
-        
-        containerRef.current.style.height = `${finalHeight}px`;
+        // 로딩 중일 때는 최소 높이만 설정하고 정확한 계산은 지연
+        if (isLoading) {
+          // 최소 높이를 설정하여 스크롤 가능하도록 보장
+          const minHeight = Math.max(
+            window.innerHeight,
+            pageRef.current.scrollHeight || 0
+          );
+          containerRef.current.style.height = `${minHeight}px`;
+          return;
+        }
+
+        // 데이터 로드 완료 후 정확한 높이 계산
+        // requestAnimationFrame을 사용하여 렌더링 완료 후 계산
+        requestAnimationFrame(() => {
+          if (!pageRef.current || !containerRef.current) return;
+
+          // scrollHeight와 offsetHeight 중 더 큰 값을 사용하여 정확한 높이 계산
+          const scrollHeight = pageRef.current.scrollHeight;
+          const offsetHeight = pageRef.current.offsetHeight;
+          const pageHeight = Math.max(scrollHeight, offsetHeight);
+          
+          // 추가로 실제 렌더링된 콘텐츠의 높이를 확인
+          const lastElement = pageRef.current.lastElementChild as HTMLElement;
+          const lastElementBottom = lastElement 
+            ? lastElement.offsetTop + lastElement.offsetHeight 
+            : 0;
+          
+          // 마지막 요소의 하단 위치와 scrollHeight 중 더 큰 값 사용
+          const finalHeight = Math.max(pageHeight, lastElementBottom, window.innerHeight);
+          
+          containerRef.current.style.height = `${finalHeight}px`;
+        });
       }
     };
 
-    // 초기 높이 설정 (여러 번 재계산하여 정확도 향상)
-    const timer1 = setTimeout(updateContainerHeight, 50);
-    const timer2 = setTimeout(updateContainerHeight, 200);
-    const timer3 = setTimeout(updateContainerHeight, 500);
+    // 로딩 상태가 변경될 때 높이 재계산
+    if (!isLoading) {
+      // 데이터 로드 완료 후 여러 번 재계산하여 정확도 향상
+      const timer1 = setTimeout(updateContainerHeight, 50);
+      const timer2 = setTimeout(updateContainerHeight, 200);
+      const timer3 = setTimeout(updateContainerHeight, 500);
+      const timer4 = setTimeout(updateContainerHeight, 1000);
 
-    // 리사이즈 및 이미지 로드 후 높이 업데이트
-    window.addEventListener('resize', updateContainerHeight);
-    
-    // 이미지 로드 후 높이 재계산
-    const images = Array.from(document.images);
-    const imageLoadPromises = images.map(img => {
-      if (img.complete) return Promise.resolve();
-      return new Promise(resolve => {
-        img.addEventListener('load', resolve);
-        img.addEventListener('error', resolve);
+      // 이미지 로드 후 높이 재계산
+      const images = Array.from(document.images);
+      const imageLoadPromises = images.map(img => {
+        if (img.complete) return Promise.resolve();
+        return new Promise(resolve => {
+          img.addEventListener('load', resolve);
+          img.addEventListener('error', resolve);
+        });
       });
-    });
 
-    Promise.all(imageLoadPromises).then(() => {
-      setTimeout(updateContainerHeight, 100);
-      setTimeout(updateContainerHeight, 300);
-    });
+      Promise.all(imageLoadPromises).then(() => {
+        setTimeout(updateContainerHeight, 100);
+        setTimeout(updateContainerHeight, 300);
+      });
+
+      return () => {
+        clearTimeout(timer1);
+        clearTimeout(timer2);
+        clearTimeout(timer3);
+        clearTimeout(timer4);
+      };
+    } else {
+      // 로딩 중일 때는 최소 높이만 설정
+      updateContainerHeight();
+    }
+
+    // 리사이즈 이벤트 리스너
+    window.addEventListener('resize', updateContainerHeight);
+
+    // ResizeObserver로 더 정확한 높이 감지
+    if (pageRef.current && 'ResizeObserver' in window) {
+      resizeObserverRef.current = new ResizeObserver(() => {
+        if (!isLoading) {
+          updateContainerHeight();
+        }
+      });
+      resizeObserverRef.current.observe(pageRef.current);
+    }
 
     // MutationObserver로 DOM 변경 감지
     const observer = new MutationObserver(() => {
-      // DOM 변경 시 약간의 지연을 두고 재계산
-      setTimeout(updateContainerHeight, 50);
+      // 로딩 중이 아닐 때만 재계산
+      if (!isLoading) {
+        setTimeout(updateContainerHeight, 50);
+      }
     });
     if (pageRef.current) {
       observer.observe(pageRef.current, {
@@ -174,13 +229,13 @@ export const AnimatedRoutes: React.FC<AnimatedRoutesProps> = ({ children }) => {
     }
 
     return () => {
-      clearTimeout(timer1);
-      clearTimeout(timer2);
-      clearTimeout(timer3);
       window.removeEventListener('resize', updateContainerHeight);
+      if (resizeObserverRef.current) {
+        resizeObserverRef.current.disconnect();
+      }
       observer.disconnect();
     };
-  }, [location.pathname, isChatPage]);
+  }, [location.pathname, isChatPage, isLoading, loadingStates]);
 
   // 다른 페이지: 페이지 전환 애니메이션 적용
   const pageVariants = {
