@@ -27,6 +27,9 @@ public class ProjectDataResponse {
     @JsonProperty("isTeam")
     boolean isTeam;
 
+    @JsonProperty("isFeatured")
+    boolean isFeatured;
+
     Integer teamSize;
     String role;
     List<String> myContributions;
@@ -53,6 +56,7 @@ public class ProjectDataResponse {
                 .startDate(project.getStartDate())
                 .endDate(project.getEndDate())
                 .isTeam(project.isTeam())
+                .isFeatured(project.isFeatured())
                 .teamSize(project.getTeamSize())
                 .role(project.getRole())
                 .myContributions(project.getMyContributions())

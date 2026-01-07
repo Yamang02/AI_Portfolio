@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import emailjs from '@emailjs/browser';
+import { Modal } from '@/design-system';
+import { Button } from '@/design-system';
+import styles from './ContactModal.module.css';
 
 interface ContactModalProps {
   isOpen: boolean;
@@ -107,111 +110,106 @@ const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) => {
     }));
   };
 
-  if (!isOpen) return null;
+  const isMessageValid = formData.message.length >= 10 && formData.message.length <= 1000;
+  const showMessageError = formData.message.length > 0 && formData.message.length < 10;
 
   return (
-    <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50">
-      <div className="bg-surface dark:bg-slate-800 rounded-lg p-6 w-full max-w-md mx-4 border border-border">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold text-text-primary">문의하기</h2>
-          <button
-            onClick={onClose}
-            className="text-text-muted hover:text-text-primary transition-colors"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="문의하기"
+      width="500px"
+    >
+      <form onSubmit={handleSubmit} className={styles.form}>
+        <div className={styles.formGroup}>
+          <label htmlFor="name" className={styles.label}>
+            이름 *
+          </label>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            required
+            className={styles.input}
+            placeholder="이름을 입력하세요"
+          />
         </div>
         
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="name" className="block text-sm font-medium text-text-secondary mb-1">
-              이름 *
-            </label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              required
-              className="w-full px-3 py-2 border border-border bg-surface dark:bg-slate-700 text-text-primary rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-              placeholder="이름을 입력하세요"
-            />
-          </div>
-          
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-text-secondary mb-1">
-              이메일 *
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              className="w-full px-3 py-2 border border-border bg-surface dark:bg-slate-700 text-text-primary rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-              placeholder="이메일을 입력하세요"
-            />
-          </div>
-          
-          <div>
-            <label htmlFor="subject" className="block text-sm font-medium text-text-secondary mb-1">
-              제목 *
-            </label>
-            <input
-              type="text"
-              id="subject"
-              name="subject"
-              value={formData.subject}
-              onChange={handleChange}
-              required
-              className="w-full px-3 py-2 border border-border bg-surface dark:bg-slate-700 text-text-primary rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-              placeholder="문의 제목을 입력하세요"
-            />
-          </div>
-          
-          <div>
-            <label htmlFor="message" className="block text-sm font-medium text-text-secondary mb-1">
-              문의사항 *
-            </label>
-            <textarea
-              id="message"
-              name="message"
-              value={formData.message}
-              onChange={handleChange}
-              required
-              rows={4}
-              className="w-full px-3 py-2 border border-border bg-surface dark:bg-slate-700 text-text-primary rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
-              placeholder="문의사항을 입력하세요"
-            />
-            <p className={`text-xs mt-1 ${formData.message.length > 0 && formData.message.length < 10 ? 'text-red-500' : 'text-text-muted'}`}>
-              10자 이상 입력해주세요
-            </p>
-          </div>
-          
-          <div className="flex gap-3 pt-2">
-            <button
-              type="button"
-              onClick={onClose}
-              disabled={isLoading}
-              className="flex-1 px-4 py-2 border border-border text-text-primary bg-surface dark:bg-slate-700 rounded-md hover:bg-surface-elevated dark:hover:bg-slate-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              취소
-            </button>
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="flex-1 px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isLoading ? '전송 중...' : '메일 보내기'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+        <div className={styles.formGroup}>
+          <label htmlFor="email" className={styles.label}>
+            이메일 *
+          </label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            required
+            className={styles.input}
+            placeholder="이메일을 입력하세요"
+          />
+        </div>
+        
+        <div className={styles.formGroup}>
+          <label htmlFor="subject" className={styles.label}>
+            제목 *
+          </label>
+          <input
+            type="text"
+            id="subject"
+            name="subject"
+            value={formData.subject}
+            onChange={handleChange}
+            required
+            className={styles.input}
+            placeholder="문의 제목을 입력하세요"
+          />
+        </div>
+        
+        <div className={styles.formGroup}>
+          <label htmlFor="message" className={styles.label}>
+            문의사항 *
+          </label>
+          <textarea
+            id="message"
+            name="message"
+            value={formData.message}
+            onChange={handleChange}
+            required
+            rows={4}
+            className={styles.textarea}
+            placeholder="문의사항을 입력하세요"
+          />
+          <p className={`${styles.helperText} ${showMessageError ? styles.error : ''}`}>
+            {showMessageError 
+              ? '10자 이상 입력해주세요' 
+              : `${formData.message.length}/1000자`}
+          </p>
+        </div>
+        
+        <div className={styles.buttonGroup}>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={onClose}
+            disabled={isLoading}
+          >
+            취소
+          </Button>
+          <Button
+            variant="primary"
+            size="sm"
+            type="submit"
+            disabled={isLoading || !isMessageValid}
+          >
+            {isLoading ? '전송 중...' : '메일 보내기'}
+          </Button>
+        </div>
+      </form>
+    </Modal>
   );
 };
 

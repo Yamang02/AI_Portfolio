@@ -29,28 +29,55 @@ export const CACHE_TIME = {
 } as const;
 
 /**
+ * StaleTime 상수 (밀리초)
+ * - React Query에서 데이터가 stale로 간주되기까지의 시간
+ * - 0으로 설정하면 항상 최신 데이터로 간주
+ */
+export const STALE_TIME = {
+  /** staleTime 없음 - 항상 최신 데이터 확인 */
+  NONE: 0,
+  /** 1분 */
+  ONE_MINUTE: CACHE_TIME.ONE_MINUTE,
+  /** 3분 */
+  THREE_MINUTES: CACHE_TIME.THREE_MINUTES,
+  /** 5분 */
+  FIVE_MINUTES: CACHE_TIME.FIVE_MINUTES,
+  /** 10분 */
+  TEN_MINUTES: CACHE_TIME.TEN_MINUTES,
+  /** 30분 */
+  THIRTY_MINUTES: CACHE_TIME.THIRTY_MINUTES,
+  /** 1시간 */
+  ONE_HOUR: CACHE_TIME.ONE_HOUR,
+  /** 24시간 */
+  ONE_DAY: CACHE_TIME.ONE_DAY,
+} as const;
+
+/**
  * 도메인별 캐시 전략
  *
- * - STATIC: 거의 변경되지 않는 데이터 (10분)
- * - DYNAMIC: 자주 변경될 수 있는 데이터 (3분)
- * - REALTIME: 실시간성이 중요한 데이터 (1분)
+ * - 자주 변경되는 데이터: NONE (항상 최신 데이터 확인)
+ * - 상대적으로 안정적인 데이터: 적절한 staleTime 설정
+ * - 필요시 STALE_TIME 상수를 사용하여 개별 도메인별로 조정 가능
  */
 export const QUERY_STALE_TIME = {
-  // 포트폴리오 데이터 (관리자 수정 후 10분 이내 반영)
-  EDUCATION: CACHE_TIME.TEN_MINUTES,
-  EXPERIENCE: CACHE_TIME.TEN_MINUTES,
-  CERTIFICATION: CACHE_TIME.TEN_MINUTES,
-  PROJECT: CACHE_TIME.TEN_MINUTES,
-  TECH_STACK: CACHE_TIME.TEN_MINUTES,
+  // 포트폴리오 데이터
+  // - 프로젝트: 자주 업데이트될 수 있으므로 NONE
+  // - 교육/경력/자격증: 상대적으로 안정적이므로 5분
+  // - 기술 스택: 자주 변경되지 않으므로 10분
+  EDUCATION: STALE_TIME.FIVE_MINUTES,
+  EXPERIENCE: STALE_TIME.FIVE_MINUTES,
+  CERTIFICATION: STALE_TIME.FIVE_MINUTES,
+  PROJECT: STALE_TIME.NONE, // 프로젝트는 자주 업데이트될 수 있음
+  TECH_STACK: STALE_TIME.TEN_MINUTES,
 
-  // 관리자 페이지 (빠른 피드백)
-  ADMIN: CACHE_TIME.FIVE_MINUTES,
+  // 관리자 페이지 - 항상 최신 데이터 필요
+  ADMIN: STALE_TIME.NONE,
 
-  // GitHub 데이터 (외부 API, 자주 변경 안 됨)
-  GITHUB: CACHE_TIME.TEN_MINUTES,
+  // GitHub 데이터 - 외부 API이므로 적절한 캐싱
+  GITHUB: STALE_TIME.FIVE_MINUTES,
 
-  // 캐시 현황 (실시간성 중요)
-  CACHE_STATUS: CACHE_TIME.ONE_MINUTE,
+  // 캐시 현황 - 항상 최신 상태 확인 필요
+  CACHE_STATUS: STALE_TIME.NONE,
 } as const;
 
 /**

@@ -14,6 +14,8 @@ export interface Project {
   startDate: string;
   endDate?: string;
   technologies: string[];
+  isTeam?: boolean;
+  isFeatured?: boolean;
   createdAt: string;
   updatedAt: string;
 }

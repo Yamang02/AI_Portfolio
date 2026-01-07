@@ -1,9 +1,9 @@
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import remarkHeadingId from 'remark-heading-id';
 import rehypeSanitize from 'rehype-sanitize';
 import rehypeHighlight from 'rehype-highlight';
+import { remarkCustomHeadingId } from '@shared/lib/markdown/remarkCustomHeadingId';
 import 'highlight.js/styles/github.css'; // 라이트 모드용
 import 'highlight.js/styles/github-dark.css'; // 다크 모드용 (조건부로 적용)
 
@@ -200,7 +200,7 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
         components={markdownComponents}
         remarkPlugins={[
           remarkGfm, // GitHub Flavored Markdown 지원
-          remarkHeadingId, // 헤딩에 자동 ID 생성
+          remarkCustomHeadingId, // 헤딩에 일관된 ID 생성 (TOC와 동일)
         ]}
         rehypePlugins={[
           rehypeSanitize, // XSS 방지

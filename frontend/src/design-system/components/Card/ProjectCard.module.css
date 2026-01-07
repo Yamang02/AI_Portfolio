@@ -1,0 +1,212 @@
+.projectCard {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  height: 100%;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+/* Card 컴포넌트의 기본 hover 효과 비활성화 */
+.noCardHover:hover {
+  transform: none !important;
+  box-shadow: var(--shadow-sm) !important;
+  border-color: var(--color-border-default) !important;
+}
+
+/* 프로젝트 카드 자체 호버 효과 - 브랜드 컬러 테두리와 그림자 (라이트모드 기준) */
+.projectCard:hover {
+  border-color: var(--color-primary) !important;
+  box-shadow: 0 4px 12px 0 color-mix(in srgb, var(--color-primary) 20%, transparent),
+              0 2px 4px 0 color-mix(in srgb, var(--color-primary) 10%, transparent) !important;
+  transform: translateY(-2px) scale(1.02) !important;
+}
+
+/* 이미지/아이콘 영역 */
+.imageContainer {
+  position: relative;
+  height: 12rem; /* 192px */
+  width: 100%;
+  background: linear-gradient(
+    135deg,
+    var(--color-bg-secondary),
+    var(--color-bg-tertiary)
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.iconContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: var(--color-text-tertiary);
+}
+
+.badges {
+  position: absolute;
+  top: var(--spacing-3);
+  left: var(--spacing-3);
+  z-index: 10;
+}
+
+.featuredBadge {
+  position: absolute;
+  top: var(--spacing-3);
+  right: var(--spacing-3);
+  z-index: 10;
+  width: 2rem; /* 32px */
+  height: 2rem; /* 32px */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-featured-badge);
+  color: var(--color-white);
+  border-radius: var(--border-radius-full);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--color-featured-badge) 30%, transparent);
+}
+
+.featuredBadge svg {
+  width: 1.25rem; /* 20px */
+  height: 1.25rem; /* 20px */
+}
+
+/* 본문 영역 */
+.content {
+  padding: var(--spacing-6);
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.title {
+  font-size: 1.5rem; /* 24px - 기본값, JavaScript로 조정됨 */
+  font-weight: 800;
+  color: var(--color-text-primary);  /* 표준 텍스트 색상 (흑색 계열) */
+  margin-bottom: var(--spacing-4);
+  line-height: 1.2;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-height: calc(1.2em * 1); /* 한 줄 높이로 제한 */
+  transition: color 0.2s ease;
+}
+
+.titleSubtext {
+  color: var(--color-text-primary);  /* 표준 텍스트 색상 (흑색 계열) */
+}
+
+.divider {
+  height: 1px;
+  background-color: var(--color-border-default);
+  margin-bottom: var(--spacing-6);
+}
+
+.description {
+  color: var(--color-text-secondary);
+  font-size: 0.875rem; /* 14px */
+  margin-bottom: var(--spacing-6);
+  line-height: 1.6;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.techStack {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: var(--spacing-2);
+  margin-bottom: var(--spacing-4);
+  overflow: hidden;
+  height: 1.75rem; /* 한 줄 높이 고정 (약 28px) */
+  align-items: center;
+}
+
+.techBadge {
+  flex-shrink: 0;
+}
+
+/* 하단 정보 */
+.footer {
+  padding-top: var(--spacing-4);
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.date {
+  font-size: 0.75rem; /* 12px */
+  color: var(--color-text-tertiary);
+}
+
+.links {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem; /* 32px */
+  height: 2rem; /* 32px */
+  border-radius: var(--border-radius-md);
+  background-color: transparent;
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border-default);
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+/* GitHub 링크 - 기본 상태는 secondary */
+.githubLink {
+  /* 기본 상태는 secondary 스타일 유지 */
+}
+
+/* 프로젝트 카드 hover 시 GitHub 링크 연한 색상 */
+.projectCard:hover .githubLink:not(:hover) {
+  background-color: color-mix(in srgb, var(--color-github) 20%, transparent);
+  color: color-mix(in srgb, var(--color-github) 80%, var(--color-text-secondary) 20%);
+  border-color: color-mix(in srgb, var(--color-github) 40%, var(--color-border-default) 60%);
+}
+
+/* GitHub 링크 직접 hover 시 진한 색상 유지 */
+.githubLink:hover {
+  background-color: var(--color-github);
+  color: var(--color-white);
+  border-color: var(--color-github);
+  transform: scale(1.05);
+}
+
+/* Live URL 링크 - 기본 상태는 secondary */
+.liveLink {
+  /* 기본 상태는 secondary 스타일 유지 */
+}
+
+/* 프로젝트 카드 hover 시 Live URL 링크 연한 색상 */
+.projectCard:hover .liveLink:not(:hover) {
+  background-color: color-mix(in srgb, var(--color-primary) 20%, transparent);
+  color: color-mix(in srgb, var(--color-primary) 80%, var(--color-text-secondary) 20%);
+  border-color: color-mix(in srgb, var(--color-primary) 40%, var(--color-border-default) 60%);
+}
+
+/* Live URL 링크 직접 hover 시 진한 색상 유지 */
+.liveLink:hover {
+  background-color: var(--color-primary);  /* 브랜드 그린 */
+  color: var(--color-white);
+  border-color: var(--color-primary);
+  transform: scale(1.05);
+}
+

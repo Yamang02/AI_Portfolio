@@ -24,14 +24,15 @@
     "noUncheckedSideEffectImports": true,
 
     "paths": {
-      "@/*": ["./*"],
+      "@/*": ["./src/*"],
       "@shared/*": ["./src/shared/*"],
       "@entities/*": ["./src/entities/*"],
       "@features/*": ["./src/features/*"],
       "@widgets/*": ["./src/widgets/*"],
       "@pages/*": ["./src/pages/*"],
       "@processes/*": ["./src/processes/*"],
-      "@app/*": ["./src/app/*"]
+      "@app/*": ["./src/app/*"],
+      "@design-system/*": ["./src/design-system/*"]
     }
   }
 }

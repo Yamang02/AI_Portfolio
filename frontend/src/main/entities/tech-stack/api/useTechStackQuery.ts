@@ -4,7 +4,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { techStackApi } from './techStackApi';
-import { QUERY_STALE_TIME } from '../../../config/queryCacheConfig';
+import { QUERY_STALE_TIME, STALE_TIME } from '../../../config/queryCacheConfig';
 
 // 쿼리 키 상수
 export const TECH_STACK_QUERY_KEYS = {

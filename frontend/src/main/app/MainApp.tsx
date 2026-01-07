@@ -1,12 +1,15 @@
 import React, { useEffect } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from '../config/queryClient';
 import { AppProvider, useApp } from '../app/providers/AppProvider';
-import { ThemeProvider } from '@shared/providers/ThemeProvider';
-import { Header } from '../layout/components/Header';
-import { HomePage } from '../layout/components/HomePage';
-import { ProjectDetailPage } from '../pages/ProjectDetail/ProjectDetailPage';
+import { PageLayout, HomePageLayout } from '@/widgets/layout';
+import { useLocation } from 'react-router-dom';
+import { HomePage } from '@/pages/HomePage';
+import { ProjectsListPage } from '@/pages/ProjectsListPage';
+import { ProjectDetailPage } from '@/pages/ProjectDetailPage';
+import { ProfilePage } from '@/pages/ProfilePage';
+import { ChatPage } from '@/pages/ChatPage';
 import {
   EasterEggProvider,
   EasterEggLayer,
@@ -17,10 +20,10 @@ import {
 } from '@features/easter-eggs';
 import { AudioIndicator } from '@features/easter-eggs/components/AudioIndicator';
 import { loadEasterEggConfig } from '@features/easter-eggs/config/easterEggConfigLoader';
-import { MobileFeatureNotice } from '../shared/ui/MobileFeatureNotice';
-import { useFeatureAvailability } from '../shared/lib/hooks/useFeatureAvailability';
+import { AnimatedRoutes } from '../shared/ui/page-transition';
 
 const MainAppContent: React.FC = () => {
+  const location = useLocation();
   const {
     projects,
     experiences,
@@ -35,7 +38,13 @@ const MainAppContent: React.FC = () => {
     setHistoryPanelOpen
   } = useApp();
 
-  const { shouldShowMobileNotice } = useFeatureAvailability();
+  // 푸터 표시: 홈페이지, 프로필 페이지, 프로젝트 페이지에 표시
+  // 챗봇 페이지와 프로젝트 상세 페이지는 푸터 제외
+  const showFooter = ['/', '/profile', '/projects'].includes(location.pathname);
+  
+  // 홈페이지는 스크롤 드리븐 애니메이션을 위해 overflow 제어 제외
+  const isHomePage = location.pathname === '/';
+  const isChatPage = location.pathname === '/chat';
 
   // ESC 키로 이스터에그 종료
   useEasterEggEscapeKey();
@@ -118,56 +127,64 @@ const MainAppContent: React.FC = () => {
     );
   }
 
+  // 홈페이지는 HomePageLayout 사용 (scroll-driven animation 지원)
+  if (isHomePage) {
+    return (
+      <HomePageLayout showFooter={true}>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+        </Routes>
+        
+        {/* 이스터에그 레이어 */}
+        <EasterEggLayer />
+        
+        {/* 오디오 재생 인디케이터 */}
+        <AudioIndicator />
+      </HomePageLayout>
+    );
+  }
+
+  // 다른 페이지는 PageLayout 사용
   return (
-    <div
-      className="min-h-screen font-sans transition-colors"
-      style={{
-        backgroundColor: 'var(--color-background)',
-        color: 'var(--color-text-primary)',
-      }}
-    >
-      {/* 공통 헤더 - Admin 페이지를 제외한 모든 페이지에 표시 */}
-      <Header />
+    <PageLayout showFooter={showFooter} footerVisible={true}>
+      <div
+        className="font-sans transition-colors"
+        style={{
+          backgroundColor: 'var(--color-background)',
+          color: 'var(--color-text-primary)',
+          overflowX: 'hidden',
+          overflowY: isChatPage ? 'hidden' : 'auto', // 챗봇 페이지는 내부 스크롤만 사용
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        <AnimatedRoutes>
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/projects" element={<ProjectsListPage />} />
+          <Route path="/projects/:id" element={<ProjectDetailPage />} />
+          <Route path="/chat" element={<ChatPage />} />
+        </AnimatedRoutes>
 
-      {/* 모바일 기능 안내 메시지 */}
-      {shouldShowMobileNotice && (
-        <div className="container mx-auto px-4 pt-4">
-          <MobileFeatureNotice />
-        </div>
-      )}
-
-      <Routes>
-        {/* 홈 페이지 */}
-        <Route path="/" element={
-          <HomePage
-            projects={projects}
-            experiences={experiences}
-            educations={educations}
-            certifications={certifications}
-            isLoading={isLoading}
-            loadingStates={loadingStates}
-            isChatbotOpen={isChatbotOpen}
-            isHistoryPanelOpen={isHistoryPanelOpen}
-            isWideScreen={isWideScreen}
-            onChatbotToggle={handleChatbotToggle}
-            onHistoryPanelToggle={handleHistoryPanelToggle}
-          />
-        } />
-
-        {/* 프로젝트 상세 페이지 */}
-        <Route path="/projects/:id" element={<ProjectDetailPage />} />
-      </Routes>
-
-      {/* 이스터에그 레이어 */}
-      <EasterEggLayer />
-      
-      {/* 오디오 재생 인디케이터 */}
-      <AudioIndicator />
-    </div>
+        {/* 이스터에그 레이어 */}
+        <EasterEggLayer />
+        
+        {/* 오디오 재생 인디케이터 */}
+        <AudioIndicator />
+      </div>
+    </PageLayout>
   );
 };
 
 const MainApp: React.FC = () => {
+  // 테마 초기화 (localStorage에서 테마 로드)
+  useEffect(() => {
+    const theme = localStorage.getItem('portfolio-theme') || 'light';
+    const root = document.documentElement;
+    root.classList.remove('light', 'dark');
+    root.classList.add(theme === 'dark' ? 'dark' : 'light');
+  }, []);
+
   // 이스터에그 초기화 - JSON 설정 파일에서 로드
   useEffect(() => {
     try {
@@ -189,13 +206,11 @@ const MainApp: React.FC = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <AppProvider>
-          <EasterEggProvider maxConcurrent={1} initialEnabled={true}>
-            <MainAppContent />
-          </EasterEggProvider>
-        </AppProvider>
-      </ThemeProvider>
+      <AppProvider>
+        <EasterEggProvider maxConcurrent={1} initialEnabled={true}>
+          <MainAppContent />
+        </EasterEggProvider>
+      </AppProvider>
     </QueryClientProvider>
   );
 };

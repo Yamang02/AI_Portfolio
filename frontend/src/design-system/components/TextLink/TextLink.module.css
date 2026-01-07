@@ -1,0 +1,33 @@
+.textLink {
+  color: var(--color-link-default);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.15s ease;
+}
+
+.textLink:hover {
+  color: var(--color-link-hover);
+  text-decoration: none;
+}
+
+.textLink:visited {
+  color: var(--color-link-visited);
+}
+
+.textLink:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}

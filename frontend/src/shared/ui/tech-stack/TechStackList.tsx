@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { TechStackBadge } from './TechStackBadge';
 import { TechStackMetadata } from '@entities/tech-stack';
 import { apiClient } from '@shared/api/apiClient';
+import { grayScale } from '@design-system/tokens/colors';
 
 /**
  * 기술 스택 리스트 Props
@@ -81,7 +82,8 @@ const convertToTechStackMetadata = (tech: string, coreTechnologies: Set<string>)
     level,
     isCore,
     isActive: true,
-    colorHex: '#6b7280',
+    // 서브 텍스트 색상: grayScale[500] 사용 (표준 회색)
+    colorHex: grayScale[500],
     description: '',
     sortOrder: 0,
     createdAt: new Date().toISOString(),
@@ -116,15 +118,11 @@ export const TechStackList: React.FC<TechStackListProps> = ({
     return null;
   }
 
-  // 로딩 중일 때는 기본 렌더링
-  if (isLoading) {
-    return null;
-  }
-
-  // TechStackMetadata 배열로 변환
+  // TechStackMetadata 배열로 변환 (로딩 중에도 표시)
+  // 로딩 중에는 빈 Set을 사용하여 기본 정보로 표시
   const techMetadataList: TechStackMetadata[] = technologies.map(tech => {
     if (typeof tech === 'string') {
-      return convertToTechStackMetadata(tech, coreTechnologies);
+      return convertToTechStackMetadata(tech, isLoading ? new Set() : coreTechnologies);
     }
     return tech;
   });
@@ -161,14 +159,20 @@ export const TechStackList: React.FC<TechStackListProps> = ({
   return (
     <div className={`flex flex-wrap gap-2 ${className}`}>
       {/* 표시할 기술 스택 배지들 */}
-      {visibleTechs.map((tech, index) => (
-        <TechStackBadge
-          key={`${tech.name}-${index}`}
-          tech={tech}
-          variant={variant}
-          size={size}
-        />
-      ))}
+      {visibleTechs.map((tech, index) => {
+        // 프로그래밍 언어, 프레임워크, 데이터베이스는 accent variant 사용
+        const shouldUseAccent = ['language', 'framework', 'database'].includes(tech.category);
+        const badgeVariant = shouldUseAccent ? 'accent' : variant;
+        
+        return (
+          <TechStackBadge
+            key={`${tech.name}-${index}`}
+            tech={tech}
+            variant={badgeVariant}
+            size={size}
+          />
+        );
+      })}
 
       {/* 숨겨진 항목 개수 표시 */}
       {hiddenCount > 0 && (

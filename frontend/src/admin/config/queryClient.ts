@@ -1,4 +1,5 @@
 import { QueryClient } from '@tanstack/react-query';
+import { STALE_TIME } from '../../main/config/queryCacheConfig';
 
 /**
  * 어드민 페이지용 React Query 클라이언트 설정
@@ -8,7 +9,7 @@ import { QueryClient } from '@tanstack/react-query';
 export const adminQueryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 0, // 항상 최신 데이터 확인
+      staleTime: STALE_TIME.NONE, // 항상 최신 데이터 확인
       gcTime: 0, // 캐시 즉시 제거
       retry: 1, // 최소한의 재시도만
       refetchOnWindowFocus: true, // 브라우저 포커스 시 재검증

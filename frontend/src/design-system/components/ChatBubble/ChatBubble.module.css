@@ -1,0 +1,64 @@
+.chatBubble {
+  max-width: 70%; /* 컨테이너 너비의 70%까지 사용 가능 */
+  padding: var(--spacing-sm, 12px) var(--spacing-md, 16px);
+  border-radius: var(--radius-lg, 12px);
+  font-size: var(--typography-body-small-size, 14px);
+  line-height: 1.5;
+}
+
+/* 초기 안내 메시지 - 가운데 정렬, 70% 제한 없음 */
+.initialMessage {
+  max-width: 100% !important;
+  border-radius: var(--radius-lg, 12px) !important; /* 가운데 정렬이므로 모든 모서리 둥글게 */
+}
+
+/* User variant - 브랜드 컬러 배경 */
+.chatBubble.user {
+  background-color: var(--color-primary, #7FAF8A);
+  color: white;
+  border-bottom-right-radius: 0;
+}
+
+/* Assistant variant - Surface 배경 */
+.chatBubble.assistant {
+  background-color: var(--color-surface, #ffffff);
+  color: var(--color-text-primary, #111827);
+  border: 1px solid var(--color-border-default, #e5e7eb);
+  border-bottom-left-radius: 0;
+}
+
+.content {
+  word-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+.timestamp {
+  font-size: var(--typography-body-small-size, 12px);
+  margin-top: var(--spacing-xs, 4px);
+  opacity: 0.8;
+}
+
+.chatBubble.user .timestamp {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.chatBubble.assistant .timestamp {
+  color: var(--color-text-muted, #6b7280);
+}
+
+/* 다크 모드 지원 */
+@media (prefers-color-scheme: dark) {
+  .chatBubble.user {
+    background-color: var(--color-primary, #7FAF8A);
+  }
+
+  .chatBubble.assistant {
+    background-color: var(--color-surface, #1f2937);
+    border-color: var(--color-border-default, #374151);
+    color: var(--color-text-primary, #f9fafb);
+  }
+
+  .chatBubble.assistant .timestamp {
+    color: var(--color-text-muted, #9ca3af);
+  }
+}

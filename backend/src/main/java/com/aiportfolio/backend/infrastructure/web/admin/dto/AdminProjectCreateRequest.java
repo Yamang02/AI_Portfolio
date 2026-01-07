@@ -40,6 +40,8 @@ public class AdminProjectCreateRequest {
 
     private Boolean isTeam = Boolean.FALSE;
 
+    private Boolean isFeatured = Boolean.FALSE;
+
     private Integer teamSize;
 
     @Size(max = 255, message = "역할은 255자를 초과할 수 없습니다")
@@ -79,6 +81,7 @@ public class AdminProjectCreateRequest {
                 .type(type)
                 .status(status)
                 .isTeam(isTeam)
+                .isFeatured(isFeatured)
                 .teamSize(teamSize)
                 .role(role)
                 .myContributions(myContributions)

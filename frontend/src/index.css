@@ -1,33 +1,52 @@
-@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css');
+/* 폰트 옵션 1: Inter (모던하고 깔끔한 개발자 포트폴리오용) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+/* 폰트 옵션 2: Pretendard (한국어 최적화, 현재 사용 중) */
+/* @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css'); */
+
+/* 폰트 옵션 3: Space Grotesk (기하학적이고 모던한 느낌) */
+/* @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap'); */
+
+/* 폰트 옵션 4: Plus Jakarta Sans (세련되고 트렌디) */
+/* @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap'); */
+
+/* 폰트 옵션 5: Work Sans (프로페셔널하면서도 모던) */
+/* @import url('https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700&display=swap'); */
+
+/* 폰트 옵션 6: DM Sans (깔끔하고 읽기 좋음) */
+/* @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap'); */
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /* CSS 변수 - 라이트 모드 (기본값) */
+/* 디자인 시스템 변수 사용 (globals.css 참조) */
 :root {
-  --color-background: #ffffff;
-  --color-background-secondary: #f9fafb;
-  --color-surface: #ffffff;
-  --color-surface-elevated: #f9fafb;
-  --color-text-primary: #111827;
-  --color-text-secondary: #374151;
-  --color-text-muted: #6b7280;
-  --color-border: #e5e7eb;
-  --color-border-light: #f3f4f6;
+  /* 디자인 시스템 변수로 매핑 */
+  --color-background: var(--color-bg-primary);
+  --color-background-secondary: var(--color-bg-secondary);
+  --color-surface: var(--color-bg-primary);
+  --color-surface-elevated: var(--color-bg-secondary);
+  --color-text-primary: var(--color-text-primary);
+  --color-text-secondary: var(--color-text-secondary);
+  --color-text-muted: var(--color-text-tertiary);
+  --color-border: var(--color-border-default);
+  --color-border-light: var(--color-border-hover);
 }
 
 /* CSS 변수 - 다크 모드 */
+/* 디자인 시스템 변수 사용 (globals.css 참조) */
 .dark {
-  --color-background: #0f172a;
-  --color-background-secondary: #1e293b;
-  --color-surface: #1e293b;
-  --color-surface-elevated: #334155;
-  --color-text-primary: #f1f5f9;
-  --color-text-secondary: #cbd5e1;
-  --color-text-muted: #94a3b8;
-  --color-border: #334155;
-  --color-border-light: #475569;
+  --color-background: var(--color-bg-primary);
+  --color-background-secondary: var(--color-bg-secondary);
+  --color-surface: var(--color-bg-secondary);
+  --color-surface-elevated: var(--color-bg-tertiary);
+  --color-text-primary: var(--color-text-primary);
+  --color-text-secondary: var(--color-text-secondary);
+  --color-text-muted: var(--color-text-tertiary);
+  --color-border: var(--color-border-default);
+  --color-border-light: var(--color-border-hover);
 }
 
 /* CSS 변수 - Matrix 테마 */
@@ -75,11 +94,43 @@
 @layer base {
   html {
     scroll-behavior: smooth;
-    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
+    /* Inter 사용 시 */
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
+    
+    /* Pretendard 사용 시 (주석 해제) */
+    /* font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif; */
+    
+    /* Space Grotesk 사용 시 */
+    /* font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif; */
+    
+    /* Plus Jakarta Sans 사용 시 */
+    /* font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif; */
+    
+    /* Work Sans 사용 시 */
+    /* font-family: 'Work Sans', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif; */
+    
+    /* DM Sans 사용 시 */
+    /* font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif; */
   }
 
   body {
-    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
+    /* Inter 사용 시 */
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
+    
+    /* Pretendard 사용 시 (주석 해제) */
+    /* font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif; */
+    
+    /* Space Grotesk 사용 시 */
+    /* font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif; */
+    
+    /* Plus Jakarta Sans 사용 시 */
+    /* font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif; */
+    
+    /* Work Sans 사용 시 */
+    /* font-family: 'Work Sans', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif; */
+    
+    /* DM Sans 사용 시 */
+    /* font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif; */
   }
 }
 
@@ -103,43 +154,43 @@
 }
 
 .scrollbar-thin:hover::-webkit-scrollbar-thumb {
-  background-color: #d1d5db;
+  background-color: var(--color-border-default);
 }
 
 .dark .scrollbar-thin:hover::-webkit-scrollbar-thumb {
-  background-color: #475569;
+  background-color: var(--color-border-default);
 }
 
 .scrollbar-thumb-gray-300::-webkit-scrollbar-thumb {
-  background-color: #d1d5db;
+  background-color: var(--color-border-default);
 }
 
 .dark .scrollbar-thumb-gray-300::-webkit-scrollbar-thumb {
-  background-color: #475569;
+  background-color: var(--color-border-default);
 }
 
 .scrollbar-thumb-slate-600::-webkit-scrollbar-thumb {
-  background-color: #475569;
+  background-color: var(--color-border-default);
 }
 
 .dark .scrollbar-thumb-slate-600::-webkit-scrollbar-thumb {
-  background-color: #475569;
+  background-color: var(--color-border-default);
 }
 
 .scrollbar-thumb-gray-400::-webkit-scrollbar-thumb {
-  background-color: #9ca3af;
+  background-color: var(--color-text-tertiary);
 }
 
 .dark .scrollbar-thumb-gray-400::-webkit-scrollbar-thumb {
-  background-color: #64748b;
+  background-color: var(--color-text-tertiary);
 }
 
 .scrollbar-thumb-slate-500::-webkit-scrollbar-thumb {
-  background-color: #64748b;
+  background-color: var(--color-text-tertiary);
 }
 
 .dark .scrollbar-thumb-slate-500::-webkit-scrollbar-thumb {
-  background-color: #64748b;
+  background-color: var(--color-text-tertiary);
 }
 
 .scrollbar-track-transparent::-webkit-scrollbar-track {

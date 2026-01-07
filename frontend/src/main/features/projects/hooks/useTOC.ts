@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
 import { visit } from 'unist-util-visit';
+import { generateHeadingId, resetHeadingIdCounters } from '@shared/lib/markdown/generateHeadingId';
 
 export interface TOCItem {
   id: string;
@@ -21,7 +22,7 @@ interface HeadingNode {
 
 /**
  * 마크다운 컨텐츠에서 헤딩을 파싱하여 목차(TOC)를 생성하는 훅
- * 
+ *
  * @param markdown - 파싱할 마크다운 문자열
  * @returns TOCItem[] - 계층 구조를 가진 목차 아이템 배열
  */
@@ -37,9 +38,12 @@ export const useTOC = (markdown: string): TOCItem[] => {
         .use(remarkParse)
         .parse(markdown);
 
+      // ID 카운터 초기화
+      resetHeadingIdCounters();
+
       // 헤딩 노드만 추출
       const headings: TOCItem[] = [];
-      
+
       visit(ast, 'heading', (node: HeadingNode) => {
         // 헤딩 텍스트 추출
         const text = node.children
@@ -49,18 +53,8 @@ export const useTOC = (markdown: string): TOCItem[] => {
           .trim();
 
         if (text) {
-          // ID 생성 (한글, 영문, 숫자, 하이픈만 허용)
-          let id = text
-            .toLowerCase()
-            .replace(/[^\w\s-가-힣]/g, '') // 특수문자 제거
-            .replace(/\s+/g, '-') // 공백을 하이픈으로 변경
-            .replace(/-+/g, '-') // 연속된 하이픈을 하나로
-            .replace(/^-|-$/g, ''); // 앞뒤 하이픈 제거
-
-          // ID가 비어있으면 fallback으로 인덱스 사용
-          if (!id) {
-            id = `heading-${headings.length}`;
-          }
+          // 공통 ID 생성 함수 사용
+          const id = generateHeadingId(text, headings.length);
 
           headings.push({
             id,

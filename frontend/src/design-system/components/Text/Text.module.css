@@ -1,0 +1,56 @@
+.text {
+  margin: 0;
+  line-height: var(--line-height-normal);
+}
+
+/* Sizes */
+.text.xs {
+  font-size: var(--font-size-xs);
+}
+
+.text.sm {
+  font-size: var(--font-size-sm);
+}
+
+.text.base {
+  font-size: var(--font-size-base);
+}
+
+.text.lg {
+  font-size: var(--font-size-lg);
+}
+
+/* Variants */
+.text.primary {
+  color: var(--color-text-primary);
+}
+
+.text.secondary {
+  color: var(--color-text-secondary);
+}
+
+.text.tertiary {
+  color: var(--color-text-tertiary);
+}
+
+.text.muted {
+  color: var(--color-text-tertiary);
+  opacity: 0.8;
+}
+
+/* Weights */
+.text.regular {
+  font-weight: var(--font-weight-regular);
+}
+
+.text.medium {
+  font-weight: var(--font-weight-medium);
+}
+
+.text.semibold {
+  font-weight: var(--font-weight-semibold);
+}
+
+.text.bold {
+  font-weight: var(--font-weight-bold);
+}

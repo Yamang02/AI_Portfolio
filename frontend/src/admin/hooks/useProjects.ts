@@ -1,13 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { adminProjectApi, ProjectCreateRequest, ProjectUpdateRequest, ProjectFilter } from '../api/adminProjectApi';
 import { queryClient as mainQueryClient } from '../../main/config/queryClient';
+import { STALE_TIME } from '../../main/config/queryCacheConfig';
 
 export const useProjects = (filter: ProjectFilter = {}) => {
   return useQuery({
     queryKey: ['admin-projects', filter],
     queryFn: () => adminProjectApi.getProjects(filter),
     select: (response) => response.data,
-    staleTime: 5 * 60 * 1000, // 5분간 캐시 유지 (성능 개선)
+    staleTime: STALE_TIME.NONE,
     gcTime: 10 * 60 * 1000, // 10분 후 가비지 컬렉션
   });
 };

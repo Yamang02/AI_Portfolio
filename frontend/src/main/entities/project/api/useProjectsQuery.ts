@@ -4,7 +4,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { projectApi } from './projectApi';
-import { QUERY_STALE_TIME } from '../../../config/queryCacheConfig';
+import { QUERY_STALE_TIME, STALE_TIME } from '../../../config/queryCacheConfig';
 import type {
   Project,
   ProjectCreateRequest,
@@ -46,7 +46,7 @@ export const useProjectQuery = (id: string) => {
     queryKey: PROJECT_QUERY_KEYS.detail(id),
     queryFn: () => projectApi.getProjectById(id),
     enabled: !!id,
-    staleTime: 5 * 60 * 1000, // 5분
+    staleTime: STALE_TIME.NONE,
   });
 };
 
@@ -57,7 +57,7 @@ export const useAdminProjectsQuery = (filter: ProjectFilter = {}) => {
   return useQuery({
     queryKey: PROJECT_QUERY_KEYS.list(filter),
     queryFn: () => projectApi.getAdminProjects(filter),
-    staleTime: 2 * 60 * 1000, // 2분
+    staleTime: STALE_TIME.NONE,
   });
 };
 
@@ -69,7 +69,7 @@ export const useAdminProjectQuery = (id: number) => {
     queryKey: PROJECT_QUERY_KEYS.detail(id),
     queryFn: () => projectApi.getAdminProject(id),
     enabled: !!id,
-    staleTime: 2 * 60 * 1000, // 2분
+    staleTime: STALE_TIME.NONE,
   });
 };
 
@@ -144,7 +144,7 @@ export const usePrefetchProject = () => {
     queryClient.prefetchQuery({
       queryKey: PROJECT_QUERY_KEYS.detail(id),
       queryFn: () => projectApi.getProjectById(id),
-      staleTime: 5 * 60 * 1000,
+      staleTime: STALE_TIME.NONE,
     });
   };
 };

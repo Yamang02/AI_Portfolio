@@ -1,0 +1,39 @@
+<style>
+  /* 
+   * Storybook 다크 모드 토글 지원
+   * globals.css는 @media (prefers-color-scheme: dark)를 사용하므로,
+   * Storybook의 다크 모드 토글(html.dark-mode)을 위해
+   * globals.css의 다크 모드 변수를 적용합니다.
+   * 
+   * CSS 변수는 globals.css에서 단일 소스로 관리됩니다.
+   */
+  html.dark-mode {
+    color-scheme: dark;
+    /* globals.css의 다크 모드 변수 적용 */
+    --color-bg-primary: #111827;
+    --color-bg-secondary: #1f2937;
+    --color-bg-tertiary: #374151;
+    --color-text-primary: #f9fafb;
+    --color-text-secondary: #d1d5db;
+    --color-text-tertiary: #9ca3af;
+    --color-border-default: #374151;
+    --color-border-hover: #4b5563;
+    --color-border-accent: #374151;
+    --color-primary: #6FA07A;
+    --color-primary-hover: #7FAF8A;
+    --color-primary-active: #5F9070;
+    --color-primary-focus: #6FA07A;
+    --color-link-default: #d1d5db;
+    --color-link-hover: #6FA07A;
+    --color-link-visited: #9ca3af;
+    --color-status-info: #60a5fa;
+    --color-status-success: #34d399;
+    --color-status-warning: #fbbf24;
+    --color-status-error: #f87171;
+  }
+  
+  html.dark-mode body {
+    background-color: var(--color-bg-primary);
+    color: var(--color-text-primary);
+  }
+</style>

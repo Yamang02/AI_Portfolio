@@ -7,24 +7,8 @@ import rehypeHighlight from 'rehype-highlight';
 import { visit } from 'unist-util-visit';
 import type { Root, Element } from 'hast';
 import { scrollToSection } from '@features/project-gallery/hooks/useActiveSection';
+import { generateHeadingId, resetHeadingIdCounters } from '@shared/lib/markdown/generateHeadingId';
 import 'highlight.js/styles/github-dark.css'; // 코드 블록 스타일
-
-// useTOC와 동일한 ID 생성 함수
-const generateHeadingId = (text: string, index: number): string => {
-  let id = text
-    .toLowerCase()
-    .replace(/[^\w\s-가-힣]/g, '') // 특수문자 제거
-    .replace(/\s+/g, '-') // 공백을 하이픈으로 변경
-    .replace(/-+/g, '-') // 연속된 하이픈을 하나로
-    .replace(/^-|-$/g, ''); // 앞뒤 하이픈 제거
-
-  // ID가 비어있으면 fallback으로 인덱스 사용
-  if (!id) {
-    id = `heading-${index}`;
-  }
-
-  return id;
-};
 
 // 노드에서 텍스트 추출 헬퍼 함수
 const extractTextFromNode = (node: any): string => {
@@ -40,13 +24,16 @@ const extractTextFromNode = (node: any): string => {
 // rehype 플러그인: 헤딩 ID를 useTOC와 동일한 방식으로 수정
 const rehypeFixHeadingIds = () => {
   return (tree: Root) => {
+    // ID 카운터 초기화 (useTOC와 동일한 카운터 사용)
+    resetHeadingIdCounters();
+    
     let headingIndex = 0;
     visit(tree, 'element', (node: Element) => {
       if (['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(node.tagName)) {
         // 헤딩 텍스트 추출
         const text = extractTextFromNode(node);
         if (text) {
-          // useTOC와 동일한 방식으로 ID 생성
+          // useTOC와 동일한 공유 함수 사용 (중복 ID 처리 포함)
           const newId = generateHeadingId(text, headingIndex);
           if (!node.properties) {
             node.properties = {};
@@ -256,12 +243,12 @@ const markdownComponents = {
   ),
 };
 
-const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ 
+const MarkdownRenderer = React.forwardRef<HTMLElement, MarkdownRendererProps>(({ 
   content, 
   className = '' 
-}) => {
+}, ref) => {
   return (
-    <article className={`prose prose-lg max-w-none ${className}`}>
+    <article ref={ref} className={`prose prose-lg max-w-none ${className}`}>
       <ReactMarkdown
         remarkPlugins={[
           remarkGfm, // GitHub Flavored Markdown (테이블, 체크박스 등)
@@ -278,6 +265,8 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
       </ReactMarkdown>
     </article>
   );
-};
+});
+
+MarkdownRenderer.displayName = 'MarkdownRenderer';
 
 export { MarkdownRenderer };

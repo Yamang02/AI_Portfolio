@@ -1,0 +1,159 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 24px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modal {
+  position: relative;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.3s ease-out;
+  overflow: hidden;
+  
+  /* 글라스모피즘 테두리 */
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.15) 0%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
+  border-radius: 16px;
+  padding: 2px;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.12),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+/* 내부 컨테이너 - 실제 모달 콘텐츠 */
+.modal::before {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  background-color: var(--color-bg-primary);
+  border-radius: 14px;
+  z-index: -1;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  background: linear-gradient(
+    180deg,
+    var(--color-featured-bg) 0%,
+    transparent 100%
+  );
+}
+
+/* 헤더 하단 그라디언트 페이드 효과 */
+.header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 24px;
+  right: 24px;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--color-border-default) 20%,
+    var(--color-border-default) 80%,
+    transparent 100%
+  );
+  opacity: 0.5;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-featured-header);
+}
+
+.closeButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background-color: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+}
+
+.closeButton:hover {
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+}
+
+.closeIcon {
+  width: 20px;
+  height: 20px;
+}
+
+.content {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* 모바일 반응형 */
+@media (max-width: 767px) {
+  .overlay {
+    padding: 16px;
+  }
+
+  .overlay .modal {
+    max-height: 95vh;
+    width: 100%;
+  }
+
+  .header {
+    padding: 16px;
+  }
+
+  .title {
+    font-size: 1.25rem;
+  }
+
+  .content {
+    padding: 16px;
+  }
+}

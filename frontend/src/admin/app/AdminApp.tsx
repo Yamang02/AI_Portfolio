@@ -1,11 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { ConfigProvider, App as AntdApp } from 'antd';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Route, Navigate } from 'react-router-dom';
 import { adminQueryClient } from '../config/queryClient';
 import { AuthProvider } from '../hooks/useAuth';
-import { ThemeProvider } from '@shared/providers/ThemeProvider';
-import { Header } from '../../main/layout/components/Header';
+import { Header } from '@widgets/layout';
 import { LoginForm, ProtectedRoute } from '../features/auth';
 import { AdminLayout } from '../shared/components/AdminLayout';
 import { Dashboard } from '../pages/Dashboard';
@@ -15,11 +14,19 @@ import { TechStackManagement } from '../pages/TechStackManagement';
 import { CareerManagement } from '../pages/CareerManagement';
 import { CertificationManagement } from '../pages/CertificationManagement';
 import { Settings } from '../pages/Settings';
+import { AnimatedRoutes } from '../../main/shared/ui/page-transition';
 
 const AdminApp: React.FC = () => {
+  // 테마 초기화 (localStorage에서 테마 로드)
+  useEffect(() => {
+    const theme = localStorage.getItem('portfolio-theme') || 'light';
+    const root = document.documentElement;
+    root.classList.remove('light', 'dark');
+    root.classList.add(theme === 'dark' ? 'dark' : 'light');
+  }, []);
+
   return (
-    <ThemeProvider>
-      <ConfigProvider
+    <ConfigProvider
         theme={{
           token: {
             colorPrimary: '#8b5cf6', // 기존 프로젝트 색상
@@ -41,7 +48,7 @@ const AdminApp: React.FC = () => {
         <AntdApp>
           <QueryClientProvider client={adminQueryClient}>
             <AuthProvider>
-              <Routes>
+              <AnimatedRoutes>
                 {/* 로그인 페이지 - 메인 헤더 포함 (일반 사용자 접근 페이지) */}
                 <Route path="login" element={
                   <>
@@ -67,14 +74,12 @@ const AdminApp: React.FC = () => {
                   <Route path="certifications" element={<CertificationManagement />} />
                   <Route path="settings" element={<Settings />} />
                 </Route>
-              </Routes>
+              </AnimatedRoutes>
             </AuthProvider>
           </QueryClientProvider>
         </AntdApp>
       </ConfigProvider>
-    </ThemeProvider>
   );
 };
 
 export { AdminApp };
-

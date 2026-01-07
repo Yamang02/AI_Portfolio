@@ -6,11 +6,13 @@ interface ProjectDetailContentProps {
   content: string;
   project: Project;
   className?: string;
+  containerRef?: React.RefObject<HTMLElement>;
 }
 
 const ProjectDetailContent: React.FC<ProjectDetailContentProps> = ({
   content,
-  className = ''
+  className = '',
+  containerRef
 }) => {
   // 마크다운 컨텐츠가 있는지 확인
   const hasMarkdown = content && content.trim().length > 0;
@@ -32,6 +34,7 @@ const ProjectDetailContent: React.FC<ProjectDetailContentProps> = ({
       {/* 마크다운 컨텐츠 */}
       <div className="prose prose-lg max-w-none">
         <MarkdownRenderer 
+          ref={containerRef}
           content={content}
           className="max-w-none"
         />

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useProjectDetail } from './hooks/useProjectDetail';
 import { ProjectDetailHeader } from './components/ProjectDetailHeader';
 import { ProjectDetailContent } from './components/ProjectDetailContent';
@@ -8,7 +8,7 @@ import { ProjectDetailContribution } from './components/ProjectDetailContributio
 import { ProjectDetailGallery } from './components/ProjectDetailGallery';
 import { ProjectDetailSidebar } from './components/ProjectDetailSidebar';
 import { ProjectDetailSidebarToggle } from './components/ProjectDetailSidebarToggle';
-import { useTOC, useActiveSection } from '@features/project-gallery/hooks';
+import { useTOCFromDOM, useActiveSection } from '@features/project-gallery/hooks';
 import { Chatbot } from '@features/chatbot';
 import { useApp } from '../../app/providers/AppProvider';
 
@@ -77,14 +77,17 @@ const ProjectDetailPage: React.FC = () => {
 
   // 사이드바 상태 관리
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  
+  // 마크다운 컨테이너 ref (DOM 기반 TOC 생성용)
+  const markdownContainerRef = useRef<HTMLElement>(null);
 
   // 프로젝트 상세 페이지는 항상 최상단으로
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
-  // TOC 생성 (마크다운이 있을 때만)
-  const tocItems = useTOC(markdownContent);
+  // TOC 생성 (DOM 기반 - 실제 렌더된 헤딩 기준)
+  const tocItems = useTOCFromDOM(markdownContainerRef);
   const activeSection = useActiveSection(tocItems);
   
   // 사이드바 토글
@@ -175,6 +178,7 @@ const ProjectDetailPage: React.FC = () => {
           <ProjectDetailContent 
             content={markdownContent}
             project={project}
+            containerRef={markdownContainerRef}
           />
         </section>
       </main>

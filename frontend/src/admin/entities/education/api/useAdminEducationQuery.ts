@@ -4,6 +4,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { adminEducationApi } from './adminEducationApi';
+import { STALE_TIME } from '../../../../main/config/queryCacheConfig';
 import type { Education, EducationFormData } from '../model/education.types';
 import { message } from 'antd';
 import { queryClient as mainQueryClient } from '../../../../main/config/queryClient';
@@ -26,7 +27,7 @@ export const useAdminEducationsQuery = () => {
   return useQuery({
     queryKey: EDUCATION_KEYS.lists(),
     queryFn: () => adminEducationApi.getEducations(),
-    staleTime: 5 * 60 * 1000, // 5분
+    staleTime: STALE_TIME.NONE,
   });
 };
 

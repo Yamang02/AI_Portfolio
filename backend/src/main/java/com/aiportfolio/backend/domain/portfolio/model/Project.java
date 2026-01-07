@@ -34,6 +34,7 @@ public class Project {
     private LocalDate startDate;
     private LocalDate endDate; // 종료일은 선택사항 (진행중인 프로젝트)
     private boolean isTeam;
+    private boolean isFeatured; // 추천/특별 프로젝트 여부
     private Integer teamSize;
     private String externalUrl;
     private List<String> myContributions;
