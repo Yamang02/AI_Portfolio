@@ -195,31 +195,31 @@ export const ProjectsListPage: React.FC = () => {
         <div className={styles.container}>
           <div className={styles.headerContent}>
             <div>
-              <SectionTitle level="h1">Projects</SectionTitle>
+              <div className={styles.titleRow}>
+                <SectionTitle level="h1">Projects</SectionTitle>
+                <Button
+                  variant="icon"
+                  size="md"
+                  onClick={() => setIsSearchModalOpen(true)}
+                  ariaLabel="프로젝트 검색"
+                >
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.35-4.35"></path>
+                  </svg>
+                </Button>
+              </div>
               <p className={styles.count}>총 {projects.length}개의 프로젝트</p>
             </div>
-            <Button
-              variant="secondary"
-              size="md"
-              onClick={() => setIsSearchModalOpen(true)}
-              ariaLabel="프로젝트 검색"
-            >
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                style={{ marginRight: '8px', verticalAlign: 'middle' }}
-              >
-                <circle cx="11" cy="11" r="8"></circle>
-                <path d="m21 21-4.35-4.35"></path>
-              </svg>
-              프로젝트 검색
-            </Button>
           </div>
         </div>
       </section>

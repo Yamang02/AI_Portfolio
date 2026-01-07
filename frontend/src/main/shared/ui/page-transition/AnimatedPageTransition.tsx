@@ -81,6 +81,9 @@ export const AnimatedRoutes: React.FC<AnimatedRoutesProps> = ({ children }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const pageRef = useRef<HTMLDivElement>(null);
 
+  // 스크롤 정책 결정: 챗봇 페이지는 내부 스크롤이 필요하므로 overflow: hidden 유지
+  const isChatPage = location.pathname === '/chat';
+
   // 페이지 전환 시 스크롤 위치를 상단으로 복원 및 컨테이너 높이 초기화
   // exit 애니메이션을 위해 이전 경로를 별도로 저장
   useEffect(() => {
@@ -96,28 +99,14 @@ export const AnimatedRoutes: React.FC<AnimatedRoutesProps> = ({ children }) => {
       containerRef.current.style.height = 'auto';
     }
     
-    // 스크롤 위치를 상단으로 복원
+    // 스크롤 위치를 상단으로 복원 (홈페이지는 이미 조기 리턴으로 건너뜀)
     window.scrollTo({ top: 0, behavior: 'smooth' });
     prevPathnameRef.current = location.pathname;
   }, [location.pathname]);
 
-  // 스크롤 정책 결정: 홈페이지는 scroll-driven animation을 위해 window 스크롤 필요
-  // 챗봇 페이지는 내부 스크롤이 필요하므로 overflow: hidden 유지
-  const isHomePage = location.pathname === '/';
-  const isChatPage = location.pathname === '/chat';
-
   // 페이지 높이를 추적하여 부모 컨테이너 높이 설정
-  // 홈페이지와 챗봇 페이지는 이 로직을 건너뜀
+  // 챗봇 페이지는 이 로직을 건너뜀 (홈페이지는 이미 조기 리턴으로 건너뜀)
   useEffect(() => {
-    // 홈페이지는 조기 리턴으로 이 로직을 건너뜀
-    if (isHomePage) {
-      // 홈페이지로 이동할 때 높이를 명시적으로 초기화
-      if (containerRef.current) {
-        containerRef.current.style.height = 'auto';
-      }
-      return;
-    }
-
     // 챗봇 페이지는 높이를 100vh로 고정
     if (isChatPage) {
       if (containerRef.current) {
@@ -191,17 +180,7 @@ export const AnimatedRoutes: React.FC<AnimatedRoutesProps> = ({ children }) => {
       window.removeEventListener('resize', updateContainerHeight);
       observer.disconnect();
     };
-  }, [location.pathname, isHomePage, isChatPage]);
-  
-  // 홈페이지는 페이지 전환 효과를 완전히 제외하고 자연스러운 문서 플로우 유지
-  // scroll-driven animation과 충돌을 방지하기 위함
-  if (isHomePage) {
-    return (
-      <Routes location={location}>
-        {children}
-      </Routes>
-    );
-  }
+  }, [location.pathname, isChatPage]);
 
   // 다른 페이지: 페이지 전환 애니메이션 적용
   const pageVariants = {

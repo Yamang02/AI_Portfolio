@@ -13,7 +13,7 @@
 
 .headerContent {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: flex-start;
   gap: 24px;
   max-width: 1200px;
@@ -23,10 +23,17 @@
 
 .headerContent > div:first-child {
   padding-left: 48px;
+  flex: 1;
 }
 
-.headerContent > button {
-  padding-right: 48px;
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.titleRow h1 {
+  margin-bottom: 0;
 }
 
 .description {
@@ -190,10 +197,6 @@
   .headerContent > div:first-child {
     padding-left: 40px;
   }
-
-  .headerContent > button {
-    padding-right: 40px;
-  }
 }
 
 /* Mobile (< 768px) */
@@ -209,10 +212,6 @@
 
   .headerContent > div:first-child {
     padding-left: 24px;
-  }
-
-  .headerContent > button {
-    padding-right: 24px;
   }
 
   .featuredHeaderWrapper {

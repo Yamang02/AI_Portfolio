@@ -16,6 +16,7 @@ export interface ButtonProps {
   target?: '_blank' | '_self';
   ariaLabel?: string;
   className?: string;
+  type?: 'button' | 'submit' | 'reset';
 }
 
 export const Button: React.FC<ButtonProps> = ({
@@ -29,6 +30,7 @@ export const Button: React.FC<ButtonProps> = ({
   target = '_self',
   ariaLabel,
   className,
+  type = 'button',
 }) => {
   const classNames = [
     styles.button,
@@ -56,7 +58,7 @@ export const Button: React.FC<ButtonProps> = ({
 
   return (
     <button
-      type="button"
+      type={type}
       disabled={disabled}
       onClick={onClick}
       className={classNames}

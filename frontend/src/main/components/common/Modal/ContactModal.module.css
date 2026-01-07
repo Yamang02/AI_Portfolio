@@ -1,0 +1,78 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md, 16px);
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs, 4px);
+}
+
+.label {
+  display: block;
+  font-size: var(--typography-body-small-size, 14px);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-xs, 4px);
+}
+
+.input,
+.textarea {
+  width: 100%;
+  padding: var(--spacing-sm, 12px) var(--spacing-md, 16px);
+  border: 1px solid var(--color-border-default);
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  border-radius: var(--border-radius-md, 6px);
+  font-size: var(--typography-body-size, 14px);
+  font-family: inherit;
+  transition: all 0.15s ease;
+}
+
+.input:focus,
+.textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(127, 175, 138, 0.1);
+}
+
+.textarea {
+  resize: none;
+  min-height: 100px;
+  line-height: 1.5;
+}
+
+.helperText {
+  font-size: var(--typography-body-small-size, 12px);
+  color: var(--color-text-tertiary);
+  margin-top: var(--spacing-xs, 4px);
+}
+
+.helperText.error {
+  color: var(--color-status-error, #ef4444);
+}
+
+.buttonGroup {
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-sm, 12px);
+  padding-top: var(--spacing-md, 16px);
+  margin-top: var(--spacing-xs, 4px);
+}
+
+/* 다크 모드 지원 */
+@media (prefers-color-scheme: dark) {
+  .input,
+  .textarea {
+    background-color: var(--color-bg-secondary);
+    border-color: var(--color-border-default);
+    color: var(--color-text-primary);
+  }
+
+  .input:focus,
+  .textarea:focus {
+    border-color: var(--color-primary);
+  }
+}

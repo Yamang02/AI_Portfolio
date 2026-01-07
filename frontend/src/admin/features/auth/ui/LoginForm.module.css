@@ -1,0 +1,98 @@
+.container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-bg-primary);
+  padding: var(--spacing-5);
+}
+
+.card {
+  width: 100%;
+  max-width: 400px;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: var(--spacing-8);
+}
+
+.title {
+  margin: 0 0 var(--spacing-2) 0;
+}
+
+.subtitle {
+  display: block;
+  margin-top: var(--spacing-2);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+}
+
+.errorMessage {
+  padding: var(--spacing-3) var(--spacing-4);
+  background-color: rgba(239, 68, 68, 0.1);
+  border: 1px solid var(--color-status-error);
+  border-radius: var(--border-radius-md);
+  text-align: center;
+}
+
+.errorText {
+  color: var(--color-status-error) !important;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.label {
+  display: block;
+}
+
+.fieldError {
+  color: var(--color-status-error) !important;
+  margin-top: var(--spacing-1);
+}
+
+.buttonGroup {
+  margin-top: var(--spacing-2);
+}
+
+.submitButton {
+  width: 100%;
+}
+
+.footer {
+  text-align: center;
+  margin-top: var(--spacing-8);
+  padding-top: var(--spacing-6);
+  border-top: 1px solid var(--color-border-default);
+}
+
+.loadingContainer {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-bg-primary);
+}
+
+/* 다크 모드 지원 */
+@media (prefers-color-scheme: dark) {
+  .container {
+    background-color: var(--color-bg-primary);
+  }
+
+  .errorMessage {
+    background-color: rgba(239, 68, 68, 0.15);
+  }
+
+  .loadingContainer {
+    background-color: var(--color-bg-primary);
+  }
+}

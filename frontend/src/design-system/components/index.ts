@@ -79,3 +79,9 @@ export type { SpinnerProps } from './Spinner';
 
 export { ChatBubble } from './ChatBubble';
 export type { ChatBubbleProps, ChatBubbleVariant } from './ChatBubble';
+
+export { Input, PasswordInput } from './Input';
+export type { InputProps, PasswordInputProps, InputSize, InputVariant } from './Input';
+
+export { Text } from './Text';
+export type { TextProps, TextSize, TextVariant, TextWeight } from './Text';

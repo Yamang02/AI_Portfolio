@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
-import { Route } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from '../config/queryClient';
 import { AppProvider, useApp } from '../app/providers/AppProvider';
-import { PageLayout } from '@/widgets/layout';
+import { PageLayout, HomePageLayout } from '@/widgets/layout';
 import { useLocation } from 'react-router-dom';
 import { HomePage } from '@/pages/HomePage';
 import { ProjectsListPage } from '@/pages/ProjectsListPage';
@@ -127,6 +127,24 @@ const MainAppContent: React.FC = () => {
     );
   }
 
+  // 홈페이지는 HomePageLayout 사용 (scroll-driven animation 지원)
+  if (isHomePage) {
+    return (
+      <HomePageLayout showFooter={true}>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+        </Routes>
+        
+        {/* 이스터에그 레이어 */}
+        <EasterEggLayer />
+        
+        {/* 오디오 재생 인디케이터 */}
+        <AudioIndicator />
+      </HomePageLayout>
+    );
+  }
+
+  // 다른 페이지는 PageLayout 사용
   return (
     <PageLayout showFooter={showFooter} footerVisible={true}>
       <div
@@ -134,7 +152,7 @@ const MainAppContent: React.FC = () => {
         style={{
           backgroundColor: 'var(--color-background)',
           color: 'var(--color-text-primary)',
-          overflowX: isHomePage ? 'visible' : 'hidden', // 홈페이지는 스크롤 드리븐 애니메이션을 위해 overflow 제어 제외
+          overflowX: 'hidden',
           overflowY: isChatPage ? 'hidden' : 'auto', // 챗봇 페이지는 내부 스크롤만 사용
           flex: 1,
           display: 'flex',
@@ -142,7 +160,6 @@ const MainAppContent: React.FC = () => {
         }}
       >
         <AnimatedRoutes>
-          <Route path="/" element={<HomePage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/projects" element={<ProjectsListPage />} />
           <Route path="/projects/:id" element={<ProjectDetailPage />} />
