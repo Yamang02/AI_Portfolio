@@ -8,21 +8,24 @@
  * 
  * 디자인 원칙:
  * - 80% 표준 + 20% 브랜드 접근법
- * - 브랜드 그린: #7FAF8A (하나만 사용)
+ * - 브랜드 그린: #5F9070 (하나만 사용)
  * - 나머지는 표준 색상 (Tailwind/Material 계열)
  */
 
 :root {
-  /* Background - Neutral (표준) */
+  /* Background - Neutral (표준) - 옵션 1 */
   --color-bg-primary: #ffffff;         /* 순수 흰색 */
   --color-bg-secondary: #f9fafb;       /* Gray-50 */
   --color-bg-tertiary: #f3f4f6;        /* Gray-100 */
+  
+  /* Landing Page Background - 옵션 2 (그린 틴트) */
+  --color-landing-bg: #F0F9F4;         /* 라이트 모드: 매우 밝은 그린 틴트 */
 
-  /* Text - 브랜드 그린 톤 */
-  --color-text-primary: #1F2A23;       /* 브랜드 그린 톤 - 부드러운 블랙 */
-  --color-text-secondary: #5F6F66;     /* 브랜드 그린 톤 - 서브 텍스트 */
+  /* Text - 브랜드 그린 톤 (약간의 초록색이 섞인 검정색 대체) */
+  --color-text-primary: #1A4025;       /* 어두운 그린 틴트 - 초록 기운 강화 (#1A2A1F에서 G값 42→64로 증가) */
+  --color-text-secondary: #4A5F52;     /* 브랜드 그린 톤 - 서브 텍스트 */
   --color-text-tertiary: #9ca3af;      /* Gray-400 (표준) */
-  --color-text-title: #1F5030;         /* 타이틀용 진한 그린 (950 톤) */
+  --color-text-title: #0F1F17;         /* 타이틀용 어두운 그린 틴트 */
   
   /* Button Text - Primary 버튼 위 텍스트용 */
   --color-button-text: #F8FBF9;        /* 버튼 텍스트 (라이트/다크 공통) */
@@ -32,12 +35,12 @@
   --color-border-hover: #d1d5db;       /* Gray-300 */
   --color-border-accent: #e5e7eb;       /* Gray-200 (브랜드 색상 제거) */
 
-  /* Brand - Primary (#7FAF8A) - 하나만 사용 */
-  --color-primary: #7FAF8A;              /* 브랜드 그린 */
-  --color-primary-hover: #6FA07A;       /* 약간 진한 hover */
-  --color-primary-active: #5F9070;      /* Active 상태 */
-  --color-primary-focus: #7FAF8A;      /* Focus ring */
-  --color-primary-text: #4F8060;        /* 텍스트용 진한 그린 - 섹션 타이틀 등 */
+  /* Brand - Primary (#5F9070) - 하나만 사용 */
+  --color-primary: #5F9070;              /* 브랜드 그린 (NEW) */
+  --color-primary-hover: #4F8060;       /* 약간 진한 hover */
+  --color-primary-active: #3F7050;      /* Active 상태 */
+  --color-primary-focus: #5F9070;      /* Focus ring */
+  --color-primary-text: #2F6040;        /* 텍스트용 진한 그린 - 섹션 타이틀 등 */
   
   /* Hero Section Background - 임팩트 있는 초록색 */
   --color-hero-bg: #50C878;              /* Emerald Green - 히어로 섹션 배경용 */
@@ -52,11 +55,11 @@
   --color-featured-badge: #f5c842;       /* Featured 별 배지 배경 (노란색, 톤 다운) */
   
   /* Featured / Highlight Section Colors */
-  --color-featured-bg: #EAF8EF;          /* 조용한 강조 영역 배경 - 아주 밝은 그린 틴트 */
+  --color-featured-bg: #E8F5ED;          /* 조용한 강조 영역 배경 - 아주 밝은 그린 틴트 (새 프라이머리 톤) */
   --color-featured-header: #1E2F26;      /* Section Header - 그린 기 살짝 포함된 블랙 */
-  --color-featured-text: #556E62;        /* Body Text - 그린 뉴트럴 */
-  --color-featured-link: #4F8F6B;       /* Link / Accent Text - 한 단계 진한 그린 */
-  --color-featured-divider: #B7D6C6;     /* Divider / Icon - 보조 요소 */
+  --color-featured-text: #4A5F52;        /* Body Text - 그린 뉴트럴 (새 프라이머리 톤) */
+  --color-featured-link: #3F7050;       /* Link / Accent Text - 새 프라이머리 active 톤 */
+  --color-featured-divider: #A8C9B5;     /* Divider / Icon - 보조 요소 (새 프라이머리 톤) */
   
   /* Utility Colors - 외부 서비스/링크용 */
   --color-github: #6e5494;                /* GitHub 시그니처 보라색 (기존 톤 유지) */
@@ -68,7 +71,7 @@
   --color-disabled: #6b7280;             /* Gray-500 - 비활성화 버튼 */
   
   /* Primary Dark - 섹션 타이틀용 */
-  --color-primary-dark: #4F8060;         /* 텍스트용 진한 그린 */
+  --color-primary-dark: #2F6040;         /* 텍스트용 진한 그린 */
 
   /* Neutral Colors */
   --color-white: #ffffff;
@@ -89,15 +92,15 @@
   --color-glass-medium: rgba(255, 255, 255, 0.2);
   
   /* 그라데이션 색상 (HomePage 배경용 - Featured Projects 섹션부터 하단까지) */
-  /* 흰색에서 featured-bg 색상(#EAF8EF)으로 자연스럽게 전환 */
+  /* 흰색에서 featured-bg 색상(#E8F5ED)으로 자연스럽게 전환 */
   --color-gradient-light-start: #F5FBF8;   /* 흰색과 featured-bg 사이 */
   --color-gradient-light-mid1: #F0F9F4;    /* featured-bg에 가까워짐 */
-  --color-gradient-light-mid2: #EDF7F1;    /* featured-bg에 더 가까움 */
-  --color-gradient-light-mid3: #EAF8EF;    /* featured-bg 최종 색상 */
+  --color-gradient-light-mid2: #ECF7F0;    /* featured-bg에 더 가까움 */
+  --color-gradient-light-mid3: #E8F5ED;    /* featured-bg 최종 색상 (새 프라이머리 톤) */
 
   /* Link - Neutral 기본, 브랜드 hover만 */
   --color-link-default: #6b7280;        /* Gray-500 (neutral) */
-  --color-link-hover: #7FAF8A;         /* 브랜드 그린 (강조 링크만) */
+  --color-link-hover: #5F9070;         /* 브랜드 그린 (강조 링크만) */
   --color-link-visited: #6b7280;        /* Gray-500 (neutral) */
 
   /* Status - 표준 색상 */
@@ -161,16 +164,19 @@
 /* 시스템 다크모드 설정에 따른 자동 적용 */
 @media (prefers-color-scheme: dark) {
   :root {
-    /* Background - Neutral (표준) */
-    --color-bg-primary: #111827;       /* Gray-900 */
-    --color-bg-secondary: #1f2937;     /* Gray-800 */
-    --color-bg-tertiary: #374151;       /* Gray-700 */
+    /* Background - Neutral (표준) - 옵션 1 */
+    --color-bg-primary: #0F1F17;       /* 랜딩페이지와 동일한 어두운 그린 틴트 */
+    --color-bg-secondary: #111111;     /* 약간 밝은 검은색 */
+    --color-bg-tertiary: #1a1a1a;       /* 검은색 */
+    
+    /* Landing Page Background - 옵션 2 (그린 틴트) */
+    --color-landing-bg: #0F1F17;       /* 다크 모드: 매우 어두운 그린 틴트 */
 
     /* Text - 중립 Gray 톤 (브랜드 컬러 제거) */
     --color-text-primary: #f3f4f6;     /* Gray-100 - 부드러운 화이트 */
     --color-text-secondary: #d1d5db;   /* Gray-300 - 서브 텍스트 */
     --color-text-tertiary: #9ca3af;     /* Gray-400 (표준) */
-    --color-text-title: #f3f4f6;        /* 타이틀용 (다크 모드) */
+    --color-text-title: #9FD6B2;        /* 타이틀용 - 밝은 그린민트 (다크 모드) */
     
     /* Button Text - Primary 버튼 위 텍스트용 */
     --color-button-text: #F8FBF9;      /* 버튼 텍스트 (라이트/다크 공통) */
@@ -180,12 +186,12 @@
     --color-border-hover: #4b5563;      /* Gray-600 */
     --color-border-accent: #374151;     /* Gray-700 (브랜드 색상 제거) */
 
-    /* Brand - 중립 색상 (브랜드 컬러 제거) */
-    --color-primary: #6b7280;           /* Gray-500 */
-    --color-primary-hover: #9ca3af;    /* Gray-400 */
-    --color-primary-active: #4b5563;    /* Gray-600 */
-    --color-primary-focus: #6b7280;    /* Focus ring */
-    --color-primary-text: #9ca3af;     /* 텍스트용 - Gray-400 */
+    /* Brand - 다크 모드용 (새 프라이머리 톤 유지, 더 밝게 조정) */
+    --color-primary: #7FB089;           /* 다크 모드에서 더 밝은 그린 (대비 향상) */
+    --color-primary-hover: #8FC09A;    /* 더 밝게 */
+    --color-primary-active: #6FA07A;    /* hover보다 약간 어둡게 */
+    --color-primary-focus: #6FA07A;    /* Focus ring */
+    --color-primary-text: #9FD6B2;     /* 텍스트용 - 밝은 그린민트 (다크 모드) */
     
     /* Hero Section Background - 다크 모드용 (중립색) */
     --color-hero-bg: #1f2937;           /* Gray-800 */
@@ -215,8 +221,8 @@
     --color-notion-hover: #2563eb;         /* Blue-600 - 다크 모드 hover */
     --color-disabled: #4b5563;             /* Gray-600 - 다크 모드 비활성화 */
     
-    /* Primary Dark - 다크 모드용 (텍스트용, 중립색) */
-    --color-primary-dark: #9ca3af;      /* Gray-400 */
+    /* Primary Dark - 다크 모드용 (텍스트용) */
+    --color-primary-dark: #8FC09A;      /* 밝은 그린 (다크 모드 텍스트용) */
 
     /* Tooltip Colors - 다크 모드 */
     --color-tooltip-bg: #374151;        /* Gray-700 - 툴팁 배경 */
@@ -239,10 +245,10 @@
     --color-gradient-light-mid2: #111827;
     --color-gradient-light-mid3: #111827;
 
-    /* Link - 중립 색상 */
+    /* Link - 다크 모드용 */
     --color-link-default: #d1d5db;     /* Gray-300 */
-    --color-link-hover: #f3f4f6;       /* Gray-100 (밝게) */
-    --color-link-visited: #9ca3af;      /* Gray-400 */
+    --color-link-hover: #6FA07A;       /* 새 프라이머리 (밝은 버전) */
+    --color-link-visited: #8FC09A;      /* 밝은 그린 */
 
     /* Status - 표준 색상 */
     --color-status-info: #60a5fa;       /* Blue-400 */
@@ -305,16 +311,19 @@
 
 /* 수동 토글용 (시스템 설정보다 우선) */
 :root.dark {
-  /* Background - Neutral (표준) */
-  --color-bg-primary: #111827;       /* Gray-900 */
-  --color-bg-secondary: #1f2937;     /* Gray-800 */
-  --color-bg-tertiary: #374151;       /* Gray-700 */
+  /* Background - Neutral (표준) - 옵션 1 */
+  --color-bg-primary: #0F1F17;       /* 랜딩페이지와 동일한 어두운 그린 틴트 */
+  --color-bg-secondary: #111111;     /* 약간 밝은 검은색 */
+  --color-bg-tertiary: #1a1a1a;       /* 검은색 */
+  
+  /* Landing Page Background - 옵션 2 (그린 틴트) */
+  --color-landing-bg: #0F1F17;       /* 다크 모드: 매우 어두운 그린 틴트 */
 
   /* Text - 중립 Gray 톤 (브랜드 컬러 제거) */
   --color-text-primary: #f3f4f6;     /* Gray-100 - 부드러운 화이트 */
   --color-text-secondary: #d1d5db;   /* Gray-300 - 서브 텍스트 */
   --color-text-tertiary: #9ca3af;     /* Gray-400 (표준) */
-  --color-text-title: #f3f4f6;        /* 타이틀용 (다크 모드) */
+  --color-text-title: #9FD6B2;        /* 타이틀용 - 밝은 그린민트 (다크 모드) */
   
   /* Button Text - Primary 버튼 위 텍스트용 */
   --color-button-text: #F8FBF9;      /* 버튼 텍스트 (라이트/다크 공통) */
@@ -324,12 +333,12 @@
   --color-border-hover: #4b5563;      /* Gray-600 */
   --color-border-accent: #374151;     /* Gray-700 (브랜드 색상 제거) */
 
-  /* Brand - 중립 색상 (브랜드 컬러 제거) */
-  --color-primary: #6b7280;           /* Gray-500 */
-  --color-primary-hover: #9ca3af;    /* Gray-400 */
-  --color-primary-active: #4b5563;    /* Gray-600 */
-  --color-primary-focus: #6b7280;    /* Focus ring */
-  --color-primary-text: #9ca3af;     /* 텍스트용 - Gray-400 */
+  /* Brand - 다크 모드용 (새 프라이머리 톤 유지, 더 밝게 조정) */
+  --color-primary: #7FB089;           /* 다크 모드에서 더 밝은 그린 (대비 향상) */
+  --color-primary-hover: #8FC09A;    /* 더 밝게 */
+  --color-primary-active: #6FA07A;    /* hover보다 약간 어둡게 */
+  --color-primary-focus: #6FA07A;    /* Focus ring */
+  --color-primary-text: #9FD6B2;     /* 텍스트용 - 밝은 그린민트 (다크 모드) */
   
   /* Hero Section Background - 다크 모드용 (중립색) */
   --color-hero-bg: #1f2937;           /* Gray-800 */
@@ -359,8 +368,8 @@
     --color-notion-hover: #2563eb;        /* Blue-600 - 다크 모드 hover */
     --color-disabled: #4b5563;             /* Gray-600 - 다크 모드 비활성화 */
     
-    /* Primary Dark - 다크 모드용 (텍스트용, 중립색) */
-    --color-primary-dark: #9ca3af;      /* Gray-400 */
+    /* Primary Dark - 다크 모드용 (텍스트용) */
+    --color-primary-dark: #8FC09A;      /* 밝은 그린 (다크 모드 텍스트용) */
 
   /* Tooltip Colors - 다크 모드 */
   --color-tooltip-bg: #374151;        /* Gray-700 - 툴팁 배경 */
@@ -383,10 +392,10 @@
   --color-gradient-light-mid2: #111827;
   --color-gradient-light-mid3: #111827;
 
-  /* Link - 중립 색상 */
+  /* Link - 다크 모드용 */
   --color-link-default: #d1d5db;     /* Gray-300 */
-  --color-link-hover: #f3f4f6;       /* Gray-100 (밝게) */
-  --color-link-visited: #9ca3af;      /* Gray-400 */
+  --color-link-hover: #6FA07A;       /* 새 프라이머리 (밝은 버전) */
+  --color-link-visited: #8FC09A;      /* 밝은 그린 */
 
     /* Status - 표준 색상 */
     --color-status-info: #60a5fa;       /* Blue-400 */
@@ -453,3 +462,7 @@ body {
   color: var(--color-text-primary);
   line-height: 1.5;
 }
+
+/* SVG 기본 색상 - 약간의 초록색이 섞인 검정색 대체 색상 */
+/* currentColor를 사용하는 SVG는 부모의 color를 상속받으므로,
+   전역 설정은 최소화하고 각 컴포넌트에서 명시적으로 색상 지정 */

@@ -1,6 +1,6 @@
 .sectionTitle {
   font-family: inherit;
-  color: var(--color-text-primary);
+  color: var(--color-text-title);
   line-height: 1.25;
   margin: 0;
 }
@@ -9,6 +9,18 @@
   font-size: 2.25rem; /* 36px */
   font-weight: 700;
   margin-bottom: 1.5rem; /* 24px */
+}
+
+/* 다크 모드: h1은 하얀색 */
+@media (prefers-color-scheme: dark) {
+  .h1 {
+    color: var(--color-text-primary); /* 하얀색에 가까운 Gray-100 */
+  }
+}
+
+:root.dark .h1,
+html.dark .h1 {
+  color: var(--color-text-primary); /* 하얀색에 가까운 Gray-100 */
 }
 
 .h2 {
@@ -21,6 +33,18 @@
   font-size: 1.5rem; /* 24px */
   font-weight: 600;
   margin-bottom: 1rem; /* 16px */
+}
+
+/* 다크 모드: h3은 거의 하얀색에 가까운 그린민트 */
+@media (prefers-color-scheme: dark) {
+  .h3 {
+    color: #C8F0D8; /* 거의 하얀색에 가까운 밝은 그린민트 */
+  }
+}
+
+:root.dark .h3,
+html.dark .h3 {
+  color: #C8F0D8; /* 거의 하얀색에 가까운 밝은 그린민트 */
 }
 
 .h4 {
