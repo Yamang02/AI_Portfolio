@@ -22,7 +22,7 @@
   --color-bg-header-footer: #ffffff;    /* 라이트 모드: 기본 배경색 */
   
   /* Landing Page Background - 옵션 2 (그린 틴트) */
-  --color-landing-bg: #F0F9F4;         /* 라이트 모드: 매우 밝은 그린 틴트 */
+  --color-landing-bg: #FBFFFD;         /* 라이트 모드: 흰색 95% + #B1FACB 5% 블렌딩 */
 
   /* Text - 브랜드 그린 톤 (검은색을 #051A0E로 대체) */
   --color-text-primary: #051A0E;       /* 검은색 대체 - brandScale 1000 */
