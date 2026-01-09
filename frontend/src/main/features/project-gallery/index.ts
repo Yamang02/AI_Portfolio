@@ -1,9 +1,3 @@
-// Components
-export { ProjectCard } from './components/ProjectCard';
-export { PortfolioSection } from './components/PortfolioSection';
-export { HistoryPanel } from './components/HistoryPanel';
-export { PanelToggle } from './components/PanelToggle';
-
 // Hooks
 export * from './hooks';
 
@@ -11,7 +5,5 @@ export * from './hooks';
 export type { 
   Experience,
   Education,
-  Certification,
-  HistoryItem, 
-  HistoryPanelState 
+  Certification
 } from './types'; 

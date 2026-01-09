@@ -1,5 +1,5 @@
 import { QueryClient } from '@tanstack/react-query';
-import { STALE_TIME } from '../../main/config/queryCacheConfig';
+import { STALE_TIME } from '@/shared/config/queryCacheConfig';
 
 /**
  * 어드민 페이지용 React Query 클라이언트 설정

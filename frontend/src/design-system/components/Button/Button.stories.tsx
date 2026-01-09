@@ -3,9 +3,12 @@ import { Button } from './Button';
 import { Badge } from '../Badge/Badge';
 
 const meta: Meta<typeof Button> = {
-  title: 'Design System/Button',
+  title: 'Design System/Components/Button',
   component: Button,
   tags: ['autodocs'],
+  parameters: {
+    layout: 'centered',
+  },
   argTypes: {
     variant: {
       control: 'select',
@@ -21,6 +24,13 @@ const meta: Meta<typeof Button> = {
 export default meta;
 type Story = StoryObj<typeof Button>;
 
+export const Default: Story = {
+  args: {
+    variant: 'primary',
+    children: 'Button',
+  },
+};
+
 export const Primary: Story = {
   args: {
     variant: 'primary',
@@ -35,18 +45,14 @@ export const Secondary: Story = {
   },
 };
 
-export const Small: Story = {
-  args: {
-    size: 'sm',
-    children: 'Small Button',
-  },
-};
-
-export const Large: Story = {
-  args: {
-    size: 'lg',
-    children: 'Large Button',
-  },
+export const Sizes: Story = {
+  render: () => (
+    <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+      <Button size="sm">Small</Button>
+      <Button size="md">Medium</Button>
+      <Button size="lg">Large</Button>
+    </div>
+  ),
 };
 
 export const Disabled: Story = {

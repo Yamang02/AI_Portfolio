@@ -7,6 +7,9 @@ const meta: Meta<typeof Badge> = {
   title: 'Design System/Components/Badge',
   component: Badge,
   tags: ['autodocs'],
+  parameters: {
+    layout: 'centered',
+  },
 };
 
 export default meta;
@@ -47,18 +50,14 @@ export const Outline: Story = {
   },
 };
 
-export const Small: Story = {
-  args: {
-    children: 'Small Badge',
-    size: 'sm',
-  },
-};
-
-export const Large: Story = {
-  args: {
-    children: 'Large Badge',
-    size: 'lg',
-  },
+export const Sizes: Story = {
+  render: () => (
+    <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+      <Badge size="sm">Small</Badge>
+      <Badge size="md">Medium</Badge>
+      <Badge size="lg">Large</Badge>
+    </div>
+  ),
 };
 
 export const WithCount: Story = {
@@ -95,15 +94,6 @@ export const AllVariants: Story = {
   ),
 };
 
-export const AllSizes: Story = {
-  render: () => (
-    <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-      <Badge size="sm">Small</Badge>
-      <Badge size="md">Medium</Badge>
-      <Badge size="lg">Large</Badge>
-    </div>
-  ),
-};
 
 export const Interactive: Story = {
   render: () => {

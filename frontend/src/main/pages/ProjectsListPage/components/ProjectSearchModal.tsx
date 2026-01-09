@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Modal, Button, ProjectTypeBadge } from '@/design-system';
+import { Modal, Button, ProjectTypeBadge, Input } from '@/design-system';
 import { Project } from '@/main/entities/project/model/project.types';
 import { TechStackList } from '@/shared/ui/tech-stack/TechStackList';
 import { categorizeTechStack } from '@/shared/utils/techStackCategorization';
@@ -130,7 +130,7 @@ export const ProjectSearchModal: React.FC<ProjectSearchModalProps> = ({
           {/* 기술 스택 검색 입력 */}
           <div className={styles.filterGroup}>
             <label className={styles.label}>기술 스택 검색</label>
-            <input
+            <Input
               type="text"
               value={filters.techSearchQuery}
               onChange={handleTechSearchChange}

@@ -5,7 +5,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { techStackApi } from './techStackApi';
-import { STALE_TIME } from '../../../main/config/queryCacheConfig';
+import { STALE_TIME } from '@/shared/config/queryCacheConfig';
 import type { TechStackFormData } from '../model/tech-stack.types';
 
 // Query Keys

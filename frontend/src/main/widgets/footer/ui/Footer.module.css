@@ -1,0 +1,74 @@
+.footer {
+  padding-top: var(--spacing-6);
+  padding-bottom: var(--spacing-3);
+  padding-left: var(--spacing-6);
+  padding-right: var(--spacing-6);
+  border-top: 1px solid var(--color-border-default);
+  background-color: var(--color-bg-header-footer, var(--color-bg-primary));
+  opacity: 0;
+  transform: translateY(100%);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.footer.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.copyright {
+  font-size: 0.875rem;
+  color: var(--color-text-primary); /* #000000 대체 - brandScale 1000 (#051A0E) 사용 */
+  margin: 0;
+}
+
+.links {
+  margin-top: var(--spacing-3);
+  display: flex;
+  gap: var(--spacing-2);
+  justify-content: center;
+  align-items: center;
+}
+
+/* GitHub 링크 */
+.githubLink:hover:not(:disabled) {
+  background-color: var(--color-github) !important;
+  color: var(--color-white) !important;
+  border-color: var(--color-github) !important;
+}
+
+/* Email 링크 */
+.emailLink:hover:not(:disabled) {
+  background-color: var(--color-primary) !important;
+  color: var(--color-white) !important;
+  border-color: var(--color-primary) !important;
+}
+
+
+/* Mobile */
+@media (max-width: var(--breakpoint-mobile)) {
+  .footer {
+    padding-top: var(--spacing-4);
+    padding-bottom: var(--spacing-2);
+    padding-left: var(--spacing-4);
+    padding-right: var(--spacing-4);
+  }
+  
+  .links {
+    margin-top: var(--spacing-2);
+  }
+}
+
+/* 접근성: 애니메이션 비활성화 */
+@media (prefers-reduced-motion: reduce) {
+  .footer {
+    transition: none;
+    opacity: 1;
+    transform: none;
+  }
+}

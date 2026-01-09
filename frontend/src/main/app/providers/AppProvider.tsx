@@ -22,11 +22,7 @@ interface AppState {
 
 interface AppContextValue extends AppState {
   // UI state
-  isHistoryPanelOpen: boolean;
   isWideScreen: boolean;
-  
-  // Actions
-  setHistoryPanelOpen: (open: boolean | ((prev: boolean) => boolean)) => void;
 }
 
 const AppContext = createContext<AppContextValue | undefined>(undefined);
@@ -45,12 +41,6 @@ interface AppProviderProps {
 
 export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   // UI 상태
-  const [isHistoryPanelOpen, setHistoryPanelOpen] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return window.innerWidth > 2400;
-    }
-    return true;
-  });
   const [isWideScreen, setIsWideScreen] = useState(() => {
     if (typeof window !== 'undefined') {
       return window.innerWidth > 2400;
@@ -94,11 +84,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     loadingStates,
     
     // UI state
-    isHistoryPanelOpen,
     isWideScreen,
-    
-    // Actions
-    setHistoryPanelOpen,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

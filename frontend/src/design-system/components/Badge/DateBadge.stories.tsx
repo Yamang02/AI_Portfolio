@@ -2,9 +2,12 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { DateBadge } from './DateBadge';
 
 const meta: Meta<typeof DateBadge> = {
-  title: 'Design System/Badge/DateBadge',
+  title: 'Design System/Components/Badge/DateBadge',
   component: DateBadge,
   tags: ['autodocs'],
+  parameters: {
+    layout: 'centered',
+  },
   argTypes: {
     size: {
       control: 'select',
@@ -32,20 +35,14 @@ export const Ongoing: Story = {
   },
 };
 
-export const Small: Story = {
-  args: {
-    startDate: '2025-01-01',
-    endDate: '2025-03-31',
-    size: 'sm',
-  },
-};
-
-export const Large: Story = {
-  args: {
-    startDate: '2025-01-01',
-    endDate: '2025-03-31',
-    size: 'lg',
-  },
+export const Sizes: Story = {
+  render: () => (
+    <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
+      <DateBadge startDate="2025-01-01" endDate="2025-03-31" size="sm" />
+      <DateBadge startDate="2025-01-01" endDate="2025-03-31" size="md" />
+      <DateBadge startDate="2025-01-01" endDate="2025-03-31" size="lg" />
+    </div>
+  ),
 };
 
 export const SingleMonth: Story = {

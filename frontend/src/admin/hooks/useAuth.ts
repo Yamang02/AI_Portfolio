@@ -1,7 +1,7 @@
 import React, { useState, useEffect, createContext, useContext, ReactNode } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { adminAuthApi, AdminUserInfo } from '../api/adminAuthApi';
-import { STALE_TIME } from '../../main/config/queryCacheConfig';
+import { STALE_TIME } from '@/shared/config/queryCacheConfig';
 
 // AuthContext 타입 정의
 interface AuthContextType {

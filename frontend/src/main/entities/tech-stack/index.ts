@@ -17,6 +17,9 @@ export type {
   TechStackUsage,
   TechStackProject,
   TechStackSortOrderUpdate,
+  TechStackStatistics,
+  CategoryCount,
+  LevelCount,
 } from './model/tech-stack.types';
 
 // Interfaces (export separately for interfaces)

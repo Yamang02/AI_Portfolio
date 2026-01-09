@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import { ChatMessage as ChatMessageType } from '../types';
-import { ChatBubble } from '@/design-system';
+import { ChatBubble, Button } from '@/design-system';
 
 interface ChatMessageProps {
   message: ChatMessageType;
@@ -55,16 +55,17 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
             {message.showEmailButton && (
               <div className="mt-3 pt-3 border-t border-border flex flex-col items-center">
                 <p className="text-xs text-text-muted mb-2 text-center">개발자에게 직접 메일을 보내보는 건 어떠신가요?</p>
-                <button
+                <Button
+                  variant="primary"
+                  size="sm"
                   onClick={() => {
                     // 모달 열기 이벤트 발생
                     const event = new CustomEvent('openContactModal');
                     window.dispatchEvent(event);
                   }}
-                  className="bg-primary-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-primary-700 transition-colors duration-200"
                 >
                   📧 개발자에게 메일 보내기
-                </button>
+                </Button>
               </div>
             )}
           </div>

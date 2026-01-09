@@ -77,32 +77,201 @@ entities/project/
 
 ## 디자인 시스템
 
+프로젝트는 **디자인 시스템**을 도입하여 일관된 UI/UX를 제공합니다. 모든 컴포넌트 개발 시 디자인 시스템을 우선적으로 활용해야 합니다.
+
+### 디자인 시스템 구조
+
+```
+frontend/src/design-system/
+├── tokens/          # 디자인 토큰 (컬러, 타이포그래피, 스페이싱 등)
+│   ├── colors.ts
+│   ├── typography.ts
+│   ├── spacing.ts
+│   ├── borderRadius.ts
+│   ├── shadow.ts
+│   └── breakpoints.ts
+├── components/      # 재사용 가능한 UI 컴포넌트
+│   ├── Button/
+│   ├── Badge/
+│   ├── Card/
+│   ├── SectionTitle/
+│   ├── TextLink/
+│   └── ...
+├── styles/          # 전역 스타일
+│   ├── globals.css  # CSS 변수 정의 (단일 소스)
+│   └── reset.css
+└── providers/       # 테마 프로바이더
+```
+
 ### 디자인 토큰
-디자인 토큰은 `shared/config/theme.ts`에서 관리됩니다. Tailwind 설정과 동기화되어 있으며, TypeScript에서 직접 사용할 수 있습니다.
+
+디자인 토큰은 `frontend/src/design-system/tokens/`에서 관리됩니다. 모든 토큰은 TypeScript로 타입 안전하게 정의되어 있으며, CSS 변수(`--color-*`, `--spacing-*` 등)와 동기화됩니다.
+
+#### 컬러 토큰
+
+**⚠️ 중요**: 컬러는 반드시 CSS 변수를 사용해야 합니다. 하드코딩된 컬러 값 사용은 금지됩니다.
 
 ```typescript
-import { colors, spacing, transitions } from '@shared/config/theme';
+// ✅ 올바른 방법: CSS 변수 사용
+style={{ 
+  color: 'var(--color-text-primary)',
+  backgroundColor: 'var(--color-bg-primary)',
+  borderColor: 'var(--color-border-default)',
+}}
+
+// ❌ 잘못된 방법: 하드코딩된 컬러 값 사용 금지
+style={{ color: '#111827' }}
+```
+
+**컬러 시스템 구조**:
+- **Primitive Tokens**: 기본 컬러 팔레트 (gray, brand scales)
+- **Semantic Tokens**: 의미 기반 컬러 (background, text, border, status 등)
+- **CSS 변수**: `globals.css`의 `--color-*` 변수가 단일 소스
+
+자세한 내용: `docs/technical/design-system/color-palette.md`
+
+#### 기타 토큰
+
+```typescript
+// 디자인 토큰 import
+import { 
+  spacing, 
+  borderRadius, 
+  shadow, 
+  fontSize,
+  fontWeight 
+} from '@/design-system/tokens';
 
 // 사용 예시
-const buttonStyle = {
-  backgroundColor: colors.primary[600],
-  padding: spacing.md,
-  transitionDuration: transitions.normal,
+const style = {
+  padding: spacing[4],           // '1rem'
+  borderRadius: borderRadius.lg, // '0.5rem'
+  boxShadow: shadow.md,           // '0 4px 6px -1px rgba(0, 0, 0, 0.1)...'
+  fontSize: fontSize.base,        // '1rem'
+  fontWeight: fontWeight.semibold, // 600
+};
+
+// 또는 CSS 변수로 직접 사용
+const style = {
+  padding: 'var(--spacing-4)',
+  borderRadius: 'var(--border-radius-lg)',
+  boxShadow: 'var(--shadow-md)',
 };
 ```
 
-### className 유틸리티
-`shared/lib/utils/cn.ts`에서 제공하는 `cn()` 함수를 사용하여 조건부 클래스를 병합합니다.
+### 디자인 시스템 컴포넌트
+
+**⚠️ 중요**: 새 컴포넌트를 생성할 때는 반드시 디자인 시스템을 확인하고 활용해야 합니다.
+
+#### 1. 기존 컴포넌트 활용
+
+디자인 시스템에 이미 존재하는 컴포넌트는 재사용합니다:
 
 ```typescript
-import { cn } from '@shared/lib/utils/cn';
+// ✅ 올바른 방법: 디자인 시스템 컴포넌트 import
+import { Button, Badge, Card, SectionTitle, TextLink } from '@/design-system';
 
-const className = cn(
-  'base-class',
-  isActive && 'active-class',
-  isDisabled && 'disabled-class'
-);
+// 사용 예시
+<Button variant="primary" size="md">클릭</Button>
+<Badge variant="default" size="sm">태그</Badge>
+<Card>내용</Card>
+<SectionTitle level="h2">제목</SectionTitle>
+<TextLink href="/path">링크</TextLink>
 ```
+
+**주요 디자인 시스템 컴포넌트**:
+- `Button`: 버튼 (primary, secondary, icon, brand variants)
+- `Badge`: 배지/태그 (default, primary, accent, success, outline variants)
+- `Card`: 카드 컨테이너
+- `SectionTitle`: 섹션 제목 (h1, h2, h3, h4)
+- `TextLink`: 텍스트 링크
+- `Divider`: 구분선
+- `Tooltip`: 툴팁
+- `Skeleton`, `SkeletonCard`: 로딩 스켈레톤
+- `Input`: 입력 필드
+- `Modal`: 모달
+- `Spinner`: 로딩 스피너
+
+자세한 목록: `frontend/src/design-system/components/` 또는 Storybook 참조
+
+#### 2. 새 컴포넌트 등록
+
+디자인 시스템에 없는 재사용 가능한 컴포넌트는 디자인 시스템에 등록합니다:
+
+```typescript
+// frontend/src/design-system/components/NewComponent/NewComponent.tsx
+import React from 'react';
+import styles from './NewComponent.module.css';
+
+export interface NewComponentProps {
+  // props 정의
+}
+
+export const NewComponent: React.FC<NewComponentProps> = ({ ... }) => {
+  // CSS 변수 사용 (컬러, 스페이싱 등)
+  return (
+    <div 
+      style={{
+        color: 'var(--color-text-primary)',
+        backgroundColor: 'var(--color-bg-primary)',
+        padding: 'var(--spacing-4)',
+        borderRadius: 'var(--border-radius-lg)',
+      }}
+    >
+      {/* 컴포넌트 내용 */}
+    </div>
+  );
+};
+```
+
+**등록 절차**:
+1. `frontend/src/design-system/components/NewComponent/` 폴더 생성
+2. 컴포넌트 파일 작성 (CSS 변수 사용 필수)
+3. `frontend/src/design-system/components/index.ts`에 export 추가
+4. Storybook 스토리 작성 (선택사항)
+
+#### 3. 로컬 컴포넌트 생성
+
+도메인 특화 컴포넌트는 해당 레이어에 생성하되, 디자인 시스템을 활용합니다:
+
+```typescript
+// entities/project/ui/ProjectCard.tsx
+import { Card, Badge, Button } from '@/design-system';
+
+export const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
+  return (
+    <Card>
+      {/* 디자인 시스템 컴포넌트 활용 */}
+      <SectionTitle level="h3">{project.title}</SectionTitle>
+      <div>
+        {project.tags.map(tag => (
+          <Badge key={tag} variant="default" size="sm">{tag}</Badge>
+        ))}
+      </div>
+      <Button variant="primary" href={project.url}>
+        View Project
+      </Button>
+    </Card>
+  );
+};
+```
+
+### 컴포넌트 생성 체크리스트
+
+새 컴포넌트를 생성할 때 다음을 확인하세요:
+
+1. **디자인 시스템 확인**: 필요한 컴포넌트가 이미 존재하는지 확인
+2. **컬러 사용**: CSS 변수(`--color-*`) 사용, 하드코딩 금지
+3. **디자인 토큰 사용**: spacing, borderRadius, shadow 등 토큰 활용
+4. **재사용성 검토**: 재사용 가능하면 디자인 시스템에 등록
+5. **Storybook 문서화**: 디자인 시스템 컴포넌트는 Storybook 스토리 작성
+
+### 관련 문서
+
+- **컬러 시스템**: `docs/technical/design-system/color-palette.md`
+- **Phase 3 구현 가이드**: `docs/technical/design-system/phase-3-implementation-guide.md`
+- **Phase 3 사용 예시**: `docs/technical/design-system/phase-3-usage-examples.md`
+- **Storybook**: `npm run storybook` 실행 후 디자인 시스템 컴포넌트 확인
 
 ## Import 규칙
 

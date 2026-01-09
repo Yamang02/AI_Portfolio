@@ -7,22 +7,4 @@ export type {
   ProjectType,
   ProjectCategory,
   ProjectSource
-} from '@entities/project';
-
-// 히스토리 패널 관련 타입
-export interface HistoryItem {
-  id: string;
-  title: string;
-  type: ProjectType;
-  startDate: string;
-  endDate?: string;
-  description: string;
-  technologies: string[];
-  isHighlighted?: boolean;
-}
-
-export interface HistoryPanelState {
-  isOpen: boolean;
-  selectedYear?: string;
-  highlightedItemId?: string;
-} 
+} from '@entities/project'; 

@@ -6,8 +6,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { message } from 'antd';
 import * as cacheApi from './cacheApi';
-import { STALE_TIME } from '../../../../main/config/queryCacheConfig';
-import { queryClient as mainQueryClient } from '../../../../main/config/queryClient';
+import { STALE_TIME } from '@/shared/config/queryCacheConfig';
+import { queryClient as mainQueryClient } from '@/main/app/config/queryClient';
 
 /**
  * 캐시 통계 조회 훅

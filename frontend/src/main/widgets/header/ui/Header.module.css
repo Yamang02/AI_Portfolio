@@ -1,0 +1,155 @@
+.header {
+  position: sticky;
+  top: 0;
+  background-color: var(--color-bg-header-footer, var(--color-bg-primary));
+  border-bottom: 1px solid var(--color-border-default);
+  z-index: 100;
+  overflow: visible;
+}
+
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 32px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  overflow: visible;
+}
+
+.logo {
+  font-size: 1.125rem;
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--color-text-primary);
+}
+
+.nav {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  overflow: visible;
+}
+
+.divider {
+  width: 1px;
+  height: 24px;
+  background-color: var(--color-border-default);
+  margin: 0 8px;
+}
+
+/* HeaderIconButton 컴포넌트를 사용하므로 기본 스타일 제거 */
+/* 필요한 경우에만 특수 스타일 추가 */
+
+/* 테마 토글 버튼 전용 스타일 (데스크톱) - 라이트 모드에서만 #051A0E 사용 */
+.themeToggle {
+  color: var(--color-text-primary);
+}
+
+/* 테마 토글 버튼 hover 시에도 텍스트 색상 유지 */
+.themeToggle:hover {
+  color: var(--color-text-primary) !important;
+}
+
+.mobileMenuWrapper {
+  display: none;
+  align-items: center;
+  gap: 8px;
+}
+
+.mobileMenu {
+  position: relative;
+}
+
+/* HeaderIconButton 컴포넌트를 사용하므로 기본 스타일 제거 */
+/* 필요한 경우에만 특수 스타일 추가 */
+.mobileThemeToggle {
+  color: var(--color-text-primary);
+}
+
+.mobileThemeToggle:hover {
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text-primary) !important;
+}
+
+.menuButton {
+  color: var(--color-text-primary);
+}
+
+.menuButton:hover {
+  color: var(--color-text-secondary);
+}
+
+.dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  min-width: 160px;
+  background-color: var(--color-bg-primary);
+  border: 1px solid var(--color-border-default);
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 8px 0;
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 디자인시스템 Button.secondary를 사용하므로 기본 스타일 제거 */
+.dropdownLink {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 16px;
+  border: none; /* 디자인시스템 border 오버라이드 */
+  text-align: left;
+  font-size: 0.875rem;
+  transition: background-color 0.2s;
+}
+
+.dropdownLink:hover {
+  background-color: var(--color-bg-secondary);
+  color: var(--color-primary);
+}
+
+.dropdownLinkActive {
+  background-color: var(--color-primary);
+  color: #ffffff;
+}
+
+.dropdownLink .icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+}
+
+/* Mobile */
+@media (max-width: var(--breakpoint-mobile)) {
+  .container {
+    height: 56px;
+    padding: 0 24px;
+  }
+
+  .nav {
+    display: none;
+  }
+
+  .mobileMenuWrapper {
+    display: flex;
+  }
+}

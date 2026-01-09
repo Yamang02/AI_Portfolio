@@ -90,7 +90,7 @@ export interface TechStackFilter {
   sortOrder?: 'asc' | 'desc';
 }
 
-// 기술 스택 통계
+// 기술 스택 통계 (Admin용)
 export interface TechStackStats {
   totalTechStacks?: number;
   coreTechStacks?: number;
@@ -148,3 +148,21 @@ export interface TechStackBadgeProps {
   className?: string;
 }
 
+// 기술 스택 통계 (shared/techStackApi.ts용)
+export interface TechStackStatistics {
+  totalTechnologies: number;
+  coreTechnologies: number;
+  activeTechnologies: number;
+  categoryCounts: CategoryCount[];
+  levelCounts: LevelCount[];
+}
+
+export interface CategoryCount {
+  category: string;
+  count: number;
+}
+
+export interface LevelCount {
+  level: string;
+  count: number;
+}

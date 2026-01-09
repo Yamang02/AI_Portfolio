@@ -4,7 +4,7 @@ import { SectionTitle, Divider, ProjectCard, SkeletonCard, EmptyCard, Button } f
 import { useProjectsQuery } from '@/main/entities/project/api/useProjectsQuery';
 import type { Project } from '@/main/entities/project/model/project.types';
 import type { ProjectCardProject } from '@/design-system/components/Card/ProjectCard';
-import { FEATURED_PROJECTS } from '@/main/pages/HomePage/config/featuredProjects.config';
+import { FEATURED_PROJECTS } from '@/main/widgets/featured-projects-section/model/featuredProjects.config';
 import { ProjectSearchModal } from './components/ProjectSearchModal';
 import { ProjectHistoryTimeline } from './components/ProjectHistoryTimeline';
 import styles from './ProjectsListPage.module.css';

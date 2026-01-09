@@ -127,14 +127,21 @@
 - [x] 모든 import 경로 업데이트 (이미 완료)
 - [x] `src/pages/` 폴더 삭제 (이미 완료)
 
-### Subtask 7.5.2: widgets/ 폴더 통합
+### Subtask 7.5.2: widgets/ 폴더 통합 ✅ 완료
 - [x] `src/main/layout/` 현재 내용 확인
-- [x] `src/widgets/layout/Header/` → `src/main/layout/Header/` 이동 (이미 완료)
-- [x] `src/widgets/layout/Footer/` → `src/main/layout/Footer/` 이동 (중복 파일 삭제 완료)
-- [x] `src/widgets/layout/HomePageLayout/` → `src/main/layout/HomePageLayout/` 이동 (이미 완료)
-- [x] `src/widgets/layout/PageLayout/` → `src/main/layout/PageLayout/` 이동 (이미 완료)
-- [x] 모든 import 경로 업데이트 (이미 완료)
-- [x] `src/widgets/` 폴더 삭제 (빈 폴더 삭제 완료)
+- [x] `src/main/layout/` → `src/main/widgets/` 이동 (FSD 구조 적용)
+  - [x] Header → `main/widgets/header/ui/`
+  - [x] Footer → `main/widgets/footer/ui/`
+  - [x] HomePageLayout → `main/widgets/home-page-layout/ui/`
+  - [x] PageLayout → `main/widgets/page-layout/ui/`
+- [x] HomePage 섹션들도 `main/widgets/`로 이동
+  - [x] HeroSection → `main/widgets/hero-section/ui/`
+  - [x] AboutSection1, AboutSection2 → `main/widgets/about-section/ui/`
+  - [x] FeaturedProjectsSection → `main/widgets/featured-projects-section/ui/`
+  - [x] CTASection → `main/widgets/cta-section/ui/`
+- [x] 모든 import 경로 업데이트 (`@/main/widgets/*`)
+- [x] `src/main/layout/` 디렉토리 제거
+- [x] `src/widgets/` 디렉토리 제거 (이미 `main/widgets/`로 이동 완료)
 
 ### Subtask 7.5.3: shared/ 폴더 통합
 - [x] `src/main/shared/` 현재 내용 확인
@@ -238,6 +245,10 @@
 | 2026-01-09 | src/app 빈 폴더 삭제 | ✅ 완료 |
 | 2026-01-09 | 프로필 페이지 API 수정 (certification, experience API 경로 수정) | ✅ 완료 |
 | 2026-01-09 | 푸터 네비게이션 메뉴 제거 (원래 상태로 복원) | ✅ 완료 |
+| 2026-01-09 | FSD 리팩토링: shared 레이어 통합 (Phase 1) | ✅ 완료 |
+| 2026-01-09 | FSD 리팩토링: widgets 레이어 생성 및 이동 (Phase 2.1, 2.2) | ✅ 완료 |
+| 2026-01-09 | FSD 리팩토링: entities/techstack 제거 (Phase 4) | ✅ 완료 |
+| 2026-01-09 | widgets를 src/main/widgets로 이동 (일관성 유지) | ✅ 완료 |
 | | | |
 
 ---

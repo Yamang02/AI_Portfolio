@@ -4,7 +4,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { certificationApi } from './certificationApi';
-import { QUERY_STALE_TIME } from '../../../config/queryCacheConfig';
+import { QUERY_STALE_TIME } from '@/shared/config/queryCacheConfig';
 
 // 쿼리 키 상수
 export const CERTIFICATION_QUERY_KEYS = {

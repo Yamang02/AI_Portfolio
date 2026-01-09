@@ -42,7 +42,7 @@
 }
 
 /* 반응형 레이아웃 */
-@media (max-width: 767px) {
+@media (max-width: var(--breakpoint-mobile)) {
   .sectionTitle {
     margin-bottom: var(--spacing-4);
   }

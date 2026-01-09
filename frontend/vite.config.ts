@@ -58,6 +58,7 @@ export default defineConfig(({ mode }) => {
           '@shared': path.resolve(__dirname, './src/shared'),
           '@entities': path.resolve(__dirname, './src/entities'),
           '@features': path.resolve(__dirname, './src/features'),
+          '@main': path.resolve(__dirname, './src/main'),
           '@widgets': path.resolve(__dirname, './src/widgets'),
           '@pages': path.resolve(__dirname, './src/pages'),
           '@processes': path.resolve(__dirname, './src/processes'),

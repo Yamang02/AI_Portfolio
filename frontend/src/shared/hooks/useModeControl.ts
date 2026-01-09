@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { useEasterEggStore } from '@features/easter-eggs';
+import { useEasterEggStore } from '@main/features/easter-eggs';
 
 /**
  * 모드별 UI 통제를 위한 통합 훅
@@ -18,7 +18,7 @@ import { useEasterEggStore } from '@features/easter-eggs';
  * );
  * 
  * // 모드별 값 선택
- * const Component = modeValue(HistoryPanel, HistoryPanel);
+ * const Component = modeValue(NormalComponent, EasterEggComponent);
  * 
  * // 모드별 클래스 선택
  * const className = modeClass('bg-primary-600', 'bg-yellow-500');

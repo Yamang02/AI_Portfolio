@@ -14,7 +14,7 @@ import { borderRadius } from './borderRadius';
 import { shadow } from './shadow';
 
 const meta: Meta = {
-  title: 'Design System/Tokens',
+  title: 'Design System/Foundation/Tokens',
   parameters: {
     layout: 'padded',
   },

@@ -85,7 +85,7 @@
 }
 
 /* 반응형 레이아웃 */
-@media (min-width: 768px) {
+@media (min-width: var(--breakpoint-tablet)) {
   .grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -101,7 +101,7 @@
   }
 }
 
-@media (min-width: 1024px) {
+@media (min-width: var(--breakpoint-desktop)) {
   .grid {
     grid-template-columns: repeat(2, 1fr);
   }

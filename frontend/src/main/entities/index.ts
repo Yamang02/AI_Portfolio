@@ -11,7 +11,6 @@ export type { Education } from './education';
 export type { Certification } from './certification';
 
 // TechStack
-export * from './techstack';
 
 // 포트폴리오 아이템 카테고리 타입
 export type ProjectType = 'project' | 'experience' | 'certification';

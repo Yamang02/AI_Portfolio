@@ -188,7 +188,7 @@
 /* 다크 모드 지원은 globals.css의 CSS 변수로 자동 처리됨 */
 
 /* 모바일 반응형 */
-@media (max-width: 767px) {
+@media (max-width: var(--breakpoint-mobile)) {
   .timelineContainer {
     padding: 16px 0;
     margin-top: 24px;

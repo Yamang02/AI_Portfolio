@@ -70,7 +70,7 @@
 }
 
 /* 반응형 */
-@media (min-width: 768px) {
+@media (min-width: var(--breakpoint-tablet)) {
   .meta {
     flex-direction: row;
     flex-wrap: wrap;

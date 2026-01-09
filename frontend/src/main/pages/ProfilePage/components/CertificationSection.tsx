@@ -1,5 +1,5 @@
 import React from 'react';
-import { SectionTitle, Card, SkeletonCard } from '@/design-system';
+import { SectionTitle, Card, SkeletonCard, TextLink } from '@/design-system';
 import { useCertificationsQuery } from '@/main/entities/certification/api/useCertificationQuery';
 import { safeFormatDate } from '@/shared/utils/safeStringUtils';
 import type { Certification } from '@/main/entities/certification/model/certification.types';
@@ -39,12 +39,11 @@ export const CertificationSection: React.FC = () => {
                 <div className={styles.certificationHeader}>
                   <h4 className={styles.certificationName}>{certification.name}</h4>
                   {certification.credentialUrl && (
-                    <a
+                    <TextLink
                       href={certification.credentialUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                      external={true}
                       className={styles.credentialLink}
-                      aria-label={`${certification.name} 자격증 확인`}
+                      ariaLabel={`${certification.name} 자격증 확인`}
                     >
                       <svg
                         className={styles.externalIcon}
@@ -62,7 +61,7 @@ export const CertificationSection: React.FC = () => {
                         <polyline points="15 3 21 3 21 9" />
                         <line x1="10" y1="14" x2="21" y2="3" />
                       </svg>
-                    </a>
+                    </TextLink>
                   )}
                 </div>
                 <div className={styles.certificationDetails}>

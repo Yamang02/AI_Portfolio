@@ -337,7 +337,7 @@
 }
 
 /* 반응형 디자인 */
-@media (max-width: 768px) {
+@media (max-width: var(--breakpoint-mobile)) {
   .topBarContent {
     padding: var(--spacing-sm, 12px);
     gap: var(--spacing-sm, 12px);
