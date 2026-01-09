@@ -11,9 +11,20 @@ import { processQuestion } from '@/main/features/chatbot/utils/questionValidator
 import { Button, Spinner, Modal } from '@/design-system';
 import { PageMeta } from '@/shared/ui/page-meta';
 
+import {
+  EasterEggProvider,
+  EasterEggLayer,
+  useEasterEggEscapeKey,
+  useKeyboardTrigger,
+  useScrollTrigger,
+  useEasterEggTrigger,
+  easterEggRegistry,
+} from '@/main/features/easter-eggs';
+import { loadEasterEggConfig } from '@/main/features/easter-eggs/config/easterEggConfigLoader';
+
 import styles from './ChatPage.module.css';
 
-const ChatPage: React.FC = () => {
+const ChatPageContent: React.FC = () => {
   const [messages, setMessages] = useState<ChatMessageType[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -31,6 +42,30 @@ const ChatPage: React.FC = () => {
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [isScrolling, setIsScrolling] = useState(false);
+  const [inputValue, setInputValue] = useState('');
+
+  // ESC 키로 이스터에그 종료
+  useEasterEggEscapeKey();
+
+  // PgDn 키 3번 누르면 이스터에그 트리거
+  useKeyboardTrigger({
+    easterEggId: 'demon-slayer-effect',
+    key: 'PageDown',
+    targetCount: 3,
+    timeWindow: 3000, // 3초 내에 3번 눌러야 함
+  });
+
+  // 위에서 아래로 빠르게 스크롤하면 이스터에그 트리거
+  useScrollTrigger({
+    easterEggId: 'demon-slayer-effect',
+    timeWindow: 5000, // 5초 이내
+  });
+
+  // 입력값으로 이스터에그 트리거
+  useEasterEggTrigger({
+    inputValue,
+    debounceMs: 300,
+  });
 
   // 사용자가 메시지를 보냈는지 확인 (초기 메시지 제외)
   const hasUserMessages = useMemo(() => {
@@ -429,9 +464,14 @@ const ChatPage: React.FC = () => {
             onSendMessage={handleSendMessage}
             isLoading={isLoading}
             placeholder="프로젝트에 대해 궁금한 점을 물어보세요..."
+            inputValue={inputValue}
+            onInputChange={setInputValue}
           />
         </div>
       </div>
+
+      {/* 이스터에그 레이어 */}
+      <EasterEggLayer />
 
       {/* 문의 모달 */}
       <ContactModal
@@ -479,6 +519,33 @@ const ChatPage: React.FC = () => {
       </Modal>
     </div>
     </PageMeta>
+  );
+};
+
+const ChatPage: React.FC = () => {
+  // 이스터에그 초기화 - JSON 설정 파일에서 로드
+  useEffect(() => {
+    try {
+      const { triggers, effects } = loadEasterEggConfig();
+      
+      // 트리거 등록
+      triggers.forEach(trigger => {
+        easterEggRegistry.registerTrigger(trigger);
+      });
+
+      // 이펙트 등록
+      effects.forEach(effect => {
+        easterEggRegistry.registerEffect(effect);
+      });
+    } catch (error) {
+      console.error('Failed to load easter egg config:', error);
+    }
+  }, []);
+
+  return (
+    <EasterEggProvider maxConcurrent={1} initialEnabled={true}>
+      <ChatPageContent />
+    </EasterEggProvider>
   );
 };
 

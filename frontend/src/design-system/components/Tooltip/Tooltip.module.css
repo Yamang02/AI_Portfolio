@@ -16,6 +16,7 @@
   white-space: nowrap;
   background-color: var(--color-tooltip-bg);
   color: var(--color-tooltip-text);
+  border: 1px solid var(--color-tooltip-bg);
   box-shadow: var(--color-shadow-tooltip);
   opacity: 0;
   animation: fadeIn 0.15s ease-out forwards;
@@ -87,6 +88,4 @@
 
 /* Dark mode - Portal로 렌더링되므로 :global 사용 */
 /* 다크모드에서는 CSS 변수가 자동으로 변경되므로 추가 스타일만 적용 */
-:global(.dark) .tooltip {
-  border: 1px solid var(--color-border-default);
-}
+/* 라이트/다크 모드 모두 배경색과 동일한 border 사용 */

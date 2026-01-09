@@ -10,16 +10,6 @@ import { ProjectsListPage } from '@/main/pages/ProjectsListPage';
 import { ProjectDetailPage } from '@/main/pages/ProjectDetailPage';
 import { ProfilePage } from '@/main/pages/ProfilePage';
 import { ChatPage } from '@/main/pages/ChatPage';
-import {
-  EasterEggProvider,
-  EasterEggLayer,
-  useEasterEggEscapeKey,
-  useKeyboardTrigger,
-  useScrollTrigger,
-  easterEggRegistry,
-} from '@/main/features/easter-eggs';
-import { AudioIndicator } from '@/main/features/easter-eggs/components/AudioIndicator';
-import { loadEasterEggConfig } from '@/main/features/easter-eggs/config/easterEggConfigLoader';
 import { AnimatedRoutes } from '../../shared/ui/page-transition';
 import { LoadingScreen } from '@/shared/ui/LoadingScreen';
 
@@ -32,10 +22,8 @@ const MainAppContent: React.FC = () => {
     certifications,
     isLoading,
     loadingStates,
-    isChatbotOpen,
     isHistoryPanelOpen,
     isWideScreen,
-    setChatbotOpen,
     setHistoryPanelOpen
   } = useApp();
 
@@ -47,32 +35,10 @@ const MainAppContent: React.FC = () => {
   const isHomePage = location.pathname === '/';
   const isChatPage = location.pathname === '/chat';
 
-  // ESC 키로 이스터에그 종료
-  useEasterEggEscapeKey();
-
-  // PgDn 키 3번 누르면 이스터에그 트리거
-  useKeyboardTrigger({
-    easterEggId: 'demon-slayer-effect',
-    key: 'PageDown',
-    targetCount: 3,
-    timeWindow: 3000, // 3초 내에 3번 눌러야 함
-  });
-
-  // 위에서 아래로 빠르게 스크롤하면 이스터에그 트리거
-  useScrollTrigger({
-    easterEggId: 'demon-slayer-effect',
-    timeWindow: 5000, // 5초 이내
-  });
-
   // ESC 키 매핑: 열린 패널 닫기 (공통)
   useEffect(() => {
     const handleEscKey = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        // 챗봇이 열려있으면 닫기
-        if (isChatbotOpen) {
-          setChatbotOpen(false);
-          return;
-        }
         // 히스토리 패널이 열려있으면 닫기
         if (isHistoryPanelOpen) {
           setHistoryPanelOpen(false);
@@ -85,7 +51,7 @@ const MainAppContent: React.FC = () => {
     return () => {
       window.removeEventListener('keydown', handleEscKey);
     };
-  }, [isChatbotOpen, isHistoryPanelOpen, setChatbotOpen, setHistoryPanelOpen]);
+  }, [isHistoryPanelOpen, setHistoryPanelOpen]);
 
   // React Router의 기본 스크롤 복원 비활성화
   React.useEffect(() => {
@@ -93,11 +59,6 @@ const MainAppContent: React.FC = () => {
       history.scrollRestoration = 'manual';
     }
   }, []);
-
-  // 챗봇 토글
-  const handleChatbotToggle = () => {
-    setChatbotOpen((prev) => !prev);
-  };
 
   // 히스토리 패널 토글
   const handleHistoryPanelToggle = () => {
@@ -128,12 +89,6 @@ const MainAppContent: React.FC = () => {
         <Routes>
           <Route path="/" element={<HomePage />} />
         </Routes>
-        
-        {/* 이스터에그 레이어 */}
-        <EasterEggLayer />
-        
-        {/* 오디오 재생 인디케이터 */}
-        <AudioIndicator />
       </HomePageLayout>
     );
   }
@@ -162,12 +117,6 @@ const MainAppContent: React.FC = () => {
           <Route path="/projects/:id" element={<ProjectDetailPage />} />
           <Route path="/chat" element={<ChatPage />} />
         </AnimatedRoutes>
-
-        {/* 이스터에그 레이어 */}
-        <EasterEggLayer />
-        
-        {/* 오디오 재생 인디케이터 */}
-        <AudioIndicator />
       </div>
     </PageLayout>
   );
@@ -182,31 +131,10 @@ const MainApp: React.FC = () => {
     root.classList.add(theme === 'dark' ? 'dark' : 'light');
   }, []);
 
-  // 이스터에그 초기화 - JSON 설정 파일에서 로드
-  useEffect(() => {
-    try {
-      const { triggers, effects } = loadEasterEggConfig();
-      
-      // 트리거 등록
-      triggers.forEach(trigger => {
-        easterEggRegistry.registerTrigger(trigger);
-      });
-
-      // 이펙트 등록
-      effects.forEach(effect => {
-        easterEggRegistry.registerEffect(effect);
-      });
-    } catch (error) {
-      console.error('Failed to load easter egg config:', error);
-    }
-  }, []);
-
   return (
     <QueryClientProvider client={queryClient}>
       <AppProvider>
-        <EasterEggProvider maxConcurrent={1} initialEnabled={true}>
-          <MainAppContent />
-        </EasterEggProvider>
+        <MainAppContent />
       </AppProvider>
     </QueryClientProvider>
   );

@@ -4,8 +4,6 @@
 
 // Components
 export { EasterEggLayer } from './components/EasterEggLayer';
-export { EasterEggListPanel } from './components/EasterEggListPanel';
-export { AudioIndicator } from './components/AudioIndicator';
 export { EasterEggProvider } from './store/easterEggStore';
 
 // Hooks

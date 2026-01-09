@@ -18,7 +18,7 @@ import { useEasterEggStore } from '@features/easter-eggs';
  * );
  * 
  * // 모드별 값 선택
- * const Component = modeValue(HistoryPanel, EasterEggListPanel);
+ * const Component = modeValue(HistoryPanel, HistoryPanel);
  * 
  * // 모드별 클래스 선택
  * const className = modeClass('bg-primary-600', 'bg-yellow-500');

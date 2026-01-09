@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { SocialIcon, Button, TextLink } from '@/design-system';
+import { SocialIcon, Button } from '@/design-system';
 import { ContactModal } from '@/shared/ui/modal';
 import styles from './Footer.module.css';
 
@@ -19,22 +19,6 @@ export const Footer: React.FC<FooterProps> = ({ isVisible = false }) => {
       >
         <div className={styles.container}>
           <p className={styles.copyright}>© 2026, Lee Jeongjun(Yamang02)</p>
-          
-          {/* 네비게이션 링크 */}
-          <nav className={styles.navigation}>
-            <TextLink href="/">
-              Home
-            </TextLink>
-            <TextLink href="/profile">
-              Profile
-            </TextLink>
-            <TextLink href="/projects">
-              Projects
-            </TextLink>
-            <TextLink href="/chat">
-              Chat
-            </TextLink>
-          </nav>
 
           <div className={styles.links}>
             <Button

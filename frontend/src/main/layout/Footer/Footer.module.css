@@ -27,15 +27,6 @@
   margin: 0;
 }
 
-.navigation {
-  margin-top: var(--spacing-3);
-  display: flex;
-  gap: var(--spacing-4);
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
 .links {
   margin-top: var(--spacing-3);
   display: flex;

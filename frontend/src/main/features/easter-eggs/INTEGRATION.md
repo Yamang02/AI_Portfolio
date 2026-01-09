@@ -116,14 +116,14 @@ const ChatInputBar: React.FC<ChatInputBarProps> = ({
 };
 ```
 
-### 5. Chatbot 컴포넌트에도 통합 (선택사항)
+### 5. ChatPage에 트리거 통합
 
-`Chatbot` 컴포넌트 내부의 입력 필드에도 트리거를 추가할 수 있습니다:
+`ChatPage` 컴포넌트의 입력 필드에 트리거를 추가할 수 있습니다:
 
 ```tsx
 import { useEasterEggTrigger } from '@features/easter-eggs';
 
-const Chatbot: React.FC<ChatbotProps> = ({ ... }) => {
+const ChatPage: React.FC = () => {
   const [inputValue, setInputValue] = useState('');
 
   // 이스터에그 트리거 감지
@@ -135,6 +135,8 @@ const Chatbot: React.FC<ChatbotProps> = ({ ... }) => {
   // ... 나머지 코드 ...
 };
 ```
+
+**참고**: Chatbot 컴포넌트는 제거되었으며, ChatPage에서 직접 구현됩니다.
 
 ## 환경 변수 설정 (선택사항)
 

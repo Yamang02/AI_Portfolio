@@ -4,14 +4,12 @@ import { CoreTechStackSection } from '@features/introduction';
 import { TechStackTetris } from '../../components/common/TechStackTetris';
 import { TechStackApi } from '../../services/techStackApi';
 import { TechStackMetadata } from '../../entities/techstack';
-import { useEasterEggStore } from '@features/easter-eggs';
 import { Button } from '@/design-system';
 
 const HeroSection: React.FC = () => {
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [techs, setTechs] = useState<TechStackMetadata[]>([]);
   const [isAnimationEnabled, setIsAnimationEnabled] = useState(true);
-  const { isEasterEggMode } = useEasterEggStore();
 
   useEffect(() => {
     const fetchTechs = async () => {
@@ -37,7 +35,7 @@ const HeroSection: React.FC = () => {
         <TechStackTetris 
           techs={techs} 
           giantBlockTrigger={0}
-          isAnimationEnabled={isAnimationEnabled && !isEasterEggMode}
+          isAnimationEnabled={isAnimationEnabled}
           onAnimationToggle={handleAnimationToggle}
         />
       )}

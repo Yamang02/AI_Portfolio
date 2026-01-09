@@ -3,7 +3,6 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { HeroSection } from './HeroSection';
 import { PortfolioSection } from '@/main/features/project-gallery';
 import { SpeedDialFab } from '@/shared/ui';
-import { checkEasterEggTrigger, useEasterEggStore, triggerEasterEggs } from '@/main/features/easter-eggs';
 import { useFeatureAvailability } from '../../shared/lib/hooks/useFeatureAvailability';
 import { Button } from '@/design-system';
 
@@ -36,9 +35,6 @@ const HomePage: React.FC<HomePageProps> = ({
   const location = useLocation();
   const navigate = useNavigate();
   const [isFabOpen, setIsFabOpen] = useState(false);
-  const { triggerEasterEgg, isEasterEggMode, activeEffects } = useEasterEggStore();
-  const { canUseEasterEgg } = useFeatureAvailability();
-  const wasPanelOpenRef = useRef<boolean>(false);
 
   // 마운트 시 스크롤 위치 복원
   useEffect(() => {
@@ -84,55 +80,23 @@ const HomePage: React.FC<HomePageProps> = ({
     };
   }, [isHistoryPanelOpen, onHistoryPanelToggle]);
 
-  // 매트릭스 이스터에그 동작 시 목록 패널 제어
-  useEffect(() => {
-    const hasMatrixEffect = activeEffects.some(effect => effect.id === 'matrix-effect');
-
-    if (hasMatrixEffect) {
-      // 매트릭스 이스터에그가 시작되면 패널이 열려있었는지 저장하고 닫기
-      if (isHistoryPanelOpen) {
-        wasPanelOpenRef.current = true;
-        onHistoryPanelToggle();
-      } else {
-        wasPanelOpenRef.current = false;
-      }
-    } else {
-      // 매트릭스 이스터에그가 종료되면 이전에 열려있었다면 다시 열기
-      if (wasPanelOpenRef.current && !isHistoryPanelOpen) {
-        wasPanelOpenRef.current = false;
-        // 약간의 지연을 두어 이스터에그 종료 애니메이션이 완료된 후 열기
-        const timeoutId = setTimeout(() => {
-          onHistoryPanelToggle();
-        }, 500);
-        
-        return () => {
-          clearTimeout(timeoutId);
-        };
-      }
-    }
-  }, [activeEffects, isHistoryPanelOpen, onHistoryPanelToggle]);
-
   // ChatInputBar 클릭 시 /chat 페이지로 이동
   const handleChatInputClick = () => {
     navigate('/chat');
   };
 
-  // Speed Dial 액션 정의 (이스터에그 모드에 따라 버튼 변경)
+  // Speed Dial 액션 정의
   const speedDialActions = [
     {
-      icon: isEasterEggMode ? (
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
-        </svg>
-      ) : (
+      icon: (
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="12" cy="12" r="10"></circle>
           <polyline points="12 6 12 12 16 14"></polyline>
         </svg>
       ),
-      label: isEasterEggMode ? '이스터에그 목록' : '프로젝트 히스토리',
+      label: '프로젝트 히스토리',
       onClick: onHistoryPanelToggle,
-      color: isEasterEggMode ? 'bg-yellow-500 text-white hover:bg-yellow-600' : 'bg-orange-500 text-white hover:bg-orange-600'
+      color: 'bg-orange-500 text-white hover:bg-orange-600'
     },
     {
       icon: (

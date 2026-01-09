@@ -14,10 +14,6 @@ export interface ChatbotState {
   selectedProject?: string;
 }
 
-export interface ChatbotProps {
-  // 필요한 경우 props 추가
-}
-
 // 백엔드 ResponseType과 일치하는 타입 정의
 export type ResponseType = 
   | 'SUCCESS'           // 정상적인 AI 응답

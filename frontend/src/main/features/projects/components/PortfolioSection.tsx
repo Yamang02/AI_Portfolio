@@ -7,8 +7,6 @@ import { CertificationCard } from './CertificationCard';
 import { HistoryPanel } from './HistoryPanel';
 import { ProjectFilter, FilterOptions } from './ProjectFilter';
 import { SkeletonSection } from '../../../components/common/SkeletonCard';
-import { EasterEggListPanel } from '@features/easter-eggs/components/EasterEggListPanel';
-import { useEasterEggStore } from '@features/easter-eggs/store/easterEggStore';
 import { useFeatureAvailability } from '../../../shared/lib/hooks/useFeatureAvailability';
 
 interface PortfolioSectionProps {
@@ -35,7 +33,6 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
   isHistoryPanelOpen,
   onHistoryPanelToggle
 }) => {
-  const { isEasterEggMode } = useEasterEggStore();
   const { canUseChatHistoryPanel } = useFeatureAvailability();
   const [highlightedItemId, setHighlightedItemId] = React.useState<string | undefined>();
   const [longHoveredItemId, setLongHoveredItemId] = React.useState<string | undefined>();
@@ -325,23 +322,16 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
 
       {/* 조건부 렌더링: 모바일에서는 히스토리 패널 비활성화 */}
       {canUseChatHistoryPanel && (
-        isEasterEggMode ? (
-          <EasterEggListPanel
-            isOpen={isHistoryPanelOpen}
-            onToggle={onHistoryPanelToggle}
-          />
-        ) : (
-          <HistoryPanel
-            isOpen={isHistoryPanelOpen}
-            projects={projects}
-            experiences={experiences}
-            educations={educations}
-            highlightedItemId={highlightedItemId}
-            onToggle={onHistoryPanelToggle}
-            onItemHover={handleItemHover}
-            scrollToItemId={longHoveredItemId}
-          />
-        )
+        <HistoryPanel
+          isOpen={isHistoryPanelOpen}
+          projects={projects}
+          experiences={experiences}
+          educations={educations}
+          highlightedItemId={highlightedItemId}
+          onToggle={onHistoryPanelToggle}
+          onItemHover={handleItemHover}
+          scrollToItemId={longHoveredItemId}
+        />
       )}
     </section>
   );

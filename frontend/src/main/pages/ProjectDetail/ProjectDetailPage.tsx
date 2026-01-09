@@ -9,7 +9,6 @@ import { ProjectDetailGallery } from './components/ProjectDetailGallery';
 import { ProjectDetailSidebar } from './components/ProjectDetailSidebar';
 import { ProjectDetailSidebarToggle } from './components/ProjectDetailSidebarToggle';
 import { useTOCFromDOM, useActiveSection } from '@features/project-gallery/hooks';
-import { Chatbot } from '@features/chatbot';
 import { useApp } from '../../app/providers/AppProvider';
 
 // 로딩 스켈레톤 컴포넌트
@@ -73,7 +72,7 @@ const ProjectDetailError: React.FC<{ error: string; onRetry: () => void }> = ({ 
 
 const ProjectDetailPage: React.FC = () => {
   const { project, loading, error, markdownContent, handleBack } = useProjectDetail();
-  const { isChatbotOpen, setChatbotOpen, isWideScreen } = useApp();
+  const { isWideScreen } = useApp();
 
   // 사이드바 상태 관리
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -93,11 +92,6 @@ const ProjectDetailPage: React.FC = () => {
   // 사이드바 토글
   const handleSidebarToggle = () => {
     setIsSidebarOpen(prev => !prev);
-  };
-  
-  // 챗봇 토글
-  const handleChatbotToggle = () => {
-    setChatbotOpen(prev => !prev);
   };
   
   // 로딩 상태
@@ -202,13 +196,6 @@ const ProjectDetailPage: React.FC = () => {
       <ProjectDetailSidebarToggle
         isOpen={isSidebarOpen}
         onToggle={handleSidebarToggle}
-      />
-      
-      {/* 챗봇 패널 */}
-      <Chatbot 
-        isOpen={isChatbotOpen} 
-        onToggle={handleChatbotToggle} 
-        showProjectButtons={isWideScreen} 
       />
     </div>
   );

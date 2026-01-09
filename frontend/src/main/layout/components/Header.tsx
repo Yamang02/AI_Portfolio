@@ -13,16 +13,6 @@ const Header: React.FC = () => {
   const navigate = useNavigate();
 
   const handleThemeToggle = () => {
-    // 최초 클릭 여부 확인
-    const hasClickedBefore = localStorage.getItem(THEME_TOGGLE_FIRST_CLICK_KEY);
-    
-    if (!hasClickedBefore) {
-      // 최초 클릭 시 이스터에그 버튼 표시 플래그 저장
-      localStorage.setItem(THEME_TOGGLE_FIRST_CLICK_KEY, 'true');
-      // 이벤트를 발생시켜 다른 컴포넌트에 알림
-      window.dispatchEvent(new CustomEvent('easterEggButtonRevealed'));
-    }
-    
     // 테마 토글 실행
     toggleTheme();
   };
