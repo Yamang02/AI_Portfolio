@@ -1,0 +1,55 @@
+.container {
+  width: 100%;
+  margin-top: var(--spacing-8);
+}
+
+.sectionTitle {
+  margin-bottom: var(--spacing-6);
+  color: var(--color-primary-text);
+}
+
+.links {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+}
+
+.linkButton {
+  width: 100%;
+  justify-content: flex-start !important;
+  gap: var(--spacing-3);
+}
+
+.linkButton > svg:first-of-type {
+  flex-shrink: 0;
+}
+
+.linkButton > span {
+  flex: 1;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.linkButton > svg:last-of-type {
+  flex-shrink: 0;
+  margin-left: auto;
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+}
+
+.linkButton:hover > svg:last-of-type {
+  opacity: 1;
+}
+
+/* 반응형 레이아웃 */
+@media (max-width: 767px) {
+  .container {
+    margin-top: var(--spacing-6);
+  }
+
+  .sectionTitle {
+    margin-bottom: var(--spacing-4);
+  }
+}
