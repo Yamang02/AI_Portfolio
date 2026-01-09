@@ -31,15 +31,15 @@ export const IntroductionSection: React.FC<IntroductionSectionProps> = ({
         )}
       </div>
 
-      {/* 자격증 섹션 */}
-      <CertificationSection />
-
       {/* 연락처 섹션 */}
       <ContactSection
         githubUrl={githubUrl}
         email={email}
         linkedInUrl={linkedInUrl}
       />
+
+      {/* 자격증 섹션 */}
+      <CertificationSection />
     </div>
   );
 };

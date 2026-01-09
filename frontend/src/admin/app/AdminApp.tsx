@@ -14,30 +14,14 @@ import { TechStackManagement } from '../pages/TechStackManagement';
 import { CareerManagement } from '../pages/CareerManagement';
 import { CertificationManagement } from '../pages/CertificationManagement';
 import { Settings } from '../pages/Settings';
+import { adminTheme } from '../shared/theme/antdTheme';
 
 const AdminApp: React.FC = () => {
-  // 테마 초기화는 상위 App.tsx에서 처리됨
+  // Admin 전용 Antd 테마 적용
+  // 디자인시스템의 CSS 변수를 참조하여 Main 영역과 색상 체계 통일
 
   return (
-    <ConfigProvider
-        theme={{
-          token: {
-            colorPrimary: '#8b5cf6', // 기존 프로젝트 색상
-            fontFamily: 'Pretendard, sans-serif',
-            borderRadius: 8,
-          },
-          components: {
-            Layout: {
-              headerBg: '#ffffff',
-              siderBg: '#001529',
-              bodyBg: '#f0f2f5',
-            },
-            Button: {
-              borderRadius: 8,
-            },
-          },
-        }}
-      >
+    <ConfigProvider theme={adminTheme}>
         <AntdApp>
           <QueryClientProvider client={adminQueryClient}>
             <AuthProvider>

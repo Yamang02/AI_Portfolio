@@ -13,12 +13,12 @@ const isDevelopment = import.meta.env.DEV;
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: STALE_TIME.NONE, // stale time 제거 - 항상 최신 데이터 확인
+      staleTime: STALE_TIME.NONE, // 항상 최신 데이터 확인
       gcTime: DEFAULT_CACHE_TIME,
       retry: 3, // 최대 3회 재시도
       retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // 지수 백오프
       refetchOnWindowFocus: false, // 창 포커스 시 자동 리프레시 비활성화 (캐시 우선)
-      refetchOnMount: isDevelopment ? true : false, // 개발 환경에서는 마운트 시 리프레시
+      refetchOnMount: 'always', // staleTime이 0이므로 항상 마운트 시 refetch (캐시 먼저 보여주고 백그라운드 업데이트)
       refetchOnReconnect: true, // 네트워크 재연결 시 리프레시
     },
   },
