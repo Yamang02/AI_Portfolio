@@ -13,7 +13,7 @@
   color: var(--color-primary-text);
 }
 
-.card {
+.introCard {
   width: 100%;
   /* Card 컴포넌트의 배경색을 경력/교육 카드와 동일하게 오버라이드 */
   background-color: var(--color-bg-primary) !important;
@@ -23,43 +23,8 @@
   font-size: var(--font-size-base);
   color: var(--color-text-primary);
   line-height: var(--line-height-relaxed);
-  margin-bottom: var(--spacing-6);
   white-space: pre-wrap;
-}
-
-.links {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-3);
-}
-
-.linkButton {
-  width: 100%;
-  justify-content: flex-start !important;
-  gap: var(--spacing-3);
-}
-
-.linkButton > svg:first-of-type {
-  flex-shrink: 0;
-}
-
-.linkButton > span {
-  flex: 1;
-  text-align: left;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.linkButton > svg:last-of-type {
-  flex-shrink: 0;
-  margin-left: auto;
-  opacity: 0.6;
-  transition: opacity 0.2s ease;
-}
-
-.linkButton:hover > svg:last-of-type {
-  opacity: 1;
+  margin: 0;
 }
 
 /* 반응형 레이아웃 */
@@ -70,6 +35,5 @@
 
   .introduction {
     font-size: var(--font-size-sm);
-    margin-bottom: var(--spacing-4);
   }
 }
