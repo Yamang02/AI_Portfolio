@@ -4,9 +4,9 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { message } from 'antd';
 import { projectApi } from './projectApi';
-import { STALE_TIME } from '../../../../main/config/queryCacheConfig';
+import { STALE_TIME } from '@/shared/config/queryCacheConfig';
 import { Project } from '../model/project.types';
-import { queryClient as mainQueryClient } from '../../../../main/config/queryClient';
+import { queryClient as mainQueryClient } from '@/main/app/config/queryClient';
 
 // Query Keys
 export const PROJECT_KEYS = {

@@ -2,9 +2,12 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { RoleBadge } from './RoleBadge';
 
 const meta: Meta<typeof RoleBadge> = {
-  title: 'Design System/Badge/RoleBadge',
+  title: 'Design System/Components/Badge/RoleBadge',
   component: RoleBadge,
   tags: ['autodocs'],
+  parameters: {
+    layout: 'centered',
+  },
   argTypes: {
     size: {
       control: 'select',
@@ -23,18 +26,14 @@ export const Default: Story = {
   },
 };
 
-export const Small: Story = {
-  args: {
-    role: '프론트엔드 개발자',
-    size: 'sm',
-  },
-};
-
-export const Large: Story = {
-  args: {
-    role: '프론트엔드 개발자',
-    size: 'lg',
-  },
+export const Sizes: Story = {
+  render: () => (
+    <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
+      <RoleBadge role="프론트엔드 개발자" size="sm" />
+      <RoleBadge role="프론트엔드 개발자" size="md" />
+      <RoleBadge role="프론트엔드 개발자" size="lg" />
+    </div>
+  ),
 };
 
 export const VariousRoles: Story = {

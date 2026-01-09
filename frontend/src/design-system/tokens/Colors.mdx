@@ -1,0 +1,18 @@
+import { Meta, Title, Description, Canvas, Story } from '@storybook/blocks';
+import * as AllColorsStories from './AllColors.stories';
+
+<Meta of={AllColorsStories} />
+
+<Title />
+
+<Description>
+  컬러 토큰 문서입니다. 실제 컬러 스왓/토큰 목록은 아래 `All Colors` 스토리를 렌더링해서
+  확인합니다.
+</Description>
+
+## All Colors
+
+<Canvas>
+  <Story of={AllColorsStories.AllColors} />
+</Canvas>
+

@@ -1,10 +1,10 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { ConfigProvider, App as AntdApp } from 'antd';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { adminQueryClient } from '../config/queryClient';
 import { AuthProvider } from '../hooks/useAuth';
-import { Header } from '@widgets/layout';
+import { Header } from '@/main/widgets/header';
 import { LoginForm, ProtectedRoute } from '../features/auth';
 import { AdminLayout } from '../shared/components/AdminLayout';
 import { Dashboard } from '../pages/Dashboard';
@@ -14,36 +14,14 @@ import { TechStackManagement } from '../pages/TechStackManagement';
 import { CareerManagement } from '../pages/CareerManagement';
 import { CertificationManagement } from '../pages/CertificationManagement';
 import { Settings } from '../pages/Settings';
+import { adminTheme } from '../shared/theme/antdTheme';
 
 const AdminApp: React.FC = () => {
-  // 테마 초기화 (localStorage에서 테마 로드)
-  useEffect(() => {
-    const theme = localStorage.getItem('portfolio-theme') || 'light';
-    const root = document.documentElement;
-    root.classList.remove('light', 'dark');
-    root.classList.add(theme === 'dark' ? 'dark' : 'light');
-  }, []);
+  // Admin 전용 Antd 테마 적용
+  // 디자인시스템의 CSS 변수를 참조하여 Main 영역과 색상 체계 통일
 
   return (
-    <ConfigProvider
-        theme={{
-          token: {
-            colorPrimary: '#8b5cf6', // 기존 프로젝트 색상
-            fontFamily: 'Pretendard, sans-serif',
-            borderRadius: 8,
-          },
-          components: {
-            Layout: {
-              headerBg: '#ffffff',
-              siderBg: '#001529',
-              bodyBg: '#f0f2f5',
-            },
-            Button: {
-              borderRadius: 8,
-            },
-          },
-        }}
-      >
+    <ConfigProvider theme={adminTheme}>
         <AntdApp>
           <QueryClientProvider client={adminQueryClient}>
             <AuthProvider>

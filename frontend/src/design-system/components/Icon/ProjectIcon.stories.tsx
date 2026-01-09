@@ -5,10 +5,20 @@ const meta: Meta<typeof ProjectIcon> = {
   title: 'Design System/Components/Icon/ProjectIcon',
   component: ProjectIcon,
   tags: ['autodocs'],
+  parameters: {
+    layout: 'centered',
+  },
 };
 
 export default meta;
 type Story = StoryObj<typeof ProjectIcon>;
+
+export const Default: Story = {
+  args: {
+    type: 'web',
+    size: 'md',
+  },
+};
 
 export const Web: Story = {
   args: {
@@ -59,13 +69,6 @@ export const AI: Story = {
   },
 };
 
-export const Default: Story = {
-  args: {
-    type: 'default',
-    size: 'md',
-  },
-};
-
 export const AllTypes: Story = {
   render: () => (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '2rem', alignItems: 'center' }}>
@@ -105,7 +108,7 @@ export const AllTypes: Story = {
   ),
 };
 
-export const AllSizes: Story = {
+export const Sizes: Story = {
   render: () => (
     <div style={{ display: 'flex', gap: '2rem', alignItems: 'center', flexWrap: 'wrap' }}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'center' }}>

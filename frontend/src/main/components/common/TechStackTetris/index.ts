@@ -1,1 +1,0 @@
-export { TechStackTetris } from './TechStackTetris';

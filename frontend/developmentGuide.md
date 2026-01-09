@@ -9,7 +9,10 @@
 - **AI Agent 개발 가이드**: `docs/technical/guides/agent-development-guide.md`
 - **마이그레이션 가이드**: `docs/archive/frontend-migration/`
 - **디자인 시스템**: `docs/technical/design-system/`
+  - **사용 가이드**: `docs/technical/design-system/usage-guide.md` (상세 가이드)
   - **컬러 시스템**: `docs/technical/design-system/color-palette.md`
+  - **Phase 3 구현 가이드**: `docs/technical/design-system/phase-3-implementation-guide.md`
+  - **Phase 3 사용 예시**: `docs/technical/design-system/phase-3-usage-examples.md`
   - **스토리북 문서**: Storybook 실행 후 `Design System/Tokens/Colors` 참조
 
 ## 🚀 빠른 시작
@@ -28,16 +31,64 @@ npm run dev
 - Vite
 - React Query
 
-## 🎨 컬러 시스템 사용
+## 🎨 디자인 시스템
 
-프로젝트는 업계 표준 컬러 시스템 구조를 따릅니다:
+프로젝트는 **디자인 시스템**을 도입하여 일관된 UI/UX를 제공합니다. 모든 컴포넌트 개발 시 디자인 시스템을 우선적으로 활용해야 합니다.
 
-- **Semantic Tokens 사용 권장**: `brandSemantic`, `lightModeSemantic`, `darkModeSemantic` 등
-- **CSS 변수 기반**: 모든 컬러 값은 `globals.css`의 CSS 변수(`--color-*`)가 단일 소스
-- **자세한 가이드**: 
-  - 문서: `docs/technical/design-system/color-palette.md`
-  - 스토리북: `npm run storybook` 실행 후 `Design System/Tokens/Colors` 참조
-  - 코드: `frontend/src/design-system/tokens/colors.ts`
+**⚠️ 중요**: 상세한 디자인 시스템 사용 가이드는 다음 문서를 참조하세요:
+- **디자인 시스템 가이드**: `docs/technical/design-system/README.md`
+- **컬러 시스템**: `docs/technical/design-system/color-palette.md`
+- **Phase 3 구현 가이드**: `docs/technical/design-system/phase-3-implementation-guide.md`
+- **Phase 3 사용 예시**: `docs/technical/design-system/phase-3-usage-examples.md`
+- **스토리북**: `npm run storybook` 실행 후 디자인 시스템 컴포넌트 확인
+
+### ✅ DO (패턴)
+
+```typescript
+// 1. 디자인 시스템 컴포넌트 우선 사용
+import { Button, Badge, Card, SectionTitle, TextLink } from '@/design-system';
+<Button variant="primary" size="md">클릭</Button>
+
+// 2. 컬러는 CSS 변수 사용
+style={{ color: 'var(--color-text-primary)' }}
+style={{ backgroundColor: 'var(--color-bg-primary)' }}
+style={{ borderColor: 'var(--color-border-default)' }}
+
+// 3. 디자인 토큰 사용
+import { spacing, borderRadius, shadow } from '@/design-system/tokens';
+style={{ padding: spacing[4], borderRadius: borderRadius.lg }}
+
+// 또는 CSS 변수로 직접 사용
+style={{ padding: 'var(--spacing-4)', borderRadius: 'var(--border-radius-lg)' }}
+
+// 4. 새 컴포넌트는 디자인 시스템에 등록 (재사용 가능한 경우)
+// frontend/src/design-system/components/NewComponent/NewComponent.tsx
+// CSS 변수 사용 필수, index.ts에 export 추가
+```
+
+### ❌ DON'T (안티패턴)
+
+```typescript
+// ❌ 하드코딩된 컬러 값 사용 금지
+style={{ color: '#111827' }}
+style={{ backgroundColor: '#ffffff' }}
+
+// ❌ 디자인 시스템 컴포넌트 무시하고 직접 구현 금지
+// Button, Badge 등이 있는데 새로 만들지 말 것
+
+// ❌ 디자인 토큰 없이 하드코딩된 값 사용 금지
+style={{ padding: '16px', borderRadius: '8px' }}
+```
+
+### 컴포넌트 생성 체크리스트
+
+새 컴포넌트를 생성할 때 다음을 확인하세요:
+
+1. **디자인 시스템 확인**: 필요한 컴포넌트가 이미 존재하는지 확인 (`frontend/src/design-system/components/` 또는 Storybook)
+2. **컬러 사용**: CSS 변수(`--color-*`) 사용, 하드코딩 금지
+3. **디자인 토큰 사용**: spacing, borderRadius, shadow 등 토큰 활용
+4. **재사용성 검토**: 재사용 가능하면 디자인 시스템에 등록
+5. **Storybook 문서화**: 디자인 시스템 컴포넌트는 Storybook 스토리 작성
 
 ## 🌓 다크모드 처리 방식
 
@@ -144,6 +195,30 @@ const isHomePage = location.pathname === '/';
 - **스크롤 관련 CSS 변경 시**: 홈페이지의 스크롤 드리븐 효과가 정상 작동하는지 반드시 확인
 - **애니메이션 추가 시**: 페이지별 overflow 정책과의 충돌 여부 검토
 - **레이아웃 리팩토링 시**: 각 페이지의 특수 요구사항 문서화 유지
+
+## 🔑 식별자 사용 가이드 (PK vs businessId)
+
+프로젝트는 **내부 식별자(PK)**와 **외부 식별자(businessId)**를 분리하여 사용합니다.
+
+**프론트엔드는 `businessId`만 사용합니다.** 내부 PK는 백엔드에서만 사용되며 프론트엔드에 노출되지 않습니다.
+
+### ✅ DO
+
+- **모든 API 통신에서 `businessId` 사용**
+  - API 엔드포인트: `/api/articles/article-001`
+  - 라우팅: `/articles/:businessId`
+  - React Query 키: `['article', 'article-001']`
+- **프로젝트 참조 시 프로젝트의 `businessId` 사용**
+  - API 응답의 `projectId`는 프로젝트의 `businessId`
+- **상태 관리, 라우팅, 쿼리 키 모두 `businessId` 기반**
+
+### ❌ DON'T
+
+- **내부 PK 사용 금지** (`id: 1` 같은 숫자 식별자)
+- **API 응답의 `id` 필드 사용 금지** (API 응답에 `id` 필드는 없음)
+- **PK와 businessId 혼용 금지**
+
+> 📖 **상세 가이드**: `docs/technical/guides/identifier-usage-guide.md` 참조
 
 ## 🔗 관련 문서
 

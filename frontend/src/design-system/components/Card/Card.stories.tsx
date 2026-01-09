@@ -5,6 +5,9 @@ const meta: Meta<typeof Card> = {
   title: 'Design System/Components/Card',
   component: Card,
   tags: ['autodocs'],
+  parameters: {
+    layout: 'centered',
+  },
 };
 
 export default meta;
@@ -34,28 +37,23 @@ export const Outlined: Story = {
   },
 };
 
-export const NoPadding: Story = {
-  args: {
-    variant: 'default',
-    padding: 'none',
-    children: 'Card with no padding',
-  },
-};
-
-export const SmallPadding: Story = {
-  args: {
-    variant: 'default',
-    padding: 'sm',
-    children: 'Card with small padding',
-  },
-};
-
-export const LargePadding: Story = {
-  args: {
-    variant: 'default',
-    padding: 'lg',
-    children: 'Card with large padding',
-  },
+export const PaddingSizes: Story = {
+  render: () => (
+    <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+      <Card variant="default" padding="none">
+        No Padding
+      </Card>
+      <Card variant="default" padding="sm">
+        Small Padding
+      </Card>
+      <Card variant="default" padding="md">
+        Medium Padding
+      </Card>
+      <Card variant="default" padding="lg">
+        Large Padding
+      </Card>
+    </div>
+  ),
 };
 
 export const Clickable: Story = {
@@ -83,24 +81,6 @@ export const AllVariants: Story = {
   ),
 };
 
-export const AllPaddingSizes: Story = {
-  render: () => (
-    <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-      <Card variant="default" padding="none">
-        No Padding
-      </Card>
-      <Card variant="default" padding="sm">
-        Small Padding
-      </Card>
-      <Card variant="default" padding="md">
-        Medium Padding
-      </Card>
-      <Card variant="default" padding="lg">
-        Large Padding
-      </Card>
-    </div>
-  ),
-};
 
 export const WithContent: Story = {
   render: () => (

@@ -1,0 +1,358 @@
+/* 상단 컨트롤 영역 - 왼쪽 상단 배치 */
+.topBar {
+  width: 100%;
+  background: var(--color-background, #ffffff);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  flex-shrink: 0; /* 높이가 고정되도록 */
+}
+
+.topBarContent {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  gap: var(--spacing-md, 16px);
+  padding: var(--spacing-md, 16px);
+  flex-wrap: wrap;
+}
+
+/* 사용량 컨테이너 */
+.usageContainer {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md, 16px);
+}
+
+/* 사용량 텍스트 - 라벨과 문구들 가로 배치 */
+.usageText {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm, 12px);
+  font-size: var(--typography-body-small-size, 12px);
+  color: var(--color-text-secondary, #6b7280);
+  line-height: 1.4;
+}
+
+.usageLabel {
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+  white-space: nowrap;
+}
+
+.usageRows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs, 2px);
+  text-align: right;
+}
+
+.usageRow {
+  display: block;
+}
+
+.blockedText {
+  color: var(--color-status-error, #ef4444);
+  font-weight: 500;
+  font-size: var(--typography-body-small-size, 12px);
+  white-space: nowrap;
+}
+
+/* 버튼 컨테이너 */
+.buttonsContainer {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm, 12px);
+}
+
+/* 정보 아이콘 버튼 - 테두리 없이 눈에 띄는 색 */
+.infoButton {
+  border: none !important;
+  background-color: var(--color-primary-500, #3b82f6) !important;
+  color: white !important;
+}
+
+.infoButton:hover:not(:disabled) {
+  background-color: var(--color-primary-600, #2563eb) !important;
+  transform: scale(1.05);
+}
+
+.infoButton:active:not(:disabled) {
+  background-color: var(--color-primary-700, #1d4ed8) !important;
+  transform: scale(1);
+}
+
+/* 안내사항 모달 내용 */
+.infoContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md, 16px);
+}
+
+.infoContent h3 {
+  font-size: var(--typography-heading-3-size, 20px);
+  font-weight: var(--typography-heading-3-weight, 600);
+  color: var(--color-text-primary, #111827);
+  margin: 0;
+}
+
+.infoContent h4 {
+  font-size: var(--typography-heading-4-size, 16px);
+  font-weight: var(--typography-heading-4-weight, 600);
+  color: var(--color-text-primary, #111827);
+  margin: 0;
+  margin-top: var(--spacing-sm, 12px);
+}
+
+.infoContent p {
+  font-size: var(--typography-body-size, 14px);
+  color: var(--color-text-secondary, #6b7280);
+  margin: 0;
+  line-height: 1.6;
+}
+
+.infoContent ul {
+  margin: 0;
+  padding-left: var(--spacing-lg, 20px);
+  color: var(--color-text-secondary, #6b7280);
+}
+
+.infoContent li {
+  margin-bottom: var(--spacing-xs, 8px);
+  line-height: 1.6;
+}
+
+.infoWarning {
+  margin-top: var(--spacing-md, 16px);
+  padding: var(--spacing-md, 16px);
+  background: var(--color-surface-elevated, #f9fafb);
+  border-radius: var(--radius-md, 8px);
+  border-left: 3px solid var(--color-primary-500, #3b82f6);
+}
+
+.infoWarning strong {
+  display: block;
+  margin-bottom: var(--spacing-xs, 8px);
+  color: var(--color-text-primary, #111827);
+}
+
+.infoWarning p {
+  margin: 0;
+  color: var(--color-text-secondary, #6b7280);
+}
+
+.chatPage {
+  display: flex;
+  flex-direction: column;
+  flex: 1; /* 남은 공간을 모두 차지 */
+  min-height: 0; /* flex 자식이 축소될 수 있도록 */
+  max-width: 72rem; /* max-w-6xl (1152px) - 더 넓은 채팅 영역 */
+  margin: 0 auto;
+  padding: var(--spacing-md, 16px) var(--spacing-md, 16px) var(--spacing-md, 16px) var(--spacing-md, 16px); /* 상단, 좌우, 하단 패딩 */
+  padding-bottom: calc(var(--spacing-md, 16px) + 100px); /* 하단 패딩 + ChatInputBar 높이 여유 공간 (80px → 100px로 증가) */
+  position: relative;
+  width: 100%;
+  overflow: hidden; /* 채팅 영역이 입력 필드 위에 고정되도록 */
+}
+
+/* 초기 상태: 중앙 배치 */
+.chatPage.emptyState {
+  justify-content: center;
+  align-items: center;
+}
+
+/* 메시지가 있을 때: 일반 레이아웃 */
+.chatPage.hasMessages {
+  justify-content: flex-start;
+}
+
+/* 메시지 영역 */
+.messagesContainer {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: var(--spacing-md, 16px) var(--spacing-lg, 24px); /* 상하 16px, 좌우 24px - 스크롤바와 버블 사이 간격 */
+  min-height: 0;
+  width: 100%;
+  scrollbar-width: thin; /* Firefox: 얇은 스크롤바 */
+  scrollbar-color: transparent transparent; /* Firefox: 기본적으로 투명 */
+  transition: scrollbar-color 0.5s ease-out; /* Firefox: 스크롤바 색상 전환 */
+}
+
+/* Webkit 브라우저 (Chrome, Safari, Edge) 스크롤바 스타일링 */
+.messagesContainer::-webkit-scrollbar {
+  width: 8px;
+}
+
+.messagesContainer::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.messagesContainer::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 4px;
+  transition: background 0.5s ease-out, opacity 0.5s ease-out; /* 부드러운 전환 효과 */
+  opacity: 0; /* 기본적으로 투명 */
+}
+
+/* 스크롤 중일 때만 스크롤바 표시 */
+.messagesContainer.scrolling {
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent; /* Firefox: 스크롤 중일 때만 표시 */
+}
+
+.messagesContainer.scrolling::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  opacity: 1; /* 스크롤 중일 때 완전히 보임 */
+}
+
+.messagesContainer.scrolling::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+/* 다크 모드 스크롤바 */
+@media (prefers-color-scheme: dark) {
+  .messagesContainer.scrolling {
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent; /* Firefox: 다크 모드 스크롤 중일 때만 표시 */
+  }
+
+  .messagesContainer.scrolling::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    opacity: 1; /* 스크롤 중일 때 완전히 보임 */
+  }
+
+  .messagesContainer.scrolling::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+}
+
+/* 초기 상태일 때 메시지 영역 중앙 배치 */
+.emptyState .messagesContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  max-width: 600px;
+  width: 100%;
+  margin: 0 auto;
+  padding-top: var(--spacing-xl, 32px);
+}
+
+/* 일반 상태일 때 메시지 영역 - 입력 필드와 같은 너비 */
+.hasMessages .messagesContainer {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* 로딩 메시지 */
+.loadingMessage {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: var(--spacing-md, 16px);
+}
+
+.loadingBubble {
+  background: var(--color-surface-elevated, #f9fafb);
+  border: 1px solid var(--color-border-default, #e5e7eb);
+  border-radius: 12px;
+  border-bottom-left-radius: 0;
+  padding: var(--spacing-md, 16px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 입력 영역 - 하단 고정 */
+.inputContainer {
+  flex-shrink: 0;
+  background: var(--color-background, #ffffff);
+  z-index: 10;
+  margin-top: auto;
+  padding-top: var(--spacing-md, 16px);
+  padding-bottom: var(--spacing-md, 16px); /* 하단 패딩 추가 */
+}
+
+/* 다크 모드 지원 */
+@media (prefers-color-scheme: dark) {
+  .topBar {
+    background: var(--color-background, #111827);
+  }
+
+  .usageText {
+    color: var(--color-text-secondary, #9ca3af);
+  }
+
+  .usageLabel {
+    color: var(--color-text-primary, #f9fafb);
+  }
+
+  .blockedText {
+    color: var(--color-status-error, #f87171);
+  }
+
+  .infoButton {
+    background-color: var(--color-primary-400, #60a5fa) !important;
+  }
+
+  .infoButton:hover:not(:disabled) {
+    background-color: var(--color-primary-500, #3b82f6) !important;
+  }
+
+  .infoButton:active:not(:disabled) {
+    background-color: var(--color-primary-600, #2563eb) !important;
+  }
+
+  .infoContent h3,
+  .infoContent h4 {
+    color: var(--color-text-primary, #f9fafb);
+  }
+
+  .infoContent p,
+  .infoContent ul {
+    color: var(--color-text-secondary, #9ca3af);
+  }
+
+  .infoWarning {
+    background: var(--color-surface-elevated, #1f2937);
+    border-left-color: var(--color-primary-500, #60a5fa);
+  }
+
+  .infoWarning strong {
+    color: var(--color-text-primary, #f9fafb);
+  }
+
+  .infoWarning p {
+    color: var(--color-text-secondary, #9ca3af);
+  }
+
+  .loadingBubble {
+    background: var(--color-surface-elevated, #1f2937);
+    border-color: var(--color-border-default, #374151);
+  }
+
+  .inputContainer {
+    background: var(--color-background, #111827);
+  }
+}
+
+/* 반응형 디자인 */
+@media (max-width: var(--breakpoint-mobile)) {
+  .topBarContent {
+    padding: var(--spacing-sm, 12px);
+    gap: var(--spacing-sm, 12px);
+  }
+
+  .badges {
+    gap: var(--spacing-xs, 8px);
+  }
+
+  .chatPage {
+    padding: var(--spacing-sm, 12px);
+    min-height: calc(100vh - var(--spacing-header-height, 60px) - var(--spacing-footer-height, 100px) - 60px);
+  }
+
+  .messagesContainer {
+    padding: var(--spacing-sm, 12px) var(--spacing-md, 16px); /* 모바일에서도 좌우 패딩 유지 */
+  }
+}

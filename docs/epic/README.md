@@ -5,6 +5,7 @@
 ## 📁 현재 에픽
 
 - `portfolio-renewal-refactor/` - Portfolio Site Renewal (Structural Refactor)
+- `profile-article/` - Profile Article Management (자기소개 Markdown 관리 및 기술 아티클 시스템)
 
 ## 📝 에픽 문서 구조
 

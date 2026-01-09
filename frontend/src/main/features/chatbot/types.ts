@@ -14,10 +14,6 @@ export interface ChatbotState {
   selectedProject?: string;
 }
 
-export interface ChatbotProps {
-  // 필요한 경우 props 추가
-}
-
 // 백엔드 ResponseType과 일치하는 타입 정의
 export type ResponseType = 
   | 'SUCCESS'           // 정상적인 AI 응답
@@ -54,4 +50,5 @@ export interface BackendChatResponse {
   showEmailButton: boolean;           // 메일 버튼 표시 여부
   responseType: ResponseType;         // 응답 타입
   reason?: string;                    // 상세 이유
-} 
+}
+

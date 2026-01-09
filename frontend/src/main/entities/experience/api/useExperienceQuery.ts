@@ -4,7 +4,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { experienceApi } from './experienceApi';
-import { QUERY_STALE_TIME } from '../../../config/queryCacheConfig';
+import { QUERY_STALE_TIME } from '@/shared/config/queryCacheConfig';
 
 // 쿼리 키 상수
 export const EXPERIENCE_QUERY_KEYS = {
@@ -13,12 +13,12 @@ export const EXPERIENCE_QUERY_KEYS = {
 } as const;
 
 /**
- * 경험 목록 조회 훅
+ * 경험 목록 조회 훅 (Main용 - 공개 API 사용)
  */
 export const useExperiencesQuery = () => {
   return useQuery({
     queryKey: EXPERIENCE_QUERY_KEYS.lists(),
-    queryFn: () => experienceApi.getExperiences(),
+    queryFn: () => experienceApi.getExperiencesMain(),
     staleTime: QUERY_STALE_TIME.EXPERIENCE,
   });
 };

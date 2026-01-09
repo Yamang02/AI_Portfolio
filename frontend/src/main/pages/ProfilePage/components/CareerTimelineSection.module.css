@@ -1,0 +1,54 @@
+.container {
+  width: 100%;
+}
+
+.sectionTitle {
+  margin-bottom: var(--spacing-6);
+  color: var(--color-primary-dark);
+}
+
+/* 기존 경력/교육 상세 섹션 */
+.detailSection {
+  width: 100%;
+}
+
+/* 2열 그리드: Work | Other Experience */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-8);
+  align-items: start;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+}
+
+.cards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+}
+
+.empty {
+  text-align: center;
+  padding: var(--spacing-8);
+}
+
+.emptyText {
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+}
+
+/* 반응형 레이아웃 */
+@media (max-width: var(--breakpoint-mobile)) {
+  .sectionTitle {
+    margin-bottom: var(--spacing-4);
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-6);
+  }
+}

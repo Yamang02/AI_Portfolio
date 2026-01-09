@@ -1,0 +1,37 @@
+/**
+ * 홈페이지 전용 레이아웃 스타일
+ * 
+ * CSS scroll-driven animations 지원을 위한 최적화:
+ * - overflow: visible (hidden 사용 시 animation-timeline: view() 동작 안함)
+ * - position: static (absolute/fixed 사용 시 스크롤 컨텍스트 변경됨)
+ * - display: block (flex 사용 시 일부 브라우저에서 문제 발생 가능)
+ */
+
+.layout {
+  /* 
+   * 중요: min-height 대신 height: auto 사용
+   * min-height: 100vh는 일부 경우 스크롤 계산에 영향을 줄 수 있음
+   */
+  width: 100%;
+  
+  /* 
+   * overflow-x: clip 사용
+   * - hidden과 달리 새로운 스크롤 컨테이너를 생성하지 않음
+   * - scroll-driven animation의 animation-timeline: view()가 정상 작동
+   * - translateX 애니메이션으로 인한 좌우 스크롤 방지
+   * 
+   * 참고: clip은 IE/구버전 브라우저 미지원, 하지만 scroll-driven animation도
+   * 같은 브라우저에서 미지원이므로 문제 없음
+   */
+  overflow-x: clip;
+}
+
+.content {
+  /* 
+   * flex: 1 대신 block 레이아웃 유지
+   * scroll-driven animation이 올바르게 동작하려면
+   * 콘텐츠가 자연스러운 document flow를 따라야 함
+   */
+  display: block;
+  width: 100%;
+}

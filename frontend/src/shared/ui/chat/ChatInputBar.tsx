@@ -9,6 +9,8 @@ interface ChatInputBarProps {
   placeholder?: string;
   speedDialButton?: React.ReactNode;
   isFabOpen?: boolean;
+  inputValue?: string;
+  onInputChange?: (value: string) => void;
 }
 
 const SendIcon = () => (
@@ -34,10 +36,22 @@ const ChatInputBar: React.FC<ChatInputBarProps> = ({
   isLoading = false,
   placeholder = '프로젝트에 대해 궁금한 점을 물어보세요...',
   speedDialButton,
-  isFabOpen = false
+  isFabOpen = false,
+  inputValue: controlledInputValue,
+  onInputChange
 }) => {
-  const [inputValue, setInputValue] = useState('');
+  const [internalInputValue, setInternalInputValue] = useState('');
+  const isControlled = controlledInputValue !== undefined;
+  const inputValue = isControlled ? controlledInputValue : internalInputValue;
   const [isFocused, setIsFocused] = useState(false);
+
+  const handleInputChange = (value: string) => {
+    if (isControlled) {
+      onInputChange?.(value);
+    } else {
+      setInternalInputValue(value);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,7 +59,11 @@ const ChatInputBar: React.FC<ChatInputBarProps> = ({
 
     // 메시지를 챗봇으로 전송
     onSendMessage(inputValue);
-    setInputValue('');
+    if (isControlled) {
+      onInputChange?.('');
+    } else {
+      setInternalInputValue('');
+    }
   };
 
   const handleFocus = () => {
@@ -72,7 +90,7 @@ const ChatInputBar: React.FC<ChatInputBarProps> = ({
           <input
             type="text"
             value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
+            onChange={(e) => handleInputChange(e.target.value)}
             onFocus={handleFocus}
             onBlur={handleBlur}
             placeholder={placeholder}

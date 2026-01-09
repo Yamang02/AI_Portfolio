@@ -11,7 +11,7 @@ import {
 } from './colors';
 
 const meta: Meta = {
-  title: 'Design System/Tokens/All Colors',
+  title: 'Design System/Foundation/Colors',
   parameters: {
     layout: 'padded',
   },

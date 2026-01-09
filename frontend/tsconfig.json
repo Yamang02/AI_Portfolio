@@ -28,6 +28,7 @@
       "@shared/*": ["./src/shared/*"],
       "@entities/*": ["./src/entities/*"],
       "@features/*": ["./src/features/*"],
+      "@main/*": ["./src/main/*"],
       "@widgets/*": ["./src/widgets/*"],
       "@pages/*": ["./src/pages/*"],
       "@processes/*": ["./src/processes/*"],

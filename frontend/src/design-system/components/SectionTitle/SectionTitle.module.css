@@ -32,7 +32,7 @@
 }
 
 /* Mobile */
-@media (max-width: 767px) {
+@media (max-width: var(--breakpoint-mobile)) {
   .h1 {
     font-size: 1.875rem; /* 30px */
   }

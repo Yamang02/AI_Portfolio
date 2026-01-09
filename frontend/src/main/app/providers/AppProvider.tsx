@@ -22,13 +22,7 @@ interface AppState {
 
 interface AppContextValue extends AppState {
   // UI state
-  isChatbotOpen: boolean;
-  isHistoryPanelOpen: boolean;
   isWideScreen: boolean;
-  
-  // Actions
-  setChatbotOpen: (open: boolean | ((prev: boolean) => boolean)) => void;
-  setHistoryPanelOpen: (open: boolean | ((prev: boolean) => boolean)) => void;
 }
 
 const AppContext = createContext<AppContextValue | undefined>(undefined);
@@ -47,13 +41,6 @@ interface AppProviderProps {
 
 export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   // UI 상태
-  const [isChatbotOpen, setChatbotOpen] = useState(false);
-  const [isHistoryPanelOpen, setHistoryPanelOpen] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return window.innerWidth > 2400;
-    }
-    return true;
-  });
   const [isWideScreen, setIsWideScreen] = useState(() => {
     if (typeof window !== 'undefined') {
       return window.innerWidth > 2400;
@@ -97,13 +84,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     loadingStates,
     
     // UI state
-    isChatbotOpen,
-    isHistoryPanelOpen,
     isWideScreen,
-    
-    // Actions
-    setChatbotOpen,
-    setHistoryPanelOpen,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

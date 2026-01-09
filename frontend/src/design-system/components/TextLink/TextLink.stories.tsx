@@ -2,9 +2,12 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { TextLink } from './TextLink';
 
 const meta: Meta<typeof TextLink> = {
-  title: 'Design System/TextLink',
+  title: 'Design System/Components/TextLink',
   component: TextLink,
   tags: ['autodocs'],
+  parameters: {
+    layout: 'centered',
+  },
   argTypes: {
     external: {
       control: 'boolean',

@@ -6,9 +6,9 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { adminCertificationApi } from './adminCertificationApi';
-import { STALE_TIME } from '../../../../main/config/queryCacheConfig';
+import { STALE_TIME } from '@/shared/config/queryCacheConfig';
 import { Certification, CertificationFormData } from '../model/certification.types';
-import { queryClient as mainQueryClient } from '../../../../main/config/queryClient';
+import { queryClient as mainQueryClient } from '@/main/app/config/queryClient';
 
 // ==================== Query Keys ====================
 export const CERTIFICATION_KEYS = {

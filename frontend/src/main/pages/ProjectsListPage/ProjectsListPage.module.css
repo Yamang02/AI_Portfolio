@@ -1,0 +1,242 @@
+.page {
+  min-height: 100vh;
+}
+
+.header {
+  padding: 32px 32px 24px;
+}
+
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.headerContent {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 24px;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.headerContent > div:first-child {
+  padding-left: 48px;
+  flex: 1;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.titleRow h1 {
+  margin-bottom: 0;
+}
+
+.description {
+  margin-top: 16px;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+  font-size: 1rem;
+}
+
+.count {
+  margin-top: 8px;
+  font-size: 0.875rem;
+  color: var(--color-text-tertiary);
+}
+
+/* 프로젝트 히스토리 섹션 */
+.historySection {
+  padding: 24px 32px;
+  background-color: var(--color-bg-secondary);
+}
+
+/* Featured Projects 섹션 */
+.featuredSection {
+  padding: 0;
+  background-color: var(--color-featured-bg);
+}
+
+/* Featured Section 헤더 래퍼 */
+.featuredHeaderWrapper {
+  padding: 48px 32px 48px;
+  background-color: var(--color-bg-primary);
+}
+
+/* Featured Section 헤더 */
+.featuredHeader {
+  text-align: center;
+  margin-bottom: 0;
+}
+
+/* Featured Section 그리드 컨테이너 */
+.featuredSection > .container:last-child {
+  padding: 48px 32px;
+}
+
+/* Featured Section 내 SectionTitle 색상 - typeSection과 통일 */
+.featuredSection h2 {
+  color: var(--color-primary-text);
+  margin: 0;
+}
+
+/* 프로젝트 타입별 섹션 */
+.typeSection {
+  padding: 48px 32px;
+}
+
+.typeSection:not(:last-child) {
+  border-bottom: 1px solid var(--color-border-default);
+}
+
+/* 섹션 헤더 */
+.sectionHeader {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  margin-bottom: 0;
+  padding-bottom: 32px;
+}
+
+/* 일반 섹션 내 SectionTitle 색상 - 텍스트용 진한 그린 */
+.typeSection h2 {
+  color: var(--color-primary-text);
+  margin: 0;
+}
+
+/* 타이틀과 설명 사이 구분선 */
+.sectionHeader .divider {
+  width: 1px;
+  height: 16px;
+  background-color: var(--color-border-default);
+  flex-shrink: 0;
+}
+
+/* 섹션 설명 */
+.sectionDescription {
+  color: var(--color-text-secondary);
+  font-size: 0.875rem; /* 14px */
+  line-height: 1.5;
+  margin: 0;
+  flex-shrink: 0;
+}
+
+/* 프로젝트 그리드 */
+.projects {
+  padding: 32px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+  margin-top: 0;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* 프로젝트 카드를 감싼 div가 grid 아이템으로 작동하도록 */
+.grid > div {
+  min-width: 0; /* grid 아이템이 제대로 작동하도록 */
+  scroll-margin-top: 100px; /* 스크롤 시 여백 추가 */
+}
+
+/* 에러/빈 상태 */
+.error,
+.empty {
+  padding: 48px;
+  text-align: center;
+  color: var(--color-text-secondary);
+}
+
+.error p,
+.empty p {
+  margin: 0;
+  font-size: 1rem;
+}
+
+/* Desktop (> 1024px) */
+@media (min-width: var(--breakpoint-desktop)) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Tablet (768px - 1023px) */
+@media (min-width: var(--breakpoint-tablet)) and (max-width: var(--breakpoint-tablet-max)) {
+  .header {
+    padding: 28px 24px 20px;
+  }
+
+  .featuredHeaderWrapper {
+    padding: 40px 24px 40px;
+  }
+
+  .featuredSection > .container:last-child {
+    padding: 40px 24px;
+  }
+
+  .typeSection {
+    padding: 40px 24px;
+  }
+
+  .projects {
+    padding: 24px;
+  }
+
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+
+  .headerContent > div:first-child {
+    padding-left: 40px;
+  }
+}
+
+/* Mobile (< 768px) */
+@media (max-width: var(--breakpoint-mobile)) {
+  .header {
+    padding: 24px 24px 16px;
+  }
+
+  .headerContent {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .headerContent > div:first-child {
+    padding-left: 24px;
+  }
+
+  .featuredHeaderWrapper {
+    padding: 32px 24px 32px;
+  }
+
+  .featuredSection > .container:last-child {
+    padding: 32px 24px;
+  }
+
+  .typeSection {
+    padding: 32px 24px;
+  }
+
+  .projects {
+    padding: 24px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .sectionHeader {
+    flex-direction: column;
+    gap: 8px;
+  }
+}

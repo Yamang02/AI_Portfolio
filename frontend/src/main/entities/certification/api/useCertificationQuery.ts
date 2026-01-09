@@ -4,7 +4,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { certificationApi } from './certificationApi';
-import { QUERY_STALE_TIME } from '../../../config/queryCacheConfig';
+import { QUERY_STALE_TIME } from '@/shared/config/queryCacheConfig';
 
 // 쿼리 키 상수
 export const CERTIFICATION_QUERY_KEYS = {
@@ -13,12 +13,12 @@ export const CERTIFICATION_QUERY_KEYS = {
 } as const;
 
 /**
- * 자격증 목록 조회 훅
+ * 자격증 목록 조회 훅 (Main용 - 공개 API 사용)
  */
 export const useCertificationsQuery = () => {
   return useQuery({
     queryKey: CERTIFICATION_QUERY_KEYS.lists(),
-    queryFn: () => certificationApi.getCertifications(),
+    queryFn: () => certificationApi.getCertificationsMain(),
     staleTime: QUERY_STALE_TIME.CERTIFICATION,
   });
 };

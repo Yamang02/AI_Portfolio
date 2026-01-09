@@ -135,7 +135,7 @@
 }
 
 /* 모바일 반응형 */
-@media (max-width: 767px) {
+@media (max-width: var(--breakpoint-mobile)) {
   .overlay {
     padding: 16px;
   }

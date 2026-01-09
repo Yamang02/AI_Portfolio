@@ -148,4 +148,5 @@ export const processQuestion = (question: string): {
     shouldSendToBackend: true,
     showEmailButton: false
   };
-}; 
+};
+

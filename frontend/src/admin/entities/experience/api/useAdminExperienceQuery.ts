@@ -4,10 +4,10 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { adminExperienceApi } from './adminExperienceApi';
-import { STALE_TIME } from '../../../../main/config/queryCacheConfig';
+import { STALE_TIME } from '@/shared/config/queryCacheConfig';
 import type { Experience, ExperienceFormData } from '../model/experience.types';
 import { message } from 'antd';
-import { queryClient as mainQueryClient } from '../../../../main/config/queryClient';
+import { queryClient as mainQueryClient } from '@/main/app/config/queryClient';
 
 // ==================== Query Keys ====================
 export const EXPERIENCE_KEYS = {

@@ -4,7 +4,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { educationApi } from './educationApi';
-import { QUERY_STALE_TIME } from '../../../config/queryCacheConfig';
+import { QUERY_STALE_TIME } from '@/shared/config/queryCacheConfig';
 
 // 쿼리 키 상수
 export const EDUCATION_QUERY_KEYS = {

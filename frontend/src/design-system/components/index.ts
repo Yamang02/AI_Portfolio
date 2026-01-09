@@ -7,6 +7,9 @@
 export { Button } from './Button';
 export type { ButtonProps } from './Button';
 
+export { HeaderIconButton } from './Button';
+export type { HeaderIconButtonProps } from './Button';
+
 export { TextLink } from './TextLink';
 export type { TextLinkProps } from './TextLink';
 

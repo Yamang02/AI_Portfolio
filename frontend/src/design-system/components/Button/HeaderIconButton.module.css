@@ -1,0 +1,47 @@
+/* Header 전용 아이콘 버튼 스타일 */
+.headerIconButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  background: none;
+  border: none;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.2s;
+  overflow: visible;
+}
+
+.headerIconButton:hover:not(:disabled) {
+  background-color: var(--color-bg-secondary);
+  color: var(--color-primary);
+}
+
+.headerIconButton:active:not(:disabled) {
+  transform: none;
+}
+
+.headerIconButton.active {
+  background-color: var(--color-primary);
+  color: #ffffff;
+}
+
+.headerIconButton svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Disabled 상태 */
+.headerIconButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Focus 상태 */
+.headerIconButton:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}

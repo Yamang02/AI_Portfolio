@@ -1,6 +1,6 @@
 import React from 'react';
 import { TechStackBadgeProps } from '@entities/tech-stack';
-import { cn } from '@shared/lib/utils/cn';
+import { cn } from '@/shared/lib/utils/cn';
 
 /**
  * 기술 스택 배지 컴포넌트
@@ -67,8 +67,8 @@ export const TechStackBadge: React.FC<TechStackBadgeProps> = ({
   const getClickableClasses = () => {
     if (!onClick) return '';
     // 배지는 미묘한 hover 효과만 (버튼과 구분)
-    // hover 시 테두리에 브랜드 그린 톤 추가
-    return 'cursor-pointer hover:opacity-85 hover:scale-105 active:scale-100 hover:border-[#7FAF8A] hover:border-opacity-40';
+    // hover 시 테두리에 브랜드 그린 톤 추가 (디자인 시스템 토큰 사용)
+    return 'cursor-pointer hover:opacity-85 hover:scale-105 active:scale-100 hover:border-[var(--color-primary)] hover:border-opacity-40';
   };
 
   const getSelectedClasses = () => {

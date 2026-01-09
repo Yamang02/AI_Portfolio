@@ -1,0 +1,39 @@
+.wrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.container {
+  width: 100%;
+}
+
+.sectionTitle {
+  margin-bottom: var(--spacing-6);
+  color: var(--color-primary-text);
+}
+
+.introCard {
+  width: 100%;
+  /* Card 컴포넌트의 배경색을 경력/교육 카드와 동일하게 오버라이드 */
+  background-color: var(--color-bg-primary) !important;
+}
+
+.introduction {
+  font-size: var(--font-size-base);
+  color: var(--color-text-primary);
+  line-height: var(--line-height-relaxed);
+  white-space: pre-wrap;
+  margin: 0;
+}
+
+/* 반응형 레이아웃 */
+@media (max-width: var(--breakpoint-mobile)) {
+  .sectionTitle {
+    margin-bottom: var(--spacing-4);
+  }
+
+  .introduction {
+    font-size: var(--font-size-sm);
+  }
+}

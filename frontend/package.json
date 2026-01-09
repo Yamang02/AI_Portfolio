@@ -51,6 +51,12 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.57.0",
+    "@storybook/addon-a11y": "8.6.15",
+    "@storybook/addon-docs": "8.6.15",
+    "@storybook/addon-essentials": "8.6.15",
+    "@storybook/addon-interactions": "8.6.15",
+    "@storybook/addon-links": "8.6.15",
+    "@storybook/blocks": "8.6.15",
     "@storybook/react-vite": "^8.6.15",
     "@types/compression": "^1.7.5",
     "@types/cors": "^2.8.17",
