@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, Spin, Alert, Empty, Table } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { UsageTrend, CloudProvider } from '../../../entities/cloud-usage';
-import { formatCurrency } from '../../../shared/lib';
+import { formatCurrency } from '../../../shared/lib/currencyFormatter';
 
 interface UsageTrendChartProps {
   trends: UsageTrend[] | undefined;

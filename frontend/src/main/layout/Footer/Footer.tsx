@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { SocialIcon, Button, TextLink } from '@/design-system';
-import { ContactModal } from '../../../main/components/common/Modal';
+import { ContactModal } from '@/shared/ui/modal';
 import styles from './Footer.module.css';
 
 interface FooterProps {

@@ -54,4 +54,5 @@ export interface BackendChatResponse {
   showEmailButton: boolean;           // 메일 버튼 표시 여부
   responseType: ResponseType;         // 응답 타입
   reason?: string;                    // 상세 이유
-} 
+}
+

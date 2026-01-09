@@ -13,10 +13,7 @@ const App: React.FC = () => {
     certifications,
     isLoading,
     loadingStates,
-    isChatbotOpen,
     isHistoryPanelOpen,
-    isWideScreen,
-    setChatbotOpen,
     setHistoryPanelOpen
   } = useApp();
 
@@ -26,11 +23,6 @@ const App: React.FC = () => {
       history.scrollRestoration = 'manual';
     }
   }, []);
-
-  // 챗봇 토글
-  const handleChatbotToggle = () => {
-    setChatbotOpen((prev) => !prev);
-  };
 
   // 히스토리 패널 토글
   const handleHistoryPanelToggle = () => {
@@ -66,10 +58,7 @@ const App: React.FC = () => {
             certifications={certifications}
             isLoading={isLoading}
             loadingStates={loadingStates}
-            isChatbotOpen={isChatbotOpen}
             isHistoryPanelOpen={isHistoryPanelOpen}
-            isWideScreen={isWideScreen}
-            onChatbotToggle={handleChatbotToggle}
             onHistoryPanelToggle={handleHistoryPanelToggle}
           />
         } />

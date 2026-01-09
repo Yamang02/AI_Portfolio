@@ -1,8 +1,8 @@
 import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SectionTitle, Divider, ProjectCard, SkeletonCard, EmptyCard, Button } from '@/design-system';
-import { useProjectsQuery } from '@/entities/project/api/useProjectQuery';
-import type { Project } from '@/entities/project/model/project.types';
+import { useProjectsQuery } from '@/main/entities/project/api/useProjectsQuery';
+import type { Project } from '@/main/entities/project/model/project.types';
 import type { ProjectCardProject } from '@/design-system/components/Card/ProjectCard';
 import { FEATURED_PROJECTS } from '@/main/pages/HomePage/config/featuredProjects.config';
 import { ProjectSearchModal } from './components/ProjectSearchModal';

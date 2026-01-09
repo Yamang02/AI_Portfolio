@@ -6,8 +6,8 @@ import rehypeSanitize from 'rehype-sanitize';
 import rehypeHighlight from 'rehype-highlight';
 import { visit } from 'unist-util-visit';
 import type { Root, Element } from 'hast';
-import { scrollToSection } from '@features/project-gallery/hooks/useActiveSection';
-import { generateHeadingId, resetHeadingIdCounters } from '@shared/lib/markdown/generateHeadingId';
+import { scrollToSection } from '@/main/features/project-gallery/hooks/useActiveSection';
+import { generateHeadingId, resetHeadingIdCounters } from '@/shared/lib/markdown/generateHeadingId';
 import 'highlight.js/styles/github-dark.css'; // 코드 블록 스타일
 
 // 노드에서 텍스트 추출 헬퍼 함수

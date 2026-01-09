@@ -3,13 +3,13 @@ import { Route, Routes } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from '../config/queryClient';
 import { AppProvider, useApp } from '../app/providers/AppProvider';
-import { PageLayout, HomePageLayout } from '@/widgets/layout';
+import { PageLayout, HomePageLayout } from '@/main/layout';
 import { useLocation } from 'react-router-dom';
-import { HomePage } from '@/pages/HomePage';
-import { ProjectsListPage } from '@/pages/ProjectsListPage';
-import { ProjectDetailPage } from '@/pages/ProjectDetailPage';
-import { ProfilePage } from '@/pages/ProfilePage';
-import { ChatPage } from '@/pages/ChatPage';
+import { HomePage } from '@/main/pages/HomePage';
+import { ProjectsListPage } from '@/main/pages/ProjectsListPage';
+import { ProjectDetailPage } from '@/main/pages/ProjectDetailPage';
+import { ProfilePage } from '@/main/pages/ProfilePage';
+import { ChatPage } from '@/main/pages/ChatPage';
 import {
   EasterEggProvider,
   EasterEggLayer,
@@ -17,10 +17,10 @@ import {
   useKeyboardTrigger,
   useScrollTrigger,
   easterEggRegistry,
-} from '@features/easter-eggs';
-import { AudioIndicator } from '@features/easter-eggs/components/AudioIndicator';
-import { loadEasterEggConfig } from '@features/easter-eggs/config/easterEggConfigLoader';
-import { AnimatedRoutes } from '../shared/ui/page-transition';
+} from '@/main/features/easter-eggs';
+import { AudioIndicator } from '@/main/features/easter-eggs/components/AudioIndicator';
+import { loadEasterEggConfig } from '@/main/features/easter-eggs/config/easterEggConfigLoader';
+import { AnimatedRoutes } from '../../shared/ui/page-transition';
 import { LoadingScreen } from '@/shared/ui/LoadingScreen';
 
 const MainAppContent: React.FC = () => {

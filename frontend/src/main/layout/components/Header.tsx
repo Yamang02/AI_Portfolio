@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { SettingOutlined } from '@ant-design/icons';
-import { useTheme } from '@shared/hooks/useTheme';
+import { useTheme } from '@/shared/hooks/useTheme';
 
 const THEME_TOGGLE_FIRST_CLICK_KEY = 'portfolio-theme-toggle-first-click';
 

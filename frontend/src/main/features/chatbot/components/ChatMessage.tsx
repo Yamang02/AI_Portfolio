@@ -1,21 +1,30 @@
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import { ChatMessage as ChatMessageType } from '../types';
+import { ChatBubble } from '@/design-system';
 
 interface ChatMessageProps {
   message: ChatMessageType;
 }
 
 const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
+  const timestamp = message.timestamp.toLocaleTimeString('ko-KR', { 
+    hour: '2-digit', 
+    minute: '2-digit' 
+  });
+
+  // 초기 안내 메시지는 가운데 정렬, 70% 제한 없음
+  const isInitialMessage = message.id === 'initial';
+
   return (
-    <div className={`flex ${message.isUser ? 'justify-end' : 'justify-start'} mb-4`}>
-      <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-        message.isUser 
-          ? 'bg-primary-600 text-white rounded-br-none' 
-          : 'bg-surface dark:bg-slate-800 text-text-primary rounded-bl-none border border-border'
-      }`}>
+    <div className={`flex ${isInitialMessage ? 'justify-center' : (message.isUser ? 'justify-end' : 'justify-start')} mb-4`}>
+      <ChatBubble
+        variant={message.isUser ? 'user' : 'assistant'}
+        timestamp={timestamp}
+        className={isInitialMessage ? 'initialMessage' : ''}
+      >
         {message.isUser ? (
-          <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+          <p style={{ margin: 0 }}>{message.content}</p>
         ) : (
           <div className="text-sm prose prose-sm max-w-none">
             {typeof message.content === 'string' ? (
@@ -31,9 +40,9 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
                   li: ({ children }) => <li className="text-sm">{children}</li>,
                   strong: ({ children }) => <strong className="font-bold">{children}</strong>,
                   em: ({ children }) => <em className="italic">{children}</em>,
-                  code: ({ children }) => <code className="bg-surface-elevated dark:bg-slate-700 px-1 py-0.5 rounded text-xs font-mono text-text-primary">{children}</code>,
-                  pre: ({ children }) => <pre className="bg-surface-elevated dark:bg-slate-700 p-2 rounded text-xs font-mono overflow-x-auto mb-2 text-text-primary">{children}</pre>,
-                  blockquote: ({ children }) => <blockquote className="border-l-4 border-primary-500 dark:border-primary-400 pl-2 italic mb-2 text-text-secondary">{children}</blockquote>,
+                  code: ({ children }) => <code className="bg-surface-elevated dark:bg-slate-700 px-1 py-0.5 rounded text-xs font-mono">{children}</code>,
+                  pre: ({ children }) => <pre className="bg-surface-elevated dark:bg-slate-700 p-2 rounded text-xs font-mono overflow-x-auto mb-2">{children}</pre>,
+                  blockquote: ({ children }) => <blockquote className="border-l-4 border-border pl-2 italic mb-2">{children}</blockquote>,
                 }}
               >
                 {message.content}
@@ -60,15 +69,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
             )}
           </div>
         )}
-        <p className={`text-xs mt-1 ${
-          message.isUser ? 'text-primary-200' : 'text-text-muted'
-        }`}>
-          {message.timestamp.toLocaleTimeString('ko-KR', { 
-            hour: '2-digit', 
-            minute: '2-digit' 
-          })}
-        </p>
-      </div>
+      </ChatBubble>
     </div>
   );
 };

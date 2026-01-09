@@ -2,17 +2,17 @@
 
 **작성일**: 2026-01-09  
 **참고 문서**: [phase-7-design.md](./phase-7-design.md)  
-**상태**: 🔲 시작 전
+**상태**: 🟡 진행 중
 
 ---
 
 ## Task 7.1: Phase 6 남은 작업 완료
 
 ### Subtask 7.1.1: HomePage Chatbot 패널 제거
-- [ ] HomePage.tsx에서 Chatbot 컴포넌트 import 제거
-- [ ] HomePage.tsx에서 Chatbot 컴포넌트 사용 제거
-- [ ] isChatbotOpen 관련 상태 및 로직 제거
-- [ ] ChatInputBar 클릭 시 `/chat` 페이지로 이동하도록 변경
+- [x] HomePage.tsx에서 Chatbot 컴포넌트 import 제거
+- [x] HomePage.tsx에서 Chatbot 컴포넌트 사용 제거
+- [x] isChatbotOpen 관련 상태 및 로직 제거
+- [x] ChatInputBar 클릭 시 `/chat` 페이지로 이동하도록 변경
 - [ ] 동작 테스트
 
 ### Subtask 7.1.2: AppProvider 상태 정리
@@ -23,13 +23,13 @@
 - [ ] MainApp.tsx에서 관련 로직 제거
 
 ### Subtask 7.1.3: Footer 네비게이션 추가
-- [ ] Footer 컴포넌트에 네비게이션 섹션 추가
-- [ ] Home (/) 링크 추가
-- [ ] Profile (/profile) 링크 추가
-- [ ] Projects (/projects) 링크 추가
-- [ ] Chat (/chat) 링크 추가
-- [ ] TextLink 컴포넌트 사용
-- [ ] 스타일 적용 (Footer.module.css)
+- [x] Footer 컴포넌트에 네비게이션 섹션 추가
+- [x] Home (/) 링크 추가
+- [x] Profile (/profile) 링크 추가
+- [x] Projects (/projects) 링크 추가
+- [x] Chat (/chat) 링크 추가
+- [x] TextLink 컴포넌트 사용
+- [x] 스타일 적용 (Footer.module.css)
 - [ ] 반응형 레이아웃 확인
 
 ---
@@ -136,19 +136,13 @@
 - [ ] `src/widgets/` 폴더 삭제
 
 ### Subtask 7.5.3: shared/ 폴더 통합
-- [ ] `src/main/shared/` 현재 내용 확인
-- [ ] 중복 파일 식별
-- [ ] `src/shared/api/` → `src/main/shared/api/` 통합
-- [ ] `src/shared/config/` → `src/main/shared/config/` 통합
-- [ ] `src/shared/hooks/` → `src/main/shared/hooks/` 통합
-- [ ] `src/shared/lib/` → `src/main/shared/lib/` 통합
-- [ ] `src/shared/providers/` → `src/main/shared/providers/` 통합
-- [ ] `src/shared/services/` → `src/main/shared/services/` 통합
-- [ ] `src/shared/types/` → `src/main/shared/types/` 통합
-- [ ] `src/shared/ui/` → `src/main/shared/ui/` 통합
-- [ ] `src/shared/utils/` → `src/main/shared/utils/` 통합
-- [ ] 모든 import 경로 업데이트
-- [ ] `src/shared/` 폴더 삭제
+- [x] `src/main/shared/` 현재 내용 확인
+- [x] 중복 파일 식별
+- [x] `src/main/shared/` → `src/shared/` 이동 (admin과 main이 공통 사용)
+- [x] 모든 import 경로 업데이트 (`@/shared` 또는 `../../shared`)
+- [x] `main.tsx`, `MainApp.tsx`, `ChatPage.tsx` 등 주요 파일 수정
+- [x] `admin/` 폴더의 import 경로 수정
+- [ ] 빌드 테스트 및 오류 수정
 
 ### Subtask 7.5.4: features/ 폴더 통합
 - [ ] `src/main/features/` 현재 내용 확인
@@ -225,6 +219,10 @@
 | 날짜 | 작업 내용 | 상태 |
 |------|-----------|------|
 | 2026-01-09 | Phase 7 설계 문서 작성 | ✅ 완료 |
+| 2026-01-09 | Task 7.1.1: HomePage Chatbot 패널 제거 | ✅ 완료 |
+| 2026-01-09 | Task 7.1.3: Footer 네비게이션 추가 | ✅ 완료 |
+| 2026-01-09 | Task 7.5.3: shared/ 폴더를 최상위로 이동 (admin/main 공통 사용) | ✅ 완료 |
+| 2026-01-09 | 모든 import 경로를 `@/shared` 또는 `../../shared`로 업데이트 | ✅ 완료 |
 | | | |
 
 ---

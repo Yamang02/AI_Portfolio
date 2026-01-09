@@ -1,11 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { HeroSection } from './HeroSection';
-import { PortfolioSection } from '@features/project-gallery';
-import { Chatbot } from '@features/chatbot';
-import { ChatInputBar, SpeedDialFab } from '@shared/ui';
-import { checkEasterEggTrigger, useEasterEggStore, triggerEasterEggs } from '@features/easter-eggs';
+import { PortfolioSection } from '@/main/features/project-gallery';
+import { SpeedDialFab } from '@/shared/ui';
+import { checkEasterEggTrigger, useEasterEggStore, triggerEasterEggs } from '@/main/features/easter-eggs';
 import { useFeatureAvailability } from '../../shared/lib/hooks/useFeatureAvailability';
+import { Button } from '@/design-system';
 
 interface HomePageProps {
   projects: any[];
@@ -14,10 +14,7 @@ interface HomePageProps {
   certifications: any[];
   isLoading: boolean;
   loadingStates: any;
-  isChatbotOpen: boolean;
   isHistoryPanelOpen: boolean;
-  isWideScreen: boolean;
-  onChatbotToggle: () => void;
   onHistoryPanelToggle: () => void;
 }
 
@@ -33,15 +30,11 @@ const HomePage: React.FC<HomePageProps> = ({
   certifications,
   isLoading,
   loadingStates,
-  isChatbotOpen,
   isHistoryPanelOpen,
-  isWideScreen,
-  onChatbotToggle,
   onHistoryPanelToggle
 }) => {
   const location = useLocation();
-  const [pendingMessage, setPendingMessage] = useState<string>('');
-  const [messageToSend, setMessageToSend] = useState<string>('');
+  const navigate = useNavigate();
   const [isFabOpen, setIsFabOpen] = useState(false);
   const { triggerEasterEgg, isEasterEggMode, activeEffects } = useEasterEggStore();
   const { canUseEasterEgg } = useFeatureAvailability();
@@ -77,11 +70,6 @@ const HomePage: React.FC<HomePageProps> = ({
   useEffect(() => {
     const handleEscKey = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        // 챗봇이 열려있으면 닫기
-        if (isChatbotOpen) {
-          onChatbotToggle();
-          return;
-        }
         // 히스토리 패널이 열려있으면 닫기
         if (isHistoryPanelOpen) {
           onHistoryPanelToggle();
@@ -94,14 +82,7 @@ const HomePage: React.FC<HomePageProps> = ({
     return () => {
       window.removeEventListener('keydown', handleEscKey);
     };
-  }, [isChatbotOpen, isHistoryPanelOpen, onChatbotToggle, onHistoryPanelToggle]);
-
-  // 모드 전환 시 챗봇 닫기
-  useEffect(() => {
-    if (isEasterEggMode && isChatbotOpen) {
-      onChatbotToggle();
-    }
-  }, [isEasterEggMode, isChatbotOpen, onChatbotToggle]);
+  }, [isHistoryPanelOpen, onHistoryPanelToggle]);
 
   // 매트릭스 이스터에그 동작 시 목록 패널 제어
   useEffect(() => {
@@ -131,47 +112,9 @@ const HomePage: React.FC<HomePageProps> = ({
     }
   }, [activeEffects, isHistoryPanelOpen, onHistoryPanelToggle]);
 
-  // 채팅 입력창에서 메시지 전송
-  const handleChatInputSend = (message: string) => {
-    // 모바일에서는 이스터에그 기능 비활성화
-    if (canUseEasterEgg) {
-      // 이스터에그 트리거 체크
-      const { shouldBlock, triggers } = checkEasterEggTrigger(message, isEasterEggMode);
-
-      if (triggers.length > 0) {
-        triggerEasterEggs(triggers, message, triggerEasterEgg);
-
-        // 이스터에그 전용 문구는 챗봇으로 전송하지 않음
-        if (shouldBlock) {
-          return;
-        }
-      }
-
-      // 이스터에그 모드가 활성화되어 있으면 모든 입력 차단
-      if (isEasterEggMode) {
-        return;
-      }
-    }
-
-    setPendingMessage(message);
-    setMessageToSend(message);
-  };
-
-  // 채팅 입력창 포커스 시 챗봇 자동 열기 (이스터에그 모드에서는 비활성화)
-  const handleChatInputFocus = () => {
-    // 이스터에그 모드에서는 챗봇 자동 열기 비활성화
-    if (isEasterEggMode) {
-      return;
-    }
-    
-    if (!isChatbotOpen) {
-      onChatbotToggle();
-    }
-  };
-
-  // 메시지 처리 완료 시 상태 초기화
-  const handleMessageProcessed = () => {
-    setMessageToSend('');
+  // ChatInputBar 클릭 시 /chat 페이지로 이동
+  const handleChatInputClick = () => {
+    navigate('/chat');
   };
 
   // Speed Dial 액션 정의 (이스터에그 모드에 따라 버튼 변경)
@@ -198,25 +141,15 @@ const HomePage: React.FC<HomePageProps> = ({
         </svg>
       ),
       label: 'AI 챗봇',
-      onClick: onChatbotToggle,
+      onClick: () => navigate('/chat'),
       color: 'bg-blue-500 text-white hover:bg-blue-600'
     }
   ];
 
-  // Main 영역 클릭 시 채팅 패널 닫기
-  const handleMainClick = () => {
-    if (isChatbotOpen) {
-      onChatbotToggle();
-    }
-  };
-
   return (
     <>
       <HeroSection />
-      <main
-        className="container mx-auto px-4 py-8 md:py-12 pb-32"
-        onClick={handleMainClick}
-      >
+      <main className="container mx-auto px-4 py-8 md:py-12 pb-32">
         <PortfolioSection 
           projects={projects}
           experiences={experiences}
@@ -229,23 +162,31 @@ const HomePage: React.FC<HomePageProps> = ({
         />
       </main>
 
-      {/* 챗봇 패널 */}
-      <Chatbot
-        isOpen={isChatbotOpen}
-        onToggle={onChatbotToggle}
-        showProjectButtons={isWideScreen}
-        externalMessage={messageToSend}
-        onMessageProcessed={handleMessageProcessed}
-      />
-
-      {/* 하단 고정 채팅 입력창 with Speed Dial */}
-      <ChatInputBar
-        onSendMessage={handleChatInputSend}
-        onFocus={handleChatInputFocus}
-        placeholder="프로젝트에 대해 궁금한 점을 물어보세요..."
-        isFabOpen={isFabOpen}
-        speedDialButton={<SpeedDialFab actions={speedDialActions} onOpenChange={setIsFabOpen} />}
-      />
+      {/* 하단 고정 채팅 입력창 with Speed Dial - 클릭 시 /chat으로 이동 */}
+      <div 
+        className="fixed bottom-0 left-0 right-0 border-t z-40 transition-colors cursor-pointer"
+        style={{
+          backgroundColor: 'var(--color-surface)',
+          borderColor: 'var(--color-border)',
+        }}
+        onClick={handleChatInputClick}
+      >
+        <div className="container mx-auto px-4 py-4 max-w-4xl">
+          <div className="flex items-center gap-3">
+            <input
+              type="text"
+              placeholder="프로젝트에 대해 궁금한 점을 물어보세요... (클릭하여 채팅 페이지로 이동)"
+              readOnly
+              className="flex-1 px-4 py-3 border rounded-full bg-surface border-border text-text-primary placeholder:text-text-muted cursor-pointer"
+            />
+            <div 
+              className="flex-shrink-0 transition-transform duration-300 ease-in-out"
+            >
+              <SpeedDialFab actions={speedDialActions} onOpenChange={setIsFabOpen} />
+            </div>
+          </div>
+        </div>
+      </div>
     </>
   );
 };

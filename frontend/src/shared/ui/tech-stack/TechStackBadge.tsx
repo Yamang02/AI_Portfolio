@@ -1,6 +1,6 @@
 import React from 'react';
 import { TechStackBadgeProps } from '@entities/tech-stack';
-import { cn } from '@shared/lib/utils/cn';
+import { cn } from '@/shared/lib/utils/cn';
 
 /**
  * 기술 스택 배지 컴포넌트

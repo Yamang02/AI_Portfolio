@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { TechStackMetadata } from '../../../entities/techstack';
-import { TechStackApi } from '../../../services/techStackApi';
-import { TechStackBadge } from '../../../components/common/TechStackBadge';
+import { TechStackMetadata } from '@entities/tech-stack';
+import { TechStackApi } from '@shared/techStackApi';
+import { TechStackBadge } from '@shared/ui';
 
 /**
  * 소개 섹션용 핵심 기술 스택 컴포넌트

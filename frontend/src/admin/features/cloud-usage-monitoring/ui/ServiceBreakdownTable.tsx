@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, Table, Spin, Alert, Empty } from 'antd';
 import { ServiceCost } from '../../../entities/cloud-usage';
-import { formatCurrency } from '../../../shared/lib';
+import { formatCurrency } from '../../../shared/lib/currencyFormatter';
 import type { ColumnsType } from 'antd/es/table';
 
 interface ServiceBreakdownTableProps {

@@ -4,7 +4,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { adminQueryClient } from '../config/queryClient';
 import { AuthProvider } from '../hooks/useAuth';
-import { Header } from '@widgets/layout';
+import { Header } from '@/main/layout';
 import { LoginForm, ProtectedRoute } from '../features/auth';
 import { AdminLayout } from '../shared/components/AdminLayout';
 import { Dashboard } from '../pages/Dashboard';
