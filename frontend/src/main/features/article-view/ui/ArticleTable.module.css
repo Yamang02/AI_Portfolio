@@ -1,0 +1,117 @@
+.table {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.tableElement {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: var(--color-bg-primary);
+}
+
+.tableElement thead {
+  background-color: var(--color-bg-secondary);
+  border-bottom: 2px solid var(--color-border-default);
+}
+
+.tableElement th {
+  padding: var(--spacing-3) var(--spacing-4);
+  text-align: left;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.tableElement tbody tr {
+  border-bottom: 1px solid var(--color-border-default);
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+}
+
+.tableElement tbody tr:hover {
+  background-color: var(--color-bg-secondary);
+}
+
+.tableElement td {
+  padding: var(--spacing-4);
+  font-size: var(--font-size-base);
+  color: var(--color-text-primary);
+  vertical-align: top;
+}
+
+.colTitle {
+  min-width: 300px;
+  max-width: 500px;
+}
+
+.colTitle .titleLink {
+  color: var(--color-text-primary);
+  text-decoration: none;
+  font-weight: var(--font-weight-medium);
+  transition: color 0.2s ease;
+}
+
+.colTitle .titleLink:hover {
+  color: var(--color-primary);
+  text-decoration: underline;
+}
+
+.colTitle .summary {
+  margin-top: var(--spacing-2);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.colCategory {
+  width: 120px;
+}
+
+.colTags {
+  width: 200px;
+}
+
+.colTags .tags {
+  display: flex;
+  gap: var(--spacing-1);
+  flex-wrap: wrap;
+}
+
+.colDate {
+  width: 120px;
+  white-space: nowrap;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.colViews {
+  width: 80px;
+  text-align: right;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+@media (max-width: 768px) {
+  .tableElement th,
+  .tableElement td {
+    padding: var(--spacing-2) var(--spacing-3);
+    font-size: var(--font-size-sm);
+  }
+
+  .colTitle {
+    min-width: 200px;
+    max-width: 300px;
+  }
+
+  .colCategory,
+  .colDate,
+  .colViews {
+    display: none;
+  }
+}

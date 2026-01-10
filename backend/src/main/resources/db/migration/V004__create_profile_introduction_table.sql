@@ -25,14 +25,17 @@ CREATE TRIGGER profile_introduction_updated_at
 
 -- 초기 데이터 (선택적)
 INSERT INTO profile_introduction (content, version)
-VALUES ('# 안녕하세요
+VALUES ('
 
-저는 AI와 함께 성장하는 개발자입니다.
+Want to be 프로덕트 엔지니어로
 
 ## 주요 관심사
-- Full Stack 개발
-- 클린 아키텍처
-- AI 활용 개발
+- Full Stack 웹서비스 개발
+- DevOps 및 인프라 관리
+- 기술스택에 얽매이지 않는 에이전틱 코딩
+- 기존 소프트웨어 디자인의 철학을 에이전틱 코딩에 접목
+- 에이전틱 코딩 활용자들의 협업, 코드 품질관리
+- 마케팅, 기획, CRM까지 이해하기
 
 더 자세한 내용은 프로젝트를 통해 확인해주세요!', 1)
 ON CONFLICT DO NOTHING;

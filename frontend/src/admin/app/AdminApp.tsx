@@ -15,6 +15,8 @@ import { CareerManagement } from '../pages/CareerManagement';
 import { CertificationManagement } from '../pages/CertificationManagement';
 import { Settings } from '../pages/Settings';
 import { ProfileIntroductionManagement } from '../pages/ProfileIntroductionManagement';
+import { ArticleManagement } from '../pages/ArticleManagement';
+import { ArticleEdit } from '../pages/ArticleEdit';
 import { adminTheme } from '../shared/theme/antdTheme';
 
 const AdminApp: React.FC = () => {
@@ -51,6 +53,9 @@ const AdminApp: React.FC = () => {
                   <Route path="career" element={<CareerManagement />} />
                   <Route path="certifications" element={<CertificationManagement />} />
                   <Route path="profile-introduction" element={<ProfileIntroductionManagement />} />
+                  <Route path="articles" element={<ArticleManagement />} />
+                  <Route path="articles/new" element={<ArticleEdit />} />
+                  <Route path="articles/:id" element={<ArticleEdit />} />
                   <Route path="settings" element={<Settings />} />
                 </Route>
               </Routes>

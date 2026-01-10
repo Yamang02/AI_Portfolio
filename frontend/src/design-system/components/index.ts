@@ -77,6 +77,9 @@ export type { TableOfContentsProps } from './TableOfContents';
 export { ProjectNavigation } from './ProjectNavigation';
 export type { ProjectNavigationProps } from './ProjectNavigation';
 
+export { Pagination } from './Pagination';
+export type { PaginationProps } from './Pagination';
+
 export { Spinner } from './Spinner';
 export type { SpinnerProps } from './Spinner';
 

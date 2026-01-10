@@ -1,0 +1,38 @@
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: var(--spacing-4);
+  padding-top: var(--spacing-4);
+}
+
+.buttonGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+}
+
+.pageInfo {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  padding: 0 var(--spacing-2);
+  min-width: 60px;
+  text-align: center;
+}
+
+/* 반응형 */
+@media (max-width: var(--breakpoint-mobile)) {
+  .pagination {
+    margin-top: var(--spacing-3);
+    padding-top: var(--spacing-3);
+  }
+
+  .buttonGroup {
+    gap: var(--spacing-2);
+  }
+
+  .pageInfo {
+    font-size: var(--font-size-xs);
+    min-width: 50px;
+  }
+}
