@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { SectionTitle, Divider, Pagination, EmptyCard, SkeletonCard } from '@/design-system';
 import { useArticleListQuery } from '../entities/article';
 import { useProjectsQuery } from '../entities/project/api/useProjectsQuery';
-import { ArticleCard, ArticleTable, ArticleFilterBar, ArticleControlPanel } from '../features/article-view/ui';
+import { ArticleTable, ArticleFilterBar, ArticleControlPanel } from '../features/article-view/ui';
+import { ArticleCard } from '@/design-system';
 import styles from './ArticleListPage.module.css';
 
 type ViewMode = 'table' | 'gallery';
@@ -41,7 +42,14 @@ export function ArticleListPage() {
     }));
   }, [projects]);
 
-  // 아티클 목록 조회
+  // 전체 아티클 조회 (카운트 계산용 - 필터 없이)
+  const { data: allArticlesData } = useArticleListQuery({ 
+    page: 0, 
+    size: 1000, // 충분히 큰 값으로 전체 조회 (추후 백엔드에 통계 API 추가 시 개선)
+    // 필터 없이 전체 조회
+  });
+
+  // 아티클 목록 조회 (필터링된 결과)
   const { data, isLoading, error } = useArticleListQuery({ 
     page: page - 1, 
     size: pageSize,
@@ -58,15 +66,16 @@ export function ArticleListPage() {
   // 시리즈 목록 (현재는 빈 배열, 추후 API 추가 시 사용)
   const series: Array<{ id: string; title: string }> = [];
 
-  // 카테고리별 개수 계산 (현재 페이지 데이터 기반)
+  // 카테고리별 개수 계산 (전체 아티클 기준 - 필터와 무관하게 고정값)
   const articleCounts = useMemo(() => {
-    if (!data?.content) return {};
+    if (!allArticlesData?.content) return {};
     
     const categoryCounts: Record<string, number> = {};
     const projectCounts: Record<number, number> = {};
     const seriesCounts: Record<string, number> = {};
     
-    data.content.forEach((article) => {
+    // 전체 아티클을 기준으로 카운트 계산
+    allArticlesData.content.forEach((article) => {
       if (article.category) {
         categoryCounts[article.category] = (categoryCounts[article.category] || 0) + 1;
       }
@@ -78,7 +87,7 @@ export function ArticleListPage() {
       projects: projectCounts,
       series: seriesCounts,
     };
-  }, [data?.content]);
+  }, [allArticlesData?.content]);
 
   // 필터링된 아티클 (서버에서 이미 필터링됨)
   const filteredArticles = data?.content || [];
@@ -203,7 +212,18 @@ export function ArticleListPage() {
                       {filteredArticles.map((article) => (
                         <ArticleCard
                           key={article.businessId}
-                          article={article}
+                          article={{
+                            businessId: article.businessId,
+                            title: article.title,
+                            summary: article.summary,
+                            category: article.category,
+                            seriesId: article.seriesId,
+                            tags: article.tags,
+                            techStack: article.techStack,
+                            publishedAt: article.publishedAt,
+                            viewCount: article.viewCount,
+                            isFeatured: article.isFeatured,
+                          }}
                           onClick={() => handleArticleClick(article)}
                         />
                       ))}

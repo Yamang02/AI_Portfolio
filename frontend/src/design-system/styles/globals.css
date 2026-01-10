@@ -23,6 +23,8 @@
   --color-bg-primary: #ffffff;         /* 순수 흰색 */
   --color-bg-secondary: #f9fafb;       /* Gray-50 */
   --color-bg-tertiary: #f3f4f6;        /* Gray-100 */
+  --color-bg-article: #f8fbf9;         /* 아티클 카드 배경색 (더 흰색에 가까운 그린 틴트) */
+  --color-bg-article-light: #fafcfb;   /* 아티클 카드 배경색 (가장 흰색에 가까운 그린 틴트) */
   
   /* Header/Footer Background - 라이트 모드용 (기본 배경색과 동일) */
   --color-bg-header-footer: #ffffff;    /* 라이트 모드: 기본 배경색 */
@@ -61,7 +63,12 @@
   --color-hero-badge: #145A32;           /* 히어로 보조 요소 (Badge, Eyebrow) */
   
   /* Featured Badge */
-  --color-featured-badge: #f5c842;       /* Featured 별 배지 배경 (노란색, 톤 다운) */
+  --color-featured-badge: #fbbf24;       /* Featured 별 배지 배경 (Amber-400) */
+  
+  /* Article Category Badge */
+  --color-article-category-bg: #1f2937;  /* 아티클 카테고리 배지 배경 (Gray-800) */
+  --color-article-category-border: #374151; /* 아티클 카테고리 배지 테두리 (Gray-700) */
+  --color-article-category-text: #f9fafb; /* 아티클 카테고리 배지 텍스트 (Gray-50) */
   
   /* Featured / Highlight Section Colors */
   --color-featured-bg: #E8F5ED;          /* 조용한 강조 영역 배경 - 아주 밝은 그린 틴트 (새 프라이머리 톤) */
@@ -186,6 +193,8 @@
   --color-bg-primary: #0F1F17;       /* 랜딩페이지와 동일한 어두운 그린 틴트 */
   --color-bg-secondary: #111111;     /* 약간 밝은 검은색 */
   --color-bg-tertiary: #1a1a1a;       /* 검은색 */
+  --color-bg-article: #1A2F25;       /* 아티클 카드 배경색 (다크모드 - 어두운 그린 틴트) */
+  --color-bg-article-light: #1F3529;  /* 아티클 카드 배경색 (다크모드 - 약간 밝은 그린 틴트) */
   
   /* Header/Footer Background - 다크 모드용 */
   --color-bg-header-footer: #051A0E;  /* 매우 진한 초록 (헤더/푸터 전용) */
@@ -224,7 +233,12 @@
     --color-hero-badge: #9ca3af;        /* Gray-400 - 히어로 보조 요소 (Badge, Eyebrow) */
     
     /* Featured Badge (다크 모드에서도 동일) */
-    --color-featured-badge: #f5c842;     /* Featured 별 배지 배경 */
+    --color-featured-badge: #fbbf24;     /* Featured 별 배지 배경 (Amber-400) */
+    
+    /* Article Category Badge - 다크모드 (반전) */
+    --color-article-category-bg: #f9fafb; /* 아티클 카테고리 배지 배경 (Gray-50) */
+    --color-article-category-border: #e5e7eb; /* 아티클 카테고리 배지 테두리 (Gray-200) */
+    --color-article-category-text: #1f2937; /* 아티클 카테고리 배지 텍스트 (Gray-800) */
     
     /* Featured / Highlight Section Colors - 다크 모드 (초록색 계통) */
     --color-featured-bg: #1A2F25;        /* 어두운 초록 틴트 - 다크 모드 배경 (brandScale 기반) */
@@ -336,6 +350,8 @@
   --color-bg-primary: #0F1F17;       /* 랜딩페이지와 동일한 어두운 그린 틴트 */
   --color-bg-secondary: #111111;     /* 약간 밝은 검은색 */
   --color-bg-tertiary: #1a1a1a;       /* 검은색 */
+  --color-bg-article: #1A2F25;       /* 아티클 카드 배경색 (다크모드 - 어두운 그린 틴트) */
+  --color-bg-article-light: #1F3529;  /* 아티클 카드 배경색 (다크모드 - 약간 밝은 그린 틴트) */
   
   /* Header/Footer Background - 다크 모드용 */
   --color-bg-header-footer: #051A0E;  /* 매우 진한 초록 (헤더/푸터 전용) */
@@ -374,7 +390,12 @@
   --color-hero-badge: #9ca3af;        /* Gray-400 - 히어로 보조 요소 (Badge, Eyebrow) */
   
   /* Featured Badge (다크 모드에서도 동일) */
-  --color-featured-badge: #f5c842;     /* Featured 별 배지 배경 */
+  --color-featured-badge: #fbbf24;     /* Featured 별 배지 배경 (Amber-400) */
+  
+  /* Article Category Badge - 다크모드 (반전) */
+  --color-article-category-bg: #f9fafb; /* 아티클 카테고리 배지 배경 (Gray-50) */
+  --color-article-category-border: #e5e7eb; /* 아티클 카테고리 배지 테두리 (Gray-200) */
+  --color-article-category-text: #1f2937; /* 아티클 카테고리 배지 텍스트 (Gray-800) */
   
   /* Featured / Highlight Section Colors - 다크 모드 (중립색) */
     --color-featured-bg: #1A2F25;        /* 어두운 초록 틴트 - 다크 모드 배경 (brandScale 기반) */

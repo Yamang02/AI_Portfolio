@@ -6,6 +6,8 @@ import {
   useCreateArticleMutation,
   useUpdateArticleMutation,
 } from '@/admin/entities/article/api/useAdminArticleQuery';
+import { ProjectSearchSelect } from '@/admin/shared/ui/ProjectSearchSelect';
+import { SeriesSearchSelect } from '@/admin/shared/ui/SeriesSearchSelect';
 import { useState, useEffect } from 'react';
 
 interface ArticleFormModalProps {
@@ -122,12 +124,12 @@ export function ArticleFormModal({ open, onClose, article }: ArticleFormModalPro
                   <Switch />
                 </Form.Item>
 
-                <Form.Item name="projectId" label="연관 프로젝트 ID">
-                  <InputNumber placeholder="프로젝트 ID (선택)" style={{ width: '100%' }} />
+                <Form.Item name="projectId" label="연관 프로젝트">
+                  <ProjectSearchSelect placeholder="프로젝트명으로 검색..." />
                 </Form.Item>
 
-                <Form.Item name="seriesId" label="시리즈 ID">
-                  <Input placeholder="시리즈 ID (선택)" />
+                <Form.Item name="seriesId" label="시리즈">
+                  <SeriesSearchSelect placeholder="시리즈명으로 검색..." />
                 </Form.Item>
 
                 <Form.Item name="seriesOrder" label="시리즈 순서">

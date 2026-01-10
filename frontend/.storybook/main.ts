@@ -20,6 +20,7 @@ const config: StorybookConfig = {
     '../src/design-system/components/ProjectDetailHeader/ProjectDetailHeader.stories.tsx',
     '../src/design-system/components/TableOfContents/TableOfContents.stories.tsx',
     '../src/design-system/components/ProjectNavigation/ProjectNavigation.stories.tsx',
+    '../src/design-system/components/Pagination/Pagination.stories.tsx',
     '../src/design-system/components/Carousel/ProjectThumbnailCarousel.stories.tsx',
     '../src/design-system/components/Icon/SocialIcon.stories.tsx',
     '../src/design-system/components/Icon/ProjectIcon.stories.tsx',

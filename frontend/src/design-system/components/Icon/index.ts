@@ -11,3 +11,10 @@ export type {
   ProjectIconSize,
   ProjectIconType,
 } from './ProjectIcon';
+
+export { ArticleIcon } from './ArticleIcon';
+export type {
+  ArticleIconProps,
+  ArticleIconSize,
+  ArticleIconType,
+} from './ArticleIcon';

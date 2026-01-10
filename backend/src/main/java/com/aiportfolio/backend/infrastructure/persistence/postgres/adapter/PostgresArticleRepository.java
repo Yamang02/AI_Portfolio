@@ -85,7 +85,26 @@ public class PostgresArticleRepository implements ArticleRepositoryPort {
 
     @Override
     public void delete(Long id) {
+        // 삭제 전에 시리즈 정보 조회 (순서 재정렬을 위해)
+        Optional<ArticleJpaEntity> entityOpt = jpaRepository.findById(id);
+        if (entityOpt.isPresent()) {
+            ArticleJpaEntity entity = entityOpt.get();
+            String seriesId = entity.getSeriesId();
+            Integer seriesOrder = entity.getSeriesOrder();
+            
+            // 시리즈에 속한 아티클인 경우 순서 재정렬
+            if (seriesId != null && seriesOrder != null) {
+                jpaRepository.decreaseSeriesOrderAfter(seriesId, seriesOrder);
+            }
+        }
+        
+        // 아티클 삭제 (ArticleTechStack은 CASCADE로 자동 삭제됨)
         jpaRepository.deleteById(id);
+    }
+    
+    @Override
+    public void decreaseSeriesOrderAfter(String seriesId, Integer deletedOrder) {
+        jpaRepository.decreaseSeriesOrderAfter(seriesId, deletedOrder);
     }
 
     @Override
@@ -109,8 +128,28 @@ public class PostgresArticleRepository implements ArticleRepositoryPort {
     @Override
     public Page<Article> findByFilter(ArticleFilter filter, Pageable pageable) {
         Specification<ArticleJpaEntity> spec = buildSpecification(filter);
-        return jpaRepository.findAll(spec, pageable)
-                .map(mapper::toDomain);
+        Page<ArticleJpaEntity> page = jpaRepository.findAll(spec, pageable);
+        
+        // techStack을 일괄 조회하여 N+1 문제 방지
+        List<ArticleJpaEntity> entities = page.getContent();
+        if (!entities.isEmpty()) {
+            List<Long> articleIds = entities.stream()
+                    .map(ArticleJpaEntity::getId)
+                    .collect(Collectors.toList());
+            
+            // 모든 techStack을 한 번에 조회
+            List<ArticleTechStackJpaEntity> allTechStacks = techStackRepository.findByArticleIdIn(articleIds);
+            
+            // 각 Article에 techStack 할당
+            entities.forEach(entity -> {
+                List<ArticleTechStackJpaEntity> techStacks = allTechStacks.stream()
+                        .filter(ts -> ts.getArticle().getId().equals(entity.getId()))
+                        .collect(Collectors.toList());
+                entity.setTechStack(techStacks);
+            });
+        }
+        
+        return page.map(mapper::toDomain);
     }
 
     /**

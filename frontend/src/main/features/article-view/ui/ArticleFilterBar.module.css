@@ -72,3 +72,9 @@
   flex-shrink: 0;
   line-height: 1;
 }
+
+/* 선택된 버튼(primary)의 배지: 흰 배경 + primary 색상 글씨 */
+.filterBadgePrimary {
+  background-color: var(--color-white);
+  color: var(--color-primary);
+}

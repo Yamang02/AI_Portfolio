@@ -93,7 +93,13 @@ export const ArticleFilterBar: React.FC<ArticleFilterBarProps> = ({
           >
             <span className={styles.filterButtonText}>전체</span>
             {totalCount > 0 && (
-              <span className={styles.filterBadge}>{totalCount}</span>
+              <span
+                className={`${styles.filterBadge} ${
+                  selectedCategory === undefined ? styles.filterBadgePrimary : ''
+                }`}
+              >
+                {totalCount}
+              </span>
             )}
           </Button>
           {Object.entries(ARTICLE_CATEGORIES).map(([key, label]) => {
@@ -109,7 +115,13 @@ export const ArticleFilterBar: React.FC<ArticleFilterBarProps> = ({
               >
                 <span className={styles.filterButtonText}>{label}</span>
                 {count > 0 && (
-                  <span className={styles.filterBadge}>{count}</span>
+                  <span
+                    className={`${styles.filterBadge} ${
+                      isSelected ? styles.filterBadgePrimary : ''
+                    }`}
+                  >
+                    {count}
+                  </span>
                 )}
               </Button>
             );
@@ -166,7 +178,13 @@ export const ArticleFilterBar: React.FC<ArticleFilterBarProps> = ({
                 >
                   <span className={styles.filterButtonText}>{project.title}</span>
                   {count > 0 && (
-                    <span className={styles.filterBadge}>{count}</span>
+                    <span
+                      className={`${styles.filterBadge} ${
+                        isSelected ? styles.filterBadgePrimary : ''
+                      }`}
+                    >
+                      {count}
+                    </span>
                   )}
                 </Button>
               );
@@ -224,7 +242,13 @@ export const ArticleFilterBar: React.FC<ArticleFilterBarProps> = ({
                 >
                   <span className={styles.filterButtonText}>{s.title}</span>
                   {count > 0 && (
-                    <span className={styles.filterBadge}>{count}</span>
+                    <span
+                      className={`${styles.filterBadge} ${
+                        isSelected ? styles.filterBadgePrimary : ''
+                      }`}
+                    >
+                      {count}
+                    </span>
                   )}
                 </Button>
               );

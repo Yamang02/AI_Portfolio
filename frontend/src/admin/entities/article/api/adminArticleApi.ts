@@ -9,7 +9,7 @@ export const adminArticleApi = {
    * 전체 목록 조회 (페이징)
    */
   getAll: (params: { page: number; size: number }) =>
-    adminApiClient.get<{ content: Article[]; totalElements: number; totalPages: number }>('/articles', { params }),
+    adminApiClient.get<{ content: Article[]; totalElements: number; totalPages: number }>('/articles', params),
 
   /**
    * ID로 조회
@@ -34,4 +34,18 @@ export const adminArticleApi = {
    */
   delete: (id: number) =>
     adminApiClient.delete(`/articles/${id}`),
+
+  /**
+   * 시리즈 검색 (제목으로 검색)
+   */
+  searchSeries: (keyword: string) =>
+    adminApiClient.get<Array<{ seriesId: string; title: string }>>('/articles/series/search', {
+      keyword,
+    }),
+
+  /**
+   * 시리즈 생성 (시리즈 ID 자동 생성)
+   */
+  createSeries: (title: string) =>
+    adminApiClient.post<{ seriesId: string; title: string }>('/articles/series', { title }),
 };

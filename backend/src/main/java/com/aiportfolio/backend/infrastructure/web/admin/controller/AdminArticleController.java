@@ -1,8 +1,11 @@
 package com.aiportfolio.backend.infrastructure.web.admin.controller;
 
 import com.aiportfolio.backend.domain.article.model.Article;
+import com.aiportfolio.backend.domain.article.model.ArticleSeries;
 import com.aiportfolio.backend.domain.article.port.in.GetArticleUseCase;
 import com.aiportfolio.backend.domain.article.port.in.ManageArticleUseCase;
+import com.aiportfolio.backend.domain.article.port.in.ManageArticleSeriesUseCase;
+import com.aiportfolio.backend.domain.article.port.in.SearchArticleSeriesUseCase;
 import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -19,6 +22,8 @@ public class AdminArticleController {
 
     private final ManageArticleUseCase manageUseCase;
     private final GetArticleUseCase getUseCase;
+    private final SearchArticleSeriesUseCase searchSeriesUseCase;
+    private final ManageArticleSeriesUseCase manageSeriesUseCase;
 
     /**
      * 전체 목록 조회 (페이징)
@@ -108,6 +113,30 @@ public class AdminArticleController {
         return ResponseEntity.ok(ApiResponse.success(null, "아티클 삭제 성공"));
     }
 
+    /**
+     * 시리즈 검색 (제목으로 검색)
+     */
+    @GetMapping("/series/search")
+    public ResponseEntity<ApiResponse<List<SeriesSearchResponse>>> searchSeries(
+            @RequestParam(required = false) String keyword) {
+        List<ArticleSeries> series = searchSeriesUseCase.searchByTitle(keyword != null ? keyword : "");
+        List<SeriesSearchResponse> responses = series.stream()
+                .map(s -> new SeriesSearchResponse(s.getSeriesId(), s.getTitle()))
+                .toList();
+        return ResponseEntity.ok(ApiResponse.success(responses, "시리즈 검색 성공"));
+    }
+
+    /**
+     * 시리즈 생성 (시리즈 ID 자동 생성)
+     */
+    @PostMapping("/series")
+    public ResponseEntity<ApiResponse<SeriesSearchResponse>> createSeries(
+            @RequestBody CreateSeriesRequest request) {
+        ArticleSeries series = manageSeriesUseCase.createSeries(request.title());
+        SeriesSearchResponse response = new SeriesSearchResponse(series.getSeriesId(), series.getTitle());
+        return ResponseEntity.ok(ApiResponse.success(response, "시리즈 생성 성공"));
+    }
+
     // DTOs
     public record CreateArticleRequest(
             String title,
@@ -187,4 +216,13 @@ public class AdminArticleController {
             );
         }
     }
+
+    public record SeriesSearchResponse(
+            String seriesId,
+            String title
+    ) {}
+    
+    public record CreateSeriesRequest(
+            String title
+    ) {}
 }

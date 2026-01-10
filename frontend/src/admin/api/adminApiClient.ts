@@ -26,11 +26,13 @@ export class AdminApiClient {
    */
   async get<T>(endpoint: string, params?: Record<string, any>): Promise<T> {
     const url = this.buildUrl(endpoint, params);
+    console.log('[AdminApiClient] GET request:', url, 'params:', params);
     const response = await fetch(url, {
       method: 'GET',
       credentials: 'include',
       headers: this.getHeaders(),
     });
+    console.log('[AdminApiClient] GET response status:', response.status);
     return this.handleResponse<T>(response);
   }
 
@@ -100,7 +102,7 @@ export class AdminApiClient {
       
       if (params) {
         Object.entries(params).forEach(([key, value]) => {
-          if (value !== undefined && value !== null) {
+          if (value !== undefined && value !== null && value !== '') {
             // 배열인 경우 여러 번 append
             if (Array.isArray(value)) {
               value.forEach((item) => {
@@ -113,7 +115,9 @@ export class AdminApiClient {
         });
       }
       
-      return url.pathname + url.search;
+      const finalUrl = url.pathname + url.search;
+      console.log('[AdminApiClient] Built URL (relative):', finalUrl);
+      return finalUrl;
     }
     
     // 절대 경로인 경우
@@ -121,7 +125,7 @@ export class AdminApiClient {
     
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
+        if (value !== undefined && value !== null && value !== '') {
           // 배열인 경우 여러 번 append
           if (Array.isArray(value)) {
             value.forEach((item) => {
@@ -134,7 +138,9 @@ export class AdminApiClient {
       });
     }
     
-    return url.toString();
+    const finalUrl = url.toString();
+    console.log('[AdminApiClient] Built URL (absolute):', finalUrl);
+    return finalUrl;
   }
 
   /**

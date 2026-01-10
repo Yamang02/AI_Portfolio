@@ -1647,6 +1647,26 @@ GET    /api/projects/:businessId/articles     (프로젝트 연관 게시글, �
 
 ---
 
+## 변경 이력
+
+### v1.5 (2025-01-XX) - Phase 2.5 진행 중
+- 추가: [시리즈 메타데이터 관리](#시리즈-메타데이터-테이블-활용) - Backend 시리즈 생성/검색 API 구현
+- 추가: `articles` 테이블에 `featured_sort_order` 필드 추가 (V005 마이그레이션)
+- 추가: `article_series` 테이블 생성 및 시리즈 도메인 모델 구현
+- 추가: Backend `ManageArticleSeriesService` - 시리즈 생성 기능
+- 추가: Backend `ArticleSeriesSearchService` - 시리즈 검색 기능
+- 추가: Admin API 시리즈 검색/생성 엔드포인트 (`GET /api/admin/articles/series/search`, `POST /api/admin/articles/series`)
+- 추가: Frontend `adminArticleApi.searchSeries()`, `adminArticleApi.createSeries()` 메서드
+- 추가: Frontend `SeriesSearchSelect` 컴포넌트 (시리즈 검색/생성 UI)
+- 업데이트: [Article API Specification](#2-article-api) - 시리즈 관련 API 엔드포인트 추가
+- 진행 중: 별도 시리즈 관리 페이지(`ArticleSeriesManagement.tsx`) 구현
+
+### v1.0 (2025-01-09) - 초기 버전
+- 문서 최초 작성
+- Phase 0, 1, 2 설계 포함
+
+---
+
 **작성일**: 2025-01-09
 **작성자**: AI Agent (Claude)
-**버전**: 1.0
+**버전**: 1.5

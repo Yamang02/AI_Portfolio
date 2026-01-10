@@ -104,8 +104,10 @@ public class ArticleController {
             String summary,
             String category,
             List<String> tags,
+            List<String> techStack,
             String publishedAt,
-            Integer viewCount
+            Integer viewCount,
+            Boolean isFeatured
     ) {
         public static ArticleListResponse from(Article domain) {
             return new ArticleListResponse(
@@ -114,8 +116,13 @@ public class ArticleController {
                     domain.getSummary(),
                     domain.getCategory(),
                     domain.getTags(),
+                    domain.getTechStack() != null ?
+                            domain.getTechStack().stream()
+                                    .map(ts -> ts.getTechName())
+                                    .toList() : List.of(),
                     domain.getPublishedAt() != null ? domain.getPublishedAt().toString() : null,
-                    domain.getViewCount()
+                    domain.getViewCount(),
+                    domain.getIsFeatured() != null ? domain.getIsFeatured() : false
             );
         }
     }

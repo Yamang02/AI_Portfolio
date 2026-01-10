@@ -17,7 +17,7 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
   value,
   onChange,
   height = 500,
-  preview = 'edit',
+  preview,
 }) => {
   return (
     <div style={{ width: '100%' }}>

@@ -9,8 +9,10 @@ export interface ArticleListItem {
   projectId?: string; // 프로젝트 businessId
   seriesId?: string;
   tags: string[];
+  techStack?: string[]; // 기술스택
   publishedAt?: string;
   viewCount: number;
+  isFeatured?: boolean; // 추천 아티클 여부
 }
 
 export interface ArticleDetail {

@@ -6,18 +6,47 @@
   padding-top: var(--spacing-4);
 }
 
-.buttonGroup {
+.navigationGroup {
   display: flex;
   align-items: center;
-  gap: var(--spacing-3);
+  gap: var(--spacing-2);
+  justify-content: center;
+  flex-wrap: wrap;
 }
 
-.pageInfo {
-  font-size: var(--font-size-sm);
+.navButton {
+  flex-shrink: 0;
+}
+
+.pageButtons {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  flex-wrap: wrap;
+  margin: 0 var(--spacing-3);
+}
+
+.pageButton {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  border-radius: 50%;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: var(--font-weight-medium);
+}
+
+.ellipsis {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  height: 36px;
   color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
   padding: 0 var(--spacing-2);
-  min-width: 60px;
-  text-align: center;
 }
 
 /* 반응형 */
@@ -27,12 +56,25 @@
     padding-top: var(--spacing-3);
   }
 
-  .buttonGroup {
-    gap: var(--spacing-2);
+  .navigationGroup {
+    gap: var(--spacing-1);
   }
 
-  .pageInfo {
+  .pageButtons {
+    gap: var(--spacing-1);
+    margin: 0 var(--spacing-2);
+  }
+
+  .pageButton {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    font-size: var(--font-size-sm);
+  }
+
+  .ellipsis {
+    min-width: 32px;
+    height: 32px;
     font-size: var(--font-size-xs);
-    min-width: 50px;
   }
 }

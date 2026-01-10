@@ -16,6 +16,12 @@ public interface ArticleRepositoryPort {
     Page<Article> findAll(Pageable pageable);
     Page<Article> findByFilter(ArticleFilter filter, Pageable pageable);
     void incrementViewCount(Long id);
+    
+    /**
+     * 같은 시리즈의 특정 순서보다 큰 순서를 가진 아티클들의 순서를 1씩 감소
+     * (아티클 삭제 시 시리즈 순서 재정렬용)
+     */
+    void decreaseSeriesOrderAfter(String seriesId, Integer deletedOrder);
 
     /**
      * 다음 비즈니스 ID 생성 (예: "article-001", "article-002")

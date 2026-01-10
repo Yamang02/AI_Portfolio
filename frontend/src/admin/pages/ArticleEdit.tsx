@@ -16,9 +16,10 @@ import {
   Col,
   Divider,
 } from 'antd';
-import { SaveOutlined, ArrowLeftOutlined, EyeOutlined } from '@ant-design/icons';
+import { SaveOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 import { MarkdownEditor } from '@/admin/shared/ui/markdown/MarkdownEditor';
-import { MarkdownRenderer } from '@/shared/ui/markdown/MarkdownRenderer';
+import { ProjectSearchSelect } from '@/admin/shared/ui/ProjectSearchSelect';
+import { SeriesSearchSelect } from '@/admin/shared/ui/SeriesSearchSelect';
 import { Article, ARTICLE_CATEGORIES } from '../entities/article';
 import {
   useAdminArticleQuery,
@@ -45,7 +46,6 @@ const ArticleEdit: React.FC = () => {
   const updateMutation = useUpdateArticleMutation();
 
   const [content, setContent] = useState('');
-  const [formValues, setFormValues] = useState<any>({});
 
   // 기존 아티클 데이터 로드
   useEffect(() => {
@@ -63,13 +63,6 @@ const ArticleEdit: React.FC = () => {
         seriesOrder: article.seriesOrder,
       });
       setContent(article.content || '');
-      setFormValues({
-        title: article.title,
-        summary: article.summary,
-        category: article.category,
-        tags: article.tags || [],
-        techStack: article.techStack || [],
-      });
     } else if (isNew) {
       // 새 아티클 생성 시 초기값 설정
       form.setFieldsValue({
@@ -77,15 +70,8 @@ const ArticleEdit: React.FC = () => {
         isFeatured: false,
       });
       setContent('');
-      setFormValues({});
     }
   }, [article, form, isNew]);
-
-  // 폼 값 변경 감지
-  const handleFormChange = () => {
-    const values = form.getFieldsValue();
-    setFormValues(values);
-  };
 
   const handleSave = async () => {
     try {
@@ -110,18 +96,6 @@ const ArticleEdit: React.FC = () => {
     } catch (error) {
       console.error('Form validation failed:', error);
     }
-  };
-
-  // 미리보기용 데이터
-  const previewData = {
-    title: formValues.title || article?.title || '',
-    summary: formValues.summary || article?.summary || '',
-    content: content || article?.content || '',
-    category: formValues.category || article?.category || '',
-    tags: formValues.tags || article?.tags || [],
-    techStack: formValues.techStack || article?.techStack || [],
-    publishedAt: article?.publishedAt || new Date().toISOString(),
-    viewCount: article?.viewCount || 0,
   };
 
   if (isLoading && !isNew) {
@@ -161,14 +135,10 @@ const ArticleEdit: React.FC = () => {
       </Card>
 
       {/* 편집 영역 */}
-      <Row gutter={24}>
-        {/* 좌측: 편집 폼 */}
-        <Col xs={24} lg={12}>
-          <Card title="편집" className="mb-4">
+      <Card title="편집" className="mb-4">
             <Form
               form={form}
               layout="vertical"
-              onValuesChange={handleFormChange}
             >
               <Form.Item
                 name="title"
@@ -223,16 +193,16 @@ const ArticleEdit: React.FC = () => {
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                  <Form.Item name="projectId" label="연관 프로젝트 ID">
-                    <InputNumber placeholder="프로젝트 ID (선택)" style={{ width: '100%' }} />
+                  <Form.Item name="projectId" label="연관 프로젝트">
+                    <ProjectSearchSelect placeholder="프로젝트명으로 검색..." />
                   </Form.Item>
                 </Col>
               </Row>
 
               <Row gutter={16}>
                 <Col span={12}>
-                  <Form.Item name="seriesId" label="시리즈 ID">
-                    <Input placeholder="시리즈 ID (선택)" />
+                  <Form.Item name="seriesId" label="시리즈">
+                    <SeriesSearchSelect placeholder="시리즈명으로 검색..." />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
@@ -250,79 +220,10 @@ const ArticleEdit: React.FC = () => {
                 value={content}
                 onChange={setContent}
                 height={600}
-                preview="edit"
+                // preview prop을 제거하여 리본 메뉴에서 미리보기 모드 제어 가능
               />
             </div>
           </Card>
-        </Col>
-
-        {/* 우측: 미리보기 (실제 발행될 모습) */}
-        <Col xs={24} lg={12}>
-          <Card
-            title={
-              <Space>
-                <EyeOutlined />
-                <span>미리보기</span>
-              </Space>
-            }
-            className="sticky top-4"
-          >
-            <article className="article-preview max-w-full">
-              <header className="mb-8">
-                <h1 className="text-4xl font-bold mb-4">
-                  {previewData.title || '제목을 입력하세요'}
-                </h1>
-                <div className="flex gap-4 text-sm text-gray-500 mb-4">
-                  <span>
-                    {previewData.publishedAt &&
-                      new Date(previewData.publishedAt).toLocaleDateString('ko-KR')}
-                  </span>
-                  <span>조회 {previewData.viewCount}</span>
-                </div>
-                {previewData.tags.length > 0 && (
-                  <div className="flex gap-2 flex-wrap">
-                    {previewData.tags.map((tag: string) => (
-                      <span key={tag} className="bg-gray-100 px-3 py-1 rounded text-sm">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </header>
-
-              {previewData.summary && (
-                <div className="mb-6 p-4 bg-blue-50 rounded-lg">
-                  <p className="text-gray-700">{previewData.summary}</p>
-                </div>
-              )}
-
-              {previewData.content ? (
-                <MarkdownRenderer content={previewData.content} />
-              ) : (
-                <div className="text-gray-400 text-center py-12">
-                  본문을 입력하세요
-                </div>
-              )}
-
-              {previewData.techStack.length > 0 && (
-                <footer className="mt-12 pt-8 border-t">
-                  <h3 className="text-lg font-semibold mb-4">기술 스택</h3>
-                  <div className="flex gap-2 flex-wrap">
-                    {previewData.techStack.map((tech: string) => (
-                      <span
-                        key={tech}
-                        className="bg-blue-100 text-blue-800 px-3 py-1 rounded text-sm"
-                      >
-                        {tech}
-                      </span>
-                    ))}
-                  </div>
-                </footer>
-              )}
-            </article>
-          </Card>
-        </Col>
-      </Row>
     </div>
   );
 };
