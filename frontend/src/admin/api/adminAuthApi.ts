@@ -31,15 +31,40 @@ class AdminAuthApi {
 
     const response = await fetch(url, { ...defaultOptions, ...options });
 
-    // 응답이 실패 상태코드여도 ApiResponse 형식일 수 있으므로 JSON 파싱 시도
-    const data: ApiResponse<T> = await response.json();
+    // JSON 파싱 시도
+    let data: ApiResponse<T>;
+    try {
+      data = await response.json();
+    } catch (error) {
+      // JSON 파싱 실패 시
+      throw new Error(`응답을 파싱할 수 없습니다. HTTP ${response.status}`);
+    }
 
-    // HTTP 에러 상태이면서 ApiResponse가 아닌 경우에만 에러 throw
-    if (!response.ok && !data.hasOwnProperty('success')) {
+    // ApiResponse 구조 확인
+    if (data && typeof data === 'object' && 'success' in data) {
+      // success가 false인 경우 에러로 처리
+      if (!data.success) {
+        const errorMessage = data.error || data.message || '요청 처리 중 오류가 발생했습니다.';
+        throw new Error(errorMessage);
+      }
+      
+      // success가 true이면 정상 반환
+      return data;
+    }
+
+    // ApiResponse 구조가 아닌 경우
+    // HTTP 에러 상태이면 에러 throw
+    if (!response.ok) {
       throw new Error(data.message || `HTTP ${response.status}`);
     }
 
-    return data;
+    // HTTP 200이지만 ApiResponse 구조가 아닌 경우
+    // 기본 구조로 래핑하여 반환
+    return {
+      success: true,
+      message: '',
+      data: data as T,
+    };
   }
 
   async login(credentials: AdminLoginRequest): Promise<ApiResponse<AdminUserInfo>> {

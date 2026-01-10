@@ -18,7 +18,7 @@ import { adminTheme } from '../shared/theme/antdTheme';
 
 const AdminApp: React.FC = () => {
   // Admin 전용 Antd 테마 적용
-  // 디자인시스템의 CSS 변수를 참조하여 Main 영역과 색상 체계 통일
+  // Admin은 독립적인 디자인 체계를 사용합니다
 
   return (
     <ConfigProvider theme={adminTheme}>
