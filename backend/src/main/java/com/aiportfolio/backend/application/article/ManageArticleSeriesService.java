@@ -7,6 +7,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -37,6 +41,19 @@ public class ManageArticleSeriesService implements ManageArticleSeriesUseCase {
     public ArticleSeries findBySeriesId(String seriesId) {
         return seriesRepository.findBySeriesId(seriesId)
                 .orElse(null);
+    }
+
+    @Override
+    public Map<String, ArticleSeries> findBySeriesIdIn(List<String> seriesIds) {
+        if (seriesIds == null || seriesIds.isEmpty()) {
+            return Map.of();
+        }
+        List<ArticleSeries> seriesList = seriesRepository.findBySeriesIdIn(seriesIds);
+        return seriesList.stream()
+                .collect(Collectors.toMap(
+                        ArticleSeries::getSeriesId,
+                        series -> series
+                ));
     }
 
     @Override

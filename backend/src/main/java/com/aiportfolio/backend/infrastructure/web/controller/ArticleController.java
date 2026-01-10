@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/articles")
@@ -63,8 +65,18 @@ public class ArticleController {
         // filter.setDateTo(...);
 
         Page<Article> articles = getUseCase.findByFilter(filter, pageable);
+        
+        // 시리즈 정보 배치 조회 (N+1 문제 방지)
+        List<String> seriesIds = articles.getContent().stream()
+                .map(Article::getSeriesId)
+                .filter(Objects::nonNull)
+                .distinct()
+                .collect(Collectors.toList());
+        
+        Map<String, ArticleSeries> seriesMap = manageSeriesUseCase.findBySeriesIdIn(seriesIds);
+        
         return ResponseEntity.ok(ApiResponse.success(
-                articles.map(article -> ArticleListResponse.from(article, manageSeriesUseCase)),
+                articles.map(article -> ArticleListResponse.from(article, seriesMap)),
                 "아티클 목록 조회 성공"));
     }
 
@@ -133,11 +145,11 @@ public class ArticleController {
             String seriesTitle,
             Integer seriesOrder
     ) {
-        public static ArticleListResponse from(Article domain, ManageArticleSeriesUseCase seriesUseCase) {
-            // 시리즈 제목 조회
+        public static ArticleListResponse from(Article domain, Map<String, ArticleSeries> seriesMap) {
+            // 시리즈 제목 조회 (Map에서 조회)
             String seriesTitle = null;
             if (domain.getSeriesId() != null) {
-                ArticleSeries series = seriesUseCase.findBySeriesId(domain.getSeriesId());
+                ArticleSeries series = seriesMap.get(domain.getSeriesId());
                 if (series != null) {
                     seriesTitle = series.getTitle();
                 }
@@ -177,7 +189,7 @@ public class ArticleController {
             Integer seriesOrder
     ) {
         public static ArticleDetailResponse from(Article domain, ManageArticleSeriesUseCase seriesUseCase) {
-            // 시리즈 제목 조회
+            // 상세 조회는 단일 조회이므로 기존 방식 유지
             String seriesTitle = null;
             if (domain.getSeriesId() != null) {
                 ArticleSeries series = seriesUseCase.findBySeriesId(domain.getSeriesId());

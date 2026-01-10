@@ -30,4 +30,9 @@ public interface ArticleSeriesJpaRepository extends JpaRepository<ArticleSeriesJ
      */
     @Query("SELECT MAX(CAST(SUBSTRING(s.seriesId, 16) AS integer)) FROM ArticleSeriesJpaEntity s WHERE s.seriesId LIKE 'article-series-%'")
     Integer findMaxSeriesIdNumber();
+    
+    /**
+     * 시리즈 ID 목록으로 배치 조회 (N+1 문제 방지)
+     */
+    List<ArticleSeriesJpaEntity> findBySeriesIdIn(List<String> seriesIds);
 }

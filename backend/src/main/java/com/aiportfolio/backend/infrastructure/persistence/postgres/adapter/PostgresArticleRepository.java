@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Repository
@@ -336,39 +337,75 @@ public class PostgresArticleRepository implements ArticleRepositoryPort {
             categoryCounts.put(category, count);
         }
 
-        // 프로젝트별 카운트
+        // 프로젝트별 카운트 (배치 조회로 N+1 문제 방지)
         List<Object[]> projectResults = jpaRepository.countByProjectId();
         List<ArticleStatistics.ProjectStatistics> projectStats = new ArrayList<>();
-        for (Object[] result : projectResults) {
-            Long projectId = ((Number) result[0]).longValue();
-            Long count = ((Number) result[1]).longValue();
+        
+        if (!projectResults.isEmpty()) {
+            // 프로젝트 ID 일괄 수집
+            Set<Long> projectIds = projectResults.stream()
+                    .map(result -> ((Number) result[0]).longValue())
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toSet());
             
-            Optional<ProjectJpaEntity> projectOpt = projectJpaRepository.findById(projectId);
-            if (projectOpt.isPresent()) {
-                ProjectJpaEntity project = projectOpt.get();
-                projectStats.add(new ArticleStatistics.ProjectStatistics(
-                    project.getId(),
-                    project.getBusinessId(),
-                    project.getTitle(),
-                    count
-                ));
+            // 배치 조회 (1개 쿼리)
+            Map<Long, ProjectJpaEntity> projectMap = projectJpaRepository.findAllById(projectIds)
+                    .stream()
+                    .collect(Collectors.toMap(
+                            ProjectJpaEntity::getId,
+                            Function.identity()
+                    ));
+            
+            // Map을 사용하여 매핑
+            for (Object[] result : projectResults) {
+                Long projectId = ((Number) result[0]).longValue();
+                Long count = ((Number) result[1]).longValue();
+                
+                ProjectJpaEntity project = projectMap.get(projectId);
+                if (project != null) {
+                    projectStats.add(new ArticleStatistics.ProjectStatistics(
+                            project.getId(),
+                            project.getBusinessId(),
+                            project.getTitle(),
+                            count
+                    ));
+                }
             }
         }
 
-        // 시리즈별 카운트
+        // 시리즈별 카운트 (배치 조회로 N+1 문제 방지)
         List<Object[]> seriesResults = jpaRepository.countBySeriesId();
         List<ArticleStatistics.SeriesStatistics> seriesStats = new ArrayList<>();
-        for (Object[] result : seriesResults) {
-            String seriesId = (String) result[0];
-            Long count = ((Number) result[1]).longValue();
+        
+        if (!seriesResults.isEmpty()) {
+            // 시리즈 ID 일괄 수집
+            List<String> seriesIds = seriesResults.stream()
+                    .map(result -> (String) result[0])
+                    .filter(Objects::nonNull)
+                    .distinct()
+                    .collect(Collectors.toList());
             
-            ArticleSeriesJpaEntity series = seriesJpaRepository.findBySeriesId(seriesId);
-            if (series != null) {
-                seriesStats.add(new ArticleStatistics.SeriesStatistics(
-                    series.getSeriesId(),
-                    series.getTitle(),
-                    count
-                ));
+            // 배치 조회 (1개 쿼리)
+            Map<String, ArticleSeriesJpaEntity> seriesMap = seriesJpaRepository.findBySeriesIdIn(seriesIds)
+                    .stream()
+                    .collect(Collectors.toMap(
+                            ArticleSeriesJpaEntity::getSeriesId,
+                            Function.identity()
+                    ));
+            
+            // Map을 사용하여 매핑
+            for (Object[] result : seriesResults) {
+                String seriesId = (String) result[0];
+                Long count = ((Number) result[1]).longValue();
+                
+                ArticleSeriesJpaEntity series = seriesMap.get(seriesId);
+                if (series != null) {
+                    seriesStats.add(new ArticleStatistics.SeriesStatistics(
+                            series.getSeriesId(),
+                            series.getTitle(),
+                            count
+                    ));
+                }
             }
         }
 

@@ -2,6 +2,7 @@ package com.aiportfolio.backend.domain.article.port.out;
 
 import com.aiportfolio.backend.domain.article.model.ArticleSeries;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -12,6 +13,14 @@ public interface ArticleSeriesRepositoryPort {
     ArticleSeries save(ArticleSeries series);
     
     Optional<ArticleSeries> findBySeriesId(String seriesId);
+    
+    /**
+     * 시리즈 ID 목록으로 배치 조회 (N+1 문제 방지)
+     * 
+     * @param seriesIds 시리즈 ID 목록
+     * @return 시리즈 목록
+     */
+    List<ArticleSeries> findBySeriesIdIn(List<String> seriesIds);
     
     boolean existsBySeriesId(String seriesId);
     

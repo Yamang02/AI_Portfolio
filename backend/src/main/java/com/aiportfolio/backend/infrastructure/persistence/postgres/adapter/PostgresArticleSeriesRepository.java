@@ -8,6 +8,7 @@ import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.Ar
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -48,6 +49,17 @@ public class PostgresArticleSeriesRepository implements ArticleSeriesRepositoryP
     public Optional<ArticleSeries> findBySeriesId(String seriesId) {
         ArticleSeriesJpaEntity entity = jpaRepository.findBySeriesId(seriesId);
         return entity != null ? Optional.of(toDomain(entity)) : Optional.empty();
+    }
+
+    @Override
+    public List<ArticleSeries> findBySeriesIdIn(List<String> seriesIds) {
+        if (seriesIds == null || seriesIds.isEmpty()) {
+            return List.of();
+        }
+        List<ArticleSeriesJpaEntity> entities = jpaRepository.findBySeriesIdIn(seriesIds);
+        return entities.stream()
+                .map(this::toDomain)
+                .toList();
     }
 
     @Override

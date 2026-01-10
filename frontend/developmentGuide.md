@@ -220,6 +220,16 @@ const isHomePage = location.pathname === '/';
 
 > 📖 **상세 가이드**: `docs/technical/guides/identifier-usage-guide.md` 참조
 
+## ⚡ 성능 최적화
+
+성능 최적화 관련 가이드라인은 다음 문서를 참고하세요:
+
+- **성능 최적화 가이드**: `docs/technical/guides/frontend/performance-optimization-guide.md`
+  - 중복 컴포넌트 방지
+  - React Query 캐싱 전략
+  - 유틸리티 함수 통일
+  - CSS 기반 최적화
+
 ## 🔗 관련 문서
 
 자세한 내용은 루트 `docs/` 폴더의 문서를 참고하세요.
