@@ -17,6 +17,7 @@ export interface Article {
   viewCount: number;
   isFeatured: boolean;
   seriesId?: string;
+  seriesTitle?: string;
   seriesOrder?: number;
   createdAt: string;
   updatedAt: string;

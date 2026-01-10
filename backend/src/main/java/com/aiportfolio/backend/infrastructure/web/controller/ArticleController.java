@@ -2,7 +2,11 @@ package com.aiportfolio.backend.infrastructure.web.controller;
 
 import com.aiportfolio.backend.domain.article.filter.ArticleFilter;
 import com.aiportfolio.backend.domain.article.model.Article;
+import com.aiportfolio.backend.domain.article.model.ArticleSeries;
+import com.aiportfolio.backend.domain.article.model.ArticleStatistics;
+import com.aiportfolio.backend.domain.article.port.in.GetArticleStatisticsUseCase;
 import com.aiportfolio.backend.domain.article.port.in.GetArticleUseCase;
+import com.aiportfolio.backend.domain.article.port.in.ManageArticleSeriesUseCase;
 import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;
 import com.aiportfolio.backend.infrastructure.web.dto.ArticleListRequest;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/articles")
@@ -21,6 +26,8 @@ import java.util.List;
 public class ArticleController {
 
     private final GetArticleUseCase getUseCase;
+    private final ManageArticleSeriesUseCase manageSeriesUseCase;
+    private final GetArticleStatisticsUseCase statisticsUseCase;
 
     /**
      * 전체 목록 조회 (페이징, 발행된 것만)
@@ -57,7 +64,7 @@ public class ArticleController {
 
         Page<Article> articles = getUseCase.findByFilter(filter, pageable);
         return ResponseEntity.ok(ApiResponse.success(
-                articles.map(ArticleListResponse::from),
+                articles.map(article -> ArticleListResponse.from(article, manageSeriesUseCase)),
                 "아티클 목록 조회 성공"));
     }
 
@@ -91,10 +98,24 @@ public class ArticleController {
                     // 조회수 증가
                     getUseCase.incrementViewCount(article.getId());
                     return ResponseEntity.ok(ApiResponse.success(
-                            ArticleDetailResponse.from(article),
+                            ArticleDetailResponse.from(article, manageSeriesUseCase),
                             "아티클 조회 성공"));
                 })
                 .orElse(ResponseEntity.ok(ApiResponse.error("아티클을 찾을 수 없습니다.")));
+    }
+
+    /**
+     * 아티클 통계 조회
+     * - 카테고리별 카운트
+     * - 프로젝트별 카운트 (실제 연결된 프로젝트만)
+     * - 시리즈별 카운트
+     */
+    @GetMapping("/statistics")
+    public ResponseEntity<ApiResponse<ArticleStatisticsResponse>> getStatistics() {
+        ArticleStatistics statistics = statisticsUseCase.getStatistics();
+        return ResponseEntity.ok(ApiResponse.success(
+                ArticleStatisticsResponse.from(statistics),
+                "아티클 통계 조회 성공"));
     }
 
     // DTOs (Public용 - 필요한 정보만 노출)
@@ -107,9 +128,21 @@ public class ArticleController {
             List<String> techStack,
             String publishedAt,
             Integer viewCount,
-            Boolean isFeatured
+            Boolean isFeatured,
+            String seriesId,
+            String seriesTitle,
+            Integer seriesOrder
     ) {
-        public static ArticleListResponse from(Article domain) {
+        public static ArticleListResponse from(Article domain, ManageArticleSeriesUseCase seriesUseCase) {
+            // 시리즈 제목 조회
+            String seriesTitle = null;
+            if (domain.getSeriesId() != null) {
+                ArticleSeries series = seriesUseCase.findBySeriesId(domain.getSeriesId());
+                if (series != null) {
+                    seriesTitle = series.getTitle();
+                }
+            }
+            
             return new ArticleListResponse(
                     domain.getBusinessId(),
                     domain.getTitle(),
@@ -122,7 +155,10 @@ public class ArticleController {
                                     .toList() : List.of(),
                     domain.getPublishedAt() != null ? domain.getPublishedAt().toString() : null,
                     domain.getViewCount(),
-                    domain.getIsFeatured() != null ? domain.getIsFeatured() : false
+                    domain.getIsFeatured() != null ? domain.getIsFeatured() : false,
+                    domain.getSeriesId(),
+                    seriesTitle,
+                    domain.getSeriesOrder()
             );
         }
     }
@@ -135,9 +171,21 @@ public class ArticleController {
             List<String> tags,
             List<String> techStack,
             String publishedAt,
-            Integer viewCount
+            Integer viewCount,
+            String seriesId,
+            String seriesTitle,
+            Integer seriesOrder
     ) {
-        public static ArticleDetailResponse from(Article domain) {
+        public static ArticleDetailResponse from(Article domain, ManageArticleSeriesUseCase seriesUseCase) {
+            // 시리즈 제목 조회
+            String seriesTitle = null;
+            if (domain.getSeriesId() != null) {
+                ArticleSeries series = seriesUseCase.findBySeriesId(domain.getSeriesId());
+                if (series != null) {
+                    seriesTitle = series.getTitle();
+                }
+            }
+            
             return new ArticleDetailResponse(
                     domain.getBusinessId(),
                     domain.getTitle(),
@@ -149,8 +197,51 @@ public class ArticleController {
                                     .map(ts -> ts.getTechName())
                                     .toList() : List.of(),
                     domain.getPublishedAt() != null ? domain.getPublishedAt().toString() : null,
-                    domain.getViewCount()
+                    domain.getViewCount(),
+                    domain.getSeriesId(),
+                    seriesTitle,
+                    domain.getSeriesOrder()
             );
         }
     }
+
+    public record ArticleStatisticsResponse(
+            Map<String, Long> categories,
+            List<ProjectStatisticsResponse> projects,
+            List<SeriesStatisticsResponse> series
+    ) {
+        public static ArticleStatisticsResponse from(ArticleStatistics statistics) {
+            return new ArticleStatisticsResponse(
+                    statistics.categories(),
+                    statistics.projects().stream()
+                            .map(p -> new ProjectStatisticsResponse(
+                                    p.projectId(),
+                                    p.projectBusinessId(),
+                                    p.projectTitle(),
+                                    p.count()
+                            ))
+                            .toList(),
+                    statistics.series().stream()
+                            .map(s -> new SeriesStatisticsResponse(
+                                    s.seriesId(),
+                                    s.seriesTitle(),
+                                    s.count()
+                            ))
+                            .toList()
+            );
+        }
+    }
+
+    public record ProjectStatisticsResponse(
+            Long projectId,
+            String projectBusinessId,
+            String projectTitle,
+            Long count
+    ) {}
+
+    public record SeriesStatisticsResponse(
+            String seriesId,
+            String seriesTitle,
+            Long count
+    ) {}
 }

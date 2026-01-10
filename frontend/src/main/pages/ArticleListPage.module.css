@@ -10,6 +10,8 @@
   max-width: 1280px;
   margin: 0 auto;
   padding: 0 var(--spacing-4);
+  display: flex;
+  flex-direction: column;
 }
 
 .headerContent {
@@ -17,6 +19,10 @@
   justify-content: flex-start;
   align-items: flex-start;
   gap: var(--spacing-6);
+}
+
+.headerContent > div > h1 {
+  margin-bottom: 0;
 }
 
 .titleRow {
@@ -36,13 +42,13 @@
 }
 
 .count {
-  margin-top: var(--spacing-2);
+  margin-top: 8px;
   font-size: var(--font-size-sm);
   color: var(--color-text-tertiary);
 }
 
 .content {
-  padding: var(--spacing-6) var(--spacing-8);
+  padding: var(--spacing-6) var(--spacing-8) var(--spacing-8);
 }
 
 .layout {
@@ -60,16 +66,17 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: var(--spacing-4);
+  margin-bottom: var(--spacing-6);
 }
 
-.pagination {
+/* 페이지네이션 래퍼 - 별도 행으로 중앙 배치 */
+.paginationWrapper {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: var(--spacing-4);
   margin-top: var(--spacing-8);
-  padding-top: var(--spacing-6);
-  border-top: 1px solid var(--color-border-default);
+  margin-bottom: var(--spacing-8);
+  width: 100%;
 }
 
 .pageInfo {
@@ -82,12 +89,79 @@
   position: sticky;
   top: var(--spacing-4);
   height: fit-content;
+  max-height: calc(100vh - var(--spacing-8));
+  overflow-y: auto;
+  align-self: start;
+  margin-top: calc(var(--spacing-6) + 3.5rem + var(--spacing-4));
 }
 
 .error {
   text-align: center;
   padding: var(--spacing-8);
   color: var(--color-text-secondary);
+}
+
+/* Featured Articles 섹션 */
+.featuredSection {
+  padding: 0;
+  margin-bottom: var(--spacing-8);
+}
+
+/* Featured Section 헤더 래퍼 */
+.featuredHeaderWrapper {
+  padding: var(--spacing-8) var(--spacing-8) var(--spacing-6);
+  background-color: var(--color-bg-primary);
+}
+
+/* Featured Section 헤더 */
+.featuredHeader {
+  text-align: center;
+  margin-bottom: 0;
+}
+
+/* Featured Section 내 SectionTitle 색상 */
+.featuredSection h2 {
+  color: var(--color-primary-text);
+  margin: 0;
+}
+
+/* 아티클 목록 섹션 */
+.articleListSection {
+  padding: 0;
+  margin-bottom: 0; /* 페이지네이션이 별도 행이므로 하단 여백 제거 */
+}
+
+/* 섹션 헤더 */
+.sectionHeader {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-4);
+  margin-top: var(--spacing-6);
+  margin-bottom: var(--spacing-4);
+  padding-bottom: var(--spacing-4);
+}
+
+/* 일반 섹션 내 SectionTitle 색상 */
+.articleListSection h2 {
+  color: var(--color-primary-text);
+  margin: 0;
+}
+
+/* 타이틀과 설명 사이 구분선 */
+.sectionHeader .divider {
+  width: 1px;
+  height: 16px;
+  background-color: var(--color-border-default);
+  flex-shrink: 0;
+}
+
+/* 섹션 설명 */
+.sectionDescription {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  line-height: 1.5;
+  margin: 0;
+  flex-shrink: 0;
 }
 
 /* 반응형 */
@@ -99,6 +173,7 @@
   .sidebar {
     position: static;
     order: -1; /* 모바일에서 필터 바를 위로 */
+    margin-top: 0;
   }
 }
 
@@ -121,5 +196,14 @@
 
   .viewToggle {
     margin-left: 0;
+  }
+
+  .featuredHeaderWrapper {
+    padding: var(--spacing-8) var(--spacing-4) var(--spacing-8);
+  }
+
+  .sectionHeader {
+    flex-direction: column;
+    gap: var(--spacing-2);
   }
 }

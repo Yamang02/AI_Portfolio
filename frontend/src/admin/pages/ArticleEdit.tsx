@@ -71,7 +71,8 @@ const ArticleEdit: React.FC = () => {
       });
       setContent('');
     }
-  }, [article, form, isNew]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [article, isNew]); // form은 안정적인 참조이므로 의존성에서 제외
 
   const handleSave = async () => {
     try {
@@ -101,7 +102,8 @@ const ArticleEdit: React.FC = () => {
   if (isLoading && !isNew) {
     return (
       <div className="flex justify-center items-center min-h-[400px]">
-        <Spin size="large" tip="로딩 중..." />
+        <Spin size="large" />
+        <span style={{ marginLeft: '12px' }}>로딩 중...</span>
       </div>
     );
   }
@@ -202,7 +204,10 @@ const ArticleEdit: React.FC = () => {
               <Row gutter={16}>
                 <Col span={12}>
                   <Form.Item name="seriesId" label="시리즈">
-                    <SeriesSearchSelect placeholder="시리즈명으로 검색..." />
+                    <SeriesSearchSelect 
+                      placeholder="시리즈명으로 검색..." 
+                      seriesTitle={article?.seriesTitle}
+                    />
                   </Form.Item>
                 </Col>
                 <Col span={12}>

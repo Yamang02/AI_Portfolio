@@ -100,6 +100,10 @@ public class ManageArticleService implements ManageArticleUseCase {
                     seriesOrder = seriesRepository.findMaxSeriesOrder(seriesId) + 1;
                 }
             }
+        } else {
+            // seriesId가 null이거나 빈 문자열인 경우 기존 값 유지
+            seriesId = existing.getSeriesId();
+            seriesOrder = existing.getSeriesOrder();
         }
 
         // 기술 스택 변환

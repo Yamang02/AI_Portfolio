@@ -29,6 +29,13 @@
   flex: 1;
 }
 
+/* 검색 인풋을 아이콘 버튼과 같은 높이로 맞추기 */
+.searchInput :global(input) {
+  height: 2rem; /* 아이콘 버튼과 동일한 높이 */
+  min-height: 2rem;
+  line-height: 1.5;
+}
+
 .searchButton {
   flex-shrink: 0;
 }

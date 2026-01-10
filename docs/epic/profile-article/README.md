@@ -136,6 +136,14 @@ Admin 기능이 늘어나도 일관된 방식으로 빠르게 확장할 수 있�
 
 ## 변경 이력
 
+### v1.6 (2025-01-XX) - Article 통계 및 UI 개선
+- 추가: ArticleStatistics 기능 - 카테고리별/프로젝트별/시리즈별 통계 조회
+- 추가: FeaturedArticleCard 컴포넌트 - 추천 아티클 카드 UI
+- 추가: FeaturedArticleCarousel 컴포넌트 - 추천 아티클 캐러셀 UI
+- 개선: ArticleListPage - 통계 정보 표시 및 UI/UX 개선
+- 개선: ArticleTable - 테이블 레이아웃 및 반응형 디자인 개선
+- 개선: Admin API 클라이언트 리팩토링
+
 ### v1.5 (2025-01-XX) - Phase 2.5 진행 중
 - 추가: Phase 2.5 섹션 - 시리즈 메타데이터 관리 기능
 - 추가: Backend 시리즈 생성/검색 API 구현

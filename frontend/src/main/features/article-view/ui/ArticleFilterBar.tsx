@@ -34,8 +34,8 @@ export const ArticleFilterBar: React.FC<ArticleFilterBarProps> = ({
   articleCounts = {},
 }) => {
   const [isCategoryExpanded, setIsCategoryExpanded] = useState(true);
-  const [isProjectExpanded, setIsProjectExpanded] = useState(true);
-  const [isSeriesExpanded, setIsSeriesExpanded] = useState(true);
+  const [isSeriesExpanded, setIsSeriesExpanded] = useState(false);
+  const [isProjectExpanded, setIsProjectExpanded] = useState(false);
 
   const handleCategoryClick = (category: string | undefined) => {
     if (onCategorySelect) {
@@ -130,70 +130,6 @@ export const ArticleFilterBar: React.FC<ArticleFilterBarProps> = ({
         )}
       </div>
 
-      {/* 프로젝트 필터 */}
-      {projects.length > 0 && (
-        <div className={styles.filterSection}>
-          <div className={styles.sectionHeader}>
-            <SectionTitle level="h3" className={styles.title}>
-              프로젝트
-            </SectionTitle>
-            <Button
-              variant="icon"
-              size="sm"
-              onClick={() => setIsProjectExpanded(!isProjectExpanded)}
-              ariaLabel={isProjectExpanded ? '축소' : '확대'}
-              className={styles.expandButton}
-            >
-              {isProjectExpanded ? (
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M18 15l-6-6-6 6" />
-                </svg>
-              ) : (
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M6 9l6 6 6-6" />
-                </svg>
-              )}
-            </Button>
-          </div>
-          {isProjectExpanded && (
-            <div className={styles.buttonGroup}>
-            <Button
-              variant={selectedProjectId === undefined ? 'primary' : 'secondary'}
-              size="sm"
-              onClick={() => handleProjectClick(undefined)}
-              className={styles.filterButton}
-            >
-              전체
-            </Button>
-            {projects.map((project) => {
-              const count = articleCounts.projects?.[project.id] || 0;
-              const isSelected = selectedProjectId === project.id;
-              return (
-                <Button
-                  key={project.id}
-                  variant={isSelected ? 'primary' : 'secondary'}
-                  size="sm"
-                  onClick={() => handleProjectClick(project.id)}
-                  className={styles.filterButton}
-                >
-                  <span className={styles.filterButtonText}>{project.title}</span>
-                  {count > 0 && (
-                    <span
-                      className={`${styles.filterBadge} ${
-                        isSelected ? styles.filterBadgePrimary : ''
-                      }`}
-                    >
-                      {count}
-                    </span>
-                  )}
-                </Button>
-              );
-            })}
-            </div>
-          )}
-        </div>
-      )}
-
       {/* 시리즈 필터 */}
       {series.length > 0 && (
         <div className={styles.filterSection}>
@@ -241,6 +177,70 @@ export const ArticleFilterBar: React.FC<ArticleFilterBarProps> = ({
                   className={styles.filterButton}
                 >
                   <span className={styles.filterButtonText}>{s.title}</span>
+                  {count > 0 && (
+                    <span
+                      className={`${styles.filterBadge} ${
+                        isSelected ? styles.filterBadgePrimary : ''
+                      }`}
+                    >
+                      {count}
+                    </span>
+                  )}
+                </Button>
+              );
+            })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* 프로젝트 필터 */}
+      {projects.length > 0 && (
+        <div className={styles.filterSection}>
+          <div className={styles.sectionHeader}>
+            <SectionTitle level="h3" className={styles.title}>
+              프로젝트
+            </SectionTitle>
+            <Button
+              variant="icon"
+              size="sm"
+              onClick={() => setIsProjectExpanded(!isProjectExpanded)}
+              ariaLabel={isProjectExpanded ? '축소' : '확대'}
+              className={styles.expandButton}
+            >
+              {isProjectExpanded ? (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M18 15l-6-6-6 6" />
+                </svg>
+              ) : (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M6 9l6 6 6-6" />
+                </svg>
+              )}
+            </Button>
+          </div>
+          {isProjectExpanded && (
+            <div className={styles.buttonGroup}>
+            <Button
+              variant={selectedProjectId === undefined ? 'primary' : 'secondary'}
+              size="sm"
+              onClick={() => handleProjectClick(undefined)}
+              className={styles.filterButton}
+            >
+              전체
+            </Button>
+            {projects.map((project) => {
+              const count = articleCounts.projects?.[project.id] || 0;
+              const isSelected = selectedProjectId === project.id;
+              return (
+                <Button
+                  key={project.id}
+                  variant={isSelected ? 'primary' : 'secondary'}
+                  size="sm"
+                  onClick={() => handleProjectClick(project.id)}
+                  className={styles.filterButton}
+                >
+                  <span className={styles.filterButtonText}>{project.title}</span>
                   {count > 0 && (
                     <span
                       className={`${styles.filterBadge} ${

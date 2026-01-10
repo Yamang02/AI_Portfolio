@@ -1,0 +1,87 @@
+.featuredArticleCard {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+  background-color: var(--color-bg-article-light);
+}
+
+.featuredArticleCard.clickable {
+  cursor: pointer;
+}
+
+/* 카드 호버 효과 */
+.featuredArticleCard:hover {
+  border-color: var(--color-primary);
+  box-shadow: 0 4px 12px 0 color-mix(in srgb, var(--color-primary) 20%, transparent),
+              0 2px 4px 0 color-mix(in srgb, var(--color-primary) 10%, transparent);
+  transform: translateY(-2px) scale(1.02);
+}
+
+/* 배지 영역 (타입, 시리즈, 별 배지) */
+.badgeArea {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-3);
+  gap: var(--spacing-2);
+}
+
+.badgeLeft {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  flex-shrink: 0;
+}
+
+.badgeRight {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  flex-shrink: 0;
+}
+
+/* 아티클 카테고리 배지 */
+.featuredArticleCard .categoryBadge {
+  flex-shrink: 0;
+  background-color: var(--color-article-category-bg);
+  border-color: var(--color-article-category-border);
+  color: var(--color-article-category-text);
+}
+
+.seriesBadge {
+  flex-shrink: 0;
+}
+
+/* 별 배지 */
+.featuredArticleCard .featuredBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: var(--spacing-1);
+  min-width: auto;
+  width: 1.5rem;
+  height: 1.5rem;
+  background-color: var(--color-featured-badge);
+  border-color: var(--color-featured-badge);
+  color: var(--color-white);
+}
+
+.featuredBadge svg {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+/* Title 영역 (한 줄로 표시) */
+.title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin: 0;
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+}

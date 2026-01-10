@@ -46,6 +46,12 @@ export type {
   ArticleCardArticle,
 } from './Card';
 
+export { FeaturedArticleCard } from './Card';
+export type {
+  FeaturedArticleCardProps,
+  FeaturedArticleCardArticle,
+} from './Card';
+
 export { TeamBadge, ProjectTypeBadge } from './Badge';
 export type {
   TeamBadgeProps,

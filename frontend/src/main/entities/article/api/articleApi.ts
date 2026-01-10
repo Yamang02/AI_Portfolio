@@ -18,6 +18,7 @@ export const articleApi = {
     searchKeyword?: string;
     sortBy?: string;
     sortOrder?: 'asc' | 'desc';
+    isFeatured?: boolean;
   }): Promise<{ content: ArticleListItem[]; totalElements: number }> => {
     const queryParams = new URLSearchParams({
       page: params.page.toString(),
@@ -41,6 +42,9 @@ export const articleApi = {
     if (params.sortOrder) {
       queryParams.append('sortOrder', params.sortOrder);
     }
+    if (params.isFeatured !== undefined) {
+      queryParams.append('isFeatured', params.isFeatured.toString());
+    }
     const response = await fetch(`/api/articles?${queryParams.toString()}`);
     if (!response.ok) {
       throw new Error('Failed to fetch articles');
@@ -62,5 +66,43 @@ export const articleApi = {
       throw new Error('Article not found');
     }
     return apiResponse.data;
+  },
+
+  /**
+   * 아티클 통계 조회
+   */
+  getStatistics: async (): Promise<{
+    categories: Record<string, number>;
+    projects: Array<{
+      projectId: number;
+      projectBusinessId: string;
+      projectTitle: string;
+      count: number;
+    }>;
+    series: Array<{
+      seriesId: string;
+      seriesTitle: string;
+      count: number;
+    }>;
+  }> => {
+    const response = await fetch('/api/articles/statistics');
+    if (!response.ok) {
+      throw new Error('Failed to fetch article statistics');
+    }
+    const apiResponse: ApiResponse<{
+      categories: Record<string, number>;
+      projects: Array<{
+        projectId: number;
+        projectBusinessId: string;
+        projectTitle: string;
+        count: number;
+      }>;
+      series: Array<{
+        seriesId: string;
+        seriesTitle: string;
+        count: number;
+      }>;
+    }> = await response.json();
+    return apiResponse.data || { categories: {}, projects: [], series: [] };
   },
 };

@@ -83,6 +83,7 @@ export const ArticleControlPanel: React.FC<ArticleControlPanelProps> = ({
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             onKeyDown={handleSearchKeyDown}
+            size="sm"
             className={styles.searchInput}
           />
           <Button
@@ -147,18 +148,6 @@ export const ArticleControlPanel: React.FC<ArticleControlPanelProps> = ({
           <Button
             variant="icon"
             size="sm"
-            onClick={() => onViewModeChange('table')}
-            ariaLabel="테이블 뷰"
-            className={viewMode === 'table' ? styles.viewButtonActive : ''}
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="3" y="3" width="18" height="18" rx="2" />
-              <path d="M3 9h18M9 3v18" />
-            </svg>
-          </Button>
-          <Button
-            variant="icon"
-            size="sm"
             onClick={() => onViewModeChange('gallery')}
             ariaLabel="갤러리 뷰"
             className={viewMode === 'gallery' ? styles.viewButtonActive : ''}
@@ -168,6 +157,18 @@ export const ArticleControlPanel: React.FC<ArticleControlPanelProps> = ({
               <rect x="14" y="3" width="7" height="7" rx="1" />
               <rect x="3" y="14" width="7" height="7" rx="1" />
               <rect x="14" y="14" width="7" height="7" rx="1" />
+            </svg>
+          </Button>
+          <Button
+            variant="icon"
+            size="sm"
+            onClick={() => onViewModeChange('table')}
+            ariaLabel="테이블 뷰"
+            className={viewMode === 'table' ? styles.viewButtonActive : ''}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2" />
+              <path d="M3 9h18M9 3v18" />
             </svg>
           </Button>
         </div>

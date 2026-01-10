@@ -13,6 +13,7 @@ export function useArticleListQuery(params: {
   searchKeyword?: string;
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
+  isFeatured?: boolean;
 }) {
   return useQuery({
     queryKey: ['articles', params],

@@ -15,3 +15,9 @@ export type {
   ArticleCardProps,
   ArticleCardArticle,
 } from './ArticleCard';
+
+export { FeaturedArticleCard } from './FeaturedArticleCard';
+export type {
+  FeaturedArticleCardProps,
+  FeaturedArticleCardArticle,
+} from './FeaturedArticleCard';

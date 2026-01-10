@@ -8,6 +8,8 @@ export interface ArticleListItem {
   category?: string;
   projectId?: string; // 프로젝트 businessId
   seriesId?: string;
+  seriesTitle?: string; // 시리즈 제목
+  seriesOrder?: number; // 시리즈 순서
   tags: string[];
   techStack?: string[]; // 기술스택
   publishedAt?: string;
@@ -24,4 +26,7 @@ export interface ArticleDetail {
   techStack: string[];
   publishedAt?: string;
   viewCount: number;
+  seriesId?: string;
+  seriesTitle?: string; // 시리즈 제목
+  seriesOrder?: number; // 시리즈 순서
 }

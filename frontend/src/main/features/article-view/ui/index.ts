@@ -5,3 +5,4 @@ export * from './CategoryFilterBar';
 export * from './ArticleFilterBar';
 export * from './ArticleNavigation';
 export * from './ArticleControlPanel';
+export * from './FeaturedArticleCarousel';

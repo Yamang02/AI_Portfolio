@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface ArticleJpaRepository extends JpaRepository<ArticleJpaEntity, Long>, JpaSpecificationExecutor<ArticleJpaEntity> {
@@ -36,4 +37,22 @@ public interface ArticleJpaRepository extends JpaRepository<ArticleJpaEntity, Lo
     @Modifying
     @Query("UPDATE ArticleJpaEntity a SET a.seriesOrder = a.seriesOrder - 1 WHERE a.seriesId = :seriesId AND a.seriesOrder > :deletedOrder")
     void decreaseSeriesOrderAfter(@Param("seriesId") String seriesId, @Param("deletedOrder") Integer deletedOrder);
+
+    /**
+     * 카테고리별 아티클 개수 조회 (발행된 것만)
+     */
+    @Query("SELECT a.category, COUNT(a) FROM ArticleJpaEntity a WHERE a.status = 'published' AND a.category IS NOT NULL GROUP BY a.category")
+    List<Object[]> countByCategory();
+
+    /**
+     * 프로젝트별 아티클 개수 조회 (발행된 것만, 실제 연결된 프로젝트만)
+     */
+    @Query("SELECT a.projectId, COUNT(a) FROM ArticleJpaEntity a WHERE a.status = 'published' AND a.projectId IS NOT NULL GROUP BY a.projectId")
+    List<Object[]> countByProjectId();
+
+    /**
+     * 시리즈별 아티클 개수 조회 (발행된 것만)
+     */
+    @Query("SELECT a.seriesId, COUNT(a) FROM ArticleJpaEntity a WHERE a.status = 'published' AND a.seriesId IS NOT NULL GROUP BY a.seriesId")
+    List<Object[]> countBySeriesId();
 }

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { Card } from './Card';
 import { Badge } from '../Badge/Badge';
 import { ArticleIcon } from '../Icon/ArticleIcon';
@@ -31,14 +31,95 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({
   onClick,
   className,
 }) => {
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  const [fontSize, setFontSize] = useState<number | undefined>(undefined);
+
   const categoryLabel = article.category
     ? ARTICLE_CATEGORIES[article.category as keyof typeof ARTICLE_CATEGORIES] || article.category
     : null;
 
+  // 제목 글자 크기 자동 조정 (한 줄로 제한)
+  useEffect(() => {
+    const adjustFontSize = () => {
+      if (!titleRef.current) return;
+
+      const titleElement = titleRef.current;
+      const container = titleElement.parentElement;
+      if (!container) return;
+
+      const containerWidth = container.clientWidth - 32; // padding 양쪽 고려
+      const minFontSize = 0.75; // 12px
+      const maxFontSize = 1.125; // 18px (var(--font-size-lg))
+
+      // 임시 스타일로 실제 너비 측정
+      const originalStyles = {
+        fontSize: titleElement.style.fontSize,
+        whiteSpace: titleElement.style.whiteSpace,
+        visibility: titleElement.style.visibility,
+        position: titleElement.style.position,
+        display: titleElement.style.display,
+      };
+
+      // 측정을 위한 임시 스타일
+      titleElement.style.fontSize = `${maxFontSize}rem`;
+      titleElement.style.whiteSpace = 'nowrap';
+      titleElement.style.visibility = 'hidden';
+      titleElement.style.position = 'absolute';
+      titleElement.style.display = 'block';
+      titleElement.style.width = 'auto';
+
+      const textWidth = titleElement.scrollWidth;
+
+      // 원래 스타일 복원
+      Object.entries(originalStyles).forEach(([key, value]) => {
+        (titleElement.style as any)[key] = value || '';
+      });
+
+      let currentFontSize = maxFontSize;
+
+      // 텍스트가 컨테이너보다 크면 크기 조정
+      if (textWidth > containerWidth) {
+        // 여유 공간을 고려하여 조금 더 작게 조정
+        const ratio = (containerWidth / textWidth) * 0.95; // 5% 여유 공간
+        currentFontSize = ratio * maxFontSize;
+        currentFontSize = Math.max(minFontSize, Math.min(maxFontSize, currentFontSize));
+      }
+
+      setFontSize(currentFontSize);
+    };
+
+    // 초기 조정 (약간의 지연을 두어 DOM이 완전히 렌더링된 후 실행)
+    const timeoutId = setTimeout(adjustFontSize, 10);
+
+    // 리사이즈 이벤트 리스너
+    const resizeObserver = new ResizeObserver(() => {
+      adjustFontSize();
+    });
+
+    if (titleRef.current?.parentElement) {
+      resizeObserver.observe(titleRef.current.parentElement);
+    }
+
+    return () => {
+      clearTimeout(timeoutId);
+      resizeObserver.disconnect();
+    };
+  }, [article.title]);
+
   const formatDate = (dateString?: string) => {
     if (!dateString) return '';
-    // 프로젝트 카드와 동일한 형식 (YYYY.MM)
-    return safeFormatDate(dateString);
+    // 아티클 카드는 일까지 표시 (YYYY.MM.DD)
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return '';
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}.${month}.${day}`;
+    } catch (error) {
+      console.error('formatDate: Error formatting date', error);
+      return '';
+    }
   };
 
   const formatViewCount = (count: number) => {
@@ -79,7 +160,14 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({
       </div>
 
       {/* Title 영역 */}
-      <h3 className={styles.title}>{article.title}</h3>
+      <h3
+        ref={titleRef}
+        className={styles.title}
+        title={article.title}
+        style={fontSize ? { fontSize: `${fontSize}rem` } : undefined}
+      >
+        {article.title}
+      </h3>
 
       {/* Summary 영역 */}
       {article.summary && (

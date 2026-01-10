@@ -2,6 +2,7 @@ package com.aiportfolio.backend.domain.article.port.out;
 
 import com.aiportfolio.backend.domain.article.filter.ArticleFilter;
 import com.aiportfolio.backend.domain.article.model.Article;
+import com.aiportfolio.backend.domain.article.model.ArticleStatistics;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -27,4 +28,12 @@ public interface ArticleRepositoryPort {
      * 다음 비즈니스 ID 생성 (예: "article-001", "article-002")
      */
     String generateNextBusinessId();
+
+    /**
+     * 아티클 통계 조회
+     * - 카테고리별 카운트
+     * - 프로젝트별 카운트 (실제 연결된 프로젝트만)
+     * - 시리즈별 카운트
+     */
+    ArticleStatistics getStatistics();
 }

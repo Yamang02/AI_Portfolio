@@ -32,7 +32,7 @@ public class AdminArticleController {
     public ResponseEntity<ApiResponse<Page<ArticleResponse>>> getAll(Pageable pageable) {
         Page<Article> articles = getUseCase.findAll(pageable);
         return ResponseEntity.ok(ApiResponse.success(
-                articles.map(ArticleResponse::from),
+                articles.map(article -> ArticleResponse.from(article, manageSeriesUseCase)),
                 "아티클 목록 조회 성공"));
     }
 
@@ -43,7 +43,7 @@ public class AdminArticleController {
     public ResponseEntity<ApiResponse<ArticleResponse>> getById(@PathVariable Long id) {
         return getUseCase.findById(id)
                 .map(article -> ResponseEntity.ok(ApiResponse.success(
-                        ArticleResponse.from(article),
+                        ArticleResponse.from(article, manageSeriesUseCase),
                         "아티클 조회 성공")))
                 .orElse(ResponseEntity.ok(ApiResponse.error("아티클을 찾을 수 없습니다.")));
     }
@@ -70,7 +70,7 @@ public class AdminArticleController {
 
         Article created = manageUseCase.create(command);
         return ResponseEntity.ok(ApiResponse.success(
-                ArticleResponse.from(created),
+                ArticleResponse.from(created, manageSeriesUseCase),
                 "아티클 생성 성공"));
     }
 
@@ -100,7 +100,7 @@ public class AdminArticleController {
 
         Article updated = manageUseCase.update(command);
         return ResponseEntity.ok(ApiResponse.success(
-                ArticleResponse.from(updated),
+                ArticleResponse.from(updated, manageSeriesUseCase),
                 "아티클 수정 성공"));
     }
 
@@ -124,6 +124,20 @@ public class AdminArticleController {
                 .map(s -> new SeriesSearchResponse(s.getSeriesId(), s.getTitle()))
                 .toList();
         return ResponseEntity.ok(ApiResponse.success(responses, "시리즈 검색 성공"));
+    }
+
+    /**
+     * 시리즈 ID로 조회
+     */
+    @GetMapping("/series/{seriesId}")
+    public ResponseEntity<ApiResponse<SeriesSearchResponse>> getSeriesById(
+            @PathVariable String seriesId) {
+        ArticleSeries series = manageSeriesUseCase.findBySeriesId(seriesId);
+        if (series == null) {
+            return ResponseEntity.ok(ApiResponse.error("시리즈를 찾을 수 없습니다."));
+        }
+        SeriesSearchResponse response = new SeriesSearchResponse(series.getSeriesId(), series.getTitle());
+        return ResponseEntity.ok(ApiResponse.success(response, "시리즈 조회 성공"));
     }
 
     /**
@@ -185,11 +199,21 @@ public class AdminArticleController {
             Boolean isFeatured,
             Integer featuredSortOrder,
             String seriesId,
+            String seriesTitle,
             Integer seriesOrder,
             String createdAt,
             String updatedAt
     ) {
-        public static ArticleResponse from(Article domain) {
+        public static ArticleResponse from(Article domain, ManageArticleSeriesUseCase seriesUseCase) {
+            // 시리즈 제목 조회
+            String seriesTitle = null;
+            if (domain.getSeriesId() != null) {
+                ArticleSeries series = seriesUseCase.findBySeriesId(domain.getSeriesId());
+                if (series != null) {
+                    seriesTitle = series.getTitle();
+                }
+            }
+            
             return new ArticleResponse(
                     domain.getId(),
                     domain.getBusinessId(),
@@ -210,6 +234,7 @@ public class AdminArticleController {
                     domain.getIsFeatured(),
                     domain.getFeaturedSortOrder(),
                     domain.getSeriesId(),
+                    seriesTitle,
                     domain.getSeriesOrder(),
                     domain.getCreatedAt() != null ? domain.getCreatedAt().toString() : null,
                     domain.getUpdatedAt() != null ? domain.getUpdatedAt().toString() : null

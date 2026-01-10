@@ -44,6 +44,12 @@ export const adminArticleApi = {
     }),
 
   /**
+   * 시리즈 ID로 조회
+   */
+  getSeriesById: (seriesId: string) =>
+    adminApiClient.get<{ seriesId: string; title: string }>(`/articles/series/${seriesId}`),
+
+  /**
    * 시리즈 생성 (시리즈 ID 자동 생성)
    */
   createSeries: (title: string) =>
