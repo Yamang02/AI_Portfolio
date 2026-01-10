@@ -14,6 +14,7 @@ import { TechStackManagement } from '../pages/TechStackManagement';
 import { CareerManagement } from '../pages/CareerManagement';
 import { CertificationManagement } from '../pages/CertificationManagement';
 import { Settings } from '../pages/Settings';
+import { ProfileIntroductionManagement } from '../pages/ProfileIntroductionManagement';
 import { adminTheme } from '../shared/theme/antdTheme';
 
 const AdminApp: React.FC = () => {
@@ -49,6 +50,7 @@ const AdminApp: React.FC = () => {
                   <Route path="tech-stacks" element={<TechStackManagement />} />
                   <Route path="career" element={<CareerManagement />} />
                   <Route path="certifications" element={<CertificationManagement />} />
+                  <Route path="profile-introduction" element={<ProfileIntroductionManagement />} />
                   <Route path="settings" element={<Settings />} />
                 </Route>
               </Routes>
