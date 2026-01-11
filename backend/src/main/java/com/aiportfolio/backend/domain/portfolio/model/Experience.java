@@ -25,6 +25,11 @@ public class Experience implements Sortable {
      * 비즈니스 ID (exp-001, exp-002 등)
      */
     private String id;
+    
+    /**
+     * 데이터베이스 ID (Long, 자동 증가)
+     */
+    private Long dbId;
 
     /**
      * 직책

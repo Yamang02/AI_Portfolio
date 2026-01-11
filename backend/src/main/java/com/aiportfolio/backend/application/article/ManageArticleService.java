@@ -6,7 +6,9 @@ import com.aiportfolio.backend.domain.article.port.in.ManageArticleUseCase;
 import com.aiportfolio.backend.domain.article.port.in.ManageArticleSeriesUseCase;
 import com.aiportfolio.backend.domain.article.port.out.ArticleRepositoryPort;
 import com.aiportfolio.backend.domain.article.port.out.ArticleSeriesRepositoryPort;
+import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.ProjectJpaRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -17,11 +19,13 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class ManageArticleService implements ManageArticleUseCase {
 
     private final ArticleRepositoryPort articleRepository;
     private final ManageArticleSeriesUseCase seriesUseCase;
     private final ArticleSeriesRepositoryPort seriesRepository;
+    private final ProjectJpaRepository projectJpaRepository;
 
     @Override
     public Article create(CreateArticleCommand command) {
@@ -47,13 +51,29 @@ public class ManageArticleService implements ManageArticleUseCase {
         // 기술 스택 변환
         List<ArticleTechStack> techStack = convertTechStack(null, command.techStack());
 
+        // 프로젝트 비즈니스 ID를 DB ID로 변환
+        Long projectId = null;
+        if (StringUtils.hasText(command.projectBusinessId())) {
+            log.info("[ManageArticleService] Creating article with projectBusinessId: {}", command.projectBusinessId());
+            projectId = projectJpaRepository.findByBusinessId(command.projectBusinessId())
+                    .map(project -> {
+                        log.info("[ManageArticleService] Found project: id={}, businessId={}, title={}", 
+                                project.getId(), project.getBusinessId(), project.getTitle());
+                        return project.getId();
+                    })
+                    .orElseThrow(() -> new IllegalArgumentException("프로젝트를 찾을 수 없습니다: " + command.projectBusinessId()));
+            log.info("[ManageArticleService] Converted projectId: {}", projectId);
+        } else {
+            log.info("[ManageArticleService] No projectBusinessId provided, projectId will be null");
+        }
+
         // Article 도메인 모델 생성
         Article article = Article.builder()
                 .businessId(businessId)
                 .title(command.title())
                 .summary(command.summary())
                 .content(command.content())
-                .projectId(command.projectId())
+                .projectId(projectId)
                 .category(command.category())
                 .tags(command.tags())
                 .techStack(techStack)
@@ -109,6 +129,22 @@ public class ManageArticleService implements ManageArticleUseCase {
         // 기술 스택 변환
         List<ArticleTechStack> techStack = convertTechStack(command.id(), command.techStack());
 
+        // 프로젝트 비즈니스 ID를 DB ID로 변환
+        Long projectId = null;
+        if (StringUtils.hasText(command.projectBusinessId())) {
+            log.info("[ManageArticleService] Updating article {} with projectBusinessId: {}", command.id(), command.projectBusinessId());
+            projectId = projectJpaRepository.findByBusinessId(command.projectBusinessId())
+                    .map(project -> {
+                        log.info("[ManageArticleService] Found project: id={}, businessId={}, title={}", 
+                                project.getId(), project.getBusinessId(), project.getTitle());
+                        return project.getId();
+                    })
+                    .orElseThrow(() -> new IllegalArgumentException("프로젝트를 찾을 수 없습니다: " + command.projectBusinessId()));
+            log.info("[ManageArticleService] Converted projectId: {}", projectId);
+        } else {
+            log.info("[ManageArticleService] No projectBusinessId provided, projectId will be null");
+        }
+
         // Article 업데이트
         Article updated = Article.builder()
                 .id(existing.getId())
@@ -116,7 +152,7 @@ public class ManageArticleService implements ManageArticleUseCase {
                 .title(command.title())
                 .summary(command.summary())
                 .content(command.content())
-                .projectId(command.projectId())
+                .projectId(projectId)
                 .category(command.category())
                 .tags(command.tags())
                 .techStack(techStack)

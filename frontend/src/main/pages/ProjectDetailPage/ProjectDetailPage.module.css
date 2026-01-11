@@ -61,6 +61,19 @@
   margin-top: var(--spacing-4);
 }
 
+.articlesList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  margin-top: var(--spacing-4);
+}
+
+.paginationWrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--spacing-6);
+}
+
 .loading,
 .error {
   text-align: center;

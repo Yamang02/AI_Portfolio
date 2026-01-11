@@ -44,15 +44,15 @@ public class EducationRelationshipAdapter implements EducationRelationshipPort {
     private final TechStackMetadataJpaRepository techStackMetadataJpaRepository;
 
     @Override
-    public void replaceTechStacks(String educationBusinessId, List<TechStackRelation> relationships) {
-        log.debug("Replacing tech stacks for education: {} (using merge strategy)", educationBusinessId);
+    public void replaceTechStacks(Long educationId, List<TechStackRelation> relationships) {
+        log.debug("Replacing tech stacks for education: {} (using merge strategy)", educationId);
 
-        EducationJpaEntity education = educationJpaRepository.findByBusinessId(educationBusinessId)
-                .orElseThrow(() -> new IllegalArgumentException("Education not found: " + educationBusinessId));
+        EducationJpaEntity education = educationJpaRepository.findById(educationId)
+                .orElseThrow(() -> new IllegalArgumentException("Education not found: " + educationId));
 
         // 1. 기존 관계 조회
         List<EducationTechStackJpaEntity> existingRelations =
-                educationTechStackJpaRepository.findByEducationId(education.getId());
+                educationTechStackJpaRepository.findByEducationId(educationId);
         log.debug("Found {} existing tech stack relationships", existingRelations.size());
 
         // 2. 요청된 tech_stack_id 집합
@@ -111,37 +111,33 @@ public class EducationRelationshipAdapter implements EducationRelationshipPort {
         }
 
         log.debug("Successfully replaced tech stacks for education: {} (deleted: {}, added: {})",
-                educationBusinessId, toDelete.size(), toAdd.size());
+                educationId, toDelete.size(), toAdd.size());
     }
 
     @Override
-    public void replaceProjects(String educationBusinessId, List<ProjectRelation> relationships) {
-        log.debug("Replacing projects for education: {} (using merge strategy)", educationBusinessId);
+    public void replaceProjects(Long educationId, List<ProjectRelation> relationships) {
+        log.debug("Replacing projects for education: {} (using merge strategy)", educationId);
 
-        EducationJpaEntity education = educationJpaRepository.findByBusinessId(educationBusinessId)
-                .orElseThrow(() -> new IllegalArgumentException("Education not found: " + educationBusinessId));
+        EducationJpaEntity education = educationJpaRepository.findById(educationId)
+                .orElseThrow(() -> new IllegalArgumentException("Education not found: " + educationId));
 
         // 1. 기존 관계 조회
         List<EducationProjectJpaEntity> existingRelations =
-                educationProjectJpaRepository.findByEducationId(education.getId());
+                educationProjectJpaRepository.findByEducationId(educationId);
         log.debug("Found {} existing project relationships", existingRelations.size());
 
-        // 2. 요청된 project_business_id 집합
-        Set<String> requestedBusinessIds = (relationships == null || relationships.isEmpty())
+        // 2. 요청된 project_id 집합
+        Set<Long> requestedProjectIds = (relationships == null || relationships.isEmpty())
                 ? Collections.emptySet()
                 : relationships.stream()
-                        .map(ProjectRelation::projectBusinessId)
+                        .map(ProjectRelation::projectDbId)
                         .filter(Objects::nonNull)
-                        .filter(id -> !id.isBlank())
                         .collect(Collectors.toSet());
-        log.debug("Requested project business IDs: {}", requestedBusinessIds);
+        log.debug("Requested project IDs: {}", requestedProjectIds);
 
         // 3. 기존 관계 중 삭제할 것들 (요청에 없는 것들)
         List<EducationProjectJpaEntity> toDelete = existingRelations.stream()
-                .filter(existing -> {
-                    String existingBusinessId = existing.getProject().getBusinessId();
-                    return !requestedBusinessIds.contains(existingBusinessId);
-                })
+                .filter(existing -> !requestedProjectIds.contains(existing.getProject().getId()))
                 .collect(Collectors.toList());
 
         if (!toDelete.isEmpty()) {
@@ -151,9 +147,9 @@ public class EducationRelationshipAdapter implements EducationRelationshipPort {
             educationProjectJpaRepository.flush();
         }
 
-        // 4. 기존에 있던 project_business_id 집합
-        Set<String> existingBusinessIds = existingRelations.stream()
-                .map(existing -> existing.getProject().getBusinessId())
+        // 4. 기존에 있던 project_id 집합
+        Set<Long> existingProjectIds = existingRelations.stream()
+                .map(existing -> existing.getProject().getId())
                 .collect(Collectors.toSet());
 
         // 5. 새로 추가할 관계들 (기존에 없는 것들)
@@ -161,10 +157,8 @@ public class EducationRelationshipAdapter implements EducationRelationshipPort {
                 ? Collections.emptyList()
                 : relationships.stream()
                         .filter(rel -> {
-                            String projectBusinessId = rel.projectBusinessId();
-                            return projectBusinessId != null
-                                    && !projectBusinessId.isBlank()
-                                    && !existingBusinessIds.contains(projectBusinessId);
+                            Long projectDbId = rel.projectDbId();
+                            return projectDbId != null && !existingProjectIds.contains(projectDbId);
                         })
                         .collect(Collectors.toList());
 
@@ -172,12 +166,12 @@ public class EducationRelationshipAdapter implements EducationRelationshipPort {
         if (!toAdd.isEmpty()) {
             log.debug("Adding {} new project relationships", toAdd.size());
             for (ProjectRelation item : toAdd) {
-                if (item.projectBusinessId() == null || item.projectBusinessId().isBlank()) {
-                    throw new IllegalArgumentException("Project business ID must not be blank");
+                if (item.projectDbId() == null) {
+                    throw new IllegalArgumentException("Project DB ID must not be null");
                 }
 
-                ProjectJpaEntity project = projectJpaRepository.findByBusinessId(item.projectBusinessId())
-                        .orElseThrow(() -> new IllegalArgumentException("Project not found: " + item.projectBusinessId()));
+                ProjectJpaEntity project = projectJpaRepository.findById(item.projectDbId())
+                        .orElseThrow(() -> new IllegalArgumentException("Project not found: " + item.projectDbId()));
 
                 EducationProjectJpaEntity relation = EducationProjectJpaEntity.builder()
                         .education(education)
@@ -191,7 +185,7 @@ public class EducationRelationshipAdapter implements EducationRelationshipPort {
         }
 
         log.debug("Successfully replaced projects for education: {} (deleted: {}, added: {})",
-                educationBusinessId, toDelete.size(), toAdd.size());
+                educationId, toDelete.size(), toAdd.size());
     }
 }
 

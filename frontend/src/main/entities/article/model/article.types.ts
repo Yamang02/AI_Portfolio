@@ -29,4 +29,17 @@ export interface ArticleDetail {
   seriesId?: string;
   seriesTitle?: string; // 시리즈 제목
   seriesOrder?: number; // 시리즈 순서
+  project?: {
+    id: string; // businessId
+    title: string;
+    description: string;
+    imageUrl?: string;
+    isTeam: boolean;
+    isFeatured?: boolean;
+    technologies: string[];
+    startDate?: string;
+    endDate?: string;
+    githubUrl?: string;
+    liveUrl?: string;
+  };
 }

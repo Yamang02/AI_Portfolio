@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -154,7 +155,9 @@ public class AdminEducationRelationshipController {
                         ))
                         .collect(Collectors.toList());
 
-            educationRelationshipPort.replaceTechStacks(id, relationships);
+            EducationJpaEntity education = educationJpaRepository.findByBusinessId(id)
+                .orElseThrow(() -> new IllegalArgumentException("Education not found: " + id));
+            educationRelationshipPort.replaceTechStacks(education.getId(), relationships);
 
             return ResponseEntity.ok(ApiResponse.success(null, "기술스택 관계 일괄 업데이트 성공"));
         } catch (IllegalArgumentException e) {
@@ -272,36 +275,27 @@ public class AdminEducationRelationshipController {
             @RequestBody BulkProjectRelationshipRequest request) {
         try {
             EducationJpaEntity education = educationJpaRepository.findByBusinessId(id)
-                .orElseThrow(() -> new IllegalArgumentException("Education not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Education not found: " + id));
 
-            // 1. 기존 관계 전체 삭제
-            List<EducationProjectJpaEntity> existingRelations = 
-                educationProjectJpaRepository.findByEducationId(education.getId());
-            
-            educationProjectJpaRepository.deleteAll(existingRelations);
-            log.info("Deleted {} existing project relationships", existingRelations.size());
+            // BulkProjectRelationshipRequest를 EducationRelationshipPort.ProjectRelation으로 변환
+            // 비즈니스 ID를 DB ID로 변환
+            List<EducationRelationshipPort.ProjectRelation> projectRelations = 
+                (request.getProjectRelationships() == null || request.getProjectRelationships().isEmpty())
+                    ? Collections.emptyList()
+                    : request.getProjectRelationships().stream()
+                        .map(item -> {
+                            ProjectJpaEntity project = projectJpaRepository.findByBusinessId(item.getProjectBusinessId())
+                                .orElseThrow(() -> new IllegalArgumentException("Project not found: " + item.getProjectBusinessId()));
+                            return new EducationRelationshipPort.ProjectRelation(
+                                project.getId(),
+                                item.getProjectType(),
+                                item.getGrade()
+                            );
+                        })
+                        .collect(Collectors.toList());
 
-            // 2. 새 관계 생성
-            if (request.getProjectRelationships() != null) {
-                for (BulkProjectRelationshipRequest.ProjectRelationshipItem item : request.getProjectRelationships()) {
-                    // Business ID로 프로젝트 조회
-                    ProjectJpaEntity project = projectJpaRepository
-                        .findByBusinessId(item.getProjectBusinessId())
-                        .orElseThrow(() -> new IllegalArgumentException(
-                            "Project not found: " + item.getProjectBusinessId()));
-
-                    // 새 관계 생성
-                    EducationProjectJpaEntity relationship = EducationProjectJpaEntity.builder()
-                        .education(education)
-                        .project(project)
-                        .projectType(item.getProjectType())
-                        .grade(item.getGrade())
-                        .build();
-
-                    educationProjectJpaRepository.save(relationship);
-                }
-                log.info("Created {} new project relationships", request.getProjectRelationships().size());
-            }
+            // Merge 전략을 사용하여 관계 업데이트
+            educationRelationshipPort.replaceProjects(education.getId(), projectRelations);
 
             return ResponseEntity.ok(ApiResponse.success(null, "프로젝트 관계 일괄 업데이트 성공"));
         } catch (IllegalArgumentException e) {

@@ -7,6 +7,8 @@ import com.aiportfolio.backend.domain.article.model.ArticleStatistics;
 import com.aiportfolio.backend.domain.article.port.in.GetArticleStatisticsUseCase;
 import com.aiportfolio.backend.domain.article.port.in.GetArticleUseCase;
 import com.aiportfolio.backend.domain.article.port.in.ManageArticleSeriesUseCase;
+import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.ProjectJpaRepository;
+import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.ProjectTechStackJpaRepository;
 import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;
 import com.aiportfolio.backend.infrastructure.web.dto.ArticleListRequest;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +32,8 @@ public class ArticleController {
     private final GetArticleUseCase getUseCase;
     private final ManageArticleSeriesUseCase manageSeriesUseCase;
     private final GetArticleStatisticsUseCase statisticsUseCase;
+    private final ProjectJpaRepository projectJpaRepository;
+    private final ProjectTechStackJpaRepository projectTechStackJpaRepository;
 
     /**
      * 전체 목록 조회 (페이징, 발행된 것만)
@@ -110,7 +114,7 @@ public class ArticleController {
                     // 조회수 증가
                     getUseCase.incrementViewCount(article.getId());
                     return ResponseEntity.ok(ApiResponse.success(
-                            ArticleDetailResponse.from(article, manageSeriesUseCase),
+                            ArticleDetailResponse.from(article, manageSeriesUseCase, projectJpaRepository, projectTechStackJpaRepository),
                             "아티클 조회 성공"));
                 })
                 .orElse(ResponseEntity.ok(ApiResponse.error("아티클을 찾을 수 없습니다.")));
@@ -186,15 +190,62 @@ public class ArticleController {
             Integer viewCount,
             String seriesId,
             String seriesTitle,
-            Integer seriesOrder
+            Integer seriesOrder,
+            ProjectInfo project  // 프로젝트 정보 (있는 경우)
     ) {
-        public static ArticleDetailResponse from(Article domain, ManageArticleSeriesUseCase seriesUseCase) {
+        public record ProjectInfo(
+                String id,  // businessId
+                String title,
+                String description,
+                String imageUrl,
+                Boolean isTeam,
+                Boolean isFeatured,
+                List<String> technologies,
+                String startDate,
+                String endDate,
+                String githubUrl,
+                String liveUrl
+        ) {}
+        
+        public static ArticleDetailResponse from(Article domain, ManageArticleSeriesUseCase seriesUseCase, 
+                                                 ProjectJpaRepository projectJpaRepository, 
+                                                 ProjectTechStackJpaRepository projectTechStackJpaRepository) {
             // 상세 조회는 단일 조회이므로 기존 방식 유지
             String seriesTitle = null;
             if (domain.getSeriesId() != null) {
                 ArticleSeries series = seriesUseCase.findBySeriesId(domain.getSeriesId());
                 if (series != null) {
                     seriesTitle = series.getTitle();
+                }
+            }
+            
+            // 프로젝트 정보 조회
+            ProjectInfo projectInfo = null;
+            if (domain.getProjectId() != null) {
+                var projectOpt = projectJpaRepository.findById(domain.getProjectId());
+                if (projectOpt.isPresent()) {
+                    var projectEntity = projectOpt.get();
+                    
+                    // 기술 스택 조회 (LAZY 로딩을 위해 명시적으로 조회)
+                    List<String> technologies = projectTechStackJpaRepository.findByProjectId(domain.getProjectId())
+                            .stream()
+                            .filter(pt -> pt.getTechStack() != null)
+                            .map(pt -> pt.getTechStack().getName())
+                            .toList();
+                    
+                    projectInfo = new ProjectInfo(
+                            projectEntity.getBusinessId(),
+                            projectEntity.getTitle(),
+                            projectEntity.getDescription(),
+                            projectEntity.getImageUrl(),
+                            projectEntity.getIsTeam(),
+                            projectEntity.getIsFeatured(),
+                            technologies,
+                            projectEntity.getStartDate() != null ? projectEntity.getStartDate().toString() : null,
+                            projectEntity.getEndDate() != null ? projectEntity.getEndDate().toString() : null,
+                            projectEntity.getGithubUrl(),
+                            projectEntity.getLiveUrl()
+                    );
                 }
             }
             
@@ -212,7 +263,8 @@ public class ArticleController {
                     domain.getViewCount(),
                     domain.getSeriesId(),
                     seriesTitle,
-                    domain.getSeriesOrder()
+                    domain.getSeriesOrder(),
+                    projectInfo
             );
         }
     }

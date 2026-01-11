@@ -27,6 +27,8 @@ import {
   useUpdateArticleMutation,
 } from '../entities/article/api/useAdminArticleQuery';
 import { useArticleForm } from '../features/article-management/hooks/useArticleForm';
+import { useSearchTechStacksQuery, useAdminTechStacksQuery } from '../entities/tech-stack/api/useAdminTechStackQuery';
+import type { TechStackMetadata } from '../entities/tech-stack/model/techStack.types';
 
 const { Title } = Typography;
 const { TextArea } = Input;
@@ -41,11 +43,28 @@ const ArticleEdit: React.FC = () => {
   const { form } = useArticleForm();
 
   const isNew = !id || id === 'new';
-  const { data: article, isLoading } = useAdminArticleQuery(Number(id) || 0, { enabled: !isNew && !!id });
+  const articleId = id && id !== 'new' ? Number(id) : 0;
+  const { data: article, isLoading } = useAdminArticleQuery(articleId, { enabled: !isNew && !!id && !isNaN(articleId) && articleId > 0 });
   const createMutation = useCreateArticleMutation();
   const updateMutation = useUpdateArticleMutation();
 
   const [content, setContent] = useState('');
+  const [techStackSearchTerm, setTechStackSearchTerm] = useState('');
+  
+  // 전체 기술 스택 목록 (검색어가 없을 때 사용)
+  const { data: allTechStacks } = useAdminTechStacksQuery();
+  
+  // 기술 스택 검색 (디바운싱 적용)
+  const { data: searchedTechStacks, isLoading: isSearchingTechStacks } = useSearchTechStacksQuery(
+    techStackSearchTerm,
+    300, // 300ms 디바운싱
+    techStackSearchTerm.length > 0 // 검색어가 있을 때만 검색
+  );
+  
+  // 표시할 기술 스택 목록 결정
+  const displayTechStacks = techStackSearchTerm.length > 0 
+    ? searchedTechStacks 
+    : allTechStacks;
 
   // 기존 아티클 데이터 로드
   useEffect(() => {
@@ -58,7 +77,7 @@ const ArticleEdit: React.FC = () => {
         techStack: article.techStack || [],
         status: article.status || 'draft',
         isFeatured: article.isFeatured || false,
-        projectId: article.projectId,
+        projectId: article.projectId ?? null, // null을 명시적으로 설정
         seriesId: article.seriesId,
         seriesOrder: article.seriesOrder,
       });
@@ -68,6 +87,7 @@ const ArticleEdit: React.FC = () => {
       form.setFieldsValue({
         status: 'draft',
         isFeatured: false,
+        projectId: null, // 명시적으로 null 설정
       });
       setContent('');
     }
@@ -78,6 +98,12 @@ const ArticleEdit: React.FC = () => {
     try {
       const values = await form.validateFields();
       const data = { ...values, content };
+      
+      // projectId가 undefined이거나 빈 문자열인 경우 null로 변환
+      if (data.projectId === undefined || data.projectId === '' || (typeof data.projectId === 'string' && data.projectId.trim().length === 0)) {
+        data.projectId = null;
+      }
+
 
       if (isNew) {
         createMutation.mutate(data, {
@@ -107,6 +133,7 @@ const ArticleEdit: React.FC = () => {
       </div>
     );
   }
+
 
   return (
     <div className="article-edit-page">
@@ -185,7 +212,22 @@ const ArticleEdit: React.FC = () => {
               </Form.Item>
 
               <Form.Item name="techStack" label="기술 스택">
-                <Select mode="tags" placeholder="기술 스택 입력" />
+                <Select
+                  mode="tags"
+                  placeholder="기술 스택 입력 (검색 가능)"
+                  showSearch
+                  onSearch={setTechStackSearchTerm}
+                  filterOption={false}
+                  loading={isSearchingTechStacks}
+                  notFoundContent={isSearchingTechStacks ? <Spin size="small" /> : '검색 결과가 없습니다. 직접 입력하세요.'}
+                  allowClear
+                >
+                  {displayTechStacks?.map((tech: TechStackMetadata) => (
+                    <Select.Option key={tech.name} value={tech.name}>
+                      {tech.displayName || tech.name}
+                    </Select.Option>
+                  ))}
+                </Select>
               </Form.Item>
 
               <Row gutter={16}>
@@ -200,6 +242,34 @@ const ArticleEdit: React.FC = () => {
                   </Form.Item>
                 </Col>
               </Row>
+
+              {/* 읽기 전용 정보 표시 (수정 모드일 때만) */}
+              {!isNew && article && (article.seriesTitle || article.projectTitle) && (
+                <Row gutter={16}>
+                  {article.seriesTitle && (
+                    <Col span={12}>
+                      <Form.Item label="시리즈명 (DB 매핑)">
+                        <Input 
+                          value={article.seriesTitle} 
+                          readOnly 
+                          style={{ backgroundColor: '#f5f5f5', cursor: 'not-allowed' }}
+                        />
+                      </Form.Item>
+                    </Col>
+                  )}
+                  {article.projectTitle && (
+                    <Col span={12}>
+                      <Form.Item label="연관 프로젝트명 (DB 매핑)">
+                        <Input 
+                          value={article.projectTitle} 
+                          readOnly 
+                          style={{ backgroundColor: '#f5f5f5', cursor: 'not-allowed' }}
+                        />
+                      </Form.Item>
+                    </Col>
+                  )}
+                </Row>
+              )}
 
               <Row gutter={16}>
                 <Col span={12}>

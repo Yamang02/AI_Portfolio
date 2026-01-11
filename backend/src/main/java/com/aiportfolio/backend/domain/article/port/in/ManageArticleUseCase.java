@@ -15,7 +15,7 @@ public interface ManageArticleUseCase {
             String title,
             String summary,
             String content,
-            Long projectId,
+            String projectBusinessId, // 비즈니스 ID (String)
             String category,
             List<String> tags,
             List<String> techStack,  // tech_name 목록
@@ -40,7 +40,7 @@ public interface ManageArticleUseCase {
             String title,
             String summary,
             String content,
-            Long projectId,
+            String projectBusinessId, // 비즈니스 ID (String)
             String category,
             List<String> tags,
             List<String> techStack,

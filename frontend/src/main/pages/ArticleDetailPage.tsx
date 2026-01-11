@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useArticleQuery, useArticleListQuery } from '../entities/article';
-import { useProjectsQuery } from '../entities/project/api/useProjectsQuery';
 import { SectionTitle } from '@design-system/components/SectionTitle';
 import { TextLink } from '@design-system/components/TextLink';
 import { useTOCFromDOM } from '@/main/features/project-gallery/hooks';
@@ -10,7 +9,8 @@ import { MarkdownRenderer } from '@/shared/ui/markdown/MarkdownRenderer';
 import { TechStackList } from '@/shared/ui/tech-stack/TechStackList';
 import { TableOfContents } from '@design-system/components/TableOfContents';
 import { ArticleNavigation } from '@design-system/components/ArticleNavigation';
-import { ArticleCard } from '@design-system';
+import { ArticleCard, ProjectCard } from '@design-system';
+import type { ProjectCardProject } from '@design-system';
 import { Badge } from '@design-system/components/Badge/Badge';
 import { ARTICLE_CATEGORIES } from '@/admin/entities/article';
 import styles from './ArticleDetailPage.module.css';
@@ -36,9 +36,6 @@ export function ArticleDetailPage() {
     sortOrder: 'desc',
   });
 
-  // 프로젝트 목록 조회 (관련 프로젝트 표시용)
-  const { data: projects = [] } = useProjectsQuery();
-
   // TOC 생성 (마크다운에서 헤딩 추출)
   // markdownContainerRef를 사용하여 마크다운 내부의 헤딩만 추출
   const domTocItems = useTOCFromDOM(
@@ -58,6 +55,11 @@ export function ArticleDetailPage() {
     // 본문 섹션이 있으면 추가
     if (article.content) {
       baseSections.push({ id: 'content', text: '본문', level: 2 });
+    }
+
+    // 관련 프로젝트 섹션이 있으면 추가
+    if (article.project) {
+      baseSections.push({ id: 'related-project', text: '관련 프로젝트', level: 2 });
     }
 
     // 기술 스택 섹션이 있으면 추가
@@ -82,11 +84,23 @@ export function ArticleDetailPage() {
     return baseSections;
   }, [domTocItems, article]);
 
-  // 관련 프로젝트 찾기
-  const relatedProject = useMemo(() => {
-    if (!article?.projectId || !projects.length) return null;
-    return projects.find(p => p.id === article.projectId) || null;
-  }, [article?.projectId, projects]);
+  // ProjectCard에 필요한 형식으로 변환
+  const projectCardData = useMemo((): ProjectCardProject | null => {
+    if (!article?.project) return null;
+    return {
+      id: article.project.id,
+      title: article.project.title,
+      description: article.project.description,
+      imageUrl: article.project.imageUrl,
+      isTeam: article.project.isTeam,
+      isFeatured: article.project.isFeatured,
+      technologies: article.project.technologies,
+      startDate: article.project.startDate || '',
+      endDate: article.project.endDate,
+      githubUrl: article.project.githubUrl,
+      liveUrl: article.project.liveUrl,
+    };
+  }, [article?.project]);
 
   // 같은 시리즈의 다른 아티클 찾기
   const seriesArticles = useMemo(() => {
@@ -214,6 +228,19 @@ export function ArticleDetailPage() {
           </section>
         )}
 
+        {/* 관련 프로젝트 섹션 */}
+        {projectCardData && (
+          <section id="related-project" className={styles.section}>
+            <SectionTitle level="h2" id="related-project" className={styles.sectionTitle}>관련 프로젝트</SectionTitle>
+            <div className={styles.relatedProjectWrapper}>
+              <ProjectCard
+                project={projectCardData}
+                onClick={() => navigate(`/projects/${projectCardData.id}`)}
+              />
+            </div>
+          </section>
+        )}
+
         {/* 기술 스택 섹션 */}
         {article.techStack && article.techStack.length > 0 && (
           <section id="tech-stack" className={styles.section}>
@@ -225,23 +252,6 @@ export function ArticleDetailPage() {
                 variant="default"
                 size="md"
               />
-            </div>
-          </section>
-        )}
-
-        {/* 관련 프로젝트 섹션 */}
-        {relatedProject && (
-          <section id="related-project" className={styles.section}>
-            <div className={styles.relatedProject}>
-              <TextLink 
-                href={`/projects/${relatedProject.id}`}
-                className={styles.projectLink}
-              >
-                {relatedProject.title}
-              </TextLink>
-              {relatedProject.description && (
-                <p className={styles.projectDescription}>{relatedProject.description}</p>
-              )}
             </div>
           </section>
         )}

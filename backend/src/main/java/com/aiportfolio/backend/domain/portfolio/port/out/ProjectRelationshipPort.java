@@ -14,10 +14,10 @@ public interface ProjectRelationshipPort {
      * 프로젝트의 기술 스택 관계를 교체합니다.
      * 기존 관계를 모두 삭제하고 새로운 관계를 생성합니다.
      * 
-     * @param projectBusinessId 프로젝트 비즈니스 ID
+     * @param projectId 프로젝트 DB ID
      * @param relationships 기술 스택 관계 리스트
      */
-    void replaceTechStacks(String projectBusinessId, List<TechStackRelation> relationships);
+    void replaceTechStacks(Long projectId, List<TechStackRelation> relationships);
     
     /**
      * 기술 스택 관계를 표현하는 record

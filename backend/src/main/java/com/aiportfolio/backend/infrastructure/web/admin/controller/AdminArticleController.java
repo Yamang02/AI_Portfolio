@@ -6,6 +6,7 @@ import com.aiportfolio.backend.domain.article.port.in.GetArticleUseCase;
 import com.aiportfolio.backend.domain.article.port.in.ManageArticleUseCase;
 import com.aiportfolio.backend.domain.article.port.in.ManageArticleSeriesUseCase;
 import com.aiportfolio.backend.domain.article.port.in.SearchArticleSeriesUseCase;
+import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.ProjectJpaRepository;
 import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -27,6 +28,7 @@ public class AdminArticleController {
     private final GetArticleUseCase getUseCase;
     private final SearchArticleSeriesUseCase searchSeriesUseCase;
     private final ManageArticleSeriesUseCase manageSeriesUseCase;
+    private final ProjectJpaRepository projectJpaRepository;
 
     /**
      * 전체 목록 조회 (페이징)
@@ -44,8 +46,29 @@ public class AdminArticleController {
         
         Map<String, ArticleSeries> seriesMap = manageSeriesUseCase.findBySeriesIdIn(seriesIds);
         
+        // 프로젝트 정보 배치 조회 (N+1 문제 방지)
+        List<Long> projectIds = articles.getContent().stream()
+                .map(Article::getProjectId)
+                .filter(Objects::nonNull)
+                .distinct()
+                .collect(Collectors.toList());
+        
+        Map<Long, String> projectBusinessIdMap = projectJpaRepository.findAllById(projectIds)
+                .stream()
+                .collect(Collectors.toMap(
+                        project -> project.getId(),
+                        project -> project.getBusinessId()
+                ));
+        
+        Map<Long, String> projectTitleMap = projectJpaRepository.findAllById(projectIds)
+                .stream()
+                .collect(Collectors.toMap(
+                        project -> project.getId(),
+                        project -> project.getTitle()
+                ));
+        
         return ResponseEntity.ok(ApiResponse.success(
-                articles.map(article -> ArticleResponse.from(article, seriesMap)),
+                articles.map(article -> ArticleResponse.from(article, seriesMap, projectBusinessIdMap, projectTitleMap)),
                 "아티클 목록 조회 성공"));
     }
 
@@ -56,7 +79,7 @@ public class AdminArticleController {
     public ResponseEntity<ApiResponse<ArticleResponse>> getById(@PathVariable Long id) {
         return getUseCase.findById(id)
                 .map(article -> ResponseEntity.ok(ApiResponse.success(
-                        ArticleResponse.from(article, manageSeriesUseCase),
+                        ArticleResponse.from(article, manageSeriesUseCase, projectJpaRepository),
                         "아티클 조회 성공")))
                 .orElse(ResponseEntity.ok(ApiResponse.error("아티클을 찾을 수 없습니다.")));
     }
@@ -70,7 +93,7 @@ public class AdminArticleController {
                 request.title(),
                 request.summary(),
                 request.content(),
-                request.projectId(),
+                request.projectId(), // 비즈니스 ID (String)
                 request.category(),
                 request.tags(),
                 request.techStack(),
@@ -83,7 +106,7 @@ public class AdminArticleController {
 
         Article created = manageUseCase.create(command);
         return ResponseEntity.ok(ApiResponse.success(
-                ArticleResponse.from(created, manageSeriesUseCase),
+                ArticleResponse.from(created, manageSeriesUseCase, projectJpaRepository),
                 "아티클 생성 성공"));
     }
 
@@ -100,7 +123,7 @@ public class AdminArticleController {
                 request.title(),
                 request.summary(),
                 request.content(),
-                request.projectId(),
+                request.projectId(), // 비즈니스 ID (String)
                 request.category(),
                 request.tags(),
                 request.techStack(),
@@ -113,7 +136,7 @@ public class AdminArticleController {
 
         Article updated = manageUseCase.update(command);
         return ResponseEntity.ok(ApiResponse.success(
-                ArticleResponse.from(updated, manageSeriesUseCase),
+                ArticleResponse.from(updated, manageSeriesUseCase, projectJpaRepository),
                 "아티클 수정 성공"));
     }
 
@@ -169,7 +192,7 @@ public class AdminArticleController {
             String title,
             String summary,
             String content,
-            Long projectId,
+            String projectId, // 비즈니스 ID (String)
             String category,
             List<String> tags,
             List<String> techStack,
@@ -184,7 +207,7 @@ public class AdminArticleController {
             String title,
             String summary,
             String content,
-            Long projectId,
+            String projectId, // 비즈니스 ID (String)
             String category,
             List<String> tags,
             List<String> techStack,
@@ -201,7 +224,8 @@ public class AdminArticleController {
             String title,
             String summary,
             String content,
-            Long projectId,
+            String projectId, // 비즈니스 ID (String)
+            String projectTitle, // 프로젝트명 (읽기 전용 표시용)
             String category,
             List<String> tags,
             List<String> techStack,
@@ -218,7 +242,7 @@ public class AdminArticleController {
             String updatedAt
     ) {
         // 배치 조회용 (목록 조회 시 사용)
-        public static ArticleResponse from(Article domain, Map<String, ArticleSeries> seriesMap) {
+        public static ArticleResponse from(Article domain, Map<String, ArticleSeries> seriesMap, Map<Long, String> projectBusinessIdMap, Map<Long, String> projectTitleMap) {
             // 시리즈 제목 조회 (Map에서 조회)
             String seriesTitle = null;
             if (domain.getSeriesId() != null) {
@@ -228,11 +252,44 @@ public class AdminArticleController {
                 }
             }
             
-            return buildResponse(domain, seriesTitle);
+            // 프로젝트 비즈니스 ID 및 제목 조회 (Map에서 조회)
+            String projectBusinessId = null;
+            String projectTitle = null;
+            if (domain.getProjectId() != null) {
+                projectBusinessId = projectBusinessIdMap.get(domain.getProjectId());
+                projectTitle = projectTitleMap.get(domain.getProjectId());
+            }
+            
+            return new ArticleResponse(
+                    domain.getId(),
+                    domain.getBusinessId(),
+                    domain.getTitle(),
+                    domain.getSummary(),
+                    domain.getContent(),
+                    projectBusinessId,
+                    projectTitle,
+                    domain.getCategory(),
+                    domain.getTags(),
+                    domain.getTechStack() != null ?
+                            domain.getTechStack().stream()
+                                    .map(ts -> ts.getTechName())
+                                    .toList() : List.of(),
+                    domain.getStatus(),
+                    domain.getPublishedAt() != null ? domain.getPublishedAt().toString() : null,
+                    domain.getSortOrder(),
+                    domain.getViewCount(),
+                    domain.getIsFeatured(),
+                    domain.getFeaturedSortOrder(),
+                    domain.getSeriesId(),
+                    seriesTitle,
+                    domain.getSeriesOrder(),
+                    domain.getCreatedAt() != null ? domain.getCreatedAt().toString() : null,
+                    domain.getUpdatedAt() != null ? domain.getUpdatedAt().toString() : null
+            );
         }
         
         // 단일 조회용 (상세 조회 시 사용)
-        public static ArticleResponse from(Article domain, ManageArticleSeriesUseCase seriesUseCase) {
+        public static ArticleResponse from(Article domain, ManageArticleSeriesUseCase seriesUseCase, ProjectJpaRepository projectJpaRepository) {
             // 시리즈 제목 조회
             String seriesTitle = null;
             if (domain.getSeriesId() != null) {
@@ -242,17 +299,26 @@ public class AdminArticleController {
                 }
             }
             
-            return buildResponse(domain, seriesTitle);
-        }
-        
-        private static ArticleResponse buildResponse(Article domain, String seriesTitle) {
+            // 프로젝트 DB ID를 비즈니스 ID 및 제목으로 변환
+            String projectBusinessId = null;
+            String projectTitle = null;
+            if (domain.getProjectId() != null) {
+                var projectOpt = projectJpaRepository.findById(domain.getProjectId());
+                if (projectOpt.isPresent()) {
+                    var project = projectOpt.get();
+                    projectBusinessId = project.getBusinessId();
+                    projectTitle = project.getTitle();
+                }
+            }
+            
             return new ArticleResponse(
                     domain.getId(),
                     domain.getBusinessId(),
                     domain.getTitle(),
                     domain.getSummary(),
                     domain.getContent(),
-                    domain.getProjectId(),
+                    projectBusinessId,
+                    projectTitle,
                     domain.getCategory(),
                     domain.getTags(),
                     domain.getTechStack() != null ?

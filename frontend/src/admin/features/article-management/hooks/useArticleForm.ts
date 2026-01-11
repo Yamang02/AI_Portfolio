@@ -29,7 +29,7 @@ export function useArticleForm(article?: Article) {
         title: article.title,
         summary: article.summary,
         content: article.content,
-        projectId: article.projectId,
+        projectId: article.projectId ?? null, // null을 명시적으로 설정
         category: article.category,
         tags: article.tags,
         techStack: article.techStack,

@@ -158,7 +158,9 @@ public class AdminProjectRelationshipController {
                         ))
                         .collect(Collectors.toList());
 
-            projectRelationshipPort.replaceTechStacks(id, relationships);
+            ProjectJpaEntity project = projectJpaRepository.findByBusinessId(id)
+                .orElseThrow(() -> new IllegalArgumentException("Project not found: " + id));
+            projectRelationshipPort.replaceTechStacks(project.getId(), relationships);
 
             return ResponseEntity.ok(ApiResponse.success(null, "기술스택 관계 일괄 업데이트 성공"));
         } catch (IllegalArgumentException e) {

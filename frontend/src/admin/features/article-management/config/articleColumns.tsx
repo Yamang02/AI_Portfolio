@@ -29,6 +29,20 @@ export function getArticleColumns(
         category ? (ARTICLE_CATEGORIES[category as keyof typeof ARTICLE_CATEGORIES] || category) : '-',
     },
     {
+      title: '시리즈',
+      dataIndex: 'seriesTitle',
+      key: 'seriesTitle',
+      width: 150,
+      render: (seriesTitle: string) => seriesTitle || '-',
+    },
+    {
+      title: '연관 프로젝트',
+      dataIndex: 'projectTitle',
+      key: 'projectTitle',
+      width: 180,
+      render: (projectTitle: string) => projectTitle || '-',
+    },
+    {
       title: '상태',
       dataIndex: 'status',
       key: 'status',

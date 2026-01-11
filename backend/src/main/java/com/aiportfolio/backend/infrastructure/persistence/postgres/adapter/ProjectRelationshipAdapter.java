@@ -38,15 +38,15 @@ public class ProjectRelationshipAdapter implements ProjectRelationshipPort {
     private final TechStackMetadataJpaRepository techStackMetadataJpaRepository;
 
     @Override
-    public void replaceTechStacks(String projectBusinessId, List<TechStackRelation> relationships) {
-        log.debug("Replacing tech stacks for project: {} (using merge strategy)", projectBusinessId);
+    public void replaceTechStacks(Long projectId, List<TechStackRelation> relationships) {
+        log.debug("Replacing tech stacks for project: {} (using merge strategy)", projectId);
 
-        ProjectJpaEntity project = projectJpaRepository.findByBusinessId(projectBusinessId)
-                .orElseThrow(() -> new IllegalArgumentException("Project not found: " + projectBusinessId));
+        ProjectJpaEntity project = projectJpaRepository.findById(projectId)
+                .orElseThrow(() -> new IllegalArgumentException("Project not found: " + projectId));
 
         // 1. 기존 관계 조회
         List<ProjectTechStackJpaEntity> existingRelations =
-                projectTechStackJpaRepository.findByProjectId(project.getId());
+                projectTechStackJpaRepository.findByProjectId(projectId);
         log.debug("Found {} existing tech stack relationships", existingRelations.size());
 
         // 2. 요청된 tech_stack_id 집합
@@ -105,7 +105,7 @@ public class ProjectRelationshipAdapter implements ProjectRelationshipPort {
         }
 
         log.debug("Successfully replaced tech stacks for project: {} (deleted: {}, added: {})",
-                projectBusinessId, toDelete.size(), toAdd.size());
+                projectId, toDelete.size(), toAdd.size());
     }
 }
 

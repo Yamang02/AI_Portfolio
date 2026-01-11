@@ -7,7 +7,8 @@ export interface Article {
   title: string;
   summary?: string;
   content: string;
-  projectId?: number;
+  projectId?: string; // 비즈니스 ID (string)
+  projectTitle?: string; // 프로젝트명 (읽기 전용 표시용)
   category?: string;
   tags: string[];
   techStack: string[];
@@ -30,7 +31,7 @@ export interface CreateArticleRequest {
   title: string;
   summary?: string;
   content: string;
-  projectId?: number;
+  projectId?: string; // 비즈니스 ID (string)
   category?: string;
   tags?: string[];
   techStack?: string[];
@@ -47,7 +48,7 @@ export interface UpdateArticleRequest {
   title: string;
   summary?: string;
   content: string;
-  projectId?: number;
+  projectId?: string; // 비즈니스 ID (string)
   category?: string;
   tags?: string[];
   techStack?: string[];

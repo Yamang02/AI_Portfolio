@@ -15,7 +15,15 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Education implements Sortable {
+    /**
+     * 비즈니스 ID (edu-001, edu-002 등)
+     */
     private String id;
+    
+    /**
+     * 데이터베이스 ID (Long, 자동 증가)
+     */
+    private Long dbId;
     private String title;
     private String description;
     // 기존 technologies 필드 제거됨 - techStackMetadata 관계 필드로 대체

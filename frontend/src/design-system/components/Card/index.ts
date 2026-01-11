@@ -21,3 +21,9 @@ export type {
   FeaturedArticleCardProps,
   FeaturedArticleCardArticle,
 } from './FeaturedArticleCard';
+
+export { SimpleArticleCard } from './SimpleArticleCard';
+export type {
+  SimpleArticleCardProps,
+  SimpleArticleCardArticle,
+} from './SimpleArticleCard';
