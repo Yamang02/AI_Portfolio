@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeSanitize, { defaultSchema } from 'rehype-sanitize';
 import rehypeHighlight from 'rehype-highlight';
 import { remarkCustomHeadingId } from '@/shared/lib/markdown/remarkCustomHeadingId';
+import mermaid from 'mermaid';
 import 'highlight.js/styles/github.css'; // 라이트 모드용
 // 다크 모드는 CSS에서 처리
 
@@ -11,6 +12,63 @@ interface MarkdownRendererProps {
   content: string;
   className?: string;
 }
+
+// Mermaid 다이어그램 컴포넌트
+const MermaidDiagram: React.FC<{ diagram: string; id: string }> = ({ diagram, id }) => {
+  const mermaidRef = useRef<HTMLDivElement>(null);
+  const [error, setError] = React.useState<string | null>(null);
+
+  useEffect(() => {
+    if (!mermaidRef.current || !diagram) return;
+
+    // 다이어그램 렌더링
+    const renderDiagram = async () => {
+      try {
+        setError(null);
+        if (mermaidRef.current) {
+          // mermaid.render()를 사용하여 SVG 생성
+          const { svg } = await mermaid.render(id, diagram);
+          if (mermaidRef.current) {
+            mermaidRef.current.innerHTML = svg;
+          }
+        }
+      } catch (err) {
+        console.error('Mermaid 렌더링 오류:', err);
+        const errorMessage = err instanceof Error ? err.message : String(err);
+        setError(errorMessage);
+        if (mermaidRef.current) {
+          mermaidRef.current.innerHTML = '';
+        }
+      }
+    };
+
+    renderDiagram();
+  }, [diagram, id]);
+
+  if (error) {
+    return (
+      <div className="mb-6 rounded-lg overflow-x-auto bg-red-50 dark:bg-red-900/20 p-4 border border-red-200 dark:border-red-800">
+        <pre className="text-red-500 text-sm whitespace-pre-wrap">
+          Mermaid 다이어그램 렌더링 오류: {error}
+        </pre>
+        <details className="mt-2">
+          <summary className="text-red-600 dark:text-red-400 cursor-pointer text-sm">원본 코드 보기</summary>
+          <pre className="mt-2 text-xs bg-gray-100 dark:bg-gray-800 p-2 rounded overflow-x-auto">
+            {diagram}
+          </pre>
+        </details>
+      </div>
+    );
+  }
+
+  return (
+    <div 
+      ref={mermaidRef}
+      className="mb-6 rounded-lg overflow-x-auto bg-white dark:bg-gray-800 p-4 border border-border flex justify-center"
+      data-mermaid-id={id}
+    />
+  );
+};
 
 // 커스텀 마크다운 컴포넌트 정의
 const markdownComponents = {
@@ -98,6 +156,18 @@ const markdownComponents = {
         </code>
       );
     }
+    
+    // mermaid 다이어그램인지 확인
+    const isMermaid = className?.includes('language-mermaid');
+    if (isMermaid) {
+      // mermaid인 경우, pre 컴포넌트에서 처리하도록 data 속성 추가
+      return (
+        <code className={className} data-mermaid="true" {...props}>
+          {children}
+        </code>
+      );
+    }
+    
     // 코드 블록의 경우 highlight.js가 추가한 클래스를 유지
     return (
       <code className={className} {...props}>
@@ -105,11 +175,38 @@ const markdownComponents = {
       </code>
     );
   },
-  pre: ({ children }: { children: React.ReactNode }) => (
-    <pre className="mb-6 rounded-lg overflow-x-auto bg-gray-50 dark:bg-gray-900 p-4 border border-border">
-      {children}
-    </pre>
-  ),
+  pre: ({ children }: { children: React.ReactNode }) => {
+    // children이 code 요소인지 확인하고 mermaid인지 체크
+    let isMermaid = false;
+    let mermaidContent = '';
+    let mermaidId = '';
+
+    React.Children.forEach(children, (child) => {
+      if (React.isValidElement(child) && child.type === 'code') {
+        const codeProps = child.props as any;
+        if (codeProps['data-mermaid'] || codeProps.className?.includes('language-mermaid')) {
+          isMermaid = true;
+          mermaidContent = typeof codeProps.children === 'string' 
+            ? codeProps.children 
+            : React.Children.toArray(codeProps.children).join('');
+          // 고유 ID 생성
+          mermaidId = `mermaid-${Math.random().toString(36).substring(2, 11)}`;
+        }
+      }
+    });
+
+    // mermaid인 경우 MermaidDiagram 렌더링
+    if (isMermaid) {
+      return <MermaidDiagram diagram={mermaidContent} id={mermaidId} />;
+    }
+
+    // 일반 코드 블록
+    return (
+      <pre className="mb-6 rounded-lg overflow-x-auto bg-gray-50 dark:bg-gray-900 p-4 border border-border">
+        {children}
+      </pre>
+    );
+  },
   
   // 인용문 스타일링
   blockquote: ({ children }: { children: React.ReactNode }) => (
@@ -192,7 +289,7 @@ const markdownComponents = {
 };
 
 // rehype-sanitize 스키마 커스터마이징
-// highlight.js가 추가하는 클래스들을 허용하도록 설정
+// highlight.js가 추가하는 클래스들과 mermaid 속성을 허용하도록 설정
 const sanitizeSchema = {
   ...defaultSchema,
   attributes: {
@@ -200,12 +297,20 @@ const sanitizeSchema = {
     code: [
       ...(defaultSchema.attributes?.code || []),
       // highlight.js가 추가하는 클래스 허용
-      ['className', 'hljs', 'language-*', /^language-./, /^hljs-./]
+      ['className', 'hljs', 'language-*', /^language-./, /^hljs-./],
+      // mermaid 관련 속성 허용
+      ['data-mermaid']
     ],
     span: [
       ...(defaultSchema.attributes?.span || []),
       // highlight.js가 span에 추가하는 클래스 허용
       ['className', /^hljs-./]
+    ],
+    div: [
+      ...(defaultSchema.attributes?.div || []),
+      // mermaid 다이어그램 컨테이너 속성 허용
+      ['className', 'mermaid'],
+      ['data-mermaid-id']
     ]
   }
 };
@@ -214,6 +319,16 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
   content,
   className = ''
 }) => {
+  // mermaid 초기화 (컴포넌트 마운트 시 한 번만)
+  useEffect(() => {
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: 'default',
+      securityLevel: 'loose',
+      fontFamily: 'inherit',
+    });
+  }, []);
+
   // 이스케이프된 백틱을 원래대로 복원
   // 백엔드에서 \`\`\` 형태로 저장된 경우를 처리
   const processedContent = React.useMemo(() => {

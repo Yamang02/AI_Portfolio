@@ -186,318 +186,89 @@
   --breakpoint-desktop: 1024px;
 }
 
-/* 시스템 다크모드 설정에 따른 자동 적용 */
-@media (prefers-color-scheme: dark) {
-  :root {
-  /* Background - Neutral (표준) - 옵션 1 */
-  --color-bg-primary: #0F1F17;       /* 랜딩페이지와 동일한 어두운 그린 틴트 */
-  --color-bg-secondary: #111111;     /* 약간 밝은 검은색 */
-  --color-bg-tertiary: #1a1a1a;       /* 검은색 */
-  --color-bg-article: #1A2F25;       /* 아티클 카드 배경색 (다크모드 - 어두운 그린 틴트) */
-  --color-bg-article-light: #1F3529;  /* 아티클 카드 배경색 (다크모드 - 약간 밝은 그린 틴트) */
-  
-  /* Header/Footer Background - 다크 모드용 */
-  --color-bg-header-footer: #051A0E;  /* 매우 진한 초록 (헤더/푸터 전용) */
-  
-  /* Landing Page Background - 옵션 2 (그린 틴트) */
-  --color-landing-bg: #0F1F17;       /* 다크 모드: 매우 어두운 그린 틴트 */
-
-    /* Text - 중립 Gray 톤 (브랜드 컬러 제거) */
-    --color-text-primary: #f3f4f6;     /* Gray-100 - 부드러운 화이트 */
-    --color-text-secondary: #d1d5db;   /* Gray-300 - 서브 텍스트 */
-    --color-text-tertiary: #9ca3af;     /* Gray-400 (표준) */
-    --color-text-title: #9FD6B2;        /* 타이틀용 - 밝은 그린민트 (다크 모드) */
-    
-    /* Button Text - Primary 버튼 위 텍스트용 */
-    --color-button-text: #F8FBF9;      /* 버튼 텍스트 (라이트/다크 공통) */
-
-    /* Border - 밝은 민트 계열 (다크 모드) */
-    --color-border-default: #A8E6C7;    /* 밝은 민트 - 구분선용 */
-    --color-border-hover: #B5F0D8;      /* 더 밝은 민트 - hover */
-    --color-border-accent: #9FD6B2;     /* 그린민트 - accent */
-
-    /* Brand - 다크 모드용 (새 프라이머리 톤 유지, 더 밝게 조정) */
-    --color-primary: #7FB089;           /* 다크 모드에서 더 밝은 그린 (대비 향상) */
-    --color-primary-hover: #8FC09A;    /* 더 밝게 */
-    --color-primary-active: #6FA07A;    /* hover보다 약간 어둡게 */
-    --color-primary-focus: #6FA07A;    /* Focus ring */
-    --color-primary-text: #9FD6B2;     /* 텍스트용 - 밝은 그린민트 (다크 모드) */
-    
-    /* Hero Section Background - 다크 모드용 (중립색) */
-    --color-hero-bg: #1f2937;           /* Gray-800 */
-
-    /* Hero Section Text Colors - 다크 모드 (중립색) */
-    --color-hero-title: #f3f4f6;        /* Gray-100 - 히어로 메인 헤드라인 (H1) */
-    --color-hero-subtext: #d1d5db;      /* Gray-300 - 히어로 서브 카피/설명 텍스트 */
-    --color-hero-cta-text: #f3f4f6;     /* Gray-100 - 히어로 CTA 버튼 텍스트 */
-    --color-hero-badge: #9ca3af;        /* Gray-400 - 히어로 보조 요소 (Badge, Eyebrow) */
-    
-    /* Featured Badge (다크 모드에서도 동일) */
-    --color-featured-badge: #fbbf24;     /* Featured 별 배지 배경 (Amber-400) */
-    
-    /* Article Category Badge - 다크모드 (반전) */
-    --color-article-category-bg: #f9fafb; /* 아티클 카테고리 배지 배경 (Gray-50) */
-    --color-article-category-border: #e5e7eb; /* 아티클 카테고리 배지 테두리 (Gray-200) */
-    --color-article-category-text: #1f2937; /* 아티클 카테고리 배지 텍스트 (Gray-800) */
-    
-    /* Featured / Highlight Section Colors - 다크 모드 (초록색 계통) */
-    --color-featured-bg: #1A2F25;        /* 어두운 초록 틴트 - 다크 모드 배경 (brandScale 기반) */
-    --color-featured-header: #f3f4f6;    /* Gray-100 - Section Header */
-    --color-featured-text: #d1d5db;      /* Gray-300 - Body Text */
-    --color-featured-link: #9ca3af;      /* Gray-400 - Link / Accent Text */
-    --color-featured-divider: #4b5563;   /* Gray-600 - Divider / Icon */
-    
-    /* Utility Colors - 다크 모드용 (브랜드 톤 조정, 약간 밝게) */
-    --color-github: #7B8A9F;              /* GitHub - 브랜드 그린 톤 추가 (다크 모드용 밝게) */
-    --color-github-hover: #8B9AAF;        /* GitHub hover - 브랜드 톤 조정 */
-    --color-live: #6FA07A;                 /* Live Service - 브랜드 그린 톤 (다크 모드용 밝게) */
-    --color-live-hover: #5F9070;           /* Live Service hover - 브랜드 primary 톤 */
-    --color-notion: #5A8AAF;               /* Notion 블루 - 브랜드 그린 톤 추가 (다크 모드용) */
-    --color-notion-hover: #4A7A9F;         /* Notion hover - 브랜드 톤 조정 */
-    --color-disabled: #4b5563;             /* Gray-600 - 다크 모드 비활성화 */
-    
-    /* Primary Dark - 다크 모드용 (텍스트용) */
-    --color-primary-dark: #8FC09A;      /* 밝은 그린 (다크 모드 텍스트용) */
-
-    /* Tooltip Colors - 다크 모드 */
-    --color-tooltip-bg: #374151;        /* Gray-700 - 툴팁 배경 */
-    --color-tooltip-text: #f3f4f6;      /* Gray-100 - 툴팁 텍스트 */
-
-    /* 그림자 색상 (다크 모드에서도 동일) */
-    --color-shadow-light: rgba(0, 0, 0, 0.08);
-    --color-shadow-medium: rgba(0, 0, 0, 0.1);
-    --color-shadow-heavy: rgba(0, 0, 0, 0.15);
-    --color-shadow-tooltip: 0 4px 12px rgba(0, 0, 0, 0.3);  /* 툴팁 전용 그림자 (다크모드) */
-    
-    /* 글라스모피즘 효과 (다크 모드에서도 동일) */
-    --color-glass-light: rgba(255, 255, 255, 0.1);
-    --color-glass-medium: rgba(255, 255, 255, 0.2);
-    
-    /* 그라데이션 색상 (다크 모드) - 라이트 모드 변수를 다크 배경색으로 오버라이드 */
-    /* 이렇게 하면 그라데이션이 적용되어도 모든 색상이 동일하여 단색으로 보임 */
-    --color-gradient-light-start: #111827;
-    --color-gradient-light-mid1: #111827;
-    --color-gradient-light-mid2: #111827;
-    --color-gradient-light-mid3: #111827;
-
-    /* Link - 다크 모드용 */
-    --color-link-default: #d1d5db;     /* Gray-300 */
-    --color-link-hover: #6FA07A;       /* 새 프라이머리 (밝은 버전) */
-    --color-link-visited: #8FC09A;      /* 밝은 그린 */
-
-    /* Status - 표준 색상 (브랜드 톤 조정) */
-    --color-status-info: #60a5fa;       /* Blue-400 */
-    --color-status-success: #6FA07A;    /* 브랜드 그린 톤 (다크 모드용 밝게) - 톤 다운 */
-    --color-status-warning: #fbbf24;    /* Amber-400 */
-    --color-status-error: #f87171;      /* Red-400 */
-
-    /* Typography - Font Size (다크 모드에서도 동일) */
-    --font-size-display: 3.75rem;   /* 60px */
-    --font-size-h1: 2.25rem;        /* 36px */
-    --font-size-h2: 1.875rem;       /* 30px */
-    --font-size-h3: 1.5rem;         /* 24px */
-    --font-size-h4: 1.25rem;        /* 20px */
-    --font-size-base: 1rem;         /* 16px */
-    --font-size-lg: 1.125rem;       /* 18px */
-    --font-size-sm: 0.875rem;        /* 14px */
-    --font-size-xs: 0.75rem;         /* 12px */
-
-    /* Typography - Font Weight (다크 모드에서도 동일) */
-    --font-weight-regular: 400;
-    --font-weight-medium: 500;
-    --font-weight-semibold: 600;
-    --font-weight-bold: 700;
-
-    /* Typography - Line Height (다크 모드에서도 동일) */
-    --line-height-tight: 1.25;
-    --line-height-normal: 1.5;
-    --line-height-relaxed: 1.75;
-
-    /* Spacing (다크 모드에서도 동일) */
-    --spacing-0: 0;
-    --spacing-1: 0.25rem;
-    --spacing-2: 0.5rem;
-    --spacing-3: 0.75rem;
-    --spacing-4: 1rem;
-    --spacing-5: 1.25rem;
-    --spacing-6: 1.5rem;
-    --spacing-8: 2rem;
-    --spacing-10: 2.5rem;
-    --spacing-12: 3rem;
-    --spacing-16: 4rem;
-    --spacing-20: 5rem;
-    --spacing-24: 6rem;
-
-    /* Border Radius (다크 모드에서도 동일) */
-    --border-radius-none: 0;
-    --border-radius-sm: 0.25rem;
-    --border-radius-md: 0.375rem;
-    --border-radius-lg: 0.5rem;
-    --border-radius-xl: 0.75rem;
-    --border-radius-full: 9999px;
-
-    /* Shadow (다크 모드에서도 동일) */
-    --shadow-none: none;
-    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  }
-}
-
-/* 수동 토글용 (시스템 설정보다 우선) */
+/*
+ * 다크 모드 설정
+ * - useThemeInit 훅이 .dark/.light 클래스 관리
+ * - 아래는 색상만 오버라이드 (typography, spacing 등은 :root에서 상속)
+ */
 :root.dark {
-  /* Background - Neutral (표준) - 옵션 1 */
-  --color-bg-primary: #0F1F17;       /* 랜딩페이지와 동일한 어두운 그린 틴트 */
-  --color-bg-secondary: #111111;     /* 약간 밝은 검은색 */
-  --color-bg-tertiary: #1a1a1a;       /* 검은색 */
-  --color-bg-article: #1A2F25;       /* 아티클 카드 배경색 (다크모드 - 어두운 그린 틴트) */
-  --color-bg-article-light: #1F3529;  /* 아티클 카드 배경색 (다크모드 - 약간 밝은 그린 틴트) */
-  
-  /* Header/Footer Background - 다크 모드용 */
-  --color-bg-header-footer: #051A0E;  /* 매우 진한 초록 (헤더/푸터 전용) */
-  
-  /* Landing Page Background - 옵션 2 (그린 틴트) */
-  --color-landing-bg: #0F1F17;       /* 다크 모드: 매우 어두운 그린 틴트 */
+  /* Background */
+  --color-bg-primary: #0F1F17;
+  --color-bg-secondary: #111111;
+  --color-bg-tertiary: #1a1a1a;
+  --color-bg-article: #1A2F25;
+  --color-bg-article-light: #1F3529;
+  --color-bg-header-footer: #051A0E;
+  --color-landing-bg: #0F1F17;
 
-  /* Text - 중립 Gray 톤 (브랜드 컬러 제거) */
-  --color-text-primary: #f3f4f6;     /* Gray-100 - 부드러운 화이트 */
-  --color-text-secondary: #d1d5db;   /* Gray-300 - 서브 텍스트 */
-  --color-text-tertiary: #9ca3af;     /* Gray-400 (표준) */
-  --color-text-title: #9FD6B2;        /* 타이틀용 - 밝은 그린민트 (다크 모드) */
-  
-  /* Button Text - Primary 버튼 위 텍스트용 */
-  --color-button-text: #F8FBF9;      /* 버튼 텍스트 (라이트/다크 공통) */
+  /* Text */
+  --color-text-primary: #f3f4f6;
+  --color-text-secondary: #d1d5db;
+  --color-text-tertiary: #9ca3af;
+  --color-text-title: #9FD6B2;
 
-  /* Border - 밝은 민트 계열 (다크 모드) */
-  --color-border-default: #A8E6C7;    /* 밝은 민트 - 구분선용 */
-  --color-border-hover: #B5F0D8;      /* 더 밝은 민트 - hover */
-  --color-border-accent: #9FD6B2;     /* 그린민트 - accent */
+  /* Border */
+  --color-border-default: #A8E6C7;
+  --color-border-hover: #B5F0D8;
+  --color-border-accent: #9FD6B2;
 
-  /* Brand - 다크 모드용 (새 프라이머리 톤 유지, 더 밝게 조정) */
-  --color-primary: #7FB089;           /* 다크 모드에서 더 밝은 그린 (대비 향상) */
-  --color-primary-hover: #8FC09A;    /* 더 밝게 */
-  --color-primary-active: #6FA07A;    /* hover보다 약간 어둡게 */
-  --color-primary-focus: #6FA07A;    /* Focus ring */
-  --color-primary-text: #9FD6B2;     /* 텍스트용 - 밝은 그린민트 (다크 모드) */
-  
-  /* Hero Section Background - 다크 모드용 (중립색) */
-  --color-hero-bg: #1f2937;           /* Gray-800 */
+  /* Brand */
+  --color-primary: #7FB089;
+  --color-primary-hover: #8FC09A;
+  --color-primary-active: #6FA07A;
+  --color-primary-focus: #6FA07A;
+  --color-primary-text: #9FD6B2;
+  --color-primary-dark: #8FC09A;
 
-  /* Hero Section Text Colors - 다크 모드 (중립색) */
-  --color-hero-title: #f3f4f6;        /* Gray-100 - 히어로 메인 헤드라인 (H1) */
-  --color-hero-subtext: #d1d5db;      /* Gray-300 - 히어로 서브 카피/설명 텍스트 */
-  --color-hero-cta-text: #f3f4f6;     /* Gray-100 - 히어로 CTA 버튼 텍스트 */
-  --color-hero-badge: #9ca3af;        /* Gray-400 - 히어로 보조 요소 (Badge, Eyebrow) */
-  
-  /* Featured Badge (다크 모드에서도 동일) */
-  --color-featured-badge: #fbbf24;     /* Featured 별 배지 배경 (Amber-400) */
-  
-  /* Article Category Badge - 다크모드 (반전) */
-  --color-article-category-bg: #f9fafb; /* 아티클 카테고리 배지 배경 (Gray-50) */
-  --color-article-category-border: #e5e7eb; /* 아티클 카테고리 배지 테두리 (Gray-200) */
-  --color-article-category-text: #1f2937; /* 아티클 카테고리 배지 텍스트 (Gray-800) */
-  
-  /* Featured / Highlight Section Colors - 다크 모드 (중립색) */
-    --color-featured-bg: #1A2F25;        /* 어두운 초록 틴트 - 다크 모드 배경 (brandScale 기반) */
-  --color-featured-header: #f3f4f6;    /* Gray-100 - Section Header */
-  --color-featured-text: #d1d5db;      /* Gray-300 - Body Text */
-    --color-featured-link: #9ca3af;      /* Gray-400 - Link / Accent Text */
-    --color-featured-divider: #4b5563;   /* Gray-600 - Divider / Icon */
-  
-    /* Utility Colors - 다크 모드용 (브랜드 톤 조정, 약간 밝게) */
-    --color-github: #7B8A9F;              /* GitHub - 브랜드 그린 톤 추가 (다크 모드용 밝게) */
-    --color-github-hover: #8B9AAF;        /* GitHub hover - 브랜드 톤 조정 */
-    --color-live: #6FA07A;                 /* Live Service - 브랜드 그린 톤 (다크 모드용 밝게) */
-    --color-live-hover: #5F9070;           /* Live Service hover - 브랜드 primary 톤 */
-    --color-notion: #5A8AAF;               /* Notion 블루 - 브랜드 그린 톤 추가 (다크 모드용) */
-    --color-notion-hover: #4A7A9F;         /* Notion hover - 브랜드 톤 조정 */
-    --color-disabled: #4b5563;             /* Gray-600 - 다크 모드 비활성화 */
-    
-    /* Primary Dark - 다크 모드용 (텍스트용) */
-    --color-primary-dark: #8FC09A;      /* 밝은 그린 (다크 모드 텍스트용) */
+  /* Hero Section */
+  --color-hero-bg: #1f2937;
+  --color-hero-title: #f3f4f6;
+  --color-hero-subtext: #d1d5db;
+  --color-hero-cta-text: #f3f4f6;
+  --color-hero-badge: #9ca3af;
 
-  /* Tooltip Colors - 다크 모드 */
-  --color-tooltip-bg: #374151;        /* Gray-700 - 툴팁 배경 */
-  --color-tooltip-text: #f3f4f6;      /* Gray-100 - 툴팁 텍스트 */
+  /* Article Category Badge */
+  --color-article-category-bg: #f9fafb;
+  --color-article-category-border: #e5e7eb;
+  --color-article-category-text: #1f2937;
 
-  /* 그림자 색상 (다크 모드에서도 동일) */
-  --color-shadow-light: rgba(0, 0, 0, 0.08);
-  --color-shadow-medium: rgba(0, 0, 0, 0.1);
-  --color-shadow-heavy: rgba(0, 0, 0, 0.15);
-  --color-shadow-tooltip: 0 4px 12px rgba(0, 0, 0, 0.3);  /* 툴팁 전용 그림자 (다크모드) */
-  
-  /* 글라스모피즘 효과 (다크 모드에서도 동일) */
-  --color-glass-light: rgba(255, 255, 255, 0.1);
-  --color-glass-medium: rgba(255, 255, 255, 0.2);
-  
-  /* 그라데이션 색상 (다크 모드) - 라이트 모드 변수를 다크 배경색으로 오버라이드 */
-  /* 이렇게 하면 그라데이션이 적용되어도 모든 색상이 동일하여 단색으로 보임 */
+  /* Featured Section */
+  --color-featured-bg: #1A2F25;
+  --color-featured-header: #f3f4f6;
+  --color-featured-text: #d1d5db;
+  --color-featured-link: #9ca3af;
+  --color-featured-divider: #4b5563;
+
+  /* Utility Colors */
+  --color-github: #7B8A9F;
+  --color-github-hover: #8B9AAF;
+  --color-live: #6FA07A;
+  --color-live-hover: #5F9070;
+  --color-notion: #5A8AAF;
+  --color-notion-hover: #4A7A9F;
+  --color-disabled: #4b5563;
+
+  /* Tooltip */
+  --color-tooltip-bg: #374151;
+  --color-tooltip-text: #f3f4f6;
+  --color-shadow-tooltip: 0 4px 12px rgba(0, 0, 0, 0.3);
+
+  /* Gradient (단색으로 오버라이드) */
   --color-gradient-light-start: #111827;
   --color-gradient-light-mid1: #111827;
   --color-gradient-light-mid2: #111827;
   --color-gradient-light-mid3: #111827;
 
-  /* Link - 다크 모드용 */
-  --color-link-default: #d1d5db;     /* Gray-300 */
-  --color-link-hover: #6FA07A;       /* 새 프라이머리 (밝은 버전) */
-  --color-link-visited: #8FC09A;      /* 밝은 그린 */
+  /* Link */
+  --color-link-default: #d1d5db;
+  --color-link-hover: #6FA07A;
+  --color-link-visited: #8FC09A;
 
-    /* Status - 표준 색상 (브랜드 톤 조정) */
-    --color-status-info: #60a5fa;       /* Blue-400 */
-    --color-status-success: #6FA07A;    /* 브랜드 그린 톤 (다크 모드용 밝게) - 톤 다운 */
-    --color-status-warning: #fbbf24;    /* Amber-400 */
-    --color-status-error: #f87171;      /* Red-400 */
-
-    /* Typography - Font Size (다크 모드에서도 동일) */
-    --font-size-display: 3.75rem;   /* 60px */
-    --font-size-h1: 2.25rem;        /* 36px */
-    --font-size-h2: 1.875rem;       /* 30px */
-    --font-size-h3: 1.5rem;         /* 24px */
-    --font-size-h4: 1.25rem;        /* 20px */
-    --font-size-base: 1rem;         /* 16px */
-    --font-size-lg: 1.125rem;       /* 18px */
-    --font-size-sm: 0.875rem;        /* 14px */
-    --font-size-xs: 0.75rem;         /* 12px */
-
-    /* Typography - Font Weight (다크 모드에서도 동일) */
-    --font-weight-regular: 400;
-    --font-weight-medium: 500;
-    --font-weight-semibold: 600;
-    --font-weight-bold: 700;
-
-    /* Typography - Line Height (다크 모드에서도 동일) */
-    --line-height-tight: 1.25;
-    --line-height-normal: 1.5;
-    --line-height-relaxed: 1.75;
-
-    /* Spacing (다크 모드에서도 동일) */
-    --spacing-0: 0;
-  --spacing-1: 0.25rem;
-  --spacing-2: 0.5rem;
-  --spacing-3: 0.75rem;
-  --spacing-4: 1rem;
-  --spacing-5: 1.25rem;
-  --spacing-6: 1.5rem;
-  --spacing-8: 2rem;
-  --spacing-10: 2.5rem;
-  --spacing-12: 3rem;
-  --spacing-16: 4rem;
-  --spacing-20: 5rem;
-  --spacing-24: 6rem;
-
-  /* Border Radius (다크 모드에서도 동일) */
-  --border-radius-none: 0;
-  --border-radius-sm: 0.25rem;
-  --border-radius-md: 0.375rem;
-  --border-radius-lg: 0.5rem;
-  --border-radius-xl: 0.75rem;
-  --border-radius-full: 9999px;
-
-  /* Shadow (다크 모드에서도 동일) */
-  --shadow-none: none;
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  /* Status */
+  --color-status-info: #60a5fa;
+  --color-status-success: #6FA07A;
+  --color-status-warning: #fbbf24;
+  --color-status-error: #f87171;
 }
 
 /* Body 기본 스타일 */
@@ -589,64 +360,7 @@ body {
   font-weight: bold;
 }
 
-/* 다크 모드용 코드 하이라이팅 */
-@media (prefers-color-scheme: dark) {
-  .hljs {
-    background: var(--color-bg-tertiary) !important;
-  }
-
-  .hljs-keyword,
-  .hljs-selector-tag,
-  .hljs-addition {
-    color: #f97583;
-  }
-
-  .hljs-number,
-  .hljs-string,
-  .hljs-meta .hljs-meta-string,
-  .hljs-literal,
-  .hljs-doctag,
-  .hljs-regexp {
-    color: #85e89d;
-  }
-
-  .hljs-title,
-  .hljs-section,
-  .hljs-name,
-  .hljs-selector-id,
-  .hljs-selector-class {
-    color: #b392f0;
-  }
-
-  .hljs-attribute,
-  .hljs-attr,
-  .hljs-variable,
-  .hljs-template-variable,
-  .hljs-class .hljs-title,
-  .hljs-type {
-    color: #ffab70;
-  }
-
-  .hljs-symbol,
-  .hljs-bullet,
-  .hljs-subst,
-  .hljs-meta,
-  .hljs-meta .hljs-keyword,
-  .hljs-selector-attr,
-  .hljs-selector-pseudo,
-  .hljs-link {
-    color: #79b8ff;
-  }
-
-  .hljs-built_in,
-  .hljs-deletion {
-    color: #fdaeb7;
-  }
-
-  .hljs-formula {
-    background-color: #444;
-  }
-}
+/* 다크 모드용 코드 하이라이팅은 아래 :root.dark 선택자로 처리됩니다 */
 
 /* 다크 모드 수동 토글 */
 :root.dark .hljs {

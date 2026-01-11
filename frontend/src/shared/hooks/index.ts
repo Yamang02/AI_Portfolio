@@ -6,3 +6,4 @@ export { useCarouselScroll } from './useCarouselScroll';
 export { useScrollAnimation } from './useScrollAnimation';
 export { useScrollProgress } from './useScrollProgress';
 export { useDebounce } from './useDebounce';
+export { useContentHeightRecalc } from './useContentHeightRecalc';

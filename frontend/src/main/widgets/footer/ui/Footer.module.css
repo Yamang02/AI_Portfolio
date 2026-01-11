@@ -51,7 +51,7 @@
 
 
 /* Mobile */
-@media (max-width: var(--breakpoint-mobile)) {
+@media (max-width: 767px) {
   .footer {
     padding-top: var(--spacing-4);
     padding-bottom: var(--spacing-2);

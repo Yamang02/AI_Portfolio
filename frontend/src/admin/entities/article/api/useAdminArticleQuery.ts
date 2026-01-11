@@ -36,7 +36,9 @@ export function useCreateArticleMutation() {
     mutationFn: (data: CreateArticleRequest) => adminArticleApi.create(data),
     onSuccess: () => {
       message.success('아티클이 생성되었습니다.');
+      // Admin 쿼리와 메인 페이지 쿼리 모두 무효화
       queryClient.invalidateQueries({ queryKey: ['admin', 'articles'] });
+      queryClient.invalidateQueries({ queryKey: ['articles'] });
     },
   });
 }
@@ -52,7 +54,9 @@ export function useUpdateArticleMutation() {
       adminArticleApi.update(id, data),
     onSuccess: () => {
       message.success('아티클이 수정되었습니다.');
+      // Admin 쿼리와 메인 페이지 쿼리 모두 무효화
       queryClient.invalidateQueries({ queryKey: ['admin', 'articles'] });
+      queryClient.invalidateQueries({ queryKey: ['articles'] });
     },
   });
 }
@@ -67,7 +71,9 @@ export function useDeleteArticleMutation() {
     mutationFn: (id: number) => adminArticleApi.delete(id),
     onSuccess: () => {
       message.success('아티클이 삭제되었습니다.');
+      // Admin 쿼리와 메인 페이지 쿼리 모두 무효화
       queryClient.invalidateQueries({ queryKey: ['admin', 'articles'] });
+      queryClient.invalidateQueries({ queryKey: ['articles'] });
     },
   });
 }

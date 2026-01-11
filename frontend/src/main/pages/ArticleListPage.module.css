@@ -64,9 +64,24 @@
 
 .grid {
   display: grid;
+  /* 기본값: 데스크톱 auto-fill */
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: var(--spacing-4);
   margin-bottom: var(--spacing-6);
+}
+
+/* Tablet (768px - 1023px) - 2열 */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Mobile (< 768px) - 1열 */
+@media (max-width: 767px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* 페이지네이션 래퍼 - 별도 행으로 중앙 배치 */
@@ -165,7 +180,7 @@
 }
 
 /* 반응형 */
-@media (max-width: 1024px) {
+@media (max-width: 1023px) {
   .layout {
     grid-template-columns: 1fr;
   }
@@ -177,7 +192,7 @@
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .header {
     padding: var(--spacing-6) var(--spacing-4) var(--spacing-4);
   }
@@ -188,10 +203,6 @@
 
   .container {
     padding: 0 var(--spacing-2);
-  }
-
-  .grid {
-    grid-template-columns: 1fr;
   }
 
   .viewToggle {

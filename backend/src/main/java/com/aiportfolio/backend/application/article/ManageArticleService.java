@@ -9,10 +9,12 @@ import com.aiportfolio.backend.domain.article.port.out.ArticleSeriesRepositoryPo
 import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.ProjectJpaRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,6 +30,7 @@ public class ManageArticleService implements ManageArticleUseCase {
     private final ProjectJpaRepository projectJpaRepository;
 
     @Override
+    @CacheEvict(value = "portfolio", allEntries = true)
     public Article create(CreateArticleCommand command) {
         // 비즈니스 ID 생성
         String businessId = articleRepository.generateNextBusinessId();
@@ -94,6 +97,7 @@ public class ManageArticleService implements ManageArticleUseCase {
     }
 
     @Override
+    @CacheEvict(value = "portfolio", allEntries = true)
     public Article update(UpdateArticleCommand command) {
         // 기존 Article 조회
         Article existing = articleRepository.findById(command.id())
@@ -145,6 +149,13 @@ public class ManageArticleService implements ManageArticleUseCase {
             log.info("[ManageArticleService] No projectBusinessId provided, projectId will be null");
         }
 
+        // publishedAt 처리: status가 'published'로 변경되고 publishedAt이 NULL이면 현재 시각으로 설정
+        LocalDateTime publishedAt = existing.getPublishedAt();
+        if ("published".equals(command.status()) && publishedAt == null) {
+            publishedAt = LocalDateTime.now();
+            log.info("[ManageArticleService] Setting publishedAt to current time for article {} (status changed to published)", command.id());
+        }
+
         // Article 업데이트
         Article updated = Article.builder()
                 .id(existing.getId())
@@ -157,7 +168,7 @@ public class ManageArticleService implements ManageArticleUseCase {
                 .tags(command.tags())
                 .techStack(techStack)
                 .status(command.status())
-                .publishedAt(existing.getPublishedAt())
+                .publishedAt(publishedAt)
                 .isFeatured(command.isFeatured())
                 .featuredSortOrder(command.featuredSortOrder())
                 .seriesId(seriesId)
@@ -175,6 +186,7 @@ public class ManageArticleService implements ManageArticleUseCase {
     }
 
     @Override
+    @CacheEvict(value = "portfolio", allEntries = true)
     public void delete(Long id) {
         articleRepository.delete(id);
     }

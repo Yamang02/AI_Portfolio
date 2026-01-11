@@ -167,7 +167,7 @@
 }
 
 /* 반응형 레이아웃 */
-@media (max-width: var(--breakpoint-mobile)) {
+@media (max-width: 767px) {
   .header {
     flex-wrap: wrap;
   }
