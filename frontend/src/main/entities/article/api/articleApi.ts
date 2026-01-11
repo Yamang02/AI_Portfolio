@@ -1,5 +1,5 @@
 import { ArticleListItem, ArticleDetail } from '../model/article.types';
-import { ApiResponse } from '@/shared/types/api';
+import { apiClient } from '@/shared/api/apiClient';
 
 /**
  * Public 아티클 API
@@ -45,27 +45,21 @@ export const articleApi = {
     if (params.isFeatured !== undefined) {
       queryParams.append('isFeatured', params.isFeatured.toString());
     }
-    const response = await fetch(`/api/articles?${queryParams.toString()}`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch articles');
-    }
-    const apiResponse: ApiResponse<{ content: ArticleListItem[]; totalElements: number }> = await response.json();
-    return apiResponse.data || { content: [], totalElements: 0 };
+    const response = await apiClient.callApi<{ content: ArticleListItem[]; totalElements: number }>(
+      `/api/articles?${queryParams.toString()}`
+    );
+    return response.data || { content: [], totalElements: 0 };
   },
 
   /**
    * BusinessId로 조회
    */
   getByBusinessId: async (businessId: string): Promise<ArticleDetail> => {
-    const response = await fetch(`/api/articles/${businessId}`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch article');
-    }
-    const apiResponse: ApiResponse<ArticleDetail> = await response.json();
-    if (!apiResponse.data) {
+    const response = await apiClient.callApi<ArticleDetail>(`/api/articles/${businessId}`);
+    if (!response.data) {
       throw new Error('Article not found');
     }
-    return apiResponse.data;
+    return response.data;
   },
 
   /**
@@ -85,11 +79,7 @@ export const articleApi = {
       count: number;
     }>;
   }> => {
-    const response = await fetch('/api/articles/statistics');
-    if (!response.ok) {
-      throw new Error('Failed to fetch article statistics');
-    }
-    const apiResponse: ApiResponse<{
+    const response = await apiClient.callApi<{
       categories: Record<string, number>;
       projects: Array<{
         projectId: number;
@@ -102,8 +92,8 @@ export const articleApi = {
         seriesTitle: string;
         count: number;
       }>;
-    }> = await response.json();
-    return apiResponse.data || { categories: {}, projects: [], series: [] };
+    }>('/api/articles/statistics');
+    return response.data || { categories: {}, projects: [], series: [] };
   },
 
   /**
@@ -114,14 +104,10 @@ export const articleApi = {
     prevArticle: { businessId: string; title: string } | null;
     nextArticle: { businessId: string; title: string } | null;
   }> => {
-    const response = await fetch(`/api/articles/${businessId}/navigation`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch article navigation');
-    }
-    const apiResponse: ApiResponse<{
+    const response = await apiClient.callApi<{
       prevArticle: { businessId: string; title: string } | null;
       nextArticle: { businessId: string; title: string } | null;
-    }> = await response.json();
-    return apiResponse.data || { prevArticle: null, nextArticle: null };
+    }>(`/api/articles/${businessId}/navigation`);
+    return response.data || { prevArticle: null, nextArticle: null };
   },
 };

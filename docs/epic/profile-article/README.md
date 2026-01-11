@@ -72,6 +72,26 @@ Admin 기능이 늘어나도 일관된 방식으로 빠르게 확장할 수 있�
 
 ---
 
+## Phase 3: Production Bugfix & Improvements
+
+### Goal
+프로덕션 환경에서 발견된 버그를 수정하고 시스템을 안정화합니다.
+
+### Issues
+1. **Article 목록/상세 페이지 미표시 문제**
+   - 원인: 프론트엔드 배포 환경에서 `/api/*` 프록시 설정 누락
+   - 영향: 백엔드 API는 정상이나 프론트엔드에서 데이터 가져오기 실패
+
+2. **테마 토글 시스템 설정 확인**
+   - 현재 구현 정상: localStorage 우선, 시스템 설정은 fallback으로 사용
+
+### Deliverables
+- [Phase 3 상세 문서](./phase-3-bugfix.md)
+- API 프록시 설정 가이드
+- 프로덕션 디버깅 체크리스트
+
+---
+
 ## Status
 
 **Current Phase**: Phase 2.5 진행 중
@@ -135,6 +155,13 @@ Admin 기능이 늘어나도 일관된 방식으로 빠르게 확장할 수 있�
 ---
 
 ## 변경 이력
+
+### v1.7 (2026-01-12) - Phase 3 추가: 프로덕션 버그픽스
+- 추가: Phase 3 섹션 - 프로덕션 환경 버그픽스
+- 추가: [phase-3-bugfix.md](./phase-3-bugfix.md) - 상세 디버깅 가이드
+- 진단: Article 미표시 문제 - 프론트엔드 API 프록시 설정 누락 확인
+- 확인: 테마 토글 시스템 정상 작동 (localStorage 우선 사용)
+- 문서화: 플랫폼별 API 프록시 설정 방법 (Vercel/Netlify/Nginx/AWS/Firebase)
 
 ### v1.6 (2025-01-XX) - Article 통계 및 UI 개선
 - 추가: ArticleStatistics 기능 - 카테고리별/프로젝트별/시리즈별 통계 조회
