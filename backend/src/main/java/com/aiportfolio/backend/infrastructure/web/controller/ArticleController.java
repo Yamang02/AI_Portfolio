@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -132,6 +133,30 @@ public class ArticleController {
         return ResponseEntity.ok(ApiResponse.success(
                 ArticleStatisticsResponse.from(statistics),
                 "아티클 통계 조회 성공"));
+    }
+
+    /**
+     * 이전/다음 아티클 조회 (네비게이션용)
+     * 성능 최적화: 전체 목록을 가져오지 않고 이전/다음 아티클만 반환
+     */
+    @GetMapping("/{businessId}/navigation")
+    public ResponseEntity<ApiResponse<ArticleNavigationResponse>> getNavigation(@PathVariable String businessId) {
+        return getUseCase.findByBusinessId(businessId)
+                .filter(Article::isPublished)
+                .map(article -> {
+                    // 이전/다음 아티클 조회
+                    var prevArticle = article.getPublishedAt() != null
+                            ? getUseCase.findPreviousArticle(article.getPublishedAt())
+                            : Optional.<Article>empty();
+                    var nextArticle = article.getPublishedAt() != null
+                            ? getUseCase.findNextArticle(article.getPublishedAt())
+                            : Optional.<Article>empty();
+
+                    return ResponseEntity.ok(ApiResponse.success(
+                            ArticleNavigationResponse.from(prevArticle, nextArticle),
+                            "아티클 네비게이션 조회 성공"));
+                })
+                .orElse(ResponseEntity.ok(ApiResponse.error("아티클을 찾을 수 없습니다.")));
     }
 
     // DTOs (Public용 - 필요한 정보만 노출)
@@ -308,4 +333,25 @@ public class ArticleController {
             String seriesTitle,
             Long count
     ) {}
+
+    public record ArticleNavigationResponse(
+            ArticleNavigationItem prevArticle,
+            ArticleNavigationItem nextArticle
+    ) {
+        public record ArticleNavigationItem(
+                String businessId,
+                String title
+        ) {}
+
+        public static ArticleNavigationResponse from(
+                Optional<Article> prevArticle,
+                Optional<Article> nextArticle) {
+            return new ArticleNavigationResponse(
+                    prevArticle.map(a -> new ArticleNavigationItem(a.getBusinessId(), a.getTitle()))
+                            .orElse(null),
+                    nextArticle.map(a -> new ArticleNavigationItem(a.getBusinessId(), a.getTitle()))
+                            .orElse(null)
+            );
+        }
+    }
 }

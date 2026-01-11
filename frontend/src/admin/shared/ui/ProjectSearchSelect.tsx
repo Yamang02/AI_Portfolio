@@ -1,7 +1,8 @@
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Select } from 'antd';
 import { useQuery } from '@tanstack/react-query';
 import { projectApi } from '@/main/entities/project/api/projectApi';
+import { useDebounce } from '@/shared/hooks';
 
 interface ProjectSearchSelectProps {
   value?: string; // 비즈니스 ID (string)
@@ -25,34 +26,13 @@ export const ProjectSearchSelect: React.FC<ProjectSearchSelectProps> = ({
   style,
 }) => {
   const [searchKeyword, setSearchKeyword] = useState<string>('');
-  const [debouncedKeyword, setDebouncedKeyword] = useState<string>('');
-  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
-
-  // 디바운싱 처리
-  useEffect(() => {
-    if (debounceTimerRef.current) {
-      clearTimeout(debounceTimerRef.current);
-    }
-    debounceTimerRef.current = setTimeout(() => {
-      console.log('[ProjectSearchSelect] Debounced keyword updated:', searchKeyword);
-      setDebouncedKeyword(searchKeyword);
-    }, 300);
-
-    return () => {
-      if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current);
-      }
-    };
-  }, [searchKeyword]);
+  const debouncedKeyword = useDebounce(searchKeyword, 300);
 
   // 프로젝트 검색 쿼리
   const { data: projects = [], isLoading, error } = useQuery({
     queryKey: ['admin', 'projects', 'search', debouncedKeyword],
     queryFn: async () => {
-      console.log('[ProjectSearchSelect] API call with keyword:', debouncedKeyword);
-      const result = await projectApi.getAdminProjects({ search: debouncedKeyword, size: 20 });
-      console.log('[ProjectSearchSelect] API result:', result);
-      return result;
+      return await projectApi.getAdminProjects({ search: debouncedKeyword, size: 20 });
     },
     enabled: debouncedKeyword.length > 0,
     staleTime: 5 * 60 * 1000,
@@ -108,19 +88,15 @@ export const ProjectSearchSelect: React.FC<ProjectSearchSelectProps> = ({
   }, [projects, selectedProject, searchKeyword, recentProjects]);
 
   const handleSearch = (searchText: string) => {
-    console.log('[ProjectSearchSelect] onSearch called:', searchText);
     setSearchKeyword(searchText);
   };
 
   const handleChange = (selectedValue: string | null) => {
-    console.log('[ProjectSearchSelect] handleChange called with:', selectedValue, typeof selectedValue);
     // 유효성 검사: 비즈니스 ID는 문자열이어야 함
     if (selectedValue !== null && (typeof selectedValue !== 'string' || selectedValue.length === 0)) {
-      console.warn('[ProjectSearchSelect] Invalid value detected, converting to null');
       onChange?.(null);
       return;
     }
-    console.log('[ProjectSearchSelect] Calling onChange with:', selectedValue);
     onChange?.(selectedValue);
     if (selectedValue !== null) {
       setSearchKeyword(''); // 선택 후 검색어 초기화
@@ -128,10 +104,8 @@ export const ProjectSearchSelect: React.FC<ProjectSearchSelectProps> = ({
   };
 
   const handleSelect = (selectedValue: string) => {
-    console.log('[ProjectSearchSelect] handleSelect called with:', selectedValue, typeof selectedValue);
     // onSelect는 드롭다운에서 선택할 때 호출
     if (typeof selectedValue !== 'string' || selectedValue.length === 0) {
-      console.warn('[ProjectSearchSelect] Invalid value in handleSelect, converting to null');
       handleChange(null);
       return;
     }
@@ -154,15 +128,12 @@ export const ProjectSearchSelect: React.FC<ProjectSearchSelectProps> = ({
       options={options}
       onSearch={handleSearch}
       onChange={(val) => {
-        console.log('[ProjectSearchSelect] Select onChange called with:', val, typeof val);
         if (val === null || val === undefined) {
           handleChange(null);
         } else {
           // val은 비즈니스 ID (string)이어야 함
           const stringVal = String(val);
-          console.log('[ProjectSearchSelect] Converted value:', stringVal, typeof stringVal);
           if (stringVal.length === 0) {
-            console.warn('[ProjectSearchSelect] Empty string after conversion');
             handleChange(null);
           } else {
             handleChange(stringVal);
@@ -170,12 +141,9 @@ export const ProjectSearchSelect: React.FC<ProjectSearchSelectProps> = ({
         }
       }}
       onSelect={(val) => {
-        console.log('[ProjectSearchSelect] Select onSelect called with:', val, typeof val);
         // val은 비즈니스 ID (string)이어야 함
         const stringVal = String(val);
-        console.log('[ProjectSearchSelect] Converted value in onSelect:', stringVal, typeof stringVal);
         if (stringVal.length === 0) {
-          console.warn('[ProjectSearchSelect] Empty string in onSelect');
           handleChange(null);
         } else {
           handleSelect(stringVal);

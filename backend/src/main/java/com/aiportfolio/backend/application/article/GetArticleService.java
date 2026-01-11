@@ -44,4 +44,14 @@ public class GetArticleService implements GetArticleUseCase {
     public void incrementViewCount(Long id) {
         articleRepository.incrementViewCount(id);
     }
+
+    @Override
+    public Optional<Article> findPreviousArticle(java.time.LocalDateTime publishedAt) {
+        return articleRepository.findPreviousArticle(publishedAt);
+    }
+
+    @Override
+    public Optional<Article> findNextArticle(java.time.LocalDateTime publishedAt) {
+        return articleRepository.findNextArticle(publishedAt);
+    }
 }

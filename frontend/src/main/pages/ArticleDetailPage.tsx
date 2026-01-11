@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useArticleQuery, useArticleListQuery } from '../entities/article';
+import { useArticleQuery, useArticleListQuery, useArticleNavigationQuery } from '../entities/article';
 import { SectionTitle } from '@design-system/components/SectionTitle';
 import { TextLink } from '@design-system/components/TextLink';
 import { useTOCFromDOM } from '@/main/features/project-gallery/hooks';
@@ -28,10 +28,13 @@ export function ArticleDetailPage() {
   // 아티클 상세 조회
   const { data: article, isLoading, error } = useArticleQuery(businessId!);
 
-  // 아티클 목록 조회 (네비게이션용)
+  // 아티클 네비게이션 조회 (이전/다음 아티클만)
+  const { data: navigationData } = useArticleNavigationQuery(businessId!);
+
+  // 시리즈 아티클 조회 (같은 시리즈의 다른 아티클들)
   const { data: articlesData } = useArticleListQuery({
     page: 0,
-    size: 1000, // 모든 아티클 가져오기 (네비게이션용)
+    size: 50, // 시리즈 아티클용 (시리즈는 보통 많지 않으므로 50으로 충분)
     sortBy: 'publishedAt',
     sortOrder: 'desc',
   });
@@ -110,14 +113,6 @@ export function ArticleDetailPage() {
       .sort((a, b) => (a.seriesOrder || 0) - (b.seriesOrder || 0));
   }, [article?.seriesId, articlesData?.content]);
 
-  // 네비게이션용 아티클 목록
-  const navigationArticles = useMemo(() => {
-    if (!articlesData?.content) return [];
-    return articlesData.content.map(a => ({
-      businessId: a.businessId,
-      title: a.title,
-    }));
-  }, [articlesData?.content]);
 
   // 페이지 최상단으로 스크롤
   useEffect(() => {
@@ -282,7 +277,11 @@ export function ArticleDetailPage() {
 
         {/* 아티클 네비게이션 */}
         <ArticleNavigation
-          articles={navigationArticles}
+          articles={[
+            ...(navigationData?.prevArticle ? [navigationData.prevArticle] : []),
+            { businessId: article.businessId, title: article.title },
+            ...(navigationData?.nextArticle ? [navigationData.nextArticle] : []),
+          ]}
           currentArticleBusinessId={article.businessId}
         />
       </div>

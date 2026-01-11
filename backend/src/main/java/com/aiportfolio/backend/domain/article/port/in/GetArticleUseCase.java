@@ -33,4 +33,16 @@ public interface GetArticleUseCase {
      * 조회수 증가
      */
     void incrementViewCount(Long id);
+
+    /**
+     * 이전 아티클 조회 (publishedAt 기준, 발행된 것만)
+     * 현재 아티클보다 이전에 발행된 아티클 중 가장 최근 것
+     */
+    Optional<Article> findPreviousArticle(java.time.LocalDateTime publishedAt);
+
+    /**
+     * 다음 아티클 조회 (publishedAt 기준, 발행된 것만)
+     * 현재 아티클보다 나중에 발행된 아티클 중 가장 오래된 것
+     */
+    Optional<Article> findNextArticle(java.time.LocalDateTime publishedAt);
 }

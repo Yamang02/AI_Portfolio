@@ -33,3 +33,15 @@ export function useArticleQuery(businessId: string) {
     enabled: !!businessId,
   });
 }
+
+/**
+ * 아티클 네비게이션 조회 쿼리 (이전/다음 아티클)
+ */
+export function useArticleNavigationQuery(businessId: string) {
+  return useQuery({
+    queryKey: ['articles', businessId, 'navigation'],
+    queryFn: () => articleApi.getNavigation(businessId),
+    staleTime: 10 * 60 * 1000, // 10분
+    enabled: !!businessId,
+  });
+}

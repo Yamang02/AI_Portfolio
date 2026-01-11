@@ -16,6 +16,7 @@ import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.Pr
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
@@ -410,5 +411,31 @@ public class PostgresArticleRepository implements ArticleRepositoryPort {
         }
 
         return new ArticleStatistics(categoryCounts, projectStats, seriesStats);
+    }
+
+    @Override
+    public Optional<Article> findPreviousArticle(java.time.LocalDateTime publishedAt) {
+        Pageable pageable = PageRequest.of(0, 1);
+        Page<ArticleJpaEntity> page = jpaRepository.findPreviousArticle(publishedAt, pageable);
+        
+        if (page.isEmpty()) {
+            return Optional.empty();
+        }
+        
+        ArticleJpaEntity entity = page.getContent().get(0);
+        return Optional.of(mapper.toDomain(entity));
+    }
+
+    @Override
+    public Optional<Article> findNextArticle(java.time.LocalDateTime publishedAt) {
+        Pageable pageable = PageRequest.of(0, 1);
+        Page<ArticleJpaEntity> page = jpaRepository.findNextArticle(publishedAt, pageable);
+        
+        if (page.isEmpty()) {
+            return Optional.empty();
+        }
+        
+        ArticleJpaEntity entity = page.getContent().get(0);
+        return Optional.of(mapper.toDomain(entity));
     }
 }

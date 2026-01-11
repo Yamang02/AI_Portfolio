@@ -105,4 +105,23 @@ export const articleApi = {
     }> = await response.json();
     return apiResponse.data || { categories: {}, projects: [], series: [] };
   },
+
+  /**
+   * 이전/다음 아티클 조회 (네비게이션용)
+   * 성능 최적화: 전체 목록을 가져오지 않고 이전/다음 아티클만 반환
+   */
+  getNavigation: async (businessId: string): Promise<{
+    prevArticle: { businessId: string; title: string } | null;
+    nextArticle: { businessId: string; title: string } | null;
+  }> => {
+    const response = await fetch(`/api/articles/${businessId}/navigation`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch article navigation');
+    }
+    const apiResponse: ApiResponse<{
+      prevArticle: { businessId: string; title: string } | null;
+      nextArticle: { businessId: string; title: string } | null;
+    }> = await response.json();
+    return apiResponse.data || { prevArticle: null, nextArticle: null };
+  },
 };

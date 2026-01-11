@@ -55,4 +55,18 @@ public interface ArticleJpaRepository extends JpaRepository<ArticleJpaEntity, Lo
      */
     @Query("SELECT a.seriesId, COUNT(a) FROM ArticleJpaEntity a WHERE a.status = 'published' AND a.seriesId IS NOT NULL GROUP BY a.seriesId")
     List<Object[]> countBySeriesId();
+
+    /**
+     * 이전 아티클 조회 (publishedAt 기준, 발행된 것만)
+     * 현재 아티클보다 이전에 발행된 아티클 중 가장 최근 것
+     */
+    @Query("SELECT a FROM ArticleJpaEntity a WHERE a.status = 'published' AND a.publishedAt < :publishedAt ORDER BY a.publishedAt DESC")
+    Page<ArticleJpaEntity> findPreviousArticle(@Param("publishedAt") java.time.LocalDateTime publishedAt, Pageable pageable);
+
+    /**
+     * 다음 아티클 조회 (publishedAt 기준, 발행된 것만)
+     * 현재 아티클보다 나중에 발행된 아티클 중 가장 오래된 것
+     */
+    @Query("SELECT a FROM ArticleJpaEntity a WHERE a.status = 'published' AND a.publishedAt > :publishedAt ORDER BY a.publishedAt ASC")
+    Page<ArticleJpaEntity> findNextArticle(@Param("publishedAt") java.time.LocalDateTime publishedAt, Pageable pageable);
 }

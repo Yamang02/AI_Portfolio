@@ -217,7 +217,7 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
   // 이스케이프된 백틱을 원래대로 복원
   // 백엔드에서 \`\`\` 형태로 저장된 경우를 처리
   const processedContent = React.useMemo(() => {
-    if (!content) return '';
+    if (!content || typeof content !== 'string') return '';
 
     // 이스케이프된 백틱 복원
     let processed = content.replace(/\\`/g, '`');
@@ -229,13 +229,6 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
 
     return processed;
   }, [content]);
-
-  // 디버깅: 콘텐츠의 첫 500자를 콘솔에 출력
-  React.useEffect(() => {
-    console.log('Original content (first 200 chars):', content.substring(0, 200));
-    console.log('Processed content (first 200 chars):', processedContent.substring(0, 200));
-    console.log('Has code blocks:', processedContent.includes('```'));
-  }, [content, processedContent]);
 
   return (
     <div className={`prose prose-lg max-w-none ${className}`}>
