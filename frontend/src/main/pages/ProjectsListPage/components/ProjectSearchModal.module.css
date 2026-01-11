@@ -216,7 +216,7 @@
 }
 
 /* 모바일 반응형 */
-@media (max-width: var(--breakpoint-mobile)) {
+@media (max-width: 767px) {
   .filters {
     grid-template-columns: 1fr;
     gap: 12px;

@@ -1,14 +1,19 @@
 import { useEffect } from 'react';
 
+const STORAGE_KEY = 'portfolio-theme';
+
 /**
- * 테마 초기화 훅
- * localStorage에서 테마를 로드하여 document에 적용
+ * 테마 초기화 훅 - 앱 시작 시 localStorage 또는 시스템 설정에서 테마 로드
  */
-export const useThemeInit = () => {
+export function useThemeInit(): void {
   useEffect(() => {
-    const theme = localStorage.getItem('portfolio-theme') || 'light';
+    const stored = localStorage.getItem(STORAGE_KEY);
+    const theme = stored === 'light' || stored === 'dark'
+      ? stored
+      : window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+
     const root = document.documentElement;
     root.classList.remove('light', 'dark');
-    root.classList.add(theme === 'dark' ? 'dark' : 'light');
+    root.classList.add(theme);
   }, []);
-};
+}

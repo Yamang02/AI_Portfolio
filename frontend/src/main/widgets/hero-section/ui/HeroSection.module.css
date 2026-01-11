@@ -132,7 +132,7 @@
 
 
 /* 반응형: 모바일 (기준값) */
-@media (max-width: var(--breakpoint-mobile)) {
+@media (max-width: 767px) {
   .hero {
     min-height: calc(100vh - 56px); /* 모바일 Header 높이(56px) 제외 */
     padding: 24px 24px 48px; /* 위 여백 줄임 */
@@ -145,7 +145,7 @@
 }
 
 /* 반응형: 태블릿 (768px ~ 1023px) - 모바일 기준 1.4배 */
-@media (min-width: var(--breakpoint-tablet)) and (max-width: var(--breakpoint-tablet-max)) {
+@media (min-width: 768px) and (max-width: 1023px) {
   .hero .nameContainer > :first-child {
     font-size: 3.15rem; /* 2.25rem * 1.4 = 50.4px */
   }
@@ -167,7 +167,7 @@
 }
 
 /* 반응형: 데스크톱 (1024px 이상) - 모바일 기준 2배 */
-@media (min-width: var(--breakpoint-desktop)) {
+@media (min-width: 1024px) {
   .hero .nameContainer > :first-child {
     font-size: 4.5rem; /* 2.25rem * 2 = 72px */
   }

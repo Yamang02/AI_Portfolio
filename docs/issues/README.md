@@ -10,6 +10,7 @@ issues/
 ├── billing/            # 결제/빌링 관련 이슈
 ├── cache/              # 캐시 관련 이슈
 ├── data-processing/    # 데이터 처리 관련 이슈
+├── frontend/           # 프론트엔드 관련 이슈
 └── (루트)              # 일반 이슈 및 메타 문서
 ```
 

@@ -411,7 +411,7 @@ html.dark .aboutSection .processStep {
 /* ================================
    반응형
    ================================ */
-@media (max-width: var(--breakpoint-mobile)) {
+@media (max-width: 767px) {
   .aboutSection {
     padding: 48px 24px;
   }

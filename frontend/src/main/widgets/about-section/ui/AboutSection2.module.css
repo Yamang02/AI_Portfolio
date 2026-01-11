@@ -110,7 +110,7 @@
 }
 
 /* 반응형 */
-@media (max-width: var(--breakpoint-mobile)) {
+@media (max-width: 767px) {
   .imageWrapper {
     order: -1;
     min-height: 400px;
@@ -231,7 +231,7 @@
   }
 
   /* 모바일 접근성 */
-  @media (max-width: var(--breakpoint-mobile)) {
+  @media (max-width: 767px) {
     .image,
     .highlightImage {
       top: 50%;

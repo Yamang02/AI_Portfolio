@@ -14,7 +14,7 @@
 }
 
 /* 반응형 */
-@media (max-width: var(--breakpoint-mobile)) {
+@media (max-width: 767px) {
   .navigation {
     margin-top: var(--spacing-3);
     padding-bottom: var(--spacing-4);

@@ -139,7 +139,7 @@
 }
 
 /* Mobile */
-@media (max-width: var(--breakpoint-mobile)) {
+@media (max-width: 767px) {
   .container {
     height: 56px;
     padding: 0 24px;
