@@ -72,6 +72,17 @@ class ApiClient {
   }
 
   /**
+   * 공통 API 호출 메서드 (외부에서 사용 가능)
+   * 재시도 로직, 에러 처리, baseURL 적용이 포함됨
+   */
+  async callApi<T>(
+    endpoint: string,
+    options: RequestInit = {}
+  ): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, options);
+  }
+
+  /**
    * 재시도 로직이 포함된 request 메서드
    */
   private async request<T>(

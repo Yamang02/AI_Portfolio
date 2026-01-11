@@ -12,40 +12,8 @@ import type {
   ProjectDetail,
   ProjectListParams
 } from '../model/project.types';
-import { ApiResponse } from '../../../shared/types/api';
-
-// 환경 변수에서 API Base URL 가져오기
-const API_BASE_URL = typeof window !== 'undefined'
-  ? (import.meta.env.VITE_API_BASE_URL || '')
-  : (import.meta.env?.VITE_API_BASE_URL || '');
 
 class ProjectApi {
-  private async request<T>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
-    const url = `${API_BASE_URL}${endpoint}`;
-    
-    const defaultOptions: RequestInit = {
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers,
-      },
-      credentials: 'include',
-    };
-
-    const response = await fetch(url, { ...defaultOptions, ...options });
-    
-    if (!response.ok) {
-      let errorMessage = `HTTP ${response.status}`;
-      try {
-        const errorData = await response.json();
-        errorMessage = errorData.message || errorMessage;
-      } catch {
-        // JSON 파싱 실패 시 기본 메시지 사용
-      }
-      throw new Error(errorMessage);
-    }
-
-    return response.json();
-  }
 
   /**
    * 프로젝트 목록 조회 (Main용)
@@ -80,7 +48,7 @@ class ProjectApi {
     const queryString = params.toString();
     const endpoint = queryString ? `/api/admin/projects?${queryString}` : '/api/admin/projects';
     
-    const response = await this.request<Project[]>(endpoint);
+    const response = await apiClient.callApi<Project[]>(endpoint);
     return response.data || [];
   }
 
@@ -88,7 +56,7 @@ class ProjectApi {
    * 관리자용 프로젝트 상세 조회
    */
   async getAdminProject(id: number | string): Promise<Project> {
-    const response = await this.request<Project>(`/api/admin/projects/${id}`);
+    const response = await apiClient.callApi<Project>(`/api/admin/projects/${id}`);
     return response.data!;
   }
 
@@ -96,7 +64,7 @@ class ProjectApi {
    * 관리자용 프로젝트 생성
    */
   async createProject(project: ProjectCreateRequest): Promise<Project> {
-    const response = await this.request<Project>('/api/admin/projects', {
+    const response = await apiClient.callApi<Project>('/api/admin/projects', {
       method: 'POST',
       body: JSON.stringify(project),
     });
@@ -107,7 +75,7 @@ class ProjectApi {
    * 관리자용 프로젝트 수정
    */
   async updateProject(id: number | string, project: ProjectUpdateRequest): Promise<Project> {
-    const response = await this.request<Project>(`/api/admin/projects/${id}`, {
+    const response = await apiClient.callApi<Project>(`/api/admin/projects/${id}`, {
       method: 'PUT',
       body: JSON.stringify(project),
     });
@@ -118,7 +86,7 @@ class ProjectApi {
    * 관리자용 프로젝트 삭제
    */
   async deleteProject(id: number | string): Promise<void> {
-    await this.request<void>(`/api/admin/projects/${id}`, {
+    await apiClient.callApi<void>(`/api/admin/projects/${id}`, {
       method: 'DELETE',
     });
   }
