@@ -7,6 +7,7 @@ import type { ProjectCardProject } from '@/design-system/components/Card/Project
 import { FEATURED_PROJECTS } from '@/main/widgets/featured-projects-section/model/featuredProjects.config';
 import { ProjectSearchModal } from './components/ProjectSearchModal';
 import { ProjectHistoryTimeline } from './components/ProjectHistoryTimeline';
+import { useContentHeightRecalc } from '@/shared/hooks';
 import styles from './ProjectsListPage.module.css';
 
 // 프로젝트 타입별 섹션 구성
@@ -20,6 +21,13 @@ export const ProjectsListPage: React.FC = () => {
   // API에서 프로젝트 목록 가져오기
   const { data: projects = [], isLoading, isError, refetch } = useProjectsQuery({
     type: 'project',
+  });
+
+  // API 로딩 후 페이지 높이 재계산
+  useContentHeightRecalc(isLoading, [projects], {
+    scrollThreshold: 100,
+    recalcDelay: 200,
+    useResizeObserver: true,
   });
 
   // 주요 프로젝트: is_featured가 true인 프로젝트만 필터링

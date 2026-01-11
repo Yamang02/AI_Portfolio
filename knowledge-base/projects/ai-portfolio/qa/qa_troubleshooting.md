@@ -239,3 +239,90 @@ category: troubleshooting
 4. **환경별 전략**: 개발/스테이징/프로덕션 차별화
 
 이 경험들은 앞으로의 프로젝트에서 비슷한 문제를 더 빠르고 효과적으로 해결하는 데 활용하고 있습니다.
+
+---
+
+### Q: 아티클 발행 후 목록/상세페이지에서 보이지 않는 문제
+
+> **상황**: 프로덕션 환경에서 아티클을 발행했는데, DB에는 데이터가 정상적으로 저장되었지만 프론트엔드 목록과 상세페이지에서 보이지 않음
+> 
+> **에러/증상**: 
+> - DB 조회 시 `article-001` 데이터 정상 확인 (`status='published'`, `published_at='2026-01-11 13:44:00.595'`)
+> - 프론트엔드 네트워크 탭에서 `/api/articles` 요청이 발생하지 않음
+> - localStorage 캐시 삭제 후에도 동일한 증상
+> 
+> **원인 분석**: 
+> 1. **백엔드**: `ManageArticleService`에 `@CacheEvict` 어노테이션 누락
+>    - 프로젝트, 경력 등 다른 도메인은 `@CacheEvict(value = "portfolio", allEntries = true)` 사용
+>    - 아티클은 새로 추가된 도메인이라 캐시 무효화 로직이 빠짐
+> 2. **프론트엔드**: 아티클 mutation 시 메인 페이지 쿼리 무효화 누락
+>    - Admin 쿼리(`['admin', 'articles']`)만 무효화하고 있음
+>    - 메인 페이지 쿼리(`['articles']`)는 무효화하지 않아 React Query 캐시가 갱신되지 않음
+> 3. **React Query 캐시**: `staleTime: 5분` 설정으로 캐시된 데이터 사용
+>    - localStorage에 캐시가 저장되어 있어 네트워크 요청이 발생하지 않음
+> 
+> **해결 과정**:
+> 1. **DB 데이터 확인** - 데이터는 정상적으로 저장되어 있음 확인 → ✅ **문제 없음**
+> 2. **localStorage 캐시 삭제** - 수동으로 캐시 삭제 시도 → ⚠️ **임시 해결만 가능**
+> 3. **백엔드 코드 확인** - `ManageArticleService`에 캐시 무효화 로직 누락 발견 → ✅ **근본 원인 1**
+> 4. **프론트엔드 코드 확인** - mutation 시 쿼리 무효화 범위 부족 발견 → ✅ **근본 원인 2**
+> 
+> **최종 해결 방법**:
+> 
+> **백엔드 수정** (`ManageArticleService.java`):
+> ```java
+> // Before: 캐시 무효화 없음
+> @Override
+> public Article create(CreateArticleCommand command) {
+>     // ...
+> }
+> 
+> // After: portfolio 캐시 무효화 추가
+> @Override
+> @CacheEvict(value = "portfolio", allEntries = true)
+> public Article create(CreateArticleCommand command) {
+>     // ...
+> }
+> 
+> @Override
+> @CacheEvict(value = "portfolio", allEntries = true)
+> public Article update(UpdateArticleCommand command) {
+>     // ...
+> }
+> 
+> @Override
+> @CacheEvict(value = "portfolio", allEntries = true)
+> public void delete(Long id) {
+>     // ...
+> }
+> ```
+> 
+> **프론트엔드 수정** (`useAdminArticleQuery.ts`):
+> ```typescript
+> // Before: Admin 쿼리만 무효화
+> onSuccess: () => {
+>   queryClient.invalidateQueries({ queryKey: ['admin', 'articles'] });
+> }
+> 
+> // After: Admin + 메인 페이지 쿼리 모두 무효화
+> onSuccess: () => {
+>   queryClient.invalidateQueries({ queryKey: ['admin', 'articles'] });
+>   queryClient.invalidateQueries({ queryKey: ['articles'] });
+> }
+> ```
+> 
+> **코드 변경사항**:
+> - `ManageArticleService.java`: `create`, `update`, `delete` 메서드에 `@CacheEvict` 추가
+> - `useAdminArticleQuery.ts`: `useCreateArticleMutation`, `useUpdateArticleMutation`, `useDeleteArticleMutation`에 메인 페이지 쿼리 무효화 추가
+> 
+> **배운 점**: 
+> - 새 도메인 추가 시 기존 도메인의 패턴을 따라야 함 (캐시 무효화 포함)
+> - 프론트엔드와 백엔드 양쪽 모두 캐시 무효화가 필요함
+> - React Query의 `staleTime` 설정은 사용자 경험과 데이터 일관성의 트레이드오프
+> - 프로덕션 이슈 디버깅 시 DB → 백엔드 캐시 → 프론트엔드 캐시 순서로 확인
+> 
+> **예방책**: 
+> - 새 도메인 추가 시 체크리스트 작성 (캐시 무효화 포함)
+> - Admin mutation과 Public query의 캐시 무효화 범위 명확히 정의
+> - 통합 테스트에 캐시 무효화 검증 추가
+> - 코드 리뷰 시 캐시 무효화 로직 확인 필수

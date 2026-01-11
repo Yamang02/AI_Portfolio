@@ -132,7 +132,8 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  /* 기본값: 모바일 1열 */
+  grid-template-columns: 1fr;
   gap: 32px;
   margin-top: 0;
   max-width: 1200px;
@@ -160,7 +161,14 @@
   font-size: 1rem;
 }
 
-/* Desktop (> 1024px) */
+/* Tablet (768px - 1023px) - 2열 */
+@media (min-width: var(--breakpoint-tablet)) and (max-width: var(--breakpoint-tablet-max)) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Desktop (> 1024px) - 3열 */
 @media (min-width: var(--breakpoint-desktop)) {
   .grid {
     grid-template-columns: repeat(3, 1fr);
@@ -190,7 +198,6 @@
   }
 
   .grid {
-    grid-template-columns: repeat(2, 1fr);
     gap: 24px;
   }
 
@@ -231,7 +238,6 @@
   }
 
   .grid {
-    grid-template-columns: 1fr;
     gap: 24px;
   }
 

@@ -5,6 +5,7 @@ import { useArticleListQuery } from '../entities/article/api/useArticleQuery';
 import { useArticleStatisticsQuery } from '../entities/article';
 import { ArticleTable, ArticleFilterBar, ArticleControlPanel, FeaturedArticleCarousel } from '../features/article-view/ui';
 import { ArticleCard } from '@/design-system';
+import { useContentHeightRecalc } from '@/shared/hooks';
 import styles from './ArticleListPage.module.css';
 
 type ViewMode = 'table' | 'gallery';
@@ -122,6 +123,13 @@ export function ArticleListPage() {
 
   // 필터링된 아티클 (서버에서 이미 필터링됨)
   const filteredArticles = data?.content || [];
+
+  // API 로딩 후 페이지 높이 재계산
+  useContentHeightRecalc(isLoading, [filteredArticles], {
+    scrollThreshold: 100,
+    recalcDelay: 200,
+    useResizeObserver: true,
+  });
 
   const handleArticleClick = (article: { businessId: string }) => {
     navigate(`/articles/${article.businessId}`);
