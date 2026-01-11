@@ -1,22 +1,31 @@
 package com.aiportfolio.backend.infrastructure.web.controller;
 
 import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;
+import com.aiportfolio.backend.infrastructure.web.dto.article.ArticleSummary;
 import com.aiportfolio.backend.infrastructure.web.dto.project.ProjectDataResponse;
+import com.aiportfolio.backend.domain.article.filter.ArticleFilter;
+import com.aiportfolio.backend.domain.article.model.Article;
+import com.aiportfolio.backend.domain.article.port.in.GetArticleUseCase;
 import com.aiportfolio.backend.domain.portfolio.model.Certification;
 import com.aiportfolio.backend.domain.portfolio.model.Education;
 import com.aiportfolio.backend.domain.portfolio.model.Experience;
 import com.aiportfolio.backend.domain.portfolio.model.Project;
 import com.aiportfolio.backend.domain.portfolio.port.in.GetProjectsUseCase;
 import com.aiportfolio.backend.domain.portfolio.port.in.GetAllDataUseCase;
+import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.ProjectJpaRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 데이터 웹 컨트롤러 (헥사고날 아키텍처 Infrastructure/Web Layer)
@@ -30,12 +39,18 @@ public class DataController {
     
     private final GetProjectsUseCase getProjectsUseCase;
     private final GetAllDataUseCase getAllDataUseCase;
+    private final GetArticleUseCase getArticleUseCase;
+    private final ProjectJpaRepository projectJpaRepository;
     
     public DataController(
             @Qualifier("portfolioService") GetProjectsUseCase getProjectsUseCase,
-            @Qualifier("portfolioApplicationService") GetAllDataUseCase getAllDataUseCase) {
+            @Qualifier("portfolioApplicationService") GetAllDataUseCase getAllDataUseCase,
+            GetArticleUseCase getArticleUseCase,
+            ProjectJpaRepository projectJpaRepository) {
         this.getProjectsUseCase = getProjectsUseCase;
         this.getAllDataUseCase = getAllDataUseCase;
+        this.getArticleUseCase = getArticleUseCase;
+        this.projectJpaRepository = projectJpaRepository;
     }
     
     @GetMapping("/all")
@@ -49,7 +64,11 @@ public class DataController {
             List<ProjectDataResponse> mappedProjects = projectList.stream()
                 .filter(Project.class::isInstance)
                 .map(Project.class::cast)
-                .map(ProjectDataResponse::from)
+                .map(project -> {
+                    // 각 프로젝트의 development-timeline Article 조회
+                    List<ArticleSummary> developmentTimelineArticles = getDevelopmentTimelineArticles(project);
+                    return ProjectDataResponse.from(project, developmentTimelineArticles);
+                })
                 .toList();
             responseData.put("projects", mappedProjects);
         }
@@ -62,9 +81,53 @@ public class DataController {
     public ResponseEntity<ApiResponse<List<ProjectDataResponse>>> getProjects() {
         List<Project> projects = getProjectsUseCase.getAllProjects();
         List<ProjectDataResponse> responses = projects.stream()
-            .map(ProjectDataResponse::from)
+            .map(project -> {
+                // 각 프로젝트의 development-timeline Article 조회
+                List<ArticleSummary> developmentTimelineArticles = getDevelopmentTimelineArticles(project);
+                return ProjectDataResponse.from(project, developmentTimelineArticles);
+            })
             .toList();
         return ResponseEntity.ok(ApiResponse.success(responses, "프로젝트 목록 조회 성공"));
+    }
+
+    /**
+     * 프로젝트의 development-timeline 타입 Article 조회 (최대 50개, 최신순)
+     */
+    private List<ArticleSummary> getDevelopmentTimelineArticles(Project project) {
+        // 프로젝트의 DB ID 조회
+        var projectEntity = projectJpaRepository.findByBusinessId(project.getId());
+        if (projectEntity.isEmpty()) {
+            return List.of();
+        }
+        
+        Long projectDbId = projectEntity.get().getId();
+        
+        // development-timeline 타입 Article 필터 생성
+        ArticleFilter filter = new ArticleFilter();
+        filter.setCategory("development-timeline");
+        filter.setProjectId(projectDbId);
+        
+        // 최신순 정렬, 최대 50개
+        Pageable pageable = PageRequest.of(0, 50, Sort.by(Sort.Direction.DESC, "publishedAt"));
+        
+        // Article 조회 및 ArticleSummary로 변환
+        return getArticleUseCase.findByFilter(filter, pageable)
+            .getContent()
+            .stream()
+            .map(this::toArticleSummary)
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Article을 ArticleSummary로 변환
+     */
+    private ArticleSummary toArticleSummary(Article article) {
+        return ArticleSummary.builder()
+            .businessId(article.getBusinessId())
+            .title(article.getTitle())
+            .summary(article.getSummary())
+            .publishedAt(article.getPublishedAt())
+            .build();
     }
     
     @GetMapping("/experiences")

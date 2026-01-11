@@ -77,6 +77,16 @@ cd backend
 
 > 📖 **상세 가이드**: `docs/technical/guides/identifier-usage-guide.md` 참조
 
+## ⚡ 성능 최적화
+
+성능 최적화 관련 가이드라인은 다음 문서를 참고하세요:
+
+- **성능 최적화 가이드**: `docs/technical/guides/backend/performance-optimization-guide.md`
+  - N+1 문제 방지
+  - 배치 조회 패턴
+  - 검색 쿼리 최적화
+  - 중복 코드 제거
+
 ## 🔗 관련 문서
 
 자세한 내용은 루트 `docs/` 폴더의 문서를 참고하세요.

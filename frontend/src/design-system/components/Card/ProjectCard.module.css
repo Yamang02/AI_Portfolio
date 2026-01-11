@@ -4,6 +4,7 @@
   overflow: hidden;
   height: 100%;
   transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+  background-color: var(--color-bg-article-light);
 }
 
 /* Card 컴포넌트의 기본 hover 효과 비활성화 */

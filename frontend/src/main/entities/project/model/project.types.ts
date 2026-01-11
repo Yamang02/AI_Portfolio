@@ -28,6 +28,7 @@ export interface BaseItem {
 // 프로젝트 인터페이스 (Main과 Admin 통합)
 export interface Project extends BaseItem {
   // 기본 정보
+  dbId?: number; // 데이터베이스 ID (관계 테이블에서 사용, Admin API에서 제공)
   githubUrl?: string;
   liveUrl?: string;
   readme: string;
@@ -49,9 +50,20 @@ export interface Project extends BaseItem {
   role?: string; // 내 역할(선택)
   screenshots?: string[] | ProjectScreenshot[]; // 추가 스크린샷 URL 배열
   
+  // development-timeline Article 정보
+  developmentTimelineArticles?: DevelopmentTimelineArticle[];
+  
   // 타임스탬프
   createdAt?: string;
   updatedAt?: string;
+}
+
+// development-timeline Article 요약 정보
+export interface DevelopmentTimelineArticle {
+  businessId: string;
+  title: string;
+  summary?: string;
+  publishedAt?: string;
 }
 
 // 프로젝트 스크린샷 인터페이스

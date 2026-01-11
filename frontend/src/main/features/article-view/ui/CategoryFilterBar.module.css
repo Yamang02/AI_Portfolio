@@ -1,0 +1,23 @@
+.filterBar {
+  background-color: var(--color-bg-secondary);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-4);
+  border: 1px solid var(--color-border-default);
+}
+
+.title {
+  margin-bottom: var(--spacing-4);
+  font-size: var(--font-size-lg);
+}
+
+.categories {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.categoryBadge {
+  width: 100%;
+  justify-content: space-between;
+  text-align: left;
+}

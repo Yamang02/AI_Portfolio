@@ -145,6 +145,8 @@ export const lightModeSemantic = {
     primary: 'var(--color-bg-primary)',
     secondary: 'var(--color-bg-secondary)',
     tertiary: 'var(--color-bg-tertiary)',
+    article: 'var(--color-bg-article)',
+    articleLight: 'var(--color-bg-article-light)',
   },
   // Text
   text: {
@@ -183,6 +185,8 @@ export const darkModeSemantic = {
     primary: 'var(--color-bg-primary)',
     secondary: 'var(--color-bg-secondary)',
     tertiary: 'var(--color-bg-tertiary)',
+    article: 'var(--color-bg-article)',
+    articleLight: 'var(--color-bg-article-light)',
   },
   // Text
   text: {

@@ -16,7 +16,15 @@ import java.util.List;
 @AllArgsConstructor
 public class Project {
     
+    /**
+     * 비즈니스 ID (prj-001, prj-002 등)
+     */
     private String id;
+    
+    /**
+     * 데이터베이스 ID (Long, 자동 증가)
+     */
+    private Long dbId;
     private String title;
     private String description;
     

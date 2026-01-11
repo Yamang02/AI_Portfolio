@@ -14,11 +14,14 @@ import { TechStackManagement } from '../pages/TechStackManagement';
 import { CareerManagement } from '../pages/CareerManagement';
 import { CertificationManagement } from '../pages/CertificationManagement';
 import { Settings } from '../pages/Settings';
+import { ProfileIntroductionManagement } from '../pages/ProfileIntroductionManagement';
+import { ArticleManagement } from '../pages/ArticleManagement';
+import { ArticleEdit } from '../pages/ArticleEdit';
 import { adminTheme } from '../shared/theme/antdTheme';
 
 const AdminApp: React.FC = () => {
   // Admin 전용 Antd 테마 적용
-  // 디자인시스템의 CSS 변수를 참조하여 Main 영역과 색상 체계 통일
+  // Admin은 독립적인 디자인 체계를 사용합니다
 
   return (
     <ConfigProvider theme={adminTheme}>
@@ -49,6 +52,10 @@ const AdminApp: React.FC = () => {
                   <Route path="tech-stacks" element={<TechStackManagement />} />
                   <Route path="career" element={<CareerManagement />} />
                   <Route path="certifications" element={<CertificationManagement />} />
+                  <Route path="profile-introduction" element={<ProfileIntroductionManagement />} />
+                  <Route path="articles" element={<ArticleManagement />} />
+                  <Route path="articles/new" element={<ArticleEdit />} />
+                  <Route path="articles/:id" element={<ArticleEdit />} />
                   <Route path="settings" element={<Settings />} />
                 </Route>
               </Routes>

@@ -41,7 +41,8 @@ public class ExperienceMapper {
         }
         
         return Experience.builder()
-                .id(jpaEntity.getBusinessId()) // business_id → domain.id
+                .id(jpaEntity.getBusinessId()) // business_id → domain.id (비즈니스 ID)
+                .dbId(jpaEntity.getId()) // id → domain.dbId (DB ID)
                 .title(jpaEntity.getTitle())
                 .description(jpaEntity.getDescription())
                 .organization(jpaEntity.getOrganization())

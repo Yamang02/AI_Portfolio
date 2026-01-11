@@ -3,43 +3,45 @@ import { ThemeConfig } from 'antd';
 /**
  * Admin 전용 Ant Design 테마 설정
  *
- * 디자인시스템의 CSS 변수를 참조하여 Main 영역과 색상 체계를 통일합니다.
- * Admin은 Antd 컴포넌트를 사용하지만, 색상/간격/폰트는 디자인시스템을 따릅니다.
- *
- * @see frontend/src/design-system/tokens/cssVariables.css
+ * Admin은 독립적인 디자인 체계를 가집니다.
+ * Main 영역의 디자인시스템과 분리되어 관리 도구에 최적화된 색상과 스타일을 사용합니다.
  */
 export const adminTheme: ThemeConfig = {
   token: {
-    // 색상 (디자인시스템 CSS 변수 참조)
-    colorPrimary: '#3b82f6',        // --color-primary (파란색)
-    colorSuccess: '#10b981',        // --color-success (초록색)
-    colorWarning: '#f59e0b',        // --color-warning (주황색)
-    colorError: '#ef4444',          // --color-error (빨간색)
-    colorInfo: '#3b82f6',           // --color-info (파란색)
+    // 색상 (Admin 전용 색상 체계)
+    colorPrimary: '#1890ff',        // Antd 기본 파란색 (관리 도구에 적합)
+    colorSuccess: '#52c41a',        // 성공 (초록색)
+    colorWarning: '#faad14',        // 경고 (주황색)
+    colorError: '#ff4d4f',          // 에러 (빨간색)
+    colorInfo: '#1890ff',           // 정보 (파란색)
 
     // 배경색
-    colorBgContainer: '#ffffff',    // 컨테이너 배경 (밝은 테마)
-    colorBgLayout: '#f5f5f5',       // 레이아웃 배경
+    colorBgContainer: '#ffffff',    // 컨테이너 배경 (흰색)
+    colorBgLayout: '#f0f2f5',       // 레이아웃 배경 (밝은 회색)
 
     // 텍스트 색상
-    colorText: '#1a1a1a',           // 기본 텍스트 색상
-    colorTextSecondary: '#6b7280',  // 보조 텍스트 색상
-    colorTextTertiary: '#9ca3af',   // 3차 텍스트 색상
+    colorText: '#262626',           // 기본 텍스트 (어두운 회색)
+    colorTextSecondary: '#8c8c8c',  // 보조 텍스트 (중간 회색)
+    colorTextTertiary: '#bfbfbf',   // 3차 텍스트 (밝은 회색)
 
     // Border
-    colorBorder: '#e5e7eb',         // 기본 border
-    colorBorderSecondary: '#f3f4f6', // 2차 border
-    borderRadius: 8,                // border radius (8px)
+    colorBorder: '#d9d9d9',         // 기본 border (밝은 회색)
+    colorBorderSecondary: '#f0f0f0', // 2차 border (더 밝은 회색)
+    borderRadius: 6,                // border radius (6px)
 
     // 간격
+    paddingLG: 24,
+    paddingMD: 16,
+    paddingSM: 12,
+    paddingXS: 8,
+
+    // 폰트
     fontSize: 14,                   // 기본 폰트 크기
     fontSizeHeading1: 32,           // H1
     fontSizeHeading2: 24,           // H2
     fontSizeHeading3: 20,           // H3
     fontSizeHeading4: 16,           // H4
     fontSizeHeading5: 14,           // H5
-
-    // 폰트
     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
 
     // 그림자
@@ -58,10 +60,10 @@ export const adminTheme: ThemeConfig = {
 
     // Table
     Table: {
-      headerBg: '#f9fafb',          // 테이블 헤더 배경
-      headerColor: '#374151',       // 테이블 헤더 텍스트
-      rowHoverBg: '#f3f4f6',        // 행 hover 배경
-      borderColor: '#e5e7eb',       // 테이블 border
+      headerBg: '#fafafa',          // 테이블 헤더 배경
+      headerColor: '#262626',       // 테이블 헤더 텍스트
+      rowHoverBg: '#fafafa',        // 행 hover 배경
+      borderColor: '#f0f0f0',       // 테이블 border
       fontSize: 14,                 // 테이블 폰트 크기
     },
 

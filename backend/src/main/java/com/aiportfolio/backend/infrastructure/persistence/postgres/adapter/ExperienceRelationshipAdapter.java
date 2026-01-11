@@ -44,14 +44,14 @@ public class ExperienceRelationshipAdapter implements ExperienceRelationshipPort
     private final TechStackMetadataJpaRepository techStackMetadataJpaRepository;
 
     @Override
-    public void replaceTechStacks(String experienceBusinessId, List<TechStackRelation> relationships) {
-        log.debug("Replacing tech stacks for experience: {} (using merge strategy)", experienceBusinessId);
+    public void replaceTechStacks(Long experienceId, List<TechStackRelation> relationships) {
+        log.debug("Replacing tech stacks for experience: {} (using merge strategy)", experienceId);
 
-        ExperienceJpaEntity experience = experienceJpaRepository.findByBusinessId(experienceBusinessId)
-                .orElseThrow(() -> new IllegalArgumentException("Experience not found: " + experienceBusinessId));
+        ExperienceJpaEntity experience = experienceJpaRepository.findById(experienceId)
+                .orElseThrow(() -> new IllegalArgumentException("Experience not found: " + experienceId));
 
         List<ExperienceTechStackJpaEntity> existingRelations =
-                experienceTechStackJpaRepository.findByExperienceId(experience.getId());
+                experienceTechStackJpaRepository.findByExperienceId(experienceId);
         log.debug("Found {} existing tech stack relationships", existingRelations.size());
 
         Set<Long> requestedIds = (relationships == null || relationships.isEmpty())
@@ -104,37 +104,33 @@ public class ExperienceRelationshipAdapter implements ExperienceRelationshipPort
         }
 
         log.debug("Successfully replaced tech stacks for experience: {} (deleted: {}, added: {})",
-                experienceBusinessId, toDelete.size(), toAdd.size());
+                experienceId, toDelete.size(), toAdd.size());
     }
 
     @Override
-    public void replaceProjects(String experienceBusinessId, List<ProjectRelation> relationships) {
-        log.debug("Replacing projects for experience: {} (using merge strategy)", experienceBusinessId);
+    public void replaceProjects(Long experienceId, List<ProjectRelation> relationships) {
+        log.debug("Replacing projects for experience: {} (using merge strategy)", experienceId);
 
-        ExperienceJpaEntity experience = experienceJpaRepository.findByBusinessId(experienceBusinessId)
-                .orElseThrow(() -> new IllegalArgumentException("Experience not found: " + experienceBusinessId));
+        ExperienceJpaEntity experience = experienceJpaRepository.findById(experienceId)
+                .orElseThrow(() -> new IllegalArgumentException("Experience not found: " + experienceId));
 
         // 1. 기존 관계 조회
         List<ExperienceProjectJpaEntity> existingRelations =
-                experienceProjectJpaRepository.findByExperienceId(experience.getId());
+                experienceProjectJpaRepository.findByExperienceId(experienceId);
         log.debug("Found {} existing project relationships", existingRelations.size());
 
-        // 2. 요청된 project_business_id 집합
-        Set<String> requestedBusinessIds = (relationships == null || relationships.isEmpty())
+        // 2. 요청된 project_id 집합
+        Set<Long> requestedProjectIds = (relationships == null || relationships.isEmpty())
                 ? Collections.emptySet()
                 : relationships.stream()
-                        .map(ProjectRelation::projectBusinessId)
+                        .map(ProjectRelation::projectDbId)
                         .filter(Objects::nonNull)
-                        .filter(id -> !id.isBlank())
                         .collect(Collectors.toSet());
-        log.debug("Requested project business IDs: {}", requestedBusinessIds);
+        log.debug("Requested project IDs: {}", requestedProjectIds);
 
         // 3. 기존 관계 중 삭제할 것들 (요청에 없는 것들)
         List<ExperienceProjectJpaEntity> toDelete = existingRelations.stream()
-                .filter(existing -> {
-                    String existingBusinessId = existing.getProject().getBusinessId();
-                    return !requestedBusinessIds.contains(existingBusinessId);
-                })
+                .filter(existing -> !requestedProjectIds.contains(existing.getProject().getId()))
                 .collect(Collectors.toList());
 
         if (!toDelete.isEmpty()) {
@@ -144,9 +140,9 @@ public class ExperienceRelationshipAdapter implements ExperienceRelationshipPort
             experienceProjectJpaRepository.flush();
         }
 
-        // 4. 기존에 있던 project_business_id 집합
-        Set<String> existingBusinessIds = existingRelations.stream()
-                .map(existing -> existing.getProject().getBusinessId())
+        // 4. 기존에 있던 project_id 집합
+        Set<Long> existingProjectIds = existingRelations.stream()
+                .map(existing -> existing.getProject().getId())
                 .collect(Collectors.toSet());
 
         // 5. 새로 추가할 관계들 (기존에 없는 것들)
@@ -154,10 +150,8 @@ public class ExperienceRelationshipAdapter implements ExperienceRelationshipPort
                 ? Collections.emptyList()
                 : relationships.stream()
                         .filter(rel -> {
-                            String projectBusinessId = rel.projectBusinessId();
-                            return projectBusinessId != null
-                                    && !projectBusinessId.isBlank()
-                                    && !existingBusinessIds.contains(projectBusinessId);
+                            Long projectDbId = rel.projectDbId();
+                            return projectDbId != null && !existingProjectIds.contains(projectDbId);
                         })
                         .collect(Collectors.toList());
 
@@ -165,12 +159,12 @@ public class ExperienceRelationshipAdapter implements ExperienceRelationshipPort
         if (!toAdd.isEmpty()) {
             log.debug("Adding {} new project relationships", toAdd.size());
             for (ProjectRelation item : toAdd) {
-                if (item.projectBusinessId() == null || item.projectBusinessId().isBlank()) {
-                    throw new IllegalArgumentException("Project business ID must not be blank");
+                if (item.projectDbId() == null) {
+                    throw new IllegalArgumentException("Project DB ID must not be null");
                 }
 
-                ProjectJpaEntity project = projectJpaRepository.findByBusinessId(item.projectBusinessId())
-                        .orElseThrow(() -> new IllegalArgumentException("Project not found: " + item.projectBusinessId()));
+                ProjectJpaEntity project = projectJpaRepository.findById(item.projectDbId())
+                        .orElseThrow(() -> new IllegalArgumentException("Project not found: " + item.projectDbId()));
 
                 ExperienceProjectJpaEntity relation = ExperienceProjectJpaEntity.builder()
                         .experience(experience)
@@ -184,6 +178,6 @@ public class ExperienceRelationshipAdapter implements ExperienceRelationshipPort
         }
 
         log.debug("Successfully replaced projects for experience: {} (deleted: {}, added: {})",
-                experienceBusinessId, toDelete.size(), toAdd.size());
+                experienceId, toDelete.size(), toAdd.size());
     }
 }

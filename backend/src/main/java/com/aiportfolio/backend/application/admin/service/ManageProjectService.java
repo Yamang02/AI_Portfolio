@@ -14,6 +14,8 @@ import com.aiportfolio.backend.domain.portfolio.model.Project;
 import com.aiportfolio.backend.domain.portfolio.port.out.PortfolioRepositoryPort;
 import com.aiportfolio.backend.domain.portfolio.port.out.ProjectRelationshipPort;
 import com.aiportfolio.backend.domain.portfolio.port.out.TechStackMetadataRepositoryPort;
+import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.ProjectJpaEntity;
+import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.ProjectJpaRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -40,6 +42,7 @@ public class ManageProjectService implements ManageProjectUseCase {
     private final ProjectResponseMapper projectResponseMapper;
     private final ImageStoragePort imageStoragePort;
     private final TechStackMetadataRepositoryPort techStackMetadataRepositoryPort;
+    private final ProjectJpaRepository projectJpaRepository;
 
     /**
      * 관계 포함 프로젝트 생성 (DTO 반환)
@@ -49,11 +52,13 @@ public class ManageProjectService implements ManageProjectUseCase {
             List<Long> techStackIds) {
         Project created = createProject(command);
         if (techStackIds != null && !techStackIds.isEmpty()) {
+            ProjectJpaEntity projectEntity = projectJpaRepository.findByBusinessId(created.getId())
+                    .orElseThrow(() -> new IllegalArgumentException("Project not found: " + created.getId()));
             List<TechStackRelation> techStacks = toTechStackRelations(techStackIds);
             List<ProjectRelationshipPort.TechStackRelation> portRelations = techStacks.stream()
                     .map(TechStackRelation::toPortRelation)
                     .collect(java.util.stream.Collectors.toList());
-            projectRelationshipPort.replaceTechStacks(created.getId(), portRelations);
+            projectRelationshipPort.replaceTechStacks(projectEntity.getId(), portRelations);
         }
         return projectResponseMapper.toDetailedResponse(created);
     }
@@ -67,11 +72,13 @@ public class ManageProjectService implements ManageProjectUseCase {
             List<Long> techStackIds) {
         Project updated = updateProject(id, command);
         if (techStackIds != null) {
+            ProjectJpaEntity projectEntity = projectJpaRepository.findByBusinessId(updated.getId())
+                    .orElseThrow(() -> new IllegalArgumentException("Project not found: " + updated.getId()));
             List<TechStackRelation> techStacks = toTechStackRelations(techStackIds);
             List<ProjectRelationshipPort.TechStackRelation> portRelations = techStacks.stream()
                     .map(TechStackRelation::toPortRelation)
                     .collect(java.util.stream.Collectors.toList());
-            projectRelationshipPort.replaceTechStacks(updated.getId(), portRelations);
+            projectRelationshipPort.replaceTechStacks(projectEntity.getId(), portRelations);
         }
         return projectResponseMapper.toDetailedResponse(updated);
     }
@@ -276,10 +283,12 @@ public class ManageProjectService implements ManageProjectUseCase {
      * Port를 통한 관계 관리로 변경
      */
     private void replaceTechStacks(String projectBusinessId, List<TechStackRelation> relationships) {
+        ProjectJpaEntity project = projectJpaRepository.findByBusinessId(projectBusinessId)
+                .orElseThrow(() -> new IllegalArgumentException("Project not found: " + projectBusinessId));
         List<ProjectRelationshipPort.TechStackRelation> portRelations = relationships.stream()
                 .map(TechStackRelation::toPortRelation)
                 .collect(java.util.stream.Collectors.toList());
-        projectRelationshipPort.replaceTechStacks(projectBusinessId, portRelations);
+        projectRelationshipPort.replaceTechStacks(project.getId(), portRelations);
     }
 
     /**

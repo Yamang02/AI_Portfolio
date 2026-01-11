@@ -54,9 +54,27 @@ Admin 기능이 늘어나도 일관된 방식으로 빠르게 확장할 수 있�
 
 ---
 
+## Phase 2.5: 시리즈 메타데이터 관리 (선택적)
+
+### Goal
+아티클 시리즈의 메타데이터(제목, 설명, 썸네일)를 관리할 수 있는 기능을 추가합니다.
+
+### Deliverables
+- ArticleSeries 도메인 (Backend)
+- 시리즈 생성/검색 API
+- Frontend 시리즈 검색/생성 UI
+- ~~별도 시리즈 관리 페이지~~ (향후 구현 예정)
+
+### 구현 상태
+- ✅ Backend: 시리즈 생성/검색 기능 구현 완료
+- ✅ Frontend: 시리즈 검색/생성 UI 구현 완료
+- 🚧 진행 중: 별도 시리즈 관리 페이지 구현
+
+---
+
 ## Status
 
-**Current Phase**: Planning
+**Current Phase**: Phase 2.5 진행 중
 **Branch**: `epic/profile_article`
 **Start Date**: 2025-01-09
 
@@ -116,5 +134,29 @@ Admin 기능이 늘어나도 일관된 방식으로 빠르게 확장할 수 있�
 
 ---
 
+## 변경 이력
+
+### v1.6 (2025-01-XX) - Article 통계 및 UI 개선
+- 추가: ArticleStatistics 기능 - 카테고리별/프로젝트별/시리즈별 통계 조회
+- 추가: FeaturedArticleCard 컴포넌트 - 추천 아티클 카드 UI
+- 추가: FeaturedArticleCarousel 컴포넌트 - 추천 아티클 캐러셀 UI
+- 개선: ArticleListPage - 통계 정보 표시 및 UI/UX 개선
+- 개선: ArticleTable - 테이블 레이아웃 및 반응형 디자인 개선
+- 개선: Admin API 클라이언트 리팩토링
+
+### v1.5 (2025-01-XX) - Phase 2.5 진행 중
+- 추가: Phase 2.5 섹션 - 시리즈 메타데이터 관리 기능
+- 추가: Backend 시리즈 생성/검색 API 구현
+- 추가: Frontend 시리즈 검색/생성 UI 구현
+- 진행 중: 별도 시리즈 관리 페이지 구현
+- 업데이트: Status - Phase 2.5 진행 중으로 변경
+
+### v1.0 (2025-01-09) - 초기 버전
+- 문서 최초 작성
+- Phase 0, 1, 2 설계 포함
+
+---
+
 **작성일**: 2025-01-09
+**최종 수정일**: 2025-01-XX
 **작성자**: AI Agent (Claude)

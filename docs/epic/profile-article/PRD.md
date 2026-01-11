@@ -1277,6 +1277,7 @@ DELETE /api/admin/article-series/:seriesId  (시리즈 삭제)
 ```
 GET    /api/articles                          (목록 조회, 발행된 것만)
 GET    /api/articles/:businessId               (상세 조회, businessId 사용)
+GET    /api/articles/statistics               (통계 조회)
 GET    /api/projects/:businessId/articles     (프로젝트 연관 게시글, 프로젝트 businessId 사용)
 ```
 
@@ -1415,6 +1416,36 @@ GET    /api/projects/:businessId/articles     (프로젝트 연관 게시글, �
 }
 ```
 
+**통계 조회 (`GET /api/articles/statistics`):**
+- **목적**: 아티클 통계 정보 조회 (카테고리별, 프로젝트별, 시리즈별)
+- **Response:**
+```json
+{
+  "categories": {
+    "tutorial": 10,
+    "troubleshooting": 5,
+    "architecture": 3,
+    "insight": 8,
+    "development-timeline": 4
+  },
+  "projects": [
+    {
+      "projectId": "proj-001",
+      "projectBusinessId": "proj-001",
+      "projectTitle": "AI Portfolio",
+      "count": 5
+    }
+  ],
+  "series": [
+    {
+      "seriesId": "article-series-001",
+      "seriesTitle": "React 완전 정복",
+      "count": 3
+    }
+  ]
+}
+```
+
 **참고:**
 - Public API는 `status='published'`인 게시글만 반환
 - 목록 조회: `projectId`만 포함 (성능 최적화)
@@ -1422,6 +1453,7 @@ GET    /api/projects/:businessId/articles     (프로젝트 연관 게시글, �
 - 이미지: 마크다운 콘텐츠 내에 이미지 URL 포함 (`![alt](url)` 형식)
 - 추천 아티클: `is_featured=true` AND `status='published'` 조건
 - 시리즈: `series_id IS NOT NULL` AND `status='published'` 조건, `series_order`로 정렬
+- 통계: 발행된 아티클(`status='published'`)만 집계
 
 ---
 
@@ -1647,6 +1679,53 @@ GET    /api/projects/:businessId/articles     (프로젝트 연관 게시글, �
 
 ---
 
+## 변경 이력
+
+### v1.6 (2025-01-XX) - Article 통계 및 UI 개선
+- 추가: ArticleStatistics 도메인 모델 및 통계 조회 기능
+  - Backend: `GetArticleStatisticsService`, `ArticleStatistics` 모델 추가
+  - 카테고리별, 프로젝트별, 시리즈별 통계 제공
+  - Public API: `GET /api/articles/statistics` 엔드포인트 추가
+- 추가: FeaturedArticleCard 컴포넌트 (`@/design-system/components/Card/FeaturedArticleCard`)
+  - 추천 아티클 표시용 간소화 카드 컴포넌트
+  - 카테고리 배지, 시리즈 배지, 추천 배지 표시
+- 추가: FeaturedArticleCarousel 컴포넌트
+  - 추천 아티클 가로 스크롤 캐러셀 UI
+  - ArticleListPage에 통합
+- 개선: ArticleListPage UI/UX 개선
+  - 필터/검색 기능 개선
+  - 통계 정보 표시
+  - FeaturedArticleCarousel 통합
+- 개선: ArticleTable 컴포넌트
+  - 테이블 레이아웃 및 스타일 개선
+  - 반응형 디자인 개선
+- 개선: ArticleControlPanel 및 ArticleFilterBar
+  - 필터 UI 개선
+  - 통계 정보 표시 기능 추가
+- 개선: Frontend Article API
+  - `articleApi.getStatistics()` 메서드 추가
+  - `useArticleStatisticsQuery` 훅 추가
+- 개선: Admin API 클라이언트 리팩토링
+  - 코드 중복 제거 및 구조 개선
+
+### v1.5 (2025-01-XX) - Phase 2.5 진행 중
+- 추가: [시리즈 메타데이터 관리](#시리즈-메타데이터-테이블-활용) - Backend 시리즈 생성/검색 API 구현
+- 추가: `articles` 테이블에 `featured_sort_order` 필드 추가 (V005 마이그레이션)
+- 추가: `article_series` 테이블 생성 및 시리즈 도메인 모델 구현
+- 추가: Backend `ManageArticleSeriesService` - 시리즈 생성 기능
+- 추가: Backend `ArticleSeriesSearchService` - 시리즈 검색 기능
+- 추가: Admin API 시리즈 검색/생성 엔드포인트 (`GET /api/admin/articles/series/search`, `POST /api/admin/articles/series`)
+- 추가: Frontend `adminArticleApi.searchSeries()`, `adminArticleApi.createSeries()` 메서드
+- 추가: Frontend `SeriesSearchSelect` 컴포넌트 (시리즈 검색/생성 UI)
+- 업데이트: [Article API Specification](#2-article-api) - 시리즈 관련 API 엔드포인트 추가
+- 진행 중: 별도 시리즈 관리 페이지(`ArticleSeriesManagement.tsx`) 구현
+
+### v1.0 (2025-01-09) - 초기 버전
+- 문서 최초 작성
+- Phase 0, 1, 2 설계 포함
+
+---
+
 **작성일**: 2025-01-09
 **작성자**: AI Agent (Claude)
-**버전**: 1.0
+**버전**: 1.6

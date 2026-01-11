@@ -22,7 +22,7 @@ public class ProjectResponseMapper {
      */
     public ProjectResponse toResponse(Project project) {
         return ProjectResponse.builder()
-                .id(project.getId())
+                .id(project.getId()) // 비즈니스 ID
                 .title(project.getTitle())
                 .description(project.getDescription())
                 .readme(project.getReadme())
@@ -107,7 +107,7 @@ public class ProjectResponseMapper {
                 List.of();
         
         return ProjectResponse.builder()
-                .id(project.getId())
+                .id(project.getId()) // 비즈니스 ID
                 .title(project.getTitle())
                 .description(project.getDescription())
                 .readme(project.getReadme())

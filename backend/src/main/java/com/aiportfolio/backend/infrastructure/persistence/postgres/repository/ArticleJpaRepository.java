@@ -1,0 +1,72 @@
+package com.aiportfolio.backend.infrastructure.persistence.postgres.repository;
+
+import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.ArticleJpaEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import java.util.List;
+import java.util.Optional;
+
+public interface ArticleJpaRepository extends JpaRepository<ArticleJpaEntity, Long>, JpaSpecificationExecutor<ArticleJpaEntity> {
+
+    Optional<ArticleJpaEntity> findByBusinessId(String businessId);
+
+    @Modifying
+    @Query("UPDATE ArticleJpaEntity a SET a.viewCount = a.viewCount + 1 WHERE a.id = :id")
+    void incrementViewCount(@Param("id") Long id);
+
+    @Query("SELECT MAX(CAST(SUBSTRING(a.businessId, 9) AS integer)) FROM ArticleJpaEntity a WHERE a.businessId LIKE 'article-%'")
+    Integer findMaxBusinessIdNumber();
+    
+    /**
+     * 같은 시리즈의 최대 series_order 조회
+     */
+    @Query("SELECT MAX(a.seriesOrder) FROM ArticleJpaEntity a WHERE a.seriesId = :seriesId")
+    Integer findMaxSeriesOrderBySeriesId(@Param("seriesId") String seriesId);
+    
+    /**
+     * 같은 시리즈의 특정 순서보다 큰 순서를 가진 아티클들의 순서를 1씩 감소
+     * (아티클 삭제 시 시리즈 순서 재정렬용)
+     */
+    @Modifying
+    @Query("UPDATE ArticleJpaEntity a SET a.seriesOrder = a.seriesOrder - 1 WHERE a.seriesId = :seriesId AND a.seriesOrder > :deletedOrder")
+    void decreaseSeriesOrderAfter(@Param("seriesId") String seriesId, @Param("deletedOrder") Integer deletedOrder);
+
+    /**
+     * 카테고리별 아티클 개수 조회 (발행된 것만)
+     */
+    @Query("SELECT a.category, COUNT(a) FROM ArticleJpaEntity a WHERE a.status = 'published' AND a.category IS NOT NULL GROUP BY a.category")
+    List<Object[]> countByCategory();
+
+    /**
+     * 프로젝트별 아티클 개수 조회 (발행된 것만, 실제 연결된 프로젝트만)
+     */
+    @Query("SELECT a.projectId, COUNT(a) FROM ArticleJpaEntity a WHERE a.status = 'published' AND a.projectId IS NOT NULL GROUP BY a.projectId")
+    List<Object[]> countByProjectId();
+
+    /**
+     * 시리즈별 아티클 개수 조회 (발행된 것만)
+     */
+    @Query("SELECT a.seriesId, COUNT(a) FROM ArticleJpaEntity a WHERE a.status = 'published' AND a.seriesId IS NOT NULL GROUP BY a.seriesId")
+    List<Object[]> countBySeriesId();
+
+    /**
+     * 이전 아티클 조회 (publishedAt 기준, 발행된 것만)
+     * 현재 아티클보다 이전에 발행된 아티클 중 가장 최근 것
+     */
+    @Query("SELECT a FROM ArticleJpaEntity a WHERE a.status = 'published' AND a.publishedAt < :publishedAt ORDER BY a.publishedAt DESC")
+    Page<ArticleJpaEntity> findPreviousArticle(@Param("publishedAt") java.time.LocalDateTime publishedAt, Pageable pageable);
+
+    /**
+     * 다음 아티클 조회 (publishedAt 기준, 발행된 것만)
+     * 현재 아티클보다 나중에 발행된 아티클 중 가장 오래된 것
+     */
+    @Query("SELECT a FROM ArticleJpaEntity a WHERE a.status = 'published' AND a.publishedAt > :publishedAt ORDER BY a.publishedAt ASC")
+    Page<ArticleJpaEntity> findNextArticle(@Param("publishedAt") java.time.LocalDateTime publishedAt, Pageable pageable);
+}

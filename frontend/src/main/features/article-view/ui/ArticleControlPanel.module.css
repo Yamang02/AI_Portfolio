@@ -1,0 +1,145 @@
+.controlPanel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--spacing-4);
+  padding: var(--spacing-4);
+  background-color: var(--color-bg-secondary);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--color-border-default);
+  margin-bottom: var(--spacing-4);
+}
+
+.leftControls {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  flex: 1;
+}
+
+.searchContainer {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  flex: 1;
+  max-width: 400px;
+}
+
+.searchInput {
+  flex: 1;
+}
+
+/* 검색 인풋을 아이콘 버튼과 같은 높이로 맞추기 */
+.searchInput :global(input) {
+  height: 2rem; /* 아이콘 버튼과 동일한 높이 */
+  min-height: 2rem;
+  line-height: 1.5;
+}
+
+.searchButton {
+  flex-shrink: 0;
+}
+
+.rightControls {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+}
+
+.divider {
+  width: 1px;
+  height: 24px;
+  background-color: var(--color-border-default);
+  flex-shrink: 0;
+}
+
+.sortContainer {
+  position: relative;
+}
+
+.sortButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sortMenu {
+  position: absolute;
+  top: calc(100% + var(--spacing-2));
+  right: 0;
+  background-color: var(--color-bg-primary);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--border-radius-md);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  min-width: 180px;
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.sortMenuItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: var(--spacing-3) var(--spacing-4);
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  color: var(--color-text-primary);
+  font-size: var(--font-size-sm);
+  transition: background-color 0.2s;
+  gap: var(--spacing-2);
+}
+
+.sortMenuItem:hover {
+  background-color: var(--color-bg-secondary);
+}
+
+.sortMenuItem.active {
+  background-color: var(--color-bg-secondary);
+  color: var(--color-primary);
+  font-weight: 500;
+}
+
+.sortMenuItem svg {
+  flex-shrink: 0;
+}
+
+.viewToggle {
+  display: flex;
+  gap: var(--spacing-2);
+}
+
+.viewButtonActive {
+  background-color: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+  color: var(--color-button-text) !important;
+}
+
+.viewToggle svg {
+  display: block;
+  margin: 0;
+  flex-shrink: 0;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+  .controlPanel {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .leftControls,
+  .rightControls {
+    width: 100%;
+  }
+
+  .searchContainer {
+    max-width: none;
+  }
+
+  .rightControls {
+    justify-content: space-between;
+  }
+}

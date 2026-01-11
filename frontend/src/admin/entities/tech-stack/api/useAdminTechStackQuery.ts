@@ -6,9 +6,11 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { adminTechStackApi } from './adminTechStackApi';
 import { STALE_TIME } from '@/shared/config/queryCacheConfig';
 import type {
-  TechStackFormData
+  TechStackFormData,
+  TechStackMetadata
 } from '../model/techStack.types';
 import { queryClient as mainQueryClient } from '@/main/app/config/queryClient';
+import { useDebounce } from '@/shared/hooks';
 
 // 기술 스택 목록 조회
 export const useAdminTechStacksQuery = () => {
@@ -83,5 +85,26 @@ export const useUpdateSortOrderMutation = () => {
       // 메인 페이지 캐시도 무효화
       mainQueryClient.invalidateQueries({ queryKey: ['techStacks'] });
     },
+  });
+};
+
+/**
+ * 기술 스택 검색 훅 (디바운싱 적용)
+ * @param searchTerm - 검색어
+ * @param debounceDelay - 디바운싱 지연 시간 (밀리초, 기본값: 300ms)
+ * @param enabled - 쿼리 활성화 여부 (기본값: true)
+ */
+export const useSearchTechStacksQuery = (
+  searchTerm: string,
+  debounceDelay: number = 300,
+  enabled: boolean = true
+) => {
+  const debouncedSearchTerm = useDebounce(searchTerm, debounceDelay);
+
+  return useQuery({
+    queryKey: ['admin-tech-stacks-search', debouncedSearchTerm],
+    queryFn: () => adminTechStackApi.searchTechStacks(debouncedSearchTerm),
+    enabled: enabled && debouncedSearchTerm.length > 0,
+    staleTime: STALE_TIME.SHORT,
   });
 };

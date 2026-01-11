@@ -1,0 +1,28 @@
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: currentColor;
+}
+
+.svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Size variants */
+.sm {
+  width: 14px;
+  height: 14px;
+}
+
+.md {
+  width: 16px;
+  height: 16px;
+}
+
+.lg {
+  width: 20px;
+  height: 20px;
+}

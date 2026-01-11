@@ -13,18 +13,18 @@ public interface ExperienceRelationshipPort {
     /**
      * Experience-TechStack 관계를 교체 (머지 전략)
      *
-     * @param experienceBusinessId Experience Business ID
+     * @param experienceId Experience DB ID
      * @param relationships TechStack 관계 리스트
      */
-    void replaceTechStacks(String experienceBusinessId, List<TechStackRelation> relationships);
+    void replaceTechStacks(Long experienceId, List<TechStackRelation> relationships);
 
     /**
      * Experience-Project 관계를 교체 (머지 전략)
      *
-     * @param experienceBusinessId Experience Business ID
+     * @param experienceId Experience DB ID
      * @param relationships Project 관계 리스트
      */
-    void replaceProjects(String experienceBusinessId, List<ProjectRelation> relationships);
+    void replaceProjects(Long experienceId, List<ProjectRelation> relationships);
 
     /**
      * 기술 스택 관계를 표현하는 record
@@ -33,6 +33,7 @@ public interface ExperienceRelationshipPort {
 
     /**
      * 프로젝트 관계를 표현하는 record
+     * @param projectDbId 프로젝트 DB ID (Long, 비즈니스 ID 아님)
      */
-    record ProjectRelation(String projectBusinessId, String roleInProject, String contributionDescription) {}
+    record ProjectRelation(Long projectDbId, String roleInProject, String contributionDescription) {}
 }

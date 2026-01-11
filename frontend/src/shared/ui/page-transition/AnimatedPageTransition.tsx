@@ -17,20 +17,30 @@ export const AnimatedPageTransition: React.FC<AnimatedPageTransitionProps> = ({
 }) => {
   const location = useLocation();
 
-  // 페이지 전환 시 스크롤 위치를 상단으로 복원
+  // 페이지 전환 시 스크롤 위치를 상단으로 복원 (애니메이션 완료 후)
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // 애니메이션 완료 후 스크롤 위치를 상단으로 복원
+    // animate transition duration (0.4s) + 약간의 여유 시간
+    const scrollTimer = setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 500);
+    
+    return () => {
+      clearTimeout(scrollTimer);
+    };
   }, [location.pathname]);
 
-  // 애니메이션 variants (좌우 슬라이드 효과)
+  // 애니메이션 variants (좌우 슬라이드 효과만)
   const pageVariants = {
     initial: {
       opacity: 1,
       x: '100%', // 오른쪽에서 시작
+      y: 0, // 수직 이동 방지
     },
     animate: {
       opacity: 1,
       x: 0, // 중앙으로 이동
+      y: 0, // 수직 이동 방지
       transition: {
         duration: 0.4,
         ease: [0.22, 1, 0.36, 1] as const, // 커스텀 이징 (부드러운 느낌)
@@ -39,6 +49,7 @@ export const AnimatedPageTransition: React.FC<AnimatedPageTransitionProps> = ({
     exit: {
       opacity: 1,
       x: '-100%', // 왼쪽으로 사라짐
+      y: 0, // 수직 이동 방지
       transition: {
         duration: 0.3,
         ease: [0.22, 1, 0.36, 1] as const,
@@ -111,9 +122,17 @@ export const AnimatedRoutes: React.FC<AnimatedRoutesProps> = ({
       containerRef.current.style.height = 'auto';
     }
     
-    // 스크롤 위치를 상단으로 복원 (홈페이지는 이미 조기 리턴으로 건너뜀)
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // 애니메이션 완료 후 스크롤 위치를 상단으로 복원
+    // animate transition duration (0.5s) + 약간의 여유 시간
+    const scrollTimer = setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 600);
+    
     prevPathnameRef.current = location.pathname;
+    
+    return () => {
+      clearTimeout(scrollTimer);
+    };
   }, [location.pathname]);
 
   // 페이지 높이를 추적하여 부모 컨테이너 높이 설정
@@ -237,15 +256,17 @@ export const AnimatedRoutes: React.FC<AnimatedRoutesProps> = ({
     };
   }, [location.pathname, isChatPage, isLoading, loadingStates]);
 
-  // 다른 페이지: 페이지 전환 애니메이션 적용
+  // 다른 페이지: 페이지 전환 애니메이션 적용 (좌우 전환만)
   const pageVariants = {
     initial: {
       opacity: 0,
-      x: '30%', // 오른쪽에서 등장
+      x: '100%', // 오른쪽에서 등장
+      y: 0, // 수직 이동 방지
     },
     animate: {
       opacity: 1,
       x: 0, // 중앙으로 이동
+      y: 0, // 수직 이동 방지
       transition: {
         duration: 0.5,
         ease: [0.4, 0, 0.2, 1] as const,
@@ -253,7 +274,8 @@ export const AnimatedRoutes: React.FC<AnimatedRoutesProps> = ({
     },
     exit: {
       opacity: 0,
-      x: '-30%', // 왼쪽으로 퇴장
+      x: '-100%', // 왼쪽으로 퇴장
+      y: 0, // 수직 이동 방지
       transition: {
         duration: 0.4,
         ease: [0.4, 0, 0.2, 1] as const,

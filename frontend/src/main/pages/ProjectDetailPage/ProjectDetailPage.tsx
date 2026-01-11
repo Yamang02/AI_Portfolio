@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useMemo } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useEffect, useRef, useMemo, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useProjectsQuery } from '../../entities/project/api/useProjectsQuery';
 import { SectionTitle } from '@design-system/components/SectionTitle';
 import { TextLink } from '@design-system/components/TextLink';
@@ -7,15 +7,20 @@ import { useTOCFromDOM } from '@/main/features/project-gallery/hooks';
 import type { TOCItem } from '@/main/features/project-gallery/hooks/types';
 import { MarkdownRenderer } from '@/shared/ui/markdown/MarkdownRenderer';
 import { TechStackList } from '@/shared/ui/tech-stack/TechStackList';
+import { SimpleArticleCard } from '@design-system/components/Card/SimpleArticleCard';
+import { Pagination } from '@design-system/components/Pagination';
 import type { Project } from '../../entities/project/model/project.types';
 import { ProjectDetailHeader } from '@design-system/components/ProjectDetailHeader';
 import { TableOfContents } from '@design-system/components/TableOfContents';
 import { ProjectNavigation } from '@design-system/components/ProjectNavigation';
 import { ProjectThumbnailCarousel } from '@design-system/components/Carousel';
+import { Skeleton } from '@design-system/components/Skeleton';
+import { EmptyCard } from '@design-system';
 import styles from './ProjectDetailPage.module.css';
 
 const ProjectDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const markdownContainerRef = useRef<HTMLElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -29,6 +34,44 @@ const ProjectDetailPage: React.FC = () => {
   }, [id, projects]);
 
   const readmeContent = project ? (project.readme || project.description || '') : '';
+
+  // development-timeline 타입 Article (프로젝트 데이터에서 가져옴)
+  const developmentTimelineArticles = useMemo(() => {
+    if (!project?.developmentTimelineArticles) return [];
+    // 이미 백엔드에서 최신순으로 정렬되어 있음
+    return project.developmentTimelineArticles;
+  }, [project]);
+
+  // 관련 아티클 페이지네이션 (5개씩 표시)
+  const ARTICLES_PER_PAGE = 5;
+  const [currentArticlePage, setCurrentArticlePage] = useState(1);
+  
+  // 현재 페이지에 표시할 아티클 계산
+  const paginatedArticles = useMemo(() => {
+    const startIndex = (currentArticlePage - 1) * ARTICLES_PER_PAGE;
+    const endIndex = startIndex + ARTICLES_PER_PAGE;
+    return developmentTimelineArticles.slice(startIndex, endIndex);
+  }, [developmentTimelineArticles, currentArticlePage]);
+  
+  // 전체 페이지 수 계산
+  const totalArticlePages = useMemo(() => {
+    return Math.ceil(developmentTimelineArticles.length / ARTICLES_PER_PAGE);
+  }, [developmentTimelineArticles.length]);
+  
+  // 프로젝트 변경 시 페이지를 1로 리셋
+  useEffect(() => {
+    setCurrentArticlePage(1);
+  }, [id]);
+  
+  // 페이지 변경 시 상단으로 스크롤
+  useEffect(() => {
+    if (currentArticlePage > 1) {
+      const sectionElement = document.getElementById('development-timeline');
+      if (sectionElement) {
+        sectionElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+  }, [currentArticlePage]);
 
   // TOC 생성 (전체 페이지 헤더 포함)
   // contentRef를 직접 사용 (containerSelector 없이)
@@ -58,6 +101,11 @@ const ProjectDetailPage: React.FC = () => {
       baseSections.push({ id: 'readme', text: '상세 설명', level: 2 });
     }
 
+    // development-timeline Article 섹션이 있으면 추가 (기술 스택 전에)
+    if (developmentTimelineArticles.length > 0) {
+      baseSections.push({ id: 'development-timeline', text: '관련 아티클', level: 2 });
+    }
+
     // 기술 스택 섹션이 있으면 추가
     if (project.technologies && project.technologies.length > 0) {
       baseSections.push({ id: 'tech-stack', text: '기술 스택', level: 2 });
@@ -79,47 +127,56 @@ const ProjectDetailPage: React.FC = () => {
     }
 
     return baseSections;
-  }, [domTocItems, project, readmeContent]);
+  }, [domTocItems, project, readmeContent, developmentTimelineArticles]);
 
   // 페이지 최상단으로 스크롤
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [id]);
 
-  // 로딩 상태
-  if (isLoading) {
-    return (
-      <div className={styles.container}>
-        <div className={styles.content}>
-          <div className={styles.loading}>로딩 중...</div>
-        </div>
-      </div>
-    );
-  }
-
-  // 에러 상태
-  if (!project) {
-    return (
-      <div className={styles.container}>
-        <div className={styles.content}>
-          <div className={styles.error}>
-            <h2>프로젝트를 찾을 수 없습니다</h2>
-            <p>요청한 프로젝트가 존재하지 않습니다.</p>
-            <TextLink href="/projects" className={styles.backLink}>
-              프로젝트 목록으로 돌아가기
-            </TextLink>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // 에러 상태 체크
+  const hasError = !isLoading && !project;
 
 
   return (
     <div className={styles.container}>
         <div ref={contentRef} className={styles.content}>
-        {/* 프로젝트 헤더 (고정 제거) */}
-        <ProjectDetailHeader project={project} />
+        {/* 로딩 상태: 구조를 유지하면서 Skeleton 표시 */}
+        {isLoading ? (
+          <>
+            <div style={{ marginBottom: 'var(--spacing-8)' }}>
+              <Skeleton variant="text" height="48px" width="70%" style={{ marginBottom: '16px' }} />
+              <Skeleton variant="text" height="24px" width="100%" style={{ marginBottom: '8px' }} />
+              <Skeleton variant="text" height="24px" width="90%" />
+            </div>
+            <section className={styles.section}>
+              <Skeleton variant="text" height="32px" width="60px" style={{ marginBottom: '16px' }} />
+              <Skeleton variant="text" height="20px" width="100%" style={{ marginBottom: '8px' }} />
+              <Skeleton variant="text" height="20px" width="100%" style={{ marginBottom: '8px' }} />
+              <Skeleton variant="text" height="20px" width="85%" />
+            </section>
+          </>
+        ) : hasError ? (
+          // 에러 상태: 구조를 유지하면서 메시지 표시
+          <>
+            <div style={{ marginBottom: 'var(--spacing-8)' }}>
+              <SectionTitle level="h1">
+                프로젝트를 찾을 수 없습니다
+              </SectionTitle>
+            </div>
+            <section className={styles.section}>
+              <EmptyCard message="요청한 프로젝트가 존재하지 않습니다." />
+              <div style={{ marginTop: 'var(--spacing-6)', textAlign: 'center' }}>
+                <TextLink href="/projects" className={styles.backLink}>
+                  프로젝트 목록으로 돌아가기
+                </TextLink>
+              </div>
+            </section>
+          </>
+        ) : (
+          <>
+            {/* 프로젝트 헤더 (고정 제거) */}
+            <ProjectDetailHeader project={project} />
 
         {/* TOC 섹션 (개요 전에 고정) */}
         {tocItems.length > 0 && (
@@ -170,6 +227,37 @@ const ProjectDetailPage: React.FC = () => {
           </section>
         )}
 
+        {/* development-timeline Article 섹션 (기술 스택 전에) */}
+        {developmentTimelineArticles.length > 0 && (
+          <section id="development-timeline" className={styles.section}>
+            <SectionTitle level="h2" id="development-timeline" className={styles.sectionTitle}>관련 아티클</SectionTitle>
+            <div className={styles.articlesList}>
+              {paginatedArticles.map((article) => (
+                <SimpleArticleCard
+                  key={article.businessId}
+                  article={{
+                    businessId: article.businessId,
+                    title: article.title,
+                    summary: article.summary,
+                    publishedAt: article.publishedAt,
+                  }}
+                  onClick={() => navigate(`/articles/${article.businessId}`)}
+                />
+              ))}
+            </div>
+            {totalArticlePages > 1 && (
+              <div className={styles.paginationWrapper}>
+                <Pagination
+                  currentPage={currentArticlePage}
+                  totalPages={totalArticlePages}
+                  onPageChange={setCurrentArticlePage}
+                  maxVisiblePages={5}
+                />
+              </div>
+            )}
+          </section>
+        )}
+
         {/* 기술 스택 섹션 */}
         {project.technologies && project.technologies.length > 0 && (
           <section id="tech-stack" className={styles.section}>
@@ -202,6 +290,8 @@ const ProjectDetailPage: React.FC = () => {
           }))}
           currentProjectId={project.id}
         />
+          </>
+        )}
         </div>
       </div>
   );

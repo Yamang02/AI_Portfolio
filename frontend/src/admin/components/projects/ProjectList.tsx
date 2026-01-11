@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Card,
   Table,
@@ -14,6 +14,8 @@ import {
   Popconfirm,
   Alert,
   Tooltip,
+  Empty,
+  Spin,
 } from 'antd';
 import {
   PlusOutlined,
@@ -150,9 +152,30 @@ const ProjectList: React.FC = () => {
   const navigate = useNavigate();
   const [filter, setFilter] = useState<ProjectFilter>({});
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  const { data: projects = [], isLoading, isError, error } = useProjects(filter);
+  const { data: projects = [], isLoading, isError, error, isFetching } = useProjects(filter);
   const deleteProjectMutation = useDeleteProject();
+
+  // API 호출 완료 후 높이 재계산
+  useEffect(() => {
+    if (!isLoading && !isFetching && containerRef.current) {
+      // 높이 재계산을 위한 강제 리플로우
+      const height = containerRef.current.offsetHeight;
+      // 브라우저에 레이아웃 재계산 요청
+      window.requestAnimationFrame(() => {
+        if (containerRef.current) {
+          containerRef.current.style.minHeight = `${height}px`;
+          // 다음 프레임에서 원래대로 복원
+          window.requestAnimationFrame(() => {
+            if (containerRef.current) {
+              containerRef.current.style.minHeight = '';
+            }
+          });
+        }
+      });
+    }
+  }, [isLoading, isFetching, projects]);
 
   const handleDelete = async (id: string) => {
     try {
@@ -267,8 +290,11 @@ const ProjectList: React.FC = () => {
     onChange: setSelectedRowKeys,
   };
 
+  // 빈 상태 체크
+  const isEmpty = !isLoading && !isFetching && !isError && projects.length === 0;
+
   return (
-    <div>
+    <div ref={containerRef}>
       {isError && (
         <Alert
           message="프로젝트 목록을 불러오지 못했습니다."
@@ -389,26 +415,52 @@ const ProjectList: React.FC = () => {
           </Row>
         </div>
 
-        <Table
-          columns={columns}
-          dataSource={projects}
-          rowKey="id"
-          loading={isLoading}
-          rowSelection={rowSelection}
-          onRow={(record) => ({
-            onClick: () => navigate(`/admin/projects/${record.id}`),
-            style: { cursor: 'pointer' },
-          })}
-          pagination={{
-            total: projects.length,
-            pageSize: 20,
-            showSizeChanger: true,
-            showQuickJumper: true,
-            showTotal: (total, range) =>
-              `${range[0]}-${range[1]} / ${total}개`,
-          }}
-          scroll={{ x: 1200 }}
-        />
+        {/* 로딩 상태 */}
+        {isLoading && projects.length === 0 && (
+          <div className="flex justify-center items-center" style={{ minHeight: '400px' }}>
+            <Spin size="large" tip="프로젝트 목록을 불러오는 중..." />
+          </div>
+        )}
+
+        {/* 빈 상태 */}
+        {isEmpty && (
+          <div className="flex justify-center items-center" style={{ minHeight: '400px' }}>
+            <Empty
+              image={Empty.PRESENTED_IMAGE_SIMPLE}
+              description={
+                <span style={{ color: '#999' }}>등록된 프로젝트가 없습니다</span>
+              }
+            >
+              <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/admin/projects/new')}>
+                첫 프로젝트 생성하기
+              </Button>
+            </Empty>
+          </div>
+        )}
+
+        {/* 데이터가 있을 때만 테이블 표시 */}
+        {!isEmpty && (
+          <Table
+            columns={columns}
+            dataSource={projects}
+            rowKey="id"
+            loading={isFetching}
+            rowSelection={rowSelection}
+            onRow={(record) => ({
+              onClick: () => navigate(`/admin/projects/${record.id}`),
+              style: { cursor: 'pointer' },
+            })}
+            pagination={{
+              total: projects.length,
+              pageSize: 20,
+              showSizeChanger: true,
+              showQuickJumper: true,
+              showTotal: (total, range) =>
+                `${range[0]}-${range[1]} / ${total}개`,
+            }}
+            scroll={{ x: 1200 }}
+          />
+        )}
       </Card>
     </div>
   );

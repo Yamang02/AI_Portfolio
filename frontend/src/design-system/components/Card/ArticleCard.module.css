@@ -1,0 +1,156 @@
+.articleCard {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+  background-color: var(--color-bg-article-light);
+}
+
+.articleCard.clickable {
+  cursor: pointer;
+}
+
+/* Card 컴포넌트의 기본 hover 효과 비활성화 */
+.noCardHover:hover {
+  transform: none;
+  box-shadow: var(--shadow-sm);
+  border-color: var(--color-border-default);
+}
+
+/* 아티클 카드 자체 호버 효과 - 브랜드 컬러 테두리와 그림자 (ProjectCard와 동일) */
+.articleCard:hover {
+  border-color: var(--color-primary);
+  box-shadow: 0 4px 12px 0 color-mix(in srgb, var(--color-primary) 20%, transparent),
+              0 2px 4px 0 color-mix(in srgb, var(--color-primary) 10%, transparent);
+  transform: translateY(-2px) scale(1.02);
+}
+
+/* 헤더 배지 영역 (type과 별 배지만) */
+.badgeArea {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-4);
+  gap: var(--spacing-2);
+}
+
+.badgeLeft {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  flex-shrink: 0;
+}
+
+.badgeRight {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  flex-shrink: 0;
+}
+
+/* 아티클 카테고리 배지 - Badge 컴포넌트 스타일 오버라이드 */
+.articleCard .categoryBadge {
+  flex-shrink: 0;
+  background-color: var(--color-article-category-bg);
+  border-color: var(--color-article-category-border);
+  color: var(--color-article-category-text);
+}
+
+.seriesBadge {
+  flex-shrink: 0;
+}
+
+/* 별 배지 - Badge 컴포넌트 스타일 오버라이드 */
+.articleCard .featuredBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: var(--spacing-1);
+  min-width: auto;
+  width: 1.5rem;
+  height: 1.5rem;
+  background-color: var(--color-featured-badge);
+  border-color: var(--color-featured-badge);
+  color: var(--color-white);
+}
+
+.featuredBadge svg {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+/* Title 영역 */
+.title {
+  font-size: var(--font-size-lg); /* 기본값, JavaScript로 조정됨 */
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--spacing-3) 0;
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-height: calc(1.4em * 1); /* 한 줄 높이로 제한 */
+}
+
+/* Summary 영역 */
+.summary {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  margin: 0 0 var(--spacing-4) 0;
+  padding-top: var(--spacing-3);
+  border-top: 1px solid var(--color-border-default);
+  flex: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* 기술스택 영역 (summary 아래) */
+.techStack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+  margin-bottom: var(--spacing-4);
+}
+
+.techBadge {
+  flex-shrink: 0;
+}
+
+/* 하단 영역 (발행일 텍스트 + view 배지) */
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+  padding-top: var(--spacing-3);
+  gap: var(--spacing-2);
+}
+
+.dateText {
+  font-size: 0.75rem; /* 12px - 프로젝트 카드와 동일 */
+  color: var(--color-text-tertiary);
+  white-space: nowrap;
+}
+
+.viewBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  flex-shrink: 0;
+}
+
+/* Badge content 내부의 아이콘과 텍스트 사이 여백 */
+.viewBadge .content {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.badgeText {
+  font-size: var(--font-size-xs);
+  white-space: nowrap;
+}

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Skeleton } from './Skeleton';
+import { Spinner } from '../Spinner/Spinner';
 import styles from './SkeletonCard.module.css';
 
 export interface SkeletonCardProps {
@@ -9,6 +10,7 @@ export interface SkeletonCardProps {
   showDescription?: boolean;
   showActions?: boolean;
   lines?: number;
+  isLoading?: boolean;
 }
 
 export const SkeletonCard: React.FC<SkeletonCardProps> = ({
@@ -18,6 +20,7 @@ export const SkeletonCard: React.FC<SkeletonCardProps> = ({
   showDescription = true,
   showActions = true,
   lines = 3,
+  isLoading = true,
 }) => {
   return (
     <div className={`${styles.card} ${className || ''}`}>
@@ -55,6 +58,13 @@ export const SkeletonCard: React.FC<SkeletonCardProps> = ({
           </div>
         )}
       </div>
+
+      {/* 로딩 스피너 오버레이 */}
+      {isLoading && (
+        <div className={styles.loadingOverlay}>
+          <Spinner size="md" />
+        </div>
+      )}
     </div>
   );
 };

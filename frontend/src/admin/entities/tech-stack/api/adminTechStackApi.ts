@@ -100,6 +100,19 @@ class AdminTechStackApi {
     const data = await response.json();
     return data.data || [];
   }
+
+  /**
+   * 기술 스택 검색
+   */
+  async searchTechStacks(name: string): Promise<TechStackMetadata[]> {
+    const response = await fetch(`${API_BASE_URL}/api/tech-stack/search?name=${encodeURIComponent(name)}`);
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'API 호출 중 오류가 발생했습니다.');
+    }
+    const data = await response.json();
+    return data.data || [];
+  }
 }
 
 export const adminTechStackApi = new AdminTechStackApi();

@@ -1,0 +1,53 @@
+.simpleArticleCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+  transition: all 0.2s ease;
+  background-color: var(--color-bg-article-light);
+}
+
+.simpleArticleCard.clickable {
+  cursor: pointer;
+}
+
+.simpleArticleCard.clickable:hover {
+  border-color: var(--color-primary);
+  box-shadow: 0 4px 12px 0 color-mix(in srgb, var(--color-primary) 20%, transparent),
+              0 2px 4px 0 color-mix(in srgb, var(--color-primary) 10%, transparent);
+  transform: translateY(-2px) scale(1.02);
+}
+
+.title {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--color-text-primary);
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.summary {
+  font-size: var(--font-size-base);
+  line-height: 1.6;
+  color: var(--color-text-tertiary);
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.date {
+  margin-top: auto;
+  padding-top: var(--spacing-2);
+}
+
+.dateText {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
+}

@@ -18,7 +18,7 @@ export const ProjectsListPage: React.FC = () => {
   const [highlightedProjectId, setHighlightedProjectId] = useState<string | undefined>();
   
   // API에서 프로젝트 목록 가져오기
-  const { data: projects = [], isLoading, isError } = useProjectsQuery({
+  const { data: projects = [], isLoading, isError, refetch } = useProjectsQuery({
     type: 'project',
   });
 
@@ -154,51 +154,9 @@ export const ProjectsListPage: React.FC = () => {
     }, 2000);
   };
 
-  // 로딩 상태
-  if (isLoading) {
-    return (
-      <div className={styles.page}>
-          <section className={styles.header}>
-            <div className={styles.container}>
-              <SectionTitle level="h1">Projects</SectionTitle>
-            </div>
-            <Divider variant="horizontal" />
-          </section>
+  // 초기 로딩 상태는 제거하고 각 섹션에서 오버레이로 처리
 
-          <section className={styles.projects}>
-            <div className={styles.container}>
-              <div className={styles.grid}>
-                {[...Array(6)].map((_, i) => (
-                  <SkeletonCard key={i} />
-                ))}
-              </div>
-            </div>
-          </section>
-        </div>
-    );
-  }
-
-  // 에러 상태
-  if (isError) {
-    return (
-      <div className={styles.page}>
-          <section className={styles.header}>
-            <div className={styles.container}>
-              <SectionTitle level="h1">Projects</SectionTitle>
-            </div>
-            <Divider variant="horizontal" />
-          </section>
-
-          <section className={styles.projects}>
-            <div className={styles.container}>
-              <div className={styles.error}>
-                <p>프로젝트를 불러오는 중 오류가 발생했습니다.</p>
-              </div>
-            </div>
-          </section>
-        </div>
-    );
-  }
+  // 에러 상태는 제거하고 아래에서 처리
 
   return (
     <div className={styles.page}>
@@ -247,7 +205,54 @@ export const ProjectsListPage: React.FC = () => {
         </div>
         <div className={styles.container}>
           <div className={styles.grid}>
-            {featuredProjects.length > 0 ? (
+            {isLoading ? (
+              // 로딩 상태: 스켈레톤 카드 여러 개 표시 (스피너 포함)
+              [...Array(3)].map((_, i) => (
+                <SkeletonCard key={i} isLoading={true} />
+              ))
+            ) : isError ? (
+              // 에러 상태: 빈 스켈레톤 카드 표시 (스피너 없음) + 재시도 버튼
+              <div style={{ position: 'relative' }}>
+                <SkeletonCard isLoading={false} />
+                <div style={{ 
+                  position: 'absolute', 
+                  top: '50%', 
+                  left: '50%', 
+                  transform: 'translate(-50%, -50%)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '12px',
+                  zIndex: 20
+                }}>
+                  <Button
+                    variant="icon"
+                    size="md"
+                    onClick={() => refetch()}
+                    ariaLabel="재시도"
+                  >
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
+                      <path d="M21 3v5h-5"></path>
+                      <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
+                      <path d="M3 21v-5h5"></path>
+                    </svg>
+                  </Button>
+                  <span style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>
+                    재시도
+                  </span>
+                </div>
+              </div>
+            ) : featuredProjects.length > 0 ? (
               featuredProjects.map((project) => (
                 <div key={project.id} id={`project-section-${project.id}`}>
                   <ProjectCard
@@ -257,15 +262,46 @@ export const ProjectsListPage: React.FC = () => {
                 </div>
               ))
             ) : (
-              // 주요 프로젝트가 없을 때 빈 카드 표시
-              <EmptyCard message="등록된 주요 프로젝트가 없습니다" />
+              // 주요 프로젝트가 없을 때 빈 카드 표시 + 재시도 버튼
+              <div style={{ position: 'relative' }}>
+                <EmptyCard message="등록된 주요 프로젝트가 없습니다" />
+                <div style={{ 
+                  position: 'absolute', 
+                  top: '16px', 
+                  right: '16px',
+                  zIndex: 20
+                }}>
+                  <Button
+                    variant="icon"
+                    size="md"
+                    onClick={() => refetch()}
+                    ariaLabel="재시도"
+                  >
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
+                      <path d="M21 3v5h-5"></path>
+                      <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
+                      <path d="M3 21v-5h5"></path>
+                    </svg>
+                  </Button>
+                </div>
+              </div>
             )}
           </div>
         </div>
       </section>
 
       {/* 프로젝트 히스토리 타임라인 섹션 */}
-      {projects.length > 0 && (
+      {!isLoading && projects.length > 0 && (
         <section className={styles.historySection}>
           <div className={styles.container}>
             <ProjectHistoryTimeline
@@ -287,7 +323,54 @@ export const ProjectsListPage: React.FC = () => {
               <p className={styles.sectionDescription}>{section.description}</p>
             </div>
             <div className={styles.grid}>
-              {section.projects.length > 0 ? (
+              {isLoading ? (
+                // 로딩 상태: 스켈레톤 카드 여러 개 표시 (스피너 포함)
+                [...Array(3)].map((_, i) => (
+                  <SkeletonCard key={i} isLoading={true} />
+                ))
+              ) : isError ? (
+                // 에러 상태: 빈 스켈레톤 카드 표시 (스피너 없음) + 재시도 버튼
+                <div style={{ position: 'relative' }}>
+                  <SkeletonCard isLoading={false} />
+                  <div style={{ 
+                    position: 'absolute', 
+                    top: '50%', 
+                    left: '50%', 
+                    transform: 'translate(-50%, -50%)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '12px',
+                    zIndex: 20
+                  }}>
+                    <Button
+                      variant="icon"
+                      size="md"
+                      onClick={() => refetch()}
+                      ariaLabel="재시도"
+                    >
+                      <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
+                        <path d="M21 3v5h-5"></path>
+                        <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
+                        <path d="M3 21v-5h5"></path>
+                      </svg>
+                    </Button>
+                    <span style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>
+                      재시도
+                    </span>
+                  </div>
+                </div>
+              ) : section.projects.length > 0 ? (
                 section.projects.map((project) => (
                   <div key={project.id} id={`type-project-section-${project.id}`}>
                     <ProjectCard
@@ -297,8 +380,39 @@ export const ProjectsListPage: React.FC = () => {
                   </div>
                 ))
               ) : (
-                // 프로젝트가 없을 때 빈 카드 표시
-                <EmptyCard message="등록된 프로젝트가 없습니다" />
+                // 프로젝트가 없을 때 빈 카드 표시 + 재시도 버튼
+                <div style={{ position: 'relative' }}>
+                  <EmptyCard message="등록된 프로젝트가 없습니다" />
+                  <div style={{ 
+                    position: 'absolute', 
+                    top: '16px', 
+                    right: '16px',
+                    zIndex: 20
+                  }}>
+                    <Button
+                      variant="icon"
+                      size="md"
+                      onClick={() => refetch()}
+                      ariaLabel="재시도"
+                    >
+                      <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
+                        <path d="M21 3v5h-5"></path>
+                        <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
+                        <path d="M3 21v-5h5"></path>
+                      </svg>
+                    </Button>
+                  </div>
+                </div>
               )}
             </div>
           </div>

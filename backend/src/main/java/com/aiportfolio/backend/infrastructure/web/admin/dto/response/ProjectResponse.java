@@ -20,8 +20,7 @@ import java.util.List;
 @AllArgsConstructor
 public class ProjectResponse {
 
-    private String id;
-    private Long dbId; // 데이터베이스 ID (관계 테이블에서 사용)
+    private String id; // 비즈니스 ID
     private String title;
     private String description;
     private String readme;

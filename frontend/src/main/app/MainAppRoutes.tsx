@@ -8,6 +8,8 @@ import { ProjectsListPage } from '@/main/pages/ProjectsListPage';
 import { ProjectDetailPage } from '@/main/pages/ProjectDetailPage';
 import { ProfilePage } from '@/main/pages/ProfilePage';
 import { ChatPage } from '@/main/pages/ChatPage';
+import { ArticleListPage } from '@/main/pages/ArticleListPage';
+import { ArticleDetailPage } from '@/main/pages/ArticleDetailPage';
 import { AnimatedRoutes } from '@/shared/ui/page-transition';
 import { LoadingScreen } from '@/shared/ui/LoadingScreen';
 
@@ -26,9 +28,9 @@ const MainAppContent: React.FC = () => {
     loadingStates
   } = useApp();
 
-  // 푸터 표시: 홈페이지, 프로필 페이지, 프로젝트 페이지에 표시
+  // 푸터 표시: 홈페이지, 프로필 페이지, 프로젝트 페이지, 아티클 페이지에 표시
   // 챗봇 페이지와 프로젝트 상세 페이지는 푸터 제외
-  const showFooter = ['/', '/profile', '/projects'].includes(location.pathname);
+  const showFooter = ['/', '/profile', '/projects', '/articles'].includes(location.pathname) && !location.pathname.startsWith('/projects/') && !location.pathname.startsWith('/articles/');
   
   // 홈페이지는 스크롤 드리븐 애니메이션을 위해 overflow 제어 제외
   const isHomePage = location.pathname === '/';
@@ -92,6 +94,8 @@ const MainAppContent: React.FC = () => {
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/projects" element={<ProjectsListPage />} />
           <Route path="/projects/:id" element={<ProjectDetailPage />} />
+          <Route path="/articles" element={<ArticleListPage />} />
+          <Route path="/articles/:businessId" element={<ArticleDetailPage />} />
           <Route path="/chat" element={<ChatPage />} />
         </AnimatedRoutes>
       </div>
