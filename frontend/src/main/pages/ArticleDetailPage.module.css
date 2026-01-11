@@ -1,0 +1,215 @@
+.container {
+  min-height: 100vh;
+  background-color: var(--color-background);
+  padding: var(--spacing-6) 0;
+  padding-top: var(--spacing-20);
+}
+
+.content {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-6);
+}
+
+.section {
+  margin-bottom: var(--spacing-16);
+  padding-top: var(--spacing-8);
+}
+
+.section:first-of-type {
+  padding-top: 0;
+}
+
+/* TOC 섹션 여백 조정 */
+.section#toc {
+  padding-top: var(--spacing-12);
+  margin-bottom: var(--spacing-4);
+}
+
+/* TOC 다음 본문 섹션 여백 조정 */
+.section#toc + .section#content {
+  padding-top: var(--spacing-4);
+}
+
+/* 섹션 헤더 색상 */
+.sectionTitle {
+  color: var(--color-primary-text);
+}
+
+/* 마크다운 내부 헤딩은 원래 색상 유지 */
+.markdownArticle h1,
+.markdownArticle h2,
+.markdownArticle h3,
+.markdownArticle h4,
+.markdownArticle h5,
+.markdownArticle h6 {
+  color: var(--color-text-primary);
+}
+
+/* 헤더 */
+.header {
+  margin-bottom: var(--spacing-8);
+}
+
+.headerTop {
+  display: flex;
+  align-items: center;
+  margin-bottom: var(--spacing-4);
+}
+
+.title {
+  margin-bottom: var(--spacing-6);
+}
+
+/* 시리즈 정보가 있을 때 title 여백 조정 */
+.title:has(+ .seriesInfo) {
+  margin-bottom: var(--spacing-2);
+}
+
+.seriesInfo {
+  font-size: var(--font-size-base);
+  color: var(--color-primary-text);
+  margin-top: 0;
+  margin-bottom: var(--spacing-4);
+}
+
+.metaRow {
+  display: flex;
+  gap: var(--spacing-4);
+  align-items: center;
+  justify-content: flex-end;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-2);
+}
+
+.divider {
+  width: 100%;
+  height: 1px;
+  background-color: var(--color-border);
+  margin-bottom: var(--spacing-2);
+}
+
+.meta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+}
+
+.metaItem {
+  display: inline-flex;
+  align-items: center;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: var(--spacing-2);
+  overflow-x: auto;
+}
+
+.tag {
+  display: inline-block;
+  padding: var(--spacing-1) var(--spacing-3);
+  background-color: transparent;
+  color: var(--color-text-tertiary);
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-size-sm);
+  white-space: nowrap;
+}
+
+.categoryBadge {
+  flex-shrink: 0;
+  background-color: var(--color-article-category-bg);
+  border-color: var(--color-article-category-border);
+  color: var(--color-article-category-text);
+}
+
+/* 본문 */
+.markdown {
+  margin-top: var(--spacing-4);
+}
+
+/* 기술 스택 */
+.techStackWrapper {
+  margin-top: var(--spacing-4);
+}
+
+/* 관련 프로젝트 */
+.relatedProject {
+  margin-top: var(--spacing-4);
+}
+
+.projectLink {
+  display: inline-block;
+  font-size: var(--font-size-lg);
+  font-weight: 500;
+  color: var(--color-link);
+  text-decoration: none;
+  margin-bottom: var(--spacing-2);
+  transition: color 0.15s ease;
+}
+
+.projectLink:hover {
+  color: var(--color-link-hover);
+}
+
+.projectDescription {
+  font-size: var(--font-size-base);
+  line-height: 1.7;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+/* 시리즈 아티클 */
+.seriesArticles {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-4);
+  margin-top: var(--spacing-4);
+}
+
+.loading,
+.error {
+  text-align: center;
+  padding: var(--spacing-10);
+}
+
+.error h2 {
+  font-size: var(--font-size-2xl);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-4);
+}
+
+.error p {
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-6);
+}
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-base);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.backLink:hover {
+  color: var(--color-link-hover);
+}
+
+/* 반응형 */
+@media (min-width: var(--breakpoint-tablet)) {
+  .seriesArticles {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: var(--breakpoint-desktop)) {
+  .seriesArticles {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

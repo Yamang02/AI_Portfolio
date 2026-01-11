@@ -511,3 +511,196 @@ body {
 /* SVG 기본 색상 - 약간의 초록색이 섞인 검정색 대체 색상 */
 /* currentColor를 사용하는 SVG는 부모의 color를 상속받으므로,
    전역 설정은 최소화하고 각 컴포넌트에서 명시적으로 색상 지정 */
+
+/* Markdown 코드 블록 스타일링 */
+/* highlight.js 테마를 재정의하여 프로젝트 테마와 일관성 유지 */
+.hljs {
+  display: block;
+  overflow-x: auto;
+  padding: 1em;
+  background: var(--color-bg-secondary) !important;
+  color: var(--color-text-primary) !important;
+}
+
+/* 코드 블록 언어별 하이라이팅 색상 */
+.hljs-comment,
+.hljs-quote {
+  color: var(--color-text-tertiary);
+  font-style: italic;
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-addition {
+  color: #d73a49;
+}
+
+.hljs-number,
+.hljs-string,
+.hljs-meta .hljs-meta-string,
+.hljs-literal,
+.hljs-doctag,
+.hljs-regexp {
+  color: #22863a;
+}
+
+.hljs-title,
+.hljs-section,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class {
+  color: #6f42c1;
+}
+
+.hljs-attribute,
+.hljs-attr,
+.hljs-variable,
+.hljs-template-variable,
+.hljs-class .hljs-title,
+.hljs-type {
+  color: #e36209;
+}
+
+.hljs-symbol,
+.hljs-bullet,
+.hljs-subst,
+.hljs-meta,
+.hljs-meta .hljs-keyword,
+.hljs-selector-attr,
+.hljs-selector-pseudo,
+.hljs-link {
+  color: #005cc5;
+}
+
+.hljs-built_in,
+.hljs-deletion {
+  color: #b31d28;
+}
+
+.hljs-formula {
+  background-color: #eee;
+}
+
+.hljs-emphasis {
+  font-style: italic;
+}
+
+.hljs-strong {
+  font-weight: bold;
+}
+
+/* 다크 모드용 코드 하이라이팅 */
+@media (prefers-color-scheme: dark) {
+  .hljs {
+    background: var(--color-bg-tertiary) !important;
+  }
+
+  .hljs-keyword,
+  .hljs-selector-tag,
+  .hljs-addition {
+    color: #f97583;
+  }
+
+  .hljs-number,
+  .hljs-string,
+  .hljs-meta .hljs-meta-string,
+  .hljs-literal,
+  .hljs-doctag,
+  .hljs-regexp {
+    color: #85e89d;
+  }
+
+  .hljs-title,
+  .hljs-section,
+  .hljs-name,
+  .hljs-selector-id,
+  .hljs-selector-class {
+    color: #b392f0;
+  }
+
+  .hljs-attribute,
+  .hljs-attr,
+  .hljs-variable,
+  .hljs-template-variable,
+  .hljs-class .hljs-title,
+  .hljs-type {
+    color: #ffab70;
+  }
+
+  .hljs-symbol,
+  .hljs-bullet,
+  .hljs-subst,
+  .hljs-meta,
+  .hljs-meta .hljs-keyword,
+  .hljs-selector-attr,
+  .hljs-selector-pseudo,
+  .hljs-link {
+    color: #79b8ff;
+  }
+
+  .hljs-built_in,
+  .hljs-deletion {
+    color: #fdaeb7;
+  }
+
+  .hljs-formula {
+    background-color: #444;
+  }
+}
+
+/* 다크 모드 수동 토글 */
+:root.dark .hljs {
+  background: var(--color-bg-tertiary) !important;
+}
+
+:root.dark .hljs-keyword,
+:root.dark .hljs-selector-tag,
+:root.dark .hljs-addition {
+  color: #f97583;
+}
+
+:root.dark .hljs-number,
+:root.dark .hljs-string,
+:root.dark .hljs-meta .hljs-meta-string,
+:root.dark .hljs-literal,
+:root.dark .hljs-doctag,
+:root.dark .hljs-regexp {
+  color: #85e89d;
+}
+
+:root.dark .hljs-title,
+:root.dark .hljs-section,
+:root.dark .hljs-name,
+:root.dark .hljs-selector-id,
+:root.dark .hljs-selector-class {
+  color: #b392f0;
+}
+
+:root.dark .hljs-attribute,
+:root.dark .hljs-attr,
+:root.dark .hljs-variable,
+:root.dark .hljs-template-variable,
+:root.dark .hljs-class .hljs-title,
+:root.dark .hljs-type {
+  color: #ffab70;
+}
+
+:root.dark .hljs-symbol,
+:root.dark .hljs-bullet,
+:root.dark .hljs-subst,
+:root.dark .hljs-meta,
+:root.dark .hljs-meta .hljs-keyword,
+:root.dark .hljs-selector-attr,
+:root.dark .hljs-selector-pseudo,
+:root.dark .hljs-link {
+  color: #79b8ff;
+}
+
+:root.dark .hljs-built_in,
+:root.dark .hljs-deletion {
+  color: #fdaeb7;
+}
+
+:root.dark .hljs-formula {
+  background-color: #444;
+}

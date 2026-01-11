@@ -1,11 +1,11 @@
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import rehypeSanitize from 'rehype-sanitize';
+import rehypeSanitize, { defaultSchema } from 'rehype-sanitize';
 import rehypeHighlight from 'rehype-highlight';
 import { remarkCustomHeadingId } from '@/shared/lib/markdown/remarkCustomHeadingId';
 import 'highlight.js/styles/github.css'; // 라이트 모드용
-import 'highlight.js/styles/github-dark.css'; // 다크 모드용 (조건부로 적용)
+// 다크 모드는 CSS에서 처리
 
 interface MarkdownRendererProps {
   content: string;
@@ -89,7 +89,7 @@ const markdownComponents = {
   ),
   
   // 코드 블록 스타일링
-  code: ({ children, className }: { children: React.ReactNode; className?: string }) => {
+  code: ({ children, className, ...props }: any) => {
     const isInline = !className;
     if (isInline) {
       return (
@@ -98,14 +98,15 @@ const markdownComponents = {
         </code>
       );
     }
+    // 코드 블록의 경우 highlight.js가 추가한 클래스를 유지
     return (
-      <code className={className}>
+      <code className={className} {...props}>
         {children}
       </code>
     );
   },
   pre: ({ children }: { children: React.ReactNode }) => (
-    <pre className="mb-4 rounded-lg overflow-x-auto bg-surface-elevated dark:bg-slate-900 text-text-primary p-4 border border-border">
+    <pre className="mb-6 rounded-lg overflow-x-auto bg-gray-50 dark:bg-gray-900 p-4 border border-border">
       {children}
     </pre>
   ),
@@ -190,10 +191,52 @@ const markdownComponents = {
   ),
 };
 
-const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ 
-  content, 
-  className = '' 
+// rehype-sanitize 스키마 커스터마이징
+// highlight.js가 추가하는 클래스들을 허용하도록 설정
+const sanitizeSchema = {
+  ...defaultSchema,
+  attributes: {
+    ...defaultSchema.attributes,
+    code: [
+      ...(defaultSchema.attributes?.code || []),
+      // highlight.js가 추가하는 클래스 허용
+      ['className', 'hljs', 'language-*', /^language-./, /^hljs-./]
+    ],
+    span: [
+      ...(defaultSchema.attributes?.span || []),
+      // highlight.js가 span에 추가하는 클래스 허용
+      ['className', /^hljs-./]
+    ]
+  }
+};
+
+const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
+  content,
+  className = ''
 }) => {
+  // 이스케이프된 백틱을 원래대로 복원
+  // 백엔드에서 \`\`\` 형태로 저장된 경우를 처리
+  const processedContent = React.useMemo(() => {
+    if (!content) return '';
+
+    // 이스케이프된 백틱 복원
+    let processed = content.replace(/\\`/g, '`');
+
+    // 기타 이스케이프 문자 복원 (필요한 경우)
+    processed = processed.replace(/\\n/g, '\n');
+    processed = processed.replace(/\\r/g, '\r');
+    processed = processed.replace(/\\t/g, '\t');
+
+    return processed;
+  }, [content]);
+
+  // 디버깅: 콘텐츠의 첫 500자를 콘솔에 출력
+  React.useEffect(() => {
+    console.log('Original content (first 200 chars):', content.substring(0, 200));
+    console.log('Processed content (first 200 chars):', processedContent.substring(0, 200));
+    console.log('Has code blocks:', processedContent.includes('```'));
+  }, [content, processedContent]);
+
   return (
     <div className={`prose prose-lg max-w-none ${className}`}>
       <ReactMarkdown
@@ -203,11 +246,11 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
           remarkCustomHeadingId, // 헤딩에 일관된 ID 생성 (TOC와 동일)
         ]}
         rehypePlugins={[
-          rehypeSanitize, // XSS 방지
-          rehypeHighlight, // 코드 하이라이팅
+          rehypeHighlight, // 코드 하이라이팅 (먼저 실행)
+          [rehypeSanitize, sanitizeSchema], // XSS 방지 (나중에 실행, 커스텀 스키마)
         ]}
       >
-        {content}
+        {processedContent}
       </ReactMarkdown>
     </div>
   );

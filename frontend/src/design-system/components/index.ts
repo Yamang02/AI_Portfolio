@@ -92,6 +92,9 @@ export type { TableOfContentsProps } from './TableOfContents';
 export { ProjectNavigation } from './ProjectNavigation';
 export type { ProjectNavigationProps } from './ProjectNavigation';
 
+export { ArticleNavigation } from './ArticleNavigation';
+export type { ArticleNavigationProps } from './ArticleNavigation';
+
 export { Pagination } from './Pagination';
 export type { PaginationProps } from './Pagination';
 
