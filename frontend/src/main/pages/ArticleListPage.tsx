@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { SectionTitle, Pagination, EmptyCard, SkeletonCard } from '@/design-system';
+import { SectionTitle, Pagination, EmptyCard, SkeletonCard, Button } from '@/design-system';
 import { useArticleListQuery } from '../entities/article/api/useArticleQuery';
 import { useArticleStatisticsQuery } from '../entities/article';
 import { ArticleTable, ArticleFilterBar, ArticleControlPanel, FeaturedArticleCarousel } from '../features/article-view/ui';
@@ -52,7 +52,7 @@ export function ArticleListPage() {
   }, [statistics?.projects]);
 
   // 추천 아티클 조회
-  const { data: featuredArticlesData } = useArticleListQuery({
+  const { data: featuredArticlesData, isLoading: isLoadingFeatured, error: errorFeatured } = useArticleListQuery({
     page: 0,
     size: 10, // 추천 아티클은 최대 10개
     isFeatured: true,
@@ -61,7 +61,7 @@ export function ArticleListPage() {
   });
 
   // 아티클 목록 조회 (필터링된 결과)
-  const { data, isLoading, error } = useArticleListQuery({ 
+  const { data, isLoading, error, refetch } = useArticleListQuery({ 
     page: page - 1, 
     size: pageSize,
     category: selectedCategory,
@@ -149,47 +149,8 @@ export function ArticleListPage() {
 
   const totalPages = Math.ceil((data?.totalElements || 0) / pageSize);
 
-  if (isLoading) {
-    return (
-      <div className={styles.page}>
-        <section className={styles.header}>
-          <div className={styles.container}>
-            <SectionTitle level="h1">Articles</SectionTitle>
-          </div>
-        </section>
-
-        <section className={styles.content}>
-          <div className={styles.container}>
-            <div className={styles.grid}>
-              {[...Array(6)].map((_, i) => (
-                <SkeletonCard key={i} />
-              ))}
-            </div>
-          </div>
-        </section>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className={styles.page}>
-        <section className={styles.header}>
-          <div className={styles.container}>
-            <SectionTitle level="h1">Articles</SectionTitle>
-          </div>
-        </section>
-
-        <section className={styles.content}>
-          <div className={styles.container}>
-            <div className={styles.error}>
-              <p>아티클을 불러오는데 실패했습니다.</p>
-            </div>
-          </div>
-        </section>
-      </div>
-    );
-  }
+  // 에러 상태에서도 레이아웃 유지
+  const hasError = !!error;
 
   return (
     <div className={styles.page}>
@@ -211,7 +172,7 @@ export function ArticleListPage() {
       <section className={styles.content}>
         <div className={styles.container}>
           {/* 추천 아티클 섹션 - 전체 너비 */}
-          {featuredArticlesData?.content && featuredArticlesData.content.length > 0 && (
+          {(!isLoadingFeatured && featuredArticlesData?.content && featuredArticlesData.content.length > 0) && (
             <section className={styles.featuredSection}>
               <div className={styles.featuredHeaderWrapper}>
                 <div className={styles.featuredHeader}>
@@ -255,7 +216,58 @@ export function ArticleListPage() {
                   onViewModeChange={setViewMode}
                 />
 
-                {filteredArticles.length > 0 ? (
+                {isLoading ? (
+                  // 로딩 상태: 스켈레톤 카드 여러 개 표시 (스피너 포함)
+                  <div className={styles.grid}>
+                    {[...Array(6)].map((_, i) => (
+                      <SkeletonCard key={i} isLoading={true} />
+                    ))}
+                  </div>
+                ) : hasError ? (
+                  // 에러 상태: 빈 스켈레톤 카드 표시 (스피너 없음) + 재시도 버튼
+                  <div className={styles.grid}>
+                    <div style={{ position: 'relative', width: '100%' }}>
+                      <SkeletonCard isLoading={false} />
+                      <div style={{ 
+                        position: 'absolute', 
+                        top: '50%', 
+                        left: '50%', 
+                        transform: 'translate(-50%, -50%)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        gap: '12px',
+                        zIndex: 20
+                      }}>
+                        <Button
+                          variant="icon"
+                          size="md"
+                          onClick={() => refetch()}
+                          ariaLabel="재시도"
+                        >
+                          <svg
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
+                            <path d="M21 3v5h-5"></path>
+                            <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
+                            <path d="M3 21v-5h5"></path>
+                          </svg>
+                        </Button>
+                        <span style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>
+                          재시도
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ) : filteredArticles.length > 0 ? (
                   <>
                     {viewMode === 'table' ? (
                       <ArticleTable
@@ -286,7 +298,41 @@ export function ArticleListPage() {
                     )}
                   </>
                 ) : (
-                  <EmptyCard message="표시할 아티클이 없습니다." />
+                  // 빈 상태: 빈 카드를 그리드에 표시 + 재시도 버튼
+                  <div className={styles.grid}>
+                    <div style={{ position: 'relative', width: '100%' }}>
+                      <EmptyCard message="표시할 아티클이 없습니다." />
+                      <div style={{ 
+                        position: 'absolute', 
+                        top: '16px', 
+                        right: '16px',
+                        zIndex: 20
+                      }}>
+                        <Button
+                          variant="icon"
+                          size="md"
+                          onClick={() => refetch()}
+                          ariaLabel="재시도"
+                        >
+                          <svg
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
+                            <path d="M21 3v5h-5"></path>
+                            <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
+                            <path d="M3 21v-5h5"></path>
+                          </svg>
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
                 )}
               </section>
             </div>

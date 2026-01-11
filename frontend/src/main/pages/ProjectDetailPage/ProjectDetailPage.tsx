@@ -14,6 +14,8 @@ import { ProjectDetailHeader } from '@design-system/components/ProjectDetailHead
 import { TableOfContents } from '@design-system/components/TableOfContents';
 import { ProjectNavigation } from '@design-system/components/ProjectNavigation';
 import { ProjectThumbnailCarousel } from '@design-system/components/Carousel';
+import { Skeleton } from '@design-system/components/Skeleton';
+import { EmptyCard } from '@design-system';
 import styles from './ProjectDetailPage.module.css';
 
 const ProjectDetailPage: React.FC = () => {
@@ -132,40 +134,49 @@ const ProjectDetailPage: React.FC = () => {
     window.scrollTo(0, 0);
   }, [id]);
 
-  // 로딩 상태
-  if (isLoading) {
-    return (
-      <div className={styles.container}>
-        <div className={styles.content}>
-          <div className={styles.loading}>로딩 중...</div>
-        </div>
-      </div>
-    );
-  }
-
-  // 에러 상태
-  if (!project) {
-    return (
-      <div className={styles.container}>
-        <div className={styles.content}>
-          <div className={styles.error}>
-            <h2>프로젝트를 찾을 수 없습니다</h2>
-            <p>요청한 프로젝트가 존재하지 않습니다.</p>
-            <TextLink href="/projects" className={styles.backLink}>
-              프로젝트 목록으로 돌아가기
-            </TextLink>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // 에러 상태 체크
+  const hasError = !isLoading && !project;
 
 
   return (
     <div className={styles.container}>
         <div ref={contentRef} className={styles.content}>
-        {/* 프로젝트 헤더 (고정 제거) */}
-        <ProjectDetailHeader project={project} />
+        {/* 로딩 상태: 구조를 유지하면서 Skeleton 표시 */}
+        {isLoading ? (
+          <>
+            <div style={{ marginBottom: 'var(--spacing-8)' }}>
+              <Skeleton variant="text" height="48px" width="70%" style={{ marginBottom: '16px' }} />
+              <Skeleton variant="text" height="24px" width="100%" style={{ marginBottom: '8px' }} />
+              <Skeleton variant="text" height="24px" width="90%" />
+            </div>
+            <section className={styles.section}>
+              <Skeleton variant="text" height="32px" width="60px" style={{ marginBottom: '16px' }} />
+              <Skeleton variant="text" height="20px" width="100%" style={{ marginBottom: '8px' }} />
+              <Skeleton variant="text" height="20px" width="100%" style={{ marginBottom: '8px' }} />
+              <Skeleton variant="text" height="20px" width="85%" />
+            </section>
+          </>
+        ) : hasError ? (
+          // 에러 상태: 구조를 유지하면서 메시지 표시
+          <>
+            <div style={{ marginBottom: 'var(--spacing-8)' }}>
+              <SectionTitle level="h1">
+                프로젝트를 찾을 수 없습니다
+              </SectionTitle>
+            </div>
+            <section className={styles.section}>
+              <EmptyCard message="요청한 프로젝트가 존재하지 않습니다." />
+              <div style={{ marginTop: 'var(--spacing-6)', textAlign: 'center' }}>
+                <TextLink href="/projects" className={styles.backLink}>
+                  프로젝트 목록으로 돌아가기
+                </TextLink>
+              </div>
+            </section>
+          </>
+        ) : (
+          <>
+            {/* 프로젝트 헤더 (고정 제거) */}
+            <ProjectDetailHeader project={project} />
 
         {/* TOC 섹션 (개요 전에 고정) */}
         {tocItems.length > 0 && (
@@ -279,6 +290,8 @@ const ProjectDetailPage: React.FC = () => {
           }))}
           currentProjectId={project.id}
         />
+          </>
+        )}
         </div>
       </div>
   );

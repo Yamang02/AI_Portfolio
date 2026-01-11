@@ -13,6 +13,8 @@ import { ArticleCard, ProjectCard } from '@design-system';
 import type { ProjectCardProject } from '@design-system';
 import { Badge } from '@design-system/components/Badge/Badge';
 import { ARTICLE_CATEGORIES } from '@/admin/entities/article';
+import { Skeleton } from '@design-system/components/Skeleton';
+import { EmptyCard } from '@design-system';
 import styles from './ArticleDetailPage.module.css';
 
 /**
@@ -119,39 +121,62 @@ export function ArticleDetailPage() {
     window.scrollTo(0, 0);
   }, [businessId]);
 
-  // 로딩 상태
-  if (isLoading) {
-    return (
-      <div className={styles.container}>
-        <div className={styles.content}>
-          <div className={styles.loading}>로딩 중...</div>
-        </div>
-      </div>
-    );
-  }
-
-  // 에러 상태
-  if (error || !article) {
-    return (
-      <div className={styles.container}>
-        <div className={styles.content}>
-          <div className={styles.error}>
-            <h2>아티클을 찾을 수 없습니다</h2>
-            <p>요청한 아티클이 존재하지 않습니다.</p>
-            <TextLink href="/articles" className={styles.backLink}>
-              아티클 목록으로 돌아가기
-            </TextLink>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // 에러 상태 체크
+  const hasError = !!error || (!isLoading && !article);
 
   return (
     <div className={styles.container}>
       <div ref={contentRef} className={styles.content}>
-        {/* 아티클 헤더 */}
-        <header className={styles.header}>
+        {/* 로딩 상태: 구조를 유지하면서 Skeleton 표시 */}
+        {isLoading ? (
+          <>
+            <header className={styles.header}>
+              <div className={styles.headerTop}>
+                <Skeleton variant="rectangular" height="24px" width="80px" />
+              </div>
+              <div className={styles.title}>
+                <Skeleton variant="text" height="48px" width="100%" />
+              </div>
+              <div className={styles.metaRow}>
+                <Skeleton variant="text" height="16px" width="120px" />
+                <Skeleton variant="text" height="16px" width="80px" />
+              </div>
+              <div className={styles.divider}></div>
+              <div className={styles.meta}>
+                <Skeleton variant="text" height="24px" width="200px" />
+              </div>
+            </header>
+            <section className={styles.section}>
+              <Skeleton variant="text" height="24px" width="60%" style={{ marginBottom: '16px' }} />
+              <Skeleton variant="text" height="16px" width="100%" style={{ marginBottom: '8px' }} />
+              <Skeleton variant="text" height="16px" width="100%" style={{ marginBottom: '8px' }} />
+              <Skeleton variant="text" height="16px" width="90%" style={{ marginBottom: '8px' }} />
+              <Skeleton variant="text" height="16px" width="100%" style={{ marginBottom: '8px' }} />
+              <Skeleton variant="text" height="16px" width="85%" />
+            </section>
+          </>
+        ) : hasError ? (
+          // 에러 상태: 구조를 유지하면서 메시지 표시
+          <>
+            <header className={styles.header}>
+              <SectionTitle level="h1" className={styles.title}>
+                아티클을 찾을 수 없습니다
+              </SectionTitle>
+              <div className={styles.divider}></div>
+            </header>
+            <section className={styles.section}>
+              <EmptyCard message="요청한 아티클이 존재하지 않습니다." />
+              <div style={{ marginTop: 'var(--spacing-6)', textAlign: 'center' }}>
+                <TextLink href="/articles" className={styles.backLink}>
+                  아티클 목록으로 돌아가기
+                </TextLink>
+              </div>
+            </section>
+          </>
+        ) : (
+          <>
+            {/* 아티클 헤더 */}
+            <header className={styles.header}>
           {/* 카테고리 배지 */}
           <div className={styles.headerTop}>
             {article.category && (
@@ -284,6 +309,8 @@ export function ArticleDetailPage() {
           ]}
           currentArticleBusinessId={article.businessId}
         />
+          </>
+        )}
       </div>
     </div>
   );

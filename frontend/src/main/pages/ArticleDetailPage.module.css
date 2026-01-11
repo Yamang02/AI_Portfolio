@@ -136,29 +136,9 @@
 }
 
 /* 관련 프로젝트 */
-.relatedProject {
+.relatedProjectWrapper {
   margin-top: var(--spacing-4);
-}
-
-.projectLink {
-  display: inline-block;
-  font-size: var(--font-size-lg);
-  font-weight: 500;
-  color: var(--color-link);
-  text-decoration: none;
-  margin-bottom: var(--spacing-2);
-  transition: color 0.15s ease;
-}
-
-.projectLink:hover {
-  color: var(--color-link-hover);
-}
-
-.projectDescription {
-  font-size: var(--font-size-base);
-  line-height: 1.7;
-  color: var(--color-text-secondary);
-  margin: 0;
+  max-width: 100%;
 }
 
 /* 시리즈 아티클 */

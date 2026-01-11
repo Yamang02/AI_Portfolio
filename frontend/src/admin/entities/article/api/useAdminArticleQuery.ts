@@ -8,7 +8,7 @@ import { message } from 'antd';
 /**
  * 아티클 목록 조회 쿼리
  */
-export function useAdminArticleListQuery(params: { page: number; size: number }) {
+export function useAdminArticleListQuery(params: { page: number; size: number; sort?: string }) {
   return useAdminQuery({
     queryKey: ['admin', 'articles', params],
     queryFn: () => adminArticleApi.getAll(params),

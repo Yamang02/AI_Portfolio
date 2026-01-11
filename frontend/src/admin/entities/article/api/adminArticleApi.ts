@@ -8,8 +8,11 @@ export const adminArticleApi = {
   /**
    * 전체 목록 조회 (페이징)
    */
-  getAll: (params: { page: number; size: number }) =>
-    adminApiClient.get<{ content: Article[]; totalElements: number; totalPages: number }>('/articles', params),
+  getAll: (params: { page: number; size: number; sort?: string }) =>
+    adminApiClient.get<{ content: Article[]; totalElements: number; totalPages: number }>('/articles', {
+      ...params,
+      sort: params.sort || 'id,desc', // 기본값: 최신순 (ID 내림차순)
+    }),
 
   /**
    * ID로 조회
