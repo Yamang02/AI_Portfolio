@@ -187,9 +187,10 @@ const MarkdownImage: React.FC<{ src?: string; alt?: string }> = ({ src, alt }) =
 };
 
 // Mermaid 다이어그램 컴포넌트 (모범 사례 적용)
+// 오류 발생 시 일반 코드 블록으로 fallback 처리
 const MermaidDiagram: React.FC<{ diagram: string; id: string }> = ({ diagram, id }) => {
   const mermaidRef = useRef<HTMLDivElement>(null);
-  const [error, setError] = React.useState<string | null>(null);
+  const [error, setError] = React.useState<boolean>(false);
   const [isLoading, setIsLoading] = React.useState(true);
 
   useEffect(() => {
@@ -200,7 +201,7 @@ const MermaidDiagram: React.FC<{ diagram: string; id: string }> = ({ diagram, id
     // 다이어그램 렌더링 (모범 사례: cleanup 처리 포함)
     const renderDiagram = async () => {
       try {
-        setError(null);
+        setError(false);
         setIsLoading(true);
         
         // Mermaid 로드 및 초기화 (이미 초기화되었으면 바로 반환)
@@ -218,18 +219,14 @@ const MermaidDiagram: React.FC<{ diagram: string; id: string }> = ({ diagram, id
         mermaidRef.current.innerHTML = svg;
         setIsLoading(false);
       } catch (err) {
-        console.error('Mermaid 렌더링 오류:', err);
+        console.error('Mermaid 렌더링 오류 (일반 코드 블록으로 fallback):', err);
         
         // 컴포넌트가 언마운트되었으면 상태 업데이트 안 함
         if (!isMounted) return;
         
-        const errorMessage = err instanceof Error ? err.message : String(err);
-        setError(errorMessage);
+        // 에러 발생 시 일반 코드 블록으로 표시
+        setError(true);
         setIsLoading(false);
-        
-        if (mermaidRef.current) {
-          mermaidRef.current.innerHTML = '';
-        }
       }
     };
 
@@ -241,19 +238,12 @@ const MermaidDiagram: React.FC<{ diagram: string; id: string }> = ({ diagram, id
     };
   }, [diagram, id]);
 
+  // 오류 발생 시 일반 코드 블록으로 fallback
   if (error) {
     return (
-      <div className="mb-6 rounded-lg overflow-x-auto bg-red-50 dark:bg-red-900/20 p-4 border border-red-200 dark:border-red-800">
-        <pre className="text-red-500 text-sm whitespace-pre-wrap">
-          Mermaid 다이어그램 렌더링 오류: {error}
-        </pre>
-        <details className="mt-2">
-          <summary className="text-red-600 dark:text-red-400 cursor-pointer text-sm">원본 코드 보기</summary>
-          <pre className="mt-2 text-xs bg-gray-100 dark:bg-gray-800 p-2 rounded overflow-x-auto">
-            {diagram}
-          </pre>
-        </details>
-      </div>
+      <pre className="mb-6 rounded-lg overflow-x-auto bg-gray-50 dark:bg-gray-900 p-4 border border-border">
+        <code className="language-mermaid">{diagram}</code>
+      </pre>
     );
   }
 
