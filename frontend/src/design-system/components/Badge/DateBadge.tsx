@@ -1,5 +1,5 @@
 import React from 'react';
-import { formatDateRange as formatDateRangeUtil } from '@shared/lib/string/stringUtils';
+import { formatDateRange as formatDateRangeUtil } from '@/shared/lib/string/stringUtils';
 import styles from './DateBadge.module.css';
 
 export type DateBadgeSize = 'sm' | 'md' | 'lg';

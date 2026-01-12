@@ -1,4 +1,4 @@
-import { demonSlayerTheme } from '@shared/config/theme';
+import { demonSlayerTheme } from '@/shared/config/theme';
 import type { DemonSlayerColors } from './types';
 
 export const CARD_WIDTH = 280;

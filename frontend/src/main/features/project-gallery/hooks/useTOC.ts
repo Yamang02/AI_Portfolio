@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
 import { visit } from 'unist-util-visit';
-import { generateHeadingId, resetHeadingIdCounters } from '@shared/lib/markdown/generateHeadingId';
+import { generateHeadingId, resetHeadingIdCounters } from '@/shared/lib/markdown/generateHeadingId';
 
 export interface TOCItem {
   id: string;

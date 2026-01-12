@@ -1,6 +1,6 @@
 import React from 'react';
 import styles from './ProjectDetailTOC.module.css';
-import type { TOCItem } from '@features/project-gallery/hooks/types';
+import type { TOCItem } from '@/main/features/project-gallery/hooks/types';
 
 interface ProjectDetailTOCProps {
   items: TOCItem[];

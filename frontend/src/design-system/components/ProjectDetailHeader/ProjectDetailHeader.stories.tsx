@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { ProjectDetailHeader } from './ProjectDetailHeader';
-import type { Project } from '@entities/project/model/project.types';
+import type { Project } from '@/main/entities/project/model/project.types';
 
 const meta: Meta<typeof ProjectDetailHeader> = {
   title: 'Design System/Components/ProjectDetailHeader',

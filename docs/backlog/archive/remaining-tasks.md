@@ -1,5 +1,7 @@
 # 남은 작업 목록
 
+**에픽**: [프론트엔드 구조 최적화](../../epic/frontend-structure-optimization.md)
+
 ## 완료된 작업 ✅
 
 1. ✅ 엔티티 마이그레이션 완료 (project, tech-stack, education, experience, certification)

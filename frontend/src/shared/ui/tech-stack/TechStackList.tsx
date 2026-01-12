@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { TechStackBadge } from './TechStackBadge';
-import { TechStackMetadata } from '@entities/tech-stack';
+import { TechStackMetadata } from '@/main/entities/tech-stack';
 import { apiClient } from '@/shared/api/apiClient';
 import { grayScale } from '@design-system/tokens/colors';
 

@@ -3,7 +3,7 @@
  * Main과 Admin에서 공통으로 사용하는 교육 API
  */
 
-import { apiClient } from '@shared/api/apiClient';
+import { apiClient } from '@/shared/api/apiClient';
 import type { Education, EducationFormData } from '../model/education.types';
 
 class EducationApi {

@@ -7,4 +7,4 @@ export type {
   ProjectType,
   ProjectCategory,
   ProjectSource
-} from '@entities/project'; 
+} from '@/main/entities/project'; 

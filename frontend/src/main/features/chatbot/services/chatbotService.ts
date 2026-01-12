@@ -1,4 +1,4 @@
-import { apiClient } from '@shared/api/apiClient';
+import { apiClient } from '@/shared/api/apiClient';
 
 export class ChatbotService {
   static async sendMessage(message: string, selectedProject?: string): Promise<{ response: string; isRateLimited?: boolean; rateLimitMessage?: string }> {
