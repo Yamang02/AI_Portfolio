@@ -1,11 +1,13 @@
 import path from 'path';
 import { defineConfig, loadEnv } from 'vite';
+import react from '@vitejs/plugin-react';
 import { imagetools } from 'vite-imagetools';
 
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
     return {
       plugins: [
+        react(),
         imagetools({
           defaultDirectives: (url) => {
             // 모든 이미지에 기본 최적화 적용
