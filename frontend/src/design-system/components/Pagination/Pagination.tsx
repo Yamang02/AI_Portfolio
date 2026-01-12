@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Button } from '@/design-system';
+import { Button } from '../Button';
 import styles from './Pagination.module.css';
 
 export interface PaginationProps {

@@ -1,6 +1,7 @@
 import { useState, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { SectionTitle, Pagination, EmptyCard, SkeletonCard, Button } from '@/design-system';
+import { SectionTitle, EmptyCard, SkeletonCard, Button } from '@/design-system';
+import { Pagination } from '@/design-system/components/Pagination/Pagination';
 import { useArticleListQuery } from '../entities/article/api/useArticleQuery';
 import { useArticleStatisticsQuery } from '../entities/article';
 import { ArticleTable, ArticleFilterBar, ArticleControlPanel, FeaturedArticleCarousel } from '../features/article-view/ui';

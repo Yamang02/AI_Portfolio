@@ -8,7 +8,7 @@ import type { TOCItem } from '@/main/features/project-gallery/hooks/types';
 import { MarkdownRenderer } from '@/shared/ui/markdown/MarkdownRenderer';
 import { TechStackList } from '@/shared/ui/tech-stack/TechStackList';
 import { SimpleArticleCard } from '@design-system/components/Card/SimpleArticleCard';
-import { Pagination } from '@design-system/components/Pagination';
+import { Pagination } from '@design-system/components/Pagination/Pagination';
 import type { Project } from '../../entities/project/model/project.types';
 import { ProjectDetailHeader } from '@design-system/components/ProjectDetailHeader';
 import { TableOfContents } from '@design-system/components/TableOfContents';

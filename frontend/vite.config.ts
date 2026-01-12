@@ -106,9 +106,6 @@ export default defineConfig(({ mode }) => {
               // node_modules 분리
               if (id.includes('node_modules')) {
                 // 큰 라이브러리들을 별도 청크로 분리
-                if (id.includes('react') || id.includes('react-dom')) {
-                  return 'react-vendor';
-                }
                 if (id.includes('@tanstack/react-query')) {
                   return 'react-query';
                 }
@@ -123,9 +120,6 @@ export default defineConfig(({ mode }) => {
                 }
                 if (id.includes('framer-motion')) {
                   return 'framer-motion';
-                }
-                if (id.includes('mermaid')) {
-                  return 'mermaid';
                 }
                 if (id.includes('highlight.js')) {
                   return 'highlight';
