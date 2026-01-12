@@ -9,49 +9,61 @@ import styles from './MarkdownRenderer.module.css';
 import 'highlight.js/styles/github.css'; // 라이트 모드용
 // 다크 모드는 CSS에서 처리
 
-// Mermaid 동적 import 및 초기화 관리
-let mermaidInstance: typeof import('mermaid') | null = null;
-let mermaidInitialized = false;
-let mermaidInitPromise: Promise<void> | null = null;
+// Mermaid 동적 import 및 초기화 관리 (모범 사례 적용)
+type MermaidAPI = {
+  initialize: (config: {
+    startOnLoad?: boolean;
+    theme?: string;
+    securityLevel?: string;
+    fontFamily?: string;
+  }) => void;
+  render: (id: string, diagram: string) => Promise<{ svg: string }>;
+};
 
-const initializeMermaid = async (): Promise<typeof import('mermaid')> => {
-  // 이미 초기화 중이면 기다림
-  if (mermaidInitPromise) {
-    await mermaidInitPromise;
-    return mermaidInstance!;
+let mermaidApi: MermaidAPI | null = null;
+let mermaidInitPromise: Promise<MermaidAPI> | null = null;
+
+/**
+ * Mermaid 라이브러리를 동적으로 로드하고 초기화
+ * 모범 사례: 한 번만 초기화하고, 초기화 완료 후에만 사용
+ */
+const loadMermaid = async (): Promise<MermaidAPI> => {
+  // 이미 로드되었으면 바로 반환
+  if (mermaidApi) {
+    return mermaidApi;
   }
 
-  // 이미 초기화되었으면 바로 반환
-  if (mermaidInitialized && mermaidInstance) {
-    return mermaidInstance;
+  // 이미 초기화 중이면 기다림
+  if (mermaidInitPromise) {
+    return mermaidInitPromise;
   }
 
   // 초기화 시작
   mermaidInitPromise = (async () => {
     try {
-      // 동적 import로 mermaid 로드
-      mermaidInstance = await import('mermaid');
+      // 동적 import로 mermaid 모듈 로드
+      const mermaidModule = await import('mermaid');
       
-      // 초기화가 아직 안 되었으면 초기화
-      if (!mermaidInitialized) {
-        mermaidInstance.default.initialize({
-          startOnLoad: false,
-          theme: 'default',
-          securityLevel: 'loose',
-          fontFamily: 'inherit',
-        });
-        mermaidInitialized = true;
-      }
+      // mermaid.default를 변수에 저장 (모범 사례)
+      mermaidApi = mermaidModule.default as MermaidAPI;
+      
+      // 초기화는 한 번만 수행 (startOnLoad: false로 자동 렌더링 비활성화)
+      mermaidApi.initialize({
+        startOnLoad: false,
+        theme: 'default',
+        securityLevel: 'loose',
+        fontFamily: 'inherit',
+      });
+      
+      return mermaidApi;
     } catch (error) {
-      console.error('Mermaid 초기화 오류:', error);
+      console.error('Mermaid 로드 오류:', error);
       mermaidInitPromise = null;
       throw error;
     }
   })();
 
-  await mermaidInitPromise;
-  mermaidInitPromise = null;
-  return mermaidInstance!;
+  return mermaidInitPromise;
 };
 
 interface MarkdownRendererProps {
@@ -174,7 +186,7 @@ const MarkdownImage: React.FC<{ src?: string; alt?: string }> = ({ src, alt }) =
   );
 };
 
-// Mermaid 다이어그램 컴포넌트
+// Mermaid 다이어그램 컴포넌트 (모범 사례 적용)
 const MermaidDiagram: React.FC<{ diagram: string; id: string }> = ({ diagram, id }) => {
   const mermaidRef = useRef<HTMLDivElement>(null);
   const [error, setError] = React.useState<string | null>(null);
@@ -183,29 +195,38 @@ const MermaidDiagram: React.FC<{ diagram: string; id: string }> = ({ diagram, id
   useEffect(() => {
     if (!mermaidRef.current || !diagram) return;
 
-    // 다이어그램 렌더링
+    let isMounted = true;
+
+    // 다이어그램 렌더링 (모범 사례: cleanup 처리 포함)
     const renderDiagram = async () => {
       try {
         setError(null);
         setIsLoading(true);
         
-        // Mermaid 초기화 및 로드
-        const mermaid = await initializeMermaid();
+        // Mermaid 로드 및 초기화 (이미 초기화되었으면 바로 반환)
+        const mermaid = await loadMermaid();
         
-        if (!mermaidRef.current) return;
+        // 컴포넌트가 언마운트되었으면 중단
+        if (!isMounted || !mermaidRef.current) return;
         
-        // mermaid.render()를 사용하여 SVG 생성
-        const { svg } = await mermaid.default.render(id, diagram);
+        // 고유한 ID로 SVG 생성 (모범 사례: render 시마다 고유 ID 사용)
+        const { svg } = await mermaid.render(id, diagram);
         
-        if (mermaidRef.current) {
-          mermaidRef.current.innerHTML = svg;
-          setIsLoading(false);
-        }
+        // 다시 한 번 마운트 상태 확인
+        if (!isMounted || !mermaidRef.current) return;
+        
+        mermaidRef.current.innerHTML = svg;
+        setIsLoading(false);
       } catch (err) {
         console.error('Mermaid 렌더링 오류:', err);
+        
+        // 컴포넌트가 언마운트되었으면 상태 업데이트 안 함
+        if (!isMounted) return;
+        
         const errorMessage = err instanceof Error ? err.message : String(err);
         setError(errorMessage);
         setIsLoading(false);
+        
         if (mermaidRef.current) {
           mermaidRef.current.innerHTML = '';
         }
@@ -213,6 +234,11 @@ const MermaidDiagram: React.FC<{ diagram: string; id: string }> = ({ diagram, id
     };
 
     renderDiagram();
+
+    // Cleanup: 컴포넌트 언마운트 시 플래그 설정
+    return () => {
+      isMounted = false;
+    };
   }, [diagram, id]);
 
   if (error) {
@@ -390,12 +416,13 @@ const markdownComponents = {
   ),
   
   // 링크 스타일링
-  a: ({ children, href }: { children: React.ReactNode; href?: string }) => (
+  a: ({ children, href, ...props }: any) => (
     <a 
       href={href}
       className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 underline transition-colors"
       target="_blank"
       rel="noopener noreferrer"
+      {...props}
     >
       {children}
     </a>
@@ -489,8 +516,8 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
   content,
   className = ''
 }) => {
-  // Mermaid는 필요할 때 동적으로 초기화되므로 여기서는 초기화하지 않음
-  // MermaidDiagram 컴포넌트에서 initializeMermaid()를 통해 초기화됨
+  // Mermaid는 필요할 때 동적으로 초기화됨
+  // MermaidDiagram 컴포넌트에서 loadMermaid()를 통해 로드 및 초기화됨
 
   // 이스케이프된 백틱을 원래대로 복원
   // 백엔드에서 \`\`\` 형태로 저장된 경우를 처리
