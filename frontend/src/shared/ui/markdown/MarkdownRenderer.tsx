@@ -1,63 +1,249 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeSanitize, { defaultSchema } from 'rehype-sanitize';
 import rehypeHighlight from 'rehype-highlight';
 import { remarkCustomHeadingId } from '@/shared/lib/markdown/remarkCustomHeadingId';
-import mermaid from 'mermaid';
+import { Modal } from '@design-system/components/Modal';
+import styles from './MarkdownRenderer.module.css';
 import 'highlight.js/styles/github.css'; // 라이트 모드용
 // 다크 모드는 CSS에서 처리
+
+// Mermaid 동적 import 및 초기화 관리 (모범 사례 적용)
+type MermaidAPI = {
+  initialize: (config: {
+    startOnLoad?: boolean;
+    theme?: string;
+    securityLevel?: string;
+    fontFamily?: string;
+  }) => void;
+  render: (id: string, diagram: string) => Promise<{ svg: string }>;
+};
+
+let mermaidApi: MermaidAPI | null = null;
+let mermaidInitPromise: Promise<MermaidAPI> | null = null;
+
+/**
+ * Mermaid 라이브러리를 동적으로 로드하고 초기화
+ * 모범 사례: 한 번만 초기화하고, 초기화 완료 후에만 사용
+ */
+const loadMermaid = async (): Promise<MermaidAPI> => {
+  // 이미 로드되었으면 바로 반환
+  if (mermaidApi) {
+    return mermaidApi;
+  }
+
+  // 이미 초기화 중이면 기다림
+  if (mermaidInitPromise) {
+    return mermaidInitPromise;
+  }
+
+  // 초기화 시작
+  mermaidInitPromise = (async () => {
+    try {
+      // 동적 import로 mermaid 모듈 로드
+      const mermaidModule = await import('mermaid');
+      
+      // mermaid.default를 변수에 저장 (모범 사례)
+      mermaidApi = mermaidModule.default as MermaidAPI;
+      
+      // 초기화는 한 번만 수행 (startOnLoad: false로 자동 렌더링 비활성화)
+      mermaidApi.initialize({
+        startOnLoad: false,
+        theme: 'default',
+        securityLevel: 'loose',
+        fontFamily: 'inherit',
+      });
+      
+      return mermaidApi;
+    } catch (error) {
+      console.error('Mermaid 로드 오류:', error);
+      mermaidInitPromise = null;
+      throw error;
+    }
+  })();
+
+  return mermaidInitPromise;
+};
 
 interface MarkdownRendererProps {
   content: string;
   className?: string;
 }
 
-// Mermaid 다이어그램 컴포넌트
+// 이미지 모달 컴포넌트
+const MarkdownImage: React.FC<{ src?: string; alt?: string }> = ({ src, alt }) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [imageSize, setImageSize] = useState<{ width: number; height: number } | null>(null);
+  const imgRef = useRef<HTMLImageElement>(null);
+  
+  // 이미지 로드 시 크기 측정
+  const handleImageLoad = () => {
+    if (imgRef.current) {
+      setImageSize({
+        width: imgRef.current.naturalWidth,
+        height: imgRef.current.naturalHeight,
+      });
+    }
+  };
+  
+  if (!src) return null;
+  
+  // 모달 크기 계산 (뷰포트의 90%를 넘지 않도록)
+  const getModalSize = () => {
+    if (!imageSize) return { width: 'auto', height: 'auto' };
+    
+    const maxWidth = window.innerWidth * 0.9;
+    const maxHeight = window.innerHeight * 0.9;
+    
+    const aspectRatio = imageSize.width / imageSize.height;
+    
+    let width = imageSize.width;
+    let height = imageSize.height;
+    
+    // 뷰포트 크기에 맞춰 조정
+    if (width > maxWidth) {
+      width = maxWidth;
+      height = width / aspectRatio;
+    }
+    
+    if (height > maxHeight) {
+      height = maxHeight;
+      width = height * aspectRatio;
+    }
+    
+    return {
+      width: `${width}px`,
+      height: `${height}px`,
+    };
+  };
+  
+  const modalSize = getModalSize();
+  
+  return (
+    <>
+      <div 
+        className="mb-4 rounded-lg overflow-hidden cursor-pointer transition-opacity hover:opacity-90" 
+        style={{ 
+          aspectRatio: '16 / 9', 
+          backgroundColor: 'var(--color-bg-secondary)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+        onClick={() => setIsModalOpen(true)}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            setIsModalOpen(true);
+          }
+        }}
+        aria-label="이미지 확대 보기"
+      >
+        <img 
+          src={src}
+          alt={alt}
+          className="w-full h-full object-contain"
+          loading="lazy"
+          style={{ maxWidth: '100%', maxHeight: '100%' }}
+        />
+      </div>
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        width={modalSize.width}
+        className={styles.imageModal}
+      >
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          alignItems: 'center',
+          padding: '0',
+          margin: '-24px', // Modal의 content padding 제거
+          width: 'calc(100% + 48px)', // padding 양쪽 제거
+          height: modalSize.height !== 'auto' ? `calc(${modalSize.height} + 48px)` : 'auto',
+          minHeight: modalSize.height !== 'auto' ? `calc(${modalSize.height} + 48px)` : 'auto',
+          overflow: 'hidden', // 스크롤 제거
+          boxSizing: 'border-box',
+        }}>
+          <img 
+            ref={imgRef}
+            src={src}
+            alt={alt}
+            onLoad={handleImageLoad}
+            style={{ 
+              width: '100%',
+              height: '100%',
+              objectFit: 'contain',
+              display: 'block',
+            }}
+          />
+        </div>
+      </Modal>
+    </>
+  );
+};
+
+// Mermaid 다이어그램 컴포넌트 (모범 사례 적용)
+// 오류 발생 시 일반 코드 블록으로 fallback 처리
 const MermaidDiagram: React.FC<{ diagram: string; id: string }> = ({ diagram, id }) => {
   const mermaidRef = useRef<HTMLDivElement>(null);
-  const [error, setError] = React.useState<string | null>(null);
+  const [error, setError] = React.useState<boolean>(false);
+  const [isLoading, setIsLoading] = React.useState(true);
 
   useEffect(() => {
     if (!mermaidRef.current || !diagram) return;
 
-    // 다이어그램 렌더링
+    let isMounted = true;
+
+    // 다이어그램 렌더링 (모범 사례: cleanup 처리 포함)
     const renderDiagram = async () => {
       try {
-        setError(null);
-        if (mermaidRef.current) {
-          // mermaid.render()를 사용하여 SVG 생성
-          const { svg } = await mermaid.render(id, diagram);
-          if (mermaidRef.current) {
-            mermaidRef.current.innerHTML = svg;
-          }
-        }
+        setError(false);
+        setIsLoading(true);
+        
+        // Mermaid 로드 및 초기화 (이미 초기화되었으면 바로 반환)
+        const mermaid = await loadMermaid();
+        
+        // 컴포넌트가 언마운트되었으면 중단
+        if (!isMounted || !mermaidRef.current) return;
+        
+        // 고유한 ID로 SVG 생성 (모범 사례: render 시마다 고유 ID 사용)
+        const { svg } = await mermaid.render(id, diagram);
+        
+        // 다시 한 번 마운트 상태 확인
+        if (!isMounted || !mermaidRef.current) return;
+        
+        mermaidRef.current.innerHTML = svg;
+        setIsLoading(false);
       } catch (err) {
-        console.error('Mermaid 렌더링 오류:', err);
-        const errorMessage = err instanceof Error ? err.message : String(err);
-        setError(errorMessage);
-        if (mermaidRef.current) {
-          mermaidRef.current.innerHTML = '';
-        }
+        console.error('Mermaid 렌더링 오류 (일반 코드 블록으로 fallback):', err);
+        
+        // 컴포넌트가 언마운트되었으면 상태 업데이트 안 함
+        if (!isMounted) return;
+        
+        // 에러 발생 시 일반 코드 블록으로 표시
+        setError(true);
+        setIsLoading(false);
       }
     };
 
     renderDiagram();
+
+    // Cleanup: 컴포넌트 언마운트 시 플래그 설정
+    return () => {
+      isMounted = false;
+    };
   }, [diagram, id]);
 
+  // 오류 발생 시 일반 코드 블록으로 fallback
   if (error) {
     return (
-      <div className="mb-6 rounded-lg overflow-x-auto bg-red-50 dark:bg-red-900/20 p-4 border border-red-200 dark:border-red-800">
-        <pre className="text-red-500 text-sm whitespace-pre-wrap">
-          Mermaid 다이어그램 렌더링 오류: {error}
-        </pre>
-        <details className="mt-2">
-          <summary className="text-red-600 dark:text-red-400 cursor-pointer text-sm">원본 코드 보기</summary>
-          <pre className="mt-2 text-xs bg-gray-100 dark:bg-gray-800 p-2 rounded overflow-x-auto">
-            {diagram}
-          </pre>
-        </details>
-      </div>
+      <pre className="mb-6 rounded-lg overflow-x-auto bg-gray-50 dark:bg-gray-900 p-4 border border-border">
+        <code className="language-mermaid">{diagram}</code>
+      </pre>
     );
   }
 
@@ -66,7 +252,11 @@ const MermaidDiagram: React.FC<{ diagram: string; id: string }> = ({ diagram, id
       ref={mermaidRef}
       className="mb-6 rounded-lg overflow-x-auto bg-white dark:bg-gray-800 p-4 border border-border flex justify-center"
       data-mermaid-id={id}
-    />
+    >
+      {isLoading && (
+        <div className="text-text-secondary text-sm">다이어그램 로딩 중...</div>
+      )}
+    </div>
   );
 };
 
@@ -216,24 +406,21 @@ const markdownComponents = {
   ),
   
   // 링크 스타일링
-  a: ({ children, href }: { children: React.ReactNode; href?: string }) => (
+  a: ({ children, href, ...props }: any) => (
     <a 
       href={href}
       className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 underline transition-colors"
       target="_blank"
       rel="noopener noreferrer"
+      {...props}
     >
       {children}
     </a>
   ),
   
-  // 이미지 스타일링
+  // 이미지 스타일링 (클릭 시 모달로 원본 표시)
   img: ({ src, alt }: { src?: string; alt?: string }) => (
-    <img 
-      src={src}
-      alt={alt}
-      className="mb-4 rounded-lg max-w-full h-auto"
-    />
+    <MarkdownImage src={src} alt={alt} />
   ),
   
   // 테이블 스타일링
@@ -319,15 +506,8 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
   content,
   className = ''
 }) => {
-  // mermaid 초기화 (컴포넌트 마운트 시 한 번만)
-  useEffect(() => {
-    mermaid.initialize({
-      startOnLoad: false,
-      theme: 'default',
-      securityLevel: 'loose',
-      fontFamily: 'inherit',
-    });
-  }, []);
+  // Mermaid는 필요할 때 동적으로 초기화됨
+  // MermaidDiagram 컴포넌트에서 loadMermaid()를 통해 로드 및 초기화됨
 
   // 이스케이프된 백틱을 원래대로 복원
   // 백엔드에서 \`\`\` 형태로 저장된 경우를 처리

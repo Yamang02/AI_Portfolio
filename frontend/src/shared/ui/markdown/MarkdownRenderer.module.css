@@ -1,0 +1,11 @@
+/* 이미지 모달 전용 스타일 */
+.imageModal :global(.modal) {
+  max-height: none !important;
+  height: auto !important;
+}
+
+.imageModal :global(.content) {
+  padding: 0 !important;
+  overflow: hidden !important;
+  max-height: none !important;
+}

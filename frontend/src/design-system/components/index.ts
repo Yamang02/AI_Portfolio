@@ -40,11 +40,13 @@ export type {
 export { EmptyCard } from './Card';
 export type { EmptyCardProps } from './Card';
 
-export { ArticleCard } from './Card';
-export type {
-  ArticleCardProps,
-  ArticleCardArticle,
-} from './Card';
+// ArticleCard는 크리티컬 체인 최적화를 위해 design-system에서 제거
+// 필요한 페이지에서 직접 import: import { ArticleCard } from '@/design-system/components/Card/ArticleCard';
+// export { ArticleCard } from './Card';
+// export type {
+//   ArticleCardProps,
+//   ArticleCardArticle,
+// } from './Card';
 
 export { FeaturedArticleCard } from './Card';
 export type {

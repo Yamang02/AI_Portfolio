@@ -3,7 +3,7 @@
  * Main과 Admin에서 공통으로 사용하는 프로젝트 API
  */
 
-import { apiClient } from '@shared/api/apiClient';
+import { apiClient } from '@/shared/api/apiClient';
 import type { 
   Project, 
   ProjectCreateRequest, 

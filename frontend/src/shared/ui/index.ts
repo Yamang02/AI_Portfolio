@@ -6,3 +6,4 @@ export * from './page-transition';
 export * from './LoadingScreen';
 export * from './LoadingState';
 export * from './error-boundary';
+export * from './BackgroundRefetchIndicator';

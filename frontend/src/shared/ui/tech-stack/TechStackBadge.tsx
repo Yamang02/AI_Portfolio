@@ -1,5 +1,5 @@
 import React from 'react';
-import { TechStackBadgeProps } from '@entities/tech-stack';
+import { TechStackBadgeProps } from '@/main/entities/tech-stack';
 import { cn } from '@/shared/lib/utils/cn';
 
 /**

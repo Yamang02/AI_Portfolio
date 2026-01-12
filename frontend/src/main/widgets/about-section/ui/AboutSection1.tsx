@@ -57,23 +57,26 @@ export const AboutSection1: React.FC = () => {
         <div className={styles.logoContainer}>
           <div className={styles.logoWrapper} data-logo="cursor">
             <img 
-              src="/landing/cursor_logo.png" 
+              src="/landing/cursor_logo.webp" 
               alt="Cursor" 
               className={styles.logo}
+              loading="lazy"
             />
           </div>
           <div className={styles.logoWrapper} data-logo="claude">
             <img 
-              src="/landing/claude_code_logo.png" 
+              src="/landing/claude_code_logo.webp" 
               alt="Claude" 
               className={styles.logo}
+              loading="lazy"
             />
           </div>
           <div className={styles.logoWrapper} data-logo="codex">
             <img 
-              src="/landing/codex_logo.png" 
+              src="/landing/codex_logo.webp" 
               alt="Codex" 
               className={styles.logo}
+              loading="lazy"
             />
           </div>
         </div>

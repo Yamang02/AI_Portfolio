@@ -1,6 +1,6 @@
 import React from 'react';
 import styles from './TableOfContents.module.css';
-import type { TOCItem } from '@features/project-gallery/hooks/types';
+import type { TOCItem } from '@/main/features/project-gallery/hooks/types';
 
 export interface TableOfContentsProps {
   items: TOCItem[];

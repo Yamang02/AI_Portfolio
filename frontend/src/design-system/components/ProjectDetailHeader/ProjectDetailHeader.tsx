@@ -3,7 +3,7 @@ import { SectionTitle } from '@design-system/components/SectionTitle';
 import { TeamBadge, ProjectTypeBadge, DateBadge, RoleBadge } from '@design-system/components/Badge';
 import { Button } from '@design-system/components/Button';
 import { SocialIcon } from '@design-system/components/Icon';
-import type { Project } from '@entities/project/model/project.types';
+import type { Project } from '@/main/entities/project/model/project.types';
 import styles from './ProjectDetailHeader.module.css';
 
 export interface ProjectDetailHeaderProps {

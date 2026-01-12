@@ -3,7 +3,7 @@
  * Main과 Admin에서 공통으로 사용하는 경험 API
  */
 
-import { apiClient } from '@shared/api/apiClient';
+import { apiClient } from '@/shared/api/apiClient';
 import type { Experience, ExperienceFormData } from '../model/experience.types';
 
 class ExperienceApi {

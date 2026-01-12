@@ -1,9 +1,32 @@
 import path from 'path';
 import { defineConfig, loadEnv } from 'vite';
+import react from '@vitejs/plugin-react';
+import { imagetools } from 'vite-imagetools';
 
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
     return {
+      plugins: [
+        react(),
+        imagetools({
+          defaultDirectives: (url) => {
+            // 모든 이미지에 기본 최적화 적용
+            if (url.searchParams.has('webp')) {
+              return new URLSearchParams('format=webp;quality=80');
+            }
+            // 기본값: WebP 포맷, 품질 80%
+            return new URLSearchParams('format=webp;quality=80');
+          },
+          // 확장자별 최적화 설정
+          extendOutputFormats: (builtins) => {
+            return {
+              ...builtins,
+              // WebP 포맷 추가
+              webp: builtins.webp || builtins.jpeg,
+            };
+          },
+        }),
+      ],
       server: {
         port: 3000,
         host: '0.0.0.0',
@@ -67,8 +90,8 @@ export default defineConfig(({ mode }) => {
         }
       },
       build: {
-        // 청크 크기 경고 임계값 상향 (기본 500kB -> 1000kB)
-        chunkSizeWarningLimit: 1000,
+        // 청크 크기 경고 임계값 (기본 500kB)
+        chunkSizeWarningLimit: 500,
         rollupOptions: {
           onwarn(warning, warn) {
             // "use client" 지시문 경고 무시
@@ -78,10 +101,30 @@ export default defineConfig(({ mode }) => {
             warn(warning);
           },
           output: {
-            // 청크 분리 최적화: 의존성 문제를 피하기 위해 단순화
+            // 청크 분리 최적화: 큰 라이브러리들을 별도 청크로 분리
             manualChunks: (id) => {
-              // node_modules의 모든 라이브러리를 하나의 vendor 청크로
+              // node_modules 분리
               if (id.includes('node_modules')) {
+                // 큰 라이브러리들을 별도 청크로 분리
+                if (id.includes('@tanstack/react-query')) {
+                  return 'react-query';
+                }
+                if (id.includes('react-router')) {
+                  return 'react-router';
+                }
+                if (id.includes('@uiw/react-md-editor') || id.includes('react-markdown')) {
+                  return 'markdown-editor';
+                }
+                if (id.includes('antd')) {
+                  return 'antd';
+                }
+                if (id.includes('framer-motion')) {
+                  return 'framer-motion';
+                }
+                if (id.includes('highlight.js')) {
+                  return 'highlight';
+                }
+                // 나머지 node_modules는 vendor 청크로
                 return 'vendor';
               }
             }

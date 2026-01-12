@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { TableOfContents } from './TableOfContents';
-import type { TOCItem } from '@features/project-gallery/hooks/types';
+import type { TOCItem } from '@/main/features/project-gallery/hooks/types';
 
 const meta: Meta<typeof TableOfContents> = {
   title: 'Design System/Components/TableOfContents',

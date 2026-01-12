@@ -22,7 +22,13 @@ export const FeaturedProjectsSection: React.FC = () => {
             <div className={styles.projectCard}>
               <div className={styles.imageArea}>
                 {project.imageUrl ? (
-                  <img src={project.imageUrl} alt={project.title} />
+                  <img 
+                    src={project.imageUrl.includes('?') 
+                      ? `${project.imageUrl}&w=520&webp` 
+                      : `${project.imageUrl}?w=520&webp`} 
+                    alt={project.title}
+                    loading="lazy"
+                  />
                 ) : (
                   <div className={styles.imagePlaceholder}>
                     <span role="img" aria-label="placeholder">

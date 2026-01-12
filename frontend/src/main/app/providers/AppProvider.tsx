@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useState, createContext, ReactNode } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useProjectsQuery } from '../../entities/project/api/useProjectsQuery';
 import { useExperiencesQuery } from '../../entities/experience/api/useExperienceQuery';
 import { useEducationQuery } from '../../entities/education/api/useEducationQuery';
@@ -40,6 +41,9 @@ interface AppProviderProps {
 }
 
 export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
+  const location = useLocation();
+  const isHomePage = location.pathname === '/';
+  
   // UI 상태
   const [isWideScreen, setIsWideScreen] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -48,12 +52,25 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     return true;
   });
 
+  // 홈페이지에서는 데이터 로딩 지연 (크리티컬 체인 최적화)
+  // 다른 페이지로 이동할 때만 데이터 로드
+  const shouldLoadData = !isHomePage;
+
   // React Query를 사용한 데이터 로드
   // localStorage에 캐시가 있으면 즉시 표시, 없으면 API 호출
-  const { data: projects = [], isLoading: projectsLoading } = useProjectsQuery();
-  const { data: experiences = [], isLoading: experiencesLoading } = useExperiencesQuery();
-  const { data: educations = [], isLoading: educationsLoading } = useEducationQuery();
-  const { data: certifications = [], isLoading: certificationsLoading } = useCertificationsQuery();
+  // 홈페이지에서는 enabled: false로 설정하여 로딩 지연
+  const { data: projects = [], isLoading: projectsLoading } = useProjectsQuery(undefined, {
+    enabled: shouldLoadData,
+  });
+  const { data: experiences = [], isLoading: experiencesLoading } = useExperiencesQuery({
+    enabled: shouldLoadData,
+  });
+  const { data: educations = [], isLoading: educationsLoading } = useEducationQuery({
+    enabled: shouldLoadData,
+  });
+  const { data: certifications = [], isLoading: certificationsLoading } = useCertificationsQuery({
+    enabled: shouldLoadData,
+  });
 
   // 로딩 상태 계산
   const isLoading = projectsLoading || experiencesLoading || educationsLoading || certificationsLoading;

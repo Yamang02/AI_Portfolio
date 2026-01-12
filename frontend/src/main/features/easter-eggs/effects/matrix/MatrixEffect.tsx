@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import type { EasterEggContext } from '../../model/easter-egg.types';
-import { useTheme } from '@shared/providers/ThemeProvider';
+import { useTheme } from '@/shared/providers/ThemeProvider';
 
 interface MatrixEffectProps {
   context: EasterEggContext;

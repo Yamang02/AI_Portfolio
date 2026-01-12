@@ -1,5 +1,7 @@
 # [FEATURE] 프론트엔드 구조 리팩토링: main/, admin/, design-system/ 최종 구조 확립
 
+**에픽**: [프론트엔드 구조 최적화](../../epic/frontend-structure-optimization.md)
+
 ## 제안 배경
 
 현재 프론트엔드 코드베이스에 중복된 구조가 존재합니다:

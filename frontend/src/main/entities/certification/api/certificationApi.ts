@@ -3,7 +3,7 @@
  * Main과 Admin에서 공통으로 사용하는 자격증 API
  */
 
-import { apiClient } from '@shared/api/apiClient';
+import { apiClient } from '@/shared/api/apiClient';
 import type { Certification, CertificationFormData } from '../model/certification.types';
 
 class CertificationApi {

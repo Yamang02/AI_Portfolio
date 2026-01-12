@@ -3,7 +3,7 @@ import { Card } from './Card';
 import { Badge } from '../Badge/Badge';
 import { ArticleIcon } from '../Icon/ArticleIcon';
 import { ARTICLE_CATEGORIES } from '@/admin/entities/article';
-import { safeFormatDate } from '@shared/utils/safeStringUtils';
+import { safeFormatDate } from '@/shared/utils/safeStringUtils';
 import styles from './ArticleCard.module.css';
 
 export interface ArticleCardArticle {

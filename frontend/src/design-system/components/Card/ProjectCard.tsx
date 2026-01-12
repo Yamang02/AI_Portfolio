@@ -4,7 +4,7 @@ import { Badge } from '../Badge/Badge';
 import { TeamBadge } from '../Badge/TeamBadge';
 import { SocialIcon } from '../Icon/SocialIcon';
 import { ProjectIcon, ProjectIconType } from '../Icon/ProjectIcon';
-import { formatDateRange, safeSplit } from '@shared/utils/safeStringUtils';
+import { formatDateRange, safeSplit } from '@/shared/utils/safeStringUtils';
 import styles from './ProjectCard.module.css';
 
 export interface ProjectCardProject {
@@ -195,6 +195,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
             src={project.imageUrl}
             alt={project.title}
             className={styles.image}
+            loading="lazy"
             onError={() => setImageError(true)}
           />
         ) : (

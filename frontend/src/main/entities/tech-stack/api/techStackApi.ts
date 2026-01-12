@@ -3,7 +3,7 @@
  * Main과 Admin에서 공통으로 사용하는 기술 스택 API
  */
 
-import { apiClient } from '@shared/api/apiClient';
+import { apiClient } from '@/shared/api/apiClient';
 import type {
   TechStack,
   TechStackMetadata,
