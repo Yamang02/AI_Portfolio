@@ -4,11 +4,55 @@ import remarkGfm from 'remark-gfm';
 import rehypeSanitize, { defaultSchema } from 'rehype-sanitize';
 import rehypeHighlight from 'rehype-highlight';
 import { remarkCustomHeadingId } from '@/shared/lib/markdown/remarkCustomHeadingId';
-import mermaid from 'mermaid';
 import { Modal } from '@design-system/components/Modal';
 import styles from './MarkdownRenderer.module.css';
 import 'highlight.js/styles/github.css'; // 라이트 모드용
 // 다크 모드는 CSS에서 처리
+
+// Mermaid 동적 import 및 초기화 관리
+let mermaidInstance: typeof import('mermaid') | null = null;
+let mermaidInitialized = false;
+let mermaidInitPromise: Promise<void> | null = null;
+
+const initializeMermaid = async (): Promise<typeof import('mermaid')> => {
+  // 이미 초기화 중이면 기다림
+  if (mermaidInitPromise) {
+    await mermaidInitPromise;
+    return mermaidInstance!;
+  }
+
+  // 이미 초기화되었으면 바로 반환
+  if (mermaidInitialized && mermaidInstance) {
+    return mermaidInstance;
+  }
+
+  // 초기화 시작
+  mermaidInitPromise = (async () => {
+    try {
+      // 동적 import로 mermaid 로드
+      mermaidInstance = await import('mermaid');
+      
+      // 초기화가 아직 안 되었으면 초기화
+      if (!mermaidInitialized) {
+        mermaidInstance.default.initialize({
+          startOnLoad: false,
+          theme: 'default',
+          securityLevel: 'loose',
+          fontFamily: 'inherit',
+        });
+        mermaidInitialized = true;
+      }
+    } catch (error) {
+      console.error('Mermaid 초기화 오류:', error);
+      mermaidInitPromise = null;
+      throw error;
+    }
+  })();
+
+  await mermaidInitPromise;
+  mermaidInitPromise = null;
+  return mermaidInstance!;
+};
 
 interface MarkdownRendererProps {
   content: string;
@@ -134,6 +178,7 @@ const MarkdownImage: React.FC<{ src?: string; alt?: string }> = ({ src, alt }) =
 const MermaidDiagram: React.FC<{ diagram: string; id: string }> = ({ diagram, id }) => {
   const mermaidRef = useRef<HTMLDivElement>(null);
   const [error, setError] = React.useState<string | null>(null);
+  const [isLoading, setIsLoading] = React.useState(true);
 
   useEffect(() => {
     if (!mermaidRef.current || !diagram) return;
@@ -142,17 +187,25 @@ const MermaidDiagram: React.FC<{ diagram: string; id: string }> = ({ diagram, id
     const renderDiagram = async () => {
       try {
         setError(null);
+        setIsLoading(true);
+        
+        // Mermaid 초기화 및 로드
+        const mermaid = await initializeMermaid();
+        
+        if (!mermaidRef.current) return;
+        
+        // mermaid.render()를 사용하여 SVG 생성
+        const { svg } = await mermaid.default.render(id, diagram);
+        
         if (mermaidRef.current) {
-          // mermaid.render()를 사용하여 SVG 생성
-          const { svg } = await mermaid.render(id, diagram);
-          if (mermaidRef.current) {
-            mermaidRef.current.innerHTML = svg;
-          }
+          mermaidRef.current.innerHTML = svg;
+          setIsLoading(false);
         }
       } catch (err) {
         console.error('Mermaid 렌더링 오류:', err);
         const errorMessage = err instanceof Error ? err.message : String(err);
         setError(errorMessage);
+        setIsLoading(false);
         if (mermaidRef.current) {
           mermaidRef.current.innerHTML = '';
         }
@@ -183,7 +236,11 @@ const MermaidDiagram: React.FC<{ diagram: string; id: string }> = ({ diagram, id
       ref={mermaidRef}
       className="mb-6 rounded-lg overflow-x-auto bg-white dark:bg-gray-800 p-4 border border-border flex justify-center"
       data-mermaid-id={id}
-    />
+    >
+      {isLoading && (
+        <div className="text-text-secondary text-sm">다이어그램 로딩 중...</div>
+      )}
+    </div>
   );
 };
 
@@ -432,15 +489,8 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
   content,
   className = ''
 }) => {
-  // mermaid 초기화 (컴포넌트 마운트 시 한 번만)
-  useEffect(() => {
-    mermaid.initialize({
-      startOnLoad: false,
-      theme: 'default',
-      securityLevel: 'loose',
-      fontFamily: 'inherit',
-    });
-  }, []);
+  // Mermaid는 필요할 때 동적으로 초기화되므로 여기서는 초기화하지 않음
+  // MermaidDiagram 컴포넌트에서 initializeMermaid()를 통해 초기화됨
 
   // 이스케이프된 백틱을 원래대로 복원
   // 백엔드에서 \`\`\` 형태로 저장된 경우를 처리
