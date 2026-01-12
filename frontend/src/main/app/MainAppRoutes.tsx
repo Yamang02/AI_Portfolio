@@ -1,17 +1,21 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, lazy, Suspense } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
 import { useApp } from './providers/AppProvider';
 import { PageLayout } from '@/main/widgets/page-layout';
 import { HomePageLayout } from '@/main/widgets/home-page-layout';
-import { HomePage } from '@/main/pages/HomePage';
-import { ProjectsListPage } from '@/main/pages/ProjectsListPage';
-import { ProjectDetailPage } from '@/main/pages/ProjectDetailPage';
-import { ProfilePage } from '@/main/pages/ProfilePage';
-import { ChatPage } from '@/main/pages/ChatPage';
-import { ArticleListPage } from '@/main/pages/ArticleListPage';
-import { ArticleDetailPage } from '@/main/pages/ArticleDetailPage';
 import { AnimatedRoutes } from '@/shared/ui/page-transition';
 import { LoadingScreen } from '@/shared/ui/LoadingScreen';
+
+// 홈페이지는 즉시 로드 (초기 진입점)
+import { HomePage } from '@/main/pages/HomePage';
+
+// 나머지 페이지는 코드 스플리팅 적용
+const ProjectsListPage = lazy(() => import('@/main/pages/ProjectsListPage').then(m => ({ default: m.ProjectsListPage })));
+const ProjectDetailPage = lazy(() => import('@/main/pages/ProjectDetailPage').then(m => ({ default: m.ProjectDetailPage })));
+const ProfilePage = lazy(() => import('@/main/pages/ProfilePage').then(m => ({ default: m.ProfilePage })));
+const ChatPage = lazy(() => import('@/main/pages/ChatPage').then(m => ({ default: m.ChatPage })));
+const ArticleListPage = lazy(() => import('@/main/pages/ArticleListPage').then(m => ({ default: m.ArticleListPage })));
+const ArticleDetailPage = lazy(() => import('@/main/pages/ArticleDetailPage').then(m => ({ default: m.ArticleDetailPage })));
 
 /**
  * MainApp의 라우팅 컴포넌트
@@ -91,12 +95,54 @@ const MainAppContent: React.FC = () => {
           isLoading={isLoading}
           loadingStates={loadingStates}
         >
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/projects" element={<ProjectsListPage />} />
-          <Route path="/projects/:id" element={<ProjectDetailPage />} />
-          <Route path="/articles" element={<ArticleListPage />} />
-          <Route path="/articles/:businessId" element={<ArticleDetailPage />} />
-          <Route path="/chat" element={<ChatPage />} />
+          <Route 
+            path="/profile" 
+            element={
+              <Suspense fallback={<LoadingScreen message="프로필을 불러오는 중..." />}>
+                <ProfilePage />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="/projects" 
+            element={
+              <Suspense fallback={<LoadingScreen message="프로젝트를 불러오는 중..." />}>
+                <ProjectsListPage />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="/projects/:id" 
+            element={
+              <Suspense fallback={<LoadingScreen message="프로젝트 상세를 불러오는 중..." />}>
+                <ProjectDetailPage />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="/articles" 
+            element={
+              <Suspense fallback={<LoadingScreen message="아티클을 불러오는 중..." />}>
+                <ArticleListPage />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="/articles/:businessId" 
+            element={
+              <Suspense fallback={<LoadingScreen message="아티클 상세를 불러오는 중..." />}>
+                <ArticleDetailPage />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="/chat" 
+            element={
+              <Suspense fallback={<LoadingScreen message="챗봇을 불러오는 중..." />}>
+                <ChatPage />
+              </Suspense>
+            } 
+          />
         </AnimatedRoutes>
       </div>
     </PageLayout>

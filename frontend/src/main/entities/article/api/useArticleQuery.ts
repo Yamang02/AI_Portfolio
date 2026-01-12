@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { articleApi } from './articleApi';
 
 /**
@@ -24,13 +24,19 @@ export function useArticleListQuery(params: {
 
 /**
  * 아티클 상세 조회 쿼리
+ * placeholderData를 사용하여 백그라운드 리페치 중에도 이전 데이터를 유지합니다.
  */
 export function useArticleQuery(businessId: string) {
   return useQuery({
     queryKey: ['articles', businessId],
     queryFn: () => articleApi.getByBusinessId(businessId),
     staleTime: 10 * 60 * 1000, // 10분
+    gcTime: 15 * 60 * 1000, // 15분 (기존 cacheTime)
     enabled: !!businessId,
+    // 플래싱 방지: 백그라운드 리페치 중에도 이전 데이터 유지
+    placeholderData: keepPreviousData,
+    refetchOnWindowFocus: false, // 탭 전환 시 리페치 방지
+    refetchOnReconnect: false, // 네트워크 재연결 시 리페치 방지
   });
 }
 

@@ -195,6 +195,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
             src={project.imageUrl}
             alt={project.title}
             className={styles.image}
+            loading="lazy"
             onError={() => setImageError(true)}
           />
         ) : (

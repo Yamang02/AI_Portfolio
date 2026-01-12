@@ -1,8 +1,12 @@
 /* 폰트 옵션 1: Inter (모던하고 깔끔한 개발자 포트폴리오용) */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+/* 성능 최적화: font-display=swap으로 렌더링 차단 최소화 */
+/* HTML에서 preload로 로드되므로 여기서는 중복 로드 방지 */
+/* @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap'); */
 
 /* 폰트 옵션 2: Pretendard (한국어 최적화, 현재 사용 중) */
-@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css');
+/* 성능 최적화: font-display=swap으로 렌더링 차단 최소화 */
+/* HTML에서 preload로 로드되므로 여기서는 중복 로드 방지 */
+/* @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css'); */
 
 /* 폰트 옵션 3: Space Grotesk (기하학적이고 모던한 느낌) */
 /* @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap'); */
@@ -94,6 +98,8 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    /* 스크롤바 공간 예약 (레이아웃 시프트 방지) */
+    scrollbar-gutter: stable;
     /* Inter 사용 시 */
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
     
@@ -114,6 +120,9 @@
   }
 
   body {
+    /* 최소 높이 보장 */
+    min-height: 100vh;
+    min-height: 100dvh; /* 모바일 뷰포트 */
     /* Inter 사용 시 */
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
     

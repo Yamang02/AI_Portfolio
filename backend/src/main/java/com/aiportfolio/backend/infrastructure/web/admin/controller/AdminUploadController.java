@@ -334,6 +334,8 @@ public class AdminUploadController {
             case "skill" -> "portfolio/skills";
             case "profile" -> "portfolio/profile";
             case "screenshots" -> "portfolio/projects/screenshots";
+            case "article-thumbnail" -> "portfolio/articles/thumbnails";
+            case "article-content" -> "portfolio/articles/content";
             default -> "portfolio/misc";
         };
     }

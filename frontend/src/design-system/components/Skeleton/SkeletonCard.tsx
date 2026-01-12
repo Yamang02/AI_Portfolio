@@ -26,7 +26,7 @@ export const SkeletonCard: React.FC<SkeletonCardProps> = ({
     <div className={`${styles.card} ${className || ''}`}>
       {showImage && (
         <div className={styles.image}>
-          <Skeleton variant="rectangular" height="192px" />
+          <Skeleton variant="rectangular" height="100%" />
         </div>
       )}
       

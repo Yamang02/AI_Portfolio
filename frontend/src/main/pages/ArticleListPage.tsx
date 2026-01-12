@@ -1,11 +1,12 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SectionTitle, Pagination, EmptyCard, SkeletonCard, Button } from '@/design-system';
 import { useArticleListQuery } from '../entities/article/api/useArticleQuery';
 import { useArticleStatisticsQuery } from '../entities/article';
 import { ArticleTable, ArticleFilterBar, ArticleControlPanel, FeaturedArticleCarousel } from '../features/article-view/ui';
-import { ArticleCard } from '@/design-system';
-import { useContentHeightRecalc } from '@/shared/hooks';
+// ArticleCard는 크리티컬 체인 최적화를 위해 직접 import
+import { ArticleCard } from '@/design-system/components/Card/ArticleCard';
+import { useContentHeightRecalc, useImageLoadTracking } from '@/shared/hooks';
 import styles from './ArticleListPage.module.css';
 
 type ViewMode = 'table' | 'gallery';
@@ -18,6 +19,7 @@ type SortBy = 'publishedAt' | 'viewCount';
  */
 export function ArticleListPage() {
   const navigate = useNavigate();
+  const containerRef = useRef<HTMLDivElement>(null);
   const [page, setPage] = useState(1);
   const [viewMode, setViewMode] = useState<ViewMode>('gallery');
   const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined);
@@ -124,8 +126,11 @@ export function ArticleListPage() {
   // 필터링된 아티클 (서버에서 이미 필터링됨)
   const filteredArticles = data?.content || [];
 
-  // API 로딩 후 페이지 높이 재계산
-  useContentHeightRecalc(isLoading, [filteredArticles], {
+  // 이미지 로딩 추적
+  const { allImagesLoaded } = useImageLoadTracking(containerRef);
+
+  // API 로딩 및 이미지 로딩 완료 후 페이지 높이 재계산
+  useContentHeightRecalc(isLoading, [filteredArticles, allImagesLoaded], {
     scrollThreshold: 100,
     recalcDelay: 200,
     useResizeObserver: true,
@@ -161,7 +166,7 @@ export function ArticleListPage() {
   const hasError = !!error;
 
   return (
-    <div className={styles.page}>
+    <div ref={containerRef} className={styles.page}>
       {/* 헤더 */}
       <section className={styles.header}>
         <div className={styles.container}>

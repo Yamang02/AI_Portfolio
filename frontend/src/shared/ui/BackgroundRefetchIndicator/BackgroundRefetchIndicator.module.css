@@ -1,0 +1,33 @@
+.indicator {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 8px 16px;
+  background: var(--color-background-secondary);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  opacity: 0.9;
+  z-index: 1000;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: fadeIn 0.2s ease-in;
+}
+
+.text {
+  color: var(--color-text-secondary);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 0.9;
+    transform: translateY(0);
+  }
+}

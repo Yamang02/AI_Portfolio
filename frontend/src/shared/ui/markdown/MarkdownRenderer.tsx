@@ -1,10 +1,12 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeSanitize, { defaultSchema } from 'rehype-sanitize';
 import rehypeHighlight from 'rehype-highlight';
 import { remarkCustomHeadingId } from '@/shared/lib/markdown/remarkCustomHeadingId';
 import mermaid from 'mermaid';
+import { Modal } from '@design-system/components/Modal';
+import styles from './MarkdownRenderer.module.css';
 import 'highlight.js/styles/github.css'; // 라이트 모드용
 // 다크 모드는 CSS에서 처리
 
@@ -12,6 +14,121 @@ interface MarkdownRendererProps {
   content: string;
   className?: string;
 }
+
+// 이미지 모달 컴포넌트
+const MarkdownImage: React.FC<{ src?: string; alt?: string }> = ({ src, alt }) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [imageSize, setImageSize] = useState<{ width: number; height: number } | null>(null);
+  const imgRef = useRef<HTMLImageElement>(null);
+  
+  // 이미지 로드 시 크기 측정
+  const handleImageLoad = () => {
+    if (imgRef.current) {
+      setImageSize({
+        width: imgRef.current.naturalWidth,
+        height: imgRef.current.naturalHeight,
+      });
+    }
+  };
+  
+  if (!src) return null;
+  
+  // 모달 크기 계산 (뷰포트의 90%를 넘지 않도록)
+  const getModalSize = () => {
+    if (!imageSize) return { width: 'auto', height: 'auto' };
+    
+    const maxWidth = window.innerWidth * 0.9;
+    const maxHeight = window.innerHeight * 0.9;
+    
+    const aspectRatio = imageSize.width / imageSize.height;
+    
+    let width = imageSize.width;
+    let height = imageSize.height;
+    
+    // 뷰포트 크기에 맞춰 조정
+    if (width > maxWidth) {
+      width = maxWidth;
+      height = width / aspectRatio;
+    }
+    
+    if (height > maxHeight) {
+      height = maxHeight;
+      width = height * aspectRatio;
+    }
+    
+    return {
+      width: `${width}px`,
+      height: `${height}px`,
+    };
+  };
+  
+  const modalSize = getModalSize();
+  
+  return (
+    <>
+      <div 
+        className="mb-4 rounded-lg overflow-hidden cursor-pointer transition-opacity hover:opacity-90" 
+        style={{ 
+          aspectRatio: '16 / 9', 
+          backgroundColor: 'var(--color-bg-secondary)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+        onClick={() => setIsModalOpen(true)}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            setIsModalOpen(true);
+          }
+        }}
+        aria-label="이미지 확대 보기"
+      >
+        <img 
+          src={src}
+          alt={alt}
+          className="w-full h-full object-contain"
+          loading="lazy"
+          style={{ maxWidth: '100%', maxHeight: '100%' }}
+        />
+      </div>
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        width={modalSize.width}
+        className={styles.imageModal}
+      >
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          alignItems: 'center',
+          padding: '0',
+          margin: '-24px', // Modal의 content padding 제거
+          width: 'calc(100% + 48px)', // padding 양쪽 제거
+          height: modalSize.height !== 'auto' ? `calc(${modalSize.height} + 48px)` : 'auto',
+          minHeight: modalSize.height !== 'auto' ? `calc(${modalSize.height} + 48px)` : 'auto',
+          overflow: 'hidden', // 스크롤 제거
+          boxSizing: 'border-box',
+        }}>
+          <img 
+            ref={imgRef}
+            src={src}
+            alt={alt}
+            onLoad={handleImageLoad}
+            style={{ 
+              width: '100%',
+              height: '100%',
+              objectFit: 'contain',
+              display: 'block',
+            }}
+          />
+        </div>
+      </Modal>
+    </>
+  );
+};
 
 // Mermaid 다이어그램 컴포넌트
 const MermaidDiagram: React.FC<{ diagram: string; id: string }> = ({ diagram, id }) => {
@@ -227,13 +344,9 @@ const markdownComponents = {
     </a>
   ),
   
-  // 이미지 스타일링
+  // 이미지 스타일링 (클릭 시 모달로 원본 표시)
   img: ({ src, alt }: { src?: string; alt?: string }) => (
-    <img 
-      src={src}
-      alt={alt}
-      className="mb-4 rounded-lg max-w-full h-auto"
-    />
+    <MarkdownImage src={src} alt={alt} />
   ),
   
   // 테이블 스타일링

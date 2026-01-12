@@ -26,15 +26,21 @@ export const PROJECT_QUERY_KEYS = {
 /**
  * 프로젝트 목록 조회 훅
  */
-export const useProjectsQuery = (params?: {
-  type?: 'project' | 'certification';
-  source?: 'github' | 'local' | 'certification';
-  isTeam?: boolean;
-}) => {
+export const useProjectsQuery = (
+  params?: {
+    type?: 'project' | 'certification';
+    source?: 'github' | 'local' | 'certification';
+    isTeam?: boolean;
+  },
+  options?: {
+    enabled?: boolean;
+  }
+) => {
   return useQuery({
     queryKey: [...PROJECT_QUERY_KEYS.lists(), params],
     queryFn: () => projectApi.getProjects(params),
     staleTime: QUERY_STALE_TIME.PROJECT,
+    enabled: options?.enabled !== false, // 기본값은 true
   });
 };
 

@@ -9,12 +9,16 @@ import { MarkdownRenderer } from '@/shared/ui/markdown/MarkdownRenderer';
 import { TechStackList } from '@/shared/ui/tech-stack/TechStackList';
 import { TableOfContents } from '@design-system/components/TableOfContents';
 import { ArticleNavigation } from '@design-system/components/ArticleNavigation';
-import { ArticleCard, ProjectCard } from '@design-system';
+// ArticleCard는 크리티컬 체인 최적화를 위해 직접 import
+import { ArticleCard } from '@design-system/components/Card/ArticleCard';
+import { ProjectCard } from '@design-system';
 import type { ProjectCardProject } from '@design-system';
 import { Badge } from '@design-system/components/Badge/Badge';
 import { ARTICLE_CATEGORIES } from '@/admin/entities/article';
 import { Skeleton } from '@design-system/components/Skeleton';
 import { EmptyCard } from '@design-system';
+import { BackgroundRefetchIndicator } from '@/shared/ui';
+import { ArticleErrorView } from './ArticleDetailPage/ui/ArticleErrorView';
 import styles from './ArticleDetailPage.module.css';
 
 /**
@@ -28,7 +32,13 @@ export function ArticleDetailPage() {
   const contentRef = useRef<HTMLDivElement>(null);
 
   // 아티클 상세 조회
-  const { data: article, isLoading, error } = useArticleQuery(businessId!);
+  const { 
+    data: article, 
+    isLoading, 
+    isError,
+    isFetching,  // 백그라운드 리페치 상태
+    error 
+  } = useArticleQuery(businessId!);
 
   // 아티클 네비게이션 조회 (이전/다음 아티클만)
   const { data: navigationData } = useArticleNavigationQuery(businessId!);
@@ -121,11 +131,15 @@ export function ArticleDetailPage() {
     window.scrollTo(0, 0);
   }, [businessId]);
 
-  // 에러 상태 체크
-  const hasError = !!error || (!isLoading && !article);
+  // 에러 상태 체크: 백그라운드 리페치 중이 아닐 때만 에러로 처리
+  const hasError = (isError || (!isLoading && !article)) && !isFetching;
 
   return (
     <div className={styles.container}>
+      {/* 백그라운드 리페치 인디케이터 */}
+      {isFetching && !isLoading && article && (
+        <BackgroundRefetchIndicator />
+      )}
       <div ref={contentRef} className={styles.content}>
         {/* 로딩 상태: 구조를 유지하면서 Skeleton 표시 */}
         {isLoading ? (
@@ -156,21 +170,18 @@ export function ArticleDetailPage() {
             </section>
           </>
         ) : hasError ? (
-          // 에러 상태: 구조를 유지하면서 메시지 표시
+          // 에러 상태: 백그라운드 리페치 중이 아닐 때만 에러 표시
           <>
             <header className={styles.header}>
               <SectionTitle level="h1" className={styles.title}>
-                아티클을 찾을 수 없습니다
+                {isError && error?.message?.includes('404') 
+                  ? '아티클을 찾을 수 없습니다' 
+                  : '오류가 발생했습니다'}
               </SectionTitle>
               <div className={styles.divider}></div>
             </header>
             <section className={styles.section}>
-              <EmptyCard message="요청한 아티클이 존재하지 않습니다." />
-              <div style={{ marginTop: 'var(--spacing-6)', textAlign: 'center' }}>
-                <TextLink href="/articles" className={styles.backLink}>
-                  아티클 목록으로 돌아가기
-                </TextLink>
-              </div>
+              <ArticleErrorView error={error} />
             </section>
           </>
         ) : (

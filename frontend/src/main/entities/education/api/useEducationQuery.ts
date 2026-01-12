@@ -15,10 +15,13 @@ export const EDUCATION_QUERY_KEYS = {
 /**
  * 교육 목록 조회 훅
  */
-export const useEducationQuery = () => {
+export const useEducationQuery = (options?: {
+  enabled?: boolean;
+}) => {
   return useQuery({
     queryKey: EDUCATION_QUERY_KEYS.lists(),
     queryFn: () => educationApi.getEducation(),
     staleTime: QUERY_STALE_TIME.EDUCATION,
+    enabled: options?.enabled !== false, // 기본값은 true
   });
 };

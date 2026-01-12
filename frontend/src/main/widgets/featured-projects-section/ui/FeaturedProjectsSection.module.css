@@ -37,7 +37,7 @@
 
 .imageArea {
   width: 100%;
-  height: 220px;
+  aspect-ratio: 16 / 9; /* 이미지 로딩 전 높이 보장 */
   background: var(--color-bg-secondary);
   display: flex;
   align-items: center;

@@ -14,15 +14,17 @@ export const AboutSection2: React.FC = () => {
         <div className={imageStyles.imageWrapper}>
           {/* 원본 이미지 */}
           <img 
-            src="/landing/cursor_usage.jpg" 
+            src="/landing/cursor_usage.webp" 
             alt="Cursor Usage Statistics" 
             className={imageStyles.image}
+            loading="lazy"
           />
           {/* 강조된 Top 5% 이미지 */}
           <img 
-            src="/landing/top_5.png" 
+            src="/landing/top_5.webp" 
             alt="Usage Top 5%" 
             className={imageStyles.highlightImage}
+            loading="lazy"
           />
         </div>
         

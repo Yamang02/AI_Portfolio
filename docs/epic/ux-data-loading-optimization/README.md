@@ -1,9 +1,23 @@
 # 에픽: UX 및 데이터 로딩 최적화
 
 **작성일**: 2026-01-12
-**상태**: Backlog
+**상태**: ✅ 구현 완료 (최종 검증 대기)
 **우선순위**: High
-**예상 기간**: 2-3주
+**예상 기간**: 1.5-2주 (리뷰 후 단축)
+**최종 수정일**: 2026-01-12
+**구현 완료일**: 2026-01-12
+
+---
+
+## 🔄 변경 이력
+
+### 2026-01-12: 리뷰 후 우선순위 및 범위 조정
+- **예상 기간**: 2-3주 → 1.5-2주로 단축
+- **스크롤 높이 계산 Phase 3 제외**: Lazy Loading 라이브러리 도입, Progressive Image Loading 제거
+- **우선순위 조정**:
+  - Week 1에 데이터 플래싱 해결 + 마크다운 에디터 기본 기능 병합
+  - 스크롤 높이 계산 Phase 2를 선택사항으로 변경
+- **사유**: 프로젝트 규모 대비 적절성 검토 결과 일부 항목 과도함 판단
 
 ---
 
@@ -144,28 +158,56 @@
 
 ## 우선순위 및 순서
 
-### Week 1: 데이터 플래싱 해결
-- 이슈 #1 Phase 1-2 완료
-- React Query 설정 최적화
-- 에러 조건 로직 개선
-- 에러 UI/UX 개선
+### Week 1: 데이터 플래싱 해결 + 마크다운 에디터 기본 기능 ⭐ ✅ 완료
+**예상 소요**: 1주
+- ✅ 이슈 #1 완료 (데이터 플래싱 해결)
+  - React Query `placeholderData: keepPreviousData` 설정
+  - `refetchOnWindowFocus`, `refetchOnReconnect` 비활성화
+  - 에러 조건 로직 개선 (`isFetching` 활용)
+  - `ArticleErrorView` 컴포넌트 생성 (에러 타입별 메시지)
+  - `BackgroundRefetchIndicator` 컴포넌트 생성
+- ✅ 이슈 #3 Phase 1 완료 (마크다운 에디터 기본 이미지 업로드)
+  - 백엔드 타입 확장 (`article-content` 추가)
+  - 프론트엔드 `upload-api.ts` 생성
+  - 마크다운 에디터 커스텀 명령어 추가
+  - 업로드 중 로딩 표시 및 에러 처리
 
-### Week 2: 스크롤 높이 계산 개선
-- 이슈 #2 Phase 1-2 진행
-- 이미지 aspect-ratio 추가
-- 이미지 로딩 추적 개선
-- `useContentHeightRecalc` 리팩토링
+**우선순위**: 🔥 최우선 (낮은 복잡도, 높은 영향도)
 
-### Week 3: 마크다운 에디터 개선
-- 이슈 #3 Phase 1-2 완료
-- 백엔드 타입 확장
-- 커스텀 이미지 업로드 명령어
-- 드래그 앤 드롭 및 클립보드 지원
+### Week 2: 스크롤 높이 계산 개선 (Phase 1만) + 선택 작업 ✅ 완료
+**예상 소요**: 3-5일
+- ✅ 이슈 #2 Phase 1 완료 (필수)
+  - ProjectCard 이미지에 `aspect-ratio: 16 / 9` 추가
+  - SkeletonCard 높이 일관성 확인 및 수정
+  - MarkdownRenderer 이미지에 `aspect-ratio` 추가
+  - `useImageLoadTracking` 훅 생성
+  - ArticleListPage에 이미지 로딩 추적 적용
+- ✅ 이슈 #3 Phase 2 완료 (드래그 앤 드롭 및 클립보드)
+  - 드래그 앤 드롭 이미지 업로드 핸들러
+  - 클립보드 이미지 붙여넣기 지원
+  - 다중 이미지 업로드 지원
+- ✅ 이미지 모달 개선
+  - 이미지 전체 표시 (`object-fit: contain`)
+  - 클릭 시 원본 이미지 모달 표시
+  - 모달 크기를 이미지 크기에 맞춤
 
-### Week 4: 최종 검증 (여유)
-- 통합 테스트
-- Lighthouse 점수 측정
-- 사용자 피드백 수집
+**우선순위**: ⭐ 높음 (간단한 CSS 수정으로 해결)
+
+### Week 3: 추가 개선 (선택사항) ✅ 완료
+**예상 소요**: 2-3일 (필요시만)
+- ✅ 이슈 #2 Phase 2 완료 (선택사항)
+  - 글로벌 CSS 개선 (`scrollbar-gutter: stable`, `min-height: 100vh`)
+  - `useContentHeightRecalc`는 이미 ResizeObserver 사용 중이므로 리팩토링 불필요
+- ✅ CLS 측정 유틸리티 생성
+  - `measureCLS()` 함수 생성
+  - `getCurrentCLS()` 함수 생성
+
+**우선순위**: 🔽 낮음 (현재 상태가 심각하지 않으면 제외)
+
+### ❌ 제외된 작업 (과도한 최적화)
+- ~~Lazy Loading 라이브러리 도입~~ → 네이티브 `loading="lazy"` 사용
+- ~~Progressive Image Loading~~ → Cloudinary 자동 최적화로 충분
+- ~~이미지 갤러리 기능~~ → 우선순위 낮음
 
 ---
 
@@ -202,7 +244,19 @@
 
 ## 관련 문서
 
+### 에픽 문서
 - [에픽 리뷰](./review.md) - 프로젝트 규모 대비 적절성 검토
+- [기술 설계](./design.md) - 상세 기술 설계 문서
+- [체크리스트](./checklist.md) - 작업 체크리스트
+- [구현 완료 요약](./IMPLEMENTATION_SUMMARY.md) - 구현 완료 항목 요약
+
+### 성능 최적화 문서
+- [성능 최적화 가이드](./performance-optimization.md) - JavaScript, CSS, 번들 최적화
+- [LCP 최적화 가이드](./lcp-optimization.md) - Largest Contentful Paint 최적화
+- [이미지 최적화 가이드](./image-optimization.md) - 이미지 압축 및 최적화
+- [크리티컬 요청 체인 최적화](./critical-request-chain-optimization.md) - 크리티컬 요청 체인 최소화
+
+### 외부 참고 자료
 - [React Query Best Practices - TkDodo](https://tkdodo.eu/blog/react-query-best-practices)
 - [React: Preventing Layout Shifts](https://maxschmitt.me/posts/react-prevent-layout-shift-body-scrollable)
 - [@uiw/react-md-editor Documentation](https://uiwjs.github.io/react-md-editor/)
