@@ -40,15 +40,22 @@ export function useContentHeightRecalc(
    * 브라우저에게 레이아웃을 다시 계산하도록 강제
    */
   const recalculateHeight = useCallback(() => {
+    const beforeHeight = document.documentElement.scrollHeight;
+
     // 강제 리플로우 트리거
     if (document.body) {
       void document.body.offsetHeight;
     }
-    
+
     // 스크롤 위치 재계산
     if (window.scrollY !== undefined) {
       const currentScroll = window.scrollY;
       window.scrollTo(0, currentScroll);
+    }
+
+    const afterHeight = document.documentElement.scrollHeight;
+    if (process.env.NODE_ENV === 'development' && beforeHeight !== afterHeight) {
+      console.log('[Height Recalc]', { beforeHeight, afterHeight, diff: afterHeight - beforeHeight });
     }
   }, []);
 
@@ -56,7 +63,7 @@ export function useContentHeightRecalc(
    * rAF로 재계산을 배치(동일 프레임 내 중복 호출 방지)
    */
   const scheduleRecalc = useCallback(() => {
-    if (isLoading) return;
+    // 로딩 중에도 재계산 허용 (삭제: if (isLoading) return;)
     if (rafIdRef.current != null) return;
 
     rafIdRef.current = window.requestAnimationFrame(() => {
@@ -68,14 +75,14 @@ export function useContentHeightRecalc(
         recalculateHeight();
       }
     });
-  }, [isLoading, recalculateHeight]);
+  }, [recalculateHeight]);
 
   /**
-   * 스크롤이 하단에 도달했는지 확인하고, 
+   * 스크롤이 하단에 도달했는지 확인하고,
    * 컨텐츠가 모두 보이지 않으면 재계산
    */
   const checkScrollBottom = useCallback(() => {
-    if (isLoading) return;
+    // 로딩 중에도 체크 허용 (삭제: if (isLoading) return;)
 
     const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
     const windowHeight = window.innerHeight;
@@ -83,18 +90,15 @@ export function useContentHeightRecalc(
 
     // 하단에 근접했는지 확인
     const distanceFromBottom = documentHeight - (scrollTop + windowHeight);
-    
+
     if (distanceFromBottom <= scrollThreshold) {
-      // 현재 문서 높이 확인
-      const currentHeight = document.documentElement.scrollHeight;
-      
-      // 높이가 변경되었으면 재계산
-      if (currentHeight !== lastHeightRef.current) {
-        lastHeightRef.current = currentHeight;
+      // 높이가 변경되었으면 재계산 (documentHeight를 재사용하여 중복 읽기 방지)
+      if (documentHeight !== lastHeightRef.current) {
+        lastHeightRef.current = documentHeight;
         recalculateHeight();
       }
     }
-  }, [isLoading, scrollThreshold, recalculateHeight]);
+  }, [scrollThreshold, recalculateHeight]);
 
   /**
    * ResizeObserver 콜백
@@ -125,7 +129,7 @@ export function useContentHeightRecalc(
 
   // 스크롤 이벤트 리스너
   useEffect(() => {
-    if (isLoading) return;
+    // 로딩 중에도 이벤트 리스너 활성화 (삭제: if (isLoading) return;)
 
     const handleScroll = () => {
       checkScrollBottom();
@@ -148,18 +152,18 @@ export function useContentHeightRecalc(
     return () => {
       window.removeEventListener('scroll', throttledHandleScroll);
     };
-  }, [isLoading, checkScrollBottom]);
+  }, [checkScrollBottom]);
 
-  // API 로딩 완료 후 재계산
+  // 로딩 상태 변경 및 의존성 변경 시 재계산
   useEffect(() => {
-    if (isLoading) return;
-
-    // 로딩 완료 직후 1회, 다음 페인트에 1회(프레임 동기화)만 수행
+    // 즉시 1회 재계산
     recalculateHeight();
     lastHeightRef.current = document.documentElement.scrollHeight;
+
+    // 다음 프레임에 1회 재계산 (DOM 업데이트 반영)
     scheduleRecalc();
 
-    // 폰트 로딩으로 인한 레이아웃 변화 대응
+    // 폰트 로딩 완료 후 재계산
     const fontsReady = (document as Document & { fonts?: FontFaceSet }).fonts?.ready;
     fontsReady?.then(() => scheduleRecalc()).catch(() => {});
 
@@ -179,5 +183,6 @@ export function useContentHeightRecalc(
   return {
     containerRef,
     recalculateHeight,
+    scheduleRecalc,
   };
 }

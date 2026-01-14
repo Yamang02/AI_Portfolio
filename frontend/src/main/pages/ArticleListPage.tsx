@@ -127,14 +127,21 @@ export function ArticleListPage() {
   // 필터링된 아티클 (서버에서 이미 필터링됨)
   const filteredArticles = data?.content || [];
 
-  // 이미지 로딩 추적
-  const { allImagesLoaded } = useImageLoadTracking(containerRef);
+  // 페이지 높이 재계산 훅
+  // dependencies를 안정화하기 위해 배열 길이와 첫 번째 항목의 ID를 사용
+  const articlesKey = useMemo(() => {
+    if (!filteredArticles.length) return 'empty';
+    return `${filteredArticles.length}-${filteredArticles[0]?.businessId || ''}`;
+  }, [filteredArticles]);
 
-  // API 로딩 및 이미지 로딩 완료 후 페이지 높이 재계산
-  useContentHeightRecalc(isLoading, [filteredArticles, allImagesLoaded], {
+  const { recalculateHeight, scheduleRecalc } = useContentHeightRecalc(isLoading, [articlesKey], {
     scrollThreshold: 100,
     useResizeObserver: true,
   });
+
+  // 이미지 로딩 추적 (각 이미지 로드 시 높이 재계산)
+  // scheduleRecalc를 사용하여 rAF 배치 처리
+  const { allImagesLoaded } = useImageLoadTracking(containerRef, scheduleRecalc || recalculateHeight);
 
   const handleArticleClick = (article: { businessId: string }) => {
     navigate(`/articles/${article.businessId}`);
