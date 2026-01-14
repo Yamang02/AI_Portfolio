@@ -161,13 +161,6 @@
   font-size: 1rem;
 }
 
-/* Tablet (768px - 1023px) - 2열 */
-@media (min-width: 768px) and (max-width: 1023px) {
-  .grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
 /* Mobile (< 768px) - 1열 */
 @media (max-width: 767px) {
   .grid {
@@ -175,8 +168,11 @@
   }
 }
 
-/* Tablet (768px - 1023px) */
+/* Tablet (768px - 1023px) - 2열 및 기타 스타일 */
 @media (min-width: 768px) and (max-width: 1023px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
   .header {
     padding: 28px 24px 20px;
   }
@@ -245,4 +241,33 @@
     flex-direction: column;
     gap: 8px;
   }
+}
+
+/* 재시도 오버레이 */
+.retryOverlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-3);
+  z-index: 20;
+}
+
+.retryOverlayTopRight {
+  position: absolute;
+  top: var(--spacing-4);
+  right: var(--spacing-4);
+  z-index: 20;
+}
+
+.retryText {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.relativeContainer {
+  position: relative;
 }

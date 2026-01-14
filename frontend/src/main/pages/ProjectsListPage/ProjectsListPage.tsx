@@ -1,14 +1,19 @@
 import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { SectionTitle, Divider, ProjectCard, SkeletonCard, EmptyCard, Button } from '@/design-system';
+import { SectionTitle, Button } from '@/design-system';
 import { useProjectsQuery } from '@/main/entities/project/api/useProjectsQuery';
 import type { Project } from '@/main/entities/project/model/project.types';
 import type { ProjectCardProject } from '@/design-system/components/Card/ProjectCard';
 import { FEATURED_PROJECTS } from '@/main/widgets/featured-projects-section/model/featuredProjects.config';
 import { ProjectSearchModal } from './components/ProjectSearchModal';
 import { ProjectHistoryTimeline } from './components/ProjectHistoryTimeline';
+import { ProjectSectionContent } from './components/ProjectSectionContent';
 import { useContentHeightRecalc } from '@/shared/hooks';
 import styles from './ProjectsListPage.module.css';
+
+// 상수 정의
+const SCROLL_DELAY_MS = 300;
+const HIGHLIGHT_DURATION_MS = 2000;
 
 // 프로젝트 타입별 섹션 구성
 type ProjectCategory = 'BUILD' | 'LAB' | 'MAINTENANCE';
@@ -31,31 +36,7 @@ export const ProjectsListPage: React.FC = () => {
 
   // 주요 프로젝트: is_featured가 true인 프로젝트만 필터링
   const featuredProjects = useMemo(() => {
-    const featured = projects.filter(p => {
-      // isFeatured가 명시적으로 true인 경우만 필터링
-      // undefined, null, false는 모두 제외
-      return p.isFeatured === true;
-    });
-    
-    // 디버깅: prj-003 확인
-    if (process.env.NODE_ENV === 'development') {
-      const prj003 = projects.find(p => p.id === 'prj-003');
-      if (prj003) {
-        console.log('prj-003 found:', {
-          id: prj003.id,
-          title: prj003.title,
-          isFeatured: prj003.isFeatured,
-          isFeaturedType: typeof prj003.isFeatured,
-          isInFeatured: featured.some(f => f.id === 'prj-003')
-        });
-      } else {
-        console.log('prj-003 not found in projects list');
-      }
-      console.log('All projects:', projects.map(p => ({ id: p.id, isFeatured: p.isFeatured })));
-      console.log('Featured projects:', featured.map(p => ({ id: p.id, title: p.title })));
-    }
-    
-    return featured;
+    return projects.filter(p => p.isFeatured === true);
   }, [projects]);
 
   // 프로젝트 타입별로 그룹화 (모든 섹션 표시, 순서: MAINTENANCE → BUILD → LAB)
@@ -151,19 +132,15 @@ export const ProjectsListPage: React.FC = () => {
           if (projectCardElement) {
             projectCardElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
           }
-        }, 300);
+        }, SCROLL_DELAY_MS);
       }
     }
     
-    // 2초 후 하이라이트 제거
+    // 하이라이트 제거
     setTimeout(() => {
       setHighlightedProjectId(undefined);
-    }, 2000);
+    }, HIGHLIGHT_DURATION_MS);
   };
-
-  // 초기 로딩 상태는 제거하고 각 섹션에서 오버레이로 처리
-
-  // 에러 상태는 제거하고 아래에서 처리
 
   return (
     <div className={styles.page}>
@@ -212,97 +189,16 @@ export const ProjectsListPage: React.FC = () => {
         </div>
         <div className={styles.container}>
           <div className={styles.grid}>
-            {isLoading ? (
-              // 로딩 상태: 스켈레톤 카드 여러 개 표시 (스피너 포함)
-              [...Array(3)].map((_, i) => (
-                <SkeletonCard key={i} isLoading={true} />
-              ))
-            ) : isError ? (
-              // 에러 상태: 빈 스켈레톤 카드 표시 (스피너 없음) + 재시도 버튼
-              <div style={{ position: 'relative' }}>
-                <SkeletonCard isLoading={false} />
-                <div style={{ 
-                  position: 'absolute', 
-                  top: '50%', 
-                  left: '50%', 
-                  transform: 'translate(-50%, -50%)',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  gap: '12px',
-                  zIndex: 20
-                }}>
-                  <Button
-                    variant="icon"
-                    size="md"
-                    onClick={() => refetch()}
-                    ariaLabel="재시도"
-                  >
-                    <svg
-                      width="20"
-                      height="20"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
-                      <path d="M21 3v5h-5"></path>
-                      <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
-                      <path d="M3 21v-5h5"></path>
-                    </svg>
-                  </Button>
-                  <span style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>
-                    재시도
-                  </span>
-                </div>
-              </div>
-            ) : featuredProjects.length > 0 ? (
-              featuredProjects.map((project) => (
-                <div key={project.id} id={`project-section-${project.id}`}>
-                  <ProjectCard
-                    project={convertToProjectCard(project)}
-                    onClick={() => handleCardClick(project.id)}
-                  />
-                </div>
-              ))
-            ) : (
-              // 주요 프로젝트가 없을 때 빈 카드 표시 + 재시도 버튼
-              <div style={{ position: 'relative' }}>
-                <EmptyCard message="등록된 주요 프로젝트가 없습니다" />
-                <div style={{ 
-                  position: 'absolute', 
-                  top: '16px', 
-                  right: '16px',
-                  zIndex: 20
-                }}>
-                  <Button
-                    variant="icon"
-                    size="md"
-                    onClick={() => refetch()}
-                    ariaLabel="재시도"
-                  >
-                    <svg
-                      width="20"
-                      height="20"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
-                      <path d="M21 3v5h-5"></path>
-                      <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
-                      <path d="M3 21v-5h5"></path>
-                    </svg>
-                  </Button>
-                </div>
-              </div>
-            )}
+            <ProjectSectionContent
+              isLoading={isLoading}
+              isError={isError}
+              projects={featuredProjects.map(convertToProjectCard)}
+              emptyMessage="등록된 주요 프로젝트가 없습니다"
+              onRefetch={refetch}
+              onCardClick={handleCardClick}
+              getProjectId={(project) => project.id}
+              sectionType="featured"
+            />
           </div>
         </div>
       </section>
@@ -330,97 +226,16 @@ export const ProjectsListPage: React.FC = () => {
               <p className={styles.sectionDescription}>{section.description}</p>
             </div>
             <div className={styles.grid}>
-              {isLoading ? (
-                // 로딩 상태: 스켈레톤 카드 여러 개 표시 (스피너 포함)
-                [...Array(3)].map((_, i) => (
-                  <SkeletonCard key={i} isLoading={true} />
-                ))
-              ) : isError ? (
-                // 에러 상태: 빈 스켈레톤 카드 표시 (스피너 없음) + 재시도 버튼
-                <div style={{ position: 'relative' }}>
-                  <SkeletonCard isLoading={false} />
-                  <div style={{ 
-                    position: 'absolute', 
-                    top: '50%', 
-                    left: '50%', 
-                    transform: 'translate(-50%, -50%)',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    gap: '12px',
-                    zIndex: 20
-                  }}>
-                    <Button
-                      variant="icon"
-                      size="md"
-                      onClick={() => refetch()}
-                      ariaLabel="재시도"
-                    >
-                      <svg
-                        width="20"
-                        height="20"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
-                        <path d="M21 3v5h-5"></path>
-                        <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
-                        <path d="M3 21v-5h5"></path>
-                      </svg>
-                    </Button>
-                    <span style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>
-                      재시도
-                    </span>
-                  </div>
-                </div>
-              ) : section.projects.length > 0 ? (
-                section.projects.map((project) => (
-                  <div key={project.id} id={`type-project-section-${project.id}`}>
-                    <ProjectCard
-                      project={convertToProjectCard(project)}
-                      onClick={() => handleCardClick(project.id)}
-                    />
-                  </div>
-                ))
-              ) : (
-                // 프로젝트가 없을 때 빈 카드 표시 + 재시도 버튼
-                <div style={{ position: 'relative' }}>
-                  <EmptyCard message="등록된 프로젝트가 없습니다" />
-                  <div style={{ 
-                    position: 'absolute', 
-                    top: '16px', 
-                    right: '16px',
-                    zIndex: 20
-                  }}>
-                    <Button
-                      variant="icon"
-                      size="md"
-                      onClick={() => refetch()}
-                      ariaLabel="재시도"
-                    >
-                      <svg
-                        width="20"
-                        height="20"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
-                        <path d="M21 3v5h-5"></path>
-                        <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
-                        <path d="M3 21v-5h5"></path>
-                      </svg>
-                    </Button>
-                  </div>
-                </div>
-              )}
+              <ProjectSectionContent
+                isLoading={isLoading}
+                isError={isError}
+                projects={section.projects.map(convertToProjectCard)}
+                emptyMessage="등록된 프로젝트가 없습니다"
+                onRefetch={refetch}
+                onCardClick={handleCardClick}
+                getProjectId={(project) => project.id}
+                sectionType="type"
+              />
             </div>
           </div>
         </section>

@@ -94,40 +94,59 @@ public class WebConfig implements WebMvcConfigurer {
         // 정적 리소스 파일 확장자 목록
         String[] staticExtensions = {".ico", ".png", ".jpg", ".jpeg", ".gif", ".svg", 
                                      ".css", ".js", ".json", ".xml", ".woff", ".woff2", 
-                                     ".ttf", ".eot", ".webp"};
+                                     ".ttf", ".eot", ".webp", ".map"};
         
         // 프론트엔드 정적 파일 서빙 설정
+        // file:/app/static/ (Docker 컨테이너 내부 경로) 우선, 없으면 classpath:/static/ 사용
         registry.addResourceHandler("/**")
                 .addResourceLocations("file:/app/static/", "classpath:/static/")
                 .resourceChain(true)
                 .addResolver(new PathResourceResolver() {
                     @Override
                     protected Resource getResource(String resourcePath, Resource location) throws IOException {
+                        // API나 Actuator 경로는 제외 (가장 먼저 체크)
+                        if (resourcePath.startsWith("api/") || resourcePath.startsWith("actuator/")) {
+                            log.debug("Skipping API/Actuator path: {}", resourcePath);
+                            return null;
+                        }
+                        
+                        // 정적 리소스 파일 확장자 확인
+                        String lowerPath = resourcePath.toLowerCase();
+                        boolean isStaticResource = false;
+                        for (String ext : staticExtensions) {
+                            if (lowerPath.endsWith(ext)) {
+                                isStaticResource = true;
+                                break;
+                            }
+                        }
+                        
+                        // location에서 파일 찾기 시도
                         Resource requestedResource = location.createRelative(resourcePath);
                         
                         // 파일이 존재하면 반환
                         if (requestedResource.exists() && requestedResource.isReadable()) {
+                            log.debug("Found static resource: {}", resourcePath);
                             return requestedResource;
                         }
                         
-                        // 정적 리소스 파일 확장자를 가진 경우는 null 반환 (404)
-                        String lowerPath = resourcePath.toLowerCase();
-                        for (String ext : staticExtensions) {
-                            if (lowerPath.endsWith(ext)) {
-                                return null;
-                            }
-                        }
-                        
-                        // API나 Actuator 경로는 제외
-                        if (resourcePath.startsWith("api/") || resourcePath.startsWith("actuator/")) {
+                        // 정적 리소스 파일인데 찾지 못한 경우 404 반환
+                        if (isStaticResource) {
+                            log.warn("Static resource not found: {} (location: {})", resourcePath, location);
                             return null;
                         }
                         
                         // SPA 라우팅: 확장자가 없는 경로는 index.html로 리다이렉트
                         if (!resourcePath.contains(".")) {
-                            return new ClassPathResource("/static/index.html");
+                            log.debug("SPA routing: serving index.html for path: {}", resourcePath);
+                            Resource indexHtml = new ClassPathResource("/static/index.html");
+                            if (indexHtml.exists()) {
+                                return indexHtml;
+                            }
+                            log.warn("index.html not found in classpath:/static/");
+                            return null;
                         }
                         
+                        log.debug("Resource not found and not a SPA route: {}", resourcePath);
                         return null;
                     }
                 });

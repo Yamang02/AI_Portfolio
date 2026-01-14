@@ -185,6 +185,27 @@
   pointer-events: none;
 }
 
+/* 동적 스타일을 위한 유틸리티 클래스 */
+.projectBarDynamic {
+  /* left와 width는 인라인으로 설정 (동적 값) */
+}
+
+.barContentDynamic {
+  /* height는 인라인으로 설정 (동적 값) */
+}
+
+.connectionLineDynamic {
+  /* left와 width는 인라인으로 설정 (동적 값) */
+}
+
+.timelineDynamic {
+  /* width는 인라인으로 설정 (동적 값) */
+}
+
+.yearLabelDynamic {
+  /* left는 인라인으로 설정 (동적 값) */
+}
+
 /* 다크 모드 지원은 globals.css의 CSS 변수로 자동 처리됨 */
 
 /* 모바일 반응형 */
@@ -204,10 +225,5 @@
 
   .projectTitle {
     font-size: 0.625rem;
-  }
-
-  .dateLabel {
-    font-size: 0.625rem;
-    padding: 1px 4px;
   }
 }
