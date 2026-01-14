@@ -3,14 +3,22 @@ import { useState, useEffect, useCallback } from 'react';
 /**
  * 이미지 로딩 추적 훅
  * 컨테이너 내의 모든 이미지가 로드되었는지 추적합니다.
- * 
+ *
  * @param containerRef 이미지를 포함하는 컨테이너의 ref
+ * @param onImageLoad 각 이미지 로드 시 호출될 콜백 (선택적)
  * @returns 이미지 로딩 상태 정보
  */
-export function useImageLoadTracking(containerRef: React.RefObject<HTMLElement>) {
+export function useImageLoadTracking(
+  containerRef: React.RefObject<HTMLElement>,
+  onImageLoad?: () => void
+) {
   const [allImagesLoaded, setAllImagesLoaded] = useState(false);
   const [loadedCount, setLoadedCount] = useState(0);
   const [totalCount, setTotalCount] = useState(0);
+
+  const onImageLoadCallback = useCallback(() => {
+    onImageLoad?.();
+  }, [onImageLoad]);
 
   useEffect(() => {
     if (!containerRef.current) {
@@ -33,6 +41,8 @@ export function useImageLoadTracking(containerRef: React.RefObject<HTMLElement>)
     const handleImageLoad = () => {
       loaded++;
       setLoadedCount(loaded);
+      // 각 이미지 로드 시 콜백 호출
+      onImageLoadCallback();
       if (loaded === imageArray.length) {
         setAllImagesLoaded(true);
       }
@@ -62,7 +72,7 @@ export function useImageLoadTracking(containerRef: React.RefObject<HTMLElement>)
         img.removeEventListener('error', handleImageError);
       });
     };
-  }, [containerRef]);
+  }, [containerRef, onImageLoadCallback]);
 
   return { allImagesLoaded, loadedCount, totalCount };
 }

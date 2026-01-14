@@ -17,16 +17,15 @@ export const ProjectsListPage: React.FC = () => {
   const navigate = useNavigate();
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [highlightedProjectId, setHighlightedProjectId] = useState<string | undefined>();
-  
+
   // API에서 프로젝트 목록 가져오기
   const { data: projects = [], isLoading, isError, refetch } = useProjectsQuery({
     type: 'project',
   });
 
-  // API 로딩 후 페이지 높이 재계산
+  // 페이지 높이 재계산
   useContentHeightRecalc(isLoading, [projects], {
     scrollThreshold: 100,
-    recalcDelay: 200,
     useResizeObserver: true,
   });
 

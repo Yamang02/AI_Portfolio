@@ -43,10 +43,10 @@ const loadMermaid = async (): Promise<MermaidAPI> => {
     try {
       // 동적 import로 mermaid 모듈 로드
       const mermaidModule = await import('mermaid');
-      
+
       // mermaid.default를 변수에 저장 (모범 사례)
       mermaidApi = mermaidModule.default as MermaidAPI;
-      
+
       // 초기화는 한 번만 수행 (startOnLoad: false로 자동 렌더링 비활성화)
       mermaidApi.initialize({
         startOnLoad: false,
@@ -54,10 +54,16 @@ const loadMermaid = async (): Promise<MermaidAPI> => {
         securityLevel: 'loose',
         fontFamily: 'inherit',
       });
-      
+
+      console.log('✅ Mermaid 로드 성공');
       return mermaidApi;
     } catch (error) {
-      console.error('Mermaid 로드 오류:', error);
+      console.error('❌ Mermaid 로드 실패:', error);
+      console.error('상세 정보:', {
+        message: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+        type: typeof error,
+      });
       mermaidInitPromise = null;
       throw error;
     }
@@ -219,11 +225,16 @@ const MermaidDiagram: React.FC<{ diagram: string; id: string }> = ({ diagram, id
         mermaidRef.current.innerHTML = svg;
         setIsLoading(false);
       } catch (err) {
-        console.error('Mermaid 렌더링 오류 (일반 코드 블록으로 fallback):', err);
-        
+        console.error('❌ Mermaid 렌더링 실패 (일반 코드 블록으로 fallback):', err);
+        console.error('다이어그램 내용:', diagram.substring(0, 200));
+        console.error('상세 정보:', {
+          message: err instanceof Error ? err.message : String(err),
+          stack: err instanceof Error ? err.stack : undefined,
+        });
+
         // 컴포넌트가 언마운트되었으면 상태 업데이트 안 함
         if (!isMounted) return;
-        
+
         // 에러 발생 시 일반 코드 블록으로 표시
         setError(true);
         setIsLoading(false);

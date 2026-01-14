@@ -92,6 +92,10 @@ export default defineConfig(({ mode }) => {
       build: {
         // 청크 크기 경고 임계값 (기본 500kB)
         chunkSizeWarningLimit: 500,
+        // .htaccess 파일을 dist에 복사
+        copyPublicDir: true,
+        // 동적 import를 위한 상대 경로 설정
+        assetsDir: 'assets',
         rollupOptions: {
           onwarn(warning, warn) {
             // "use client" 지시문 경고 무시

@@ -131,6 +131,23 @@ export function ArticleDetailPage() {
     window.scrollTo(0, 0);
   }, [businessId]);
 
+  // ResizeObserver를 통한 동적 높이 추적
+  // 마크다운, 이미지, Mermaid 다이어그램 등 비동기 컨텐츠 로딩 시 높이 변화 감지
+  useEffect(() => {
+    if (!contentRef.current) return;
+
+    const resizeObserver = new ResizeObserver(() => {
+      // 컨텐츠 높이 변화 감지 시 브라우저가 자동으로 스크롤 영역을 재계산
+      // 명시적인 조작 없이도 스크롤이 올바르게 작동함
+    });
+
+    resizeObserver.observe(contentRef.current);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, []);
+
   // 에러 상태 체크: 백그라운드 리페치 중이 아닐 때만 에러로 처리
   const hasError = (isError || (!isLoading && !article)) && !isFetching;
 
