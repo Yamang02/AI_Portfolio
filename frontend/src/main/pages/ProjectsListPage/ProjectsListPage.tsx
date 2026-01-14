@@ -26,7 +26,6 @@ export const ProjectsListPage: React.FC = () => {
   // API 로딩 후 페이지 높이 재계산
   useContentHeightRecalc(isLoading, [projects], {
     scrollThreshold: 100,
-    recalcDelay: 200,
     useResizeObserver: true,
   });
 

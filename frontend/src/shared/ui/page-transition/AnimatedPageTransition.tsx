@@ -184,35 +184,24 @@ export const AnimatedRoutes: React.FC<AnimatedRoutesProps> = ({
       }
     };
 
+    // NOTE:
+    // 타이밍 기반(setTimeout n ms) 재계산은 환경(성능/네트워크/리소스)에 따라 흔들린다.
+    // ResizeObserver / load(캡처) / fonts.ready 같은 이벤트 기반 트리거 + rAF 배치로 통일한다.
+    let rafId: number | null = null;
+    const scheduleUpdate = () => {
+      if (isLoading) return;
+      if (rafId != null) return;
+      rafId = window.requestAnimationFrame(() => {
+        rafId = null;
+        updateContainerHeight();
+      });
+    };
+
     // 로딩 상태가 변경될 때 높이 재계산
     if (!isLoading) {
-      // 데이터 로드 완료 후 여러 번 재계산하여 정확도 향상
-      const timer1 = setTimeout(updateContainerHeight, 50);
-      const timer2 = setTimeout(updateContainerHeight, 200);
-      const timer3 = setTimeout(updateContainerHeight, 500);
-      const timer4 = setTimeout(updateContainerHeight, 1000);
-
-      // 이미지 로드 후 높이 재계산
-      const images = Array.from(document.images);
-      const imageLoadPromises = images.map(img => {
-        if (img.complete) return Promise.resolve();
-        return new Promise(resolve => {
-          img.addEventListener('load', resolve);
-          img.addEventListener('error', resolve);
-        });
-      });
-
-      Promise.all(imageLoadPromises).then(() => {
-        setTimeout(updateContainerHeight, 100);
-        setTimeout(updateContainerHeight, 300);
-      });
-
-      return () => {
-        clearTimeout(timer1);
-        clearTimeout(timer2);
-        clearTimeout(timer3);
-        clearTimeout(timer4);
-      };
+      // 데이터 로드 완료 직후 1회, 다음 페인트에 1회(프레임 동기화)만 수행
+      updateContainerHeight();
+      scheduleUpdate();
     } else {
       // 로딩 중일 때는 최소 높이만 설정
       updateContainerHeight();
@@ -224,19 +213,14 @@ export const AnimatedRoutes: React.FC<AnimatedRoutesProps> = ({
     // ResizeObserver로 더 정확한 높이 감지
     if (pageRef.current && 'ResizeObserver' in window) {
       resizeObserverRef.current = new ResizeObserver(() => {
-        if (!isLoading) {
-          updateContainerHeight();
-        }
+        scheduleUpdate();
       });
       resizeObserverRef.current.observe(pageRef.current);
     }
 
     // MutationObserver로 DOM 변경 감지
     const observer = new MutationObserver(() => {
-      // 로딩 중이 아닐 때만 재계산
-      if (!isLoading) {
-        setTimeout(updateContainerHeight, 50);
-      }
+      scheduleUpdate();
     });
     if (pageRef.current) {
       observer.observe(pageRef.current, {
@@ -247,12 +231,31 @@ export const AnimatedRoutes: React.FC<AnimatedRoutesProps> = ({
       });
     }
 
+    // 이미지/iframe 등 리소스 로드(버블 X)도 캡처 단계에서 감지 가능
+    const handleResourceLoad = () => scheduleUpdate();
+    if (pageRef.current) {
+      pageRef.current.addEventListener('load', handleResourceLoad, true);
+      pageRef.current.addEventListener('error', handleResourceLoad, true);
+    }
+
+    // 폰트 로딩으로 인한 레이아웃 변화 대응
+    // (FontFaceSet이 없는 환경에서는 그냥 무시)
+    const fontsReady = (document as Document & { fonts?: FontFaceSet }).fonts?.ready;
+    fontsReady?.then(() => scheduleUpdate()).catch(() => {});
+
     return () => {
+      if (rafId != null) {
+        window.cancelAnimationFrame(rafId);
+      }
       window.removeEventListener('resize', updateContainerHeight);
       if (resizeObserverRef.current) {
         resizeObserverRef.current.disconnect();
       }
       observer.disconnect();
+      if (pageRef.current) {
+        pageRef.current.removeEventListener('load', handleResourceLoad, true);
+        pageRef.current.removeEventListener('error', handleResourceLoad, true);
+      }
     };
   }, [location.pathname, isChatPage, isLoading, loadingStates]);
 

@@ -133,7 +133,6 @@ export function ArticleListPage() {
   // API 로딩 및 이미지 로딩 완료 후 페이지 높이 재계산
   useContentHeightRecalc(isLoading, [filteredArticles, allImagesLoaded], {
     scrollThreshold: 100,
-    recalcDelay: 200,
     useResizeObserver: true,
   });
 
