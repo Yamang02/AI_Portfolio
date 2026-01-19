@@ -17,7 +17,7 @@ export const ProjectHistoryTimeline: React.FC<ProjectHistoryTimelineProps> = ({
   const timelineRef = useRef<HTMLDivElement>(null);
 
   // 날짜를 Date 객체로 변환하는 헬퍼 함수
-  const parseDate = (dateStr: string | any): Date => {
+  const parseDate = (dateStr: string | number[] | null | undefined): Date => {
     if (!dateStr) {
       return new Date();
     }
@@ -132,15 +132,13 @@ export const ProjectHistoryTimeline: React.FC<ProjectHistoryTimelineProps> = ({
   const getBarHeight = (project: Project): number => {
     const status = project.status || 'completed';
     
-    if (status === 'in_progress') {
-      return 24; // 진행중: 중간 높이
-    } else if (status === 'completed') {
-      return 32; // 완료: 충분한 높이
-    } else if (status === 'maintenance') {
-      return 28; // 유지보수: 중간 높이
-    } else {
-      return 28; // 기타 상태: 중간 높이
-    }
+    const statusHeightMap: Record<string, number> = {
+      'in_progress': 24,    // 진행중: 중간 높이
+      'completed': 32,      // 완료: 충분한 높이
+      'maintenance': 28,     // 유지보수: 중간 높이
+    };
+    
+    return statusHeightMap[status] ?? 28; // 기타 상태: 중간 높이
   };
 
   // 프로젝트 바 렌더링
@@ -165,7 +163,7 @@ export const ProjectHistoryTimeline: React.FC<ProjectHistoryTimelineProps> = ({
       if (connectionWidth > 0) {
         connectionLine = (
           <div
-            className={styles.connectionLine}
+            className={`${styles.connectionLine} ${styles.connectionLineDynamic}`}
             style={{
               left: `${connectionStartX}px`,
               width: `${connectionWidth}px`,
@@ -185,7 +183,7 @@ export const ProjectHistoryTimeline: React.FC<ProjectHistoryTimelineProps> = ({
     return (
       <React.Fragment key={project.id}>
         <div
-          className={styles.projectBar}
+          className={`${styles.projectBar} ${styles.projectBarDynamic}`}
           style={{
             left: `${positionX}px`,
             width: `${barWidth}px`,
@@ -236,7 +234,7 @@ export const ProjectHistoryTimeline: React.FC<ProjectHistoryTimelineProps> = ({
     <div className={styles.timelineContainer}>
       <div className={styles.timelineWrapper} ref={timelineRef}>
         <div
-          className={styles.timeline}
+          className={`${styles.timeline} ${styles.timelineDynamic}`}
           style={{ width: `${timelineWidth}px` }}
         >
           {/* 연도 라벨 */}
@@ -244,7 +242,7 @@ export const ProjectHistoryTimeline: React.FC<ProjectHistoryTimelineProps> = ({
             {yearLabels.map((label, index) => (
               <div
                 key={label.year}
-                className={styles.yearLabel}
+                className={`${styles.yearLabel} ${styles.yearLabelDynamic}`}
                 style={{ left: `${label.position}px` }}
               >
                 <span className={styles.yearLabelText}>{label.year}</span>
