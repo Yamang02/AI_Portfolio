@@ -66,25 +66,25 @@ export const ArticleNavigation: React.FC<ArticleNavigationProps> = ({
     <nav className={styles.navigation}>
       <div className={styles.buttonGroup}>
         {/* 이전 아티클 */}
-        <Tooltip content="Previous Article">
+        <Tooltip content="이전 글">
           <Button
             variant="icon"
             size="sm"
             onClick={handlePrevClick}
             disabled={!prevArticle}
-            ariaLabel="Previous Article"
+            ariaLabel="이전 글"
           >
             &lt;
           </Button>
         </Tooltip>
 
         {/* 아티클 목록 */}
-        <Tooltip content="Article List">
+        <Tooltip content="글 목록">
           <Button
             variant="icon"
             size="sm"
             onClick={handleListClick}
-            ariaLabel="Article List"
+            ariaLabel="글 목록"
           >
             <svg
               width="16"
@@ -105,13 +105,13 @@ export const ArticleNavigation: React.FC<ArticleNavigationProps> = ({
         </Tooltip>
 
         {/* 다음 아티클 */}
-        <Tooltip content="Next Article">
+        <Tooltip content="다음 글">
           <Button
             variant="icon"
             size="sm"
             onClick={handleNextClick}
             disabled={!nextArticle}
-            ariaLabel="Next Article"
+            ariaLabel="다음 글"
           >
             &gt;
           </Button>

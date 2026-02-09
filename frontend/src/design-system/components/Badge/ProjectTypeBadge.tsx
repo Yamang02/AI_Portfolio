@@ -3,6 +3,12 @@ import styles from './ProjectTypeBadge.module.css';
 
 export type ProjectType = 'BUILD' | 'LAB' | 'MAINTENANCE';
 
+const PROJECT_TYPE_LABELS: Record<ProjectType, string> = {
+  BUILD: '구축',
+  LAB: '실험',
+  MAINTENANCE: '유지보수',
+};
+
 export type ProjectTypeBadgeSize = 'sm' | 'md' | 'lg';
 
 export interface ProjectTypeBadgeProps {
@@ -92,7 +98,7 @@ export const ProjectTypeBadge: React.FC<ProjectTypeBadgeProps> = ({
   return (
     <div className={classNames}>
       <div className={styles.icon}>{getIcon()}</div>
-      <span className={styles.text}>{type}</span>
+      <span className={styles.text}>{PROJECT_TYPE_LABELS[type]}</span>
     </div>
   );
 };

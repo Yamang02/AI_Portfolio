@@ -12,7 +12,7 @@ export const CTASection: React.FC = () => {
         <div className={styles.content}>
           <SectionTitle level="h2">더 알아보기</SectionTitle>
           <p className={styles.description}>
-            프로필과 프로젝트를 자세히 살펴보세요.
+            대표 소개와 작업물을 자세히 살펴보세요.
           </p>
           <div className={styles.buttonGroup}>
             <Button 
@@ -21,7 +21,7 @@ export const CTASection: React.FC = () => {
               href="/profile"
               className={styles.ctaButton}
             >
-              프로필 보기
+              대표 소개 보기
             </Button>
             <Button 
               variant="secondary" 
@@ -29,7 +29,7 @@ export const CTASection: React.FC = () => {
               href="/projects"
               className={styles.ctaButton}
             >
-              프로젝트 보기
+              작업물 보기
             </Button>
           </div>
         </div>

@@ -1,0 +1,59 @@
+/* Header와 동일한 max-width(1280px), padding(32px)로 타이틀 위치 통일 */
+.header {
+  padding: var(--spacing-8) var(--spacing-8) var(--spacing-6);
+}
+
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-8);
+}
+
+.headerContent {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+.titleBlock {
+  flex: 1;
+  min-width: 0;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+}
+
+.titleRow h1 {
+  margin-bottom: 0;
+}
+
+.description {
+  margin-top: var(--spacing-2);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
+}
+
+/* Tablet */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .header {
+    padding: var(--spacing-6) var(--spacing-6) var(--spacing-5);
+  }
+
+  .container {
+    padding: 0 var(--spacing-6);
+  }
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+  .header {
+    padding: var(--spacing-6) var(--spacing-4) var(--spacing-4);
+  }
+
+  .container {
+    padding: 0 var(--spacing-4);
+  }
+}

@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SectionTitle, Button } from '@/design-system';
+import { PageHeader } from '@/main/widgets/page-header';
 import { useProjectsQuery } from '@/main/entities/project/api/useProjectsQuery';
 import type { Project } from '@/main/entities/project/model/project.types';
 import type { ProjectCardProject } from '@/design-system/components/Card/ProjectCard';
@@ -55,9 +56,9 @@ export const ProjectsListPage: React.FC = () => {
     });
 
     return [
-      { type: 'MAINTENANCE' as ProjectCategory, title: 'MAINTENANCE', description: '유지보수 단계까지 경험한 모든 프로젝트를 포함합니다. 회사 경력 프로젝트도 포함됩니다.', projects: grouped.MAINTENANCE },
-      { type: 'BUILD' as ProjectCategory, title: 'BUILD', description: '서비스 형태로 구축 경험이 있는 프로젝트입니다.', projects: grouped.BUILD },
-      { type: 'LAB' as ProjectCategory, title: 'LAB', description: '관심사에 따른 실험적인 프로젝트입니다.', projects: grouped.LAB },
+      { type: 'MAINTENANCE' as ProjectCategory, title: '유지보수', description: '유지보수 단계까지 경험한 모든 작업물을 포함합니다. 회사 경력 작업물도 포함됩니다.', projects: grouped.MAINTENANCE },
+      { type: 'BUILD' as ProjectCategory, title: '구축', description: '서비스 형태로 구축 경험이 있는 작업물입니다.', projects: grouped.BUILD },
+      { type: 'LAB' as ProjectCategory, title: '실험', description: '관심사에 따른 실험적인 작업물입니다.', projects: grouped.LAB },
     ];
   }, [projects]);
 
@@ -144,46 +145,39 @@ export const ProjectsListPage: React.FC = () => {
 
   return (
     <div className={styles.page}>
-      {/* 헤더 */}
-      <section className={styles.header}>
-        <div className={styles.container}>
-          <div className={styles.headerContent}>
-            <div>
-              <div className={styles.titleRow}>
-                <SectionTitle level="h1">Projects</SectionTitle>
-                <Button
-                  variant="icon"
-                  size="md"
-                  onClick={() => setIsSearchModalOpen(true)}
-                  ariaLabel="프로젝트 검색"
-                >
-                  <svg
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <path d="m21 21-4.35-4.35"></path>
-                  </svg>
-                </Button>
-              </div>
-              <p className={styles.count}>총 {projects.length}개의 프로젝트</p>
-            </div>
-          </div>
-        </div>
-      </section>
+      <PageHeader
+        title="작업물"
+        actions={
+          <Button
+            variant="icon"
+            size="md"
+            onClick={() => setIsSearchModalOpen(true)}
+            ariaLabel="작업물 검색"
+          >
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.35-4.35"></path>
+            </svg>
+          </Button>
+        }
+        description={<p>총 {projects.length}개의 작업물</p>}
+      />
 
       {/* 주요 프로젝트 섹션 */}
       <section id="featured-section" className={styles.featuredSection}>
         <div className={styles.featuredHeaderWrapper}>
           <div className={styles.container}>
             <div className={styles.featuredHeader}>
-              <SectionTitle level="h2">Featured Projects</SectionTitle>
+              <SectionTitle level="h2">주요 작업물</SectionTitle>
             </div>
           </div>
         </div>
@@ -193,7 +187,7 @@ export const ProjectsListPage: React.FC = () => {
               isLoading={isLoading}
               isError={isError}
               projects={featuredProjects.map(convertToProjectCard)}
-              emptyMessage="등록된 주요 프로젝트가 없습니다"
+              emptyMessage="등록된 주요 작업물이 없습니다"
               onRefetch={refetch}
               onCardClick={handleCardClick}
               getProjectId={(project) => project.id}
@@ -230,7 +224,7 @@ export const ProjectsListPage: React.FC = () => {
                 isLoading={isLoading}
                 isError={isError}
                 projects={section.projects.map(convertToProjectCard)}
-                emptyMessage="등록된 프로젝트가 없습니다"
+                emptyMessage="등록된 작업물이 없습니다"
                 onRefetch={refetch}
                 onCardClick={handleCardClick}
                 getProjectId={(project) => project.id}
@@ -246,7 +240,7 @@ export const ProjectsListPage: React.FC = () => {
         <section className={styles.projects}>
           <div className={styles.container}>
             <div className={styles.empty}>
-              <p>표시할 프로젝트가 없습니다.</p>
+              <p>표시할 작업물이 없습니다.</p>
             </div>
           </div>
         </section>

@@ -46,7 +46,7 @@ export const CareerTimelineSection: React.FC<CareerTimelineSectionProps> = ({
           {/* 왼쪽: Work (경력) */}
           <div className={styles.column}>
             <SectionTitle level="h3" className={styles.sectionTitle}>
-              Work
+              경력
             </SectionTitle>
             {isLoadingExperiences ? (
               <div className={styles.cards}>
@@ -79,7 +79,7 @@ export const CareerTimelineSection: React.FC<CareerTimelineSectionProps> = ({
           {/* 오른쪽: Other Experience (교육) */}
           <div className={styles.column}>
             <SectionTitle level="h3" className={styles.sectionTitle}>
-              Other Experience
+              교육 및 기타
             </SectionTitle>
             {isLoadingEducations ? (
               <div className={styles.cards}>

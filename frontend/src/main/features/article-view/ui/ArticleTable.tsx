@@ -130,7 +130,7 @@ export const ArticleTable: React.FC<ArticleTableProps> = ({
               {article.title}
             </a>
             {article.isFeatured && (
-              <div className={styles.featuredBadge} title="추천 아티클">
+              <div className={styles.featuredBadge} title="추천 글">
                 <ArticleIcon type="star" size="sm" />
               </div>
             )}

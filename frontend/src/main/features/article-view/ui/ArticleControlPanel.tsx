@@ -79,7 +79,7 @@ export const ArticleControlPanel: React.FC<ArticleControlPanelProps> = ({
         <div className={styles.searchContainer}>
           <Input
             type="text"
-            placeholder="아티클 검색..."
+            placeholder="글 검색..."
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             onKeyDown={handleSearchKeyDown}

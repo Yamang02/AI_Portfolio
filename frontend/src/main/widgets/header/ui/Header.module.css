@@ -20,7 +20,8 @@
 
 .logo {
   font-size: 1.125rem;
-  font-weight: 600;
+  font-weight: 400;
+  font-family: 'Griun PolSensibility', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   text-decoration: none;
   color: var(--color-text-primary);
 }

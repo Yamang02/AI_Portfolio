@@ -6,17 +6,14 @@ export const HeroSection: React.FC = () => {
   return (
     <section id="hero" className={styles.hero}>
       <div className={styles.content}>
+        <p className={styles.motto}>
+          인간이여, 야망을 가져라
+        </p>
         <div className={styles.nameContainer}>
-          <SectionTitle level="h1">이정준</SectionTitle>
-          <h1 className={styles.secondaryName}>
-            Yamang02
-          </h1>
+          <SectionTitle level="h1">야망솔루션</SectionTitle>
         </div>
-        <SectionTitle level="h2" className={styles.sequentialItem}>
-          Software Engineer
-        </SectionTitle>
         <p className={`${styles.intro} ${styles.sequentialItem}`}>
-          AI와 함께 성장하는 개발자 이정준입니다
+          당신의 꿈을 AI로 풀어냅니다
         </p>
       </div>
     </section>

@@ -152,7 +152,7 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({
         </div>
         <div className={styles.badgeRight}>
           {article.isFeatured && (
-            <Badge variant="accent" size="sm" className={styles.featuredBadge} title="추천 아티클">
+            <Badge variant="accent" size="sm" className={styles.featuredBadge} title="추천 글">
               <ArticleIcon type="star" size="sm" />
             </Badge>
           )}

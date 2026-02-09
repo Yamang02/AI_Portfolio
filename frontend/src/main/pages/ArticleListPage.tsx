@@ -1,6 +1,7 @@
 import { useState, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SectionTitle, EmptyCard, SkeletonCard, Button } from '@/design-system';
+import { PageHeader } from '@/main/widgets/page-header';
 import { Pagination } from '@/design-system/components/Pagination/Pagination';
 import { useArticleListQuery } from '../entities/article/api/useArticleQuery';
 import { useArticleStatisticsQuery } from '../entities/article';
@@ -174,19 +175,10 @@ export function ArticleListPage() {
 
   return (
     <div ref={containerRef} className={styles.page}>
-      {/* 헤더 */}
-      <section className={styles.header}>
-        <div className={styles.container}>
-          <div className={styles.headerContent}>
-            <div>
-              <SectionTitle level="h1">Articles</SectionTitle>
-              <p className={styles.count}>
-                총 {data?.totalElements || 0}개의 아티클
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+      <PageHeader
+        title="글"
+        description={<p>총 {data?.totalElements || 0}개의 글</p>}
+      />
 
       {/* 메인 컨텐츠 */}
       <section className={styles.content}>
@@ -196,7 +188,7 @@ export function ArticleListPage() {
             <section className={styles.featuredSection}>
               <div className={styles.featuredHeaderWrapper}>
                 <div className={styles.featuredHeader}>
-                  <SectionTitle level="h2">Featured Articles</SectionTitle>
+                  <SectionTitle level="h2">추천 글</SectionTitle>
                 </div>
               </div>
               <FeaturedArticleCarousel
@@ -213,10 +205,10 @@ export function ArticleListPage() {
               {/* 아티클 목록 섹션 */}
               <section className={styles.articleListSection}>
                 <div className={styles.sectionHeader}>
-                  <SectionTitle level="h2">Article List</SectionTitle>
+                  <SectionTitle level="h2">글 목록</SectionTitle>
                   <div className={styles.divider}></div>
                   <p className={styles.sectionDescription}>
-                    발행된 모든 아티클을 확인할 수 있습니다.
+                    발행된 모든 글을 확인할 수 있습니다.
                   </p>
                 </div>
 
@@ -321,7 +313,7 @@ export function ArticleListPage() {
                   // 빈 상태: 빈 카드를 그리드에 표시 + 재시도 버튼
                   <div className={styles.grid}>
                     <div style={{ position: 'relative', width: '100%' }}>
-                      <EmptyCard message="표시할 아티클이 없습니다." />
+                      <EmptyCard message="표시할 글이 없습니다." />
                       <div style={{ 
                         position: 'absolute', 
                         top: '16px', 

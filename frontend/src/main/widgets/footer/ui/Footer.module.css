@@ -1,10 +1,11 @@
 .footer {
-  padding-top: var(--spacing-6);
-  padding-bottom: var(--spacing-3);
-  padding-left: var(--spacing-6);
-  padding-right: var(--spacing-6);
+  padding: var(--spacing-5) var(--spacing-8);
   border-top: 1px solid var(--color-border-default);
-  background-color: var(--color-bg-header-footer, var(--color-bg-primary));
+  background: linear-gradient(
+    180deg,
+    var(--color-bg-secondary) 0%,
+    var(--color-bg-primary) 100%
+  );
   opacity: 0;
   transform: translateY(100%);
   transition: opacity 0.6s ease-out, transform 0.6s ease-out;
@@ -18,21 +19,69 @@
 .container {
   max-width: 1280px;
   margin: 0 auto;
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-3);
+}
+
+.topRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-4);
+  flex-wrap: wrap;
+}
+
+.brand {
+  font-family: 'Griun PolSensibility', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 1rem;
+  font-weight: 400;
+  color: var(--color-text-primary);
+  letter-spacing: 0.05em;
 }
 
 .copyright {
-  font-size: 0.875rem;
-  color: var(--color-text-primary); /* #000000 대체 - brandScale 1000 (#051A0E) 사용 */
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
   margin: 0;
 }
 
 .links {
-  margin-top: var(--spacing-3);
   display: flex;
   gap: var(--spacing-2);
-  justify-content: center;
   align-items: center;
+}
+
+.infoRow {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--spacing-4) var(--spacing-8);
+  margin: 0;
+}
+
+.infoItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  text-align: center;
+}
+
+.infoItem dt {
+  font-size: 0.625rem;
+  font-weight: 500;
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0;
+}
+
+.infoItem dd {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  margin: 0;
 }
 
 /* GitHub 링크 */
@@ -53,14 +102,29 @@
 /* Mobile */
 @media (max-width: 767px) {
   .footer {
-    padding-top: var(--spacing-4);
-    padding-bottom: var(--spacing-2);
-    padding-left: var(--spacing-4);
-    padding-right: var(--spacing-4);
+    padding: var(--spacing-4);
   }
-  
-  .links {
-    margin-top: var(--spacing-2);
+
+  .topRow {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .brand {
+    font-size: 0.9375rem;
+  }
+
+  .infoRow {
+    flex-direction: column;
+    gap: var(--spacing-2);
+  }
+
+  .infoItem dd {
+    font-size: 0.6875rem;
+  }
+
+  .copyright {
+    font-size: 0.75rem;
   }
 }
 
