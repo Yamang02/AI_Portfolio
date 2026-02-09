@@ -57,8 +57,8 @@ export const Header: React.FC = () => {
   const menuItems: MenuItem[] = [
     {
       id: 'profile',
-      label: '프로필',
-      tooltip: 'Profile',
+      label: '대표 소개',
+      tooltip: '대표 소개',
       href: '/profile',
       isActive: (pathname) => pathname === '/profile',
       icon: (
@@ -70,8 +70,8 @@ export const Header: React.FC = () => {
     },
     {
       id: 'projects',
-      label: '프로젝트',
-      tooltip: 'Projects',
+      label: '작업물',
+      tooltip: '작업물',
       href: '/projects',
       isActive: (pathname) => pathname === '/projects' || pathname.startsWith('/projects/'),
       icon: (
@@ -82,8 +82,8 @@ export const Header: React.FC = () => {
     },
     {
       id: 'articles',
-      label: '아티클',
-      tooltip: 'Articles',
+      label: '글',
+      tooltip: '글',
       href: '/articles',
       isActive: (pathname) => pathname === '/articles' || pathname.startsWith('/articles/'),
       icon: (
@@ -138,7 +138,7 @@ export const Header: React.FC = () => {
     <header className={styles.header}>
       <div className={styles.container}>
         <a href="/" className={styles.logo} onClick={handleLogoClick}>
-          Yamang02
+          야망솔루션
         </a>
         
         {/* Desktop Navigation */}

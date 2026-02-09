@@ -74,7 +74,7 @@ export function ArticleDetailPage() {
 
     // 관련 프로젝트 섹션이 있으면 추가
     if (article.project) {
-      baseSections.push({ id: 'related-project', text: '관련 프로젝트', level: 2 });
+      baseSections.push({ id: 'related-project', text: '관련 작업물', level: 2 });
     }
 
     // 기술 스택 섹션이 있으면 추가
@@ -192,7 +192,7 @@ export function ArticleDetailPage() {
             <header className={styles.header}>
               <SectionTitle level="h1" className={styles.title}>
                 {isError && error?.message?.includes('404') 
-                  ? '아티클을 찾을 수 없습니다' 
+                  ? '글을 찾을 수 없습니다' 
                   : '오류가 발생했습니다'}
               </SectionTitle>
               <div className={styles.divider}></div>
@@ -214,7 +214,7 @@ export function ArticleDetailPage() {
             )}
           </div>
 
-          <SectionTitle level="h1" className={styles.title}>
+          <SectionTitle level="h2" className={styles.title}>
             {article.title}
           </SectionTitle>
 
@@ -279,7 +279,7 @@ export function ArticleDetailPage() {
         {/* 관련 프로젝트 섹션 */}
         {projectCardData && (
           <section id="related-project" className={styles.section}>
-            <SectionTitle level="h2" id="related-project" className={styles.sectionTitle}>관련 프로젝트</SectionTitle>
+            <SectionTitle level="h2" id="related-project" className={styles.sectionTitle}>관련 작업물</SectionTitle>
             <div className={styles.relatedProjectWrapper}>
               <ProjectCard
                 project={projectCardData}

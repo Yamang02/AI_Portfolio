@@ -1,7 +1,7 @@
 {
-  "name": "Yamang02 Portfolio",
-  "short_name": "Yamang02",
-  "description": "AI Portfolio Chatbot - Software Engineer 이정준",
+  "name": "YamangSolution",
+  "short_name": "야망솔루션",
+  "description": "AI와 함께, 당신의 꿈을 실현합니다",
   "start_url": "/",
   "display": "browser",
   "background_color": "#ffffff",

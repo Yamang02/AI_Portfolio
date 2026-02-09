@@ -199,7 +199,7 @@ export const ArticleFilterBar: React.FC<ArticleFilterBarProps> = ({
         <div className={styles.filterSection}>
           <div className={styles.sectionHeader}>
             <SectionTitle level="h3" className={styles.title}>
-              프로젝트
+              작업물
             </SectionTitle>
             <Button
               variant="icon"

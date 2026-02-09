@@ -8,7 +8,7 @@ export interface EmptyCardProps {
 }
 
 export const EmptyCard: React.FC<EmptyCardProps> = ({
-  message = '등록된 프로젝트가 없습니다',
+  message = '등록된 항목이 없습니다',
   className,
 }) => {
   return (

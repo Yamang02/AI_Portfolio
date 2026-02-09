@@ -106,7 +106,7 @@ const MainAppContent: React.FC = () => {
           <Route 
             path="/projects" 
             element={
-              <Suspense fallback={<LoadingScreen message="프로젝트를 불러오는 중..." />}>
+              <Suspense fallback={<LoadingScreen message="작업물을 불러오는 중..." />}>
                 <ProjectsListPage />
               </Suspense>
             } 
@@ -114,7 +114,7 @@ const MainAppContent: React.FC = () => {
           <Route 
             path="/projects/:id" 
             element={
-              <Suspense fallback={<LoadingScreen message="프로젝트 상세를 불러오는 중..." />}>
+              <Suspense fallback={<LoadingScreen message="작업물 상세를 불러오는 중..." />}>
                 <ProjectDetailPage />
               </Suspense>
             } 
@@ -122,7 +122,7 @@ const MainAppContent: React.FC = () => {
           <Route 
             path="/articles" 
             element={
-              <Suspense fallback={<LoadingScreen message="아티클을 불러오는 중..." />}>
+              <Suspense fallback={<LoadingScreen message="글을 불러오는 중..." />}>
                 <ArticleListPage />
               </Suspense>
             } 
@@ -130,7 +130,7 @@ const MainAppContent: React.FC = () => {
           <Route 
             path="/articles/:businessId" 
             element={
-              <Suspense fallback={<LoadingScreen message="아티클 상세를 불러오는 중..." />}>
+              <Suspense fallback={<LoadingScreen message="글 상세를 불러오는 중..." />}>
                 <ArticleDetailPage />
               </Suspense>
             } 

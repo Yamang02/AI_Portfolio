@@ -7,27 +7,32 @@
 
 .h1 {
   font-size: 2.25rem; /* 36px */
-  font-weight: 700;
+  font-weight: 400; /* 야망솔루션과 동일 - Griun PolSensibility 스타일 */
+  font-family: 'Griun PolSensibility', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   margin-bottom: 1.5rem; /* 24px */
   /* color는 부모 .sectionTitle에서 var(--color-text-title) 상속 */
 }
 
+/* 서브타이틀: Cormorant Garamond(영문) + Noto Serif KR(한글) - 타이틀과 본문 사이 중간 단계 */
 .h2 {
   font-size: 1.875rem; /* 30px */
-  font-weight: 700;
+  font-weight: 700; /* 굵게 */
+  font-family: 'Cormorant Garamond', 'Noto Serif KR', Georgia, 'Times New Roman', serif;
   margin-bottom: 1.25rem; /* 20px */
 }
 
 .h3 {
   font-size: 1.5rem; /* 24px */
-  font-weight: 600;
+  font-weight: 700; /* 굵게 */
+  font-family: 'Cormorant Garamond', 'Noto Serif KR', Georgia, 'Times New Roman', serif;
   margin-bottom: 1rem; /* 16px */
   /* color는 부모 .sectionTitle에서 var(--color-text-title) 상속 */
 }
 
 .h4 {
   font-size: 1.25rem; /* 20px */
-  font-weight: 600;
+  font-weight: 700; /* 굵게 */
+  font-family: 'Cormorant Garamond', 'Noto Serif KR', Georgia, 'Times New Roman', serif;
   margin-bottom: 0.75rem; /* 12px */
 }
 

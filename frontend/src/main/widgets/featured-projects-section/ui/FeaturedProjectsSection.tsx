@@ -63,7 +63,7 @@ export const FeaturedProjectsSection: React.FC = () => {
               href={project.link}
               className={styles.detailButton}
             >
-              프로젝트 상세보기
+              작업물 상세보기
             </Button>
           </div>
         </article>

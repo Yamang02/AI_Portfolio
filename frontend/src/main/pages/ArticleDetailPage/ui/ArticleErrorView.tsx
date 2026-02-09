@@ -24,20 +24,20 @@ export function ArticleErrorView({ error }: ArticleErrorViewProps) {
   // 에러 타입별 메시지 결정
   const getErrorMessage = () => {
     if (!error) {
-      return '아티클을 불러오는 중 문제가 발생했습니다.';
+      return '글을 불러오는 중 문제가 발생했습니다.';
     }
 
     const errorMessage = error.message || '';
     
     if (errorMessage.includes('404') || errorMessage.includes('찾을 수 없')) {
-      return '아티클을 찾을 수 없습니다.';
+      return '글을 찾을 수 없습니다.';
     }
     
     if (errorMessage.includes('Network') || errorMessage.includes('네트워크')) {
       return '네트워크 연결을 확인해주세요.';
     }
     
-    return '아티클을 불러오는 중 문제가 발생했습니다.';
+    return '글을 불러오는 중 문제가 발생했습니다.';
   };
 
   const isNotFound = error?.message?.includes('404') || error?.message?.includes('찾을 수 없');
@@ -49,7 +49,7 @@ export function ArticleErrorView({ error }: ArticleErrorViewProps) {
       <div className={styles.actions}>
         {isNotFound ? (
           <TextLink href="/articles" className={styles.backLink}>
-            아티클 목록으로 돌아가기
+            글 목록으로 돌아가기
           </TextLink>
         ) : (
           <Button 

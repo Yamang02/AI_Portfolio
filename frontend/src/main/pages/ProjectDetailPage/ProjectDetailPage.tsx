@@ -103,7 +103,7 @@ const ProjectDetailPage: React.FC = () => {
 
     // development-timeline Article 섹션이 있으면 추가 (기술 스택 전에)
     if (developmentTimelineArticles.length > 0) {
-      baseSections.push({ id: 'development-timeline', text: '관련 아티클', level: 2 });
+      baseSections.push({ id: 'development-timeline', text: '관련 글', level: 2 });
     }
 
     // 기술 스택 섹션이 있으면 추가
@@ -178,14 +178,14 @@ const ProjectDetailPage: React.FC = () => {
           <>
             <div style={{ marginBottom: 'var(--spacing-8)' }}>
               <SectionTitle level="h1">
-                프로젝트를 찾을 수 없습니다
+                작업물을 찾을 수 없습니다
               </SectionTitle>
             </div>
             <section className={styles.section}>
-              <EmptyCard message="요청한 프로젝트가 존재하지 않습니다." />
+              <EmptyCard message="요청한 작업물이 존재하지 않습니다." />
               <div style={{ marginTop: 'var(--spacing-6)', textAlign: 'center' }}>
                 <TextLink href="/projects" className={styles.backLink}>
-                  프로젝트 목록으로 돌아가기
+                  작업물 목록으로 돌아가기
                 </TextLink>
               </div>
             </section>
@@ -247,7 +247,7 @@ const ProjectDetailPage: React.FC = () => {
         {/* development-timeline Article 섹션 (기술 스택 전에) */}
         {developmentTimelineArticles.length > 0 && (
           <section id="development-timeline" className={styles.section}>
-            <SectionTitle level="h2" id="development-timeline" className={styles.sectionTitle}>관련 아티클</SectionTitle>
+            <SectionTitle level="h2" id="development-timeline" className={styles.sectionTitle}>관련 글</SectionTitle>
             <div className={styles.articlesList}>
               {paginatedArticles.map((article) => (
                 <SimpleArticleCard
@@ -296,7 +296,7 @@ const ProjectDetailPage: React.FC = () => {
             imageUrl: p.imageUrl,
           }))}
           currentProjectId={project.id}
-          title="다른 프로젝트"
+          title="다른 작업물"
         />
 
         {/* 프로젝트 네비게이션 */}

@@ -120,7 +120,7 @@ export const ProjectSearchModal: React.FC<ProjectSearchModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="프로젝트 검색"
+      title="작업물 검색"
       width="1000px"
       className={styles.modal}
     >
@@ -141,16 +141,16 @@ export const ProjectSearchModal: React.FC<ProjectSearchModalProps> = ({
 
           {/* 프로젝트 타입 필터 */}
           <div className={styles.filterGroup}>
-            <label className={styles.label}>프로젝트 타입</label>
+            <label className={styles.label}>작업물 타입</label>
             <select
               value={filters.projectType}
               onChange={handleProjectTypeChange}
               className={styles.select}
             >
               <option value="all">전체</option>
-              <option value="BUILD">BUILD</option>
-              <option value="LAB">LAB</option>
-              <option value="MAINTENANCE">MAINTENANCE</option>
+              <option value="BUILD">구축</option>
+              <option value="LAB">실험</option>
+              <option value="MAINTENANCE">유지보수</option>
             </select>
           </div>
 
@@ -205,7 +205,7 @@ export const ProjectSearchModal: React.FC<ProjectSearchModalProps> = ({
 
         {/* 결과 카운트 */}
         <div className={styles.resultCount}>
-          총 {filteredProjects.length}개의 프로젝트
+          총 {filteredProjects.length}개의 작업물
         </div>
 
         {/* 테이블 */}
@@ -213,8 +213,8 @@ export const ProjectSearchModal: React.FC<ProjectSearchModalProps> = ({
           <table className={styles.table}>
             <thead>
               <tr>
-                <th>프로젝트명</th>
-                <th>프로젝트 타입</th>
+                <th>작업물명</th>
+                <th>작업물 타입</th>
                 <th>기술 스택</th>
               </tr>
             </thead>

@@ -2,38 +2,9 @@
   min-height: 100vh;
 }
 
-.header {
-  padding: 32px 32px 24px;
-}
-
 .container {
   max-width: 1280px;
   margin: 0 auto;
-}
-
-.headerContent {
-  display: flex;
-  justify-content: flex-start;
-  align-items: flex-start;
-  gap: 24px;
-  max-width: 1200px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.headerContent > div:first-child {
-  padding-left: 48px;
-  flex: 1;
-}
-
-.titleRow {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.titleRow h1 {
-  margin-bottom: 0;
 }
 
 .description {
@@ -41,12 +12,6 @@
   color: var(--color-text-secondary);
   line-height: 1.5;
   font-size: 1rem;
-}
-
-.count {
-  margin-top: 8px;
-  font-size: 0.875rem;
-  color: var(--color-text-tertiary);
 }
 
 /* 프로젝트 히스토리 섹션 */
@@ -116,10 +81,12 @@
   flex-shrink: 0;
 }
 
-/* 섹션 설명 */
+/* 섹션 설명 - 서브타이틀과 폰트 통일, 이탤릭으로 구분 */
 .sectionDescription {
   color: var(--color-text-secondary);
   font-size: 0.875rem; /* 14px */
+  font-family: 'Cormorant Garamond', 'Noto Serif KR', Georgia, 'Times New Roman', serif;
+  font-style: italic;
   line-height: 1.5;
   margin: 0;
   flex-shrink: 0;
@@ -173,10 +140,6 @@
   .grid {
     grid-template-columns: repeat(2, 1fr);
   }
-  .header {
-    padding: 28px 24px 20px;
-  }
-
   .featuredHeaderWrapper {
     padding: 40px 24px 40px;
   }
@@ -197,26 +160,10 @@
     gap: 24px;
   }
 
-  .headerContent > div:first-child {
-    padding-left: 40px;
-  }
 }
 
 /* Mobile (< 768px) */
 @media (max-width: 767px) {
-  .header {
-    padding: 24px 24px 16px;
-  }
-
-  .headerContent {
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .headerContent > div:first-child {
-    padding-left: 24px;
-  }
-
   .featuredHeaderWrapper {
     padding: 32px 24px 32px;
   }

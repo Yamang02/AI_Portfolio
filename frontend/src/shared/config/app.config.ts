@@ -27,12 +27,12 @@ export interface AppConfig {
 const loadConfig = (): AppConfig => {
   return {
     app: {
-      name: 'AI Portfolio Chatbot',
-      description: '개발자 포트폴리오 AI 챗봇',
+      name: 'YamangSolution',
+      description: 'AI와 함께, 당신의 꿈을 실현합니다',
       contactEmail: 'ljj0210@gmail.com',
       version: '1.0.0',
-      developerName: 'Software Engineer 이정준',
-      developerTitle: 'Yamang02\'s Portfolio Site',
+      developerName: '야망솔루션',
+      developerTitle: 'YamangSolution',
     },
     
     api: {

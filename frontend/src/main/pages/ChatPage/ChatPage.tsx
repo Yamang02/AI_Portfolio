@@ -156,7 +156,7 @@ const ChatPageContent: React.FC = () => {
       if (loadedMessages.length === 0) {
         const initialMessage: ChatMessageType = {
           id: 'initial',
-          content: `안녕하세요! 👋 저는 AI 포트폴리오 비서입니다.\n\n궁금한 점이나 알고 싶은 내용을 자유롭게 질문해 주세요.\n\n예시:\n"A프로젝트 기획의도를 알려줘."\n"B프로젝트 기술스택 알려줘"\n\n💡 AI 답변은 실제 정보와 다를 수 있으니 참고용으로만 활용해 주세요.`,
+          content: `안녕하세요! 👋 저는 AI 포트폴리오 비서입니다.\n\n궁금한 점이나 알고 싶은 내용을 자유롭게 질문해 주세요.\n\n예시:\n"A작업물 기획의도를 알려줘."\n"B작업물 기술스택 알려줘"\n\n💡 AI 답변은 실제 정보와 다를 수 있으니 참고용으로만 활용해 주세요.`,
           isUser: false,
           timestamp: new Date()
         };
@@ -463,7 +463,7 @@ const ChatPageContent: React.FC = () => {
           <ChatInputBar
             onSendMessage={handleSendMessage}
             isLoading={isLoading}
-            placeholder="프로젝트에 대해 궁금한 점을 물어보세요..."
+            placeholder="작업물에 대해 궁금한 점을 물어보세요..."
             inputValue={inputValue}
             onInputChange={setInputValue}
           />
@@ -496,9 +496,9 @@ const ChatPageContent: React.FC = () => {
           
           <h4>질문 예시</h4>
           <ul>
-            <li>"A프로젝트 기획의도를 알려줘."</li>
-            <li>"B프로젝트 기술스택 알려줘"</li>
-            <li>"프로젝트에서 사용한 주요 기능은?"</li>
+            <li>"A작업물 기획의도를 알려줘."</li>
+            <li>"B작업물 기술스택 알려줘"</li>
+            <li>"작업물에서 사용한 주요 기능은?"</li>
           </ul>
 
           <h4>사용량 제한</h4>
