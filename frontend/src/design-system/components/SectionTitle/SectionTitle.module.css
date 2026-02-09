@@ -7,8 +7,8 @@
 
 .h1 {
   font-size: 2.25rem; /* 36px */
-  font-weight: 400; /* 야망솔루션과 동일 - Griun PolSensibility 스타일 */
-  font-family: 'Griun PolSensibility', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-weight: 400;
+  font-family: 'Griun PolSensibility', 'Cormorant Garamond', 'Noto Serif KR', Georgia, 'Times New Roman', serif;
   margin-bottom: 1.5rem; /* 24px */
   /* color는 부모 .sectionTitle에서 var(--color-text-title) 상속 */
 }
