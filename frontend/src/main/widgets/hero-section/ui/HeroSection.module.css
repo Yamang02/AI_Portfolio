@@ -36,8 +36,8 @@
   display: block;
   width: fit-content;
   color: var(--color-text-primary); /* 단일 색상 */
-  font-weight: 400; /* Griun PolSensibility 폰트는 Regular 사용 */
-  font-family: 'Griun PolSensibility', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-weight: 400;
+  font-family: 'Griun PolSensibility', 'Cormorant Garamond', 'Noto Serif KR', Georgia, 'Times New Roman', serif;
   letter-spacing: 0.05em; /* 약간 넓은 자간으로 가독성 향상 */
   line-height: 1.2;
 }
@@ -101,7 +101,7 @@
   text-align: center;
   width: 100%;
   font-weight: 300; /* 더 가볍게 */
-  font-family: 'Griun PolSensibility', 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  font-family: 'Griun PolSensibility', 'Cormorant Garamond', 'Noto Serif KR', Georgia, 'Times New Roman', serif;
   letter-spacing: 0.12em; /* 자간 더 넓게 */
   opacity: 0.7; /* 투명도 추가 */
 }

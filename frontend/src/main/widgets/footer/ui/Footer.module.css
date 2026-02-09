@@ -34,7 +34,7 @@
 }
 
 .brand {
-  font-family: 'Griun PolSensibility', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Griun PolSensibility', 'Cormorant Garamond', 'Noto Serif KR', Georgia, 'Times New Roman', serif;
   font-size: 1rem;
   font-weight: 400;
   color: var(--color-text-primary);

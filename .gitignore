@@ -95,6 +95,12 @@ frontend/public/*
 !frontend/public/images/projects/
 !frontend/public/images/projects/**
 
+# frontend/public 폰트 파일 (브랜드 폰트 등)
+!frontend/public/*.ttf
+!frontend/public/*.woff
+!frontend/public/*.woff2
+!frontend/public/*.otf
+
 # Storybook build outputs
 .out
 .storybook-out
