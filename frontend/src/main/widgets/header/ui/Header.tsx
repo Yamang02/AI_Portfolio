@@ -14,6 +14,9 @@ interface MenuItem {
   isActive?: (pathname: string) => boolean; // 활성 상태 확인 함수
 }
 
+// YamangDesign 외부 링크 URL
+const YAMANG_DESIGN_URL = 'https://design.yamang02.com';
+
 export const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -110,20 +113,22 @@ export const Header: React.FC = () => {
         </svg>
       ),
     },
-    {
-      id: 'settings',
-      label: '설정',
-      tooltip: 'Settings',
-      onClick: handleSettingsClick,
-      isActive: (pathname) => pathname === '/admin/settings',
-      icon: (
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="12" cy="12" r="3" />
-          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
-        </svg>
-      ),
-    },
   ];
+
+  // 설정 버튼 (별도 처리)
+  const settingsItem: MenuItem = {
+    id: 'settings',
+    label: '관리자',
+    tooltip: 'Admin',
+    onClick: handleSettingsClick,
+    isActive: (pathname) => pathname === '/admin/settings',
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="3" />
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+      </svg>
+    ),
+  };
 
   const handleMenuItemClick = (item: MenuItem, e?: React.MouseEvent) => {
     if (item.onClick && e) {
@@ -170,12 +175,13 @@ export const Header: React.FC = () => {
             </HeaderIconButton>
           </Tooltip>
           <div className={styles.divider} />
+          {/* Internal Page Navigation */}
           {menuItems.map((item) => {
             const isActive = item.isActive ? item.isActive(location.pathname) : false;
             return (
               <Tooltip key={item.id} content={item.tooltip} placement="bottom">
                 <HeaderIconButton
-                  onClick={(e) => handleMenuItemClick(item, e)}
+                  onClick={() => handleMenuItemClick(item)}
                   isActive={isActive}
                   ariaLabel={item.label}
                 >
@@ -184,6 +190,32 @@ export const Header: React.FC = () => {
               </Tooltip>
             );
           })}
+          <div className={styles.divider} />
+          {/* YamangDesign External Link */}
+          <Tooltip content="YamangDesign" placement="bottom">
+            <a
+              href={YAMANG_DESIGN_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.externalLink}
+              aria-label="YamangDesign"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9 8 9.67 8 10.5 7.33 12 6.5 12zm3-4C8.67 8 8 7.33 8 6.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 9 17.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z" />
+              </svg>
+            </a>
+          </Tooltip>
+          <div className={styles.divider} />
+          {/* Settings */}
+          <Tooltip content={settingsItem.tooltip} placement="bottom">
+            <HeaderIconButton
+              onClick={() => navigate('/admin/settings')}
+              isActive={location.pathname === '/admin/settings'}
+              ariaLabel={settingsItem.label}
+            >
+              {settingsItem.icon}
+            </HeaderIconButton>
+          </Tooltip>
         </nav>
 
         {/* Mobile Menu */}
@@ -251,7 +283,7 @@ export const Header: React.FC = () => {
                       key={item.id}
                       variant="secondary"
                       size="md"
-                      onClick={(e) => handleMenuItemClick(item, e)}
+                      onClick={() => handleMenuItemClick(item)}
                       className={`${styles.dropdownLink} ${isActive ? styles.dropdownLinkActive : ''}`}
                       type="button"
                     >
@@ -260,6 +292,17 @@ export const Header: React.FC = () => {
                     </Button>
                   );
                 })}
+                {/* Settings */}
+                <Button
+                  variant="secondary"
+                  size="md"
+                  onClick={() => { navigate('/admin/settings'); setIsMenuOpen(false); }}
+                  className={`${styles.dropdownLink} ${location.pathname === '/admin/settings' ? styles.dropdownLinkActive : ''}`}
+                  type="button"
+                >
+                  <span className={styles.icon}>{settingsItem.icon}</span>
+                  <span>{settingsItem.tooltip}</span>
+                </Button>
               </div>
             )}
           </div>
