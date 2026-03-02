@@ -109,14 +109,19 @@ export default defineConfig(({ mode }) => {
             manualChunks: (id) => {
               // node_modules 분리
               if (id.includes('node_modules')) {
+                // React 코어는 vendor에 포함 (다른 청크들이 의존)
+                if (id.includes('/react/') || id.includes('/react-dom/') || id.includes('/scheduler/')) {
+                  return 'vendor';
+                }
                 // 큰 라이브러리들을 별도 청크로 분리
                 if (id.includes('@tanstack/react-query')) {
                   return 'react-query';
                 }
+                // react-router는 vendor에 포함 (React와 함께 로드되어야 함)
                 if (id.includes('react-router')) {
-                  return 'react-router';
+                  return 'vendor';
                 }
-                if (id.includes('@uiw/react-md-editor') || id.includes('react-markdown')) {
+                if (id.includes('@uiw/react-md-editor') || id.includes('react-markdown') || id.includes('@uiw/react-markdown-preview')) {
                   return 'markdown-editor';
                 }
                 if (id.includes('antd')) {

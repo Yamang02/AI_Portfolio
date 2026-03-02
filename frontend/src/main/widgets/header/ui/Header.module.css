@@ -43,6 +43,33 @@
 /* HeaderIconButton 컴포넌트를 사용하므로 기본 스타일 제거 */
 /* 필요한 경우에만 특수 스타일 추가 */
 
+/* 외부 링크 버튼 스타일 */
+.externalLink {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  background: none;
+  border: none;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+
+.externalLink:hover {
+  background-color: var(--color-bg-secondary);
+  color: var(--color-primary);
+}
+
+.externalLink svg {
+  width: 20px;
+  height: 20px;
+}
+
 /* 테마 토글 버튼 전용 스타일 (데스크톱) - 라이트 모드에서만 #051A0E 사용 */
 .themeToggle {
   color: var(--color-text-primary);
