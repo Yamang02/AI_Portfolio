@@ -1,13 +1,41 @@
 import path from 'path';
+import fs from 'fs';
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import { imagetools } from 'vite-imagetools';
+import Sitemap from 'vite-plugin-sitemap';
+
+function getSitemapRoutes(): string[] {
+  const p = path.resolve(__dirname, 'sitemap-routes.json');
+  if (!fs.existsSync(p)) return [];
+  try {
+    const raw = fs.readFileSync(p, 'utf-8');
+    const data = JSON.parse(raw);
+    return Array.isArray(data) ? data : [];
+  } catch {
+    return [];
+  }
+}
 
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
+    const siteUrl = env.VITE_SITE_URL || 'https://www.yamang02.com';
     return {
       plugins: [
         react(),
+        Sitemap({
+          hostname: siteUrl,
+          dynamicRoutes: getSitemapRoutes(),
+          exclude: ['/admin', '/admin/*'],
+          changefreq: 'weekly',
+          priority: 0.8,
+          routes: {
+            '/': { priority: 1.0, changefreq: 'weekly' },
+            '/profile': { priority: 0.7, changefreq: 'monthly' },
+            '/projects': { priority: 0.9, changefreq: 'weekly' },
+            '/articles': { priority: 0.9, changefreq: 'daily' },
+          },
+        }),
         imagetools({
           defaultDirectives: (url) => {
             // 모든 이미지에 기본 최적화 적용

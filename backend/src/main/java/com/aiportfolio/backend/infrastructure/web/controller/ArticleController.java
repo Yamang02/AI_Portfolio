@@ -208,10 +208,12 @@ public class ArticleController {
             String businessId,
             String title,
             String content,
+            String summary,
             String category,
             List<String> tags,
             List<String> techStack,
             String publishedAt,
+            String updatedAt,
             Integer viewCount,
             String seriesId,
             String seriesTitle,
@@ -278,6 +280,7 @@ public class ArticleController {
                     domain.getBusinessId(),
                     domain.getTitle(),
                     domain.getContent(),
+                    domain.getSummary(),
                     domain.getCategory(),
                     domain.getTags(),
                     domain.getTechStack() != null ?
@@ -285,6 +288,7 @@ public class ArticleController {
                                     .map(ts -> ts.getTechName())
                                     .toList() : List.of(),
                     domain.getPublishedAt() != null ? domain.getPublishedAt().toString() : null,
+                    domain.getUpdatedAt() != null ? domain.getUpdatedAt().toString() : null,
                     domain.getViewCount(),
                     domain.getSeriesId(),
                     seriesTitle,

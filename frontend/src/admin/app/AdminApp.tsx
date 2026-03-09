@@ -2,6 +2,7 @@ import React from 'react';
 import { ConfigProvider, App as AntdApp } from 'antd';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { Routes, Route, Navigate } from 'react-router-dom';
+import { SeoHead } from '@/shared/ui/seo/SeoHead';
 import { adminQueryClient } from '../config/queryClient';
 import { AuthProvider } from '../hooks/useAuth';
 import { Header } from '@/main/widgets/header';
@@ -26,6 +27,7 @@ const AdminApp: React.FC = () => {
   return (
     <ConfigProvider theme={adminTheme}>
         <AntdApp>
+          <SeoHead noindex title="관리자" />
           <QueryClientProvider client={adminQueryClient}>
             <AuthProvider>
               <Routes>

@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { SeoHead } from '@/shared/ui/seo/SeoHead';
+import { createArticleSchema, createBreadcrumbSchema } from '@/shared/lib/schema';
 import { useArticleQuery, useArticleListQuery, useArticleNavigationQuery } from '../entities/article';
 import { SectionTitle } from '@design-system/components/SectionTitle';
 import { TextLink } from '@design-system/components/TextLink';
@@ -153,6 +155,41 @@ export function ArticleDetailPage() {
 
   return (
     <div className={styles.container}>
+      {businessId && (
+        <SeoHead
+          title={article?.title}
+          description={article?.summary ?? article?.content?.slice(0, 160)}
+          ogType="article"
+          canonicalPath={`/articles/${businessId}`}
+          article={
+            article?.publishedAt
+              ? {
+                  publishedTime: article.publishedAt,
+                  modifiedTime: article.updatedAt ?? article.publishedAt,
+                  author: 'YamangSolution',
+                  tags: article.tags,
+                }
+              : undefined
+          }
+          jsonLd={
+            article
+              ? [
+                  createArticleSchema({
+                    businessId: article.businessId,
+                    title: article.title,
+                    summary: article.summary,
+                    publishedAt: article.publishedAt,
+                    updatedAt: article.updatedAt,
+                  }),
+                  createBreadcrumbSchema([
+                    { name: '글', path: '/articles' },
+                    { name: article.title, path: `/articles/${businessId}` },
+                  ]),
+                ]
+              : undefined
+          }
+        />
+      )}
       {/* 백그라운드 리페치 인디케이터 */}
       {isFetching && !isLoading && article && (
         <BackgroundRefetchIndicator />

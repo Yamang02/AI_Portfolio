@@ -21,10 +21,12 @@ export interface ArticleDetail {
   businessId: string;
   title: string;
   content: string;
+  summary?: string;
   category?: string;
   tags: string[];
   techStack: string[];
   publishedAt?: string;
+  updatedAt?: string;
   viewCount: number;
   seriesId?: string;
   seriesTitle?: string; // 시리즈 제목

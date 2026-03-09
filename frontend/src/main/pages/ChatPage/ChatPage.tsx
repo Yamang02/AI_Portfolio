@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 
+import { SeoHead } from '@/shared/ui/seo/SeoHead';
+import { pageMetaDefaults } from '@/shared/config/seo.config';
 import { apiClient } from '@/shared/api/apiClient';
 import { ChatInputBar } from '@/shared/ui/chat';
 import { ContactModal } from '@/shared/ui/modal';
@@ -368,6 +370,7 @@ const ChatPageContent: React.FC = () => {
     };
   }, []);
 
+  const chatMeta = pageMetaDefaults.chat;
   return (
     <PageMeta
       scrollPolicy="internal"
@@ -375,6 +378,11 @@ const ChatPageContent: React.FC = () => {
       enablePageTransition={true}
       showFooter={false}
     >
+      <SeoHead
+        title={chatMeta.title}
+        description={chatMeta.description}
+        canonicalPath={chatMeta.canonicalPath}
+      />
       <div style={{ width: '100%', height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', minHeight: 0 }}>
       {/* 상단 컨트롤 영역 - 왼쪽 상단 배치 */}
       <div className={styles.topBar}>

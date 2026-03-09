@@ -1,5 +1,7 @@
 import { useState, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { SeoHead } from '@/shared/ui/seo/SeoHead';
+import { pageMetaDefaults } from '@/shared/config/seo.config';
 import { SectionTitle, EmptyCard, SkeletonCard, Button } from '@/design-system';
 import { PageHeader } from '@/main/widgets/page-header';
 import { Pagination } from '@/design-system/components/Pagination/Pagination';
@@ -173,8 +175,14 @@ export function ArticleListPage() {
   // 에러 상태에서도 레이아웃 유지
   const hasError = !!error;
 
+  const meta = pageMetaDefaults.articles;
   return (
     <div ref={containerRef} className={styles.page}>
+      <SeoHead
+        title={meta.title}
+        description={meta.description}
+        canonicalPath={meta.canonicalPath}
+      />
       <PageHeader
         title="글"
         description={<p>총 {data?.totalElements || 0}개의 글</p>}

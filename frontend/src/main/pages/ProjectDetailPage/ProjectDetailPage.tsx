@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { SeoHead } from '@/shared/ui/seo/SeoHead';
+import { createProjectSchema, createBreadcrumbSchema } from '@/shared/lib/schema';
 import { useProjectsQuery } from '../../entities/project/api/useProjectsQuery';
 import { SectionTitle } from '@design-system/components/SectionTitle';
 import { TextLink } from '@design-system/components/TextLink';
@@ -154,9 +156,38 @@ const ProjectDetailPage: React.FC = () => {
   // 에러 상태 체크
   const hasError = !isLoading && !project;
 
-
   return (
     <div className={styles.container}>
+      {id && (
+        <SeoHead
+          title={project?.title}
+          description={project?.description}
+          canonicalPath={id ? `/projects/${id}` : undefined}
+          jsonLd={
+            project
+              ? [
+                  createProjectSchema({
+                    id: project.id,
+                    title: project.title,
+                    description: project.description ?? '',
+                    updatedAt:
+                      typeof project.updatedAt === 'string'
+                        ? project.updatedAt
+                        : project.updatedAt
+                          ? new Date(project.updatedAt).toISOString()
+                          : undefined,
+                  }),
+                  createBreadcrumbSchema(
+                    [
+                      { name: '작업물', path: '/projects' },
+                      { name: project.title, path: `/projects/${id}` },
+                    ]
+                  ),
+                ]
+              : undefined
+          }
+        />
+      )}
         <div ref={contentRef} className={styles.content}>
         {/* 로딩 상태: 구조를 유지하면서 Skeleton 표시 */}
         {isLoading ? (

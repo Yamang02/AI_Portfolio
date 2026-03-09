@@ -1,5 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { SeoHead } from '@/shared/ui/seo/SeoHead';
+import { pageMetaDefaults } from '@/shared/config/seo.config';
 import { SectionTitle, Button } from '@/design-system';
 import { PageHeader } from '@/main/widgets/page-header';
 import { useProjectsQuery } from '@/main/entities/project/api/useProjectsQuery';
@@ -20,6 +22,7 @@ const HIGHLIGHT_DURATION_MS = 2000;
 type ProjectCategory = 'BUILD' | 'LAB' | 'MAINTENANCE';
 
 export const ProjectsListPage: React.FC = () => {
+  const meta = pageMetaDefaults.projects;
   const navigate = useNavigate();
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [highlightedProjectId, setHighlightedProjectId] = useState<string | undefined>();
@@ -145,6 +148,11 @@ export const ProjectsListPage: React.FC = () => {
 
   return (
     <div className={styles.page}>
+      <SeoHead
+        title={meta.title}
+        description={meta.description}
+        canonicalPath={meta.canonicalPath}
+      />
       <PageHeader
         title="작업물"
         actions={
