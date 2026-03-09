@@ -81,7 +81,7 @@ const ProjectDetailPage: React.FC = () => {
     contentRef as React.RefObject<HTMLElement>,
     { 
       containerSelector: undefined, // 전체 컨테이너에서 헤딩 찾기
-      headingLevels: [2, 3, 4, 5, 6] 
+      headingLevels: [1, 2, 3, 4, 5, 6] 
     }
   );
 
