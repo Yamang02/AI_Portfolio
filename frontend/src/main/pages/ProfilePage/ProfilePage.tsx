@@ -1,4 +1,7 @@
 import React from 'react';
+import { SeoHead } from '@/shared/ui/seo/SeoHead';
+import { pageMetaDefaults } from '@/shared/config/seo.config';
+import { createPersonSchema } from '@/shared/lib/schema';
 import { useExperiencesQuery } from '@/main/entities/experience/api/useExperienceQuery';
 import { useEducationQuery } from '@/main/entities/education/api/useEducationQuery';
 import { IntroductionSection } from './components/IntroductionSection';
@@ -8,6 +11,7 @@ import { PageHeader } from '@/main/widgets/page-header';
 import styles from './ProfilePage.module.css';
 
 export const ProfilePage: React.FC = () => {
+  const meta = pageMetaDefaults.profile;
   const { data: experiences = [], isLoading: isLoadingExperiences } = useExperiencesQuery();
   const { data: educations = [], isLoading: isLoadingEducations } = useEducationQuery();
 
@@ -19,6 +23,12 @@ export const ProfilePage: React.FC = () => {
 
   return (
     <div className={styles.page}>
+      <SeoHead
+        title={meta.title}
+        description={meta.description}
+        canonicalPath={meta.canonicalPath}
+        jsonLd={createPersonSchema()}
+      />
         <PageHeader title="대표 소개" />
 
         {/* Main Content Section: 자기소개 + 약력 */}

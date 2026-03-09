@@ -1,6 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
+import { HelmetProvider } from 'react-helmet-async';
+import { initAnalyticsAndWebVitals } from '@/shared/lib/web-vitals';
 import { App } from './main/app/App';
 // Design System Styles (Phase 3)
 import './design-system/styles/reset.css';
@@ -12,11 +14,15 @@ if (!rootElement) {
   throw new Error("Could not find root element to mount to");
 }
 
+initAnalyticsAndWebVitals();
+
 const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
+    <HelmetProvider>
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
+    </HelmetProvider>
   </React.StrictMode>
 );

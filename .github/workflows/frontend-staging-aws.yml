@@ -36,6 +36,8 @@ jobs:
         npm run build
       env:
         VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
+        VITE_SITE_URL: ${{ vars.VITE_SITE_URL }}
+        VITE_GA_MEASUREMENT_ID: ${{ secrets.VITE_GA_MEASUREMENT_ID }}
         
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
@@ -53,6 +55,26 @@ jobs:
       run: |
         cd frontend
         aws s3 sync dist/ s3://${{ vars.AWS_S3_NAME }} --delete --cache-control "public, max-age=31536000"
+
+    - name: Upload SEO files with short cache
+      run: |
+        cd frontend
+        BUCKET="${{ vars.AWS_S3_NAME }}"
+        for file in robots.txt sitemap.xml llms.txt; do
+          if [ -f "dist/$file" ]; then
+            case "$file" in
+              sitemap.xml) CACHE="public, max-age=3600"; CT="application/xml" ;;
+              robots.txt)  CACHE="public, max-age=86400"; CT="text/plain" ;;
+              llms.txt)    CACHE="public, max-age=86400"; CT="text/plain" ;;
+              *)           CACHE="public, max-age=86400"; CT="" ;;
+            esac
+            if [ -n "$CT" ]; then
+              aws s3 cp "dist/$file" "s3://$BUCKET/$file" --cache-control "$CACHE" --content-type "$CT"
+            else
+              aws s3 cp "dist/$file" "s3://$BUCKET/$file" --cache-control "$CACHE"
+            fi
+          fi
+        done
         
     - name: Invalidate CloudFront cache
       run: |
