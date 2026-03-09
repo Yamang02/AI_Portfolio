@@ -7,7 +7,7 @@ export interface TableOfContentsProps {
   headerOffset?: number;
 }
 
-const scrollToSection = (id: string, headerOffset: number = 80) => {
+const scrollToSection = (id: string, headerOffset: number = 64) => {
   const element = document.getElementById(id);
   if (element) {
     const elementPosition = element.getBoundingClientRect().top;
@@ -57,7 +57,7 @@ const TOCItemComponent: React.FC<{
 
 export const TableOfContents: React.FC<TableOfContentsProps> = ({
   items,
-  headerOffset = 80,
+  headerOffset = 64,
 }) => {
   if (items.length === 0) {
     return null;

@@ -59,7 +59,7 @@ export function ArticleDetailPage() {
     markdownContainerRef as React.RefObject<HTMLElement>,
     { 
       containerSelector: undefined, // markdownContainerRef 내부에서 헤딩 찾기
-      headingLevels: [2, 3, 4, 5, 6] 
+      headingLevels: [1, 2, 3, 4, 5, 6] 
     }
   );
 

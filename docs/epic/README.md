@@ -8,6 +8,7 @@
 - 없음
 
 ### 계획 중인 에픽 (Backlog)
+- [detail-page-ux-bugfix/](./detail-page-ux-bugfix/) - 상세 페이지 UX 버그픽스 (우선순위: High, 예상 기간: 1주)
 - [seo-aeo-optimization/](./seo-aeo-optimization/) - SEO/AEO 최적화 (우선순위: High, 예상 기간: 3-4주)
 - [ux-data-loading-optimization/](./ux-data-loading-optimization/) - UX 및 데이터 로딩 최적화 (우선순위: High, 예상 기간: 2-3주)
 

@@ -48,12 +48,13 @@ const MainAppContent: React.FC = () => {
     }
   }, []);
 
-  // 전체 로딩 상태
-  const isInitialLoading = isLoading &&
-    loadingStates.projects &&
-    loadingStates.experiences &&
-    loadingStates.educations &&
-    loadingStates.certifications;
+  // 전체 로딩 상태: 네 가지 데이터가 모두 로드될 때까지 로딩 화면 유지 (OR 조건)
+  const isInitialLoading =
+    isLoading &&
+    (loadingStates.projects ||
+      loadingStates.experiences ||
+      loadingStates.educations ||
+      loadingStates.certifications);
 
   if (isInitialLoading) {
     return (
