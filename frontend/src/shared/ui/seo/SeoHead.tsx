@@ -28,9 +28,10 @@ export const SeoHead: React.FC<SeoHeadProps> = ({
   jsonLd,
   article,
 }) => {
-  const fullTitle = title
-    ? `${title} | ${seoConfig.siteName}`
-    : seoConfig.defaultTitle;
+  const fullTitle =
+    title && title.trim() !== ''
+      ? `${title} | ${seoConfig.siteName}`
+      : seoConfig.defaultTitle;
   const metaDescription = description ?? seoConfig.defaultDescription;
   const ogImageUrl = ogImage ?? seoConfig.defaultOgImage;
   const canonicalUrl = canonicalPath

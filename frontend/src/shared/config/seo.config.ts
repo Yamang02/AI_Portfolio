@@ -7,9 +7,9 @@ const siteUrl = import.meta.env.VITE_SITE_URL || 'https://www.yamang02.com';
 export const seoConfig = {
   siteName: 'YamangSolution',
   siteUrl,
-  defaultTitle: 'YamangSolution | AI 풀스택 개발자 포트폴리오',
+  defaultTitle: 'YamangSolution',
   defaultDescription:
-    'AI와 함께 꿈을 실현하는 풀스택 개발자 YamangSolution의 포트폴리오. ' +
+    'AI와 함께 꿈을 실현하는 개발자 YamangSolution의 포트폴리오. ' +
     'Spring Boot, React, TypeScript, AI 서비스 개발 프로젝트와 기술 아티클을 확인하세요.',
   defaultOgImage: `${siteUrl}/images/og-default.png`,
   twitterHandle: '@yamang02',
@@ -20,15 +20,16 @@ export const seoConfig = {
 
 export const pageMetaDefaults = {
   home: {
-    title: 'YamangSolution | AI 풀스택 개발자 포트폴리오',
+    // 빈 값이면 SeoHead에서 defaultTitle('YamangSolution')만 사용 → 홈 탭/북마크에 "YamangSolution"만 표시
+    title: '',
     description:
-      'AI와 함께 꿈을 실현하는 풀스택 개발자의 포트폴리오. 프로젝트, 기술 아티클, AI 챗봇을 경험해보세요.',
+      'AI와 함께 꿈을 실현하는 개발자의 포트폴리오. 프로젝트, 기술 아티클, AI 챗봇을 경험해보세요.',
     canonicalPath: '/',
   },
   profile: {
     title: '프로필',
     description:
-      'YamangSolution의 경력, 기술 스택, 교육 이력을 확인하세요. Java/Spring Boot, React/TypeScript 전문 풀스택 개발자.',
+      'YamangSolution의 경력, 기술 스택, 교육 이력을 확인하세요. Java/Spring Boot, React/TypeScript 전문 개발자.',
     canonicalPath: '/profile',
   },
   projects: {
