@@ -18,7 +18,7 @@ const mockTOCItems: TOCItem[] = [
     id: 'readme',
     text: '상세 설명',
     level: 2,
-    children: [
+    subItems: [
       { id: 'readme-introduction', text: '소개', level: 3 },
       { id: 'readme-features', text: '주요 기능', level: 3 },
       {
@@ -54,17 +54,17 @@ export const DeepNesting: Story = {
         id: 'level1',
         text: '레벨 1',
         level: 2,
-        children: [
+        subItems: [
           {
             id: 'level2',
             text: '레벨 2',
             level: 3,
-            children: [
+            subItems: [
               {
                 id: 'level3',
                 text: '레벨 3',
                 level: 4,
-                children: [
+                subItems: [
                   { id: 'level4', text: '레벨 4', level: 5 },
                 ],
               },

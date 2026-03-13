@@ -51,7 +51,7 @@ export const useActiveSection = (
   const observerRef = useRef<IntersectionObserver | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // TOC 아이템에서 모든 ID 추출 (중첩된 children 포함)
+  // TOC 아이템에서 모든 ID 추출 (중첩된 subItems 포함)
   const allIds = extractAllIds(tocItems);
 
   useEffect(() => {
@@ -122,7 +122,7 @@ export const useActiveSection = (
 };
 
 /**
- * TOC 아이템에서 모든 ID를 추출 (중첩된 children 포함)
+ * TOC 아이템에서 모든 ID를 추출 (중첩된 subItems 포함)
  * 
  * @param tocItems - TOC 아이템 배열
  * @returns 모든 ID 배열
@@ -133,8 +133,8 @@ function extractAllIds(tocItems: TOCItem[]): string[] {
   const extractRecursive = (items: TOCItem[]) => {
     for (const item of items) {
       ids.push(item.id);
-      if (item.children && item.children.length > 0) {
-        extractRecursive(item.children);
+      if (item.subItems && item.subItems.length > 0) {
+        extractRecursive(item.subItems);
       }
     }
   };

@@ -6,6 +6,6 @@ export interface TOCItem {
   id: string;
   text: string;
   level: number;
-  children?: TOCItem[];
+  subItems?: TOCItem[];
 }
 

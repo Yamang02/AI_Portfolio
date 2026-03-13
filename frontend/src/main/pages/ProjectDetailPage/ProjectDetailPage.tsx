@@ -120,7 +120,7 @@ const ProjectDetailPage: React.FC = () => {
       if (readmeSectionIndex !== -1) {
         baseSections[readmeSectionIndex] = {
           ...baseSections[readmeSectionIndex],
-          children: domTocItems
+          subItems: domTocItems
         };
       }
     } else if (domTocItems.length > 0) {
