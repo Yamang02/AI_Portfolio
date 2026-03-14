@@ -46,10 +46,10 @@ const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) => {
       };
       
       await emailjs.send(
-        'YOUR_SERVICE_ID', // EmailJS 서비스 ID
-        'YOUR_TEMPLATE_ID', // EmailJS 템플릿 ID
+        import.meta.env.VITE_EMAILJS_SERVICE_ID,
+        import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
         templateParams,
-        'YOUR_PUBLIC_KEY' // EmailJS 공개 키
+        import.meta.env.VITE_EMAILJS_PUBLIC_KEY
       );
       
       alert('메시지가 성공적으로 전송되었습니다!');
