@@ -90,7 +90,7 @@ export function ArticleDetailPage() {
       if (contentSectionIndex !== -1) {
         baseSections[contentSectionIndex] = {
           ...baseSections[contentSectionIndex],
-          children: domTocItems
+          subItems: domTocItems
         };
       }
     } else if (domTocItems.length > 0) {

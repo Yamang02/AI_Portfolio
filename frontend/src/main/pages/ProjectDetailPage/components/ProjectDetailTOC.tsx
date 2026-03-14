@@ -6,46 +6,19 @@ interface ProjectDetailTOCProps {
   items: TOCItem[];
 }
 
-const scrollToSection = (id: string) => {
-  const element = document.getElementById(id);
-  if (element) {
-    const headerOffset = 80;
-    const elementPosition = element.getBoundingClientRect().top;
-    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-
-    window.scrollTo({
-      top: offsetPosition,
-      behavior: 'smooth',
-    });
-  }
-};
-
 const TOCItemComponent: React.FC<{
   item: TOCItem;
   level: number;
 }> = ({ item, level }) => {
-  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
-    scrollToSection(item.id);
-  };
-
   return (
     <li className={styles.item} style={{ paddingLeft: `${level * 16}px` }}>
-      <a
-        href={`#${item.id}`}
-        className={styles.link}
-        onClick={handleClick}
-      >
+      <a href={`#${item.id}`} className={styles.link}>
         {item.text}
       </a>
-      {item.children && item.children.length > 0 && (
+      {item.subItems && item.subItems.length > 0 && (
         <ul className={styles.nested}>
-          {item.children.map((child) => (
-            <TOCItemComponent
-              key={child.id}
-              item={child}
-              level={level + 1}
-            />
+          {item.subItems.map((child) => (
+            <TOCItemComponent key={child.id} item={child} level={level + 1} />
           ))}
         </ul>
       )}

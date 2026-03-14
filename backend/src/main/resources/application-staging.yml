@@ -142,7 +142,7 @@ app:
   github:
     username: Yamang02  # 하드코딩
   contact:
-    email: ljj0210@gmail.com  # 하드코딩
+    email: contact@yamangsolution.com  # 하드코딩
   security:
     rate-limit:
       window: 60000

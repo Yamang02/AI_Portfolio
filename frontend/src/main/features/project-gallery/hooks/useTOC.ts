@@ -3,13 +3,7 @@ import { unified } from 'unified';
 import remarkParse from 'remark-parse';
 import { visit } from 'unist-util-visit';
 import { generateHeadingId, resetHeadingIdCounters } from '@/shared/lib/markdown/generateHeadingId';
-
-export interface TOCItem {
-  id: string;
-  text: string;
-  level: number;
-  children?: TOCItem[];
-}
+import type { TOCItem } from './types';
 
 interface HeadingNode {
   type: 'heading';
@@ -93,33 +87,33 @@ function buildHierarchy(headings: TOCItem[]): TOCItem[] {
       stack.pop();
     }
 
-    // 현재 아이템을 복사하여 children 배열 추가
-    const itemWithChildren: TOCItem = {
+    // 현재 아이템을 복사하여 subItems 배열 추가
+    const itemWithSubItems: TOCItem = {
       ...heading,
-      children: []
+      subItems: []
     };
 
     if (stack.length === 0) {
       // 최상위 레벨 아이템
-      result.push(itemWithChildren);
+      result.push(itemWithSubItems);
     } else {
-      // 하위 레벨 아이템 - 부모의 children에 추가
+      // 하위 레벨 아이템 - 부모의 subItems에 추가
       const parent = stack[stack.length - 1];
-      if (!parent.children) {
-        parent.children = [];
+      if (!parent.subItems) {
+        parent.subItems = [];
       }
-      parent.children.push(itemWithChildren);
+      parent.subItems.push(itemWithSubItems);
     }
 
     // 현재 아이템을 스택에 추가
-    stack.push(itemWithChildren);
+    stack.push(itemWithSubItems);
   }
 
   return result;
 }
 
 /**
- * TOC 아이템의 총 개수를 계산 (중첩된 children 포함)
+ * TOC 아이템의 총 개수를 계산 (중첩된 subItems 포함)
  * 
  * @param items - TOC 아이템 배열
  * @returns 총 아이템 개수
@@ -130,8 +124,8 @@ export const getTOCItemCount = (items: TOCItem[]): number => {
   const countRecursive = (items: TOCItem[]) => {
     for (const item of items) {
       count++;
-      if (item.children && item.children.length > 0) {
-        countRecursive(item.children);
+      if (item.subItems && item.subItems.length > 0) {
+        countRecursive(item.subItems);
       }
     }
   };
@@ -156,8 +150,8 @@ export const flattenTOCItems = (items: TOCItem[]): TOCItem[] => {
         level: parentLevel + item.level
       });
       
-      if (item.children && item.children.length > 0) {
-        flattenRecursive(item.children, parentLevel);
+      if (item.subItems && item.subItems.length > 0) {
+        flattenRecursive(item.subItems, parentLevel);
       }
     }
   };

@@ -16,7 +16,7 @@
 .section {
   margin-bottom: var(--spacing-16);
   padding-top: var(--spacing-8);
-  scroll-margin-top: 64px; /* sticky 헤더 높이(64px)만큼 여백 */
+  scroll-margin-top: var(--header-height, 64px);
 }
 
 .section:first-of-type {

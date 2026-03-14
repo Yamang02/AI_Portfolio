@@ -42,7 +42,7 @@ const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) => {
         from_email: email,
         subject: subject,
         message: message,
-        to_email: 'your-email@example.com' // 실제 이메일 주소로 변경
+        to_email: 'contact@yamangsolution.com'
       };
       
       await emailjs.send(

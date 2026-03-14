@@ -102,26 +102,26 @@ export const useTOCFromDOM = (
         stack.pop();
       }
 
-      // 현재 아이템을 복사하여 children 배열 추가
-      const itemWithChildren: TOCItem = {
+      // 현재 아이템을 복사하여 subItems 배열 추가
+      const itemWithSubItems: TOCItem = {
         ...heading,
-        children: []
+        subItems: []
       };
 
       if (stack.length === 0) {
         // 최상위 레벨 아이템
-        result.push(itemWithChildren);
+        result.push(itemWithSubItems);
       } else {
-        // 하위 레벨 아이템 - 부모의 children에 추가
+        // 하위 레벨 아이템 - 부모의 subItems에 추가
         const parent = stack[stack.length - 1];
-        if (!parent.children) {
-          parent.children = [];
+        if (!parent.subItems) {
+          parent.subItems = [];
         }
-        parent.children.push(itemWithChildren);
+        parent.subItems.push(itemWithSubItems);
       }
 
       // 현재 아이템을 스택에 추가
-      stack.push(itemWithChildren);
+      stack.push(itemWithSubItems);
     }
 
     return result;
