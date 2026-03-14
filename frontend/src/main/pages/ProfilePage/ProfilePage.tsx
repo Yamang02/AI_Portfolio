@@ -17,7 +17,7 @@ export const ProfilePage: React.FC = () => {
 
   const contactData = {
     githubUrl: 'https://github.com/yamang02',
-    email: 'ljj0210@gmail.com',
+    email: 'contact@yamangsolution.com',
     linkedInUrl: 'https://www.linkedin.com/in/JeongjunLee/',
   };
 

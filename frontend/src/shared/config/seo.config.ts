@@ -15,7 +15,7 @@ export const seoConfig = {
   twitterHandle: '@yamang02',
   locale: 'ko_KR',
   author: 'YamangSolution',
-  contactEmail: 'ljj0210@gmail.com',
+  contactEmail: 'contact@yamangsolution.com',
 } as const;
 
 export const pageMetaDefaults = {

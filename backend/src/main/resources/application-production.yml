@@ -137,7 +137,7 @@ app:
   github:
     username: Yamang02
   contact:
-    email: ljj0210@gmail.com
+    email: contact@yamangsolution.com
   security:
     rate-limit:
       window: 60000
