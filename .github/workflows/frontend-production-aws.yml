@@ -58,6 +58,14 @@ jobs:
         cd frontend
         aws s3 sync dist/ s3://${{ vars.AWS_S3_NAME }} --delete --cache-control "public, max-age=31536000"
 
+    - name: Upload index.html with no-cache (prevents stale chunk references after deploy)
+      run: |
+        cd frontend
+        BUCKET="${{ vars.AWS_S3_NAME }}"
+        if [ -f "dist/index.html" ]; then
+          aws s3 cp dist/index.html "s3://$BUCKET/index.html" --cache-control "public, max-age=0, must-revalidate" --content-type "text/html"
+        fi
+
     - name: Upload SEO files with short cache
       run: |
         cd frontend
