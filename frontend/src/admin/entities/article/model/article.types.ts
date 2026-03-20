@@ -66,6 +66,7 @@ export const ARTICLE_CATEGORIES = {
   troubleshooting: '트러블슈팅',
   architecture: '아키텍처',
   insight: '인사이트',
+  'sns-posts': 'SNS 포스트',
   'development-timeline': '개발 과정',
 } as const;
 
