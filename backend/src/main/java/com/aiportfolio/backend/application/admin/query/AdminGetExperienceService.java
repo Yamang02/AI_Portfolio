@@ -11,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Admin 전용 Experience 조회 서비스
@@ -51,7 +50,7 @@ public class AdminGetExperienceService implements GetExperienceUseCase {
         log.debug("Fetching experiences by type: {} (admin - no cache)", type);
         return getAllExperiencesInternal().stream()
             .filter(e -> type != null && type.name().equals(e.getEmploymentType()))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     @Override
@@ -59,7 +58,7 @@ public class AdminGetExperienceService implements GetExperienceUseCase {
         log.debug("Fetching experiences by organization: {} (admin - no cache)", organization);
         return getAllExperiencesInternal().stream()
             .filter(e -> e.isFromOrganization(organization))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     @Override
@@ -67,7 +66,7 @@ public class AdminGetExperienceService implements GetExperienceUseCase {
         log.debug("Fetching current experiences (admin - no cache)");
         return getAllExperiencesInternal().stream()
             .filter(Experience::isCurrentlyEmployed)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     @Override
@@ -75,7 +74,7 @@ public class AdminGetExperienceService implements GetExperienceUseCase {
         log.debug("Fetching experiences by tech stack: {} (admin - no cache)", techStackName);
         return getAllExperiencesInternal().stream()
             .filter(e -> e.usesTechnology(techStackName))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     @Override
@@ -89,7 +88,7 @@ public class AdminGetExperienceService implements GetExperienceUseCase {
                 e.getOrganization().toLowerCase().contains(lowerKeyword) ||
                 e.getRole().toLowerCase().contains(lowerKeyword)
             )
-            .collect(Collectors.toList());
+            .toList();
     }
 }
 

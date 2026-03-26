@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Admin 전용 Certification 조회 서비스
@@ -50,7 +49,7 @@ public class GetCertificationService implements GetCertificationUseCase {
         return portfolioRepositoryPort.findAllCertificationsWithoutCache()
             .stream()
             .filter(Certification::isExpired)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     @Override
@@ -59,6 +58,6 @@ public class GetCertificationService implements GetCertificationUseCase {
         return portfolioRepositoryPort.findAllCertificationsWithoutCache()
             .stream()
             .filter(Certification::isExpiringSoon)
-            .collect(Collectors.toList());
+            .toList();
     }
 }
