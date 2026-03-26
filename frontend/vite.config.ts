@@ -155,9 +155,6 @@ export default defineConfig(({ mode }) => {
                 if (id.includes('antd')) {
                   return 'antd';
                 }
-                if (id.includes('framer-motion')) {
-                  return 'framer-motion';
-                }
                 if (id.includes('highlight.js')) {
                   return 'highlight';
                 }

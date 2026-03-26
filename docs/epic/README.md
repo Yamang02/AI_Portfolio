@@ -5,7 +5,7 @@
 ## 📁 현재 에픽
 
 ### 진행 중인 에픽
-- 없음
+- [code-quality-and-test-foundation/](./code-quality-and-test-foundation/) - 코드 품질 개선 및 테스트 기반 구축 (우선순위: High)
 
 ### 계획 중인 에픽 (Backlog)
 - [detail-page-ux-bugfix/](./detail-page-ux-bugfix/) - 상세 페이지 UX 버그픽스 (우선순위: High, 예상 기간: 1주)

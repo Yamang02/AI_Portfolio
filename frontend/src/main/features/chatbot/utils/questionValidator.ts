@@ -1,11 +1,11 @@
 export interface ValidationResult {
   valid: boolean;
-  reason?: 'empty_question' | 'too_long' | 'spam_pattern' | 'too_short';
+  reason?: 'empty_question' | 'too_long' | 'too_short';
   message?: string;
 }
 
 export interface QuestionAnalysis {
-  type: 'normal' | 'personal_info' | 'simple_greeting' | 'spam';
+  type: 'normal' | 'personal_info' | 'simple_greeting';
   shouldShowEmailButton: boolean;
   immediateResponse?: string;
 }
@@ -42,21 +42,7 @@ export const validateQuestion = (question: string): ValidationResult => {
       message: '질문은 500자 이하로 입력해주세요.'
     };
   }
-  
-  // 4. 스팸 패턴 체크 (단순한 것들)
-  const spamPatterns = [
-    'ㅋㅋㅋㅋㅋ', 'ㅎㅎㅎㅎㅎ', '!!!!!', '?????', '...',
-    'ㅋㅋㅋㅋ', 'ㅎㅎㅎㅎ', '!!!!', '????'
-  ];
-  
-  if (spamPatterns.some(pattern => trimmedQuestion.includes(pattern))) {
-    return { 
-      valid: false, 
-      reason: 'spam_pattern',
-      message: '적절한 질문을 입력해주세요.'
-    };
-  }
-  
+
   return { valid: true };
 };
 
@@ -86,26 +72,8 @@ export const analyzeQuestion = (question: string): QuestionAnalysis => {
       immediateResponse: '안녕하세요! 👋 저는 AI 포트폴리오 비서입니다. 궁금한 점이나 알고 싶은 내용을 자유롭게 질문해 주세요!'
     };
   }
-  
-  // 2. 명백한 스팸 감지 (즉시 차단)
-  const obviousSpamIndicators = [
-    /[ㅋㅎ]{5,}/, // ㅋㅋㅋㅋㅋ, ㅎㅎㅎㅎㅎ
-    /[!?]{5,}/,   // !!!!!, ?????
-    /[.]{5,}/,    // .....
-    /[가-힣]*[ㅋㅎ]{3,}[가-힣]*/, // 한글 중간에 ㅋㅋㅋ
-  ];
-  
-  const isObviousSpam = obviousSpamIndicators.some(pattern => pattern.test(question));
-  
-  if (isObviousSpam) {
-    return {
-      type: 'spam',
-      shouldShowEmailButton: false,
-      immediateResponse: '적절한 질문을 입력해주세요. 포트폴리오나 프로젝트에 대한 질문을 해주시면 도움을 드릴 수 있습니다.'
-    };
-  }
-  
-  // 3. 일반 질문 (백엔드로 전송하여 통합 처리)
+
+  // 2. 일반 질문 (스팸/패턴 검증은 백엔드에 위임)
   return {
     type: 'normal',
     shouldShowEmailButton: false

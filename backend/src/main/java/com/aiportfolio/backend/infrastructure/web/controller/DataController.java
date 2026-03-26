@@ -12,7 +12,6 @@ import com.aiportfolio.backend.domain.portfolio.model.Experience;
 import com.aiportfolio.backend.domain.portfolio.model.Project;
 import com.aiportfolio.backend.domain.portfolio.port.in.GetProjectsUseCase;
 import com.aiportfolio.backend.domain.portfolio.port.in.GetAllDataUseCase;
-import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.ProjectJpaRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +28,7 @@ import java.util.stream.Collectors;
 
 /**
  * 데이터 웹 컨트롤러 (헥사고날 아키텍처 Infrastructure/Web Layer)
- * Use Case와 Repository Port를 직접 사용하는 헥사고날 아키텍처 컨트롤러
+ * 인바운드 Use Case 포트만 사용하며 JPA Repository에 직접 의존하지 않습니다.
  */
 @Slf4j
 @RestController
@@ -40,17 +39,14 @@ public class DataController {
     private final GetProjectsUseCase getProjectsUseCase;
     private final GetAllDataUseCase getAllDataUseCase;
     private final GetArticleUseCase getArticleUseCase;
-    private final ProjectJpaRepository projectJpaRepository;
     
     public DataController(
             @Qualifier("portfolioService") GetProjectsUseCase getProjectsUseCase,
             @Qualifier("portfolioApplicationService") GetAllDataUseCase getAllDataUseCase,
-            GetArticleUseCase getArticleUseCase,
-            ProjectJpaRepository projectJpaRepository) {
+            GetArticleUseCase getArticleUseCase) {
         this.getProjectsUseCase = getProjectsUseCase;
         this.getAllDataUseCase = getAllDataUseCase;
         this.getArticleUseCase = getArticleUseCase;
-        this.projectJpaRepository = projectJpaRepository;
     }
     
     @GetMapping("/all")
@@ -94,13 +90,10 @@ public class DataController {
      * 프로젝트의 development-timeline 타입 Article 조회 (최대 50개, 최신순)
      */
     private List<ArticleSummary> getDevelopmentTimelineArticles(Project project) {
-        // 프로젝트의 DB ID 조회
-        var projectEntity = projectJpaRepository.findByBusinessId(project.getId());
-        if (projectEntity.isEmpty()) {
+        Long projectDbId = getProjectsUseCase.getProjectDatabaseIdByBusinessId(project.getId()).orElse(null);
+        if (projectDbId == null) {
             return List.of();
         }
-        
-        Long projectDbId = projectEntity.get().getId();
         
         // development-timeline 타입 Article 필터 생성
         ArticleFilter filter = new ArticleFilter();

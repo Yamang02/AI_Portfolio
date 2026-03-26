@@ -108,6 +108,16 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
     }
 
     @Override
+    public Optional<Long> findProjectDatabaseIdByBusinessId(String businessId) {
+        try {
+            return projectJpaRepository.findByBusinessId(businessId).map(ProjectJpaEntity::getId);
+        } catch (Exception e) {
+            log.error("프로젝트 DB ID 조회 중 오류 발생: {}", businessId, e);
+            return Optional.empty();
+        }
+    }
+
+    @Override
     public Optional<Project> findProjectByTitle(String title) {
         try {
             Optional<ProjectJpaEntity> jpaEntity = projectJpaRepository.findByTitle(title);

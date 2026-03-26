@@ -116,11 +116,32 @@ services:
     networks:
       - ai-portfolio-network
 
+  # SonarQube (로컬 코드 품질 분석용)
+  sonarqube:
+    image: sonarqube:community
+    container_name: ai-portfolio-sonarqube
+    ports:
+      - "9000:9000"
+    environment:
+      - SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_extensions:/opt/sonarqube/extensions
+      - sonarqube_logs:/opt/sonarqube/logs
+    restart: unless-stopped
+    profiles:
+      - quality
+    networks:
+      - ai-portfolio-network
+
 volumes:
   postgres_data:
   redis_data:
   pgadmin_data:
   maven_cache:  # Maven 의존성 캐시용
+  sonarqube_data:
+  sonarqube_extensions:
+  sonarqube_logs:
 
 networks:
   ai-portfolio-network:

@@ -72,6 +72,11 @@ public class ProjectApplicationService implements GetProjectsUseCase, ManageProj
         log.debug("팀 프로젝트 여부로 조회 요청: {}", isTeam);
         return portfolioRepositoryPort.findProjectsByTeamStatus(isTeam);
     }
+
+    @Override
+    public Optional<Long> getProjectDatabaseIdByBusinessId(String businessId) {
+        return portfolioRepositoryPort.findProjectDatabaseIdByBusinessId(businessId);
+    }
     
     @Override
     @CacheEvict(value = "portfolio", key = "'projects:all'")

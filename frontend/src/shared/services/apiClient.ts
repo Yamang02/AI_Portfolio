@@ -1,43 +1,7 @@
 // API 클라이언트 - 백엔드 서버와 통신 (하이브리드 방식)
+import type { ApiResponse, BackendChatResponse, ChatbotResponse } from '@/shared/types/api';
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
-
-// 백엔드 API 응답 구조
-interface ApiResponse<T> {
-  success: boolean;                    // API 호출 성공 여부
-  message: string;                     // API 응답 메시지
-  data?: T;                           // 실제 데이터
-  error?: string;                     // 시스템 오류 메시지
-}
-
-// 백엔드 ResponseType과 일치하는 타입 정의
-type ResponseType = 
-  | 'SUCCESS'           // 정상적인 AI 응답
-  | 'RATE_LIMITED'      // 사용량 제한 초과
-  | 'CANNOT_ANSWER'     // AI가 답변할 수 없는 질문
-  | 'PERSONAL_INFO'     // 개인정보 요청 감지
-  | 'INVALID_INPUT'     // 입력 검증 실패
-  | 'SYSTEM_ERROR'      // 실제 시스템 오류
-  | 'SPAM_DETECTED';    // 스팸 패턴 감지
-
-// 백엔드 ChatResponse 구조
-interface BackendChatResponse {
-  response: string;                    // 응답 메시지
-  success: boolean;                    // 비즈니스 로직 성공 여부
-  error?: string;                     // 오류 메시지
-  showEmailButton: boolean;           // 메일 버튼 표시 여부
-  responseType: ResponseType;         // 응답 타입
-  reason?: string;                    // 상세 이유
-}
-
-// 프론트엔드 API 응답 타입 (하이브리드 방식)
-interface ChatbotResponse {
-  response: string;                    // 응답 메시지
-  isRateLimited?: boolean;             // 사용량 제한 여부 (레거시 호환성)
-  rateLimitMessage?: string;           // 사용량 제한 메시지 (레거시 호환성)
-  showEmailButton?: boolean;           // 메일 버튼 표시 여부
-  responseType?: ResponseType;         // 응답 타입 (새로운 방식)
-  reason?: string;                     // 상세 이유
-}
 
 class ApiClient {
   private baseURL: string;
