@@ -179,104 +179,112 @@ const MatrixEffect: React.FC<MatrixEffectProps> = ({ context: _context, onClose,
 
     const gridCells = getGridCells(canvas.width, canvas.height);
 
+    const renderBackgroundLayer = (elapsed: number) => {
+      if (elapsed < 1500) {
+        const darkenProgress = Math.min(elapsed / 1500, 1);
+        ctx.fillStyle = `rgba(0, 0, 0, ${darkenProgress})`;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        return;
+      }
+      if (elapsed < 2000) {
+        const recoveryProgress = (elapsed - 1500) / 500;
+        const recoveryOpacity = 1 - recoveryProgress;
+        ctx.fillStyle = `rgba(0, 0, 0, ${recoveryOpacity})`;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        return;
+      }
+      if (elapsed >= RECOVERY_START_TIME && elapsed < RECOVERY_START_TIME + RECOVERY_DURATION) {
+        const finalRecoveryProgress = Math.min((elapsed - RECOVERY_START_TIME) / RECOVERY_DURATION, 1);
+        const finalRecoveryOpacity = 1 - finalRecoveryProgress;
+        ctx.fillStyle = `rgba(0, 0, 0, ${finalRecoveryOpacity})`;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        return;
+      }
+      if (elapsed < RECOVERY_START_TIME) {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
+    };
+
+    const renderGridLayer = (elapsed: number) => {
+      if (elapsed >= 2000 && elapsed < 3500) {
+        const gridProgress = Math.min((elapsed - 2000) / 1500, 1);
+        renderGrid(ctx, canvas.width, canvas.height, gridCells, gridProgress, false);
+        return;
+      }
+      if (elapsed >= 3500 && elapsed < 4500) {
+        const fadeoutProgress = Math.min((elapsed - 3500) / 1000, 1);
+        renderGrid(ctx, canvas.width, canvas.height, gridCells, fadeoutProgress, true);
+        return;
+      }
+      if (elapsed >= FADEOUT_START_TIME && elapsed < FADEOUT_START_TIME + 1500) {
+        const gridProgress = Math.min((elapsed - FADEOUT_START_TIME) / 1500, 1);
+        renderGrid(ctx, canvas.width, canvas.height, gridCells, gridProgress, false);
+        return;
+      }
+      if (elapsed >= FADEOUT_START_TIME + 1500 && elapsed < RECOVERY_START_TIME) {
+        const fadeoutProgress = Math.min((elapsed - (FADEOUT_START_TIME + 1500)) / 1000, 1);
+        renderGrid(ctx, canvas.width, canvas.height, gridCells, fadeoutProgress, true);
+      }
+    };
+
+    const renderRainLayer = (elapsed: number) => {
+      if (elapsed < RAIN_START_TIME) return;
+
+      if (phase !== 'rain') {
+        setPhase('rain');
+      }
+
+      const rainElapsed = elapsed - RAIN_START_TIME;
+      const fadeoutOpacity =
+        elapsed >= FADEOUT_START_TIME
+          ? Math.max(0, 1 - (elapsed - FADEOUT_START_TIME) / FADEOUT_DURATION)
+          : 1;
+      const columns = columnsRef.current;
+
+      for (let i = 0; i < columns.length; i++) {
+        const column = columns[i];
+        if (rainElapsed < column.startDelay) continue;
+
+        const chars = column.chars;
+        const length = column.length;
+
+        for (let charIndex = 0; charIndex < length; charIndex++) {
+          const y = column.y + charIndex * FONT_SIZE;
+          if (y <= -50 || y >= canvas.height) continue;
+
+          const positionInColumn = charIndex / length;
+          const isHead = charIndex === length - 1;
+          const tailBrightness = positionInColumn > 0.3 ? (positionInColumn - 0.3) / 0.7 : 0;
+          const brightness = isHead ? 1 : Math.min(tailBrightness, 1);
+          const colorIndex = Math.floor(brightness * (MATRIX_COLORS.length - 1));
+
+          ctx.fillStyle = MATRIX_COLORS[colorIndex] || MATRIX_COLORS[MATRIX_COLORS.length - 1];
+          ctx.globalAlpha = brightness * 0.7 * fadeoutOpacity;
+          ctx.fillText(chars[charIndex], column.x, y);
+        }
+
+        column.y += column.speed;
+        if (column.y > canvas.height + length * FONT_SIZE) {
+          column.y = -length * FONT_SIZE - Math.random() * 200;
+          for (let k = 0; k < length; k++) {
+            column.chars[k] = getRandomChar(MATRIX_CHARS);
+          }
+        }
+      }
+    };
+
     const animate = () => {
       const elapsed = Date.now() - startTimeRef.current;
-
       if (elapsed >= TOTAL_DURATION) {
         setTheme(previousThemeRef.current);
         onClose();
         return;
       }
 
-      if (elapsed < 1500) {
-        const darkenProgress = Math.min(elapsed / 1500, 1);
-        ctx.fillStyle = `rgba(0, 0, 0, ${darkenProgress})`;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-      } else if (elapsed < 2000) {
-        const recoveryProgress = (elapsed - 1500) / 500;
-        const recoveryOpacity = 1 - recoveryProgress;
-        ctx.fillStyle = `rgba(0, 0, 0, ${recoveryOpacity})`;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-      } else if (elapsed >= RECOVERY_START_TIME && elapsed < RECOVERY_START_TIME + RECOVERY_DURATION) {
-        const finalRecoveryProgress = Math.min((elapsed - RECOVERY_START_TIME) / RECOVERY_DURATION, 1);
-        const finalRecoveryOpacity = 1 - finalRecoveryProgress;
-        ctx.fillStyle = `rgba(0, 0, 0, ${finalRecoveryOpacity})`;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-      } else if (elapsed < RECOVERY_START_TIME) {
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-      }
-
-      if (elapsed >= 2000 && elapsed < 3500) {
-        const gridProgress = Math.min((elapsed - 2000) / 1500, 1);
-        renderGrid(ctx, canvas.width, canvas.height, gridCells, gridProgress, false);
-      } else if (elapsed >= 3500 && elapsed < 4500) {
-        const fadeoutProgress = Math.min((elapsed - 3500) / 1000, 1);
-        renderGrid(ctx, canvas.width, canvas.height, gridCells, fadeoutProgress, true);
-      } else if (elapsed >= FADEOUT_START_TIME && elapsed < FADEOUT_START_TIME + 1500) {
-        const gridProgress = Math.min((elapsed - FADEOUT_START_TIME) / 1500, 1);
-        renderGrid(ctx, canvas.width, canvas.height, gridCells, gridProgress, false);
-      } else if (elapsed >= FADEOUT_START_TIME + 1500 && elapsed < RECOVERY_START_TIME) {
-        const fadeoutProgress = Math.min((elapsed - (FADEOUT_START_TIME + 1500)) / 1000, 1);
-        renderGrid(ctx, canvas.width, canvas.height, gridCells, fadeoutProgress, true);
-      }
-
-      if (elapsed >= RAIN_START_TIME) {
-        if (phase !== 'rain') {
-          setPhase('rain');
-        }
-
-        const rainElapsed = elapsed - RAIN_START_TIME;
-
-        let fadeoutOpacity = 1;
-        if (elapsed >= FADEOUT_START_TIME) {
-          const fadeoutProgress = (elapsed - FADEOUT_START_TIME) / FADEOUT_DURATION;
-          fadeoutOpacity = Math.max(0, 1 - fadeoutProgress);
-        }
-
-        const columns = columnsRef.current;
-        for (let i = 0; i < columns.length; i++) {
-          const column = columns[i];
-
-          if (rainElapsed < column.startDelay) continue;
-
-          const chars = column.chars;
-          const length = column.length;
-          for (let charIndex = 0; charIndex < length; charIndex++) {
-            const y = column.y + charIndex * FONT_SIZE;
-
-            if (y > -50 && y < canvas.height) {
-              const positionInColumn = charIndex / length;
-              let brightness = 0;
-              if (positionInColumn > 0.3) {
-                brightness = (positionInColumn - 0.3) / 0.7;
-              }
-              brightness = Math.min(brightness, 1);
-
-              if (charIndex === length - 1) {
-                brightness = 1;
-              }
-
-              const colorIndex = Math.floor(brightness * (MATRIX_COLORS.length - 1));
-              ctx.fillStyle = MATRIX_COLORS[colorIndex] || MATRIX_COLORS[MATRIX_COLORS.length - 1];
-              ctx.globalAlpha = brightness * 0.7 * fadeoutOpacity;
-              ctx.fillText(chars[charIndex], column.x, y);
-            }
-          }
-
-          const actualElapsed = rainElapsed - column.startDelay;
-          if (actualElapsed >= 0) {
-            column.y += column.speed;
-          }
-
-          if (column.y > canvas.height + length * FONT_SIZE) {
-            column.y = -length * FONT_SIZE - Math.random() * 200;
-            for (let k = 0; k < length; k++) {
-              column.chars[k] = getRandomChar(MATRIX_CHARS);
-            }
-          }
-        }
-      }
+      renderBackgroundLayer(elapsed);
+      renderGridLayer(elapsed);
+      renderRainLayer(elapsed);
 
       ctx.globalAlpha = 1;
       animationRef.current = requestAnimationFrame(animate);

@@ -27,7 +27,8 @@ export const generateHeadingId = (text: string, index?: number): string => {
     .replace(/[^\w\s-가-힣]/g, '') // 특수문자 제거
     .replace(/\s+/g, '-') // 공백을 하이픈으로 변경
     .replace(/-+/g, '-') // 연속된 하이픈을 하나로
-    .replace(/^-|-$/g, ''); // 앞뒤 하이픈 제거
+    .replace(/^-/, '') // 앞 하이픈 제거
+    .replace(/-$/, ''); // 뒤 하이픈 제거
 
   // ID가 비어있으면 fallback으로 인덱스 사용
   if (!id) {

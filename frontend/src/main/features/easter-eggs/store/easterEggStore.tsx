@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, ReactNode, useEffect } from 'react';
+import React, { createContext, useContext, useState, useCallback, ReactNode, useEffect, useMemo } from 'react';
 import type { ActiveEasterEgg, EasterEggState, EasterEggContext, EasterEggResource } from '../model/easter-egg.types';
 import { easterEggRegistry } from '../registry/easterEggRegistry';
 import { resourcePreloader, type PreloadStatus } from '../lib/resourcePreloader';
@@ -227,7 +227,7 @@ export const EasterEggProvider: React.FC<EasterEggProviderProps> = ({
     return discoveredEasterEggs.has(id);
   }, [discoveredEasterEggs]);
 
-  const value: EasterEggStoreValue = {
+  const value: EasterEggStoreValue = useMemo(() => ({
     activeEffects,
     maxConcurrent,
     isEnabled,
@@ -244,7 +244,24 @@ export const EasterEggProvider: React.FC<EasterEggProviderProps> = ({
     isEasterEggDiscovered,
     preloadStatus,
     isPreloading,
-  };
+  }), [
+    activeEffects,
+    maxConcurrent,
+    isEnabled,
+    isEasterEggMode,
+    triggerEasterEgg,
+    dismissEasterEgg,
+    dismissAll,
+    toggleEnabled,
+    setMaxConcurrent,
+    toggleEasterEggMode,
+    enableEasterEggMode,
+    discoveredEasterEggs,
+    markEasterEggDiscovered,
+    isEasterEggDiscovered,
+    preloadStatus,
+    isPreloading,
+  ]);
 
   return <EasterEggContext.Provider value={value}>{children}</EasterEggContext.Provider>;
 };

@@ -44,7 +44,7 @@ export function useContentHeightRecalc(
 
     // 강제 리플로우 트리거
     if (document.body) {
-      void document.body.offsetHeight;
+      document.body.getBoundingClientRect();
     }
 
     // 스크롤 위치 재계산

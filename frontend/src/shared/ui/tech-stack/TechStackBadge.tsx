@@ -76,12 +76,6 @@ export const TechStackBadge: React.FC<TechStackBadgeProps> = ({
     return 'ring-2 ring-gray-400 dark:ring-gray-500 ring-opacity-50';  /* Neutral Gray */
   };
 
-  const handleClick = () => {
-    if (onClick) {
-      onClick();
-    }
-  };
-
   const badgeClasses = cn(
     getBaseClasses(),
     getSizeClasses(),
@@ -93,30 +87,57 @@ export const TechStackBadge: React.FC<TechStackBadgeProps> = ({
   );
 
   return (
-    <div
-      className={badgeClasses}
-      onClick={handleClick}
-      title={tech.description || `${tech.displayName} (${tech.level})`}
-    >
-      {/* 기술명 (텍스트만 표시) */}
-      <span className="font-inherit">
-        {tech.displayName}
-      </span>
-
-      {/* 레벨 표시 (core variant인 경우) */}
-      {variant === 'core' && (
-        <span className="text-[0.625rem] opacity-80 uppercase tracking-wider">
-          {tech.level}
+    onClick ? (
+      <button
+        type="button"
+        className={badgeClasses}
+        onClick={onClick}
+        title={tech.description || `${tech.displayName} (${tech.level})`}
+      >
+        {/* 기술명 (텍스트만 표시) */}
+        <span className="font-inherit">
+          {tech.displayName}
         </span>
-      )}
 
-      {/* 카운트 표시 (filter variant인 경우) */}
-      {showCount && count !== undefined && (
-        <span className="bg-black/10 dark:bg-white/10 rounded px-1 text-[0.625rem] font-semibold min-w-[1rem] text-center">
-          {count}
+        {/* 레벨 표시 (core variant인 경우) */}
+        {variant === 'core' && (
+          <span className="text-[0.625rem] opacity-80 uppercase tracking-wider">
+            {tech.level}
+          </span>
+        )}
+
+        {/* 카운트 표시 (filter variant인 경우) */}
+        {showCount && count !== undefined && (
+          <span className="bg-black/10 dark:bg-white/10 rounded px-1 text-[0.625rem] font-semibold min-w-[1rem] text-center">
+            {count}
+          </span>
+        )}
+      </button>
+    ) : (
+      <div
+        className={badgeClasses}
+        title={tech.description || `${tech.displayName} (${tech.level})`}
+      >
+        {/* 기술명 (텍스트만 표시) */}
+        <span className="font-inherit">
+          {tech.displayName}
         </span>
-      )}
-    </div>
+
+        {/* 레벨 표시 (core variant인 경우) */}
+        {variant === 'core' && (
+          <span className="text-[0.625rem] opacity-80 uppercase tracking-wider">
+            {tech.level}
+          </span>
+        )}
+
+        {/* 카운트 표시 (filter variant인 경우) */}
+        {showCount && count !== undefined && (
+          <span className="bg-black/10 dark:bg-white/10 rounded px-1 text-[0.625rem] font-semibold min-w-[1rem] text-center">
+            {count}
+          </span>
+        )}
+      </div>
+    )
   );
 };
 

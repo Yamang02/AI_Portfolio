@@ -45,9 +45,22 @@ export const Modal: React.FC<ModalProps> = ({
       onClose();
     }
   };
+  const handleOverlayKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onClose();
+    }
+  };
 
   return (
-    <div className={styles.overlay} onClick={handleOverlayClick}>
+    <div
+      className={styles.overlay}
+      onClick={handleOverlayClick}
+      onKeyDown={handleOverlayKeyDown}
+      role="button"
+      tabIndex={0}
+      aria-label="모달 닫기"
+    >
       <div
         className={`${styles.modal} ${className}`}
         style={{ width }}

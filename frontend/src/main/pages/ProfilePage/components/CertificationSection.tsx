@@ -17,9 +17,9 @@ export const CertificationSection: React.FC = () => {
       {isLoading ? (
         <Card variant="default" padding="lg" className={styles.card}>
           <div className={styles.certifications}>
-            {Array.from({ length: 3 }).map((_, index) => (
+            {['cert-skeleton-1', 'cert-skeleton-2', 'cert-skeleton-3'].map((skeletonKey) => (
               <SkeletonCard
-                key={index}
+                key={skeletonKey}
                 showImage={false}
                 showActions={false}
                 lines={2}

@@ -68,7 +68,7 @@ export const SeoHead: React.FC<SeoHeadProps> = ({
 
       {jsonLd != null && (
         <script type="application/ld+json">
-          {JSON.stringify(Array.isArray(jsonLd) ? jsonLd : jsonLd)}
+          {JSON.stringify(jsonLd)}
         </script>
       )}
     </Helmet>

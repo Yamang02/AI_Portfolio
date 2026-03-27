@@ -43,11 +43,21 @@ export const VideoEffect: React.FC<VideoEffectProps> = ({ context, onClose, reso
   if (!videoResource) {
     return null;
   }
+  const handleOverlayKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onClose();
+    }
+  };
 
   return (
     <div 
       className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/90"
       onClick={onClose}
+      onKeyDown={handleOverlayKeyDown}
+      role="button"
+      tabIndex={0}
+      aria-label="비디오 닫기"
     >
       <video
         ref={videoRef}

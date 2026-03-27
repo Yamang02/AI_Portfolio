@@ -224,7 +224,7 @@
                         <configuration>
                             <outputDirectory>${project.build.directory}/site/jacoco</outputDirectory>
                             <formats>
-                                <format>xml</format>
+                                <format>XML</format>
                             </formats>
                         </configuration>
                     </execution>

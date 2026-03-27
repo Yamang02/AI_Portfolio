@@ -120,9 +120,9 @@ export const ArticleControlPanel: React.FC<ArticleControlPanelProps> = ({
           </Button>
           {isSortMenuOpen && (
             <div className={styles.sortMenu}>
-              {sortOptions.map((option, index) => (
+              {sortOptions.map((option) => (
                 <button
-                  key={index}
+                  key={`${option.by}-${option.order}`}
                   className={`${styles.sortMenuItem} ${
                     option.by === sortBy && option.order === sortOrder ? styles.active : ''
                   }`}

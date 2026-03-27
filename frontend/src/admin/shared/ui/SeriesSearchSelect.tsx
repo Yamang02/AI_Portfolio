@@ -114,7 +114,7 @@ export const SeriesSearchSelect: React.FC<SeriesSearchSelectProps> = ({
     
     // seriesTitle prop이 있으면 우선 저장
     if (seriesTitle) {
-      if (!selectedSeriesInfo || selectedSeriesInfo.seriesId !== value) {
+      if (selectedSeriesInfo?.seriesId !== value) {
         setSelectedSeriesInfo({ seriesId: value, title: seriesTitle });
       }
       return;
@@ -122,7 +122,7 @@ export const SeriesSearchSelect: React.FC<SeriesSearchSelectProps> = ({
     
     // ID로 조회한 결과 저장
     if (seriesById) {
-      if (!selectedSeriesInfo || selectedSeriesInfo.seriesId !== value) {
+      if (selectedSeriesInfo?.seriesId !== value) {
         setSelectedSeriesInfo(seriesById);
       }
       return;
@@ -132,7 +132,7 @@ export const SeriesSearchSelect: React.FC<SeriesSearchSelectProps> = ({
     const found = seriesList.find((s) => s.seriesId === value);
     if (found) {
       // 검색 결과에서 찾았으면 저장 (중복 저장 방지)
-      if (!selectedSeriesInfo || selectedSeriesInfo.seriesId !== value) {
+      if (selectedSeriesInfo?.seriesId !== value) {
         setSelectedSeriesInfo(found);
       }
     } else if (selectedSeriesInfo && selectedSeriesInfo.seriesId !== value) {
@@ -224,6 +224,11 @@ export const SeriesSearchSelect: React.FC<SeriesSearchSelectProps> = ({
     // value가 있으면 그대로 사용 (Form.Item에서 관리)
     return value;
   }, [value]);
+  const notFoundContent = (() => {
+    if (isSearchLoading || isByIdLoading) return '로딩 중...';
+    if (debouncedKeyword.length > 0 && seriesList.length === 0) return '시리즈를 찾을 수 없습니다';
+    return null;
+  })();
 
   return (
     <Select
@@ -238,13 +243,7 @@ export const SeriesSearchSelect: React.FC<SeriesSearchSelectProps> = ({
       onClear={handleClear}
       showSearch
       filterOption={false} // 서버 사이드 필터링 사용
-      notFoundContent={
-        isSearchLoading || isByIdLoading
-          ? '로딩 중...' 
-          : debouncedKeyword.length > 0 && seriesList.length === 0
-          ? '시리즈를 찾을 수 없습니다'
-          : null
-      }
+      notFoundContent={notFoundContent}
     />
   );
 };

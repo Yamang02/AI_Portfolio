@@ -118,7 +118,7 @@ export const categorizeTechStack = (technologies: string[]): TechCategoryGroup[]
   
   return Array.from(groups.entries()).map(([name, techs]) => ({
     name,
-    techs: techs.sort() // 알파벳 순으로 정렬
+    techs: [...techs].sort((a, b) => a.localeCompare(b)) // 알파벳 순으로 정렬
   }));
 };
 

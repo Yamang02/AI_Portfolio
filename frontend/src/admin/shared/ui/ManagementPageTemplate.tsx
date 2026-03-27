@@ -61,7 +61,7 @@
  *         onCancel={crud.handleModalCancel}
  *         onDelete={crud.handleDelete}
  *       >
- *         {/* 폼 필드 */}
+ *         {// 폼 필드}
  *       </CRUDModal>
  *     </ManagementPageLayout>
  *   );

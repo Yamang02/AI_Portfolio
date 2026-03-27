@@ -96,22 +96,7 @@ export const AllVariants: Story = {
 
 
 export const Interactive: Story = {
-  render: () => {
-    const [selected, setSelected] = React.useState<string | null>(null);
-    return (
-      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-        {['React', 'TypeScript', 'Node.js', 'PostgreSQL'].map((tech) => (
-          <Badge
-            key={tech}
-            onClick={() => setSelected(selected === tech ? null : tech)}
-            selected={selected === tech}
-          >
-            {tech}
-          </Badge>
-        ))}
-      </div>
-    );
-  },
+  render: () => <InteractiveStory />,
 };
 
 export const WithCounts: Story = {
@@ -185,4 +170,21 @@ export const ComparisonWithButton: Story = {
       </div>
     );
   },
+};
+
+const InteractiveStory = () => {
+  const [selected, setSelected] = React.useState<string | null>(null);
+  return (
+    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+      {['React', 'TypeScript', 'Node.js', 'PostgreSQL'].map((tech) => (
+        <Badge
+          key={tech}
+          onClick={() => setSelected(selected === tech ? null : tech)}
+          selected={selected === tech}
+        >
+          {tech}
+        </Badge>
+      ))}
+    </div>
+  );
 };

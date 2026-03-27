@@ -10,7 +10,7 @@ const API_BASE_URL = typeof window !== 'undefined'
   : (import.meta.env?.VITE_API_BASE_URL || '');
 
 class AdminExperienceApi {
-  private baseUrl = `${API_BASE_URL}/api/admin/experiences`;
+  private readonly baseUrl = `${API_BASE_URL}/api/admin/experiences`;
 
   /**
    * Experience 목록 조회

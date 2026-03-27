@@ -11,6 +11,7 @@ issues/
 ├── cache/              # 캐시 관련 이슈
 ├── data-processing/    # 데이터 처리 관련 이슈
 ├── frontend/           # 프론트엔드 관련 이슈
+├── sonarqube/          # SonarQube 분석 스냅샷
 └── (루트)              # 일반 이슈 및 메타 문서
 ```
 
@@ -22,3 +23,12 @@ issues/
 - 해결 방안
 - 영향 범위
 - 관련 파일/코드
+
+## 🔍 SonarQube 이슈 스냅샷
+
+- `docs/issues/sonarqube/sonarqube-issue-handling-guideline.md`
+- `docs/issues/sonarqube/2026-03-27-sonarqube-open-issues-summary.md`
+- `docs/issues/sonarqube/2026-03-27-frontend-issue-processing-log.md`
+- `docs/issues/sonarqube/2026-03-27-frontend-root-cause-notes-batch3-4.md`
+- `docs/issues/sonarqube/2026-03-27-frontend-open-issues.json`
+- `docs/issues/sonarqube/2026-03-27-backend-open-issues.json`

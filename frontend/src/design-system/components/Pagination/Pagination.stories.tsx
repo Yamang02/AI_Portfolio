@@ -59,45 +59,15 @@ export const ManyPages: Story = {
 };
 
 export const ManyPagesAtStart: Story = {
-  render: () => {
-    const [currentPage, setCurrentPage] = useState(1);
-    return (
-      <Pagination
-        currentPage={currentPage}
-        totalPages={50}
-        onPageChange={setCurrentPage}
-        maxVisiblePages={5}
-      />
-    );
-  },
+  render: () => <PaginationAtStartStory />,
 };
 
 export const ManyPagesAtMiddle: Story = {
-  render: () => {
-    const [currentPage, setCurrentPage] = useState(25);
-    return (
-      <Pagination
-        currentPage={currentPage}
-        totalPages={50}
-        onPageChange={setCurrentPage}
-        maxVisiblePages={5}
-      />
-    );
-  },
+  render: () => <PaginationAtMiddleStory />,
 };
 
 export const ManyPagesAtEnd: Story = {
-  render: () => {
-    const [currentPage, setCurrentPage] = useState(50);
-    return (
-      <Pagination
-        currentPage={currentPage}
-        totalPages={50}
-        onPageChange={setCurrentPage}
-        maxVisiblePages={5}
-      />
-    );
-  },
+  render: () => <PaginationAtEndStory />,
 };
 
 export const VeryManyPages: Story = {
@@ -114,24 +84,62 @@ export const LargeMaxVisiblePages: Story = {
 
 // 페이지 변화 시나리오
 export const PageGrowthScenario: Story = {
-  render: () => {
-    const [totalPages, setTotalPages] = useState(5);
-    const [currentPage, setCurrentPage] = useState(1);
-    
-    return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'center' }}>
-        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-          <button onClick={() => setTotalPages(Math.max(1, totalPages - 1))}>-</button>
-          <span>총 페이지: {totalPages}</span>
-          <button onClick={() => setTotalPages(totalPages + 1)}>+</button>
-        </div>
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={setCurrentPage}
-          maxVisiblePages={5}
-        />
+  render: () => <PageGrowthScenarioStory />,
+};
+
+const PaginationAtStartStory = () => {
+  const [currentPage, setCurrentPage] = useState(1);
+  return (
+    <Pagination
+      currentPage={currentPage}
+      totalPages={50}
+      onPageChange={setCurrentPage}
+      maxVisiblePages={5}
+    />
+  );
+};
+
+const PaginationAtMiddleStory = () => {
+  const [currentPage, setCurrentPage] = useState(25);
+  return (
+    <Pagination
+      currentPage={currentPage}
+      totalPages={50}
+      onPageChange={setCurrentPage}
+      maxVisiblePages={5}
+    />
+  );
+};
+
+const PaginationAtEndStory = () => {
+  const [currentPage, setCurrentPage] = useState(50);
+  return (
+    <Pagination
+      currentPage={currentPage}
+      totalPages={50}
+      onPageChange={setCurrentPage}
+      maxVisiblePages={5}
+    />
+  );
+};
+
+const PageGrowthScenarioStory = () => {
+  const [totalPages, setTotalPages] = useState(5);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'center' }}>
+      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+        <button onClick={() => setTotalPages(Math.max(1, totalPages - 1))}>-</button>
+        <span>총 페이지: {totalPages}</span>
+        <button onClick={() => setTotalPages(totalPages + 1)}>+</button>
       </div>
-    );
-  },
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+        maxVisiblePages={5}
+      />
+    </div>
+  );
 };

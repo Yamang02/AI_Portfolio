@@ -17,7 +17,7 @@ export interface BeatDetectorConfig {
 
 export class BeatDetector {
   private analyser: AnalyserNode;
-  private onBeatDetected: () => void;
+  private readonly onBeatDetected: () => void;
   private animationFrameRef: number | undefined;
   private lastBeatTimeRef: number = 0;
   private energyHistoryRef: number[] = [];
