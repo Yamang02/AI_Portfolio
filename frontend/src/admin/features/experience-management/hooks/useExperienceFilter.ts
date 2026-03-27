@@ -17,7 +17,7 @@ export const useExperienceFilter = (experiences: Experience[] = []) => {
         experience.title.toLowerCase().includes(searchText.toLowerCase()) ||
         experience.organization.toLowerCase().includes(searchText.toLowerCase()) ||
         experience.role.toLowerCase().includes(searchText.toLowerCase()) ||
-        (experience.description && experience.description.toLowerCase().includes(searchText.toLowerCase()));
+        experience.description?.toLowerCase().includes(searchText.toLowerCase());
 
       // 타입 필터링
       const matchesType = typeFilter === 'all' || experience.type === typeFilter;

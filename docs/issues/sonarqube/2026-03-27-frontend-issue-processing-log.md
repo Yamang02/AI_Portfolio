@@ -124,9 +124,184 @@
 - `7f93573a-32c3-4cfa-b2d1-bf7f90bb64e3` (`typescript:S1871`, `src/main/features/chatbot/hooks/useChatMessages.tsx`)
 - `8428e530-62ee-450e-b1da-62d4e81fd734` (`typescript:S6479`, `src/shared/ui/tech-stack/TechStackList.tsx`)
 
+## Batch 8 (대배치: MAJOR+ 연속 처리)
+
+### 처리 완료 (코드 반영, 재분석 대기)
+
+- `7d286afa-02d9-402e-8e71-8e9826204db7` (`typescript:S6853`, `src/main/pages/ProjectsListPage/components/ProjectSearchModal.tsx`)
+- `7f93573a-32c3-4cfa-b2d1-bf7f90bb64e3` (`typescript:S1871`, `src/main/features/chatbot/hooks/useChatMessages.tsx`)
+- `8428e530-62ee-450e-b1da-62d4e81fd734` (`typescript:S6479`, `src/shared/ui/tech-stack/TechStackList.tsx`)
+- `80d41999-cecc-4eb0-9af0-22dc5a81c311` (`typescript:S5869`, `src/shared/lib/markdown/generateHeadingId.ts`)
+- `832435df-2542-4832-883c-eeb67671e262` (`typescript:S6582`, `src/admin/shared/ui/SeriesSearchSelect.tsx`)
+- `85b09f81-9824-4b95-bb07-7dbb5b2a3412` (`typescript:S6479`, `src/main/pages/ProfilePage/components/CareerTimelineSection.tsx`)
+- `86124bdd-2f1e-42b4-836b-862ff6624801` (`typescript:S6479`, `src/main/pages/ProfilePage/components/CareerCard.tsx`)
+- `86356d45-969e-4c31-9ba3-abf2f9fdee82` (`typescript:S6479`, `src/main/pages/ProjectsListPage/components/ProjectSectionContent.tsx`)
+
+### 미해결 (`OPEN`) — 다음 배치 우선 대상
+
+- `87b69829-1ba2-4ba1-af56-6137de19c944` (`typescript:S2933`, `src/admin/entities/education/api/adminEducationApi.ts`)
+- `885230f6-9362-4b26-9507-e155dbd3b900` (`typescript:S6848`, `src/design-system/components/Card/Card.tsx`)
+- `889583ba-7554-46b1-b053-b4893f449713` (`typescript:S1871`, `src/shared/hooks/useScrollAnimation.ts`)
+
+## Batch 9 (대배치: MAJOR+ 연속 처리)
+
+### 처리 완료 (코드 반영, 재분석 대기)
+
+- `87b69829-1ba2-4ba1-af56-6137de19c944` (`typescript:S2933`, `src/admin/entities/education/api/adminEducationApi.ts`)
+- `885230f6-9362-4b26-9507-e155dbd3b900` (`typescript:S6848`, `src/design-system/components/Card/Card.tsx`)
+- `889583ba-7554-46b1-b053-b4893f449713` (`typescript:S1871`, `src/shared/hooks/useScrollAnimation.ts`)
+- `0ccb8e61-1b2e-4fef-a50a-199ffdeab2e3` (`typescript:S6848`, `src/design-system/components/Badge/Badge.tsx`)
+- `08c0df59-cc61-41a6-a902-e38a6eb1a7d6` (`typescript:S6479`, `src/design-system/components/Pagination/Pagination.tsx`)
+
+### 미해결 (`OPEN`) — 다음 배치 우선 대상
+
+- `00c82b2c-f710-431d-bee2-ff647f1afc32` (`typescript:S6582`, `src/admin/shared/ui/SeriesSearchSelect.tsx`)
+- `021e44b9-4b07-484b-8cdc-6c1e75de7819` (`typescript:S6848`, `src/admin/shared/ui/markdown/MarkdownEditor.tsx`)
+- `02698b4e-c0ee-460a-8044-e4fe8a6f786d` (`typescript:S6478`, `src/main/features/chatbot/components/ChatMessage.tsx`)
+
+## Batch 10 (대배치: MAJOR+ 연속 처리)
+
+### 처리 완료 (코드 반영, 재분석 대기)
+
+- `00c82b2c-f710-431d-bee2-ff647f1afc32` (`typescript:S6582`, `src/admin/shared/ui/SeriesSearchSelect.tsx`)
+- `021e44b9-4b07-484b-8cdc-6c1e75de7819` (`typescript:S6848`, `src/admin/shared/ui/markdown/MarkdownEditor.tsx`)
+- `02698b4e-c0ee-460a-8044-e4fe8a6f786d` (`typescript:S6478`, `src/main/features/chatbot/components/ChatMessage.tsx`)
+
+### 미해결 (`OPEN`) — 다음 배치 우선 대상
+
+- `02d30a05-8b72-4514-8ae8-b61b0bdb379d` (`typescript:S6481`, `src/shared/providers/ThemeProvider.tsx`)
+- `042386b2-a73c-44fb-bf94-71d0e7c4ae39` (`typescript:S4624`, `src/shared/api/apiClient.ts`)
+- `074d324f-8e53-40d2-a554-cf0fa12565d0` (`typescript:S6853`, `src/main/pages/ProjectsListPage/components/ProjectSearchModal.tsx`)
+
+## Batch 11 (대배치: MAJOR+ 연속 처리)
+
+### 처리 완료 (코드 반영, 재분석 대기)
+
+- `02d30a05-8b72-4514-8ae8-b61b0bdb379d` (`typescript:S6481`, `src/shared/providers/ThemeProvider.tsx`)
+- `042386b2-a73c-44fb-bf94-71d0e7c4ae39` (`typescript:S4624`, `src/shared/api/apiClient.ts`)
+- `074d324f-8e53-40d2-a554-cf0fa12565d0` (`typescript:S6853`, `src/main/pages/ProjectsListPage/components/ProjectSearchModal.tsx`)
+
+### 미해결 (`OPEN`) — 다음 배치 우선 대상
+
+- `0c2e369a-71d5-4c6b-a678-290d76049f33` (`typescript:S125`, `src/admin/pages/CertificationList.tsx`)
+- `1013aaca-9eb0-4f0e-990a-4adef5c90fb9` (`typescript:S6582`, `src/admin/features/experience-management/hooks/useExperienceFilter.ts`)
+- `1014f62e-da01-410e-ac37-5cb6d6fa5ea0` (`typescript:S6582`, `src/admin/api/adminUploadApi.ts`)
+
+## Batch 12 (대배치: MAJOR+ 연속 처리)
+
+### 처리 완료 (코드 반영, 재분석 대기)
+
+- `0c2e369a-71d5-4c6b-a678-290d76049f33` (`typescript:S125`, `src/admin/pages/CertificationList.tsx`)
+- `1013aaca-9eb0-4f0e-990a-4adef5c90fb9` (`typescript:S6582`, `src/admin/features/experience-management/hooks/useExperienceFilter.ts`)
+- `1014f62e-da01-410e-ac37-5cb6d6fa5ea0` (`typescript:S6582`, `src/admin/api/adminUploadApi.ts`)
+
+### 미해결 (`OPEN`) — 다음 배치 우선 대상
+
+- `161efb37-1ffb-487e-b4ed-4fe4cc67db6a` (`typescript:S2933`, `src/main/features/easter-eggs/lib/resourcePreloader.ts`)
+- `1271eb13-5dc9-4706-8b03-6f02f7c34b92` (`typescript:S1854`, `src/main/pages/ArticleListPage.tsx`)
+- `12f7a876-f370-4287-a72a-90682f9d2f91` (`typescript:S3358`, `src/shared/utils/techStackCategorization.ts`)
+
+## Batch 13 (대배치: MAJOR+ 연속 처리)
+
+### 처리 완료 (코드 반영, 재분석 대기)
+
+- `161efb37-1ffb-487e-b4ed-4fe4cc67db6a` (`typescript:S2933`, `src/main/features/easter-eggs/lib/resourcePreloader.ts`)
+- `1271eb13-5dc9-4706-8b03-6f02f7c34b92` (`typescript:S1854`, `src/main/pages/ArticleListPage.tsx`)
+- `12f7a876-f370-4287-a72a-90682f9d2f91` (`typescript:S3358`, `src/shared/utils/techStackCategorization.ts`)
+
+### 미해결 (`OPEN`) — 다음 배치 우선 대상
+
+- `163a0b32-8d07-417e-aa82-d2cd2a0c640f` (`typescript:S6819`, `src/main/widgets/featured-projects-section/ui/FeaturedProjectsSection.tsx`)
+- `167f330e-c67f-43b6-9c87-4f4fbd65e613` (`typescript:S6479`, `src/main/pages/ProjectDetailPage/ProjectDetailPage.tsx`)
+- `14cb1fa9-629b-4777-a718-ffcee63a3da0` (`typescript:S1871`, `src/main/features/chatbot/hooks/useChatMessages.tsx`)
+
+## Batch 14 (대배치: MAJOR+ 연속 처리)
+
+### 처리 완료 (코드 반영, 재분석 대기)
+
+- `163a0b32-8d07-417e-aa82-d2cd2a0c640f` (`typescript:S6819`, `src/main/widgets/featured-projects-section/ui/FeaturedProjectsSection.tsx`)
+- `167f330e-c67f-43b6-9c87-4f4fbd65e613` (`typescript:S6479`, `src/main/pages/ProjectDetailPage/ProjectDetailPage.tsx`)
+- `14cb1fa9-629b-4777-a718-ffcee63a3da0` (`typescript:S1871`, `src/main/features/chatbot/hooks/useChatMessages.tsx`)
+
+### 미해결 (`OPEN`) — 다음 배치 우선 대상
+
+- `05a2c989-a1d7-4b77-bd71-9b30942c73bc` (`typescript:S6440`, `src/design-system/components/Pagination/Pagination.stories.tsx`)
+- `08c0df59-cc61-41a6-a902-e38a6eb1a7d6` (`typescript:S6479`, `src/design-system/components/Pagination/Pagination.tsx`)
+- `0ccb8e61-1b2e-4fef-a50a-199ffdeab2e3` (`typescript:S6848`, `src/design-system/components/Badge/Badge.tsx`)
+
+## Batch 15 (대배치: MAJOR+ 연속 처리)
+
+### 처리 완료 (코드 반영, 재분석 대기)
+
+- `05a2c989-a1d7-4b77-bd71-9b30942c73bc` (`typescript:S6440`, `src/design-system/components/Pagination/Pagination.stories.tsx`)
+- `08c0df59-cc61-41a6-a902-e38a6eb1a7d6` (`typescript:S6479`, `src/design-system/components/Pagination/Pagination.tsx`)
+- `0ccb8e61-1b2e-4fef-a50a-199ffdeab2e3` (`typescript:S6848`, `src/design-system/components/Badge/Badge.tsx`)
+
+### 미해결 (`OPEN`) — 다음 배치 우선 대상
+
+- `1009a7da-5f63-479b-9d4f-cf3acbf8374a` (`typescript:S6478`, `src/main/features/chatbot/components/ChatMessage.tsx`)
+- `14861c1f-67b6-450c-bb5c-d878d955a7d1` (`typescript:S6478`, `src/main/features/chatbot/components/ChatMessage.tsx`)
+- `16a596ff-ba6d-4be7-8e1e-f55a0ffef619` (`typescript:S2589`, `src/main/features/easter-eggs/effects/demon-slayer/DemonSlayerEffect.tsx`)
+
+## Batch 16 (대배치: MAJOR+ 연속 처리)
+
+### 처리 완료 (코드 반영, 재분석 대기)
+
+- `1009a7da-5f63-479b-9d4f-cf3acbf8374a` (`typescript:S6478`, `src/main/features/chatbot/components/ChatMessage.tsx`)
+- `14861c1f-67b6-450c-bb5c-d878d955a7d1` (`typescript:S6478`, `src/main/features/chatbot/components/ChatMessage.tsx`)
+- `16a596ff-ba6d-4be7-8e1e-f55a0ffef619` (`typescript:S2589`, `src/main/features/easter-eggs/effects/demon-slayer/DemonSlayerEffect.tsx`)
+
+### 미해결 (`OPEN`) — 다음 배치 우선 대상
+
+- `17d26ef1-fd33-4554-86c7-3818f8280d75` (`typescript:S2301`, `src/admin/features/project-management/ui/TechStackSelector.tsx`)
+- `1a2b63e1-866d-4c2f-a756-cecc500ba231` (`typescript:S3358`, `src/shared/utils/imageOptimization.ts`)
+- `1c1ed28e-abf6-414b-b70f-5e42d24d70f3` (`css:S4666`, `src/main/widgets/featured-projects-section/ui/FeaturedProjectsSection.module.css`)
+
+## Batch 17 (대배치: MAJOR+ 연속 처리)
+
+### 처리 완료 (코드 반영, 재분석 대기)
+
+- `17d26ef1-fd33-4554-86c7-3818f8280d75` (`typescript:S2301`, `src/admin/features/project-management/ui/TechStackSelector.tsx`)
+- `1a2b63e1-866d-4c2f-a756-cecc500ba231` (`typescript:S3358`, `src/shared/utils/imageOptimization.ts`)
+- `1c1ed28e-abf6-414b-b70f-5e42d24d70f3` (`css:S4666`, `src/main/widgets/featured-projects-section/ui/FeaturedProjectsSection.module.css`)
+
+### 미해결 (`OPEN`) — 다음 배치 우선 대상
+
+- `19051d0c-f7a0-44e3-b466-22ee748ef032` (`typescript:S6440`, `src/design-system/components/Pagination/Pagination.stories.tsx`)
+- `1984c30b-4e97-4cfd-b16a-2ff25de113b3` (`typescript:S6440`, `src/design-system/components/Badge/Badge.stories.tsx`)
+- `210558db-d9af-4a0f-b056-fa4d20a3c158` (`typescript:S6582`, `src/admin/api/adminProjectApi.ts`)
+
+## Batch 18 (대배치: MAJOR+ 연속 처리)
+
+### 처리 완료 (코드 반영, 재분석 대기)
+
+- `19051d0c-f7a0-44e3-b466-22ee748ef032` (`typescript:S6440`, `src/design-system/components/Pagination/Pagination.stories.tsx`)
+- `1984c30b-4e97-4cfd-b16a-2ff25de113b3` (`typescript:S6440`, `src/design-system/components/Badge/Badge.stories.tsx`)
+- `210558db-d9af-4a0f-b056-fa4d20a3c158` (`typescript:S6582`, `src/admin/api/adminProjectApi.ts`)
+
+### 미해결 (`OPEN`) — 다음 배치 우선 대상
+
+- `1b7f73cb-e71f-4c1d-8a20-bb71aa9ed149` (`typescript:S1854`, `src/admin/features/project-management/ui/ProjectScreenshotsUpload.tsx`)
+- `20facda1-6a7c-44f5-99e1-55792d538770` (`typescript:S1854`, `src/admin/features/cache-management/ui/RedisCacheModal.tsx`)
+- `2152c2ac-339d-48ef-88af-71da2ce1e267` (`typescript:S6582`, `src/main/features/project-gallery/hooks/useTOCFromDOM.ts`)
+
+## Batch 19 (대배치: MAJOR+ 연속 처리)
+
+### 처리 완료 (코드 반영, 재분석 대기)
+
+- `1b7f73cb-e71f-4c1d-8a20-bb71aa9ed149` (`typescript:S1854`, `src/admin/features/project-management/ui/ProjectScreenshotsUpload.tsx`)
+- `20facda1-6a7c-44f5-99e1-55792d538770` (`typescript:S1854`, `src/admin/features/cache-management/ui/RedisCacheModal.tsx`)
+- `2152c2ac-339d-48ef-88af-71da2ce1e267` (`typescript:S6582`, `src/main/features/project-gallery/hooks/useTOCFromDOM.ts`)
+
+### 미해결 (`OPEN`) — 다음 배치 우선 대상
+
+- `22372f43-fde0-4e4c-b887-1ce77805df6d` (`typescript:S2933`, `src/admin/entities/relationship/api/relationshipApi.ts`)
+- `226014de-17a4-453e-880c-bcf21aaced1c` (`typescript:S3358`, `src/main/pages/ArticleDetailPage.tsx`)
+- `2b09eff2-af78-4b32-af5b-9ffe4e7adc02` (`typescript:S6819`, `src/design-system/components/Carousel/ProjectThumbnailCarousel.tsx`)
+
 ## 다음 작업 가이드
 
-- 다음 에이전트는 Batch 3~7 `처리 완료` 항목에 대해 SonarQube 재분석 후 `CLOSED/FIXED` 여부를 먼저 확인한다.
+- 다음 에이전트는 Batch 3~8 `처리 완료` 항목에 대해 SonarQube 재분석 후 `CLOSED/FIXED` 여부를 먼저 확인한다.
 - 재분석 후에도 `OPEN`이면 함수 분리/조건 분기 단순화 리팩터링을 1회 추가 적용한다.
 - 신규 작업은 위 `OPEN` 우선 대상 순서대로 진행한다.
 - 위 `CLOSED/FIXED` 키는 재검토 대상에서 제외한다.

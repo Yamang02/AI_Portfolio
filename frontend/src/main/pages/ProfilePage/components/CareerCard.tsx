@@ -81,6 +81,9 @@ export const CareerCard: React.FC<CareerCardProps> = ({ type, data }) => {
   const achievements = type === 'experience' 
     ? (data as Experience).achievements 
     : undefined;
+  const responsibilityOccurrenceMap = new Map<string, number>();
+  const achievementOccurrenceMap = new Map<string, number>();
+  const techOccurrenceMap = new Map<string, number>();
 
   return (
     <Card variant="default" padding="lg" className={styles.card}>
@@ -111,8 +114,14 @@ export const CareerCard: React.FC<CareerCardProps> = ({ type, data }) => {
           <div className={styles.section}>
             <h4 className={styles.sectionTitle}>주요 업무</h4>
             <ul className={styles.list}>
-              {mainResponsibilities.map((item, index) => (
-                <li key={index} className={styles.listItem}>{item}</li>
+              {mainResponsibilities.map((item) => (
+                (() => {
+                  const occurrence = (responsibilityOccurrenceMap.get(item) ?? 0) + 1;
+                  responsibilityOccurrenceMap.set(item, occurrence);
+                  return (
+                    <li key={`${item}-${occurrence}`} className={styles.listItem}>{item}</li>
+                  );
+                })()
               ))}
             </ul>
           </div>
@@ -122,8 +131,14 @@ export const CareerCard: React.FC<CareerCardProps> = ({ type, data }) => {
           <div className={styles.section}>
             <h4 className={styles.sectionTitle}>성과</h4>
             <ul className={styles.list}>
-              {achievements.map((item, index) => (
-                <li key={index} className={styles.listItem}>{item}</li>
+              {achievements.map((item) => (
+                (() => {
+                  const occurrence = (achievementOccurrenceMap.get(item) ?? 0) + 1;
+                  achievementOccurrenceMap.set(item, occurrence);
+                  return (
+                    <li key={`${item}-${occurrence}`} className={styles.listItem}>{item}</li>
+                  );
+                })()
               ))}
             </ul>
           </div>
@@ -142,16 +157,20 @@ export const CareerCard: React.FC<CareerCardProps> = ({ type, data }) => {
       {technologies && technologies.length > 0 && (
         <div className={styles.footer}>
           <div className={styles.techStackList}>
-            {technologies.map((tech, index) => (
-              <Badge
-                key={index}
-                variant="outline"
-                size="sm"
-                className={styles.techBadge}
-              >
-                {tech}
-              </Badge>
-            ))}
+            {technologies.map((tech) => {
+              const occurrence = (techOccurrenceMap.get(tech) ?? 0) + 1;
+              techOccurrenceMap.set(tech, occurrence);
+              return (
+                <Badge
+                  key={`${tech}-${occurrence}`}
+                  variant="outline"
+                  size="sm"
+                  className={styles.techBadge}
+                >
+                  {tech}
+                </Badge>
+              );
+            })}
           </div>
         </div>
       )}

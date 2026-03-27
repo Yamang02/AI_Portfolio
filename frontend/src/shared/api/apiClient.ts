@@ -170,7 +170,8 @@ class ApiClient {
     if (params?.source) queryParams.append('source', params.source);
     if (params?.isTeam !== undefined) queryParams.append('isTeam', params.isTeam.toString());
 
-    const endpoint = `/api/data/projects${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+    const queryString = queryParams.toString();
+    const endpoint = queryString.length > 0 ? `/api/data/projects?${queryString}` : '/api/data/projects';
     const response = await this.request<any[]>(endpoint);
     return response.data || [];
   }

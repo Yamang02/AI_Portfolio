@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Card } from './Card';
+import { ClickableCard } from './ClickableCard';
 import { Badge } from '../Badge/Badge';
 import { TeamBadge } from '../Badge/TeamBadge';
 import { SocialIcon } from '../Icon/SocialIcon';
@@ -160,11 +161,13 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
     return 'default';
   };
 
+  const CardComponent = onClick ? ClickableCard : Card;
+
   return (
-    <Card
+    <CardComponent
       variant="default"
       padding="none"
-      onClick={onClick}
+      {...(onClick ? { onClick } : {})}
       className={`${styles.projectCard} ${styles.noCardHover} ${className || ''}`}
     >
       {/* 상단 이미지/아이콘 영역 */}
@@ -276,6 +279,6 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           </div>
         </div>
       </div>
-    </Card>
+    </CardComponent>
   );
 };

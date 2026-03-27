@@ -162,21 +162,15 @@ export function useChatMessages(refreshUsageStatus: () => void | Promise<void>) 
           const response = await apiClient.getChatbotResponse(message, selectedProject || undefined);
           const responseType = response.responseType;
 
-          if (responseType === 'RATE_LIMITED' || response.isRateLimited) {
+          if (responseType === 'RATE_LIMITED' || response.isRateLimited || responseType === 'SYSTEM_ERROR') {
             aiResponseText = <span className="text-red-600 font-medium">⚠️ {response.response}</span>;
             showEmailButton = true;
-          } else if (responseType === 'CANNOT_ANSWER') {
-            aiResponseText = <span>{response.response}</span>;
-            showEmailButton = true;
-          } else if (responseType === 'PERSONAL_INFO') {
+          } else if (responseType === 'CANNOT_ANSWER' || responseType === 'PERSONAL_INFO') {
             aiResponseText = <span>{response.response}</span>;
             showEmailButton = true;
           } else if (responseType === 'INVALID_INPUT' || responseType === 'SPAM_DETECTED') {
             aiResponseText = <span className="text-red-600 font-medium">⚠️ {response.response}</span>;
             showEmailButton = response.showEmailButton || false;
-          } else if (responseType === 'SYSTEM_ERROR') {
-            aiResponseText = <span className="text-red-600 font-medium">⚠️ {response.response}</span>;
-            showEmailButton = true;
           } else {
             aiResponseText = response.response;
             showEmailButton = response.showEmailButton || false;

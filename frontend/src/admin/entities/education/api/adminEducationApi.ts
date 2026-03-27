@@ -10,7 +10,7 @@ const API_BASE_URL = typeof window !== 'undefined'
   : (import.meta.env?.VITE_API_BASE_URL || '');
 
 class AdminEducationApi {
-  private baseUrl = `${API_BASE_URL}/api/admin/educations`;
+  private readonly baseUrl = `${API_BASE_URL}/api/admin/educations`;
 
   /**
    * Education 목록 조회

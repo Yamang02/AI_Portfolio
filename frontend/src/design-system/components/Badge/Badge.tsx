@@ -36,25 +36,32 @@ export const Badge: React.FC<BadgeProps> = ({
     .filter(Boolean)
     .join(' ');
 
-  const handleClick = () => {
-    if (onClick) {
-      onClick();
-    }
-  };
+  if (onClick) {
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        onClick();
+      }
+    };
+
+    return (
+      <button
+        type="button"
+        className={classNames}
+        onClick={onClick}
+        onKeyDown={handleKeyDown}
+        aria-pressed={selected}
+      >
+        <span className={styles.content}>{children}</span>
+        {showCount && count !== undefined && (
+          <span className={styles.count}>{count}</span>
+        )}
+      </button>
+    );
+  }
 
   return (
-    <div
-      className={classNames}
-      onClick={handleClick}
-      role={onClick ? 'button' : undefined}
-      tabIndex={onClick ? 0 : undefined}
-      onKeyDown={(e) => {
-        if (onClick && (e.key === 'Enter' || e.key === ' ')) {
-          e.preventDefault();
-          handleClick();
-        }
-      }}
-    >
+    <div className={classNames}>
       <span className={styles.content}>{children}</span>
       {showCount && count !== undefined && (
         <span className={styles.count}>{count}</span>

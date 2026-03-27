@@ -251,7 +251,7 @@ const ProjectDetailPage: React.FC = () => {
                   : screenshot.imageUrl;
                 return (
                   <img
-                    key={index}
+                    key={`${project.id}-screenshot-${imageUrl}`}
                     src={imageUrl}
                     alt={`${project.title} 스크린샷 ${index + 1}`}
                     className={styles.screenshot}

@@ -25,7 +25,6 @@ const ProjectScreenshotsUpload: React.FC<ProjectScreenshotsUploadProps> = ({
   onChange,
   projectId,
   hideAddButton = false,
-  isLoading = false,
   tempImageUrls = [],
 }) => {
   const [previewVisible, setPreviewVisible] = useState(false);

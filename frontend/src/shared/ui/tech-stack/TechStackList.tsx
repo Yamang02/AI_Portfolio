@@ -159,14 +159,14 @@ export const TechStackList: React.FC<TechStackListProps> = ({
   return (
     <div className={`flex flex-wrap gap-2 ${className}`}>
       {/* 표시할 기술 스택 배지들 */}
-      {visibleTechs.map((tech, index) => {
+      {visibleTechs.map((tech) => {
         // 프로그래밍 언어, 프레임워크, 데이터베이스는 accent variant 사용
         const shouldUseAccent = ['language', 'framework', 'database'].includes(tech.category);
         const badgeVariant = shouldUseAccent ? 'accent' : variant;
         
         return (
           <TechStackBadge
-            key={`${tech.name}-${index}`}
+            key={`${tech.name}-${tech.category}-${tech.level}`}
             tech={tech}
             variant={badgeVariant}
             size={size}
@@ -202,16 +202,22 @@ export const SimpleTechStackList: React.FC<{
     return null;
   }
 
+  const techOccurrenceMap = new Map<string, number>();
+
   return (
     <div className={`flex flex-wrap gap-1 ${className}`}>
-      {technologies.map((tech, index) => (
-        <span
-          key={index}
-          className="inline-block bg-surface-elevated dark:bg-slate-700 text-text-primary text-xs px-2 py-1 rounded border border-border"
-        >
-          {tech}
-        </span>
-      ))}
+      {technologies.map((tech) => {
+        const occurrence = (techOccurrenceMap.get(tech) ?? 0) + 1;
+        techOccurrenceMap.set(tech, occurrence);
+        return (
+          <span
+            key={`${tech}-${occurrence}`}
+            className="inline-block bg-surface-elevated dark:bg-slate-700 text-text-primary text-xs px-2 py-1 rounded border border-border"
+          >
+            {tech}
+          </span>
+        );
+      })}
     </div>
   );
 };

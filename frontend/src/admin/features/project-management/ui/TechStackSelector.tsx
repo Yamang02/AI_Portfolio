@@ -81,12 +81,12 @@ const TechStackSelector: React.FC<TechStackSelectorProps> = ({ value = [], onCha
   // 프론트엔드 카테고리 목록
   const frontendCategories = ['language', 'framework', 'database', 'tool', 'other'];
 
-  const handleTechToggle = (techId: number, checked: boolean) => {
-    if (checked) {
-      onChange?.([...value, techId]);
-    } else {
-      onChange?.(value.filter(id => id !== techId));
-    }
+  const handleTechSelect = (techId: number) => {
+    onChange?.([...value, techId]);
+  };
+
+  const handleTechUnselect = (techId: number) => {
+    onChange?.(value.filter(id => id !== techId));
   };
 
   const handleRemoveTech = (techId: number) => {
@@ -199,11 +199,15 @@ const TechStackSelector: React.FC<TechStackSelectorProps> = ({ value = [], onCha
                 <Card
                   size="small"
                   hoverable
-                  onClick={() => handleTechToggle(tech.id, !value.includes(tech.id))}
+                  onClick={() => (value.includes(tech.id) ? handleTechUnselect(tech.id) : handleTechSelect(tech.id))}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault();
-                      handleTechToggle(tech.id, !value.includes(tech.id));
+                      if (value.includes(tech.id)) {
+                        handleTechUnselect(tech.id);
+                      } else {
+                        handleTechSelect(tech.id);
+                      }
                     }
                   }}
                   tabIndex={0}

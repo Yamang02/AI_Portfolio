@@ -13,6 +13,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  opacity: 1;
+  transform: translateX(0);
 }
 
 .projectContent {
@@ -97,14 +99,6 @@
 /* FeaturedProjectsSection의 detailButton 스타일 */
 .projectContent .detailButton {
   margin-top: 0; /* 8px -> 0으로 줄임 (description의 margin-bottom으로 충분) */
-}
-
-/* ================================
-   정적 표시 (스크롤 애니메이션 제거)
-   ================================ */
-.projectSection {
-  opacity: 1;
-  transform: translateX(0);
 }
 
 /* ================================

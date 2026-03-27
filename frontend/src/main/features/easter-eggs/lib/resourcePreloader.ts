@@ -18,7 +18,7 @@ export interface PreloadStatus {
  */
 export class ResourcePreloader {
   private preloadedResources = new Map<string, HTMLMediaElement | HTMLImageElement>();
-  private preloadPromises = new Map<string, Promise<void>>();
+  private readonly preloadPromises = new Map<string, Promise<void>>();
   private status: PreloadStatus = {
     total: 0,
     loaded: 0,

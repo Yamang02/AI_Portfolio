@@ -150,29 +150,33 @@ export const Pagination: React.FC<PaginationProps> = ({
         {/* 페이지 번호 버튼들 */}
         {visiblePages.length > 0 && (
           <div className={styles.pageButtons}>
-            {visiblePages.map((page, index) => {
-              if (page === 'ellipsis') {
-                return (
-                  <span key={`ellipsis-${index}`} className={styles.ellipsis}>
-                    ...
-                  </span>
-                );
-              }
+            {(() => {
+              let ellipsisCount = 0;
+              return visiblePages.map((page) => {
+                if (page === 'ellipsis') {
+                  ellipsisCount += 1;
+                  return (
+                    <span key={`ellipsis-${ellipsisCount}`} className={styles.ellipsis}>
+                      ...
+                    </span>
+                  );
+                }
               
-              const isActive = page === currentPage;
-              return (
-                <Button
-                  key={page}
-                  variant={isActive ? 'primary' : 'secondary'}
-                  size="sm"
-                  onClick={() => handlePageClick(page)}
-                  className={styles.pageButton}
-                  ariaLabel={`${page}페이지`}
-                >
-                  {page}
-                </Button>
-              );
-            })}
+                const isActive = page === currentPage;
+                return (
+                  <Button
+                    key={page}
+                    variant={isActive ? 'primary' : 'secondary'}
+                    size="sm"
+                    onClick={() => handlePageClick(page)}
+                    className={styles.pageButton}
+                    ariaLabel={`${page}페이지`}
+                  >
+                    {page}
+                  </Button>
+                );
+              });
+            })()}
           </div>
         )}
 

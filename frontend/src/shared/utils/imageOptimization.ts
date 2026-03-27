@@ -52,7 +52,14 @@ export function optimizeCloudinaryImage(
   const transformations: string[] = [];
 
   if (width || height) {
-    const size = width && height ? `${width}x${height}` : width ? `w_${width}` : `h_${height}`;
+    let size = '';
+    if (width && height) {
+      size = `${width}x${height}`;
+    } else if (width) {
+      size = `w_${width}`;
+    } else if (height) {
+      size = `h_${height}`;
+    }
     transformations.push(size);
   }
 

@@ -98,7 +98,7 @@ export const SeriesSearchSelect: React.FC<SeriesSearchSelectProps> = ({
       return found;
     }
     // 4. 저장된 정보가 있으면 사용
-    if (selectedSeriesInfo && selectedSeriesInfo.seriesId === value) {
+    if (selectedSeriesInfo?.seriesId === value) {
       return selectedSeriesInfo;
     }
     // 5. 없으면 value를 title로 사용 (임시)
@@ -135,7 +135,7 @@ export const SeriesSearchSelect: React.FC<SeriesSearchSelectProps> = ({
       if (selectedSeriesInfo?.seriesId !== value) {
         setSelectedSeriesInfo(found);
       }
-    } else if (selectedSeriesInfo && selectedSeriesInfo.seriesId !== value) {
+    } else if (selectedSeriesInfo?.seriesId !== value) {
       // value가 변경되었는데 검색 결과에도 없으면 초기화
       setSelectedSeriesInfo(null);
     }

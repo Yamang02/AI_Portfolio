@@ -1,5 +1,6 @@
 import React from 'react';
 import { Card } from './Card';
+import { ClickableCard } from './ClickableCard';
 import styles from './SimpleArticleCard.module.css';
 
 export interface SimpleArticleCardArticle {
@@ -35,11 +36,13 @@ export const SimpleArticleCard: React.FC<SimpleArticleCardProps> = ({
     }
   };
 
+  const CardComponent = onClick ? ClickableCard : Card;
+
   return (
-    <Card
+    <CardComponent
       variant="default"
       padding="md"
-      onClick={onClick}
+      {...(onClick ? { onClick } : {})}
       className={`${styles.simpleArticleCard} ${onClick ? styles.clickable : ''} ${className || ''}`}
     >
       {/* Title */}
@@ -58,6 +61,6 @@ export const SimpleArticleCard: React.FC<SimpleArticleCardProps> = ({
           <span className={styles.dateText}>{formatDate(article.publishedAt)}</span>
         </div>
       )}
-    </Card>
+    </CardComponent>
   );
 };

@@ -144,7 +144,7 @@ export function ArticleListPage() {
 
   // 이미지 로딩 추적 (각 이미지 로드 시 높이 재계산)
   // scheduleRecalc를 사용하여 rAF 배치 처리
-  const { allImagesLoaded } = useImageLoadTracking(containerRef, scheduleRecalc || recalculateHeight);
+  useImageLoadTracking(containerRef, scheduleRecalc || recalculateHeight);
 
   const handleArticleClick = (article: { businessId: string }) => {
     navigate(`/articles/${article.businessId}`);

@@ -28,6 +28,10 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
   const [uploading, setUploading] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const editorRef = useRef<HTMLDivElement>(null);
+  const focusEditorInput = useCallback(() => {
+    const editorInput = editorRef.current?.querySelector<HTMLTextAreaElement>('textarea, [contenteditable="true"]');
+    editorInput?.focus();
+  }, []);
 
   /**
    * 이미지 업로드 및 마크다운 삽입 공통 함수
@@ -186,6 +190,18 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onPaste={handlePaste}
+      role="textbox"
+      aria-label="마크다운 에디터"
+      aria-multiline="true"
+      tabIndex={0}
+      onClick={focusEditorInput}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          focusEditorInput();
+        }
+      }}
+      onTouchStart={focusEditorInput}
     >
       <MDEditor
         value={value || ''}

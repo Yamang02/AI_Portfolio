@@ -50,9 +50,9 @@ export const CareerTimelineSection: React.FC<CareerTimelineSectionProps> = ({
             </SectionTitle>
             {isLoadingExperiences ? (
               <div className={styles.cards}>
-                {Array.from({ length: 2 }).map((_, index) => (
+                {['experience-skeleton-1', 'experience-skeleton-2'].map((skeletonKey) => (
                   <SkeletonCard
-                    key={index}
+                    key={skeletonKey}
                     showImage={false}
                     showActions={false}
                     lines={4}
@@ -83,9 +83,9 @@ export const CareerTimelineSection: React.FC<CareerTimelineSectionProps> = ({
             </SectionTitle>
             {isLoadingEducations ? (
               <div className={styles.cards}>
-                {Array.from({ length: 2 }).map((_, index) => (
+                {['education-skeleton-1', 'education-skeleton-2'].map((skeletonKey) => (
                   <SkeletonCard
-                    key={index}
+                    key={skeletonKey}
                     showImage={false}
                     showActions={false}
                     lines={4}

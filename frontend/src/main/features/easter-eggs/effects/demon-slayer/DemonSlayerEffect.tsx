@@ -73,8 +73,10 @@ const DemonSlayerVisualLayers: React.FC<DemonSlayerVisualLayersProps> = ({
   headerBottom,
   headerGlow,
   glowPosition,
-}) => (
-  <>
+}) => {
+  const hasGlowPosition = typeof glowPosition === 'number' && Number.isFinite(glowPosition);
+  return (
+    <>
     <div
       className="fixed pointer-events-none z-[30]"
       style={{
@@ -147,7 +149,7 @@ const DemonSlayerVisualLayers: React.FC<DemonSlayerVisualLayersProps> = ({
       />
     )}
 
-    {isVisible && headerGlow && glowPosition !== null && (
+    {isVisible && headerGlow && hasGlowPosition && (
       <>
         <div
           className="fixed pointer-events-none z-[31]"
@@ -250,8 +252,9 @@ const DemonSlayerVisualLayers: React.FC<DemonSlayerVisualLayersProps> = ({
         display: mainAreaBounds.width > 0 ? 'block' : 'none',
       }}
     />
-  </>
-);
+    </>
+  );
+};
 
 export const DemonSlayerEffect: React.FC<DemonSlayerEffectProps> = ({
   context: _context,

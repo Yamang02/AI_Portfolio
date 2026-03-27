@@ -23,11 +23,6 @@ import { DateRangeWithOngoing } from '../../shared/ui/date-range';
 
 // Entities 계층에서 타입과 훅 import
 import type { Certification, CertificationFormData, CertificationCategory } from '../entities/certification';
-// import {
-//   useAdminCertificationsQuery,
-//   useCertificationMutation,
-//   useDeleteCertificationMutation,
-// } from '../entities/certification';
 
 // Features 계층에서 컴포넌트와 훅 import
 import {
@@ -101,10 +96,6 @@ const CertificationManagement: React.FC = () => {
     },
   ];
 
-  // const { data: certifications, isLoading } = useAdminCertificationsQuery();
-  // const createOrUpdateMutation = useCertificationMutation(editingCertification);
-  // const deleteCertificationMutation = useDeleteCertificationMutation();
-
   // Features 계층의 훅 사용
   const {
     filteredCertifications,
@@ -155,7 +146,6 @@ const CertificationManagement: React.FC = () => {
       okType: 'danger',
       cancelText: '취소',
       onOk: () => {
-        // deleteCertificationMutation.mutate(id);
         message.success('자격증이 삭제되었습니다.');
       },
     });

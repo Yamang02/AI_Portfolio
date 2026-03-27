@@ -155,6 +155,7 @@ export const ProjectSearchModal: React.FC<ProjectSearchModalProps> = ({
             <label htmlFor={techSearchInputId} className={styles.label}>기술 스택 검색</label>
             <Input
               id={techSearchInputId}
+              aria-label="기술 스택 검색"
               type="text"
               value={filters.techSearchQuery}
               onChange={handleTechSearchChange}
@@ -208,6 +209,7 @@ export const ProjectSearchModal: React.FC<ProjectSearchModalProps> = ({
                       size="sm"
                       onClick={() => handleTechToggle(tech)}
                       className={styles.techBadgeButton}
+                      ariaLabel={`기술 스택 ${tech} 필터 토글`}
                     >
                       {tech}
                     </Button>
