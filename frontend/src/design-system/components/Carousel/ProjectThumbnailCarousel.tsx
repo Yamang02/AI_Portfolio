@@ -68,18 +68,11 @@ export const ProjectThumbnailCarousel: React.FC<ProjectThumbnailCarouselProps> =
             const hasValidImage = project.imageUrl && project.imageUrl !== '#' && project.imageUrl !== '';
             
             return (
-              <div
+              <button
+                type="button"
                 key={project.id}
                 className={`${styles.thumbnail} ${sizeClass}`}
                 onClick={() => handleProjectClick(project.id)}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    handleProjectClick(project.id);
-                  }
-                }}
               >
                 {hasValidImage ? (
                   <img
@@ -105,7 +98,7 @@ export const ProjectThumbnailCarousel: React.FC<ProjectThumbnailCarouselProps> =
                 <div className={styles.thumbnailOverlay}>
                   <span className={styles.thumbnailTitle}>{project.title}</span>
                 </div>
-              </div>
+              </button>
             );
           })}
         </div>

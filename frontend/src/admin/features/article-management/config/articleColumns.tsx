@@ -3,6 +3,16 @@ import { Article, ARTICLE_CATEGORIES } from '@/admin/entities/article';
 import { Tag, Button, Space } from 'antd';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 
+const getArticleStatusTag = (status: string): { color: string; text: string } => {
+  if (status === 'published') {
+    return { color: 'green', text: '발행' };
+  }
+  if (status === 'draft') {
+    return { color: 'orange', text: '초안' };
+  }
+  return { color: 'gray', text: '보관' };
+};
+
 export function getArticleColumns(
   onEdit: (article: Article) => void,
   onDelete: (id: number) => void
@@ -48,8 +58,7 @@ export function getArticleColumns(
       key: 'status',
       width: 100,
       render: (status: string) => {
-        const color = status === 'published' ? 'green' : status === 'draft' ? 'orange' : 'gray';
-        const text = status === 'published' ? '발행' : status === 'draft' ? '초안' : '보관';
+        const { color, text } = getArticleStatusTag(status);
         return <Tag color={color}>{text}</Tag>;
       },
     },

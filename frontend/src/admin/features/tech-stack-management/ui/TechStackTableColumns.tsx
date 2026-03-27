@@ -8,6 +8,12 @@ import type { TechStackMetadata } from '../../entities/tech-stack';
 import { categoryNames, levelMapping, getCategoryColor } from '../lib/techStackMappings';
 import styles from './TechStackTableColumns.module.css';
 
+const getLevelTagColor = (level: string): string => {
+  if (level === 'core') return 'gold';
+  if (level === 'general') return 'blue';
+  return 'green';
+};
+
 export const createTechStackColumns = (): ColumnsType<TechStackMetadata> => [
   {
     title: '정렬 순서',
@@ -52,7 +58,7 @@ export const createTechStackColumns = (): ColumnsType<TechStackMetadata> => [
     key: 'level',
     render: (level: string, record: TechStackMetadata) => (
       <div>
-        <Tag color={level === 'core' ? 'gold' : level === 'general' ? 'blue' : 'green'}>
+        <Tag color={getLevelTagColor(level)}>
           {levelMapping[level as keyof typeof levelMapping] || level}
         </Tag>
         {record.isCore && (

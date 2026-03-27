@@ -177,7 +177,7 @@ export function useChatMessages(refreshUsageStatus: () => void | Promise<void>) 
           }
 
           if (!response.isRateLimited) {
-            void refreshUsageStatus();
+            await refreshUsageStatus();
           }
         } else {
           aiResponseText = '';

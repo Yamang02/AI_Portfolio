@@ -14,7 +14,7 @@ const API_BASE_URL = typeof window !== 'undefined'
 
 // API 클래스
 class RelationshipApi {
-  private baseUrl = `${API_BASE_URL}/api/admin`;
+  private readonly baseUrl = `${API_BASE_URL}/api/admin`;
 
   // ==================== 기술스택 관계 ====================
 

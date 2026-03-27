@@ -32,3 +32,9 @@ issues/
 - `docs/issues/sonarqube/2026-03-27-frontend-root-cause-notes-batch3-4.md`
 - `docs/issues/sonarqube/2026-03-27-frontend-open-issues.json`
 - `docs/issues/sonarqube/2026-03-27-backend-open-issues.json`
+
+### 현재 진행 상태 (로그 기준)
+
+- Frontend Sonar 처리 로그는 `Batch 24`까지 갱신됨
+- 미처리 BLOCKER/CRITICAL은 현재 없음
+- 다음 시작 지점: `typescript:S3358` 잔여 3건 (처리 로그 하단 우선 대상)

@@ -152,6 +152,9 @@ export function ArticleDetailPage() {
 
   // 에러 상태 체크: 백그라운드 리페치 중이 아닐 때만 에러로 처리
   const hasError = (isError || (!isLoading && !article)) && !isFetching;
+  const errorTitle = isError && error?.message?.includes('404')
+    ? '글을 찾을 수 없습니다'
+    : '오류가 발생했습니다';
 
   return (
     <div className={styles.container}>
@@ -228,9 +231,7 @@ export function ArticleDetailPage() {
           <>
             <header className={styles.header}>
               <SectionTitle level="h1" className={styles.title}>
-                {isError && error?.message?.includes('404') 
-                  ? '글을 찾을 수 없습니다' 
-                  : '오류가 발생했습니다'}
+                {errorTitle}
               </SectionTitle>
               <div className={styles.divider}></div>
             </header>

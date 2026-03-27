@@ -93,6 +93,7 @@ export const convertToTechStackMetadata = (tech: string): TechStackMetadata => {
   
   const category = getTechCategory(tech);
   const level = getTechLevel(tech);
+  const currentTimestamp = new Date().toISOString();
   
   const metadata: TechStackMetadata = {
     name: tech,
@@ -104,8 +105,8 @@ export const convertToTechStackMetadata = (tech: string): TechStackMetadata => {
     colorHex: '#6b7280',
     description: '',
     sortOrder: 0,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
+    createdAt: currentTimestamp,
+    updatedAt: currentTimestamp
   };
   
   techStackCache.set(cacheKey, metadata);

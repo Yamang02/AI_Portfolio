@@ -150,13 +150,17 @@ interface SkeletonSectionProps {
   count?: number;
 }
 
+const SKELETON_CARD_KEYS = ['sk-1', 'sk-2', 'sk-3', 'sk-4', 'sk-5', 'sk-6'];
+
 export const SkeletonSection: React.FC<SkeletonSectionProps> = ({ title, count = 3 }) => {
+  const skeletonKeys = SKELETON_CARD_KEYS.slice(0, Math.max(0, Math.min(count, SKELETON_CARD_KEYS.length)));
+
   return (
     <section className="mb-16">
       <h2 className="text-3xl font-bold text-text-primary mb-8 text-center">{title}</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {Array.from({ length: count }).map((_, index) => (
-          <SkeletonCard key={index} />
+        {skeletonKeys.map((key) => (
+          <SkeletonCard key={key} />
         ))}
       </div>
     </section>

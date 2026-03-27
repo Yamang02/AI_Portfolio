@@ -21,6 +21,11 @@ const ContactAction: React.FC = () => (
   </div>
 );
 
+const getMessageAlignmentClass = (isInitialMessage: boolean, isUser: boolean): string => {
+  if (isInitialMessage) return 'justify-center';
+  return isUser ? 'justify-end' : 'justify-start';
+};
+
 const markdownComponents = {
   // 마크다운 스타일링 커스터마이징
   h1: ({ children }: { children?: React.ReactNode }) => <h1 className="text-lg font-bold mb-2">{children}</h1>,
@@ -45,9 +50,10 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
 
   // 초기 안내 메시지는 가운데 정렬, 70% 제한 없음
   const isInitialMessage = message.id === 'initial';
+  const alignmentClass = getMessageAlignmentClass(isInitialMessage, message.isUser);
 
   return (
-    <div className={`flex ${isInitialMessage ? 'justify-center' : (message.isUser ? 'justify-end' : 'justify-start')} mb-4`}>
+    <div className={`flex ${alignmentClass} mb-4`}>
       <ChatBubble
         variant={message.isUser ? 'user' : 'assistant'}
         timestamp={timestamp}

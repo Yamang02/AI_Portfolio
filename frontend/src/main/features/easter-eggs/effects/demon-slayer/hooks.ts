@@ -163,7 +163,7 @@ export const useFallingCards = (
       card.rotation += card.rotationSpeed;
 
       // 마지막 카드가 footer에 닿았는지 확인
-      if (lastCardRef.current && card.id === lastCardRef.current.id && !lastCardReachedFooterRef.current) {
+      if (card.id === lastCardRef.current?.id && !lastCardReachedFooterRef.current) {
         if (card.y + card.height >= footerTop) {
           lastCardReachedFooterRef.current = true;
           if (onLastCardReachedFooter) {

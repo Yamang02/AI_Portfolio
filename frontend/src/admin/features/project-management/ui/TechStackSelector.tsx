@@ -21,6 +21,11 @@ interface TechStackSelectorProps {
   onChange?: (value: number[]) => void;
 }
 
+const truncateDescription = (description: string, maxLength: number): string => {
+  if (description.length <= maxLength) return description;
+  return `${description.substring(0, maxLength)}...`;
+};
+
 const TechStackSelector: React.FC<TechStackSelectorProps> = ({ value = [], onChange }) => {
   const [searchValue, setSearchValue] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
@@ -216,7 +221,7 @@ const TechStackSelector: React.FC<TechStackSelectorProps> = ({ value = [], onCha
                   style={{
                     cursor: 'pointer',
                     border: value.includes(tech.id) ? `2px solid ${getCategoryColor(tech.category)}` : '1px solid #d9d9d9',
-                    backgroundColor: value.includes(tech.name) ? `${getCategoryColor(tech.category)}10` : 'white',
+                    backgroundColor: value.includes(tech.id) ? `${getCategoryColor(tech.category)}10` : 'white',
                   }}
                   styles={{ body: { padding: '8px 12px' } }}
                 >
@@ -245,9 +250,7 @@ const TechStackSelector: React.FC<TechStackSelectorProps> = ({ value = [], onCha
                       </div>
                       {tech.description && (
                         <div style={{ fontSize: '11px', color: '#666', lineHeight: '1.2' }}>
-                          {tech.description.length > 50 
-                            ? `${tech.description.substring(0, 50)}...` 
-                            : tech.description}
+                          {truncateDescription(tech.description, 50)}
                         </div>
                       )}
                     </div>
