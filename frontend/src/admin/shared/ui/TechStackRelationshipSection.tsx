@@ -32,7 +32,7 @@ export const TechStackRelationshipSection: React.FC<TechStackRelationshipSection
   onChange,
 }) => {
   const { message } = App.useApp();
-  const [searchText, setSearchText] = useState('');
+  const [searchText] = useState('');
   const [selectingTechStack, setSelectingTechStack] = useState<string | null>(null);
   const [isPrimary, setIsPrimary] = useState(false);
   const [usageDescription, setUsageDescription] = useState('');

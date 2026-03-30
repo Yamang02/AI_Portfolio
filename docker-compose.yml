@@ -98,6 +98,29 @@ services:
   #   networks:
   #     - ai-portfolio-network
 
+  # 백엔드 SonarQube 분석 — 로컬에 Maven 없이 재현할 때 사용. `profiles: sonar` 로 일반 `compose up`에는 안 뜸.
+  # 전제: 호스트에서 SonarQube :9000 가동, 레포 루트 .env에 SONAR_TOKEN.
+  # 실행: docker compose --profile sonar run --rm backend-sonar  (레포 루트에서)
+  backend-sonar:
+    profiles: ["sonar"]
+    image: maven:3.9-eclipse-temurin-17
+    container_name: ai-portfolio-backend-sonar
+    working_dir: /app
+    volumes:
+      - ./backend:/app
+      - maven_cache:/root/.m2
+    environment:
+      SONAR_TOKEN: ${SONAR_TOKEN}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - >-
+        mvn -q -DskipTests compile org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
+        -Dsonar.projectKey=AI_Portfolio_backend_local
+        -Dsonar.host.url=http://host.docker.internal:9000
+        -Dsonar.token=$${SONAR_TOKEN}
+
   # pgAdmin (선택사항 - 필요시에만 실행)
   pgadmin:
     image: dpage/pgadmin4:latest

@@ -16,7 +16,7 @@ export interface BeatDetectorConfig {
 }
 
 export class BeatDetector {
-  private analyser: AnalyserNode;
+  private readonly analyser: AnalyserNode;
   private readonly onBeatDetected: () => void;
   private animationFrameRef: number | undefined;
   private lastBeatTimeRef: number = 0;
@@ -67,7 +67,7 @@ export class BeatDetector {
     }
   }
 
-  private analyzeAudio = () => {
+  private readonly analyzeAudio = () => {
     if (!this.isRunning) return;
 
     const bufferLength = this.analyser.frequencyBinCount;

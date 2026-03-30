@@ -363,17 +363,51 @@
 - `4f7687d6-9d97-4521-accf-9161823ed508` (`typescript:S3358`, `src/design-system/components/Skeleton/Skeleton.tsx`)
 - `6b5759df-d971-4c7f-8fe1-0f8200f82f86` (`typescript:S3358`, `src/design-system/components/Skeleton/Skeleton.tsx`)
 - `910b1a51-4329-483c-8733-a8b8c14b648e` (`typescript:S3358`, `src/main/features/chatbot/components/ChatMessage.tsx`)
+- `39efd196-a13d-4a64-9839-91f858db103b` (`typescript:S3358`, `src/main/pages/ProfilePage/components/CareerTimelineSection.tsx`) — 2026-03-29 코드 반영
+- `42712458-32e4-4d38-bb91-911f511ffc00` (`typescript:S3358`, `src/shared/ui/tech-stack/TechStackList.tsx`) — 2026-03-29 코드 반영
+- `5a4f3ecf-e38a-436f-a877-9dee68b96f43` (`typescript:S3358`, `src/admin/pages/TechStackManagement.tsx`) — 2026-03-29 코드 반영
+- `26a0e668-6032-45b6-8a0d-8c5fe7d00e3f` (`typescript:S3358`, `src/admin/features/project-management/ui/TechStackSelector.tsx`) — 2026-03-29 중첩 삼항 제거·회귀 `npm run test` 통과
+- `bf9ae170-82a7-498a-b0b1-8c02228be861` (`typescript:S3358`, `ProjectDetailPage.tsx` — jsonLd `updatedAt` 중첩 삼항 제거)
+- `df2b14a8-65ae-42cb-8bba-0a5ecae588d3` (`typescript:S3358`, `ProjectDetailPage.tsx` — 본문 로딩/에러/성공 분기 IIFE)
+- `226014de-17a4-453e-880c-bcf21aaced1c` (`typescript:S3358`, `ArticleDetailPage.tsx` — 동일 패턴)
+- `dca33786-1868-4601-852b-a69037dd67ee` (`typescript:S3358`, `ArticleListPage.tsx` — 목록 영역 분기)
+- `5e84065f-f327-4259-b65a-727bcccc20ed` (`typescript:S3358`, `ArticleListPage.tsx` — 동일 파일 추가 이슈)
+- `fcad1559-d51f-460d-acf4-6c25d4a82729` (`typescript:S3358`, `src/shared/lib/useThemeInit.ts` — 테마 분기 if/else)
+- `62d9cf96-03a3-4468-ad43-36a794434bf4` (`typescript:S3358`, `CertificationSection.tsx` — 로딩/빈/목록 IIFE)
+- `67e63d70-4760-42cd-baed-faaf18e00392` (`typescript:S3358`, `CareerTimeline.tsx` — 동일 패턴)
+- `d806ce61-b3f0-4513-bee5-199034d3d706` (`typescript:S3358`, `DemonSlayerEffect.tsx` — 레이어 opacity 분기)
 
 ### 미해결 (`OPEN`) — 동일 유형(`typescript:S3358`) 다음 우선 대상
 
-- `39efd196-a13d-4a64-9839-91f858db103b` (`typescript:S3358`, `src/main/pages/ProfilePage/components/CareerTimelineSection.tsx`)
-- `42712458-32e4-4d38-bb91-911f511ffc00` (`typescript:S3358`, `src/shared/ui/tech-stack/TechStackList.tsx`)
-- `5a4f3ecf-e38a-436f-a877-9dee68b96f43` (`typescript:S3358`, `src/admin/pages/TechStackManagement.tsx`)
+- **2026-03-29 스냅샷 기준** 프론트 `S3358` **9건**은 위 배치로 코드 반영 완료. Sonar **재분석·API 재수집** 후 잔여가 있으면 해당 파일만 추가 수정한다.
+- 이전 스냅샷 키 `12f7a876-…`(`techStackCategorization`), `1a2b63e1-…`(`imageOptimization`)은 **2026-03-29 재수집 시 OPEN 목록에 없음**.
+
+## 메타 (2026-03-29)
+
+- P07 / E06 Sonar way 확인 절차: `docs/issues/sonarqube/2026-03-29-p07-sonar-way-verification.md`.
+- 프론트 회귀: `frontend`에서 `npm run test` (Vitest) 통과 — 동일 날짜 로컬 세션.
+- 프론트 **Sonar 재분석 완료**: `npm run test:coverage` 후 `npx sonarqube-scanner -Dsonar.token=<.env SONAR_TOKEN>`. `sonar-project.properties`에 소스/테스트 중복 인덱싱 방지(`test.inclusions`·테스트 파일 exclusion) 반영. 스캔 로그상 프로파일 ts/css/json **Sonar way**.
+
+## P07 검증 배치 (2026-03-29, SQ-01-04·SQ-02-04)
+
+| 단계 | 명령 (실행 위치) | 결과 |
+|------|------------------|------|
+| 프론트 테스트 | `frontend/`: `npm run test` | Vitest 2 files, 4 tests **통과** (exit 0) |
+| 커버리지 (Sonar 입력) | `frontend/`: `npm run test:coverage` | **통과**, `coverage/lcov.info` 생성 |
+| 백엔드 Sonar 스캔 | 레포 루트: `docker compose --profile sonar run --rm backend-sonar` | **exit 0** (Maven `sonar:sonar`, `AI_Portfolio_backend_local`) |
+
+- 프론트 스캔은 로컬 Sonar가 떠 있을 때 `frontend/`에서 `npx sonarqube-scanner` + `-Dsonar.token=...` (루트 `.env`의 `SONAR_TOKEN`)으로 동일 근거를 남긴다. 위 표는 **테스트·백엔드 스캔**을 본 세션에서 재실행한 기록이다.
+
+## Sonar API 오픈 이슈 스냅샷 (2026-03-29)
+
+- `GET /api/issues/search?componentKeys=<projectKey>&resolved=false&ps=500&p=<n>` (루트 `.env`의 `SONAR_TOKEN` Bearer) — 페이지 합산.
+- 산출: `docs/issues/sonarqube/2026-03-29-frontend-open-issues.json`, `2026-03-29-backend-open-issues.json`.
+- 요약 갱신: `2026-03-27-sonarqube-open-issues-summary.md` (최신 갱신일 2026-03-29).
 
 ## 다음 작업 가이드
 
 - 다음 에이전트는 Batch 23~24 `처리 완료` 항목을 포함해 SonarQube 재분석 후 `CLOSED/FIXED` 여부를 먼저 확인한다.
 - 재분석 후에도 `OPEN`이면 규칙별 최소 리팩터링(중첩 삼항 분리, optional chaining 단순화, CSS 중복 정리)을 1회 추가 적용한다.
-- 신규 작업은 Batch 24 하단의 `typescript:S3358` 우선 대상 3건부터 진행한다.
-- 해당 3건 완료 후에는 `typescript:S6479`(잔여 최다), `typescript:S2933`, `css:S125` 순으로 소거한다.
+- `typescript:S3358` — `ProjectDetailPage` / `ArticleDetailPage` / `ArticleListPage` 배치는 코드 반영됨. 다음은 재수집 후 잔여 파일(또는 `typescript:S6479` 등).
+- 해당 구간 완료 후에는 `typescript:S6479`(잔여 최다), `typescript:S2933`, `css:S125` 순으로 소거한다.
 - 위 `CLOSED/FIXED` 키는 재검토 대상에서 제외한다.

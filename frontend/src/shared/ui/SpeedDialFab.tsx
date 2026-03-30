@@ -37,7 +37,7 @@ const SpeedDialFab: React.FC<SpeedDialFabProps> = ({ actions, onOpenChange }) =>
       >
         {actions.map((action, index) => (
           <button
-            key={index}
+            key={action.label}
             onClick={() => handleActionClick(action)}
             className={`${action.color || 'bg-white dark:bg-slate-700'} p-3 rounded-full shadow-lg transition-all duration-300 ease-out flex-shrink-0 ${
               isOpen

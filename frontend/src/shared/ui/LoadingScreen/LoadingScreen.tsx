@@ -47,8 +47,8 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({
           <div className={styles.progress}>
             <p className={styles.progressLabel}>로딩 중인 데이터:</p>
             <ul className={styles.progressList}>
-              {loadingItems.map((item, index) => (
-                <li key={index} className={styles.progressItem}>
+              {loadingItems.map((item) => (
+                <li key={item} className={styles.progressItem}>
                   {item}
                 </li>
               ))}

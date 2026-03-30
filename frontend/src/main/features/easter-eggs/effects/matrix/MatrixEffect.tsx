@@ -228,50 +228,66 @@ const MatrixEffect: React.FC<MatrixEffectProps> = ({ context: _context, onClose,
       }
     };
 
-    const renderRainLayer = (elapsed: number) => {
-      if (elapsed < RAIN_START_TIME) return;
+    const computeFadeoutOpacity = (elapsed: number): number => {
+      if (elapsed < FADEOUT_START_TIME) return 1;
+      return Math.max(0, 1 - (elapsed - FADEOUT_START_TIME) / FADEOUT_DURATION);
+    };
 
-      if (phase !== 'rain') {
-        setPhase('rain');
+    const renderRainChars = (
+      column: any,
+      rainElapsed: number,
+      fadeoutOpacity: number
+    ): void => {
+      if (rainElapsed < column.startDelay) return;
+
+      const chars = column.chars;
+      const length = column.length;
+
+      for (let charIndex = 0; charIndex < length; charIndex++) {
+        const y = column.y + charIndex * FONT_SIZE;
+        if (y <= -50 || y >= canvas.height) continue;
+
+        const positionInColumn = charIndex / length;
+        const isHead = charIndex === length - 1;
+        const tailBrightness =
+          positionInColumn > 0.3 ? (positionInColumn - 0.3) / 0.7 : 0;
+        const brightness = isHead ? 1 : Math.min(tailBrightness, 1);
+        const colorIndex = Math.floor(brightness * (MATRIX_COLORS.length - 1));
+
+        ctx.fillStyle = MATRIX_COLORS[colorIndex] || MATRIX_COLORS[MATRIX_COLORS.length - 1];
+        ctx.globalAlpha = brightness * 0.7 * fadeoutOpacity;
+        ctx.fillText(chars[charIndex], column.x, y);
       }
+    };
 
-      const rainElapsed = elapsed - RAIN_START_TIME;
-      const fadeoutOpacity =
-        elapsed >= FADEOUT_START_TIME
-          ? Math.max(0, 1 - (elapsed - FADEOUT_START_TIME) / FADEOUT_DURATION)
-          : 1;
+    const renderRainColumns = (rainElapsed: number, fadeoutOpacity: number): void => {
       const columns = columnsRef.current;
 
       for (let i = 0; i < columns.length; i++) {
         const column = columns[i];
         if (rainElapsed < column.startDelay) continue;
 
-        const chars = column.chars;
-        const length = column.length;
-
-        for (let charIndex = 0; charIndex < length; charIndex++) {
-          const y = column.y + charIndex * FONT_SIZE;
-          if (y <= -50 || y >= canvas.height) continue;
-
-          const positionInColumn = charIndex / length;
-          const isHead = charIndex === length - 1;
-          const tailBrightness = positionInColumn > 0.3 ? (positionInColumn - 0.3) / 0.7 : 0;
-          const brightness = isHead ? 1 : Math.min(tailBrightness, 1);
-          const colorIndex = Math.floor(brightness * (MATRIX_COLORS.length - 1));
-
-          ctx.fillStyle = MATRIX_COLORS[colorIndex] || MATRIX_COLORS[MATRIX_COLORS.length - 1];
-          ctx.globalAlpha = brightness * 0.7 * fadeoutOpacity;
-          ctx.fillText(chars[charIndex], column.x, y);
-        }
+        renderRainChars(column, rainElapsed, fadeoutOpacity);
 
         column.y += column.speed;
-        if (column.y > canvas.height + length * FONT_SIZE) {
-          column.y = -length * FONT_SIZE - Math.random() * 200;
-          for (let k = 0; k < length; k++) {
+        const overflowY = canvas.height + column.length * FONT_SIZE;
+        if (column.y > overflowY) {
+          column.y = -column.length * FONT_SIZE - Math.random() * 200;
+          for (let k = 0; k < column.length; k++) {
             column.chars[k] = getRandomChar(MATRIX_CHARS);
           }
         }
       }
+    };
+
+    const renderRainLayer = (elapsed: number) => {
+      if (elapsed < RAIN_START_TIME) return;
+
+      if (phase !== 'rain') setPhase('rain');
+
+      const rainElapsed = elapsed - RAIN_START_TIME;
+      const fadeoutOpacity = computeFadeoutOpacity(elapsed);
+      renderRainColumns(rainElapsed, fadeoutOpacity);
     };
 
     const animate = () => {

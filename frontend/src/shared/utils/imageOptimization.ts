@@ -69,7 +69,7 @@ export function optimizeCloudinaryImage(
 
   // 이미 변환이 있는 경우 확인
   const uploadPart = urlParts[uploadIndex + 1];
-  if (uploadPart && uploadPart.includes('_')) {
+  if (uploadPart?.includes('_')) {
     // 기존 변환이 있으면 추가
     const transformString = transformations.join(',');
     urlParts[uploadIndex + 1] = `${uploadPart}/${transformString}`;

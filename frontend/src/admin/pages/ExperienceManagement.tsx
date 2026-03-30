@@ -145,8 +145,7 @@ const ExperienceManagement: React.FC = () => {
       }
 
       // 결과에 따른 메시지 표시
-      if (techStackSuccess && projectSuccess) {
-      } else if (!techStackSuccess && !projectSuccess) {
+      if (!techStackSuccess && !projectSuccess) {
         message.warning('기본 정보는 저장되었지만 관계 업데이트에 실패했습니다.');
       } else if (!techStackSuccess) {
         message.warning('기본 정보와 프로젝트 관계는 저장되었지만 기술스택 관계 업데이트에 실패했습니다.');

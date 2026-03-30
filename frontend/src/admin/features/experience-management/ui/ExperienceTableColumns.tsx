@@ -113,7 +113,7 @@ export const createExperienceColumns = (): ColumnsType<Experience> => [
     render: (mainResponsibilities: string[]) => (
       <div>
         {mainResponsibilities?.slice(0, 2).map((item, index) => (
-          <Tag key={index} style={{ marginBottom: 4 }}>
+          <Tag key={item} style={{ marginBottom: 4 }}>
             {item.length > 30 ? `${item.substring(0, 30)}...` : item}
           </Tag>
         ))}

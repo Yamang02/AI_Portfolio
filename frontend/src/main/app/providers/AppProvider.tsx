@@ -38,9 +38,10 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const value: AppContextValue = {
-    isWideScreen,
-  };
+  const value = React.useMemo<AppContextValue>(
+    () => ({ isWideScreen }),
+    [isWideScreen]
+  );
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 };

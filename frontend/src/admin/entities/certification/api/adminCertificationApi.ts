@@ -12,7 +12,7 @@ const API_BASE_URL = typeof window !== 'undefined'
   : (import.meta.env?.VITE_API_BASE_URL || '');
 
 class AdminCertificationApi {
-  private baseUrl = `${API_BASE_URL}/api/admin/certifications`;
+  private readonly baseUrl = `${API_BASE_URL}/api/admin/certifications`;
 
   /**
    * 전체 Certification 목록 조회

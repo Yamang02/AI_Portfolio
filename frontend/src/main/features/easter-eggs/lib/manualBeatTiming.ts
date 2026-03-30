@@ -12,13 +12,13 @@ export interface ManualBeatTimingConfig {
 }
 
 export class ManualBeatTimingDetector {
-  private beatTimings: number[];
-  private onBeatDetected: (beatTime: number) => void;
+  private readonly beatTimings: number[];
+  private readonly onBeatDetected: (beatTime: number) => void;
   private readonly tolerance: number;
-  private triggeredBeats: Set<number> = new Set();
+  private readonly triggeredBeats: Set<number> = new Set();
   private animationFrameRef: number | undefined;
   private isRunning: boolean = false;
-  private getCurrentTime: () => number;
+  private readonly getCurrentTime: () => number;
 
   constructor(config: ManualBeatTimingConfig, getCurrentTime: () => number) {
     this.beatTimings = config.beatTimings;

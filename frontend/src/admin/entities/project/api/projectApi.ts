@@ -9,7 +9,7 @@ const API_BASE_URL = typeof window !== 'undefined'
   : (import.meta.env?.VITE_API_BASE_URL || '');
 
 class ProjectApi {
-  private baseUrl = `${API_BASE_URL}/api/projects`;
+  private readonly baseUrl = `${API_BASE_URL}/api/projects`;
 
   /**
    * 전체 프로젝트 목록 조회

@@ -25,7 +25,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
   const [position, setPosition] = useState({ top: 0, left: 0 });
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hideTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const wrapperRef = useRef<HTMLDivElement>(null);
+  const wrapperRef = useRef<HTMLButtonElement>(null);
 
   const clearTimers = useCallback(() => {
     if (timeoutRef.current) {
@@ -134,14 +134,15 @@ export const Tooltip: React.FC<TooltipProps> = ({
 
   return (
     <>
-      <div
+      <button
+        type="button"
         ref={wrapperRef}
         className={styles.wrapper}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
         {children}
-      </div>
+      </button>
       {tooltipElement && createPortal(tooltipElement, document.body)}
     </>
   );

@@ -177,15 +177,6 @@ const ProjectList: React.FC = () => {
     }
   }, [isLoading, isFetching, projects]);
 
-  const handleDelete = async (id: string) => {
-    try {
-      await deleteProjectMutation.mutateAsync(id);
-      message.success('프로젝트가 삭제되었습니다');
-    } catch (error: any) {
-      message.error(error.message || '프로젝트 삭제 중 오류가 발생했습니다');
-    }
-  };
-
   const handleBulkDelete = async () => {
     try {
       await Promise.all(selectedRowKeys.map(id => deleteProjectMutation.mutateAsync(String(id))));
@@ -447,7 +438,9 @@ const ProjectList: React.FC = () => {
             loading={isFetching}
             rowSelection={rowSelection}
             onRow={(record) => ({
-              onClick: () => navigate(`/admin/projects/${record.id}`),
+              onClick: () => {
+                navigate(`/admin/projects/${record.id}`);
+              },
               style: { cursor: 'pointer' },
             })}
             pagination={{

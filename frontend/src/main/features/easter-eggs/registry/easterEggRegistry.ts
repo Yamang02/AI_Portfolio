@@ -1,8 +1,8 @@
 import type { EasterEggTrigger, EasterEggEffect } from '../model/easter-egg.types';
 
 class EasterEggRegistry {
-  private triggers: Map<string, EasterEggTrigger> = new Map();
-  private effects: Map<string, EasterEggEffect> = new Map();
+  private readonly triggers: Map<string, EasterEggTrigger> = new Map();
+  private readonly effects: Map<string, EasterEggEffect> = new Map();
 
   registerTrigger(trigger: EasterEggTrigger): void {
     this.triggers.set(trigger.id, trigger);

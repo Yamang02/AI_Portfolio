@@ -7,8 +7,8 @@ import styles from './BackgroundRefetchIndicator.module.css';
  */
 export function BackgroundRefetchIndicator() {
   return (
-    <div className={styles.indicator} role="status" aria-live="polite">
+    <output className={styles.indicator} aria-live="polite">
       <span className={styles.text}>업데이트 중...</span>
-    </div>
+    </output>
   );
 }

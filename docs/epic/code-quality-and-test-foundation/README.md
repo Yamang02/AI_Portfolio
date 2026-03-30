@@ -45,6 +45,7 @@
 - [P04: 프론트엔드 성능 최적화](./P04-frontend-performance.md)
 - [P05: 테스트 기반 구축](./P05-test-foundation.md)
 - [P06: SonarQube 보안 검사 도입](./P06-sonarqube-security-scan.md)
+- [P07: SonarQube 품질 실행(SQ-01/SQ-02)·배치·검증](./P07-sonarqube-quality-execution.md) ✅
 
 ## 상태
 
@@ -53,4 +54,5 @@
 - [ ] P03 완료 (코드 반영 완료 — 챗 페이지 수동 QA 남음, [P03 체크리스트](./P03-frontend-code-quality.md) 참고)
 - [ ] P04 완료 (코드 반영 완료 — 전환·Network 수동 QA 남음, [P04 체크리스트](./P04-frontend-performance.md) 참고)
 - [ ] P05 완료 (프론트 `vitest`는 통과, 백엔드는 테스트 파일 생성 완료이나 `mvnw test` 실행 미확인)
-- [ ] P06 완료 (코드/워크플로우/설정 반영 완료, SonarCloud에서 PR 실제 분석/Quality Gate 표시 확인 남음)
+- [ ] P06 완료 (코드/워크플로우/설정 반영 완료; 로컬 Sonar 기준으로 정렬됨 — PR/Quality Gate는 선택)
+- [x] P07 완료 — SQ-01/SQ-02·테스트·스캔 근거·Sonar way·백엔드 `backend-sonar`·**2026-03-29 오픈 이슈 API 스냅샷** (`P07-sonarqube-quality-execution.md`, `docs/issues/sonarqube/2026-03-27-sonarqube-open-issues-summary.md`)

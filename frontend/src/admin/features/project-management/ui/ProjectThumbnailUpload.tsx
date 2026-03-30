@@ -49,7 +49,7 @@ const ProjectThumbnailUpload: React.FC<ProjectThumbnailUploadProps> = ({
         projectId: projectId
       });
       
-      if (response && response.url) {
+      if (response?.url) {
         onChange?.(response.url);
         
         // 백엔드에서 자동으로 DB에 저장하므로 성공 메시지만 표시

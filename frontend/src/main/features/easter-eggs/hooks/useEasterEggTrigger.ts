@@ -50,9 +50,6 @@ export function useEasterEggTrigger({
       return;
     }
 
-    if (debouncedCheckRef.current) {
-    }
-
     debouncedCheckRef.current = createDebouncedCheck();
     debouncedCheckRef.current();
     previousValueRef.current = inputValue;

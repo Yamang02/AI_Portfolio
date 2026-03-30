@@ -48,7 +48,7 @@ const certificationCategoryOptions: { value: CertificationCategory; label: strin
 ];
 
 const CertificationManagement: React.FC = () => {
-  const { message, modal } = App.useApp();
+  const { message } = App.useApp();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingCertification, setEditingCertification] = useState<Certification | null>(null);
   const [form] = Form.useForm();
@@ -116,14 +116,9 @@ const CertificationManagement: React.FC = () => {
 
   const handleModalOk = async () => {
     try {
-      const values = await form.validateFields();
-      const formData: CertificationFormData = {
-        ...values,
-        date: values.date?.format('YYYY-MM-DD'),
-        expiryDate: values.expiryDate?.format('YYYY-MM-DD') || undefined,
-      };
-
-      // await createOrUpdateMutation.mutateAsync(formData);
+      await form.validateFields();
+      // NOTE: createOrUpdateMutation 호출은 현재 주석 처리 상태라
+      // formData는 로컬에서 생성하지 않는다.
       message.success(editingCertification ? '자격증이 수정되었습니다.' : '자격증이 추가되었습니다.');
       setIsModalVisible(false);
       form.resetFields();
@@ -136,19 +131,6 @@ const CertificationManagement: React.FC = () => {
     setIsModalVisible(false);
     setEditingCertification(null);
     form.resetFields();
-  };
-
-  const handleDelete = (id: string) => {
-    modal.confirm({
-      title: '정말 삭제하시겠습니까?',
-      content: '이 작업은 되돌릴 수 없습니다.',
-      okText: '삭제',
-      okType: 'danger',
-      cancelText: '취소',
-      onOk: () => {
-        message.success('자격증이 삭제되었습니다.');
-      },
-    });
   };
 
   const handleRowClick = (certification: Certification) => {

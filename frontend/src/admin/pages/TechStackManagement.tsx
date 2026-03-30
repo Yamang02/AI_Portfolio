@@ -383,56 +383,62 @@ const TechStackManagement: React.FC = () => {
     </Form>
   );
 
-  // 모달 탭 아이템 생성
-  const modalTabs = editingTech ? [
-    {
-      key: 'basic',
-      label: '기본 정보',
-      children: renderForm(),
-    },
-    {
-      key: 'projects',
-      label: '사용 프로젝트',
-      children: (
-        <div className={styles.modalContent}>
-          {projectsLoading ? (
-            <div className={styles.loadingContainer}>로딩 중...</div>
-          ) : projects && projects.length > 0 ? (
-            <List
-              dataSource={projects}
-              renderItem={(project) => (
-                <List.Item key={project.id}>
-                  <List.Item.Meta
-                    avatar={
-                      project.thumbnailUrl ? (
-                        <Avatar src={project.thumbnailUrl} size={48} />
-                      ) : (
-                        <Avatar size={48} icon={<ProjectOutlined />} />
-                      )
-                    }
-                    title={project.title}
-                    description={
-                      <div>
-                        <div className={styles.projectDescription}>{project.description}</div>
-                        <div className={styles.projectDate}>
-                          {project.startDate} ~ {project.endDate || '진행중'}
-                        </div>
-                      </div>
-                    }
-                  />
-                </List.Item>
-              )}
-            />
-          ) : (
-            <Empty
-              description="이 기술스택을 사용하는 프로젝트가 없습니다"
-              image={Empty.PRESENTED_IMAGE_SIMPLE}
-            />
+  const projectsTabBody = (() => {
+    if (projectsLoading) {
+      return <div className={styles.loadingContainer}>로딩 중...</div>;
+    }
+    if (projects && projects.length > 0) {
+      return (
+        <List
+          dataSource={projects}
+          renderItem={(project) => (
+            <List.Item key={project.id}>
+              <List.Item.Meta
+                avatar={
+                  project.thumbnailUrl ? (
+                    <Avatar src={project.thumbnailUrl} size={48} />
+                  ) : (
+                    <Avatar size={48} icon={<ProjectOutlined />} />
+                  )
+                }
+                title={project.title}
+                description={
+                  <div>
+                    <div className={styles.projectDescription}>{project.description}</div>
+                    <div className={styles.projectDate}>
+                      {project.startDate} ~ {project.endDate || '진행중'}
+                    </div>
+                  </div>
+                }
+              />
+            </List.Item>
           )}
-        </div>
-      ),
-    },
-  ] : undefined;
+        />
+      );
+    }
+    return (
+      <Empty
+        description="이 기술스택을 사용하는 프로젝트가 없습니다"
+        image={Empty.PRESENTED_IMAGE_SIMPLE}
+      />
+    );
+  })();
+
+  // 모달 탭 아이템 생성
+  const modalTabs = editingTech
+    ? [
+        {
+          key: 'basic',
+          label: '기본 정보',
+          children: renderForm(),
+        },
+        {
+          key: 'projects',
+          label: '사용 프로젝트',
+          children: <div className={styles.modalContent}>{projectsTabBody}</div>,
+        },
+      ]
+    : undefined;
 
   return (
     <>

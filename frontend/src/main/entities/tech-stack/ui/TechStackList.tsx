@@ -123,7 +123,7 @@ export const TechStackList: React.FC<TechStackListProps> = ({
 
   return (
     <div className={`tech-stack-list flex flex-wrap gap-2 ${className}`}>
-      {visibleTechs.filter(tech => tech && tech.name).map((tech, index) => {
+      {visibleTechs.filter(tech => tech?.name).map((tech, index) => {
         const isCore = coreTechs.has(tech.name.toLowerCase());
         const techVariant = isCore ? 'core' : variant;
         

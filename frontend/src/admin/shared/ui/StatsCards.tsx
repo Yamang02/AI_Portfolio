@@ -24,8 +24,8 @@ export const StatsCards: React.FC<StatsCardsProps> = ({
 }) => {
   return (
     <Row gutter={16} style={{ marginBottom: '24px' }}>
-      {items.map((item, index) => (
-        <Col span={span} key={index}>
+      {items.map((item) => (
+        <Col span={span} key={item.title}>
           <Card>
             <Statistic
               title={item.title}

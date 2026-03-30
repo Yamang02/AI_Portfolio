@@ -50,7 +50,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         <>
           {mainTitle.trim()}
           <span className={styles.titleSubtext}> ({subTitle.trim()})</span>
-          {rest && rest.trim()}
+          {rest?.trim()}
         </>
       );
     }

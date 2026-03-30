@@ -118,7 +118,7 @@ export const CloudUsageCard: React.FC<CloudUsageCardProps> = ({
 
   const averageDailyCost = useMemo(() => {
     try {
-      if (!usage || !usage.period) return null;
+      if (!usage?.period) return null;
       if (typeof usage.totalCost !== 'number' || isNaN(usage.totalCost)) return null;
       return calculateAverageDailyCost(usage.totalCost, usage.period);
     } catch (error) {

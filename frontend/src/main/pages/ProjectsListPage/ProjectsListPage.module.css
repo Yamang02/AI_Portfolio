@@ -139,6 +139,7 @@
 @media (min-width: 768px) and (max-width: 1023px) {
   .grid {
     grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
   }
   .featuredHeaderWrapper {
     padding: 40px 24px 40px;
@@ -154,10 +155,6 @@
 
   .projects {
     padding: 24px;
-  }
-
-  .grid {
-    gap: 24px;
   }
 
 }

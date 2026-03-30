@@ -156,75 +156,57 @@ const ProjectDetailPage: React.FC = () => {
   // 에러 상태 체크
   const hasError = !isLoading && !project;
 
-  return (
-    <div className={styles.container}>
-      {id && (
-        <SeoHead
-          title={project?.title}
-          description={project?.description}
-          canonicalPath={id ? `/projects/${id}` : undefined}
-          jsonLd={
-            project
-              ? [
-                  createProjectSchema({
-                    id: project.id,
-                    title: project.title,
-                    description: project.description ?? '',
-                    updatedAt:
-                      typeof project.updatedAt === 'string'
-                        ? project.updatedAt
-                        : project.updatedAt
-                          ? new Date(project.updatedAt).toISOString()
-                          : undefined,
-                  }),
-                  createBreadcrumbSchema(
-                    [
-                      { name: '작업물', path: '/projects' },
-                      { name: project.title, path: `/projects/${id}` },
-                    ]
-                  ),
-                ]
-              : undefined
-          }
-        />
-      )}
-        <div ref={contentRef} className={styles.content}>
-        {/* 로딩 상태: 구조를 유지하면서 Skeleton 표시 */}
-        {isLoading ? (
-          <>
-            <div style={{ marginBottom: 'var(--spacing-8)' }}>
-              <Skeleton variant="text" height="48px" width="70%" style={{ marginBottom: '16px' }} />
-              <Skeleton variant="text" height="24px" width="100%" style={{ marginBottom: '8px' }} />
-              <Skeleton variant="text" height="24px" width="90%" />
+  const projectUpdatedAtForSchema = useMemo(() => {
+    if (!project?.updatedAt) return undefined;
+    const u = project.updatedAt;
+    if (typeof u === 'string') return u;
+    return new Date(u).toISOString();
+  }, [project]);
+
+  const projectDetailMain = (() => {
+    if (isLoading) {
+      return (
+        <>
+          <div style={{ marginBottom: 'var(--spacing-8)' }}>
+            <Skeleton variant="text" height="48px" width="70%" style={{ marginBottom: '16px' }} />
+            <Skeleton variant="text" height="24px" width="100%" style={{ marginBottom: '8px' }} />
+            <Skeleton variant="text" height="24px" width="90%" />
+          </div>
+          <section className={styles.section}>
+            <Skeleton variant="text" height="32px" width="60px" style={{ marginBottom: '16px' }} />
+            <Skeleton variant="text" height="20px" width="100%" style={{ marginBottom: '8px' }} />
+            <Skeleton variant="text" height="20px" width="100%" style={{ marginBottom: '8px' }} />
+            <Skeleton variant="text" height="20px" width="85%" />
+          </section>
+        </>
+      );
+    }
+    if (hasError) {
+      return (
+        <>
+          <div style={{ marginBottom: 'var(--spacing-8)' }}>
+            <SectionTitle level="h1">
+              작업물을 찾을 수 없습니다
+            </SectionTitle>
+          </div>
+          <section className={styles.section}>
+            <EmptyCard message="요청한 작업물이 존재하지 않습니다." />
+            <div style={{ marginTop: 'var(--spacing-6)', textAlign: 'center' }}>
+              <TextLink href="/projects" className={styles.backLink}>
+                작업물 목록으로 돌아가기
+              </TextLink>
             </div>
-            <section className={styles.section}>
-              <Skeleton variant="text" height="32px" width="60px" style={{ marginBottom: '16px' }} />
-              <Skeleton variant="text" height="20px" width="100%" style={{ marginBottom: '8px' }} />
-              <Skeleton variant="text" height="20px" width="100%" style={{ marginBottom: '8px' }} />
-              <Skeleton variant="text" height="20px" width="85%" />
-            </section>
-          </>
-        ) : hasError ? (
-          // 에러 상태: 구조를 유지하면서 메시지 표시
-          <>
-            <div style={{ marginBottom: 'var(--spacing-8)' }}>
-              <SectionTitle level="h1">
-                작업물을 찾을 수 없습니다
-              </SectionTitle>
-            </div>
-            <section className={styles.section}>
-              <EmptyCard message="요청한 작업물이 존재하지 않습니다." />
-              <div style={{ marginTop: 'var(--spacing-6)', textAlign: 'center' }}>
-                <TextLink href="/projects" className={styles.backLink}>
-                  작업물 목록으로 돌아가기
-                </TextLink>
-              </div>
-            </section>
-          </>
-        ) : (
-          <>
-            {/* 프로젝트 헤더 (고정 제거) */}
-            <ProjectDetailHeader project={project} />
+          </section>
+        </>
+      );
+    }
+    if (!project) {
+      return null;
+    }
+    return (
+      <>
+        {/* 프로젝트 헤더 (고정 제거) */}
+        <ProjectDetailHeader project={project} />
 
         {/* TOC 섹션 (개요 전에 고정) */}
         {tocItems.length > 0 && (
@@ -246,8 +228,8 @@ const ProjectDetailPage: React.FC = () => {
             <SectionTitle level="h2" id="screenshots" className={styles.sectionTitle}>스크린샷</SectionTitle>
             <div className={styles.screenshots}>
               {project.screenshots.map((screenshot: string | { imageUrl: string }, index: number) => {
-                const imageUrl = typeof screenshot === 'string' 
-                  ? screenshot 
+                const imageUrl = typeof screenshot === 'string'
+                  ? screenshot
                   : screenshot.imageUrl;
                 return (
                   <img
@@ -338,8 +320,39 @@ const ProjectDetailPage: React.FC = () => {
           }))}
           currentProjectId={project.id}
         />
-          </>
-        )}
+      </>
+    );
+  })();
+
+  return (
+    <div className={styles.container}>
+      {id && (
+        <SeoHead
+          title={project?.title}
+          description={project?.description}
+          canonicalPath={id ? `/projects/${id}` : undefined}
+          jsonLd={
+            project
+              ? [
+                  createProjectSchema({
+                    id: project.id,
+                    title: project.title,
+                    description: project.description ?? '',
+                    updatedAt: projectUpdatedAtForSchema,
+                  }),
+                  createBreadcrumbSchema(
+                    [
+                      { name: '작업물', path: '/projects' },
+                      { name: project.title, path: `/projects/${id}` },
+                    ]
+                  ),
+                ]
+              : undefined
+          }
+        />
+      )}
+        <div ref={contentRef} className={styles.content}>
+        {projectDetailMain}
         </div>
       </div>
   );

@@ -4,7 +4,7 @@ import type { ApiResponse, BackendChatResponse, ChatbotResponse } from '@/shared
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 class ApiClient {
-  private baseURL: string;
+  private readonly baseURL: string;
 
   constructor(baseURL: string = API_BASE_URL) {
     this.baseURL = baseURL;

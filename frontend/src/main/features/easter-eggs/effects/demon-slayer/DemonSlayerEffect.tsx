@@ -75,6 +75,11 @@ const DemonSlayerVisualLayers: React.FC<DemonSlayerVisualLayersProps> = ({
   glowPosition,
 }) => {
   const hasGlowPosition = typeof glowPosition === 'number' && Number.isFinite(glowPosition);
+  const containerLayerOpacity = (() => {
+    if (isFadingOut) return 0;
+    if (isVisible) return 1;
+    return 0;
+  })();
   return (
     <>
     <div
@@ -86,7 +91,7 @@ const DemonSlayerVisualLayers: React.FC<DemonSlayerVisualLayersProps> = ({
         height: `${window.innerHeight - headerBottom}px`,
         backgroundImage: `url(${backgroundImagePath})`,
         backgroundSize: '100% auto',
-        backgroundPosition: `center ${backgroundImagePosition === 0 ? 'top' : `${backgroundImagePosition}%`}`,
+        backgroundPosition: `center ${backgroundImagePosition === 0 ? 'top' : backgroundImagePosition + '%'}`,
         backgroundRepeat: 'no-repeat',
         filter: `brightness(${backgroundBrightness})`,
         opacity: isFadingOut ? 0 : backgroundImageOpacity,
@@ -247,7 +252,7 @@ const DemonSlayerVisualLayers: React.FC<DemonSlayerVisualLayersProps> = ({
         top: `${mainAreaBounds.top}px`,
         width: `${mainAreaBounds.width || window.innerWidth}px`,
         height: `${mainAreaBounds.height || window.innerHeight}px`,
-        opacity: isFadingOut ? 0 : (isVisible ? 1 : 0),
+        opacity: containerLayerOpacity,
         transition: isFadingOut ? `opacity ${backgroundFadeoutDuration}ms ease-out` : 'opacity 0.5s ease-out',
         display: mainAreaBounds.width > 0 ? 'block' : 'none',
       }}
@@ -376,11 +381,9 @@ export const DemonSlayerEffect: React.FC<DemonSlayerEffectProps> = ({
         if (slideAnimationRef.current) {
           cancelAnimationFrame(slideAnimationRef.current);
         }
-        if (mainElement) {
-          mainElement.style.opacity = '1';
-          mainElement.style.transition = '';
-          mainElement.style.pointerEvents = '';
-        }
+        mainElement.style.opacity = '1';
+        mainElement.style.transition = '';
+        mainElement.style.pointerEvents = '';
       };
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps

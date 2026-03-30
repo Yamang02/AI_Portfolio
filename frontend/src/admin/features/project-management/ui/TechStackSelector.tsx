@@ -71,7 +71,7 @@ const TechStackSelector: React.FC<TechStackSelectorProps> = ({ value = [], onCha
       const matchesSearch = !searchValue || 
         tech.displayName.toLowerCase().includes(searchValue.toLowerCase()) ||
         tech.name.toLowerCase().includes(searchValue.toLowerCase()) ||
-        (tech.description && tech.description.toLowerCase().includes(searchValue.toLowerCase()));
+        tech.description?.toLowerCase().includes(searchValue.toLowerCase());
       
       // 카테고리 필터
       const matchesCategory = categoryFilter === 'all' || tech.category === categoryFilter;
@@ -188,79 +188,87 @@ const TechStackSelector: React.FC<TechStackSelectorProps> = ({ value = [], onCha
         </div>
       )}
 
-      {/* 기술스택 목록 */}
+      {/* 기술스택 목록 — S3358: 중첩 삼항 대신 분기 */}
       <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
-        {isLoading ? (
-          <div style={{ textAlign: 'center', padding: '40px' }}>로딩 중...</div>
-        ) : filteredTechStacks.length === 0 ? (
-          <Empty 
-            description="검색 결과가 없습니다" 
-            image={Empty.PRESENTED_IMAGE_SIMPLE}
-          />
-        ) : (
-          <Row gutter={[8, 8]}>
-            {filteredTechStacks.map((tech) => (
-              <Col xs={24} sm={12} md={8} lg={6} key={tech.id}>
-                <Card
-                  size="small"
-                  hoverable
-                  onClick={() => (value.includes(tech.id) ? handleTechUnselect(tech.id) : handleTechSelect(tech.id))}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      if (value.includes(tech.id)) {
-                        handleTechUnselect(tech.id);
-                      } else {
-                        handleTechSelect(tech.id);
-                      }
-                    }
-                  }}
-                  tabIndex={0}
-                  role="checkbox"
-                  aria-checked={value.includes(tech.id)}
-                  style={{
-                    cursor: 'pointer',
-                    border: value.includes(tech.id) ? `2px solid ${getCategoryColor(tech.category)}` : '1px solid #d9d9d9',
-                    backgroundColor: value.includes(tech.id) ? `${getCategoryColor(tech.category)}10` : 'white',
-                  }}
-                  styles={{ body: { padding: '8px 12px' } }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
-                        <div
-                          style={{
-                            width: '8px',
-                            height: '8px',
-                            borderRadius: '50%',
-                            backgroundColor: getCategoryColor(tech.category),
-                          }}
-                        />
-                        <span style={{ fontSize: '12px', fontWeight: 'bold' }}>
-                          {categoryNames[tech.category as keyof typeof categoryNames]}
-                        </span>
-                        {tech.isCore && (
-                          <Tag color="gold" style={{ fontSize: '10px', padding: '0 4px' }}>
-                            핵심
-                          </Tag>
-                        )}
-                      </div>
-                      <div style={{ fontSize: '14px', fontWeight: '500', marginBottom: '2px' }}>
-                        {tech.displayName}
-                      </div>
-                      {tech.description && (
-                        <div style={{ fontSize: '11px', color: '#666', lineHeight: '1.2' }}>
-                          {truncateDescription(tech.description, 50)}
+        {(() => {
+          if (isLoading) {
+            return <div style={{ textAlign: 'center', padding: '40px' }}>로딩 중...</div>;
+          }
+          if (filteredTechStacks.length === 0) {
+            return (
+              <Empty
+                description="검색 결과가 없습니다"
+                image={Empty.PRESENTED_IMAGE_SIMPLE}
+              />
+            );
+          }
+          return (
+            <Row gutter={[8, 8]}>
+              {filteredTechStacks.map((tech) => {
+                const selected = value.includes(tech.id);
+                const toggleTech = () => {
+                  if (selected) handleTechUnselect(tech.id);
+                  else handleTechSelect(tech.id);
+                };
+                return (
+                  <Col xs={24} sm={12} md={8} lg={6} key={tech.id}>
+                    <Card
+                      size="small"
+                      hoverable
+                      onClick={toggleTech}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          toggleTech();
+                        }
+                      }}
+                      tabIndex={0}
+                      role="checkbox"
+                      aria-checked={selected}
+                      style={{
+                        cursor: 'pointer',
+                        border: selected ? `2px solid ${getCategoryColor(tech.category)}` : '1px solid #d9d9d9',
+                        backgroundColor: selected ? `${getCategoryColor(tech.category)}10` : 'white',
+                      }}
+                      styles={{ body: { padding: '8px 12px' } }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                            <div
+                              style={{
+                                width: '8px',
+                                height: '8px',
+                                borderRadius: '50%',
+                                backgroundColor: getCategoryColor(tech.category),
+                              }}
+                            />
+                            <span style={{ fontSize: '12px', fontWeight: 'bold' }}>
+                              {categoryNames[tech.category as keyof typeof categoryNames]}
+                            </span>
+                            {tech.isCore && (
+                              <Tag color="gold" style={{ fontSize: '10px', padding: '0 4px' }}>
+                                핵심
+                              </Tag>
+                            )}
+                          </div>
+                          <div style={{ fontSize: '14px', fontWeight: '500', marginBottom: '2px' }}>
+                            {tech.displayName}
+                          </div>
+                          {tech.description && (
+                            <div style={{ fontSize: '11px', color: '#666', lineHeight: '1.2' }}>
+                              {truncateDescription(tech.description, 50)}
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
-                    {/* 카드 전체가 토글되므로 별도의 체크박스는 제거 */}
-                  </div>
-                </Card>
-              </Col>
-            ))}
-          </Row>
-        )}
+                      </div>
+                    </Card>
+                  </Col>
+                );
+              })}
+            </Row>
+          );
+        })()}
       </div>
 
       {/* 통계 정보 */}

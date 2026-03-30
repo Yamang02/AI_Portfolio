@@ -156,6 +156,15 @@ export const TechStackList: React.FC<TechStackListProps> = ({
   const visibleTechs = sortedTechs.slice(0, maxVisible);
   const hiddenCount = sortedTechs.length - maxVisible;
 
+  let overflowCountSizeClass: string;
+  if (size === 'sm') {
+    overflowCountSizeClass = 'text-xs px-3 py-1.5';
+  } else if (size === 'lg') {
+    overflowCountSizeClass = 'text-base px-4 py-2';
+  } else {
+    overflowCountSizeClass = 'text-sm px-3 py-1.5';
+  }
+
   return (
     <div className={`flex flex-wrap gap-2 ${className}`}>
       {/* 표시할 기술 스택 배지들 */}
@@ -177,11 +186,7 @@ export const TechStackList: React.FC<TechStackListProps> = ({
       {/* 숨겨진 항목 개수 표시 */}
       {hiddenCount > 0 && (
         <span
-          className={`inline-block font-medium rounded-full border bg-surface-elevated dark:bg-slate-700 text-text-secondary dark:text-text-primary border-border ${
-            size === 'sm' ? 'text-xs px-3 py-1.5' :
-            size === 'lg' ? 'text-base px-4 py-2' :
-            'text-sm px-3 py-1.5'
-          }`}
+          className={`inline-block font-medium rounded-full border bg-surface-elevated dark:bg-slate-700 text-text-secondary dark:text-text-primary border-border ${overflowCountSizeClass}`}
         >
           +{hiddenCount}
         </span>

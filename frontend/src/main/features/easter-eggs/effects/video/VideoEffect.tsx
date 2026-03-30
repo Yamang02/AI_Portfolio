@@ -16,6 +16,13 @@ export const VideoEffect: React.FC<VideoEffectProps> = ({ context, onClose, reso
     const video = videoRef.current;
     if (!video || !videoResource) return;
 
+    // React의 JSX 속성으로는 `volume`이 올바른 attribute가 아니므로 property로 직접 세팅
+    if (typeof videoResource.volume === 'number') {
+      video.volume = videoResource.volume;
+    } else {
+      video.volume = 1;
+    }
+
     const handleEnded = () => {
       onClose();
     };
@@ -43,20 +50,12 @@ export const VideoEffect: React.FC<VideoEffectProps> = ({ context, onClose, reso
   if (!videoResource) {
     return null;
   }
-  const handleOverlayKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      onClose();
-    }
-  };
 
   return (
-    <div 
+    <button
+      type="button"
       className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/90"
       onClick={onClose}
-      onKeyDown={handleOverlayKeyDown}
-      role="button"
-      tabIndex={0}
       aria-label="비디오 닫기"
     >
       <video
@@ -66,17 +65,16 @@ export const VideoEffect: React.FC<VideoEffectProps> = ({ context, onClose, reso
         autoPlay
         muted={false}
         loop={videoResource.loop ?? false}
-        volume={videoResource.volume ?? 1}
         controls={false}
       />
-      <button
-        onClick={onClose}
+      <span
         className="absolute top-4 right-4 text-white hover:text-gray-300 text-2xl font-bold"
         aria-label="닫기"
+        aria-hidden="true"
       >
         ✕
-      </button>
-    </div>
+      </span>
+    </button>
   );
 };
 

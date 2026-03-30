@@ -198,7 +198,7 @@ export const ProjectHistoryTimeline: React.FC<ProjectHistoryTimelineProps> = ({
         >
           <div
             className={`${styles.barContent} ${isHighlighted ? styles.highlighted : ''} ${isOngoing ? styles.ongoing : ''}`}
-            title={`${project.title} ${isOngoing ? '(진행 중)' : ''} - ${formatDate(project.startDate)}${project.endDate ? ` ~ ${formatDate(project.endDate)}` : ' ~ 진행중'}`}
+            title={`${project.title} ${isOngoing ? '(진행 중)' : ''} - ${formatDate(project.startDate)}${project.endDate ? ' ~ ' + formatDate(project.endDate) : ' ~ 진행중'}`}
           >
             <span className={styles.projectTitle}>{project.title}</span>
           </div>

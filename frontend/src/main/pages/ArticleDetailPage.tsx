@@ -156,6 +156,182 @@ export function ArticleDetailPage() {
     ? '글을 찾을 수 없습니다'
     : '오류가 발생했습니다';
 
+  const articleDetailMain = (() => {
+    if (isLoading) {
+      return (
+        <>
+          <header className={styles.header}>
+            <div className={styles.headerTop}>
+              <Skeleton variant="rectangular" height="24px" width="80px" />
+            </div>
+            <div className={styles.title}>
+              <Skeleton variant="text" height="48px" width="100%" />
+            </div>
+            <div className={styles.metaRow}>
+              <Skeleton variant="text" height="16px" width="120px" />
+              <Skeleton variant="text" height="16px" width="80px" />
+            </div>
+            <div className={styles.divider}></div>
+            <div className={styles.meta}>
+              <Skeleton variant="text" height="24px" width="200px" />
+            </div>
+          </header>
+          <section className={styles.section}>
+            <Skeleton variant="text" height="24px" width="60%" style={{ marginBottom: '16px' }} />
+            <Skeleton variant="text" height="16px" width="100%" style={{ marginBottom: '8px' }} />
+            <Skeleton variant="text" height="16px" width="100%" style={{ marginBottom: '8px' }} />
+            <Skeleton variant="text" height="16px" width="90%" style={{ marginBottom: '8px' }} />
+            <Skeleton variant="text" height="16px" width="100%" style={{ marginBottom: '8px' }} />
+            <Skeleton variant="text" height="16px" width="85%" />
+          </section>
+        </>
+      );
+    }
+    if (hasError) {
+      return (
+        <>
+          <header className={styles.header}>
+            <SectionTitle level="h1" className={styles.title}>
+              {errorTitle}
+            </SectionTitle>
+            <div className={styles.divider}></div>
+          </header>
+          <section className={styles.section}>
+            <ArticleErrorView error={error} />
+          </section>
+        </>
+      );
+    }
+    if (!article) {
+      return null;
+    }
+    return (
+      <>
+        <header className={styles.header}>
+          <div className={styles.headerTop}>
+            {article.category && (
+              <Badge variant="primary" size="sm" className={styles.categoryBadge}>
+                {ARTICLE_CATEGORIES[article.category as keyof typeof ARTICLE_CATEGORIES] || article.category}
+              </Badge>
+            )}
+          </div>
+
+          <SectionTitle level="h2" className={styles.title}>
+            {article.title}
+          </SectionTitle>
+
+          {article.seriesTitle && article.seriesOrder !== undefined && (
+            <div className={styles.seriesInfo}>
+              {article.seriesTitle}#{article.seriesOrder}
+            </div>
+          )}
+
+          <div className={styles.metaRow}>
+            {article.publishedAt && (
+              <span className={styles.metaItem}>
+                {new Date(article.publishedAt).toLocaleDateString('ko-KR', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                })}
+              </span>
+            )}
+            <span className={styles.metaItem}>조회 {article.viewCount}</span>
+          </div>
+
+          <div className={styles.divider}></div>
+
+          <div className={styles.meta}>
+            {article.tags && article.tags.length > 0 && (
+              <div className={styles.tags}>
+                {article.tags.map((tag) => (
+                  <span key={tag} className={styles.tag}>
+                    #{tag}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        </header>
+
+        {tocItems.length > 0 && (
+          <section id="toc" className={styles.section}>
+            <TableOfContents items={tocItems} />
+          </section>
+        )}
+
+        {article.content && (
+          <section id="content" className={styles.section}>
+            <article ref={markdownContainerRef} className={styles.markdownArticle}>
+              <MarkdownRenderer
+                content={article.content}
+                className={styles.markdown}
+              />
+            </article>
+          </section>
+        )}
+
+        {projectCardData && (
+          <section id="related-project" className={styles.section}>
+            <SectionTitle level="h2" id="related-project" className={styles.sectionTitle}>관련 작업물</SectionTitle>
+            <div className={styles.relatedProjectWrapper}>
+              <ProjectCard
+                project={projectCardData}
+                onClick={() => navigate(`/projects/${projectCardData.id}`)}
+              />
+            </div>
+          </section>
+        )}
+
+        {article.techStack && article.techStack.length > 0 && (
+          <section id="tech-stack" className={styles.section}>
+            <SectionTitle level="h2" id="tech-stack" className={styles.sectionTitle}>관련 기술</SectionTitle>
+            <div className={styles.techStackWrapper}>
+              <TechStackList
+                technologies={article.techStack}
+                maxVisible={20}
+                variant="default"
+                size="md"
+              />
+            </div>
+          </section>
+        )}
+
+        {seriesArticles.length > 0 && article.seriesTitle && (
+          <section id="series" className={styles.section}>
+            <div className={styles.seriesArticles}>
+              {seriesArticles.map((seriesArticle) => (
+                <ArticleCard
+                  key={seriesArticle.businessId}
+                  article={{
+                    businessId: seriesArticle.businessId,
+                    title: seriesArticle.title,
+                    summary: seriesArticle.summary,
+                    category: seriesArticle.category,
+                    tags: seriesArticle.tags,
+                    techStack: seriesArticle.techStack,
+                    publishedAt: seriesArticle.publishedAt,
+                    viewCount: seriesArticle.viewCount,
+                  }}
+                  onClick={() => navigate(`/articles/${seriesArticle.businessId}`)}
+                />
+              ))}
+            </div>
+          </section>
+        )}
+
+        <ArticleNavigation
+          articles={[
+            ...(navigationData?.prevArticle ? [navigationData.prevArticle] : []),
+            { businessId: article.businessId, title: article.title },
+            ...(navigationData?.nextArticle ? [navigationData.nextArticle] : []),
+          ]}
+          currentArticleBusinessId={article.businessId}
+        />
+      </>
+    );
+  })();
+
   return (
     <div className={styles.container}>
       {businessId && (
@@ -198,185 +374,7 @@ export function ArticleDetailPage() {
         <BackgroundRefetchIndicator />
       )}
       <div ref={contentRef} className={styles.content}>
-        {/* 로딩 상태: 구조를 유지하면서 Skeleton 표시 */}
-        {isLoading ? (
-          <>
-            <header className={styles.header}>
-              <div className={styles.headerTop}>
-                <Skeleton variant="rectangular" height="24px" width="80px" />
-              </div>
-              <div className={styles.title}>
-                <Skeleton variant="text" height="48px" width="100%" />
-              </div>
-              <div className={styles.metaRow}>
-                <Skeleton variant="text" height="16px" width="120px" />
-                <Skeleton variant="text" height="16px" width="80px" />
-              </div>
-              <div className={styles.divider}></div>
-              <div className={styles.meta}>
-                <Skeleton variant="text" height="24px" width="200px" />
-              </div>
-            </header>
-            <section className={styles.section}>
-              <Skeleton variant="text" height="24px" width="60%" style={{ marginBottom: '16px' }} />
-              <Skeleton variant="text" height="16px" width="100%" style={{ marginBottom: '8px' }} />
-              <Skeleton variant="text" height="16px" width="100%" style={{ marginBottom: '8px' }} />
-              <Skeleton variant="text" height="16px" width="90%" style={{ marginBottom: '8px' }} />
-              <Skeleton variant="text" height="16px" width="100%" style={{ marginBottom: '8px' }} />
-              <Skeleton variant="text" height="16px" width="85%" />
-            </section>
-          </>
-        ) : hasError ? (
-          // 에러 상태: 백그라운드 리페치 중이 아닐 때만 에러 표시
-          <>
-            <header className={styles.header}>
-              <SectionTitle level="h1" className={styles.title}>
-                {errorTitle}
-              </SectionTitle>
-              <div className={styles.divider}></div>
-            </header>
-            <section className={styles.section}>
-              <ArticleErrorView error={error} />
-            </section>
-          </>
-        ) : (
-          <>
-            {/* 아티클 헤더 */}
-            <header className={styles.header}>
-          {/* 카테고리 배지 */}
-          <div className={styles.headerTop}>
-            {article.category && (
-              <Badge variant="primary" size="sm" className={styles.categoryBadge}>
-                {ARTICLE_CATEGORIES[article.category as keyof typeof ARTICLE_CATEGORIES] || article.category}
-              </Badge>
-            )}
-          </div>
-
-          <SectionTitle level="h2" className={styles.title}>
-            {article.title}
-          </SectionTitle>
-
-          {/* 시리즈 정보 */}
-          {article.seriesTitle && article.seriesOrder !== undefined && (
-            <div className={styles.seriesInfo}>
-              {article.seriesTitle}#{article.seriesOrder}
-            </div>
-          )}
-
-          {/* 발행일과 조회수 (title 아래, 구분선 위) */}
-          <div className={styles.metaRow}>
-            {article.publishedAt && (
-              <span className={styles.metaItem}>
-                {new Date(article.publishedAt).toLocaleDateString('ko-KR', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                })}
-              </span>
-            )}
-            <span className={styles.metaItem}>조회 {article.viewCount}</span>
-          </div>
-
-          {/* 구분선 */}
-          <div className={styles.divider}></div>
-
-          {/* 메타 정보 */}
-          <div className={styles.meta}>
-            {/* 태그 */}
-            {article.tags && article.tags.length > 0 && (
-              <div className={styles.tags}>
-                {article.tags.map((tag) => (
-                  <span key={tag} className={styles.tag}>
-                    #{tag}
-                  </span>
-                ))}
-              </div>
-            )}
-          </div>
-        </header>
-
-        {/* TOC 섹션 */}
-        {tocItems.length > 0 && (
-          <section id="toc" className={styles.section}>
-            <TableOfContents items={tocItems} />
-          </section>
-        )}
-
-        {/* 본문 섹션 */}
-        {article.content && (
-          <section id="content" className={styles.section}>
-            <article ref={markdownContainerRef} className={styles.markdownArticle}>
-              <MarkdownRenderer
-                content={article.content}
-                className={styles.markdown}
-              />
-            </article>
-          </section>
-        )}
-
-        {/* 관련 프로젝트 섹션 */}
-        {projectCardData && (
-          <section id="related-project" className={styles.section}>
-            <SectionTitle level="h2" id="related-project" className={styles.sectionTitle}>관련 작업물</SectionTitle>
-            <div className={styles.relatedProjectWrapper}>
-              <ProjectCard
-                project={projectCardData}
-                onClick={() => navigate(`/projects/${projectCardData.id}`)}
-              />
-            </div>
-          </section>
-        )}
-
-        {/* 기술 스택 섹션 */}
-        {article.techStack && article.techStack.length > 0 && (
-          <section id="tech-stack" className={styles.section}>
-            <SectionTitle level="h2" id="tech-stack" className={styles.sectionTitle}>관련 기술</SectionTitle>
-            <div className={styles.techStackWrapper}>
-              <TechStackList
-                technologies={article.techStack}
-                maxVisible={20}
-                variant="default"
-                size="md"
-              />
-            </div>
-          </section>
-        )}
-
-        {/* 시리즈 아티클 섹션 */}
-        {seriesArticles.length > 0 && article.seriesTitle && (
-          <section id="series" className={styles.section}>
-            <div className={styles.seriesArticles}>
-              {seriesArticles.map((seriesArticle) => (
-                <ArticleCard
-                  key={seriesArticle.businessId}
-                  article={{
-                    businessId: seriesArticle.businessId,
-                    title: seriesArticle.title,
-                    summary: seriesArticle.summary,
-                    category: seriesArticle.category,
-                    tags: seriesArticle.tags,
-                    techStack: seriesArticle.techStack,
-                    publishedAt: seriesArticle.publishedAt,
-                    viewCount: seriesArticle.viewCount,
-                  }}
-                  onClick={() => navigate(`/articles/${seriesArticle.businessId}`)}
-                />
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* 아티클 네비게이션 */}
-        <ArticleNavigation
-          articles={[
-            ...(navigationData?.prevArticle ? [navigationData.prevArticle] : []),
-            { businessId: article.businessId, title: article.title },
-            ...(navigationData?.nextArticle ? [navigationData.nextArticle] : []),
-          ]}
-          currentArticleBusinessId={article.businessId}
-        />
-          </>
-        )}
+        {articleDetailMain}
       </div>
     </div>
   );

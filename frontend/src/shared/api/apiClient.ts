@@ -4,7 +4,7 @@ import type { ApiResponse, BackendChatResponse, ChatbotResponse } from '@/shared
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 class ApiClient {
-  private baseURL: string;
+  private readonly baseURL: string;
   private readonly MAX_RETRIES = 3;
   private readonly RETRY_DELAY = 1000; // 1초
   private readonly HEALTH_CHECK_MAX_ATTEMPTS = 30; // 최대 30번 시도

@@ -21,15 +21,14 @@ export const Spinner: React.FC<SpinnerProps> = ({
     .join(' ');
 
   return (
-    <div
+    <output
       className={classNames}
-      role="status"
       aria-label={ariaLabel}
       aria-busy="true"
     >
       <div className={styles.dot}></div>
       <div className={styles.dot} style={{ animationDelay: '0.1s' }}></div>
       <div className={styles.dot} style={{ animationDelay: '0.2s' }}></div>
-    </div>
+    </output>
   );
 };

@@ -141,24 +141,26 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
         <path d="M4 8.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM13.5 12h-11l3-4 2 2 2-3 4 5z" />
       </svg>
     ),
-    execute: async (state, api) => {
+    execute: (state, api) => {
       // 파일 선택 다이얼로그 생성
       const input = document.createElement('input');
       input.type = 'file';
       input.accept = 'image/*';
       input.style.display = 'none';
 
-      input.onchange = async (e) => {
-        const file = (e.target as HTMLInputElement).files?.[0];
-        if (!file) {
-          input.remove();
-          return;
-        }
+      input.onchange = (e) => {
+        void (async () => {
+          const file = (e.target as HTMLInputElement).files?.[0];
+          if (!file) {
+            input.remove();
+            return;
+          }
 
-        if (file) {
-          await uploadAndInsertImage(file, state.selection.start);
-        }
-        input.remove();
+          if (file) {
+            await uploadAndInsertImage(file, state.selection.start);
+          }
+          input.remove();
+        })();
       };
 
       document.body.appendChild(input);
@@ -176,12 +178,17 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
     : commands.getCommands();
 
   return (
-    <div
+    <button
+      type="button"
       ref={editorRef}
       style={{ 
         width: '100%', 
         position: 'relative',
+        padding: 0,
         border: isDragging ? '2px dashed var(--color-primary)' : 'none',
+        cursor: 'text',
+        WebkitAppearance: 'none',
+        appearance: 'none',
         borderRadius: isDragging ? '8px' : '0',
         backgroundColor: isDragging ? 'rgba(95, 144, 112, 0.05)' : 'transparent',
         transition: 'all 0.2s ease',
@@ -190,18 +197,8 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onPaste={handlePaste}
-      role="textbox"
       aria-label="마크다운 에디터"
-      aria-multiline="true"
-      tabIndex={0}
       onClick={focusEditorInput}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          focusEditorInput();
-        }
-      }}
-      onTouchStart={focusEditorInput}
     >
       <MDEditor
         value={value || ''}
@@ -242,7 +239,7 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
           to { transform: rotate(360deg); }
         }
       `}</style>
-    </div>
+    </button>
   );
 };
 

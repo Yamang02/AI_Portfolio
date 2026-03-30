@@ -18,7 +18,7 @@ interface EasterEggStoreValue extends EasterEggState {
   isPreloading: boolean;
 }
 
-const EasterEggContext = createContext<EasterEggStoreValue | undefined>(undefined);
+const EasterEggStoreContext = createContext<EasterEggStoreValue | undefined>(undefined);
 
 /**
  * 이스터에그 발견 추적 시스템
@@ -263,11 +263,15 @@ export const EasterEggProvider: React.FC<EasterEggProviderProps> = ({
     isPreloading,
   ]);
 
-  return <EasterEggContext.Provider value={value}>{children}</EasterEggContext.Provider>;
+  return (
+    <EasterEggStoreContext.Provider value={value}>
+      {children}
+    </EasterEggStoreContext.Provider>
+  );
 };
 
 export function useEasterEggStore(): EasterEggStoreValue {
-  const context = useContext(EasterEggContext);
+  const context = useContext(EasterEggStoreContext);
   if (context === undefined) {
     throw new Error('useEasterEggStore must be used within EasterEggProvider');
   }
