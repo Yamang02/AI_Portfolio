@@ -107,7 +107,7 @@ public class ManageExperienceService implements ManageExperienceUseCase {
     public void deleteExperience(String id) {
         log.info("Deleting experience: {}", id);
 
-        if (!portfolioRepositoryPort.findExperienceById(id).isPresent()) {
+        if (!portfolioRepositoryPort.findExperienceById(id).isEmpty()) {
             throw new IllegalArgumentException("Experience not found: " + id);
         }
 
@@ -136,8 +136,11 @@ public class ManageExperienceService implements ManageExperienceUseCase {
         // 변경된 항목만 저장
         List<Experience> toUpdate = allExperiences.stream()
                 .filter(exp -> !Objects.equals(exp.getSortOrder(), originalSortOrders.get(exp.getId())))
-                .peek(exp -> exp.setUpdatedAt(MetadataHelper.setupUpdatedAt()))
-                .collect(java.util.stream.Collectors.toList());
+                .map(exp -> {
+                    exp.setUpdatedAt(MetadataHelper.setupUpdatedAt());
+                    return exp;
+                })
+                .toList();
 
         if (!toUpdate.isEmpty()) {
             portfolioRepositoryPort.batchUpdateExperiences(toUpdate);

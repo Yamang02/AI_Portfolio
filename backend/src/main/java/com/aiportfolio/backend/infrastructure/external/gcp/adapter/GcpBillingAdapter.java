@@ -57,56 +57,72 @@ public class GcpBillingAdapter implements CloudUsagePort {
             LocalDate startDate,
             LocalDate endDate) {
 
-        BigDecimal totalCost = BigDecimal.ZERO;
-        List<ServiceCost> services = new ArrayList<>();
-        String currency = null; // 첫 번째 행에서 결정
-
+        GcpUsageAccumulator acc = new GcpUsageAccumulator();
         for (FieldValueList row : result.iterateAll()) {
+            acc.consumeRow(row);
+        }
+
+        return CloudUsage.builder()
+            .provider(CloudProvider.GCP)
+            .totalCost(acc.getTotalCost())
+            .currency(acc.resolveCurrency())
+            .period(new Period(startDate, endDate))
+            .services(acc.getServices())
+            .lastUpdated(LocalDate.now())
+            .build();
+    }
+
+    private final class GcpUsageAccumulator {
+        private BigDecimal totalCost = BigDecimal.ZERO;
+        private final List<ServiceCost> services = new ArrayList<>();
+        private String currency;
+
+        void consumeRow(FieldValueList row) {
             try {
-                String serviceName = row.get("service_name").getStringValue();
-                Double costValue = row.get("total_cost").getDoubleValue();
-                String rowCurrency = row.get("currency").getStringValue();
-
-                // 첫 번째 유효한 currency를 사용
-                if (currency == null && rowCurrency != null) {
-                    currency = rowCurrency;
-                    log.info("Using GCP billing currency: {}", currency);
-                }
-
-                // Currency가 혼재되어 있으면 경고
-                if (rowCurrency != null && !rowCurrency.equals(currency)) {
-                    log.warn("Mixed currencies detected in GCP billing data: {} and {}. Using first detected: {}",
-                             currency, rowCurrency, currency);
-                }
-
-                BigDecimal cost = BigDecimal.valueOf(costValue != null ? costValue : 0.0);
-
-                services.add(ServiceCost.builder()
-                    .serviceName(serviceName != null ? serviceName : "Unknown")
-                    .cost(cost)
-                    .unit(currency != null ? currency : "USD")
-                    .build());
-
-                totalCost = totalCost.add(cost);
+                appendParsedRow(row);
             } catch (Exception e) {
                 log.warn("Failed to parse row in BigQuery result", e);
             }
         }
 
-        // 데이터가 없으면 기본값 USD
-        if (currency == null) {
-            currency = "USD";
-            log.warn("No billing data found, defaulting to USD");
+        private void appendParsedRow(FieldValueList row) {
+            String serviceName = row.get("service_name").getStringValue();
+            Double costValue = row.get("total_cost").getDoubleValue();
+            String rowCurrency = row.get("currency").getStringValue();
+
+            if (currency == null && rowCurrency != null) {
+                currency = rowCurrency;
+                log.info("Using GCP billing currency: {}", currency);
+            }
+            if (rowCurrency != null && currency != null && !rowCurrency.equals(currency)) {
+                log.warn("Mixed currencies detected in GCP billing data: {} and {}. Using first detected: {}",
+                        currency, rowCurrency, currency);
+            }
+
+            BigDecimal cost = BigDecimal.valueOf(costValue != null ? costValue : 0.0);
+            services.add(ServiceCost.builder()
+                    .serviceName(serviceName != null ? serviceName : "Unknown")
+                    .cost(cost)
+                    .unit(currency != null ? currency : "USD")
+                    .build());
+            totalCost = totalCost.add(cost);
         }
 
-        return CloudUsage.builder()
-            .provider(CloudProvider.GCP)
-            .totalCost(totalCost)
-            .currency(currency)
-            .period(new Period(startDate, endDate))
-            .services(services)
-            .lastUpdated(LocalDate.now())
-            .build();
+        BigDecimal getTotalCost() {
+            return totalCost;
+        }
+
+        List<ServiceCost> getServices() {
+            return services;
+        }
+
+        String resolveCurrency() {
+            if (currency == null) {
+                log.warn("No billing data found, defaulting to USD");
+                return "USD";
+            }
+            return currency;
+        }
     }
 }
 

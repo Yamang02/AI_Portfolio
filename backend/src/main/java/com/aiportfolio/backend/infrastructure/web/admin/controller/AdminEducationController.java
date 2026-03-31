@@ -4,6 +4,8 @@ import com.aiportfolio.backend.application.admin.service.ManageEducationService;
 import com.aiportfolio.backend.domain.portfolio.model.Education;
 import com.aiportfolio.backend.domain.portfolio.model.enums.EducationType;
 import com.aiportfolio.backend.domain.portfolio.port.in.GetEducationUseCase;
+import com.aiportfolio.backend.infrastructure.web.WebApiResponseMessages;
+import com.aiportfolio.backend.infrastructure.web.admin.AdminApiErrorMessages;
 import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;
 import com.aiportfolio.backend.infrastructure.web.dto.education.EducationCommandRequest;
 import com.aiportfolio.backend.infrastructure.web.dto.education.EducationDto;
@@ -16,7 +18,6 @@ import jakarta.validation.Valid;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Admin 전용 Education REST API Controller
@@ -54,13 +55,13 @@ public class AdminEducationController {
             
             List<EducationDto> dtos = educations.stream()
                 .map(this::convertToDto)
-                .collect(Collectors.toList());
+                .toList();
 
             return ResponseEntity.ok(ApiResponse.success(dtos));
         } catch (Exception e) {
             log.error("Error fetching educations - Exception type: {}, Message: {}", e.getClass().getName(), e.getMessage(), e);
             return ResponseEntity.internalServerError()
-                .body(ApiResponse.error("교육 목록 조회 중 오류가 발생했습니다: " + e.getClass().getSimpleName() + " - " + e.getMessage()));
+                .body(ApiResponse.error(AdminApiErrorMessages.listQueryFailed("교육", e)));
         }
     }
 
@@ -81,7 +82,7 @@ public class AdminEducationController {
         } catch (Exception e) {
             log.error("Error fetching education by id: {}", id, e);
             return ResponseEntity.internalServerError()
-                .body(ApiResponse.error("교육 조회 중 오류가 발생했습니다: " + e.getMessage()));
+                .body(ApiResponse.error(AdminApiErrorMessages.queryFailed("교육", e)));
         }
     }
 
@@ -97,13 +98,13 @@ public class AdminEducationController {
             List<Education> educations = adminGetEducationUseCase.searchEducations(keyword);
             List<EducationDto> dtos = educations.stream()
                 .map(this::convertToDto)
-                .collect(Collectors.toList());
+                .toList();
 
             return ResponseEntity.ok(ApiResponse.success(dtos));
         } catch (Exception e) {
             log.error("Error searching educations with keyword: {}", keyword, e);
             return ResponseEntity.internalServerError()
-                .body(ApiResponse.error("교육 검색 중 오류가 발생했습니다: " + e.getMessage()));
+                .body(ApiResponse.error(AdminApiErrorMessages.searchFailed("교육", e)));
         }
     }
 
@@ -136,7 +137,7 @@ public class AdminEducationController {
         } catch (Exception e) {
             log.error("Error creating education", e);
             return ResponseEntity.internalServerError()
-                .body(ApiResponse.error("교육 생성 중 오류가 발생했습니다: " + e.getMessage()));
+                .body(ApiResponse.error(AdminApiErrorMessages.createFailed("교육", e)));
         }
     }
 
@@ -169,7 +170,7 @@ public class AdminEducationController {
         } catch (Exception e) {
             log.error("Error updating education: {}", id, e);
             return ResponseEntity.internalServerError()
-                .body(ApiResponse.error("교육 수정 중 오류가 발생했습니다: " + e.getMessage()));
+                .body(ApiResponse.error(AdminApiErrorMessages.updateFailed("교육", e)));
         }
     }
 
@@ -182,14 +183,14 @@ public class AdminEducationController {
 
         try {
             manageEducationService.deleteEducation(id);
-            return ResponseEntity.ok(ApiResponse.success(null, "Education 삭제 성공"));
+            return ResponseEntity.ok(ApiResponse.success(null, WebApiResponseMessages.EDUCATION_DELETE_SUCCESS));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest()
                 .body(ApiResponse.error(e.getMessage()));
         } catch (Exception e) {
             log.error("Error deleting education: {}", id, e);
             return ResponseEntity.internalServerError()
-                .body(ApiResponse.error("교육 삭제 중 오류가 발생했습니다: " + e.getMessage()));
+                .body(ApiResponse.error(AdminApiErrorMessages.deleteFailed("교육", e)));
         }
     }
 
@@ -203,14 +204,14 @@ public class AdminEducationController {
 
         try {
             manageEducationService.updateEducationSortOrder(sortOrderUpdates);
-            return ResponseEntity.ok(ApiResponse.success(null, "정렬 순서 업데이트 성공"));
+            return ResponseEntity.ok(ApiResponse.success(null, WebApiResponseMessages.SORT_ORDER_UPDATE_SUCCESS));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest()
                 .body(ApiResponse.error(e.getMessage()));
         } catch (Exception e) {
             log.error("Error updating sort orders", e);
             return ResponseEntity.internalServerError()
-                .body(ApiResponse.error("정렬 순서 업데이트 중 오류가 발생했습니다: " + e.getMessage()));
+                .body(ApiResponse.error(AdminApiErrorMessages.sortOrderUpdateFailed(e)));
         }
     }
 
@@ -268,7 +269,7 @@ public class AdminEducationController {
                 Boolean.TRUE.equals(item.getIsPrimary()),
                 item.getUsageDescription()
             ))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private List<ManageEducationService.ProjectRelation> toProjectRelations(EducationCommandRequest request) {
@@ -278,7 +279,7 @@ public class AdminEducationController {
                 item.getProjectType(),
                 item.getGrade()
             ))
-            .collect(Collectors.toList());
+            .toList();
     }
 }
 

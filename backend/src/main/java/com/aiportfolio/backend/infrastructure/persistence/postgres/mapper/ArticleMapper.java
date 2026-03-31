@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 public class ArticleMapper {
@@ -26,7 +25,7 @@ public class ArticleMapper {
                 .techStack(entity.getTechStack() != null ?
                         entity.getTechStack().stream()
                                 .map(this::techStackToDomain)
-                                .collect(Collectors.toList()) : List.of())
+                                .toList() : List.of())
                 .status(entity.getStatus())
                 .publishedAt(entity.getPublishedAt())
                 .sortOrder(entity.getSortOrder())

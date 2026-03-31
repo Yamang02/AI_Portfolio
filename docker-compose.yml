@@ -116,7 +116,7 @@ services:
     entrypoint: ["/bin/sh", "-c"]
     command:
       - >-
-        mvn -q -DskipTests compile org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
+        mvn -q -DskipTests test-compile org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
         -Dsonar.projectKey=AI_Portfolio_backend_local
         -Dsonar.host.url=http://host.docker.internal:9000
         -Dsonar.token=$${SONAR_TOKEN}

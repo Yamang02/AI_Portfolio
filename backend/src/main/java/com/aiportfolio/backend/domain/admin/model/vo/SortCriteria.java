@@ -45,58 +45,58 @@ public class SortCriteria {
         TYPE;
         
         public Comparator<Object> getComparator() {
-            switch (this) {
-                case START_DATE:
-                    return Comparator.comparing(obj -> {
-                        try {
-                            return (Comparable) obj.getClass().getMethod("getStartDate").invoke(obj);
-                        } catch (Exception e) {
-                            return null;
-                        }
-                    }, Comparator.nullsLast(Comparator.naturalOrder()));
-                case END_DATE:
-                    return Comparator.comparing(obj -> {
-                        try {
-                            return (Comparable) obj.getClass().getMethod("getEndDate").invoke(obj);
-                        } catch (Exception e) {
-                            return null;
-                        }
-                    }, Comparator.nullsLast(Comparator.naturalOrder()));
-                case TITLE:
-                    return Comparator.comparing(obj -> {
-                        try {
-                            return (String) obj.getClass().getMethod("getTitle").invoke(obj);
-                        } catch (Exception e) {
-                            return "";
-                        }
-                    }, String.CASE_INSENSITIVE_ORDER);
-                case STATUS:
-                    return Comparator.comparing(obj -> {
-                        try {
-                            return (String) obj.getClass().getMethod("getStatus").invoke(obj);
-                        } catch (Exception e) {
-                            return "";
-                        }
-                    });
-                case TYPE:
-                    return Comparator.comparing(obj -> {
-                        try {
-                            return (String) obj.getClass().getMethod("getType").invoke(obj);
-                        } catch (Exception e) {
-                            return "";
-                        }
-                    });
-                case SORT_ORDER:
-                default:
-                    return Comparator.comparing(obj -> {
-                        try {
-                            Object sortOrder = obj.getClass().getMethod("getSortOrder").invoke(obj);
-                            return sortOrder != null ? (Integer) sortOrder : 0;
-                        } catch (Exception e) {
-                            return 0;
-                        }
-                    });
-            }
+            return switch (this) {
+                case START_DATE -> comparingStartDate();
+                case END_DATE -> comparingEndDate();
+                case TITLE -> comparingString("getTitle", true);
+                case STATUS -> comparingString("getStatus", false);
+                case TYPE -> comparingString("getType", false);
+                case SORT_ORDER -> comparingSortOrder();
+            };
+        }
+
+        @SuppressWarnings({"unchecked", "rawtypes"})
+        private static Comparator<Object> comparingStartDate() {
+            return Comparator.comparing(obj -> {
+                try {
+                    return (Comparable) obj.getClass().getMethod("getStartDate").invoke(obj);
+                } catch (Exception e) {
+                    return null;
+                }
+            }, Comparator.nullsLast(Comparator.naturalOrder()));
+        }
+
+        @SuppressWarnings({"unchecked", "rawtypes"})
+        private static Comparator<Object> comparingEndDate() {
+            return Comparator.comparing(obj -> {
+                try {
+                    return (Comparable) obj.getClass().getMethod("getEndDate").invoke(obj);
+                } catch (Exception e) {
+                    return null;
+                }
+            }, Comparator.nullsLast(Comparator.naturalOrder()));
+        }
+
+        private static Comparator<Object> comparingString(String getterName, boolean caseInsensitive) {
+            Comparator<String> order = caseInsensitive ? String.CASE_INSENSITIVE_ORDER : Comparator.naturalOrder();
+            return Comparator.comparing(obj -> {
+                try {
+                    return (String) obj.getClass().getMethod(getterName).invoke(obj);
+                } catch (Exception e) {
+                    return "";
+                }
+            }, order);
+        }
+
+        private static Comparator<Object> comparingSortOrder() {
+            return Comparator.comparing(obj -> {
+                try {
+                    Object sortOrder = obj.getClass().getMethod("getSortOrder").invoke(obj);
+                    return sortOrder != null ? (Integer) sortOrder : 0;
+                } catch (Exception e) {
+                    return 0;
+                }
+            });
         }
     }
     

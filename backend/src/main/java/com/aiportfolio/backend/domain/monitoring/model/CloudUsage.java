@@ -7,7 +7,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 클라우드 사용량 도메인 모델
@@ -39,7 +38,7 @@ public class CloudUsage {
         return services.stream()
             .sorted((a, b) -> b.getCost().compareTo(a.getCost()))
             .limit(limit)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     /**

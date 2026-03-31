@@ -2,6 +2,7 @@ package com.aiportfolio.backend.infrastructure.web.controller;
 
 import com.aiportfolio.backend.domain.portfolio.model.ProfileIntroduction;
 import com.aiportfolio.backend.domain.portfolio.port.in.GetProfileIntroductionUseCase;
+import com.aiportfolio.backend.infrastructure.web.WebApiResponseMessages;
 import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +27,7 @@ public class ProfileIntroductionController {
     public ResponseEntity<ApiResponse<ProfileIntroductionResponse>> getCurrent() {
         return getUseCase.getCurrent()
                 .map(intro -> ResponseEntity.ok(ApiResponse.success(ProfileIntroductionResponse.from(intro))))
-                .orElse(ResponseEntity.ok(ApiResponse.success(null, "자기소개가 없습니다.")));
+                .orElse(ResponseEntity.ok(ApiResponse.success(null, WebApiResponseMessages.PROFILE_INTRO_EMPTY)));
     }
 
     /**

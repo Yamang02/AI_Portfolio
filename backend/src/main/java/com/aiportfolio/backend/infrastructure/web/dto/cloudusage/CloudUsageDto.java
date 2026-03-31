@@ -11,7 +11,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 클라우드 사용량 DTO
@@ -37,7 +36,7 @@ public class CloudUsageDto {
             .services(usage.getServices() != null 
                 ? usage.getServices().stream()
                     .map(ServiceCostDto::from)
-                    .collect(Collectors.toList())
+                    .toList()
                 : Collections.emptyList())
             .lastUpdated(usage.getLastUpdated())
             .build();

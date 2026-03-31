@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 다수의 클라우드 사용량 제공자를 집계하여 관리자 대시보드 응답을 생성합니다.
@@ -35,7 +34,7 @@ public class CloudUsageQueryService implements GetCloudUsageUseCase {
                 }
             })
             .filter(snapshot -> snapshot != null)
-            .collect(Collectors.toList());
+            .toList();
 
         return CloudUsageDashboardResponse.builder()
             .generatedAt(Instant.now())

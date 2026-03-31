@@ -287,10 +287,7 @@ public class GetCloudUsageService implements GetCloudUsageUseCase {
                 BigDecimal awsCost = provider == CloudProvider.AWS ? totalCost : BigDecimal.ZERO;
                 BigDecimal gcpCost = provider == CloudProvider.GCP ? totalCost : BigDecimal.ZERO;
 
-                // CloudUsage의 period에서 날짜 추출 (또는 lastUpdated 사용)
-                LocalDate date = usage.getLastUpdated() != null
-                    ? usage.getLastUpdated()
-                    : (usage.getPeriod() != null ? usage.getPeriod().getEndDate() : LocalDate.now());
+                LocalDate date = resolveTrendDateForUsage(usage);
 
                 return UsageTrend.builder()
                     .date(date)
@@ -300,7 +297,7 @@ public class GetCloudUsageService implements GetCloudUsageUseCase {
                     .build();
             })
             .sorted((a, b) -> a.getDate().compareTo(b.getDate())) // 날짜순 정렬
-            .collect(Collectors.toList());
+            .toList();
     }
 
     /**
@@ -348,68 +345,56 @@ public class GetCloudUsageService implements GetCloudUsageUseCase {
         // 날짜순 정렬하여 반환
         return mergedMap.values().stream()
             .sorted((a, b) -> a.getDate().compareTo(b.getDate()))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     /**
      * 일별 데이터를 월별로 집계
      */
     private List<UsageTrend> aggregateDailyToMonthly(List<CloudUsage> dailyUsages, CloudProvider provider) {
-        // 월별로 그룹화
+        Map<String, List<CloudUsage>> monthlyMap = groupDailiesByMonthKey(dailyUsages);
+        return monthlyMap.entrySet().stream()
+                .map(entry -> buildMonthlyUsageTrend(entry, provider))
+                .sorted(Comparator.comparing(UsageTrend::getDate))
+                .toList();
+    }
+
+    private Map<String, List<CloudUsage>> groupDailiesByMonthKey(List<CloudUsage> dailyUsages) {
         Map<String, List<CloudUsage>> monthlyMap = new HashMap<>();
-        
         for (CloudUsage daily : dailyUsages) {
-            LocalDate date = daily.getLastUpdated() != null 
-                ? daily.getLastUpdated() 
-                : (daily.getPeriod() != null ? daily.getPeriod().getStartDate() : LocalDate.now());
-            
+            LocalDate date = resolveAggregationDateForDaily(daily);
             String monthKey = String.format("%d-%02d", date.getYear(), date.getMonthValue());
             monthlyMap.computeIfAbsent(monthKey, k -> new ArrayList<>()).add(daily);
         }
-        
-        // 월별로 집계
-        List<UsageTrend> monthlyTrends = new ArrayList<>();
-        for (Map.Entry<String, List<CloudUsage>> entry : monthlyMap.entrySet()) {
-            BigDecimal totalCost = BigDecimal.ZERO;
-            String currency = null;
-            Map<String, BigDecimal> serviceCosts = new HashMap<>();
-            
-            for (CloudUsage daily : entry.getValue()) {
-                if (daily.getTotalCost() != null) {
-                    totalCost = totalCost.add(daily.getTotalCost());
-                }
-                if (currency == null && daily.getCurrency() != null) {
-                    currency = daily.getCurrency();
-                }
-                if (daily.getServices() != null) {
-                    for (ServiceCost service : daily.getServices()) {
-                        serviceCosts.merge(
-                            service.getServiceName(),
-                            service.getCost(),
-                            BigDecimal::add
-                        );
-                    }
-                }
-            }
-            
-            // 월의 첫날을 날짜로 사용
-            String[] parts = entry.getKey().split("-");
-            LocalDate monthDate = LocalDate.of(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]), 1);
-            
-            BigDecimal awsCost = provider == CloudProvider.AWS ? totalCost : BigDecimal.ZERO;
-            BigDecimal gcpCost = provider == CloudProvider.GCP ? totalCost : BigDecimal.ZERO;
-            
-            monthlyTrends.add(UsageTrend.builder()
+        return monthlyMap;
+    }
+
+    private UsageTrend buildMonthlyUsageTrend(Map.Entry<String, List<CloudUsage>> entry, CloudProvider provider) {
+        BigDecimal totalCost = sumTotalCostForDailies(entry.getValue());
+        LocalDate monthDate = parseYearMonthKey(entry.getKey());
+        BigDecimal awsCost = provider == CloudProvider.AWS ? totalCost : BigDecimal.ZERO;
+        BigDecimal gcpCost = provider == CloudProvider.GCP ? totalCost : BigDecimal.ZERO;
+        return UsageTrend.builder()
                 .date(monthDate)
                 .cost(totalCost)
                 .awsCost(awsCost)
                 .gcpCost(gcpCost)
-                .build());
+                .build();
+    }
+
+    private static BigDecimal sumTotalCostForDailies(List<CloudUsage> dailies) {
+        BigDecimal totalCost = BigDecimal.ZERO;
+        for (CloudUsage daily : dailies) {
+            if (daily.getTotalCost() != null) {
+                totalCost = totalCost.add(daily.getTotalCost());
+            }
         }
-        
-        return monthlyTrends.stream()
-            .sorted((a, b) -> a.getDate().compareTo(b.getDate()))
-            .collect(Collectors.toList());
+        return totalCost;
+    }
+
+    private static LocalDate parseYearMonthKey(String monthKey) {
+        String[] parts = monthKey.split("-");
+        return LocalDate.of(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]), 1);
     }
 
     @Override
@@ -434,6 +419,26 @@ public class GetCloudUsageService implements GetCloudUsageUseCase {
             // 일별 데이터 그대로 사용
             return convertDailyUsagesToTrends(dailyUsages, provider);
         }
+    }
+
+    private static LocalDate resolveTrendDateForUsage(CloudUsage usage) {
+        if (usage.getLastUpdated() != null) {
+            return usage.getLastUpdated();
+        }
+        if (usage.getPeriod() != null) {
+            return usage.getPeriod().getEndDate();
+        }
+        return LocalDate.now();
+    }
+
+    private static LocalDate resolveAggregationDateForDaily(CloudUsage daily) {
+        if (daily.getLastUpdated() != null) {
+            return daily.getLastUpdated();
+        }
+        if (daily.getPeriod() != null) {
+            return daily.getPeriod().getStartDate();
+        }
+        return LocalDate.now();
     }
 }
 

@@ -5,7 +5,6 @@ import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.TechSt
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 기술 스택 메타데이터 매퍼
@@ -68,12 +67,12 @@ public class TechStackMetadataMapper {
      */
     public List<TechStackMetadata> toDomainList(List<TechStackMetadataJpaEntity> entities) {
         if (entities == null) {
-            return null;
+            return List.of();
         }
         
         return entities.stream()
                 .map(this::toDomain)
-                .collect(Collectors.toList());
+                .toList();
     }
     
     /**
@@ -81,12 +80,12 @@ public class TechStackMetadataMapper {
      */
     public List<TechStackMetadataJpaEntity> toEntityList(List<TechStackMetadata> domains) {
         if (domains == null) {
-            return null;
+            return List.of();
         }
         
         return domains.stream()
                 .map(this::toEntity)
-                .collect(Collectors.toList());
+                .toList();
     }
 }
 

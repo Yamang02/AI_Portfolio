@@ -16,6 +16,10 @@ import java.util.List;
  */
 public class ProjectSpecification {
 
+    private ProjectSpecification() {
+        throw new UnsupportedOperationException("Utility class");
+    }
+
     /**
      * ProjectFilter에 따라 Specification을 생성합니다.
      * 

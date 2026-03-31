@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 
 // Java 표준 라이브러리 imports
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Certification 도메인 모델과 JPA 엔티티 간 변환 매퍼
@@ -75,12 +74,12 @@ public class CertificationMapper {
      */
     public List<Certification> toDomainList(List<CertificationJpaEntity> jpaEntities) {
         if (jpaEntities == null) {
-            return null;
+            return List.of();
         }
 
         return jpaEntities.stream()
                 .map(this::toDomain)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**
@@ -88,11 +87,11 @@ public class CertificationMapper {
      */
     public List<CertificationJpaEntity> toJpaEntityList(List<Certification> domainModels) {
         if (domainModels == null) {
-            return null;
+            return List.of();
         }
 
         return domainModels.stream()
                 .map(this::toJpaEntity)
-                .collect(Collectors.toList());
+                .toList();
     }
 }

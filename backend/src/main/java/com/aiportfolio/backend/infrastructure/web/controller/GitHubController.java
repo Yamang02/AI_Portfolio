@@ -1,5 +1,6 @@
 package com.aiportfolio.backend.infrastructure.web.controller;
 
+import com.aiportfolio.backend.infrastructure.web.WebApiResponseMessages;
 import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;
 import com.aiportfolio.backend.domain.portfolio.model.Project;
 import com.aiportfolio.backend.application.portfolio.GitHubIntegrationService;
@@ -34,11 +35,11 @@ public class GitHubController {
     public ResponseEntity<ApiResponse<List<Project>>> getGitHubProjects() {
         try {
             List<Project> projects = gitHubIntegrationService.getPortfolioProjects();
-            return ResponseEntity.ok(ApiResponse.success(projects, "GitHub 프로젝트 목록 조회 성공"));
+            return ResponseEntity.ok(ApiResponse.success(projects, WebApiResponseMessages.GITHUB_PROJECTS_LIST_SUCCESS));
         } catch (Exception e) {
             log.error("Error fetching GitHub projects", e);
             return ResponseEntity.internalServerError()
-                    .body(ApiResponse.error("GitHub 프로젝트 목록 조회 실패", e.getMessage()));
+                    .body(ApiResponse.error(WebApiResponseMessages.GITHUB_PROJECTS_LIST_FAILED, e.getMessage()));
         }
     }
     
@@ -49,13 +50,13 @@ public class GitHubController {
             Project project = gitHubIntegrationService.getProjectInfo(repoName);
             if (project == null) {
                 return ResponseEntity.status(404)
-                        .body(ApiResponse.error("GitHub 프로젝트를 찾을 수 없습니다", "Project not found with repoName: " + repoName));
+                        .body(ApiResponse.error(WebApiResponseMessages.GITHUB_PROJECT_NOT_FOUND, "Project not found with repoName: " + repoName));
             }
-            return ResponseEntity.ok(ApiResponse.success(project, "GitHub 프로젝트 조회 성공"));
+            return ResponseEntity.ok(ApiResponse.success(project, WebApiResponseMessages.GITHUB_PROJECT_GET_SUCCESS));
         } catch (Exception e) {
             log.error("Error fetching GitHub project: {}", repoName, e);
             return ResponseEntity.internalServerError()
-                    .body(ApiResponse.error("GitHub 프로젝트 조회 실패", e.getMessage()));
+                    .body(ApiResponse.error(WebApiResponseMessages.GITHUB_PROJECT_GET_FAILED, e.getMessage()));
         }
     }
 }

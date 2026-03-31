@@ -5,6 +5,7 @@ import com.aiportfolio.backend.domain.portfolio.port.in.GetTechStackMetadataUseC
 import com.aiportfolio.backend.domain.portfolio.port.in.ManageTechStackMetadataUseCase;
 import com.aiportfolio.backend.domain.portfolio.port.in.GetProjectsByTechStackUseCase;
 import com.aiportfolio.backend.domain.portfolio.port.in.UpdateTechStackSortOrderUseCase;
+import com.aiportfolio.backend.infrastructure.web.WebApiResponseMessages;
 import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;
 import com.aiportfolio.backend.infrastructure.web.dto.techstack.TechStackMetadataDto;
 import com.aiportfolio.backend.infrastructure.web.dto.techstack.TechStackStatisticsDto;
@@ -15,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * 기술 스택 메타데이터 API Controller
@@ -39,7 +39,7 @@ public class TechStackController {
         List<TechStackMetadata> techStackMetadataList = getTechStackMetadataUseCase.getAllActiveTechStackMetadata();
         List<TechStackMetadataDto> dtoList = techStackMetadataList.stream()
                 .map(this::convertToDto)
-                .collect(Collectors.toList());
+                .toList();
         
         return ResponseEntity.ok(ApiResponse.success(dtoList));
     }
@@ -52,7 +52,7 @@ public class TechStackController {
         List<TechStackMetadata> techStackMetadataList = getTechStackMetadataUseCase.getCoreTechStackMetadata();
         List<TechStackMetadataDto> dtoList = techStackMetadataList.stream()
                 .map(this::convertToDto)
-                .collect(Collectors.toList());
+                .toList();
         
         return ResponseEntity.ok(ApiResponse.success(dtoList));
     }
@@ -63,13 +63,10 @@ public class TechStackController {
     @GetMapping("/{name}")
     public ResponseEntity<ApiResponse<TechStackMetadataDto>> getTechStackMetadataByName(@PathVariable String name) {
         Optional<TechStackMetadata> techStackMetadata = getTechStackMetadataUseCase.getTechStackMetadataByName(name);
-        
-        if (techStackMetadata.isPresent()) {
-            TechStackMetadataDto dto = convertToDto(techStackMetadata.get());
-            return ResponseEntity.ok(ApiResponse.success(dto));
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        return techStackMetadata
+                .map(this::convertToDto)
+                .map(dto -> ResponseEntity.ok(ApiResponse.success(dto)))
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
     
     /**
@@ -80,7 +77,7 @@ public class TechStackController {
         List<TechStackMetadata> techStackMetadataList = getTechStackMetadataUseCase.getTechStackMetadataByCategory(category);
         List<TechStackMetadataDto> dtoList = techStackMetadataList.stream()
                 .map(this::convertToDto)
-                .collect(Collectors.toList());
+                .toList();
         
         return ResponseEntity.ok(ApiResponse.success(dtoList));
     }
@@ -93,7 +90,7 @@ public class TechStackController {
         List<TechStackMetadata> techStackMetadataList = getTechStackMetadataUseCase.getTechStackMetadataByLevel(level);
         List<TechStackMetadataDto> dtoList = techStackMetadataList.stream()
                 .map(this::convertToDto)
-                .collect(Collectors.toList());
+                .toList();
         
         return ResponseEntity.ok(ApiResponse.success(dtoList));
     }
@@ -108,7 +105,7 @@ public class TechStackController {
         List<TechStackMetadata> techStackMetadataList = getTechStackMetadataUseCase.getTechStackMetadataByCategoryAndLevel(category, level);
         List<TechStackMetadataDto> dtoList = techStackMetadataList.stream()
                 .map(this::convertToDto)
-                .collect(Collectors.toList());
+                .toList();
         
         return ResponseEntity.ok(ApiResponse.success(dtoList));
     }
@@ -121,7 +118,7 @@ public class TechStackController {
         List<TechStackMetadata> techStackMetadataList = getTechStackMetadataUseCase.searchTechStackMetadataByName(name);
         List<TechStackMetadataDto> dtoList = techStackMetadataList.stream()
                 .map(this::convertToDto)
-                .collect(Collectors.toList());
+                .toList();
         
         return ResponseEntity.ok(ApiResponse.success(dtoList));
     }
@@ -134,7 +131,7 @@ public class TechStackController {
         List<TechStackMetadata> techStackMetadataList = getTechStackMetadataUseCase.getTechnologiesUsedInProjects();
         List<TechStackMetadataDto> dtoList = techStackMetadataList.stream()
                 .map(this::convertToDto)
-                .collect(Collectors.toList());
+                .toList();
         
         return ResponseEntity.ok(ApiResponse.success(dtoList));
     }
@@ -180,14 +177,14 @@ public class TechStackController {
                         .category(categoryCount.category())
                         .count(categoryCount.count())
                         .build())
-                .collect(Collectors.toList());
+                .toList();
         
         List<TechStackStatisticsDto.LevelCountDto> levelCounts = statistics.levelCounts().stream()
                 .map(levelCount -> TechStackStatisticsDto.LevelCountDto.builder()
                         .level(levelCount.level())
                         .count(levelCount.count())
                         .build())
-                .collect(Collectors.toList());
+                .toList();
         
         return TechStackStatisticsDto.builder()
                 .totalTechnologies(statistics.totalTechnologies())
@@ -260,7 +257,7 @@ public class TechStackController {
         // 도메인 모델을 DTO로 변환
         List<TechStackProjectDto> projectDtos = projects.stream()
             .map(this::convertProjectToDto)
-            .collect(Collectors.toList());
+            .toList();
         
         return ResponseEntity.ok(ApiResponse.success(projectDtos));
     }
@@ -277,7 +274,7 @@ public class TechStackController {
         Integer newSortOrder = request.get("sortOrder");
         if (newSortOrder == null) {
             return ResponseEntity.badRequest()
-                    .body(ApiResponse.error("정렬 순서가 필요합니다."));
+                    .body(ApiResponse.error(WebApiResponseMessages.TECH_STACK_SORT_ORDER_REQUIRED));
         }
         
         // UseCase를 통해 정렬 순서 업데이트
@@ -287,7 +284,7 @@ public class TechStackController {
         // 도메인 모델을 DTO로 변환
         List<TechStackMetadataDto> techStackDtos = updatedTechStacks.stream()
             .map(this::convertToDto)
-            .collect(Collectors.toList());
+            .toList();
         
         return ResponseEntity.ok(ApiResponse.success(techStackDtos));
     }

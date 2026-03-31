@@ -112,55 +112,64 @@ public final class SortOrderHelper {
             Function<T, Integer> sortOrderExtractor,
             java.util.function.BiFunction<T, Integer, T> entityUpdater) {
         
-        List<T> result = new ArrayList<>();
-        
         if (oldSortOrder == newSortOrder) {
-            // 정렬 순서가 변경되지 않은 경우
             return entities;
         }
-        
         if (oldSortOrder < newSortOrder) {
-            // 뒤로 이동하는 경우 (예: 3번 → 7번)
-            // 기존 4,5,6,7번이 3,4,5,6번으로 이동
-            for (T entity : entities) {
-                ID entityId = targetId.apply(entity);
-                Integer entitySortOrder = sortOrderExtractor.apply(entity);
-                
-                if (entityId.equals(targetEntityId)) {
-                    // 대상 엔티티를 새로운 위치로 이동
-                    result.add(entityUpdater.apply(entity, newSortOrder));
-                } else if (entitySortOrder != null && 
-                          entitySortOrder > oldSortOrder && 
-                          entitySortOrder <= newSortOrder) {
-                    // 기존 항목들을 앞으로 이동 (sortOrder - 1)
-                    result.add(entityUpdater.apply(entity, entitySortOrder - 1));
-                } else {
-                    // 나머지는 그대로 유지
-                    result.add(entity);
-                }
-            }
-        } else {
-            // 앞으로 이동하는 경우 (예: 7번 → 3번)
-            // 기존 3,4,5,6번이 4,5,6,7번으로 이동
-            for (T entity : entities) {
-                ID entityId = targetId.apply(entity);
-                Integer entitySortOrder = sortOrderExtractor.apply(entity);
-                
-                if (entityId.equals(targetEntityId)) {
-                    // 대상 엔티티를 새로운 위치로 이동
-                    result.add(entityUpdater.apply(entity, newSortOrder));
-                } else if (entitySortOrder != null && 
-                          entitySortOrder >= newSortOrder && 
-                          entitySortOrder < oldSortOrder) {
-                    // 기존 항목들을 뒤로 이동 (sortOrder + 1)
-                    result.add(entityUpdater.apply(entity, entitySortOrder + 1));
-                } else {
-                    // 나머지는 그대로 유지
-                    result.add(entity);
-                }
+            return reorderEntitiesTowardEnd(
+                    entities, targetId, targetEntityId, oldSortOrder, newSortOrder, sortOrderExtractor, entityUpdater);
+        }
+        return reorderEntitiesTowardStart(
+                entities, targetId, targetEntityId, oldSortOrder, newSortOrder, sortOrderExtractor, entityUpdater);
+    }
+
+    private static <T, ID> List<T> reorderEntitiesTowardEnd(
+            List<T> entities,
+            Function<T, ID> targetId,
+            ID targetEntityId,
+            int oldSortOrder,
+            int newSortOrder,
+            Function<T, Integer> sortOrderExtractor,
+            java.util.function.BiFunction<T, Integer, T> entityUpdater) {
+        List<T> result = new ArrayList<>();
+        for (T entity : entities) {
+            ID entityId = targetId.apply(entity);
+            Integer entitySortOrder = sortOrderExtractor.apply(entity);
+            if (entityId.equals(targetEntityId)) {
+                result.add(entityUpdater.apply(entity, newSortOrder));
+            } else if (entitySortOrder != null
+                    && entitySortOrder > oldSortOrder
+                    && entitySortOrder <= newSortOrder) {
+                result.add(entityUpdater.apply(entity, entitySortOrder - 1));
+            } else {
+                result.add(entity);
             }
         }
-        
+        return result;
+    }
+
+    private static <T, ID> List<T> reorderEntitiesTowardStart(
+            List<T> entities,
+            Function<T, ID> targetId,
+            ID targetEntityId,
+            int oldSortOrder,
+            int newSortOrder,
+            Function<T, Integer> sortOrderExtractor,
+            java.util.function.BiFunction<T, Integer, T> entityUpdater) {
+        List<T> result = new ArrayList<>();
+        for (T entity : entities) {
+            ID entityId = targetId.apply(entity);
+            Integer entitySortOrder = sortOrderExtractor.apply(entity);
+            if (entityId.equals(targetEntityId)) {
+                result.add(entityUpdater.apply(entity, newSortOrder));
+            } else if (entitySortOrder != null
+                    && entitySortOrder >= newSortOrder
+                    && entitySortOrder < oldSortOrder) {
+                result.add(entityUpdater.apply(entity, entitySortOrder + 1));
+            } else {
+                result.add(entity);
+            }
+        }
         return result;
     }
 }

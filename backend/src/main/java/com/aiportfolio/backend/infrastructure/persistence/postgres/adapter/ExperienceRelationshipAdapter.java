@@ -64,7 +64,7 @@ public class ExperienceRelationshipAdapter implements ExperienceRelationshipPort
 
         List<ExperienceTechStackJpaEntity> toDelete = existingRelations.stream()
                 .filter(existing -> !requestedIds.contains(existing.getTechStack().getId()))
-                .collect(Collectors.toList());
+                .toList();
 
         if (!toDelete.isEmpty()) {
             log.debug("Deleting {} tech stack relationships", toDelete.size());
@@ -80,7 +80,7 @@ public class ExperienceRelationshipAdapter implements ExperienceRelationshipPort
                 ? Collections.emptyList()
                 : relationships.stream()
                         .filter(rel -> !existingIds.contains(rel.techStackId()))
-                        .collect(Collectors.toList());
+                        .toList();
 
         if (!toAdd.isEmpty()) {
             log.debug("Adding {} new tech stack relationships", toAdd.size());
@@ -131,7 +131,7 @@ public class ExperienceRelationshipAdapter implements ExperienceRelationshipPort
         // 3. 기존 관계 중 삭제할 것들 (요청에 없는 것들)
         List<ExperienceProjectJpaEntity> toDelete = existingRelations.stream()
                 .filter(existing -> !requestedProjectIds.contains(existing.getProject().getId()))
-                .collect(Collectors.toList());
+                .toList();
 
         if (!toDelete.isEmpty()) {
             log.debug("Deleting {} project relationships", toDelete.size());
@@ -153,7 +153,7 @@ public class ExperienceRelationshipAdapter implements ExperienceRelationshipPort
                             Long projectDbId = rel.projectDbId();
                             return projectDbId != null && !existingProjectIds.contains(projectDbId);
                         })
-                        .collect(Collectors.toList());
+                        .toList();
 
         // 6. 추가 실행
         if (!toAdd.isEmpty()) {

@@ -19,34 +19,33 @@ public class SpamProtectionService {
 
     public SpamProtectionResult checkSpamProtection(String clientId) {
         try {
-            SpamSubmissionRecord record = rateLimitStoragePort.getRecord(clientId).orElse(null);
+            SpamSubmissionRecord submissionState = rateLimitStoragePort.getRecord(clientId).orElse(null);
             long now = System.currentTimeMillis();
 
-            if (record == null) {
+            if (submissionState == null) {
                 return new SpamProtectionResult(true, null);
             }
 
-            if (record.getBlockedUntil() != null && now < record.getBlockedUntil()) {
-                long remainingTime = (record.getBlockedUntil() - now) / (1000 * 60 * 60);
+            if (submissionState.getBlockedUntil() != null && now < submissionState.getBlockedUntil()) {
+                long remainingTime = (submissionState.getBlockedUntil() - now) / (1000 * 60 * 60);
                 return new SpamProtectionResult(false,
                     String.format("스팸 방지를 위해 24시간 동안 차단되었습니다. %d시간 후에 다시 시도해주세요.", remainingTime));
             }
 
-            if (now - record.getLastSubmission() > 24 * 60 * 60 * 1000) {
+            if (now - submissionState.getLastSubmission() > 24 * 60 * 60 * 1000) {
                 rateLimitStoragePort.deleteRecord(clientId);
                 return new SpamProtectionResult(true, null);
             }
 
-            if (now - record.getLastSubmission() < 60 * 60 * 1000) {
-                if (record.getCount() >= MAX_SUBMISSIONS_PER_HOUR) {
-                    return new SpamProtectionResult(false,
-                        "시간당 최대 15회까지만 문의할 수 있습니다. 1시간 후에 다시 시도해주세요.");
-                }
+            if (now - submissionState.getLastSubmission() < 60 * 60 * 1000
+                && submissionState.getCount() >= MAX_SUBMISSIONS_PER_HOUR) {
+                return new SpamProtectionResult(false,
+                    "시간당 최대 15회까지만 문의할 수 있습니다. 1시간 후에 다시 시도해주세요.");
             }
 
-            if (record.getCount() >= MAX_SUBMISSIONS_PER_DAY) {
-                record.setBlockedUntil(now + BLOCK_DURATION);
-                rateLimitStoragePort.saveRecord(clientId, record);
+            if (submissionState.getCount() >= MAX_SUBMISSIONS_PER_DAY) {
+                submissionState.setBlockedUntil(now + BLOCK_DURATION);
+                rateLimitStoragePort.saveRecord(clientId, submissionState);
                 return new SpamProtectionResult(false,
                     "일일 최대 45회를 초과하여 24시간 동안 차단되었습니다.");
             }
@@ -61,21 +60,21 @@ public class SpamProtectionService {
 
     public void recordSubmission(String clientId) {
         try {
-            SpamSubmissionRecord record = rateLimitStoragePort.getRecord(clientId).orElse(null);
+            SpamSubmissionRecord submissionState = rateLimitStoragePort.getRecord(clientId).orElse(null);
             long now = System.currentTimeMillis();
 
-            if (record == null) {
-                record = new SpamSubmissionRecord(1, now, null);
+            if (submissionState == null) {
+                submissionState = new SpamSubmissionRecord(1, now, null);
             } else {
-                if (now - record.getLastSubmission() > 60 * 60 * 1000) {
-                    record.setCount(1);
+                if (now - submissionState.getLastSubmission() > 60 * 60 * 1000) {
+                    submissionState.setCount(1);
                 } else {
-                    record.setCount(record.getCount() + 1);
+                    submissionState.setCount(submissionState.getCount() + 1);
                 }
-                record.setLastSubmission(now);
+                submissionState.setLastSubmission(now);
             }
 
-            rateLimitStoragePort.saveRecord(clientId, record);
+            rateLimitStoragePort.saveRecord(clientId, submissionState);
 
         } catch (Exception e) {
             log.error("제출 기록 오류", e);
@@ -84,27 +83,27 @@ public class SpamProtectionService {
 
     public SubmissionStatus getSubmissionStatus(String clientId) {
         try {
-            SpamSubmissionRecord record = rateLimitStoragePort.getRecord(clientId).orElse(null);
+            SpamSubmissionRecord submissionState = rateLimitStoragePort.getRecord(clientId).orElse(null);
             long now = System.currentTimeMillis();
 
-            if (record == null) {
+            if (submissionState == null) {
                 return new SubmissionStatus(0, 0, 0, false);
             }
 
-            if (record.getBlockedUntil() != null && now < record.getBlockedUntil()) {
+            if (submissionState.getBlockedUntil() != null && now < submissionState.getBlockedUntil()) {
                 return new SubmissionStatus(
-                    record.getCount(),
-                    record.getCount(),
-                    record.getBlockedUntil() - now,
+                    submissionState.getCount(),
+                    submissionState.getCount(),
+                    submissionState.getBlockedUntil() - now,
                     true
                 );
             }
 
-            int hourlyCount = (now - record.getLastSubmission() < 60 * 60 * 1000) ? record.getCount() : 0;
-            long timeUntilReset = Math.max(0, (record.getLastSubmission() + 60 * 60 * 1000) - now);
+            int hourlyCount = (now - submissionState.getLastSubmission() < 60 * 60 * 1000) ? submissionState.getCount() : 0;
+            long timeUntilReset = Math.max(0, (submissionState.getLastSubmission() + 60 * 60 * 1000) - now);
 
             return new SubmissionStatus(
-                record.getCount(),
+                submissionState.getCount(),
                 hourlyCount,
                 timeUntilReset,
                 false

@@ -1,5 +1,6 @@
 package com.aiportfolio.backend.infrastructure.web.controller;
 
+import com.aiportfolio.backend.infrastructure.web.WebApiResponseMessages;
 import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;
 import com.aiportfolio.backend.infrastructure.web.dto.chat.ChatRequestDto;
 import com.aiportfolio.backend.infrastructure.web.dto.chat.ChatResponseDto;
@@ -56,7 +57,7 @@ public class ChatController {
                 // 비즈니스 로직 오류는 200 OK로 반환
                 return ResponseEntity.ok(ApiResponse.<ChatResponseDto>builder()
                         .success(false)
-                        .message("입력 검증 실패")
+                        .message(WebApiResponseMessages.CHAT_INPUT_VALIDATION_FAILED)
                         .data(invalidResponse)
                         .build());
             }
@@ -77,7 +78,7 @@ public class ChatController {
                 // 비즈니스 로직 오류는 200 OK로 반환
                 return ResponseEntity.ok(ApiResponse.<ChatResponseDto>builder()
                         .success(false)
-                        .message("요청 제한")
+                        .message(WebApiResponseMessages.CHAT_RATE_LIMIT_MESSAGE)
                         .data(rateLimitResponse)
                         .build());
             }
@@ -98,13 +99,13 @@ public class ChatController {
             // 4. 성공적인 요청 기록
             spamProtectionService.recordSubmission(clientId);
 
-            return ResponseEntity.ok(ApiResponse.success(chatResponseDto, "챗봇 응답 성공"));
+            return ResponseEntity.ok(ApiResponse.success(chatResponseDto, WebApiResponseMessages.CHAT_RESPONSE_SUCCESS));
 
         } catch (Exception e) {
             log.error("Error processing chat request", e);
 
             ChatResponseDto errorResponse = ChatResponseDto.builder()
-                    .response("죄송합니다. 응답을 생성하는 중에 오류가 발생했습니다.")
+                    .response(WebApiResponseMessages.CHAT_SYSTEM_ERROR_USER_MESSAGE)
                     .success(false)
                     .responseType(ChatResponseType.SYSTEM_ERROR)
                     .error("Internal server error")
@@ -115,7 +116,7 @@ public class ChatController {
             return ResponseEntity.internalServerError()
                     .body(ApiResponse.<ChatResponseDto>builder()
                             .success(false)
-                            .message("챗봇 응답 실패")
+                            .message(WebApiResponseMessages.CHAT_RESPONSE_FAILED)
                             .data(errorResponse)
                             .build());
         }
@@ -132,7 +133,7 @@ public class ChatController {
     @Operation(summary = "챗봇 서비스 상태 확인", description = "챗봇 서비스가 정상적으로 작동하는지 확인합니다.")
     public ResponseEntity<ApiResponse<String>> healthCheck() {
         String status = chatUseCase.healthCheck();
-        return ResponseEntity.ok(ApiResponse.success(status, "챗봇 서비스 상태 확인"));
+        return ResponseEntity.ok(ApiResponse.success(status, WebApiResponseMessages.CHAT_HEALTH_CHECK_MESSAGE));
     }
 
     @GetMapping("/status")
@@ -145,12 +146,12 @@ public class ChatController {
             var spamStatus = spamProtectionService.getSubmissionStatus(clientId);
             
             // 종합 상태 응답 생성
-            return ResponseEntity.ok(ApiResponse.success(spamStatus, "사용량 제한 상태 조회 성공"));
+            return ResponseEntity.ok(ApiResponse.success(spamStatus, WebApiResponseMessages.CHAT_USAGE_STATUS_SUCCESS));
             
         } catch (Exception e) {
             log.error("Error getting usage status", e);
             return ResponseEntity.internalServerError()
-                    .body(ApiResponse.error("사용량 제한 상태 조회 실패", e.getMessage()));
+                    .body(ApiResponse.error(WebApiResponseMessages.CHAT_USAGE_STATUS_FAILED, e.getMessage()));
         }
     }
 }

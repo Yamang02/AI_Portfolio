@@ -32,8 +32,8 @@ public class RedisRateLimitStorageAdapter implements RateLimitStoragePort {
     }
 
     @Override
-    public void saveRecord(String clientId, SpamSubmissionRecord record) {
-        redisTemplate.opsForValue().set(KEY_PREFIX + clientId, record, RECORD_TTL);
+    public void saveRecord(String clientId, SpamSubmissionRecord submissionState) {
+        redisTemplate.opsForValue().set(KEY_PREFIX + clientId, submissionState, RECORD_TTL);
     }
 
     @Override

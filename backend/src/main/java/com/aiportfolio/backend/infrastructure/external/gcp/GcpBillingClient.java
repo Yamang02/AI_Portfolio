@@ -19,8 +19,6 @@ public class GcpBillingClient {
 
     private final GcpConfig config;
     private final BigQuery bigQuery;
-    // DATE_FORMAT은 향후 날짜 필터링 시 사용 예정
-    // private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd");
 
     /**
      * BigQuery 클라이언트 초기화
@@ -76,16 +74,20 @@ public class GcpBillingClient {
             queryJob = queryJob.waitFor();
             
             if (queryJob == null || queryJob.getStatus().getError() != null) {
-                throw new RuntimeException("Query job failed");
+                throw new IllegalStateException("Query job failed");
             }
             
             TableResult result = queryJob.getQueryResults();
             log.info("Raw data query returned {} rows", result.getTotalRows());
             
             return result;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.error("Failed to query raw billing data (interrupted)", e);
+            throw new IllegalStateException("Failed to query raw billing data: interrupted", e);
         } catch (Exception e) {
             log.error("Failed to query raw billing data", e);
-            throw new RuntimeException("Failed to query raw billing data: " + e.getMessage(), e);
+            throw new IllegalStateException("Failed to query raw billing data: " + e.getMessage(), e);
         }
     }
 
@@ -150,12 +152,12 @@ public class GcpBillingClient {
 
             if (queryJob == null) {
                 log.error("BigQuery job no longer exists");
-                throw new RuntimeException("Job no longer exists");
+                throw new IllegalStateException("Job no longer exists");
             }
 
             if (queryJob.getStatus().getError() != null) {
                 log.error("BigQuery job failed: {}", queryJob.getStatus().getError());
-                throw new RuntimeException("Query job failed: " + queryJob.getStatus().getError());
+                throw new IllegalStateException("Query job failed: " + queryJob.getStatus().getError());
             }
 
             TableResult result = queryJob.getQueryResults();
@@ -165,25 +167,28 @@ public class GcpBillingClient {
             
             // 집계된 쿼리 결과 로깅 (현재 쿼리는 집계된 결과만 반환)
             logQueryResult(result, "Aggregated Query Result");
-            
-            // 원본 데이터 샘플도 조회하여 실제 테이블 구조 확인
-            try {
-                log.info("=== Fetching RAW data sample to see actual table structure ===");
-                TableResult rawSample = queryRawBillingDataSample(startDate, endDate, 3);
-                logQueryResult(rawSample, "RAW Table Data Sample (SELECT *)");
-            } catch (Exception e) {
-                log.warn("Failed to fetch raw data sample: {}", e.getMessage());
-            }
+
+            logRawBillingSampleForDiagnostics(startDate, endDate);
 
             return result;
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             log.error("BigQuery query interrupted", e);
-            throw new RuntimeException("BigQuery query interrupted", e);
+            throw new IllegalStateException("BigQuery query interrupted", e);
         } catch (Exception e) {
             log.error("Failed to query BigQuery billing data: project={}, dataset={}, table={}",
                      config.getProjectId(), config.getBillingDataset(), config.getBillingTable(), e);
-            throw new RuntimeException("Failed to query BigQuery billing data: " + e.getMessage(), e);
+            throw new IllegalStateException("Failed to query BigQuery billing data: " + e.getMessage(), e);
+        }
+    }
+
+    private void logRawBillingSampleForDiagnostics(LocalDate startDate, LocalDate endDate) {
+        try {
+            log.info("=== Fetching RAW data sample to see actual table structure ===");
+            TableResult rawSample = queryRawBillingDataSample(startDate, endDate, 3);
+            logQueryResult(rawSample, "RAW Table Data Sample (SELECT *)");
+        } catch (Exception e) {
+            log.warn("Failed to fetch raw data sample: {}", e.getMessage());
         }
     }
 
@@ -195,30 +200,35 @@ public class GcpBillingClient {
             log.warn("{}: No rows returned", title);
             return;
         }
-        
         Schema schema = result.getSchema();
-        
-        // 스키마 정보 로깅
-        if (schema != null && schema.getFields() != null) {
-            log.info("=== {} Schema ===", title);
-            for (Field field : schema.getFields()) {
-                String mode = field.getMode() != null ? field.getMode().name() : "NULLABLE";
-                log.info("  Field: {} | Type: {} | Mode: {}", field.getName(), field.getType(), mode);
-                
-                // RECORD 타입인 경우 중첩 필드도 표시
-                if (field.getType().getStandardType() == StandardSQLTypeName.STRUCT && field.getSubFields() != null) {
-                    for (Field subField : field.getSubFields()) {
-                        log.info("    -> {}: {} ({})", subField.getName(), subField.getType(), subField.getMode());
-                    }
+        logQueryResultSchema(schema, title);
+        logQueryResultSampleRows(result, schema, title);
+        log.info("=== End of {} ===", title);
+    }
+
+    private void logQueryResultSchema(Schema schema, String title) {
+        if (schema == null || schema.getFields() == null) {
+            return;
+        }
+        log.info("=== {} Schema ===", title);
+        for (Field field : schema.getFields()) {
+            String mode = field.getMode() != null ? field.getMode().name() : "NULLABLE";
+            log.info("  Field: {} | Type: {} | Mode: {}", field.getName(), field.getType(), mode);
+            if (field.getType().getStandardType() == StandardSQLTypeName.STRUCT && field.getSubFields() != null) {
+                for (Field subField : field.getSubFields()) {
+                    log.info("    -> {}: {} ({})", subField.getName(), subField.getType(), subField.getMode());
                 }
             }
         }
-        
-        // 데이터 샘플 로깅 (최대 3개 행)
+    }
+
+    private void logQueryResultSampleRows(TableResult result, Schema schema, String title) {
         int sampleCount = 0;
         log.info("=== {} Data Sample (first 3 rows) ===", title);
         for (FieldValueList row : result.iterateAll()) {
-            if (sampleCount >= 3) break;
+            if (sampleCount >= 3) {
+                break;
+            }
             try {
                 logRowData(row, schema, sampleCount + 1);
                 sampleCount++;
@@ -226,7 +236,6 @@ public class GcpBillingClient {
                 log.warn("Failed to log row {}: {}", sampleCount + 1, e.getMessage());
             }
         }
-        log.info("=== End of {} ===", title);
     }
 
     /**
@@ -265,65 +274,62 @@ public class GcpBillingClient {
         if (fieldValue.isNull()) {
             return "null";
         }
-        
         try {
             StandardSQLTypeName type = field.getType().getStandardType();
-            
-            // RECORD (STRUCT) 타입 처리
             if (type == StandardSQLTypeName.STRUCT) {
-                StringBuilder structValue = new StringBuilder("{");
-                List<Field> subFields = field.getSubFields();
-                if (subFields != null) {
-                    for (Field subField : subFields) {
-                        FieldValue subValue = fieldValue.getRecordValue().get(subField.getName());
-                        String subValueStr = subValue != null && !subValue.isNull() 
-                            ? extractFieldValue(subValue, subField)
-                            : "null";
-                        structValue.append(String.format("\"%s\": %s, ", subField.getName(), subValueStr));
-                    }
-                }
-                structValue.append("}");
-                return structValue.toString();
+                return extractStructFieldValue(fieldValue, field);
             }
-            
-            // REPEATED (ARRAY) 타입 처리
             if (field.getMode() == Field.Mode.REPEATED) {
-                StringBuilder arrayValue = new StringBuilder("[");
-                int count = 0;
-                for (FieldValue arrayItem : fieldValue.getRepeatedValue()) {
-                    if (count >= 3) { // 최대 3개만 표시
-                        arrayValue.append("...");
-                        break;
-                    }
-                    String itemStr = arrayItem.isNull() ? "null" : extractFieldValue(arrayItem, field);
-                    arrayValue.append(itemStr).append(", ");
-                    count++;
-                }
-                arrayValue.append("]");
-                return arrayValue.toString();
+                return extractRepeatedFieldValue(fieldValue, field);
             }
-            
-            // 기본 타입 처리
-            switch (type) {
-                case STRING:
-                    return "\"" + fieldValue.getStringValue() + "\"";
-                case FLOAT64:
-                case NUMERIC:
-                    return String.valueOf(fieldValue.getDoubleValue());
-                case INT64:
-                    return Long.toString(fieldValue.getLongValue());
-                case BOOL:
-                    return String.valueOf(fieldValue.getBooleanValue());
-                case TIMESTAMP:
-                    return "\"" + String.valueOf(fieldValue.getTimestampValue()) + "\"";
-                case DATE:
-                    return "\"" + fieldValue.getStringValue() + "\"";
-                default:
-                    return fieldValue.getValue() != null ? fieldValue.getValue().toString() : "null";
-            }
+            return formatPrimitiveFieldValue(fieldValue, type);
         } catch (Exception e) {
             return "<error: " + e.getMessage() + ">";
         }
+    }
+
+    private String extractStructFieldValue(FieldValue fieldValue, Field field) {
+        StringBuilder structValue = new StringBuilder("{");
+        List<Field> subFields = field.getSubFields();
+        if (subFields != null) {
+            for (Field subField : subFields) {
+                FieldValue subValue = fieldValue.getRecordValue().get(subField.getName());
+                String subValueStr = subValue != null && !subValue.isNull()
+                        ? extractFieldValue(subValue, subField)
+                        : "null";
+                structValue.append(String.format("\"%s\": %s, ", subField.getName(), subValueStr));
+            }
+        }
+        structValue.append("}");
+        return structValue.toString();
+    }
+
+    private String extractRepeatedFieldValue(FieldValue fieldValue, Field field) {
+        StringBuilder arrayValue = new StringBuilder("[");
+        int count = 0;
+        for (FieldValue arrayItem : fieldValue.getRepeatedValue()) {
+            if (count >= 3) {
+                arrayValue.append("...");
+                break;
+            }
+            String itemStr = arrayItem.isNull() ? "null" : extractFieldValue(arrayItem, field);
+            arrayValue.append(itemStr).append(", ");
+            count++;
+        }
+        arrayValue.append("]");
+        return arrayValue.toString();
+    }
+
+    private static String formatPrimitiveFieldValue(FieldValue fieldValue, StandardSQLTypeName type) {
+        return switch (type) {
+            case STRING -> "\"" + fieldValue.getStringValue() + "\"";
+            case FLOAT64, NUMERIC -> String.valueOf(fieldValue.getDoubleValue());
+            case INT64 -> Long.toString(fieldValue.getLongValue());
+            case BOOL -> String.valueOf(fieldValue.getBooleanValue());
+            case TIMESTAMP -> "\"" + String.valueOf(fieldValue.getTimestampValue()) + "\"";
+            case DATE -> "\"" + fieldValue.getStringValue() + "\"";
+            default -> fieldValue.getValue() != null ? fieldValue.getValue().toString() : "null";
+        };
     }
 }
 

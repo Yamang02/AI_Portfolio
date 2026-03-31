@@ -2,6 +2,7 @@ package com.aiportfolio.backend.infrastructure.web.admin.controller;
 
 import com.aiportfolio.backend.infrastructure.web.admin.dto.response.CloudUsageDashboardResponse;
 import com.aiportfolio.backend.domain.admin.port.in.GetCloudUsageUseCase;
+import com.aiportfolio.backend.infrastructure.web.WebApiResponseMessages;
 import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +26,6 @@ public class AdminCloudUsageController {
     public ResponseEntity<ApiResponse<CloudUsageDashboardResponse>> getUsage() {
         log.debug("Fetching real-time cloud usage snapshot for admin dashboard");
         CloudUsageDashboardResponse response = getCloudUsageUseCase.getRealTimeUsage();
-        return ResponseEntity.ok(ApiResponse.success(response, "클라우드 사용량 조회 성공"));
+        return ResponseEntity.ok(ApiResponse.success(response, WebApiResponseMessages.ADMIN_CLOUD_USAGE_FETCH_SUCCESS));
     }
 }

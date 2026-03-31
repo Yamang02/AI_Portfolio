@@ -11,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 시리즈 검색 서비스
@@ -38,7 +37,7 @@ public class ArticleSeriesSearchService implements SearchArticleSeriesUseCase {
         
         return entities.stream()
                 .map(this::toDomain)
-                .collect(Collectors.toList());
+                .toList();
     }
     
     private ArticleSeries toDomain(ArticleSeriesJpaEntity entity) {

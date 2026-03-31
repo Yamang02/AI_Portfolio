@@ -3,6 +3,8 @@ package com.aiportfolio.backend.infrastructure.web.admin.controller;
 import com.aiportfolio.backend.domain.portfolio.port.out.EducationRelationshipPort;
 import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.*;
 import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.*;
+import com.aiportfolio.backend.infrastructure.web.WebApiResponseMessages;
+import com.aiportfolio.backend.infrastructure.web.admin.AdminApiErrorMessages;
 import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;
 import com.aiportfolio.backend.infrastructure.web.dto.relationship.*;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Admin Education 관계 관리 REST API Controller
@@ -27,6 +28,9 @@ import java.util.stream.Collectors;
 @Slf4j
 @Transactional
 public class AdminEducationRelationshipController {
+    private static final String EDUCATION_NOT_FOUND = "Education not found";
+    private static final String EDUCATION_NOT_FOUND_WITH_ID = "Education not found: ";
+    private static final String INVALID_REQUEST_LOG = "Invalid request: {}";
 
     private final EducationJpaRepository educationJpaRepository;
     private final TechStackMetadataJpaRepository techStackMetadataJpaRepository;
@@ -42,7 +46,7 @@ public class AdminEducationRelationshipController {
             @PathVariable String id) {
         try {
             EducationJpaEntity education = educationJpaRepository.findByBusinessId(id)
-                .orElseThrow(() -> new IllegalArgumentException("Education not found: " + id));
+                .orElseThrow(() -> new IllegalArgumentException(EDUCATION_NOT_FOUND_WITH_ID + id));
 
             List<EducationTechStackJpaEntity> relationships = 
                 educationTechStackJpaRepository.findByEducationId(education.getId());
@@ -57,7 +61,7 @@ public class AdminEducationRelationshipController {
                     .isPrimary(rel.getIsPrimary())
                     .usageDescription(rel.getUsageDescription())
                     .build())
-                .collect(Collectors.toList());
+                .toList();
 
             return ResponseEntity.ok(ApiResponse.success(dtos));
         } catch (IllegalArgumentException e) {
@@ -65,7 +69,7 @@ public class AdminEducationRelationshipController {
         } catch (Exception e) {
             log.error("Error fetching tech stack relationships", e);
             return ResponseEntity.internalServerError()
-                .body(ApiResponse.error("기술스택 관계 조회 실패: " + e.getMessage()));
+                .body(ApiResponse.error(AdminApiErrorMessages.techStackRelationQueryFailed(e)));
         }
     }
 
@@ -75,26 +79,20 @@ public class AdminEducationRelationshipController {
             @RequestBody TechStackRelationshipRequest request) {
         try {
             EducationJpaEntity education = educationJpaRepository.findByBusinessId(id)
-                .orElseThrow(() -> new IllegalArgumentException("Education not found"));
+                .orElseThrow(() -> new IllegalArgumentException(EDUCATION_NOT_FOUND));
 
-            TechStackMetadataJpaEntity techStack;
-            // ID로 조회
+            // ID로 조회, 없으면 name으로 조회 (하위 호환성)
             Optional<TechStackMetadataJpaEntity> techStackOpt = techStackMetadataJpaRepository
                 .findById(request.getTechStackId());
-            
-            if (techStackOpt.isPresent()) {
-                techStack = techStackOpt.get();
-            } else {
-                // ID로 못 찾으면 name으로 조회 (하위 호환성)
-                techStack = techStackMetadataJpaRepository
-                    .findByName(String.valueOf(request.getTechStackId()))
-                    .orElseThrow(() -> new IllegalArgumentException("TechStack not found"));
-            }
+            TechStackMetadataJpaEntity techStack = techStackOpt.orElseGet(() ->
+                    techStackMetadataJpaRepository
+                            .findByName(String.valueOf(request.getTechStackId()))
+                            .orElseThrow(() -> new IllegalArgumentException("TechStack not found")));
 
             if (educationTechStackJpaRepository
                 .findByEducationIdAndTechStackId(education.getId(), techStack.getId()) != null) {
                 return ResponseEntity.badRequest()
-                    .body(ApiResponse.error("이미 관계가 존재합니다"));
+                    .body(ApiResponse.error(AdminApiErrorMessages.RELATION_ALREADY_EXISTS));
             }
 
             EducationTechStackJpaEntity relationship = EducationTechStackJpaEntity.builder()
@@ -106,11 +104,11 @@ public class AdminEducationRelationshipController {
 
             educationTechStackJpaRepository.save(relationship);
 
-            return ResponseEntity.ok(ApiResponse.success(null, "기술스택 관계 추가 성공"));
+            return ResponseEntity.ok(ApiResponse.success(null, WebApiResponseMessages.TECH_STACK_RELATION_ADD_SUCCESS));
         } catch (Exception e) {
             log.error("Error adding tech stack relationship", e);
             return ResponseEntity.internalServerError()
-                .body(ApiResponse.error("기술스택 관계 추가 실패: " + e.getMessage()));
+                .body(ApiResponse.error(AdminApiErrorMessages.techStackRelationAddFailed(e)));
         }
     }
 
@@ -120,16 +118,16 @@ public class AdminEducationRelationshipController {
             @PathVariable Long techStackId) {
         try {
             EducationJpaEntity education = educationJpaRepository.findByBusinessId(id)
-                .orElseThrow(() -> new IllegalArgumentException("Education not found"));
+                .orElseThrow(() -> new IllegalArgumentException(EDUCATION_NOT_FOUND));
 
             educationTechStackJpaRepository.deleteByEducationIdAndTechStackId(
                 education.getId(), techStackId);
 
-            return ResponseEntity.ok(ApiResponse.success(null, "기술스택 관계 삭제 성공"));
+            return ResponseEntity.ok(ApiResponse.success(null, WebApiResponseMessages.TECH_STACK_RELATION_DELETE_SUCCESS));
         } catch (Exception e) {
             log.error("Error deleting tech stack relationship", e);
             return ResponseEntity.internalServerError()
-                .body(ApiResponse.error("기술스택 관계 삭제 실패: " + e.getMessage()));
+                .body(ApiResponse.error(AdminApiErrorMessages.techStackRelationDeleteFailed(e)));
         }
     }
 
@@ -144,30 +142,30 @@ public class AdminEducationRelationshipController {
             @PathVariable String id,
             @RequestBody BulkTechStackRelationshipRequest request) {
         try {
-            List<EducationRelationshipPort.TechStackRelation> relationships =
-                request.getTechStackRelationships() == null
-                    ? List.of()
-                    : request.getTechStackRelationships().stream()
-                        .map(item -> new EducationRelationshipPort.TechStackRelation(
+            List<BulkTechStackRelationshipRequest.TechStackRelationshipItem> items =
+                    request.getTechStackRelationships() != null
+                            ? request.getTechStackRelationships()
+                            : List.of();
+            List<EducationRelationshipPort.TechStackRelation> relationships = items.stream()
+                    .map(item -> new EducationRelationshipPort.TechStackRelation(
                             item.getTechStackId(),
-                            item.getIsPrimary() != null ? item.getIsPrimary() : false,
-                            item.getUsageDescription()
-                        ))
-                        .collect(Collectors.toList());
+                            Boolean.TRUE.equals(item.getIsPrimary()),
+                            item.getUsageDescription()))
+                    .toList();
 
             EducationJpaEntity education = educationJpaRepository.findByBusinessId(id)
-                .orElseThrow(() -> new IllegalArgumentException("Education not found: " + id));
+                .orElseThrow(() -> new IllegalArgumentException(EDUCATION_NOT_FOUND_WITH_ID + id));
             educationRelationshipPort.replaceTechStacks(education.getId(), relationships);
 
-            return ResponseEntity.ok(ApiResponse.success(null, "기술스택 관계 일괄 업데이트 성공"));
+            return ResponseEntity.ok(ApiResponse.success(null, WebApiResponseMessages.TECH_STACK_RELATION_BULK_UPDATE_SUCCESS));
         } catch (IllegalArgumentException e) {
-            log.error("Invalid request: {}", e.getMessage());
+            log.error(INVALID_REQUEST_LOG, e.getMessage());
             return ResponseEntity.badRequest()
                 .body(ApiResponse.error(e.getMessage()));
         } catch (Exception e) {
             log.error("Error updating tech stack relationships", e);
             return ResponseEntity.internalServerError()
-                .body(ApiResponse.error("기술스택 관계 일괄 업데이트 실패: " + e.getMessage()));
+                .body(ApiResponse.error(AdminApiErrorMessages.techStackRelationBulkUpdateFailed(e)));
         }
     }
 
@@ -178,7 +176,7 @@ public class AdminEducationRelationshipController {
             @PathVariable String id) {
         try {
             EducationJpaEntity education = educationJpaRepository.findByBusinessId(id)
-                .orElseThrow(() -> new IllegalArgumentException("Education not found: " + id));
+                .orElseThrow(() -> new IllegalArgumentException(EDUCATION_NOT_FOUND_WITH_ID + id));
 
             List<EducationProjectJpaEntity> relationships = 
                 educationProjectJpaRepository.findByEducationId(education.getId());
@@ -192,7 +190,7 @@ public class AdminEducationRelationshipController {
                     .projectType(rel.getProjectType())
                     .grade(rel.getGrade())
                     .build())
-                .collect(Collectors.toList());
+                .toList();
 
             return ResponseEntity.ok(ApiResponse.success(dtos));
         } catch (IllegalArgumentException e) {
@@ -200,7 +198,7 @@ public class AdminEducationRelationshipController {
         } catch (Exception e) {
             log.error("Error fetching project relationships", e);
             return ResponseEntity.internalServerError()
-                .body(ApiResponse.error("프로젝트 관계 조회 실패: " + e.getMessage()));
+                .body(ApiResponse.error(AdminApiErrorMessages.projectRelationQueryFailed(e)));
         }
     }
 
@@ -210,7 +208,7 @@ public class AdminEducationRelationshipController {
             @RequestBody ProjectRelationshipRequest request) {
         try {
             EducationJpaEntity education = educationJpaRepository.findByBusinessId(id)
-                .orElseThrow(() -> new IllegalArgumentException("Education not found"));
+                .orElseThrow(() -> new IllegalArgumentException(EDUCATION_NOT_FOUND));
 
             // Business ID로 프로젝트 조회
             ProjectJpaEntity project = projectJpaRepository.findByBusinessId(request.getProjectBusinessId())
@@ -219,7 +217,7 @@ public class AdminEducationRelationshipController {
             if (educationProjectJpaRepository
                 .findByEducationIdAndProjectId(education.getId(), project.getId()) != null) {
                 return ResponseEntity.badRequest()
-                    .body(ApiResponse.error("이미 관계가 존재합니다"));
+                    .body(ApiResponse.error(AdminApiErrorMessages.RELATION_ALREADY_EXISTS));
             }
 
             EducationProjectJpaEntity relationship = EducationProjectJpaEntity.builder()
@@ -232,15 +230,15 @@ public class AdminEducationRelationshipController {
             educationProjectJpaRepository.save(relationship);
 
             log.info("Added project relationship: education={}, project={}", id, request.getProjectBusinessId());
-            return ResponseEntity.ok(ApiResponse.success(null, "프로젝트 관계 추가 성공"));
+            return ResponseEntity.ok(ApiResponse.success(null, WebApiResponseMessages.PROJECT_RELATION_ADD_SUCCESS));
         } catch (IllegalArgumentException e) {
-            log.error("Invalid request: {}", e.getMessage());
+            log.error(INVALID_REQUEST_LOG, e.getMessage());
             return ResponseEntity.badRequest()
                 .body(ApiResponse.error(e.getMessage()));
         } catch (Exception e) {
             log.error("Error adding project relationship", e);
             return ResponseEntity.internalServerError()
-                .body(ApiResponse.error("프로젝트 관계 추가 실패: " + e.getMessage()));
+                .body(ApiResponse.error(AdminApiErrorMessages.projectRelationAddFailed(e)));
         }
     }
 
@@ -250,16 +248,16 @@ public class AdminEducationRelationshipController {
             @PathVariable Long projectId) {
         try {
             EducationJpaEntity education = educationJpaRepository.findByBusinessId(id)
-                .orElseThrow(() -> new IllegalArgumentException("Education not found"));
+                .orElseThrow(() -> new IllegalArgumentException(EDUCATION_NOT_FOUND));
 
             educationProjectJpaRepository.deleteByEducationIdAndProjectId(
                 education.getId(), projectId);
 
-            return ResponseEntity.ok(ApiResponse.success(null, "프로젝트 관계 삭제 성공"));
+            return ResponseEntity.ok(ApiResponse.success(null, WebApiResponseMessages.PROJECT_RELATION_DELETE_SUCCESS));
         } catch (Exception e) {
             log.error("Error deleting project relationship", e);
             return ResponseEntity.internalServerError()
-                .body(ApiResponse.error("프로젝트 관계 삭제 실패: " + e.getMessage()));
+                .body(ApiResponse.error(AdminApiErrorMessages.projectRelationDeleteFailed(e)));
         }
     }
 
@@ -275,7 +273,7 @@ public class AdminEducationRelationshipController {
             @RequestBody BulkProjectRelationshipRequest request) {
         try {
             EducationJpaEntity education = educationJpaRepository.findByBusinessId(id)
-                .orElseThrow(() -> new IllegalArgumentException("Education not found: " + id));
+                .orElseThrow(() -> new IllegalArgumentException(EDUCATION_NOT_FOUND_WITH_ID + id));
 
             // BulkProjectRelationshipRequest를 EducationRelationshipPort.ProjectRelation으로 변환
             // 비즈니스 ID를 DB ID로 변환
@@ -292,20 +290,20 @@ public class AdminEducationRelationshipController {
                                 item.getGrade()
                             );
                         })
-                        .collect(Collectors.toList());
+                        .toList();
 
             // Merge 전략을 사용하여 관계 업데이트
             educationRelationshipPort.replaceProjects(education.getId(), projectRelations);
 
-            return ResponseEntity.ok(ApiResponse.success(null, "프로젝트 관계 일괄 업데이트 성공"));
+            return ResponseEntity.ok(ApiResponse.success(null, WebApiResponseMessages.PROJECT_RELATION_BULK_UPDATE_SUCCESS));
         } catch (IllegalArgumentException e) {
-            log.error("Invalid request: {}", e.getMessage());
+            log.error(INVALID_REQUEST_LOG, e.getMessage());
             return ResponseEntity.badRequest()
                 .body(ApiResponse.error(e.getMessage()));
         } catch (Exception e) {
             log.error("Error updating project relationships", e);
             return ResponseEntity.internalServerError()
-                .body(ApiResponse.error("프로젝트 관계 일괄 업데이트 실패: " + e.getMessage()));
+                .body(ApiResponse.error(AdminApiErrorMessages.projectRelationBulkUpdateFailed(e)));
         }
     }
 }

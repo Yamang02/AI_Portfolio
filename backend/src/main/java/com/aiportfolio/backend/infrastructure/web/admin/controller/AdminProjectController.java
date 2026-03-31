@@ -7,6 +7,7 @@ import com.aiportfolio.backend.infrastructure.web.admin.dto.response.ProjectResp
 import com.aiportfolio.backend.domain.admin.model.vo.ProjectFilter;
 import com.aiportfolio.backend.infrastructure.web.admin.dto.AdminProjectCreateRequest;
 import com.aiportfolio.backend.infrastructure.web.admin.dto.AdminProjectUpdateRequest;
+import com.aiportfolio.backend.infrastructure.web.WebApiResponseMessages;
 import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 관리자 프로젝트 컨트롤러
@@ -71,9 +71,9 @@ public class AdminProjectController {
 
         List<ProjectResponse> projects = searchProjectsUseCase.searchProjects(filter).stream()
                 .map(projectResponseMapper::toDetailedResponse)
-                .collect(Collectors.toList());
+                .toList();
         
-        return ResponseEntity.ok(ApiResponse.success(projects, "프로젝트 목록 조회 성공"));
+        return ResponseEntity.ok(ApiResponse.success(projects, WebApiResponseMessages.PROJECT_LIST_SUCCESS));
     }
 
     /**
@@ -87,7 +87,7 @@ public class AdminProjectController {
         
         ProjectResponse project = projectResponseMapper.toDetailedResponse(
                 searchProjectsUseCase.getProjectById(id));
-        return ResponseEntity.ok(ApiResponse.success(project, "프로젝트 조회 성공"));
+        return ResponseEntity.ok(ApiResponse.success(project, WebApiResponseMessages.PROJECT_GET_SUCCESS));
     }
 
     /**
@@ -103,7 +103,7 @@ public class AdminProjectController {
                 request.toCommand(), 
                 request.getTechnologies()
         );
-        return ResponseEntity.ok(ApiResponse.success(project, "프로젝트 생성 성공"));
+        return ResponseEntity.ok(ApiResponse.success(project, WebApiResponseMessages.PROJECT_CREATE_SUCCESS));
     }
 
     /**
@@ -127,7 +127,7 @@ public class AdminProjectController {
                 request.toCommand(),
                 request.getTechnologies()
         );
-        return ResponseEntity.ok(ApiResponse.success(project, "프로젝트 수정 성공"));
+        return ResponseEntity.ok(ApiResponse.success(project, WebApiResponseMessages.PROJECT_UPDATE_SUCCESS));
     }
 
     /**
@@ -140,6 +140,6 @@ public class AdminProjectController {
         log.info("Deleting project: {}", id);
 
         manageProjectService.deleteProject(id);
-        return ResponseEntity.ok(ApiResponse.success(null, "프로젝트 삭제 성공"));
+        return ResponseEntity.ok(ApiResponse.success(null, WebApiResponseMessages.PROJECT_DELETE_SUCCESS));
     }
 }

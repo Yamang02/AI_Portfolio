@@ -1,5 +1,6 @@
 package com.aiportfolio.backend.infrastructure.web.controller;
 
+import com.aiportfolio.backend.infrastructure.web.WebApiResponseMessages;
 import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;
 import com.aiportfolio.backend.infrastructure.web.dto.article.ArticleSummary;
 import com.aiportfolio.backend.infrastructure.web.dto.project.ProjectDataResponse;
@@ -24,7 +25,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * 데이터 웹 컨트롤러 (헥사고날 아키텍처 Infrastructure/Web Layer)
@@ -69,7 +69,7 @@ public class DataController {
             responseData.put("projects", mappedProjects);
         }
 
-        return ResponseEntity.ok(ApiResponse.success(responseData, "포트폴리오 데이터 조회 성공"));
+        return ResponseEntity.ok(ApiResponse.success(responseData, WebApiResponseMessages.PORTFOLIO_DATA_FETCH_SUCCESS));
     }
     
     @GetMapping("/projects")
@@ -83,7 +83,7 @@ public class DataController {
                 return ProjectDataResponse.from(project, developmentTimelineArticles);
             })
             .toList();
-        return ResponseEntity.ok(ApiResponse.success(responses, "프로젝트 목록 조회 성공"));
+        return ResponseEntity.ok(ApiResponse.success(responses, WebApiResponseMessages.PROJECT_LIST_SUCCESS));
     }
 
     /**
@@ -108,7 +108,7 @@ public class DataController {
             .getContent()
             .stream()
             .map(this::toArticleSummary)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     /**
@@ -127,21 +127,21 @@ public class DataController {
     @Operation(summary = "경험 데이터 조회", description = "모든 경험 정보를 조회합니다.")
     public ResponseEntity<ApiResponse<List<Experience>>> getExperiences() {
         List<Experience> experiences = getAllDataUseCase.getAllExperiences();
-        return ResponseEntity.ok(ApiResponse.success(experiences, "경험 목록 조회 성공"));
+        return ResponseEntity.ok(ApiResponse.success(experiences, WebApiResponseMessages.PUBLIC_EXPERIENCE_LIST_SUCCESS));
     }
     
     @GetMapping("/certifications")
     @Operation(summary = "자격증 데이터 조회", description = "모든 자격증 정보를 조회합니다.")
     public ResponseEntity<ApiResponse<List<Certification>>> getCertifications() {
         List<Certification> certifications = getAllDataUseCase.getAllCertifications();
-        return ResponseEntity.ok(ApiResponse.success(certifications, "자격증 목록 조회 성공"));
+        return ResponseEntity.ok(ApiResponse.success(certifications, WebApiResponseMessages.PUBLIC_CERTIFICATION_LIST_SUCCESS));
     }
     
     @GetMapping("/education")
     @Operation(summary = "교육 데이터 조회", description = "모든 교육 정보를 조회합니다.")
     public ResponseEntity<ApiResponse<List<Education>>> getEducation() {
         List<Education> education = getAllDataUseCase.getAllEducations();
-        return ResponseEntity.ok(ApiResponse.success(education, "교육 목록 조회 성공"));
+        return ResponseEntity.ok(ApiResponse.success(education, WebApiResponseMessages.PUBLIC_EDUCATION_LIST_SUCCESS));
     }
 
 }

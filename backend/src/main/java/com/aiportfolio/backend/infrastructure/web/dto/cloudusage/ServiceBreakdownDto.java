@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 서비스별 비용 분석 DTO
@@ -26,12 +25,12 @@ public class ServiceBreakdownDto {
             .awsTop5(breakdown.getAwsTop5() != null
                 ? breakdown.getAwsTop5().stream()
                     .map(ServiceCostDto::from)
-                    .collect(Collectors.toList())
+                    .toList()
                 : Collections.emptyList())
             .gcpTop5(breakdown.getGcpTop5() != null
                 ? breakdown.getGcpTop5().stream()
                     .map(ServiceCostDto::from)
-                    .collect(Collectors.toList())
+                    .toList()
                 : Collections.emptyList())
             .build();
     }

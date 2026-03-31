@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * 캐시 관리 서비스
@@ -33,9 +32,11 @@ public class CacheManagementService implements ManageCacheUseCase {
             cacheManagementPort.flushAll();
             log.info("Cache flush completed successfully");
             
+        } catch (RuntimeException e) {
+            throw e;
         } catch (Exception e) {
             log.error("Error during cache flush", e);
-            throw new RuntimeException("캐시 초기화 중 오류가 발생했습니다", e);
+            throw new IllegalStateException("캐시 초기화 중 오류가 발생했습니다", e);
         }
     }
     
@@ -48,9 +49,11 @@ public class CacheManagementService implements ManageCacheUseCase {
             log.info("Cache stats retrieved successfully");
             return stats;
             
+        } catch (RuntimeException e) {
+            throw e;
         } catch (Exception e) {
             log.error("Error retrieving cache stats", e);
-            throw new RuntimeException("캐시 통계 조회 중 오류가 발생했습니다", e);
+            throw new IllegalStateException("캐시 통계 조회 중 오류가 발생했습니다", e);
         }
     }
     
@@ -62,9 +65,11 @@ public class CacheManagementService implements ManageCacheUseCase {
             cacheManagementPort.evictByPattern(pattern);
             log.info("Cache evicted by pattern successfully: {}", pattern);
 
+        } catch (RuntimeException e) {
+            throw e;
         } catch (Exception e) {
             log.error("Error during cache eviction by pattern: {}", pattern, e);
-            throw new RuntimeException("패턴별 캐시 삭제 중 오류가 발생했습니다", e);
+            throw new IllegalStateException("패턴별 캐시 삭제 중 오류가 발생했습니다", e);
         }
     }
 
@@ -79,9 +84,11 @@ public class CacheManagementService implements ManageCacheUseCase {
             log.info("Retrieved {} cache keys", sortedKeys.size());
             return sortedKeys;
 
+        } catch (RuntimeException e) {
+            throw e;
         } catch (Exception e) {
             log.error("Error retrieving cache keys", e);
-            throw new RuntimeException("캐시 키 목록 조회 중 오류가 발생했습니다", e);
+            throw new IllegalStateException("캐시 키 목록 조회 중 오류가 발생했습니다", e);
         }
     }
 
@@ -96,9 +103,11 @@ public class CacheManagementService implements ManageCacheUseCase {
             log.info("Retrieved {} cache keys matching pattern: {}", sortedKeys.size(), pattern);
             return sortedKeys;
 
+        } catch (RuntimeException e) {
+            throw e;
         } catch (Exception e) {
             log.error("Error retrieving cache keys by pattern: {}", pattern, e);
-            throw new RuntimeException("패턴별 캐시 키 조회 중 오류가 발생했습니다", e);
+            throw new IllegalStateException("패턴별 캐시 키 조회 중 오류가 발생했습니다", e);
         }
     }
 
@@ -116,9 +125,11 @@ public class CacheManagementService implements ManageCacheUseCase {
             }
             return version;
 
+        } catch (RuntimeException e) {
+            throw e;
         } catch (Exception e) {
             log.error("Error retrieving frontend cache version", e);
-            throw new RuntimeException("프론트엔드 캐시 버전 조회 중 오류가 발생했습니다", e);
+            throw new IllegalStateException("프론트엔드 캐시 버전 조회 중 오류가 발생했습니다", e);
         }
     }
 
@@ -132,9 +143,11 @@ public class CacheManagementService implements ManageCacheUseCase {
             log.info("Frontend cache version updated to: {}", newVersion);
             return newVersion;
 
+        } catch (RuntimeException e) {
+            throw e;
         } catch (Exception e) {
             log.error("Error updating frontend cache version", e);
-            throw new RuntimeException("프론트엔드 캐시 버전 업데이트 중 오류가 발생했습니다", e);
+            throw new IllegalStateException("프론트엔드 캐시 버전 업데이트 중 오류가 발생했습니다", e);
         }
     }
 }

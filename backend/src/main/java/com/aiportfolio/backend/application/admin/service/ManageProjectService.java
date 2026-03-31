@@ -22,6 +22,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,6 +37,7 @@ import java.util.Optional;
 @Transactional
 @Slf4j
 public class ManageProjectService implements ManageProjectUseCase {
+    private static final String CLOUDINARY_DOMAIN = "cloudinary.com";
 
     private final PortfolioRepositoryPort portfolioRepositoryPort;
     private final ProjectRelationshipPort projectRelationshipPort;
@@ -57,7 +59,7 @@ public class ManageProjectService implements ManageProjectUseCase {
             List<TechStackRelation> techStacks = toTechStackRelations(techStackIds);
             List<ProjectRelationshipPort.TechStackRelation> portRelations = techStacks.stream()
                     .map(TechStackRelation::toPortRelation)
-                    .collect(java.util.stream.Collectors.toList());
+                    .toList();
             projectRelationshipPort.replaceTechStacks(projectEntity.getId(), portRelations);
         }
         return projectResponseMapper.toDetailedResponse(created);
@@ -77,7 +79,7 @@ public class ManageProjectService implements ManageProjectUseCase {
             List<TechStackRelation> techStacks = toTechStackRelations(techStackIds);
             List<ProjectRelationshipPort.TechStackRelation> portRelations = techStacks.stream()
                     .map(TechStackRelation::toPortRelation)
-                    .collect(java.util.stream.Collectors.toList());
+                    .toList();
             projectRelationshipPort.replaceTechStacks(projectEntity.getId(), portRelations);
         }
         return projectResponseMapper.toDetailedResponse(updated);
@@ -96,8 +98,7 @@ public class ManageProjectService implements ManageProjectUseCase {
         // 정렬 순서 자동 할당
         Integer sortOrder = command.getSortOrder();
         if (sortOrder == null) {
-            // TODO: PortfolioRepositoryPort에 findMaxProjectSortOrder 메서드 추가 필요
-            // 임시로 0으로 설정 (기존 로직 유지)
+            // 기본 정렬 순서 미지정 시 첫 항목 순서(1)를 사용합니다.
             sortOrder = 1;
         }
 
@@ -139,18 +140,36 @@ public class ManageProjectService implements ManageProjectUseCase {
         Project project = portfolioRepositoryPort.findProjectById(id)
                 .orElseThrow(() -> new IllegalArgumentException("프로젝트를 찾을 수 없습니다: " + id));
 
-        // 기존 이미지 URL 백업 (교체될 때 삭제해야 함)
         String oldImageUrl = project.getImageUrl();
         List<String> oldScreenshots = project.getScreenshots() != null
-                ? new java.util.ArrayList<>(project.getScreenshots())
+                ? new ArrayList<>(project.getScreenshots())
                 : null;
 
-        // 필드 업데이트
-        // 필수 필드: 정규화 없음 (유효성 검증에서 처리)
-        if (command.getTitle() != null) project.setTitle(command.getTitle());
-        if (command.getDescription() != null) project.setDescription(command.getDescription());
-        
-        // 선택 필드: 정규화 적용
+        applyUpdateCommandFields(project, command);
+        project.setUpdatedAt(MetadataHelper.setupUpdatedAt());
+        removeObsoleteCloudinaryAssetsAfterUpdate(id, command, oldImageUrl, oldScreenshots);
+
+        Project updatedProject = portfolioRepositoryPort.updateProject(project);
+
+        log.info("Project updated successfully: {}", updatedProject.getId());
+        return updatedProject;
+    }
+
+    private void applyUpdateCommandFields(Project project, ProjectUpdateCommand command) {
+        applyUpdateCommandTitleDescriptionReadmeTypeStatus(project, command);
+        applyUpdateCommandRoleContributionsDates(project, command);
+        project.updateTeamInfo(command.getIsTeam(), command.getTeamSize());
+        applyUpdateCommandFeaturedImageScreenshots(project, command);
+        applyUpdateCommandLinksAndSortOrder(project, command);
+    }
+
+    private void applyUpdateCommandTitleDescriptionReadmeTypeStatus(Project project, ProjectUpdateCommand command) {
+        if (command.getTitle() != null) {
+            project.setTitle(command.getTitle());
+        }
+        if (command.getDescription() != null) {
+            project.setDescription(command.getDescription());
+        }
         if (command.getReadme() != null) {
             project.setReadme(TextFieldHelper.normalizeText(command.getReadme()));
         }
@@ -160,35 +179,40 @@ public class ManageProjectService implements ManageProjectUseCase {
         if (command.getStatus() != null) {
             project.setStatus(TextFieldHelper.normalizeText(command.getStatus()));
         }
+    }
+
+    private void applyUpdateCommandRoleContributionsDates(Project project, ProjectUpdateCommand command) {
         if (command.getRole() != null) {
             project.setRole(TextFieldHelper.normalizeText(command.getRole()));
         }
         if (command.getMyContributions() != null) {
             project.setMyContributions(TextFieldHelper.normalizeTextList(command.getMyContributions()));
         }
-        if (command.getStartDate() != null) project.setStartDate(command.getStartDate());
-        if (command.getEndDate() != null) project.setEndDate(command.getEndDate());
+        if (command.getStartDate() != null) {
+            project.setStartDate(command.getStartDate());
+        }
+        if (command.getEndDate() != null) {
+            project.setEndDate(command.getEndDate());
+        }
+    }
 
-        project.updateTeamInfo(command.getIsTeam(), command.getTeamSize());
-        
-        // isFeatured 업데이트 (Boolean wrapper를 boolean primitive로 변환)
+    private void applyUpdateCommandFeaturedImageScreenshots(Project project, ProjectUpdateCommand command) {
         if (command.getIsFeatured() != null) {
             project.setFeatured(Boolean.TRUE.equals(command.getIsFeatured()));
         }
-
-        // 이미지 URL 업데이트 (선택 필드: 정규화 적용)
         if (command.getImageUrl() != null) {
             project.setImageUrl(TextFieldHelper.normalizeText(command.getImageUrl()));
         }
-
-        // 스크린샷 업데이트 (선택 필드: 정규화 적용)
         if (command.getScreenshots() != null) {
             List<String> validScreenshots = command.getScreenshots().stream()
                     .map(TextFieldHelper::normalizeText)
                     .filter(url -> url != null)
-                    .collect(java.util.stream.Collectors.toList());
+                    .toList();
             project.setScreenshots(validScreenshots.isEmpty() ? null : validScreenshots);
         }
+    }
+
+    private void applyUpdateCommandLinksAndSortOrder(Project project, ProjectUpdateCommand command) {
         if (command.getGithubUrl() != null) {
             project.setGithubUrl(TextFieldHelper.normalizeText(command.getGithubUrl()));
         }
@@ -198,53 +222,55 @@ public class ManageProjectService implements ManageProjectUseCase {
         if (command.getExternalUrl() != null) {
             project.setExternalUrl(TextFieldHelper.normalizeText(command.getExternalUrl()));
         }
-        if (command.getSortOrder() != null) project.setSortOrder(command.getSortOrder());
-
-        // 수정 시간 갱신
-        project.setUpdatedAt(MetadataHelper.setupUpdatedAt());
-
-        // 수정된 이미지 처리 (교체된 경우 기존 이미지 삭제)
-        try {
-            // 썸네일이 교체되었는지 확인
-            if (command.getImageUrl() != null && !command.getImageUrl().equals(oldImageUrl)) {
-                if (oldImageUrl != null && oldImageUrl.contains("cloudinary.com")) {
-                    String publicId = imageStoragePort.extractPublicId(oldImageUrl);
-                    if (publicId != null) {
-                        log.info("Deleting old thumbnail from Cloudinary: {}", publicId);
-                        imageStoragePort.deleteImage(publicId);
-                    }
-                }
-            }
-
-            // 스크린샷이 교체되었는지 확인
-            if (command.getScreenshots() != null) {
-                List<String> newScreenshots = command.getScreenshots();
-
-                if (oldScreenshots != null && !oldScreenshots.isEmpty()) {
-                    for (String oldScreenshot : oldScreenshots) {
-                        if (oldScreenshot != null && oldScreenshot.contains("cloudinary.com")) {
-                            boolean stillExists = newScreenshots.stream()
-                                    .anyMatch(s -> s != null && s.equals(oldScreenshot));
-
-                            if (!stillExists) {
-                                String publicId = imageStoragePort.extractPublicId(oldScreenshot);
-                                if (publicId != null) {
-                                    log.info("Deleting old screenshot from Cloudinary: {}", publicId);
-                                    imageStoragePort.deleteImage(publicId);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        } catch (Exception e) {
-            log.error("Failed to delete old images from Cloudinary during update: {}", id, e);
+        if (command.getSortOrder() != null) {
+            project.setSortOrder(command.getSortOrder());
         }
+    }
 
-        Project updatedProject = portfolioRepositoryPort.updateProject(project);
+    private void removeObsoleteCloudinaryAssetsAfterUpdate(
+            String projectBusinessId,
+            ProjectUpdateCommand command,
+            String oldImageUrl,
+            List<String> oldScreenshots) {
+        try {
+            deleteReplacedThumbnailIfNeeded(command, oldImageUrl);
+            deleteRemovedScreenshotsIfNeeded(command, oldScreenshots);
+        } catch (Exception e) {
+            log.error("Failed to delete old images from Cloudinary during update: {}", projectBusinessId, e);
+        }
+    }
 
-        log.info("Project updated successfully: {}", updatedProject.getId());
-        return updatedProject;
+    private void deleteReplacedThumbnailIfNeeded(ProjectUpdateCommand command, String oldImageUrl) {
+        if (command.getImageUrl() == null
+                || command.getImageUrl().equals(oldImageUrl)
+                || oldImageUrl == null
+                || !oldImageUrl.contains(CLOUDINARY_DOMAIN)) {
+            return;
+        }
+        String publicId = imageStoragePort.extractPublicId(oldImageUrl);
+        if (publicId != null) {
+            log.info("Deleting old thumbnail from Cloudinary: {}", publicId);
+            imageStoragePort.deleteImage(publicId);
+        }
+    }
+
+    private void deleteRemovedScreenshotsIfNeeded(ProjectUpdateCommand command, List<String> oldScreenshots) {
+        if (command.getScreenshots() == null || oldScreenshots == null || oldScreenshots.isEmpty()) {
+            return;
+        }
+        List<String> newScreenshots = command.getScreenshots();
+        for (String oldScreenshot : oldScreenshots) {
+            if (oldScreenshot == null
+                    || !oldScreenshot.contains(CLOUDINARY_DOMAIN)
+                    || newScreenshots.stream().anyMatch(s -> s != null && s.equals(oldScreenshot))) {
+                continue;
+            }
+            String publicId = imageStoragePort.extractPublicId(oldScreenshot);
+            if (publicId != null) {
+                log.info("Deleting old screenshot from Cloudinary: {}", publicId);
+                imageStoragePort.deleteImage(publicId);
+            }
+        }
     }
 
     @Override
@@ -253,7 +279,7 @@ public class ManageProjectService implements ManageProjectUseCase {
         log.info("Deleting project: {}", id);
 
         // 프로젝트 존재 여부 확인
-        if (!portfolioRepositoryPort.findProjectById(id).isPresent()) {
+        if (portfolioRepositoryPort.findProjectById(id).isEmpty()) {
             throw new IllegalArgumentException("프로젝트를 찾을 수 없습니다: " + id);
         }
 
@@ -279,19 +305,6 @@ public class ManageProjectService implements ManageProjectUseCase {
     }
 
     /**
-     * TechStack 관계 교체
-     * Port를 통한 관계 관리로 변경
-     */
-    private void replaceTechStacks(String projectBusinessId, List<TechStackRelation> relationships) {
-        ProjectJpaEntity project = projectJpaRepository.findByBusinessId(projectBusinessId)
-                .orElseThrow(() -> new IllegalArgumentException("Project not found: " + projectBusinessId));
-        List<ProjectRelationshipPort.TechStackRelation> portRelations = relationships.stream()
-                .map(TechStackRelation::toPortRelation)
-                .collect(java.util.stream.Collectors.toList());
-        projectRelationshipPort.replaceTechStacks(project.getId(), portRelations);
-    }
-
-    /**
      * 프로젝트 ID 자동 생성
      */
     private String generateProjectId() {
@@ -300,7 +313,7 @@ public class ManageProjectService implements ManageProjectUseCase {
     }
 
     private void deleteThumbnailIfNecessary(String imageUrl) {
-        if (imageUrl == null || !imageUrl.contains("cloudinary.com")) {
+        if (imageUrl == null || !imageUrl.contains(CLOUDINARY_DOMAIN)) {
             return;
         }
 
@@ -321,7 +334,7 @@ public class ManageProjectService implements ManageProjectUseCase {
                 String publicId = screenshot.getCloudinaryPublicId();
                 if ((publicId == null || publicId.isEmpty())
                         && screenshot.getImageUrl() != null
-                        && screenshot.getImageUrl().contains("cloudinary.com")) {
+                        && screenshot.getImageUrl().contains(CLOUDINARY_DOMAIN)) {
                     publicId = imageStoragePort.extractPublicId(screenshot.getImageUrl());
                 }
 
@@ -363,7 +376,7 @@ public class ManageProjectService implements ManageProjectUseCase {
                             .orElseThrow(() -> new IllegalArgumentException(
                                     "TechStack을 찾을 수 없습니다: ID=" + id));
                 })
-                .collect(java.util.stream.Collectors.toList());
+                .toList();
     }
 
     /**

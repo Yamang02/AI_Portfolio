@@ -3,7 +3,6 @@ package com.aiportfolio.backend.infrastructure.persistence.postgres.repository;
 import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.ProjectTechStackJpaEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -48,19 +47,19 @@ public interface ProjectTechStackJpaRepository extends JpaRepository<ProjectTech
     /**
      * @deprecated tech_stack_id 기반으로 변경됨. findByTechStackId 사용 권장
      */
-    @Deprecated
+    @Deprecated(since = "1.0.0", forRemoval = false)
     List<ProjectTechStackJpaEntity> findByTechStackName(String techStackName);
     
     /**
      * @deprecated tech_stack_id 기반으로 변경됨. findByProjectIdAndTechStackId 사용 권장
      */
-    @Deprecated
+    @Deprecated(since = "1.0.0", forRemoval = false)
     ProjectTechStackJpaEntity findByProjectIdAndTechStackName(Long projectId, String techStackName);
     
     /**
      * @deprecated tech_stack_id 기반으로 변경됨. deleteByTechStackId 사용 권장
      */
-    @Deprecated
+    @Deprecated(since = "1.0.0", forRemoval = false)
     void deleteByTechStackName(String techStackName);
     
     /**

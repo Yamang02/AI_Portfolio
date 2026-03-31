@@ -11,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Main 앱 전용 Experience 조회 서비스
@@ -51,7 +50,7 @@ public class GetExperienceService implements GetExperienceUseCase {
         log.debug("Fetching experiences by type: {}", type);
         return getAllExperiencesInternal().stream()
             .filter(e -> type != null && type.name().equals(e.getEmploymentType()))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     @Override
@@ -59,7 +58,7 @@ public class GetExperienceService implements GetExperienceUseCase {
         log.debug("Fetching experiences by organization: {}", organization);
         return getAllExperiencesInternal().stream()
             .filter(e -> e.isFromOrganization(organization))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     @Override
@@ -67,7 +66,7 @@ public class GetExperienceService implements GetExperienceUseCase {
         log.debug("Fetching current experiences");
         return getAllExperiencesInternal().stream()
             .filter(Experience::isCurrentlyEmployed)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     @Override
@@ -75,7 +74,7 @@ public class GetExperienceService implements GetExperienceUseCase {
         log.debug("Fetching experiences by tech stack: {}", techStackName);
         return getAllExperiencesInternal().stream()
             .filter(e -> e.usesTechnology(techStackName))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     @Override
@@ -89,6 +88,6 @@ public class GetExperienceService implements GetExperienceUseCase {
                 e.getOrganization().toLowerCase().contains(lowerKeyword) ||
                 e.getRole().toLowerCase().contains(lowerKeyword)
             )
-            .collect(Collectors.toList());
+            .toList();
     }
 }

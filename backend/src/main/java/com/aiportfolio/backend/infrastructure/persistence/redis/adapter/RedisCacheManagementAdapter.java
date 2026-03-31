@@ -3,6 +3,8 @@ package com.aiportfolio.backend.infrastructure.persistence.redis.adapter;
 import com.aiportfolio.backend.domain.admin.port.out.CacheManagementPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.connection.RedisConnection;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -19,6 +21,8 @@ import java.util.*;
 @RequiredArgsConstructor
 @Slf4j
 public class RedisCacheManagementAdapter implements CacheManagementPort {
+    private static final String KEY_STATUS = "status";
+    private static final String KEY_ERROR = "error";
     
     private final RedisTemplate<String, Object> redisTemplate;
     
@@ -38,7 +42,7 @@ public class RedisCacheManagementAdapter implements CacheManagementPort {
             
         } catch (Exception e) {
             log.error("Error during cache flush", e);
-            throw new RuntimeException("캐시 초기화 중 오류가 발생했습니다", e);
+            throw new IllegalStateException("캐시 초기화 중 오류가 발생했습니다", e);
         }
     }
     
@@ -58,7 +62,7 @@ public class RedisCacheManagementAdapter implements CacheManagementPort {
             
         } catch (Exception e) {
             log.error("Error during cache eviction by pattern: {}", pattern, e);
-            throw new RuntimeException("패턴별 캐시 삭제 중 오류가 발생했습니다", e);
+            throw new IllegalStateException("패턴별 캐시 삭제 중 오류가 발생했습니다", e);
         }
     }
     
@@ -73,7 +77,7 @@ public class RedisCacheManagementAdapter implements CacheManagementPort {
             
         } catch (Exception e) {
             log.error("Error during cache eviction: {} - {}", cacheName, key, e);
-            throw new RuntimeException("캐시 삭제 중 오류가 발생했습니다", e);
+            throw new IllegalStateException("캐시 삭제 중 오류가 발생했습니다", e);
         }
     }
     
@@ -112,7 +116,7 @@ public class RedisCacheManagementAdapter implements CacheManagementPort {
             
         } catch (Exception e) {
             log.error("Error retrieving cache stats", e);
-            throw new RuntimeException("캐시 통계 조회 중 오류가 발생했습니다", e);
+            throw new IllegalStateException("캐시 통계 조회 중 오류가 발생했습니다", e);
         }
         
         return stats;
@@ -142,30 +146,18 @@ public class RedisCacheManagementAdapter implements CacheManagementPort {
             // Redis 연결 상태 확인
             var connectionFactory = redisTemplate.getConnectionFactory();
             if (connectionFactory != null) {
-                var connection = connectionFactory.getConnection();
-                try {
-                    String pingResult = connection.ping();
-                    Properties info = connection.info("server");
-                    String redisVersion = info.getProperty("redis_version");
-                    
-                    status.put("status", "connected");
-                    status.put("ping", pingResult);
-                    status.put("redisVersion", redisVersion != null ? redisVersion : "unknown");
-                    
-                    log.info("Redis connection status - Connected: true, Ping: {}, Version: {}", pingResult, redisVersion);
-                } finally {
-                    connection.close();
-                }
+                RedisConnection connection = connectionFactory.getConnection();
+                populateStatusFromRedisConnection(status, connection);
             } else {
-                status.put("status", "no_connection_factory");
+                status.put(KEY_STATUS, "no_connection_factory");
                 log.warn("Redis connection factory is null");
             }
             status.put("timestamp", System.currentTimeMillis());
 
         } catch (Exception e) {
             log.error("Error getting cache status", e);
-            status.put("status", "error");
-            status.put("error", e.getMessage());
+            status.put(KEY_STATUS, KEY_ERROR);
+            status.put(KEY_ERROR, e.getMessage());
             status.put("timestamp", System.currentTimeMillis());
         }
 
@@ -211,7 +203,7 @@ public class RedisCacheManagementAdapter implements CacheManagementPort {
 
         } catch (Exception e) {
             log.error("Error setting value for key: {}", key, e);
-            throw new RuntimeException("Redis 값 저장 중 오류가 발생했습니다", e);
+            throw new IllegalStateException("Redis 값 저장 중 오류가 발생했습니다", e);
         }
     }
     
@@ -224,26 +216,7 @@ public class RedisCacheManagementAdapter implements CacheManagementPort {
      */
     private Set<String> scanKeys(String pattern) {
         log.info("Scanning keys with pattern: {}", pattern);
-        
-        // 현재 Redis 연결 정보 로깅 (환경 차이 진단용)
-        try {
-            var connectionFactory = redisTemplate.getConnectionFactory();
-            if (connectionFactory != null) {
-                var connection = connectionFactory.getConnection();
-                try {
-                    // Redis INFO 명령으로 DB 정보 확인
-                    Properties info = connection.info("server");
-                    String redisVersion = info.getProperty("redis_version");
-                    log.info("Redis connection info - Version: {}", redisVersion);
-                } catch (Exception infoEx) {
-                    log.debug("Could not retrieve Redis INFO", infoEx);
-                } finally {
-                    connection.close();
-                }
-            }
-        } catch (Exception e) {
-            log.warn("Could not retrieve Redis connection info", e);
-        }
+        logRedisConnectionInfo();
         
         Set<String> keys = new HashSet<>();
         int scanCount = 100; // 한 번에 스캔할 키 개수
@@ -253,36 +226,81 @@ public class RedisCacheManagementAdapter implements CacheManagementPort {
                     .match(pattern)
                     .count(scanCount)
                     .build();
-            
+
             log.info("Starting SCAN operation with pattern: {}, count: {}", pattern, scanCount);
-            
-            try (Cursor<String> cursor = redisTemplate.scan(options)) {
-                int scanned = 0;
-                while (cursor.hasNext()) {
-                    keys.add(cursor.next());
-                    scanned++;
-                    if (scanned % 100 == 0) {
-                        log.debug("Scanned {} keys so far...", scanned);
-                    }
-                }
-                log.info("SCAN completed. Total keys found: {}", keys.size());
-            }
-            
+            collectKeysUsingScan(options, keys);
+
         } catch (Exception e) {
             log.error("Error scanning keys with pattern: {}. Error: {}", pattern, e.getMessage(), e);
             // SCAN 실패 시 keys() 명령어로 fallback (경고 로그와 함께)
             log.warn("Falling back to keys() command due to SCAN failure. This may cause performance issues.");
-            try {
-                Set<String> fallbackKeys = redisTemplate.keys(pattern);
-                log.info("Fallback keys() command succeeded. Found {} keys", fallbackKeys != null ? fallbackKeys.size() : 0);
-                return fallbackKeys != null ? fallbackKeys : Collections.emptySet();
-            } catch (Exception fallbackException) {
-                log.error("Fallback keys() command also failed. Error: {}", fallbackException.getMessage(), fallbackException);
-                throw new RuntimeException("키 조회 중 오류가 발생했습니다", fallbackException);
-            }
+            return fallbackKeys(pattern);
         }
         
         return keys;
+    }
+
+    private void collectKeysUsingScan(ScanOptions options, Set<String> keys) {
+        try (Cursor<String> cursor = redisTemplate.scan(options)) {
+            int scanned = 0;
+            while (cursor.hasNext()) {
+                keys.add(cursor.next());
+                scanned++;
+                if (scanned % 100 == 0) {
+                    log.debug("Scanned {} keys so far...", scanned);
+                }
+            }
+            log.info("SCAN completed. Total keys found: {}", keys.size());
+        }
+    }
+
+    private void populateStatusFromRedisConnection(Map<String, Object> status, RedisConnection connection) {
+        try {
+            String pingResult = connection.ping();
+            Properties info = connection.info("server");
+            String redisVersion = info.getProperty("redis_version");
+
+            status.put(KEY_STATUS, "connected");
+            status.put("ping", pingResult);
+            status.put("redisVersion", redisVersion != null ? redisVersion : "unknown");
+
+            log.info("Redis connection status - Connected: true, Ping: {}, Version: {}", pingResult, redisVersion);
+        } finally {
+            connection.close();
+        }
+    }
+
+    private void logRedisConnectionInfo() {
+        try {
+            var connectionFactory = redisTemplate.getConnectionFactory();
+            if (connectionFactory == null) {
+                return;
+            }
+            logRedisServerVersion(connectionFactory);
+        } catch (Exception e) {
+            log.warn("Could not retrieve Redis connection info", e);
+        }
+    }
+
+    private void logRedisServerVersion(RedisConnectionFactory connectionFactory) {
+        try (var connection = connectionFactory.getConnection()) {
+            Properties info = connection.info("server");
+            String redisVersion = info.getProperty("redis_version");
+            log.info("Redis connection info - Version: {}", redisVersion);
+        } catch (Exception infoEx) {
+            log.debug("Could not retrieve Redis INFO", infoEx);
+        }
+    }
+
+    private Set<String> fallbackKeys(String pattern) {
+        try {
+            Set<String> fallbackKeys = redisTemplate.keys(pattern);
+            log.info("Fallback keys() command succeeded. Found {} keys", fallbackKeys != null ? fallbackKeys.size() : 0);
+            return fallbackKeys != null ? fallbackKeys : Collections.emptySet();
+        } catch (Exception fallbackException) {
+            log.error("Fallback keys() command also failed. Error: {}", fallbackException.getMessage(), fallbackException);
+            throw new IllegalStateException("키 조회 중 오류가 발생했습니다", fallbackException);
+        }
     }
     
     /**
@@ -298,9 +316,9 @@ public class RedisCacheManagementAdapter implements CacheManagementPort {
             
             if (dbSize != null) {
                 memoryInfo.put("dbSize", dbSize);
-                memoryInfo.put("status", "available");
+                memoryInfo.put(KEY_STATUS, "available");
             } else {
-                memoryInfo.put("status", "unavailable");
+                memoryInfo.put(KEY_STATUS, "unavailable");
             }
             
             // 메모리 상세 정보는 Redis CLI 또는 모니터링 도구 사용 권장
@@ -308,8 +326,8 @@ public class RedisCacheManagementAdapter implements CacheManagementPort {
             
         } catch (Exception e) {
             log.warn("Could not retrieve Redis info", e);
-            memoryInfo.put("error", "Redis 정보 조회 중 오류 발생: " + e.getMessage());
-            memoryInfo.put("status", "error");
+            memoryInfo.put(KEY_ERROR, "Redis 정보 조회 중 오류 발생: " + e.getMessage());
+            memoryInfo.put(KEY_STATUS, KEY_ERROR);
         }
         
         return memoryInfo;

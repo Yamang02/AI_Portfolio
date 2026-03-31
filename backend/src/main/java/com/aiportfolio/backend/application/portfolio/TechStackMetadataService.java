@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * 기술 스택 메타데이터 서비스
@@ -81,13 +80,13 @@ public class TechStackMetadataService implements GetTechStackMetadataUseCase {
         List<Object[]> categoryCounts = jpaRepository.countByCategory();
         List<CategoryCount> categoryCountList = categoryCounts.stream()
                 .map(result -> new CategoryCount((String) result[0], (Long) result[1]))
-                .collect(Collectors.toList());
+                .toList();
         
         // 레벨별 개수
         List<Object[]> levelCounts = jpaRepository.countByLevel();
         List<LevelCount> levelCountList = levelCounts.stream()
                 .map(result -> new LevelCount((String) result[0], (Long) result[1]))
-                .collect(Collectors.toList());
+                .toList();
         
         return new TechStackStatistics(
                 totalTechnologies != null ? totalTechnologies : 0L,

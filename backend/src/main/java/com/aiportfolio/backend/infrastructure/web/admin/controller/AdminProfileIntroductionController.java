@@ -3,6 +3,8 @@ package com.aiportfolio.backend.infrastructure.web.admin.controller;
 import com.aiportfolio.backend.domain.portfolio.model.ProfileIntroduction;
 import com.aiportfolio.backend.domain.portfolio.port.in.GetProfileIntroductionUseCase;
 import com.aiportfolio.backend.domain.portfolio.port.in.ManageProfileIntroductionUseCase;
+import com.aiportfolio.backend.infrastructure.web.WebApiResponseMessages;
+import com.aiportfolio.backend.infrastructure.web.admin.AdminApiErrorMessages;
 import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +28,7 @@ public class AdminProfileIntroductionController {
     public ResponseEntity<ApiResponse<ProfileIntroductionResponse>> getCurrent() {
         return getUseCase.getCurrent()
                 .map(intro -> ResponseEntity.ok(ApiResponse.success(ProfileIntroductionResponse.from(intro))))
-                .orElse(ResponseEntity.ok(ApiResponse.success(null, "자기소개가 없습니다.")));
+                .orElse(ResponseEntity.ok(ApiResponse.success(null, WebApiResponseMessages.PROFILE_INTRO_EMPTY)));
     }
 
     /**
@@ -43,14 +45,14 @@ public class AdminProfileIntroductionController {
             ProfileIntroduction saved = manageUseCase.saveOrUpdate(command);
             return ResponseEntity.ok(ApiResponse.success(
                     ProfileIntroductionResponse.from(saved),
-                    "자기소개가 저장되었습니다."
+                    WebApiResponseMessages.PROFILE_INTRO_SAVE_SUCCESS
             ));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest()
                     .body(ApiResponse.error(e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.internalServerError()
-                    .body(ApiResponse.error("자기소개 저장 중 오류가 발생했습니다: " + e.getMessage()));
+                    .body(ApiResponse.error(AdminApiErrorMessages.profileIntroductionSaveFailed(e)));
         }
     }
 

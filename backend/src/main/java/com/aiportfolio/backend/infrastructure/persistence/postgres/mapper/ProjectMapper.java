@@ -2,11 +2,9 @@ package com.aiportfolio.backend.infrastructure.persistence.postgres.mapper;
 
 // 도메인 모델 imports
 import com.aiportfolio.backend.domain.portfolio.model.Project;
-import com.aiportfolio.backend.domain.portfolio.model.TechStackMetadata;
 
 // 인프라 레이어 imports
 import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.ProjectJpaEntity;
-import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.TechStackMetadataJpaEntity;
 import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.ProjectTechStackJpaEntity;
 import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.ProjectScreenshotJpaEntity;
 import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.ProjectScreenshotJpaRepository;
@@ -18,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 
 // Java 표준 라이브러리 imports
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.ArrayList;
 
 /**
@@ -57,7 +54,7 @@ public class ProjectMapper {
                     jpaEntity.getProjectTechStacks() != null ? 
                     jpaEntity.getProjectTechStacks().stream()
                         .map(ProjectTechStackJpaEntity::getTechStack)
-                        .collect(java.util.stream.Collectors.toList()) : 
+                        .toList() : 
                     new java.util.ArrayList<>()
                 ))
                 .githubUrl(jpaEntity.getGithubUrl())
@@ -126,12 +123,12 @@ public class ProjectMapper {
      */
     public List<Project> toDomainList(List<ProjectJpaEntity> jpaEntities) {
         if (jpaEntities == null) {
-            return null;
+            return List.of();
         }
         
         return jpaEntities.stream()
                 .map(this::toDomain)
-                .collect(Collectors.toList());
+                .toList();
     }
     
     /**
@@ -141,12 +138,12 @@ public class ProjectMapper {
      */
     public List<ProjectJpaEntity> toJpaEntityList(List<Project> domainModels) {
         if (domainModels == null) {
-            return null;
+            return List.of();
         }
         
         return domainModels.stream()
                 .map(this::toJpaEntity)
-                .collect(Collectors.toList());
+                .toList();
     }
     
     /**
@@ -179,7 +176,7 @@ public class ProjectMapper {
                 })
                 .map(ProjectScreenshotJpaEntity::getImageUrl)
                 .filter(url -> url != null && !url.isEmpty())
-                .collect(Collectors.toList());
+                .toList();
         } catch (Exception e) {
             // 예외 발생 시 빈 리스트 반환하여 전체 조회를 막지 않음
             log.warn("Error fetching screenshot URLs for project {}: {}", 

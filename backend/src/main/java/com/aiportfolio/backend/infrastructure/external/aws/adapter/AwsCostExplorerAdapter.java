@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * AWS Cost Explorer 어댑터
@@ -57,35 +58,11 @@ public class AwsCostExplorerAdapter implements CloudUsagePort {
         List<ServiceCost> services = new ArrayList<>();
         int processedGroups = 0;
 
-        // ResultByTime에서 서비스별 비용 추출
         for (ResultByTime result : response.resultsByTime()) {
             for (Group group : result.groups()) {
-                String serviceName = group.keys().isEmpty() ? "Unknown" : group.keys().get(0);
-                MetricValue metricValue = group.metrics().get("BlendedCost");
-
-                if (metricValue != null && metricValue.amount() != null) {
-                    BigDecimal cost = new BigDecimal(metricValue.amount());
-                    String unit = metricValue.unit() != null ? metricValue.unit() : "USD";
-
-                    // 같은 서비스가 여러 날짜에 있으면 합산
-                    ServiceCost existing = services.stream()
-                        .filter(s -> s.getServiceName().equals(serviceName))
-                        .findFirst()
-                        .orElse(null);
-
-                    if (existing != null) {
-                        existing.setCost(existing.getCost().add(cost));
-                    } else {
-                        services.add(ServiceCost.builder()
-                            .serviceName(serviceName)
-                            .cost(cost)
-                            .unit(unit)
-                            .build());
-                    }
-
-                    totalCost = totalCost.add(cost);
-                    processedGroups++;
-                }
+                Optional<BigDecimal> merged = mergeAwsCostGroupIntoServices(group, services);
+                totalCost = merged.map(totalCost::add).orElse(totalCost);
+                processedGroups += merged.map(m -> 1).orElse(0);
             }
         }
 
@@ -99,5 +76,29 @@ public class AwsCostExplorerAdapter implements CloudUsagePort {
             .services(services)
             .lastUpdated(LocalDate.now())
             .build();
+    }
+
+    private Optional<BigDecimal> mergeAwsCostGroupIntoServices(Group group, List<ServiceCost> services) {
+        String serviceName = group.keys().isEmpty() ? "Unknown" : group.keys().get(0);
+        MetricValue metricValue = group.metrics().get("BlendedCost");
+        if (metricValue == null || metricValue.amount() == null) {
+            return Optional.empty();
+        }
+        BigDecimal cost = new BigDecimal(metricValue.amount());
+        String unit = metricValue.unit() != null ? metricValue.unit() : "USD";
+        ServiceCost existing = services.stream()
+                .filter(s -> s.getServiceName().equals(serviceName))
+                .findFirst()
+                .orElse(null);
+        if (existing != null) {
+            existing.setCost(existing.getCost().add(cost));
+        } else {
+            services.add(ServiceCost.builder()
+                    .serviceName(serviceName)
+                    .cost(cost)
+                    .unit(unit)
+                    .build());
+        }
+        return Optional.of(cost);
     }
 }

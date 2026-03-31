@@ -88,7 +88,7 @@ public class Project {
         return techStackMetadata != null ? 
                techStackMetadata.stream()
                    .map(TechStackMetadata::getName)
-                   .collect(java.util.stream.Collectors.toList()) : 
+                   .toList() : 
                new java.util.ArrayList<>();
     }
     
@@ -101,7 +101,7 @@ public class Project {
         return techStackMetadata != null ? 
                techStackMetadata.stream()
                    .filter(TechStackMetadata::isCoreTechnology)
-                   .collect(java.util.stream.Collectors.toList()) : 
+                   .toList() : 
                new java.util.ArrayList<>();
     }
 

@@ -7,6 +7,8 @@ import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.TechSt
 import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.ProjectJpaRepository;
 import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.ProjectTechStackJpaRepository;
 import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.TechStackMetadataJpaRepository;
+import com.aiportfolio.backend.infrastructure.web.WebApiResponseMessages;
+import com.aiportfolio.backend.infrastructure.web.admin.AdminApiErrorMessages;
 import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;
 import com.aiportfolio.backend.infrastructure.web.dto.relationship.BulkTechStackRelationshipRequest;
 import com.aiportfolio.backend.infrastructure.web.dto.relationship.TechStackRelationshipDto;
@@ -19,7 +21,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Admin Project 관계 관리 REST API Controller
@@ -60,7 +61,7 @@ public class AdminProjectRelationshipController {
                     .isPrimary(rel.getIsPrimary())
                     .usageDescription(rel.getUsageDescription())
                     .build())
-                .collect(Collectors.toList());
+                .toList();
 
             return ResponseEntity.ok(ApiResponse.success(dtos));
         } catch (IllegalArgumentException e) {
@@ -68,7 +69,7 @@ public class AdminProjectRelationshipController {
         } catch (Exception e) {
             log.error("Error fetching tech stack relationships", e);
             return ResponseEntity.internalServerError()
-                .body(ApiResponse.error("기술스택 관계 조회 실패: " + e.getMessage()));
+                .body(ApiResponse.error(AdminApiErrorMessages.techStackRelationQueryFailed(e)));
         }
     }
 
@@ -80,24 +81,18 @@ public class AdminProjectRelationshipController {
             ProjectJpaEntity project = projectJpaRepository.findByBusinessId(id)
                 .orElseThrow(() -> new IllegalArgumentException("Project not found"));
 
-            TechStackMetadataJpaEntity techStack;
-            // ID로 조회
+            // ID로 조회, 없으면 name으로 조회 (하위 호환성)
             Optional<TechStackMetadataJpaEntity> techStackOpt = techStackMetadataJpaRepository
                 .findById(request.getTechStackId());
-            
-            if (techStackOpt.isPresent()) {
-                techStack = techStackOpt.get();
-            } else {
-                // ID로 못 찾으면 name으로 조회 (하위 호환성)
-                techStack = techStackMetadataJpaRepository
-                    .findByName(String.valueOf(request.getTechStackId()))
-                    .orElseThrow(() -> new IllegalArgumentException("TechStack not found"));
-            }
+            TechStackMetadataJpaEntity techStack = techStackOpt.orElseGet(() ->
+                    techStackMetadataJpaRepository
+                            .findByName(String.valueOf(request.getTechStackId()))
+                            .orElseThrow(() -> new IllegalArgumentException("TechStack not found")));
 
             if (projectTechStackJpaRepository
                 .findByProjectIdAndTechStackId(project.getId(), techStack.getId()) != null) {
                 return ResponseEntity.badRequest()
-                    .body(ApiResponse.error("이미 관계가 존재합니다"));
+                    .body(ApiResponse.error(AdminApiErrorMessages.RELATION_ALREADY_EXISTS));
             }
 
             ProjectTechStackJpaEntity relationship = ProjectTechStackJpaEntity.builder()
@@ -109,11 +104,11 @@ public class AdminProjectRelationshipController {
 
             projectTechStackJpaRepository.save(relationship);
 
-            return ResponseEntity.ok(ApiResponse.success(null, "기술스택 관계 추가 성공"));
+            return ResponseEntity.ok(ApiResponse.success(null, WebApiResponseMessages.TECH_STACK_RELATION_ADD_SUCCESS));
         } catch (Exception e) {
             log.error("Error adding tech stack relationship", e);
             return ResponseEntity.internalServerError()
-                .body(ApiResponse.error("기술스택 관계 추가 실패: " + e.getMessage()));
+                .body(ApiResponse.error(AdminApiErrorMessages.techStackRelationAddFailed(e)));
         }
     }
 
@@ -128,11 +123,11 @@ public class AdminProjectRelationshipController {
             projectTechStackJpaRepository.deleteByProjectIdAndTechStackId(
                 project.getId(), techStackId);
 
-            return ResponseEntity.ok(ApiResponse.success(null, "기술스택 관계 삭제 성공"));
+            return ResponseEntity.ok(ApiResponse.success(null, WebApiResponseMessages.TECH_STACK_RELATION_DELETE_SUCCESS));
         } catch (Exception e) {
             log.error("Error deleting tech stack relationship", e);
             return ResponseEntity.internalServerError()
-                .body(ApiResponse.error("기술스택 관계 삭제 실패: " + e.getMessage()));
+                .body(ApiResponse.error(AdminApiErrorMessages.techStackRelationDeleteFailed(e)));
         }
     }
 
@@ -147,22 +142,22 @@ public class AdminProjectRelationshipController {
             @PathVariable String id,
             @RequestBody BulkTechStackRelationshipRequest request) {
         try {
-            List<ProjectRelationshipPort.TechStackRelation> relationships =
-                request.getTechStackRelationships() == null
-                    ? List.of()
-                    : request.getTechStackRelationships().stream()
-                        .map(item -> new ProjectRelationshipPort.TechStackRelation(
+            List<BulkTechStackRelationshipRequest.TechStackRelationshipItem> items =
+                    request.getTechStackRelationships() != null
+                            ? request.getTechStackRelationships()
+                            : List.of();
+            List<ProjectRelationshipPort.TechStackRelation> relationships = items.stream()
+                    .map(item -> new ProjectRelationshipPort.TechStackRelation(
                             item.getTechStackId(),
-                            item.getIsPrimary() != null ? item.getIsPrimary() : false,
-                            item.getUsageDescription()
-                        ))
-                        .collect(Collectors.toList());
+                            Boolean.TRUE.equals(item.getIsPrimary()),
+                            item.getUsageDescription()))
+                    .toList();
 
             ProjectJpaEntity project = projectJpaRepository.findByBusinessId(id)
                 .orElseThrow(() -> new IllegalArgumentException("Project not found: " + id));
             projectRelationshipPort.replaceTechStacks(project.getId(), relationships);
 
-            return ResponseEntity.ok(ApiResponse.success(null, "기술스택 관계 일괄 업데이트 성공"));
+            return ResponseEntity.ok(ApiResponse.success(null, WebApiResponseMessages.TECH_STACK_RELATION_BULK_UPDATE_SUCCESS));
         } catch (IllegalArgumentException e) {
             log.error("Invalid request: {}", e.getMessage());
             return ResponseEntity.badRequest()
@@ -170,7 +165,7 @@ public class AdminProjectRelationshipController {
         } catch (Exception e) {
             log.error("Error updating tech stack relationships", e);
             return ResponseEntity.internalServerError()
-                .body(ApiResponse.error("기술스택 관계 일괄 업데이트 실패: " + e.getMessage()));
+                .body(ApiResponse.error(AdminApiErrorMessages.techStackRelationBulkUpdateFailed(e)));
         }
     }
 }

@@ -12,7 +12,7 @@ public interface RateLimitStoragePort {
 
     Optional<SpamSubmissionRecord> getRecord(String clientId);
 
-    void saveRecord(String clientId, SpamSubmissionRecord record);
+    void saveRecord(String clientId, SpamSubmissionRecord submissionState);
 
     void deleteRecord(String clientId);
 }

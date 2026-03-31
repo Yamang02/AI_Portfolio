@@ -9,7 +9,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 이미지 업로드 서비스
@@ -34,7 +33,7 @@ public class ImageUploadService implements UploadImageUseCase {
             
         } catch (IOException e) {
             log.error("Failed to upload image: {}", file.getOriginalFilename(), e);
-            throw new RuntimeException("이미지 업로드 실패: " + file.getOriginalFilename(), e);
+            throw new IllegalStateException("이미지 업로드 실패: " + file.getOriginalFilename(), e);
         }
     }
     
@@ -44,22 +43,18 @@ public class ImageUploadService implements UploadImageUseCase {
         
         try {
             List<byte[]> imagesData = files.stream()
-                .map(file -> {
-                    try {
-                        return file.getBytes();
-                    } catch (IOException e) {
-                        throw new RuntimeException("파일 읽기 실패: " + file.getOriginalFilename(), e);
-                    }
-                })
-                .collect(Collectors.toList());
+                .map(this::readMultipartBytes)
+                .toList();
             
             ImageStoragePort.ImageMetadata metadata = ImageStoragePort.ImageMetadata.defaultMetadata();
             
             return imageStoragePort.uploadImages(imagesData, folder, metadata);
             
+        } catch (RuntimeException e) {
+            throw e;
         } catch (Exception e) {
             log.error("Failed to upload images batch", e);
-            throw new RuntimeException("배치 이미지 업로드 실패: " + e.getMessage(), e);
+            throw new IllegalStateException("배치 이미지 업로드 실패: " + e.getMessage(), e);
         }
     }
     
@@ -69,9 +64,19 @@ public class ImageUploadService implements UploadImageUseCase {
         
         try {
             imageStoragePort.deleteImage(publicId);
+        } catch (RuntimeException e) {
+            throw e;
         } catch (Exception e) {
             log.error("Failed to delete image: {}", publicId, e);
-            throw new RuntimeException("이미지 삭제 실패: " + e.getMessage(), e);
+            throw new IllegalStateException("이미지 삭제 실패: " + e.getMessage(), e);
+        }
+    }
+
+    private byte[] readMultipartBytes(MultipartFile file) {
+        try {
+            return file.getBytes();
+        } catch (IOException e) {
+            throw new IllegalStateException("파일 읽기 실패: " + file.getOriginalFilename(), e);
         }
     }
 }

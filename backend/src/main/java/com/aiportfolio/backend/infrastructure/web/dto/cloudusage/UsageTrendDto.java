@@ -10,7 +10,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 비용 추이 DTO
@@ -27,7 +26,7 @@ public class UsageTrendDto {
             .trends(trends != null 
                 ? trends.stream()
                     .map(TrendItemDto::from)
-                    .collect(Collectors.toList())
+                    .toList()
                 : Collections.emptyList())
             .build();
     }

@@ -11,10 +11,10 @@ public abstract class BaseFilter {
     protected LocalDateTime dateFrom;
     protected LocalDateTime dateTo;
 
-    public BaseFilter() {
+    protected BaseFilter() {
     }
 
-    public BaseFilter(LocalDateTime dateFrom, LocalDateTime dateTo) {
+    protected BaseFilter(LocalDateTime dateFrom, LocalDateTime dateTo) {
         this.dateFrom = dateFrom;
         this.dateTo = dateTo;
     }

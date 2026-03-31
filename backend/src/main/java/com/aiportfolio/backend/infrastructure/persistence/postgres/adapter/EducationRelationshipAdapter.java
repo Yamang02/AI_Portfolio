@@ -67,7 +67,7 @@ public class EducationRelationshipAdapter implements EducationRelationshipPort {
         // 3. 기존 관계 중 삭제할 것들 (요청에 없는 것들)
         List<EducationTechStackJpaEntity> toDelete = existingRelations.stream()
                 .filter(existing -> !requestedIds.contains(existing.getTechStack().getId()))
-                .collect(Collectors.toList());
+                .toList();
 
         if (!toDelete.isEmpty()) {
             log.debug("Deleting {} tech stack relationships", toDelete.size());
@@ -86,7 +86,7 @@ public class EducationRelationshipAdapter implements EducationRelationshipPort {
                 ? Collections.emptyList()
                 : relationships.stream()
                         .filter(rel -> !existingIds.contains(rel.techStackId()))
-                        .collect(Collectors.toList());
+                        .toList();
 
         // 6. 추가 실행
         if (!toAdd.isEmpty()) {
@@ -138,7 +138,7 @@ public class EducationRelationshipAdapter implements EducationRelationshipPort {
         // 3. 기존 관계 중 삭제할 것들 (요청에 없는 것들)
         List<EducationProjectJpaEntity> toDelete = existingRelations.stream()
                 .filter(existing -> !requestedProjectIds.contains(existing.getProject().getId()))
-                .collect(Collectors.toList());
+                .toList();
 
         if (!toDelete.isEmpty()) {
             log.debug("Deleting {} project relationships", toDelete.size());
@@ -160,7 +160,7 @@ public class EducationRelationshipAdapter implements EducationRelationshipPort {
                             Long projectDbId = rel.projectDbId();
                             return projectDbId != null && !existingProjectIds.contains(projectDbId);
                         })
-                        .collect(Collectors.toList());
+                        .toList();
 
         // 6. 추가 실행
         if (!toAdd.isEmpty()) {

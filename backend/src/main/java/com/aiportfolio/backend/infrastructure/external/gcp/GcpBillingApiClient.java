@@ -59,7 +59,7 @@ public class GcpBillingApiClient {
                 }
             } catch (IOException e) {
                 log.error("Failed to initialize Cloud Billing API client", e);
-                throw new RuntimeException("Failed to initialize Cloud Billing API client: " + e.getMessage(), e);
+                throw new IllegalStateException("Failed to initialize Cloud Billing API client: " + e.getMessage(), e);
             }
         }
         return billingClient;
@@ -77,7 +77,7 @@ public class GcpBillingApiClient {
             return getBillingClient().getProjectBillingInfo(projectName);
         } catch (Exception e) {
             log.error("Failed to get project billing info", e);
-            throw new RuntimeException("Failed to get project billing info: " + e.getMessage(), e);
+            throw new IllegalStateException("Failed to get project billing info: " + e.getMessage(), e);
         }
     }
 
@@ -88,11 +88,11 @@ public class GcpBillingApiClient {
     public List<String> listBillingAccounts() {
         try {
             log.debug("Listing billing accounts");
-            // TODO: REST API를 통한 구현 필요
+            // 현재 구현은 BillingAccount 조회를 목적으로 하며, 비용 집계는 BigQuery 경로를 사용합니다.
             return new ArrayList<>();
         } catch (Exception e) {
             log.error("Failed to list billing accounts", e);
-            throw new RuntimeException("Failed to list billing accounts: " + e.getMessage(), e);
+            throw new IllegalStateException("Failed to list billing accounts: " + e.getMessage(), e);
         }
     }
 
@@ -105,7 +105,11 @@ public class GcpBillingApiClient {
      * 이 메서드는 향후 Cloud Cost Management API나 다른 방법으로 확장 가능합니다.
      */
     public void queryBillingData(LocalDate startDate, LocalDate endDate) {
-        log.warn("Direct cost query via Billing API is limited. Consider using BigQuery Export or Cloud Cost Management API.");
+        log.warn(
+            "Direct cost query via Billing API is limited (range: {} ~ {}). Consider using BigQuery Export or Cloud Cost Management API.",
+            startDate,
+            endDate
+        );
         // Cloud Billing API는 주로 청구 계정 관리에 사용되며,
         // 실제 비용 데이터는 BigQuery Export를 통해 조회하는 것이 일반적입니다.
     }

@@ -22,6 +22,21 @@ SonarQube 품질 작업과 코드 수정 시 **프로젝트 로컬** `.cursor/sk
 ## Sonar 한 줄 (모듈)
 
 - **Frontend:** `frontend/` 에서 `npm run test:coverage` 후 `sonar-scanner`(또는 팀 표준 CLI). `sonar-project.properties` 참고.
-- **Backend:** `backend/` 에서 `mvn verify`(또는 JaCoCo 생성 목표) 후 `mvn sonar:sonar`.
+- **Backend:** Maven 명령은 호스트가 아니라 Docker `backend` 컨테이너에서 실행한다.
+  - 예: `"C:\Program Files\Docker\Docker\resources\bin\docker.exe" compose exec backend mvn verify`
+- **Backend Sonar(로컬 :9000):** `backend` 서비스 안에서 `mvn sonar:sonar`만 쓰면 SonarCloud용 `sonar.organization` 등과 충돌할 수 있다. 로컬 SonarQube 재분석은 Compose에 정의된 전용 실행을 쓴다.
+  - 예: `"C:\Program Files\Docker\Docker\resources\bin\docker.exe" compose --profile sonar run --rm backend-sonar`  
+  - 전제·토큰: `docker-compose.yml` 주석, 레포 루트 `.env` 의 `SONAR_TOKEN`
+
+## Maven 실행 규칙 (필수)
+
+- 이 저장소에서 `mvn`, `mvnw` 관련 명령은 로컬 셸 직접 실행을 금지하고, 반드시 Docker 컨테이너 내부에서 실행한다.
+- 기본 패턴:
+  - `"C:\Program Files\Docker\Docker\resources\bin\docker.exe" compose exec backend mvn <goal>`
+- 백엔드 테스트 예시:
+  - `"C:\Program Files\Docker\Docker\resources\bin\docker.exe" compose exec backend mvn test`
+- 검증/품질 예시:
+  - `"C:\Program Files\Docker\Docker\resources\bin\docker.exe" compose exec backend mvn verify`
+  - 로컬 Sonar 재분석: `"C:\Program Files\Docker\Docker\resources\bin\docker.exe" compose --profile sonar run --rm backend-sonar`
 
 토큰은 **저장소 루트 `.env`** 의 `SONAR_TOKEN`(및 선택 `SONAR_HOST_URL`)로 두고, 스캔 전 셸에 로드한다. `.env`는 `.gitignore` 대상이므로 커밋하지 않는다. 공개 예시는 `.env.example` 주석을 따른다.

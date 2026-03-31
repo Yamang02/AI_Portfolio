@@ -2,12 +2,9 @@ package com.aiportfolio.backend.infrastructure.persistence.postgres.mapper;
 
 // 도메인 모델 imports
 import com.aiportfolio.backend.domain.portfolio.model.Experience;
-import com.aiportfolio.backend.domain.portfolio.model.TechStackMetadata;
-import com.aiportfolio.backend.domain.portfolio.model.enums.ExperienceType;
 
 // 인프라 레이어 imports
 import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.ExperienceJpaEntity;
-import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.TechStackMetadataJpaEntity;
 import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.ExperienceTechStackJpaEntity;
 
 // 외부 라이브러리 imports
@@ -15,7 +12,6 @@ import org.springframework.stereotype.Component;
 
 // Java 표준 라이브러리 imports
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Experience 도메인 모델과 JPA 엔티티 간 변환 매퍼
@@ -55,7 +51,7 @@ public class ExperienceMapper {
                     jpaEntity.getExperienceTechStacks() != null ? 
                     jpaEntity.getExperienceTechStacks().stream()
                         .map(ExperienceTechStackJpaEntity::getTechStack)
-                        .collect(java.util.stream.Collectors.toList()) : 
+                        .toList() : 
                     new java.util.ArrayList<>()
                 ))
                 .mainResponsibilities(jpaEntity.getMainResponsibilities())
@@ -103,12 +99,12 @@ public class ExperienceMapper {
      */
     public List<Experience> toDomainList(List<ExperienceJpaEntity> jpaEntities) {
         if (jpaEntities == null) {
-            return null;
+            return List.of();
         }
         
         return jpaEntities.stream()
                 .map(this::toDomain)
-                .collect(Collectors.toList());
+                .toList();
     }
     
     /**
@@ -118,12 +114,12 @@ public class ExperienceMapper {
      */
     public List<ExperienceJpaEntity> toJpaEntityList(List<Experience> domainModels) {
         if (domainModels == null) {
-            return null;
+            return List.of();
         }
         
         return domainModels.stream()
                 .map(this::toJpaEntity)
-                .collect(Collectors.toList());
+                .toList();
     }
     
     // ExperienceType enum 변환 메서드 제거됨 - employment_type으로 대체됨
