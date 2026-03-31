@@ -67,6 +67,19 @@ const calculateAverageDailyCost = (currentCost: number, period: { startDate: str
   return currentCost / totalDays;
 };
 
+const getTrendItemCost = (item: any, provider: CloudProvider): number => {
+  if (!item || typeof item !== 'object') return 0;
+  if (provider === CloudProvider.AWS) {
+    return typeof (item.awsCost ?? item.cost) === 'number' ? (item.awsCost ?? item.cost) : 0;
+  }
+  return typeof (item.gcpCost ?? item.cost) === 'number' ? (item.gcpCost ?? item.cost) : 0;
+};
+
+const getPeriodLabel = (hasTrends: boolean, granularity: 'daily' | 'monthly'): string => {
+  if (!hasTrends) return '현재 월 비용';
+  return granularity === 'daily' ? '최근 30일 일별 합계' : '최근 30일 월별 합계';
+};
+
 /**
  * 클라우드 사용량 카드 컴포넌트
  */
@@ -95,11 +108,7 @@ export const CloudUsageCard: React.FC<CloudUsageCardProps> = ({
       
       // 선택된 granularity의 총 비용 합계
       return trendData.reduce((sum, item) => {
-        if (!item || typeof item !== 'object') return sum;
-        const cost = provider === CloudProvider.AWS 
-          ? (item.awsCost ?? item.cost ?? 0)
-          : (item.gcpCost ?? item.cost ?? 0);
-        return sum + (typeof cost === 'number' ? cost : 0);
+        return sum + getTrendItemCost(item, provider);
       }, 0);
     } catch (error) {
       console.error('trendCost 계산 에러:', error);
@@ -109,7 +118,7 @@ export const CloudUsageCard: React.FC<CloudUsageCardProps> = ({
 
   const averageDailyCost = useMemo(() => {
     try {
-      if (!usage || !usage.period) return null;
+      if (!usage?.period) return null;
       if (typeof usage.totalCost !== 'number' || isNaN(usage.totalCost)) return null;
       return calculateAverageDailyCost(usage.totalCost, usage.period);
     } catch (error) {
@@ -119,12 +128,8 @@ export const CloudUsageCard: React.FC<CloudUsageCardProps> = ({
   }, [usage]);
 
   // 표시할 비용: trends30Days가 있으면 트렌드 합계, 없으면 현재 월 비용
-  const displayCost = trendCost !== null && trendCost !== undefined 
-    ? trendCost 
-    : (usage?.totalCost ?? 0);
-  const periodLabel = trends30Days 
-    ? (granularity === 'daily' ? '최근 30일 일별 합계' : '최근 30일 월별 합계')
-    : (provider === CloudProvider.AWS ? '현재 월 비용' : '현재 월 비용');
+  const displayCost = trendCost ?? usage?.totalCost ?? 0;
+  const periodLabel = getPeriodLabel(Boolean(trends30Days), granularity);
 
   const providerName = provider === CloudProvider.AWS ? 'AWS' : 'GCP';
   const color = provider === CloudProvider.AWS ? '#ff9900' : '#4285f4';

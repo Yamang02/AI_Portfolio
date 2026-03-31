@@ -1,5 +1,6 @@
 import React from 'react';
 import { Card } from './Card';
+import { ClickableCard } from './ClickableCard';
 import { Badge } from '../Badge/Badge';
 import { ArticleIcon } from '../Icon/ArticleIcon';
 import { ARTICLE_CATEGORIES } from '@/admin/entities/article';
@@ -33,11 +34,13 @@ export const FeaturedArticleCard: React.FC<FeaturedArticleCardProps> = ({
     ? ARTICLE_CATEGORIES[article.category as keyof typeof ARTICLE_CATEGORIES] || article.category
     : null;
 
+  const CardComponent = onClick ? ClickableCard : Card;
+
   return (
-    <Card
+    <CardComponent
       variant="default"
       padding="md"
-      onClick={onClick}
+      {...(onClick ? { onClick } : {})}
       className={`${styles.featuredArticleCard} ${onClick ? styles.clickable : ''} ${className || ''}`}
     >
       {/* 배지 영역 (타입, 시리즈, 별 배지) */}
@@ -65,6 +68,6 @@ export const FeaturedArticleCard: React.FC<FeaturedArticleCardProps> = ({
 
       {/* Title 영역 */}
       <h3 className={styles.title}>{article.title}</h3>
-    </Card>
+    </CardComponent>
   );
 };

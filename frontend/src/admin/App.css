@@ -74,19 +74,19 @@
 
 .status-badge.completed {
   background-color: #f6ffed;
-  color: #52c41a;
+  color: #237804;
   border: 1px solid #b7eb8f;
 }
 
 .status-badge.in-progress {
   background-color: #fff7e6;
-  color: #fa8c16;
+  color: #8c4a06;
   border: 1px solid #ffd591;
 }
 
 .status-badge.maintenance {
   background-color: #fff1f0;
-  color: #ff4d4f;
+  color: #a8071a;
   border: 1px solid #ffccc7;
 }
 

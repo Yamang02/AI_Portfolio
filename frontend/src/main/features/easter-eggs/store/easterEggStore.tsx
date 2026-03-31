@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, ReactNode, useEffect } from 'react';
+import React, { createContext, useContext, useState, useCallback, ReactNode, useEffect, useMemo } from 'react';
 import type { ActiveEasterEgg, EasterEggState, EasterEggContext, EasterEggResource } from '../model/easter-egg.types';
 import { easterEggRegistry } from '../registry/easterEggRegistry';
 import { resourcePreloader, type PreloadStatus } from '../lib/resourcePreloader';
@@ -18,7 +18,7 @@ interface EasterEggStoreValue extends EasterEggState {
   isPreloading: boolean;
 }
 
-const EasterEggContext = createContext<EasterEggStoreValue | undefined>(undefined);
+const EasterEggStoreContext = createContext<EasterEggStoreValue | undefined>(undefined);
 
 /**
  * 이스터에그 발견 추적 시스템
@@ -227,7 +227,7 @@ export const EasterEggProvider: React.FC<EasterEggProviderProps> = ({
     return discoveredEasterEggs.has(id);
   }, [discoveredEasterEggs]);
 
-  const value: EasterEggStoreValue = {
+  const value: EasterEggStoreValue = useMemo(() => ({
     activeEffects,
     maxConcurrent,
     isEnabled,
@@ -244,13 +244,34 @@ export const EasterEggProvider: React.FC<EasterEggProviderProps> = ({
     isEasterEggDiscovered,
     preloadStatus,
     isPreloading,
-  };
+  }), [
+    activeEffects,
+    maxConcurrent,
+    isEnabled,
+    isEasterEggMode,
+    triggerEasterEgg,
+    dismissEasterEgg,
+    dismissAll,
+    toggleEnabled,
+    setMaxConcurrent,
+    toggleEasterEggMode,
+    enableEasterEggMode,
+    discoveredEasterEggs,
+    markEasterEggDiscovered,
+    isEasterEggDiscovered,
+    preloadStatus,
+    isPreloading,
+  ]);
 
-  return <EasterEggContext.Provider value={value}>{children}</EasterEggContext.Provider>;
+  return (
+    <EasterEggStoreContext.Provider value={value}>
+      {children}
+    </EasterEggStoreContext.Provider>
+  );
 };
 
 export function useEasterEggStore(): EasterEggStoreValue {
-  const context = useContext(EasterEggContext);
+  const context = useContext(EasterEggStoreContext);
   if (context === undefined) {
     throw new Error('useEasterEggStore must be used within EasterEggProvider');
   }

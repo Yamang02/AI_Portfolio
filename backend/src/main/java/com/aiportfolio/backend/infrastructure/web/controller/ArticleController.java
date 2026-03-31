@@ -9,6 +9,7 @@ import com.aiportfolio.backend.domain.article.port.in.GetArticleUseCase;
 import com.aiportfolio.backend.domain.article.port.in.ManageArticleSeriesUseCase;
 import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.ProjectJpaRepository;
 import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.ProjectTechStackJpaRepository;
+import com.aiportfolio.backend.infrastructure.web.WebApiResponseMessages;
 import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;
 import com.aiportfolio.backend.infrastructure.web.dto.ArticleListRequest;
 import lombok.RequiredArgsConstructor;
@@ -23,12 +24,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/articles")
 @RequiredArgsConstructor
 public class ArticleController {
+    private static final String SORT_FIELD_PUBLISHED_AT = "publishedAt";
 
     private final GetArticleUseCase getUseCase;
     private final ManageArticleSeriesUseCase manageSeriesUseCase;
@@ -47,7 +48,7 @@ public class ArticleController {
         // 기본값 설정
         if (request.getPage() == null) request.setPage(0);
         if (request.getSize() == null) request.setSize(10);
-        if (request.getSortBy() == null) request.setSortBy("publishedAt");
+        if (request.getSortBy() == null) request.setSortBy(SORT_FIELD_PUBLISHED_AT);
         if (request.getSortOrder() == null) request.setSortOrder("desc");
         
         // Pageable 생성 (정렬 포함)
@@ -64,10 +65,6 @@ public class ArticleController {
         filter.setSeriesId(request.getSeriesId());
         filter.setIsFeatured(request.getIsFeatured());
         filter.setSearchKeyword(request.getSearchKeyword());
-        
-        // 날짜 범위 파싱 (추후 필요 시 추가)
-        // filter.setDateFrom(...);
-        // filter.setDateTo(...);
 
         Page<Article> articles = getUseCase.findByFilter(filter, pageable);
         
@@ -76,13 +73,13 @@ public class ArticleController {
                 .map(Article::getSeriesId)
                 .filter(Objects::nonNull)
                 .distinct()
-                .collect(Collectors.toList());
+                .toList();
         
         Map<String, ArticleSeries> seriesMap = manageSeriesUseCase.findBySeriesIdIn(seriesIds);
         
         return ResponseEntity.ok(ApiResponse.success(
                 articles.map(article -> ArticleListResponse.from(article, seriesMap)),
-                "아티클 목록 조회 성공"));
+                WebApiResponseMessages.ARTICLE_LIST_SUCCESS));
     }
 
     /**
@@ -90,17 +87,17 @@ public class ArticleController {
      */
     private String getSortField(String sortBy) {
         if (sortBy == null || sortBy.isEmpty()) {
-            return "publishedAt";
+            return SORT_FIELD_PUBLISHED_AT;
         }
         
         // 허용된 정렬 필드만 사용 (SQL Injection 방지)
         return switch (sortBy.toLowerCase()) {
             case "title" -> "title";
-            case "publishedat", "published_at" -> "publishedAt";
+            case "publishedat", "published_at" -> SORT_FIELD_PUBLISHED_AT;
             case "viewcount", "view_count" -> "viewCount";
             case "createdat", "created_at" -> "createdAt";
             case "updatedat", "updated_at" -> "updatedAt";
-            default -> "publishedAt";
+            default -> SORT_FIELD_PUBLISHED_AT;
         };
     }
 
@@ -116,9 +113,9 @@ public class ArticleController {
                     getUseCase.incrementViewCount(article.getId());
                     return ResponseEntity.ok(ApiResponse.success(
                             ArticleDetailResponse.from(article, manageSeriesUseCase, projectJpaRepository, projectTechStackJpaRepository),
-                            "아티클 조회 성공"));
+                            WebApiResponseMessages.ARTICLE_GET_SUCCESS));
                 })
-                .orElse(ResponseEntity.ok(ApiResponse.error("아티클을 찾을 수 없습니다.")));
+                .orElse(ResponseEntity.ok(ApiResponse.error(WebApiResponseMessages.ARTICLE_NOT_FOUND)));
     }
 
     /**
@@ -132,7 +129,7 @@ public class ArticleController {
         ArticleStatistics statistics = statisticsUseCase.getStatistics();
         return ResponseEntity.ok(ApiResponse.success(
                 ArticleStatisticsResponse.from(statistics),
-                "아티클 통계 조회 성공"));
+                WebApiResponseMessages.ARTICLE_STATS_SUCCESS));
     }
 
     /**
@@ -154,9 +151,9 @@ public class ArticleController {
 
                     return ResponseEntity.ok(ApiResponse.success(
                             ArticleNavigationResponse.from(prevArticle, nextArticle),
-                            "아티클 네비게이션 조회 성공"));
+                            WebApiResponseMessages.ARTICLE_NAVIGATION_SUCCESS));
                 })
-                .orElse(ResponseEntity.ok(ApiResponse.error("아티클을 찾을 수 없습니다.")));
+                .orElse(ResponseEntity.ok(ApiResponse.error(WebApiResponseMessages.ARTICLE_NOT_FOUND)));
     }
 
     // DTOs (Public용 - 필요한 정보만 노출)
@@ -249,31 +246,30 @@ public class ArticleController {
             // 프로젝트 정보 조회
             ProjectInfo projectInfo = null;
             if (domain.getProjectId() != null) {
-                var projectOpt = projectJpaRepository.findById(domain.getProjectId());
-                if (projectOpt.isPresent()) {
-                    var projectEntity = projectOpt.get();
-                    
-                    // 기술 스택 조회 (LAZY 로딩을 위해 명시적으로 조회)
-                    List<String> technologies = projectTechStackJpaRepository.findByProjectId(domain.getProjectId())
-                            .stream()
-                            .filter(pt -> pt.getTechStack() != null)
-                            .map(pt -> pt.getTechStack().getName())
-                            .toList();
-                    
-                    projectInfo = new ProjectInfo(
-                            projectEntity.getBusinessId(),
-                            projectEntity.getTitle(),
-                            projectEntity.getDescription(),
-                            projectEntity.getImageUrl(),
-                            projectEntity.getIsTeam(),
-                            projectEntity.getIsFeatured(),
-                            technologies,
-                            projectEntity.getStartDate() != null ? projectEntity.getStartDate().toString() : null,
-                            projectEntity.getEndDate() != null ? projectEntity.getEndDate().toString() : null,
-                            projectEntity.getGithubUrl(),
-                            projectEntity.getLiveUrl()
-                    );
-                }
+                projectInfo = projectJpaRepository.findById(domain.getProjectId())
+                        .map(projectEntity -> {
+                            // 기술 스택 조회 (LAZY 로딩을 위해 명시적으로 조회)
+                            List<String> technologies = projectTechStackJpaRepository.findByProjectId(domain.getProjectId())
+                                    .stream()
+                                    .filter(pt -> pt.getTechStack() != null)
+                                    .map(pt -> pt.getTechStack().getName())
+                                    .toList();
+
+                            return new ProjectInfo(
+                                    projectEntity.getBusinessId(),
+                                    projectEntity.getTitle(),
+                                    projectEntity.getDescription(),
+                                    projectEntity.getImageUrl(),
+                                    projectEntity.getIsTeam(),
+                                    projectEntity.getIsFeatured(),
+                                    technologies,
+                                    projectEntity.getStartDate() != null ? projectEntity.getStartDate().toString() : null,
+                                    projectEntity.getEndDate() != null ? projectEntity.getEndDate().toString() : null,
+                                    projectEntity.getGithubUrl(),
+                                    projectEntity.getLiveUrl()
+                            );
+                        })
+                        .orElse(null);
             }
             
             return new ArticleDetailResponse(

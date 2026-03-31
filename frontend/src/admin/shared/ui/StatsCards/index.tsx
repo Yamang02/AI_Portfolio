@@ -22,8 +22,8 @@ export interface StatsCardsProps {
 export function StatsCards({ stats, loading }: StatsCardsProps) {
   return (
     <Row gutter={16}>
-      {stats.map((stat, index) => (
-        <Col key={index} span={24 / stats.length}>
+      {stats.map((stat) => (
+        <Col key={stat.title} span={24 / stats.length}>
           <Card>
             <Statistic
               title={stat.title}

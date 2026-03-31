@@ -23,10 +23,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 // Java 표준 라이브러리 imports
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * PostgreSQL 기반 PortfolioRepository 구현체
@@ -38,6 +38,8 @@ import java.util.stream.Collectors;
 @Primary
 @RequiredArgsConstructor
 public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
+    private static final String SORT_ORDER_FIELD = "sortOrder";
+    private static final String START_DATE_FIELD = "startDate";
 
     // JPA Repository들 (Spring Data JPA 인터페이스)
     private final ProjectJpaRepository projectJpaRepository;
@@ -58,51 +60,68 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
 
     @Override
     // @Cacheable 어노테이션 제거 - Repository는 순수 데이터 접근만 담당
+    @Transactional(readOnly = true)
     public List<Project> findAllProjects() {
+        return findAllProjectsInternal();
+    }
+
+    private List<Project> findAllProjectsInternal() {
         log.info("PostgreSQL에서 프로젝트 데이터를 조회합니다.");
         try {
             List<ProjectJpaEntity> jpaEntities = projectJpaRepository.findAllOrderedBySortOrderAndStartDate();
             
             // 기술스택을 명시적으로 로드 (N+1 문제 방지 및 LAZY 로딩 트리거)
             // 스크린샷은 ID 배열 기반으로 별도 조회하므로 여기서는 로드하지 않음
-            jpaEntities.forEach(entity -> {
+            int loadedTechStackCount = 0;
+            for (ProjectJpaEntity entity : jpaEntities) {
                 if (entity.getProjectTechStacks() != null) {
-                    entity.getProjectTechStacks().size(); // LAZY 로딩 트리거
+                    loadedTechStackCount += entity.getProjectTechStacks().size(); // LAZY 로딩 트리거
                 }
-            });
+            }
+            if (log.isDebugEnabled()) {
+                log.debug("Loaded tech stacks total count: {}", loadedTechStackCount);
+            }
             
             List<Project> projects = projectMapper.toDomainList(jpaEntities);
             log.info("프로젝트 {} 개를 성공적으로 조회했습니다.", projects.size());
             return projects;
         } catch (Exception e) {
             log.error("프로젝트 조회 중 오류 발생", e);
-            throw new RuntimeException("프로젝트 조회 실패", e);
+            throw new IllegalStateException("프로젝트 조회 실패", e);
         }
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<Project> findProjectById(String id) {
         try {
             Optional<ProjectJpaEntity> jpaEntityOpt = projectJpaRepository.findByBusinessId(id);
-            if (jpaEntityOpt.isPresent()) {
-                ProjectJpaEntity jpaEntity = jpaEntityOpt.get();
-                // 기술스택을 명시적으로 로드
+            return jpaEntityOpt.map(jpaEntity -> {
                 if (jpaEntity.getProjectTechStacks() != null) {
-                    jpaEntity.getProjectTechStacks().size(); // LAZY 로딩 트리거
+                    int techStacksSize = jpaEntity.getProjectTechStacks().size(); // LAZY 로딩 트리거
+                    if (log.isDebugEnabled()) {
+                        log.debug("Loaded tech stacks count: {}", techStacksSize);
+                    }
                 }
-                
-                // 상세 조회이므로 스크린샷 조회
                 Project project = projectMapper.toDomain(jpaEntity);
                 if (project != null && jpaEntity.getScreenshots() != null && !jpaEntity.getScreenshots().isEmpty()) {
                     List<String> screenshotUrls = projectMapper.getScreenshotUrlsFromIds(jpaEntity);
                     project.setScreenshots(screenshotUrls);
                 }
-                
-                return Optional.of(project);
-            }
-            return Optional.empty();
+                return project;
+            });
         } catch (Exception e) {
             log.error("프로젝트 ID로 조회 중 오류 발생: {}", id, e);
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public Optional<Long> findProjectDatabaseIdByBusinessId(String businessId) {
+        try {
+            return projectJpaRepository.findByBusinessId(businessId).map(ProjectJpaEntity::getId);
+        } catch (Exception e) {
+            log.error("프로젝트 DB ID 조회 중 오류 발생: {}", businessId, e);
             return Optional.empty();
         }
     }
@@ -122,7 +141,7 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
     public List<Project> findProjectsByType(String type) {
         try {
             if (type == null) {
-                return findAllProjects();
+                return findAllProjectsInternal();
             }
             List<ProjectJpaEntity> jpaEntities = projectJpaRepository.findByType(type);
             return projectMapper.toDomainList(jpaEntities);
@@ -136,7 +155,7 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
     public List<Project> findProjectsBySource(String source) {
         try {
             if (source == null) {
-                return findAllProjects();
+                return findAllProjectsInternal();
             }
             List<ProjectJpaEntity> jpaEntities = projectJpaRepository.findBySource(source);
             return projectMapper.toDomainList(jpaEntities);
@@ -204,12 +223,8 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
             
             // 기존 엔티티가 있는지 확인 (업데이트 vs 생성 구분)
             Optional<ExperienceJpaEntity> existingEntity = experienceJpaRepository.findByBusinessId(experience.getId());
-            
-            if (existingEntity.isPresent()) {
-                // 업데이트: 기존 엔티티를 직접 수정
-                ExperienceJpaEntity existing = existingEntity.get();
-                
-                // 필드 업데이트 (DB ID와 createdAt은 유지)
+
+            return existingEntity.map(existing -> {
                 existing.setTitle(experience.getTitle());
                 existing.setDescription(experience.getDescription());
                 existing.setOrganization(experience.getOrganization());
@@ -221,21 +236,18 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
                 existing.setMainResponsibilities(experience.getMainResponsibilities());
                 existing.setAchievements(experience.getAchievements());
                 existing.setSortOrder(experience.getSortOrder());
-                
-                // updatedAt은 JPA @PreUpdate에서 자동 처리됨
-                
+
                 log.info("경력 업데이트 중: {}", experience.getTitle());
                 ExperienceJpaEntity savedEntity = experienceJpaRepository.save(existing);
                 return experienceMapper.toDomain(savedEntity);
-            } else {
-                // 생성: 새 엔티티
+            }).orElseGet(() -> {
                 log.info("경력 생성 중: {}", experience.getTitle());
                 ExperienceJpaEntity savedEntity = experienceJpaRepository.save(jpaEntity);
                 return experienceMapper.toDomain(savedEntity);
-            }
+            });
         } catch (Exception e) {
             log.error("경력 저장 중 오류 발생: {}", experience.getTitle(), e);
-            throw new RuntimeException("경력 저장에 실패했습니다", e);
+            throw new IllegalStateException("경력 저장에 실패했습니다", e);
         }
     }
 
@@ -246,7 +258,7 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
             log.info("경력 삭제 완료: {}", id);
         } catch (Exception e) {
             log.error("경력 삭제 중 오류 발생: {}", id, e);
-            throw new RuntimeException("경력 삭제에 실패했습니다", e);
+            throw new IllegalStateException("경력 삭제에 실패했습니다", e);
         }
     }
 
@@ -297,12 +309,8 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
             
             // 기존 엔티티가 있는지 확인 (업데이트 vs 생성 구분)
             Optional<EducationJpaEntity> existingEntity = educationJpaRepository.findByBusinessId(education.getId());
-            
-            if (existingEntity.isPresent()) {
-                // 업데이트: 기존 엔티티를 직접 수정
-                EducationJpaEntity existing = existingEntity.get();
-                
-                // 필드 업데이트 (DB ID와 createdAt은 유지)
+
+            return existingEntity.map(existing -> {
                 existing.setTitle(education.getTitle());
                 existing.setDescription(education.getDescription());
                 existing.setOrganization(education.getOrganization());
@@ -313,21 +321,18 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
                 existing.setGpa(education.getGpa());
                 existing.setType(education.getType() != null ? education.getType().name() : null);
                 existing.setSortOrder(education.getSortOrder());
-                
-                // updatedAt은 JPA @PreUpdate에서 자동 처리됨
-                
+
                 log.info("교육 업데이트 중: {}", education.getTitle());
                 EducationJpaEntity savedEntity = educationJpaRepository.save(existing);
                 return educationMapper.toDomain(savedEntity);
-            } else {
-                // 생성: 새 엔티티
+            }).orElseGet(() -> {
                 log.info("교육 생성 중: {}", education.getTitle());
                 EducationJpaEntity savedEntity = educationJpaRepository.save(jpaEntity);
                 return educationMapper.toDomain(savedEntity);
-            }
+            });
         } catch (Exception e) {
             log.error("교육 저장 중 오류 발생: {}", education.getTitle(), e);
-            throw new RuntimeException("교육 저장에 실패했습니다", e);
+            throw new IllegalStateException("교육 저장에 실패했습니다", e);
         }
     }
 
@@ -338,7 +343,7 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
             log.info("교육 삭제 완료: {}", id);
         } catch (Exception e) {
             log.error("교육 삭제 중 오류 발생: {}", id, e);
-            throw new RuntimeException("교육 삭제에 실패했습니다", e);
+            throw new IllegalStateException("교육 삭제에 실패했습니다", e);
         }
     }
 
@@ -391,11 +396,7 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
             // 기존 엔티티가 있는지 확인 (업데이트 vs 생성 구분)
             Optional<CertificationJpaEntity> existingEntity = certificationJpaRepository.findByBusinessId(certification.getId());
 
-            if (existingEntity.isPresent()) {
-                // 업데이트: 기존 엔티티를 직접 수정
-                CertificationJpaEntity existing = existingEntity.get();
-
-                // 필드 업데이트 (DB ID와 createdAt은 유지)
+            return existingEntity.map(existing -> {
                 existing.setName(certification.getName());
                 existing.setIssuer(certification.getIssuer());
                 existing.setDate(certification.getDate());
@@ -406,20 +407,17 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
                 existing.setCategory(certification.getCategory());
                 existing.setSortOrder(certification.getSortOrder());
 
-                // updatedAt은 JPA @PreUpdate에서 자동 처리됨
-
                 log.info("자격증 업데이트 중: {}", certification.getName());
                 CertificationJpaEntity savedEntity = certificationJpaRepository.save(existing);
                 return certificationMapper.toDomain(savedEntity);
-            } else {
-                // 생성: 새 엔티티
+            }).orElseGet(() -> {
                 log.info("자격증 생성 중: {}", certification.getName());
                 CertificationJpaEntity savedEntity = certificationJpaRepository.save(jpaEntity);
                 return certificationMapper.toDomain(savedEntity);
-            }
+            });
         } catch (Exception e) {
             log.error("자격증 저장 중 오류 발생: {}", certification.getName(), e);
-            throw new RuntimeException("자격증 저장에 실패했습니다", e);
+            throw new IllegalStateException("자격증 저장에 실패했습니다", e);
         }
     }
 
@@ -427,15 +425,16 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
     public void deleteCertification(String id) {
         try {
             Optional<CertificationJpaEntity> entity = certificationJpaRepository.findByBusinessId(id);
-            if (entity.isPresent()) {
-                certificationJpaRepository.delete(entity.get());
-                log.info("자격증 삭제 완료: {}", id);
-            } else {
-                log.warn("삭제할 자격증을 찾을 수 없습니다: {}", id);
-            }
+            entity.ifPresentOrElse(
+                    e -> {
+                        certificationJpaRepository.delete(e);
+                        log.info("자격증 삭제 완료: {}", id);
+                    },
+                    () -> log.warn("삭제할 자격증을 찾을 수 없습니다: {}", id)
+            );
         } catch (Exception e) {
             log.error("자격증 삭제 중 오류 발생: {}", id, e);
-            throw new RuntimeException("자격증 삭제에 실패했습니다", e);
+            throw new IllegalStateException("자격증 삭제에 실패했습니다", e);
         }
     }
 
@@ -486,7 +485,7 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
                     // 저장된 스크린샷의 ID 배열 추출
                     List<Long> screenshotIds = savedScreenshots.stream()
                             .map(ProjectScreenshotJpaEntity::getId)
-                            .collect(Collectors.toList());
+                            .toList();
                     
                     // 프로젝트 엔티티의 screenshots 필드에 ID 배열 저장
                     savedEntity.setScreenshots(screenshotIds);
@@ -497,7 +496,7 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
             return projectMapper.toDomain(savedEntity);
         } catch (Exception e) {
             log.error("프로젝트 저장 중 오류 발생: {}", project.getTitle(), e);
-            throw new RuntimeException("프로젝트 저장에 실패했습니다", e);
+            throw new IllegalStateException("프로젝트 저장에 실패했습니다", e);
         }
     }
     
@@ -508,7 +507,7 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
             log.info("프로젝트 삭제 완료: {}", id);
         } catch (Exception e) {
             log.error("프로젝트 삭제 중 오류 발생: {}", id, e);
-            throw new RuntimeException("프로젝트 삭제에 실패했습니다", e);
+            throw new IllegalStateException("프로젝트 삭제에 실패했습니다", e);
         }
     }
 
@@ -595,6 +594,7 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
     // === 관리자 기능 구현 ===
     
     @Override
+    @Transactional(readOnly = true)
     public List<Project> findByFilter(ProjectFilter filter) {
         log.debug("Finding projects by filter: {}", filter);
 
@@ -616,16 +616,20 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
 
             // 기술스택을 명시적으로 로드 (N+1 문제 방지)
             // 스크린샷은 ID 배열 기반으로 별도 조회하므로 여기서는 로드하지 않음
-            entities.forEach(entity -> {
+            int loadedTechStackCount = 0;
+            for (ProjectJpaEntity entity : entities) {
                 if (entity.getProjectTechStacks() != null) {
-                    entity.getProjectTechStacks().size(); // LAZY 로딩 트리거
+                    loadedTechStackCount += entity.getProjectTechStacks().size(); // LAZY 로딩 트리거
                 }
-            });
+            }
+            if (log.isDebugEnabled()) {
+                log.debug("Loaded filtered tech stacks total count: {}", loadedTechStackCount);
+            }
 
             // 도메인 모델로 변환 (필터링은 이미 쿼리에서 수행됨)
             return entities.stream()
                 .map(projectMapper::toDomain)
-                .collect(Collectors.toList());
+                .toList();
         } catch (Exception e) {
             log.error("프로젝트 필터링 조회 중 오류 발생", e);
             return List.of();
@@ -640,15 +644,15 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
      */
     private Sort createSortFromFilter(ProjectFilter filter) {
         String sortBy = filter.getSortBy();
-        if (sortBy == null || "sortOrder".equals(sortBy)) {
-            sortBy = "sortOrder";
+        if (sortBy == null || SORT_ORDER_FIELD.equals(sortBy)) {
+            sortBy = SORT_ORDER_FIELD;
         }
         
         // 필드명 매핑 (도메인 필드명 -> JPA 엔티티 필드명)
         String jpaFieldName;
         switch (sortBy) {
-            case "startDate":
-                jpaFieldName = "startDate";
+            case START_DATE_FIELD:
+                jpaFieldName = START_DATE_FIELD;
                 break;
             case "endDate":
                 jpaFieldName = "endDate";
@@ -662,24 +666,24 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
             case "type":
                 jpaFieldName = "type";
                 break;
-            case "sortOrder":
+            case SORT_ORDER_FIELD:
             default:
-                jpaFieldName = "sortOrder";
+                jpaFieldName = SORT_ORDER_FIELD;
                 break;
         }
         
         // 기본 정렬: sortOrder ASC, startDate DESC (sortOrder가 같을 때)
         Sort.Direction direction = filter.isAscending() ? Sort.Direction.ASC : Sort.Direction.DESC;
         
-        if ("sortOrder".equals(sortBy)) {
+        if (SORT_ORDER_FIELD.equals(sortBy)) {
             // sortOrder 정렬 시 startDate를 보조 정렬로 추가
             return Sort.by(direction, jpaFieldName)
-                .and(Sort.by(Sort.Direction.DESC, "startDate"));
+                .and(Sort.by(Sort.Direction.DESC, START_DATE_FIELD));
         } else {
             // 다른 정렬 기준 사용 시 sortOrder를 보조 정렬로 추가
             return Sort.by(direction, jpaFieldName)
-                .and(Sort.by(Sort.Direction.ASC, "sortOrder"))
-                .and(Sort.by(Sort.Direction.DESC, "startDate"));
+                .and(Sort.by(Sort.Direction.ASC, SORT_ORDER_FIELD))
+                .and(Sort.by(Sort.Direction.DESC, START_DATE_FIELD));
         }
     }
     
@@ -698,89 +702,128 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
     @Override
     public Project updateProject(Project project) {
         log.debug("Updating project: {}", project.getId());
-        
+
         try {
-            // 기존 엔티티 조회
             Optional<ProjectJpaEntity> existingEntity = projectJpaRepository.findByBusinessId(project.getId());
-            
-            if (existingEntity.isPresent()) {
-                // 업데이트: 기존 엔티티의 필드를 직접 수정
-                ProjectJpaEntity existing = existingEntity.get();
-                
-                // 필드 업데이트 - null이 아닌 경우에만 업데이트
-                if (project.getTitle() != null) existing.setTitle(project.getTitle());
-                if (project.getDescription() != null) existing.setDescription(project.getDescription());
-                if (project.getReadme() != null) existing.setReadme(project.getReadme());
-                if (project.getType() != null) existing.setType(project.getType());
-                if (project.getStatus() != null) existing.setStatus(project.getStatus());
-                if (project.getRole() != null) existing.setRole(project.getRole());
-                if (project.getStartDate() != null) existing.setStartDate(project.getStartDate());
-                if (project.getEndDate() != null) existing.setEndDate(project.getEndDate());
-                // 이미지 URL은 빈 문자열도 허용 (null이 아닌 경우 업데이트)
-                if (project.getImageUrl() != null) existing.setImageUrl(project.getImageUrl().isEmpty() ? null : project.getImageUrl());
-                // URL 필드들은 빈 문자열을 null로 변환하여 검증 문제 방지
-                if (project.getGithubUrl() != null) existing.setGithubUrl(project.getGithubUrl().isEmpty() ? null : project.getGithubUrl());
-                if (project.getLiveUrl() != null) existing.setLiveUrl(project.getLiveUrl().isEmpty() ? null : project.getLiveUrl());
-                if (project.getExternalUrl() != null) existing.setExternalUrl(project.getExternalUrl().isEmpty() ? null : project.getExternalUrl());
-                if (project.getMyContributions() != null) existing.setMyContributions(project.getMyContributions());
-                if (project.getSortOrder() != null) existing.setSortOrder(project.getSortOrder());
-                // isTeam은 boolean이므로 null 체크 불필요
-                existing.setIsTeam(project.isTeam());
-                // isFeatured도 boolean이므로 null 체크 불필요
-                existing.setIsFeatured(project.isFeatured());
-                if (!project.isTeam()) {
-                    existing.setTeamSize(null);
-                } else if (project.getTeamSize() != null) {
-                    existing.setTeamSize(project.getTeamSize());
-                }
-                
-                // 스크린샷은 관계 테이블에 저장하고 ID 배열을 projects.screenshots에 저장
-                if (project.getScreenshots() != null) {
-                    // 기존 스크린샷 삭제
-                    projectScreenshotJpaRepository.deleteByProjectId(existing.getId());
-                    
-                    // 새로운 스크린샷 추가
-                    List<ProjectScreenshotJpaEntity> newScreenshotEntities = new ArrayList<>();
-                    for (int i = 0; i < project.getScreenshots().size(); i++) {
-                        String screenshotUrl = project.getScreenshots().get(i);
-                        if (screenshotUrl != null && !screenshotUrl.isEmpty()) {
-                            ProjectScreenshotJpaEntity screenshot = ProjectScreenshotJpaEntity.builder()
-                                    .project(existing)
-                                    .imageUrl(screenshotUrl)
-                                    .displayOrder(i)
-                                    .build();
-                            newScreenshotEntities.add(screenshot);
-                        }
-                    }
-                    
-                    if (!newScreenshotEntities.isEmpty()) {
-                        // 관계 테이블에 저장
-                        List<ProjectScreenshotJpaEntity> savedScreenshots = projectScreenshotJpaRepository.saveAll(newScreenshotEntities);
-                        
-                        // 저장된 스크린샷의 ID 배열 추출
-                        List<Long> screenshotIds = savedScreenshots.stream()
-                                .map(ProjectScreenshotJpaEntity::getId)
-                                .collect(Collectors.toList());
-                        
-                        // 프로젝트 엔티티의 screenshots 필드에 ID 배열 저장
-                        existing.setScreenshots(screenshotIds);
-                    } else {
-                        // 빈 배열인 경우
-                        existing.setScreenshots(new ArrayList<>());
-                    }
-                }
-                
-                ProjectJpaEntity savedEntity = projectJpaRepository.save(existing);
-                log.debug("Project updated successfully: {}", savedEntity.getId());
-                return projectMapper.toDomain(savedEntity);
-            } else {
-                // 프로젝트가 존재하지 않음
+            if (existingEntity.isEmpty()) {
                 throw new IllegalArgumentException("프로젝트를 찾을 수 없습니다: " + project.getId());
             }
+
+            ProjectJpaEntity existing = existingEntity.get();
+            applyProjectFieldsToEntity(project, existing);
+            syncProjectScreenshotsIfPresent(project, existing);
+
+            ProjectJpaEntity savedEntity = projectJpaRepository.save(existing);
+            log.debug("Project updated successfully: {}", savedEntity.getId());
+            return projectMapper.toDomain(savedEntity);
         } catch (Exception e) {
             log.error("프로젝트 업데이트 중 오류 발생: {}", project.getId(), e);
-            throw new RuntimeException("프로젝트 업데이트에 실패했습니다", e);
+            throw new IllegalStateException("프로젝트 업데이트에 실패했습니다", e);
         }
+    }
+
+    private void applyProjectFieldsToEntity(Project project, ProjectJpaEntity existing) {
+        applyProjectBasicFields(project, existing);
+        applyProjectDateAndLinks(project, existing);
+        applyProjectMetadataFields(project, existing);
+        applyProjectTeamFields(project, existing);
+    }
+
+    private void applyProjectBasicFields(Project project, ProjectJpaEntity existing) {
+        if (project.getTitle() != null) {
+            existing.setTitle(project.getTitle());
+        }
+        if (project.getDescription() != null) {
+            existing.setDescription(project.getDescription());
+        }
+        if (project.getReadme() != null) {
+            existing.setReadme(project.getReadme());
+        }
+        if (project.getType() != null) {
+            existing.setType(project.getType());
+        }
+        if (project.getStatus() != null) {
+            existing.setStatus(project.getStatus());
+        }
+        if (project.getRole() != null) {
+            existing.setRole(project.getRole());
+        }
+    }
+
+    private void applyProjectDateAndLinks(Project project, ProjectJpaEntity existing) {
+        if (project.getStartDate() != null) {
+            existing.setStartDate(project.getStartDate());
+        }
+        if (project.getEndDate() != null) {
+            existing.setEndDate(project.getEndDate());
+        }
+        if (project.getImageUrl() != null) {
+            existing.setImageUrl(normalizeEmptyToNull(project.getImageUrl()));
+        }
+        if (project.getGithubUrl() != null) {
+            existing.setGithubUrl(normalizeEmptyToNull(project.getGithubUrl()));
+        }
+        if (project.getLiveUrl() != null) {
+            existing.setLiveUrl(normalizeEmptyToNull(project.getLiveUrl()));
+        }
+        if (project.getExternalUrl() != null) {
+            existing.setExternalUrl(normalizeEmptyToNull(project.getExternalUrl()));
+        }
+    }
+
+    private void applyProjectMetadataFields(Project project, ProjectJpaEntity existing) {
+        if (project.getMyContributions() != null) {
+            existing.setMyContributions(project.getMyContributions());
+        }
+        if (project.getSortOrder() != null) {
+            existing.setSortOrder(project.getSortOrder());
+        }
+    }
+
+    private void applyProjectTeamFields(Project project, ProjectJpaEntity existing) {
+        existing.setIsTeam(project.isTeam());
+        existing.setIsFeatured(project.isFeatured());
+        if (!project.isTeam()) {
+            existing.setTeamSize(null);
+            return;
+        }
+        if (project.getTeamSize() != null) {
+            existing.setTeamSize(project.getTeamSize());
+        }
+    }
+
+    private String normalizeEmptyToNull(String value) {
+        return value.isEmpty() ? null : value;
+    }
+
+    private void syncProjectScreenshotsIfPresent(Project project, ProjectJpaEntity existing) {
+        if (project.getScreenshots() == null) {
+            return;
+        }
+        projectScreenshotJpaRepository.deleteByProjectId(existing.getId());
+
+        List<ProjectScreenshotJpaEntity> newScreenshotEntities = new ArrayList<>();
+        for (int i = 0; i < project.getScreenshots().size(); i++) {
+            String screenshotUrl = project.getScreenshots().get(i);
+            if (screenshotUrl != null && !screenshotUrl.isEmpty()) {
+                newScreenshotEntities.add(ProjectScreenshotJpaEntity.builder()
+                        .project(existing)
+                        .imageUrl(screenshotUrl)
+                        .displayOrder(i)
+                        .build());
+            }
+        }
+
+        if (newScreenshotEntities.isEmpty()) {
+            existing.setScreenshots(new ArrayList<>());
+            return;
+        }
+
+        List<ProjectScreenshotJpaEntity> savedScreenshots = projectScreenshotJpaRepository.saveAll(newScreenshotEntities);
+        List<Long> screenshotIds = savedScreenshots.stream()
+                .map(ProjectScreenshotJpaEntity::getId)
+                .toList();
+        existing.setScreenshots(screenshotIds);
     }
     
     // === 정렬 순서 관련 ===
@@ -830,7 +873,7 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
         log.debug("Batch updating {} educations", educations.size());
         List<EducationJpaEntity> entities = educations.stream()
                 .map(educationMapper::toJpaEntity)
-                .collect(Collectors.toList());
+                .toList();
 
         educationJpaRepository.saveAll(entities); // JPA Batch Update
         log.debug("Successfully batch updated {} educations", educations.size());
@@ -845,7 +888,7 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
         log.debug("Batch updating {} experiences", experiences.size());
         List<ExperienceJpaEntity> entities = experiences.stream()
                 .map(experienceMapper::toJpaEntity)
-                .collect(Collectors.toList());
+                .toList();
 
         experienceJpaRepository.saveAll(entities); // JPA Batch Update
         log.debug("Successfully batch updated {} experiences", experiences.size());
@@ -860,7 +903,7 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
         log.debug("Batch updating {} certifications", certifications.size());
         List<CertificationJpaEntity> entities = certifications.stream()
                 .map(certificationMapper::toJpaEntity)
-                .collect(Collectors.toList());
+                .toList();
 
         certificationJpaRepository.saveAll(entities); // JPA Batch Update
         log.debug("Successfully batch updated {} certifications", certifications.size());

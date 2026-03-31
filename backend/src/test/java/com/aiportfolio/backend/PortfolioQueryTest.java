@@ -7,6 +7,7 @@ import com.aiportfolio.backend.domain.portfolio.model.Education;
 import com.aiportfolio.backend.domain.portfolio.model.Certification;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Assertions;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -30,6 +31,7 @@ public class PortfolioQueryTest {
             // 프로젝트 데이터 조회
             System.out.println("\n--- 프로젝트 데이터 조회 ---");
             List<Project> projects = repository.findAllProjects();
+            Assertions.assertNotNull(projects, "projects should not be null");
             System.out.println("프로젝트 개수: " + projects.size());
             for (Project project : projects) {
                 System.out.println("- " + project.getTitle() + " (" + project.getType() + ")");
@@ -64,8 +66,7 @@ public class PortfolioQueryTest {
             System.out.println("Redis 캐시 사용 중 (TTL로 자동 관리)");
             
         } catch (Exception e) {
-            System.err.println("테스트 실행 중 오류 발생: " + e.getMessage());
-            e.printStackTrace();
+            Assertions.fail("테스트 실행 중 오류 발생: " + e.getMessage(), e);
         }
         
         System.out.println("\n=== 테스트 완료 ===");

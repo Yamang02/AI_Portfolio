@@ -93,7 +93,7 @@ public class InputValidationService {
         }
         
         // "아아아아아", "하하하하하" 같은 패턴
-        Pattern koreanRepetition = Pattern.compile("[가-힣]{2,}\\1{2,}");
+        Pattern koreanRepetition = Pattern.compile("([가-힣]{2,})\\1{2,}");
         if (koreanRepetition.matcher(input).find()) {
             return true;
         }

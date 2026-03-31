@@ -5,7 +5,6 @@ import com.aiportfolio.backend.domain.portfolio.model.Project;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 프로젝트 응답 매퍼
@@ -54,7 +53,7 @@ public class ProjectResponseMapper {
     public List<ProjectResponse> toResponseList(List<Project> projects) {
         return projects.stream()
                 .map(this::toResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
     
     /**
@@ -92,7 +91,7 @@ public class ProjectResponseMapper {
                                     .proficiencyLevel(proficiencyLevel)
                                     .build();
                         })
-                        .collect(Collectors.toList()) :
+                        .toList() :
                 List.of();
         
         // 스크린샷 매핑 (String -> ProjectScreenshotResponse)
@@ -103,7 +102,7 @@ public class ProjectResponseMapper {
                                 .imageUrl(project.getScreenshots().get(index))
                                 .displayOrder(index)
                                 .build())
-                        .collect(Collectors.toList()) :
+                        .toList() :
                 List.of();
         
         return ProjectResponse.builder()

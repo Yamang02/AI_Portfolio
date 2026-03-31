@@ -3,6 +3,8 @@ package com.aiportfolio.backend.infrastructure.web.admin.controller;
 import com.aiportfolio.backend.domain.portfolio.port.out.ExperienceRelationshipPort;
 import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.*;
 import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.*;
+import com.aiportfolio.backend.infrastructure.web.WebApiResponseMessages;
+import com.aiportfolio.backend.infrastructure.web.admin.AdminApiErrorMessages;
 import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;
 import com.aiportfolio.backend.infrastructure.web.dto.relationship.*;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Admin Experience 관계 관리 REST API Controller
@@ -27,6 +28,9 @@ import java.util.stream.Collectors;
 @Slf4j
 @Transactional
 public class AdminExperienceRelationshipController {
+    private static final String EXPERIENCE_NOT_FOUND = "Experience not found";
+    private static final String EXPERIENCE_NOT_FOUND_WITH_ID = "Experience not found: ";
+    private static final String INVALID_REQUEST_LOG = "Invalid request: {}";
 
     private final ExperienceJpaRepository experienceJpaRepository;
     private final TechStackMetadataJpaRepository techStackMetadataJpaRepository;
@@ -45,7 +49,7 @@ public class AdminExperienceRelationshipController {
             @PathVariable String id) {
         try {
             ExperienceJpaEntity experience = experienceJpaRepository.findByBusinessId(id)
-                .orElseThrow(() -> new IllegalArgumentException("Experience not found: " + id));
+                .orElseThrow(() -> new IllegalArgumentException(EXPERIENCE_NOT_FOUND_WITH_ID + id));
 
             log.info("Fetching relationships for experience: businessId={}, dbId={}", id, experience.getId());
             
@@ -64,7 +68,7 @@ public class AdminExperienceRelationshipController {
                     .isPrimary(rel.getIsPrimary())
                     .usageDescription(rel.getUsageDescription())
                     .build())
-                .collect(Collectors.toList());
+                .toList();
 
             return ResponseEntity.ok(ApiResponse.success(dtos));
         } catch (IllegalArgumentException e) {
@@ -72,7 +76,7 @@ public class AdminExperienceRelationshipController {
         } catch (Exception e) {
             log.error("Error fetching tech stack relationships", e);
             return ResponseEntity.internalServerError()
-                .body(ApiResponse.error("기술스택 관계 조회 실패: " + e.getMessage()));
+                .body(ApiResponse.error(AdminApiErrorMessages.techStackRelationQueryFailed(e)));
         }
     }
 
@@ -85,27 +89,21 @@ public class AdminExperienceRelationshipController {
             @RequestBody TechStackRelationshipRequest request) {
         try {
             ExperienceJpaEntity experience = experienceJpaRepository.findByBusinessId(id)
-                .orElseThrow(() -> new IllegalArgumentException("Experience not found"));
+                .orElseThrow(() -> new IllegalArgumentException(EXPERIENCE_NOT_FOUND));
 
-            TechStackMetadataJpaEntity techStack;
-            // ID로 조회
+            // ID로 조회, 없으면 name으로 조회 (하위 호환성)
             Optional<TechStackMetadataJpaEntity> techStackOpt = techStackMetadataJpaRepository
                 .findById(request.getTechStackId());
-            
-            if (techStackOpt.isPresent()) {
-                techStack = techStackOpt.get();
-            } else {
-                // ID로 못 찾으면 name으로 조회 (하위 호환성)
-                techStack = techStackMetadataJpaRepository
-                    .findByName(String.valueOf(request.getTechStackId()))
-                    .orElseThrow(() -> new IllegalArgumentException("TechStack not found"));
-            }
+            TechStackMetadataJpaEntity techStack = techStackOpt.orElseGet(() ->
+                    techStackMetadataJpaRepository
+                            .findByName(String.valueOf(request.getTechStackId()))
+                            .orElseThrow(() -> new IllegalArgumentException("TechStack not found")));
 
             // 중복 체크
             if (experienceTechStackJpaRepository
                 .findByExperienceIdAndTechStackId(experience.getId(), techStack.getId()) != null) {
                 return ResponseEntity.badRequest()
-                    .body(ApiResponse.error("이미 관계가 존재합니다"));
+                    .body(ApiResponse.error(AdminApiErrorMessages.RELATION_ALREADY_EXISTS));
             }
 
             ExperienceTechStackJpaEntity relationship = ExperienceTechStackJpaEntity.builder()
@@ -117,11 +115,11 @@ public class AdminExperienceRelationshipController {
 
             experienceTechStackJpaRepository.save(relationship);
 
-            return ResponseEntity.ok(ApiResponse.success(null, "기술스택 관계 추가 성공"));
+            return ResponseEntity.ok(ApiResponse.success(null, WebApiResponseMessages.TECH_STACK_RELATION_ADD_SUCCESS));
         } catch (Exception e) {
             log.error("Error adding tech stack relationship", e);
             return ResponseEntity.internalServerError()
-                .body(ApiResponse.error("기술스택 관계 추가 실패: " + e.getMessage()));
+                .body(ApiResponse.error(AdminApiErrorMessages.techStackRelationAddFailed(e)));
         }
     }
 
@@ -134,16 +132,16 @@ public class AdminExperienceRelationshipController {
             @PathVariable Long techStackId) {
         try {
             ExperienceJpaEntity experience = experienceJpaRepository.findByBusinessId(id)
-                .orElseThrow(() -> new IllegalArgumentException("Experience not found"));
+                .orElseThrow(() -> new IllegalArgumentException(EXPERIENCE_NOT_FOUND));
 
             experienceTechStackJpaRepository.deleteByExperienceIdAndTechStackId(
                 experience.getId(), techStackId);
 
-            return ResponseEntity.ok(ApiResponse.success(null, "기술스택 관계 삭제 성공"));
+            return ResponseEntity.ok(ApiResponse.success(null, WebApiResponseMessages.TECH_STACK_RELATION_DELETE_SUCCESS));
         } catch (Exception e) {
             log.error("Error deleting tech stack relationship", e);
             return ResponseEntity.internalServerError()
-                .body(ApiResponse.error("기술스택 관계 삭제 실패: " + e.getMessage()));
+                .body(ApiResponse.error(AdminApiErrorMessages.techStackRelationDeleteFailed(e)));
         }
     }
 
@@ -158,30 +156,30 @@ public class AdminExperienceRelationshipController {
             @PathVariable String id,
             @RequestBody BulkTechStackRelationshipRequest request) {
         try {
-            List<ExperienceRelationshipPort.TechStackRelation> relationships =
-                request.getTechStackRelationships() == null
-                    ? List.of()
-                    : request.getTechStackRelationships().stream()
-                        .map(item -> new ExperienceRelationshipPort.TechStackRelation(
+            List<BulkTechStackRelationshipRequest.TechStackRelationshipItem> items =
+                    request.getTechStackRelationships() != null
+                            ? request.getTechStackRelationships()
+                            : List.of();
+            List<ExperienceRelationshipPort.TechStackRelation> relationships = items.stream()
+                    .map(item -> new ExperienceRelationshipPort.TechStackRelation(
                             item.getTechStackId(),
-                            item.getIsPrimary() != null ? item.getIsPrimary() : false,
-                            item.getUsageDescription()
-                        ))
-                        .collect(Collectors.toList());
+                            Boolean.TRUE.equals(item.getIsPrimary()),
+                            item.getUsageDescription()))
+                    .toList();
 
             ExperienceJpaEntity experience = experienceJpaRepository.findByBusinessId(id)
-                .orElseThrow(() -> new IllegalArgumentException("Experience not found: " + id));
+                .orElseThrow(() -> new IllegalArgumentException(EXPERIENCE_NOT_FOUND_WITH_ID + id));
             experienceRelationshipPort.replaceTechStacks(experience.getId(), relationships);
 
-            return ResponseEntity.ok(ApiResponse.success(null, "기술스택 관계 일괄 업데이트 성공"));
+            return ResponseEntity.ok(ApiResponse.success(null, WebApiResponseMessages.TECH_STACK_RELATION_BULK_UPDATE_SUCCESS));
         } catch (IllegalArgumentException e) {
-            log.error("Invalid request: {}", e.getMessage());
+            log.error(INVALID_REQUEST_LOG, e.getMessage());
             return ResponseEntity.badRequest()
                 .body(ApiResponse.error(e.getMessage()));
         } catch (Exception e) {
             log.error("Error updating tech stack relationships", e);
             return ResponseEntity.internalServerError()
-                .body(ApiResponse.error("기술스택 관계 일괄 업데이트 실패: " + e.getMessage()));
+                .body(ApiResponse.error(AdminApiErrorMessages.techStackRelationBulkUpdateFailed(e)));
         }
     }
 
@@ -197,7 +195,7 @@ public class AdminExperienceRelationshipController {
         
         try {
             ExperienceJpaEntity experience = experienceJpaRepository.findByBusinessId(id)
-                .orElseThrow(() -> new IllegalArgumentException("Experience not found: " + id));
+                .orElseThrow(() -> new IllegalArgumentException(EXPERIENCE_NOT_FOUND_WITH_ID + id));
             
             log.info("Found experience: id={}, dbId={}", experience.getBusinessId(), experience.getId());
 
@@ -215,7 +213,7 @@ public class AdminExperienceRelationshipController {
                     .roleInProject(rel.getRoleInProject())
                     .contributionDescription(rel.getContributionDescription())
                     .build())
-                .collect(Collectors.toList());
+                .toList();
             
             log.info("Found {} project relationships for experience {}", dtos.size(), id);
 
@@ -225,7 +223,7 @@ public class AdminExperienceRelationshipController {
         } catch (Exception e) {
             log.error("Error fetching project relationships", e);
             return ResponseEntity.internalServerError()
-                .body(ApiResponse.error("프로젝트 관계 조회 실패: " + e.getMessage()));
+                .body(ApiResponse.error(AdminApiErrorMessages.projectRelationQueryFailed(e)));
         }
     }
 
@@ -238,7 +236,7 @@ public class AdminExperienceRelationshipController {
             @RequestBody ProjectRelationshipRequest request) {
         try {
             ExperienceJpaEntity experience = experienceJpaRepository.findByBusinessId(id)
-                .orElseThrow(() -> new IllegalArgumentException("Experience not found"));
+                .orElseThrow(() -> new IllegalArgumentException(EXPERIENCE_NOT_FOUND));
 
             // Business ID로 프로젝트 조회
             ProjectJpaEntity project = projectJpaRepository.findByBusinessId(request.getProjectBusinessId())
@@ -248,7 +246,7 @@ public class AdminExperienceRelationshipController {
             if (experienceProjectJpaRepository
                 .findByExperienceIdAndProjectId(experience.getId(), project.getId()) != null) {
                 return ResponseEntity.badRequest()
-                    .body(ApiResponse.error("이미 관계가 존재합니다"));
+                    .body(ApiResponse.error(AdminApiErrorMessages.RELATION_ALREADY_EXISTS));
             }
 
             ExperienceProjectJpaEntity relationship = ExperienceProjectJpaEntity.builder()
@@ -261,15 +259,15 @@ public class AdminExperienceRelationshipController {
             experienceProjectJpaRepository.save(relationship);
 
             log.info("Added project relationship: experience={}, project={}", id, request.getProjectBusinessId());
-            return ResponseEntity.ok(ApiResponse.success(null, "프로젝트 관계 추가 성공"));
+            return ResponseEntity.ok(ApiResponse.success(null, WebApiResponseMessages.PROJECT_RELATION_ADD_SUCCESS));
         } catch (IllegalArgumentException e) {
-            log.error("Invalid request: {}", e.getMessage());
+            log.error(INVALID_REQUEST_LOG, e.getMessage());
             return ResponseEntity.badRequest()
                 .body(ApiResponse.error(e.getMessage()));
         } catch (Exception e) {
             log.error("Error adding project relationship", e);
             return ResponseEntity.internalServerError()
-                .body(ApiResponse.error("프로젝트 관계 추가 실패: " + e.getMessage()));
+                .body(ApiResponse.error(AdminApiErrorMessages.projectRelationAddFailed(e)));
         }
     }
 
@@ -282,16 +280,16 @@ public class AdminExperienceRelationshipController {
             @PathVariable Long projectId) {
         try {
             ExperienceJpaEntity experience = experienceJpaRepository.findByBusinessId(id)
-                .orElseThrow(() -> new IllegalArgumentException("Experience not found"));
+                .orElseThrow(() -> new IllegalArgumentException(EXPERIENCE_NOT_FOUND));
 
             experienceProjectJpaRepository.deleteByExperienceIdAndProjectId(
                 experience.getId(), projectId);
 
-            return ResponseEntity.ok(ApiResponse.success(null, "프로젝트 관계 삭제 성공"));
+            return ResponseEntity.ok(ApiResponse.success(null, WebApiResponseMessages.PROJECT_RELATION_DELETE_SUCCESS));
         } catch (Exception e) {
             log.error("Error deleting project relationship", e);
             return ResponseEntity.internalServerError()
-                .body(ApiResponse.error("프로젝트 관계 삭제 실패: " + e.getMessage()));
+                .body(ApiResponse.error(AdminApiErrorMessages.projectRelationDeleteFailed(e)));
         }
     }
 
@@ -308,7 +306,7 @@ public class AdminExperienceRelationshipController {
             @RequestBody BulkProjectRelationshipRequest request) {
         try {
             ExperienceJpaEntity experience = experienceJpaRepository.findByBusinessId(id)
-                .orElseThrow(() -> new IllegalArgumentException("Experience not found: " + id));
+                .orElseThrow(() -> new IllegalArgumentException(EXPERIENCE_NOT_FOUND_WITH_ID + id));
             
             // BulkProjectRelationshipRequest를 ExperienceRelationshipPort.ProjectRelation으로 변환
             // 비즈니스 ID를 DB ID로 변환
@@ -325,21 +323,21 @@ public class AdminExperienceRelationshipController {
                                 item.getContributionDescription()
                             );
                         })
-                        .collect(Collectors.toList());
+                        .toList();
 
             // Merge 전략을 사용하여 관계 업데이트
             experienceRelationshipPort.replaceProjects(experience.getId(), projectRelations);
             
             log.info("Updated project relationships for experience: {} (using merge strategy)", id);
-            return ResponseEntity.ok(ApiResponse.success(null, "프로젝트 관계 일괄 업데이트 성공"));
+            return ResponseEntity.ok(ApiResponse.success(null, WebApiResponseMessages.PROJECT_RELATION_BULK_UPDATE_SUCCESS));
         } catch (IllegalArgumentException e) {
-            log.error("Invalid request: {}", e.getMessage());
+            log.error(INVALID_REQUEST_LOG, e.getMessage());
             return ResponseEntity.badRequest()
                 .body(ApiResponse.error(e.getMessage()));
         } catch (Exception e) {
             log.error("Error updating project relationships", e);
             return ResponseEntity.internalServerError()
-                .body(ApiResponse.error("프로젝트 관계 일괄 업데이트 실패: " + e.getMessage()));
+                .body(ApiResponse.error(AdminApiErrorMessages.projectRelationBulkUpdateFailed(e)));
         }
     }
 }

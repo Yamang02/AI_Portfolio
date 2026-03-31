@@ -1,5 +1,6 @@
 package com.aiportfolio.backend.infrastructure.web.controller;
 
+import com.aiportfolio.backend.infrastructure.web.WebApiResponseMessages;
 import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;
 import com.aiportfolio.backend.infrastructure.web.dto.article.ArticleSummary;
 import com.aiportfolio.backend.infrastructure.web.dto.project.ProjectDataResponse;
@@ -12,7 +13,6 @@ import com.aiportfolio.backend.domain.portfolio.model.Experience;
 import com.aiportfolio.backend.domain.portfolio.model.Project;
 import com.aiportfolio.backend.domain.portfolio.port.in.GetProjectsUseCase;
 import com.aiportfolio.backend.domain.portfolio.port.in.GetAllDataUseCase;
-import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.ProjectJpaRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
@@ -25,11 +25,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * 데이터 웹 컨트롤러 (헥사고날 아키텍처 Infrastructure/Web Layer)
- * Use Case와 Repository Port를 직접 사용하는 헥사고날 아키텍처 컨트롤러
+ * 인바운드 Use Case 포트만 사용하며 JPA Repository에 직접 의존하지 않습니다.
  */
 @Slf4j
 @RestController
@@ -40,17 +39,14 @@ public class DataController {
     private final GetProjectsUseCase getProjectsUseCase;
     private final GetAllDataUseCase getAllDataUseCase;
     private final GetArticleUseCase getArticleUseCase;
-    private final ProjectJpaRepository projectJpaRepository;
     
     public DataController(
             @Qualifier("portfolioService") GetProjectsUseCase getProjectsUseCase,
             @Qualifier("portfolioApplicationService") GetAllDataUseCase getAllDataUseCase,
-            GetArticleUseCase getArticleUseCase,
-            ProjectJpaRepository projectJpaRepository) {
+            GetArticleUseCase getArticleUseCase) {
         this.getProjectsUseCase = getProjectsUseCase;
         this.getAllDataUseCase = getAllDataUseCase;
         this.getArticleUseCase = getArticleUseCase;
-        this.projectJpaRepository = projectJpaRepository;
     }
     
     @GetMapping("/all")
@@ -73,7 +69,7 @@ public class DataController {
             responseData.put("projects", mappedProjects);
         }
 
-        return ResponseEntity.ok(ApiResponse.success(responseData, "포트폴리오 데이터 조회 성공"));
+        return ResponseEntity.ok(ApiResponse.success(responseData, WebApiResponseMessages.PORTFOLIO_DATA_FETCH_SUCCESS));
     }
     
     @GetMapping("/projects")
@@ -87,20 +83,17 @@ public class DataController {
                 return ProjectDataResponse.from(project, developmentTimelineArticles);
             })
             .toList();
-        return ResponseEntity.ok(ApiResponse.success(responses, "프로젝트 목록 조회 성공"));
+        return ResponseEntity.ok(ApiResponse.success(responses, WebApiResponseMessages.PROJECT_LIST_SUCCESS));
     }
 
     /**
      * 프로젝트의 development-timeline 타입 Article 조회 (최대 50개, 최신순)
      */
     private List<ArticleSummary> getDevelopmentTimelineArticles(Project project) {
-        // 프로젝트의 DB ID 조회
-        var projectEntity = projectJpaRepository.findByBusinessId(project.getId());
-        if (projectEntity.isEmpty()) {
+        Long projectDbId = getProjectsUseCase.getProjectDatabaseIdByBusinessId(project.getId()).orElse(null);
+        if (projectDbId == null) {
             return List.of();
         }
-        
-        Long projectDbId = projectEntity.get().getId();
         
         // development-timeline 타입 Article 필터 생성
         ArticleFilter filter = new ArticleFilter();
@@ -115,7 +108,7 @@ public class DataController {
             .getContent()
             .stream()
             .map(this::toArticleSummary)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     /**
@@ -134,21 +127,21 @@ public class DataController {
     @Operation(summary = "경험 데이터 조회", description = "모든 경험 정보를 조회합니다.")
     public ResponseEntity<ApiResponse<List<Experience>>> getExperiences() {
         List<Experience> experiences = getAllDataUseCase.getAllExperiences();
-        return ResponseEntity.ok(ApiResponse.success(experiences, "경험 목록 조회 성공"));
+        return ResponseEntity.ok(ApiResponse.success(experiences, WebApiResponseMessages.PUBLIC_EXPERIENCE_LIST_SUCCESS));
     }
     
     @GetMapping("/certifications")
     @Operation(summary = "자격증 데이터 조회", description = "모든 자격증 정보를 조회합니다.")
     public ResponseEntity<ApiResponse<List<Certification>>> getCertifications() {
         List<Certification> certifications = getAllDataUseCase.getAllCertifications();
-        return ResponseEntity.ok(ApiResponse.success(certifications, "자격증 목록 조회 성공"));
+        return ResponseEntity.ok(ApiResponse.success(certifications, WebApiResponseMessages.PUBLIC_CERTIFICATION_LIST_SUCCESS));
     }
     
     @GetMapping("/education")
     @Operation(summary = "교육 데이터 조회", description = "모든 교육 정보를 조회합니다.")
     public ResponseEntity<ApiResponse<List<Education>>> getEducation() {
         List<Education> education = getAllDataUseCase.getAllEducations();
-        return ResponseEntity.ok(ApiResponse.success(education, "교육 목록 조회 성공"));
+        return ResponseEntity.ok(ApiResponse.success(education, WebApiResponseMessages.PUBLIC_EDUCATION_LIST_SUCCESS));
     }
 
 }

@@ -89,8 +89,8 @@ export const DetailDescriptions: React.FC<DetailDescriptionsProps> = ({
 }) => {
   return (
     <Descriptions bordered column={column}>
-      {items.map((item, index) => (
-        <Descriptions.Item key={index} label={item.label} span={item.span}>
+      {items.map((item) => (
+        <Descriptions.Item key={item.label} label={item.label} span={item.span}>
           {item.value}
         </Descriptions.Item>
       ))}

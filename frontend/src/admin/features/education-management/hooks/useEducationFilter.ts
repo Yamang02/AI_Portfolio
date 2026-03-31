@@ -16,8 +16,8 @@ export const useEducationFilter = (educations: Education[] = []) => {
         !searchText ||
         education.title.toLowerCase().includes(searchText.toLowerCase()) ||
         education.organization.toLowerCase().includes(searchText.toLowerCase()) ||
-        (education.major && education.major.toLowerCase().includes(searchText.toLowerCase())) ||
-        (education.description && education.description.toLowerCase().includes(searchText.toLowerCase()));
+        education.major?.toLowerCase().includes(searchText.toLowerCase()) ||
+        education.description?.toLowerCase().includes(searchText.toLowerCase());
 
       // 타입 필터링
       const matchesType = typeFilter === 'all' || education.type === typeFilter;

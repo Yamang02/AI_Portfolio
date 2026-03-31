@@ -1,10 +1,10 @@
-import React, { useEffect, lazy, Suspense } from 'react';
+import React, { lazy, Suspense } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
-import { useApp } from './providers/AppProvider';
 import { PageLayout } from '@/main/widgets/page-layout';
 import { HomePageLayout } from '@/main/widgets/home-page-layout';
 import { AnimatedRoutes } from '@/shared/ui/page-transition';
 import { LoadingScreen } from '@/shared/ui/LoadingScreen';
+import { ErrorBoundary } from '@/shared/ui/error-boundary';
 
 // 홈페이지는 즉시 로드 (초기 진입점)
 import { HomePage } from '@/main/pages/HomePage';
@@ -19,18 +19,10 @@ const ArticleDetailPage = lazy(() => import('@/main/pages/ArticleDetailPage').th
 
 /**
  * MainApp의 라우팅 컴포넌트
- * AppProvider 내부에서 사용되므로 useApp 훅 사용 가능
+ * AppProvider는 App.tsx에서 상위로 감싼다.
  */
 const MainAppContent: React.FC = () => {
   const location = useLocation();
-  const {
-    projects,
-    experiences,
-    educations,
-    certifications,
-    isLoading,
-    loadingStates
-  } = useApp();
 
   // 푸터 표시: 홈페이지, 프로필 페이지, 프로젝트 페이지, 아티클 페이지에 표시
   // 챗봇 페이지와 프로젝트 상세 페이지는 푸터 제외
@@ -47,24 +39,6 @@ const MainAppContent: React.FC = () => {
       history.scrollRestoration = 'manual';
     }
   }, []);
-
-  // 전체 로딩 상태: 네 가지 데이터가 모두 로드될 때까지 로딩 화면 유지 (OR 조건)
-  const isInitialLoading =
-    isLoading &&
-    (loadingStates.projects ||
-      loadingStates.experiences ||
-      loadingStates.educations ||
-      loadingStates.certifications);
-
-  if (isInitialLoading) {
-    return (
-      <LoadingScreen
-        message="포트폴리오를 불러오는 중..."
-        showProgress={true}
-        loadingStates={loadingStates}
-      />
-    );
-  }
 
   // 홈페이지는 HomePageLayout 사용 (scroll-driven animation 지원)
   if (isHomePage) {
@@ -92,57 +66,66 @@ const MainAppContent: React.FC = () => {
           flexDirection: 'column',
         }}
       >
-        <AnimatedRoutes
-          isLoading={isLoading}
-          loadingStates={loadingStates}
-        >
-          <Route 
-            path="/profile" 
+        <AnimatedRoutes>
+          <Route
+            path="/profile"
             element={
-              <Suspense fallback={<LoadingScreen message="프로필을 불러오는 중..." />}>
-                <ProfilePage />
-              </Suspense>
-            } 
+              <ErrorBoundary>
+                <Suspense fallback={<LoadingScreen message="프로필을 불러오는 중..." />}>
+                  <ProfilePage />
+                </Suspense>
+              </ErrorBoundary>
+            }
           />
-          <Route 
-            path="/projects" 
+          <Route
+            path="/projects"
             element={
-              <Suspense fallback={<LoadingScreen message="작업물을 불러오는 중..." />}>
-                <ProjectsListPage />
-              </Suspense>
-            } 
+              <ErrorBoundary>
+                <Suspense fallback={<LoadingScreen message="작업물을 불러오는 중..." />}>
+                  <ProjectsListPage />
+                </Suspense>
+              </ErrorBoundary>
+            }
           />
-          <Route 
-            path="/projects/:id" 
+          <Route
+            path="/projects/:id"
             element={
-              <Suspense fallback={<LoadingScreen message="작업물 상세를 불러오는 중..." />}>
-                <ProjectDetailPage />
-              </Suspense>
-            } 
+              <ErrorBoundary>
+                <Suspense fallback={<LoadingScreen message="작업물 상세를 불러오는 중..." />}>
+                  <ProjectDetailPage />
+                </Suspense>
+              </ErrorBoundary>
+            }
           />
-          <Route 
-            path="/articles" 
+          <Route
+            path="/articles"
             element={
-              <Suspense fallback={<LoadingScreen message="글을 불러오는 중..." />}>
-                <ArticleListPage />
-              </Suspense>
-            } 
+              <ErrorBoundary>
+                <Suspense fallback={<LoadingScreen message="글을 불러오는 중..." />}>
+                  <ArticleListPage />
+                </Suspense>
+              </ErrorBoundary>
+            }
           />
-          <Route 
-            path="/articles/:businessId" 
+          <Route
+            path="/articles/:businessId"
             element={
-              <Suspense fallback={<LoadingScreen message="글 상세를 불러오는 중..." />}>
-                <ArticleDetailPage />
-              </Suspense>
-            } 
+              <ErrorBoundary>
+                <Suspense fallback={<LoadingScreen message="글 상세를 불러오는 중..." />}>
+                  <ArticleDetailPage />
+                </Suspense>
+              </ErrorBoundary>
+            }
           />
-          <Route 
-            path="/chat" 
+          <Route
+            path="/chat"
             element={
-              <Suspense fallback={<LoadingScreen message="챗봇을 불러오는 중..." />}>
-                <ChatPage />
-              </Suspense>
-            } 
+              <ErrorBoundary>
+                <Suspense fallback={<LoadingScreen message="챗봇을 불러오는 중..." />}>
+                  <ChatPage />
+                </Suspense>
+              </ErrorBoundary>
+            }
           />
         </AnimatedRoutes>
       </div>

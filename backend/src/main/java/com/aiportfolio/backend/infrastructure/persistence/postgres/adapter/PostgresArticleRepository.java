@@ -45,95 +45,93 @@ public class PostgresArticleRepository implements ArticleRepositoryPort {
 
     @Override
     public Article save(Article article) {
-        ArticleJpaEntity entity;
-
-        if (article.getId() != null) {
-            // 업데이트: 기존 엔티티 조회
-            entity = jpaRepository.findById(article.getId())
-                    .orElseThrow(() -> new IllegalArgumentException("Article not found: " + article.getId()));
-
-            // 필드 업데이트
-            entity.setTitle(article.getTitle());
-            entity.setSummary(article.getSummary());
-            entity.setContent(article.getContent());
-            entity.setProjectId(article.getProjectId());
-            entity.setCategory(article.getCategory());
-            entity.setTags(article.getTags() != null ? article.getTags().toArray(new String[0]) : new String[0]);
-            entity.setStatus(article.getStatus());
-            entity.setIsFeatured(article.getIsFeatured());
-            entity.setSeriesId(article.getSeriesId());
-            entity.setSeriesOrder(article.getSeriesOrder());
-
-            // 기술 스택 업데이트 (머지 전략: 삭제/추가만 수행)
-            // 1. 기존 기술 스택 조회
-            List<ArticleTechStackJpaEntity> existingTechStacks = 
-                    techStackRepository.findByArticleIdIn(List.of(article.getId()));
-            
-            // 2. 요청된 techName 집합
-            Set<String> requestedTechNames = (article.getTechStack() == null || article.getTechStack().isEmpty())
-                    ? Collections.emptySet()
-                    : article.getTechStack().stream()
-                            .map(ts -> ts.getTechName())
-                            .filter(Objects::nonNull)
-                            .collect(Collectors.toSet());
-            
-            // 3. 기존 기술 스택 중 삭제할 것들 (요청에 없는 것들)
-            List<ArticleTechStackJpaEntity> toDelete = existingTechStacks.stream()
-                    .filter(existing -> !requestedTechNames.contains(existing.getTechName()))
-                    .collect(Collectors.toList());
-            
-            if (!toDelete.isEmpty()) {
-                techStackRepository.deleteAll(toDelete);
-                techStackRepository.flush(); // 명시적 플러시로 삭제가 DB에 반영되도록 보장
-            }
-            
-            // 4. 기존에 있던 techName 집합
-            Set<String> existingTechNames = existingTechStacks.stream()
-                    .map(ArticleTechStackJpaEntity::getTechName)
-                    .collect(Collectors.toSet());
-            
-            // 5. 새로 추가할 기술 스택들 (기존에 없는 것들)
-            if (article.getTechStack() != null && !article.getTechStack().isEmpty()) {
-                List<ArticleTechStackJpaEntity> toAdd = article.getTechStack().stream()
-                        .filter(ts -> !existingTechNames.contains(ts.getTechName()))
-                        .map(ts -> ArticleTechStackJpaEntity.builder()
-                                .article(entity)
-                                .techName(ts.getTechName())
-                                .isPrimary(ts.getIsPrimary())
-                                .build())
-                        .collect(Collectors.toList());
-                
-                if (!toAdd.isEmpty()) {
-                    entity.getTechStack().addAll(toAdd);
-                }
-            }
-        } else {
-            // 생성: 새 엔티티
-            entity = mapper.toEntity(article);
-
-            // 기술 스택 설정
-            if (article.getTechStack() != null) {
-                List<ArticleTechStackJpaEntity> techStackEntities = article.getTechStack().stream()
-                        .map(ts -> ArticleTechStackJpaEntity.builder()
-                                .article(entity)
-                                .techName(ts.getTechName())
-                                .isPrimary(ts.getIsPrimary())
-                                .build())
-                        .collect(Collectors.toList());
-                entity.setTechStack(techStackEntities);
-            }
-        }
+        ArticleJpaEntity entity = article.getId() != null
+                ? updateExistingArticleEntity(article)
+                : createNewArticleEntity(article);
 
         ArticleJpaEntity saved = jpaRepository.save(entity);
         return mapper.toDomain(saved);
+    }
+
+    private ArticleJpaEntity updateExistingArticleEntity(Article article) {
+        ArticleJpaEntity entity = jpaRepository.findById(article.getId())
+                .orElseThrow(() -> new IllegalArgumentException("Article not found: " + article.getId()));
+
+        entity.setTitle(article.getTitle());
+        entity.setSummary(article.getSummary());
+        entity.setContent(article.getContent());
+        entity.setProjectId(article.getProjectId());
+        entity.setCategory(article.getCategory());
+        entity.setTags(article.getTags() != null ? article.getTags().toArray(new String[0]) : new String[0]);
+        entity.setStatus(article.getStatus());
+        entity.setIsFeatured(article.getIsFeatured());
+        entity.setSeriesId(article.getSeriesId());
+        entity.setSeriesOrder(article.getSeriesOrder());
+
+        mergeArticleTechStack(article, entity);
+        return entity;
+    }
+
+    private void mergeArticleTechStack(Article article, ArticleJpaEntity entity) {
+        List<ArticleTechStackJpaEntity> existingTechStacks =
+                techStackRepository.findByArticleIdIn(List.of(article.getId()));
+
+        Set<String> requestedTechNames = (article.getTechStack() == null || article.getTechStack().isEmpty())
+                ? Collections.emptySet()
+                : article.getTechStack().stream()
+                        .map(ts -> ts.getTechName())
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toSet());
+
+        List<ArticleTechStackJpaEntity> toDelete = existingTechStacks.stream()
+                .filter(existing -> !requestedTechNames.contains(existing.getTechName()))
+                .toList();
+
+        if (!toDelete.isEmpty()) {
+            techStackRepository.deleteAll(toDelete);
+            techStackRepository.flush();
+        }
+
+        Set<String> existingTechNames = existingTechStacks.stream()
+                .map(ArticleTechStackJpaEntity::getTechName)
+                .collect(Collectors.toSet());
+
+        if (article.getTechStack() != null && !article.getTechStack().isEmpty()) {
+            List<ArticleTechStackJpaEntity> toAdd = article.getTechStack().stream()
+                    .filter(ts -> !existingTechNames.contains(ts.getTechName()))
+                    .map(ts -> ArticleTechStackJpaEntity.builder()
+                            .article(entity)
+                            .techName(ts.getTechName())
+                            .isPrimary(ts.getIsPrimary())
+                            .build())
+                    .toList();
+
+            if (!toAdd.isEmpty()) {
+                entity.getTechStack().addAll(toAdd);
+            }
+        }
+    }
+
+    private ArticleJpaEntity createNewArticleEntity(Article article) {
+        ArticleJpaEntity entity = mapper.toEntity(article);
+        if (article.getTechStack() != null) {
+            List<ArticleTechStackJpaEntity> techStackEntities = article.getTechStack().stream()
+                    .map(ts -> ArticleTechStackJpaEntity.builder()
+                            .article(entity)
+                            .techName(ts.getTechName())
+                            .isPrimary(ts.getIsPrimary())
+                            .build())
+                    .toList();
+            entity.setTechStack(techStackEntities);
+        }
+        return entity;
     }
 
     @Override
     public void delete(Long id) {
         // 삭제 전에 시리즈 정보 조회 (순서 재정렬을 위해)
         Optional<ArticleJpaEntity> entityOpt = jpaRepository.findById(id);
-        if (entityOpt.isPresent()) {
-            ArticleJpaEntity entity = entityOpt.get();
+        entityOpt.ifPresent(entity -> {
             String seriesId = entity.getSeriesId();
             Integer seriesOrder = entity.getSeriesOrder();
             
@@ -141,7 +139,7 @@ public class PostgresArticleRepository implements ArticleRepositoryPort {
             if (seriesId != null && seriesOrder != null) {
                 jpaRepository.decreaseSeriesOrderAfter(seriesId, seriesOrder);
             }
-        }
+        });
         
         // 아티클 삭제 (ArticleTechStack은 CASCADE로 자동 삭제됨)
         jpaRepository.deleteById(id);
@@ -177,7 +175,7 @@ public class PostgresArticleRepository implements ArticleRepositoryPort {
         // 모든 articleId의 techStack을 한 번에 조회
         List<Long> articleIds = entities.stream()
                 .map(ArticleJpaEntity::getId)
-                .collect(Collectors.toList());
+                .toList();
         List<ArticleTechStackJpaEntity> allTechStacks = techStackRepository.findByArticleIdIn(articleIds);
         
         // articleId별로 techStack을 그룹화
@@ -227,7 +225,7 @@ public class PostgresArticleRepository implements ArticleRepositoryPort {
         // 모든 articleId의 techStack을 한 번에 조회
         List<Long> articleIds = entities.stream()
                 .map(ArticleJpaEntity::getId)
-                .collect(Collectors.toList());
+                .toList();
         List<ArticleTechStackJpaEntity> allTechStacks = techStackRepository.findByArticleIdIn(articleIds);
         
         // articleId별로 techStack을 그룹화
@@ -384,7 +382,7 @@ public class PostgresArticleRepository implements ArticleRepositoryPort {
                     .map(result -> (String) result[0])
                     .filter(Objects::nonNull)
                     .distinct()
-                    .collect(Collectors.toList());
+                    .toList();
             
             // 배치 조회 (1개 쿼리)
             Map<String, ArticleSeriesJpaEntity> seriesMap = seriesJpaRepository.findBySeriesIdIn(seriesIds)

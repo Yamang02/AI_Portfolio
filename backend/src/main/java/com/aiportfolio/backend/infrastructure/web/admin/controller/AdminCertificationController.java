@@ -3,6 +3,8 @@ package com.aiportfolio.backend.infrastructure.web.admin.controller;
 import com.aiportfolio.backend.domain.portfolio.model.Certification;
 import com.aiportfolio.backend.domain.portfolio.port.in.GetCertificationUseCase;
 import com.aiportfolio.backend.domain.portfolio.port.in.ManageCertificationUseCase;
+import com.aiportfolio.backend.infrastructure.web.WebApiResponseMessages;
+import com.aiportfolio.backend.infrastructure.web.admin.AdminApiErrorMessages;
 import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;
 import com.aiportfolio.backend.infrastructure.web.dto.certification.CertificationDto;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Admin 전용 Certification REST API Controller
@@ -51,13 +52,13 @@ public class AdminCertificationController {
 
             List<CertificationDto> dtos = certifications.stream()
                 .map(this::convertToDto)
-                .collect(Collectors.toList());
+                .toList();
 
             return ResponseEntity.ok(ApiResponse.success(dtos));
         } catch (Exception e) {
             log.error("Error fetching certifications - Exception type: {}, Message: {}", e.getClass().getName(), e.getMessage(), e);
             return ResponseEntity.internalServerError()
-                .body(ApiResponse.error("자격증 목록 조회 중 오류가 발생했습니다: " + e.getClass().getSimpleName() + " - " + e.getMessage()));
+                .body(ApiResponse.error(AdminApiErrorMessages.listQueryFailed("자격증", e)));
         }
     }
 
@@ -78,7 +79,7 @@ public class AdminCertificationController {
         } catch (Exception e) {
             log.error("Error fetching certification by id: {}", id, e);
             return ResponseEntity.internalServerError()
-                .body(ApiResponse.error("자격증 조회 중 오류가 발생했습니다: " + e.getMessage()));
+                .body(ApiResponse.error(AdminApiErrorMessages.queryFailed("자격증", e)));
         }
     }
 
@@ -94,13 +95,13 @@ public class AdminCertificationController {
             List<Certification> certifications = getCertificationUseCase.getCertificationsByCategory(category);
             List<CertificationDto> dtos = certifications.stream()
                 .map(this::convertToDto)
-                .collect(Collectors.toList());
+                .toList();
 
             return ResponseEntity.ok(ApiResponse.success(dtos));
         } catch (Exception e) {
             log.error("Error fetching certifications by category: {}", category, e);
             return ResponseEntity.internalServerError()
-                .body(ApiResponse.error("카테고리별 자격증 조회 중 오류가 발생했습니다: " + e.getMessage()));
+                .body(ApiResponse.error(AdminApiErrorMessages.certificationsByCategoryFailed(e)));
         }
     }
 
@@ -115,13 +116,13 @@ public class AdminCertificationController {
             List<Certification> certifications = getCertificationUseCase.getExpiredCertifications();
             List<CertificationDto> dtos = certifications.stream()
                 .map(this::convertToDto)
-                .collect(Collectors.toList());
+                .toList();
 
             return ResponseEntity.ok(ApiResponse.success(dtos));
         } catch (Exception e) {
             log.error("Error fetching expired certifications", e);
             return ResponseEntity.internalServerError()
-                .body(ApiResponse.error("만료된 자격증 조회 중 오류가 발생했습니다: " + e.getMessage()));
+                .body(ApiResponse.error(AdminApiErrorMessages.expiredCertificationsFailed(e)));
         }
     }
 
@@ -136,13 +137,13 @@ public class AdminCertificationController {
             List<Certification> certifications = getCertificationUseCase.getExpiringSoonCertifications();
             List<CertificationDto> dtos = certifications.stream()
                 .map(this::convertToDto)
-                .collect(Collectors.toList());
+                .toList();
 
             return ResponseEntity.ok(ApiResponse.success(dtos));
         } catch (Exception e) {
             log.error("Error fetching expiring soon certifications", e);
             return ResponseEntity.internalServerError()
-                .body(ApiResponse.error("곧 만료될 자격증 조회 중 오류가 발생했습니다: " + e.getMessage()));
+                .body(ApiResponse.error(AdminApiErrorMessages.expiringSoonCertificationsFailed(e)));
         }
     }
 
@@ -170,7 +171,7 @@ public class AdminCertificationController {
         } catch (Exception e) {
             log.error("Error creating certification", e);
             return ResponseEntity.internalServerError()
-                .body(ApiResponse.error("자격증 생성 중 오류가 발생했습니다: " + e.getMessage()));
+                .body(ApiResponse.error(AdminApiErrorMessages.createFailed("자격증", e)));
         }
     }
 
@@ -197,7 +198,7 @@ public class AdminCertificationController {
         } catch (Exception e) {
             log.error("Error updating certification: {}", id, e);
             return ResponseEntity.internalServerError()
-                .body(ApiResponse.error("자격증 수정 중 오류가 발생했습니다: " + e.getMessage()));
+                .body(ApiResponse.error(AdminApiErrorMessages.updateFailed("자격증", e)));
         }
     }
 
@@ -210,14 +211,14 @@ public class AdminCertificationController {
 
         try {
             manageCertificationUseCase.deleteCertification(id);
-            return ResponseEntity.ok(ApiResponse.success(null, "Certification 삭제 성공"));
+            return ResponseEntity.ok(ApiResponse.success(null, WebApiResponseMessages.CERTIFICATION_DELETE_SUCCESS));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest()
                 .body(ApiResponse.error(e.getMessage()));
         } catch (Exception e) {
             log.error("Error deleting certification: {}", id, e);
             return ResponseEntity.internalServerError()
-                .body(ApiResponse.error("자격증 삭제 중 오류가 발생했습니다: " + e.getMessage()));
+                .body(ApiResponse.error(AdminApiErrorMessages.deleteFailed("자격증", e)));
         }
     }
 
@@ -231,14 +232,14 @@ public class AdminCertificationController {
 
         try {
             manageCertificationUseCase.updateCertificationSortOrder(sortOrderUpdates);
-            return ResponseEntity.ok(ApiResponse.success(null, "정렬 순서 업데이트 성공"));
+            return ResponseEntity.ok(ApiResponse.success(null, WebApiResponseMessages.SORT_ORDER_UPDATE_SUCCESS));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest()
                 .body(ApiResponse.error(e.getMessage()));
         } catch (Exception e) {
             log.error("Error updating sort orders", e);
             return ResponseEntity.internalServerError()
-                .body(ApiResponse.error("정렬 순서 업데이트 중 오류가 발생했습니다: " + e.getMessage()));
+                .body(ApiResponse.error(AdminApiErrorMessages.sortOrderUpdateFailed(e)));
         }
     }
 

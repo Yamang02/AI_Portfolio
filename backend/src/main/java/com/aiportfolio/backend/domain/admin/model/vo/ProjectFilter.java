@@ -156,10 +156,13 @@ public class ProjectFilter {
         if (!hasTechFilter()) {
             return true;
         }
-        
-        // TODO: 기술 스택 필터링 로직 구현
-        // 현재는 기술 스택 정보가 Project 도메인에 없으므로 추후 구현
-        return true;
+        if (project == null) {
+            return false;
+        }
+
+        return selectedTechs.stream()
+            .filter(tech -> tech != null && !tech.isBlank())
+            .anyMatch(project::usesTechnology);
     }
     
     /**
@@ -175,72 +178,50 @@ public class ProjectFilter {
      */
     private Comparator<Object> getComparator() {
         if (sortBy == null || "sortOrder".equals(sortBy)) {
-            return Comparator.comparing(obj -> {
-                try {
-                    Object sortOrder = obj.getClass().getMethod("getSortOrder").invoke(obj);
-                    return sortOrder != null ? (Integer) sortOrder : 0;
-                } catch (Exception e) {
-                    return 0;
-                }
-            });
+            return comparatorBySortOrder();
         }
-        
-        switch (sortBy) {
-                case "startDate":
-                    return Comparator.comparing(obj -> {
-                        try {
-                            Object result = obj.getClass().getMethod("getStartDate").invoke(obj);
-                            @SuppressWarnings("unchecked")
-                            Comparable<Object> comparable = (Comparable<Object>) result;
-                            return result != null ? comparable : null;
-                        } catch (Exception e) {
-                            return null;
-                        }
-                    }, Comparator.nullsLast(Comparator.naturalOrder()));
-                case "endDate":
-                    return Comparator.comparing(obj -> {
-                        try {
-                            Object result = obj.getClass().getMethod("getEndDate").invoke(obj);
-                            @SuppressWarnings("unchecked")
-                            Comparable<Object> comparable = (Comparable<Object>) result;
-                            return result != null ? comparable : null;
-                        } catch (Exception e) {
-                            return null;
-                        }
-                    }, Comparator.nullsLast(Comparator.naturalOrder()));
-            case "title":
-                return Comparator.comparing(obj -> {
-                    try {
-                        return (String) obj.getClass().getMethod("getTitle").invoke(obj);
-                    } catch (Exception e) {
-                        return "";
-                    }
-                }, String.CASE_INSENSITIVE_ORDER);
-            case "status":
-                return Comparator.comparing(obj -> {
-                    try {
-                        return (String) obj.getClass().getMethod("getStatus").invoke(obj);
-                    } catch (Exception e) {
-                        return "";
-                    }
-                });
-            case "type":
-                return Comparator.comparing(obj -> {
-                    try {
-                        return (String) obj.getClass().getMethod("getType").invoke(obj);
-                    } catch (Exception e) {
-                        return "";
-                    }
-                });
-            default:
-                return Comparator.comparing(obj -> {
-                    try {
-                        Object sortOrder = obj.getClass().getMethod("getSortOrder").invoke(obj);
-                        return sortOrder != null ? (Integer) sortOrder : 0;
-                    } catch (Exception e) {
-                        return 0;
-                    }
-                }); // 기본 정렬
-        }
+        return switch (sortBy) {
+            case "startDate" -> comparatorByComparableGetter("getStartDate");
+            case "endDate" -> comparatorByComparableGetter("getEndDate");
+            case "title" -> comparatorByStringGetter("getTitle", true);
+            case "status" -> comparatorByStringGetter("getStatus", false);
+            case "type" -> comparatorByStringGetter("getType", false);
+            default -> comparatorBySortOrder();
+        };
+    }
+
+    private static Comparator<Object> comparatorBySortOrder() {
+        return Comparator.comparing(obj -> {
+            try {
+                Object invokedSortOrder = obj.getClass().getMethod("getSortOrder").invoke(obj);
+                return invokedSortOrder != null ? (Integer) invokedSortOrder : 0;
+            } catch (Exception e) {
+                return 0;
+            }
+        });
+    }
+
+    private static Comparator<Object> comparatorByComparableGetter(String getterName) {
+        return Comparator.comparing(obj -> {
+            try {
+                Object result = obj.getClass().getMethod(getterName).invoke(obj);
+                @SuppressWarnings("unchecked")
+                Comparable<Object> comparable = (Comparable<Object>) result;
+                return result != null ? comparable : null;
+            } catch (Exception e) {
+                return null;
+            }
+        }, Comparator.nullsLast(Comparator.naturalOrder()));
+    }
+
+    private static Comparator<Object> comparatorByStringGetter(String getterName, boolean caseInsensitive) {
+        Comparator<String> stringOrder = caseInsensitive ? String.CASE_INSENSITIVE_ORDER : Comparator.naturalOrder();
+        return Comparator.comparing(obj -> {
+            try {
+                return (String) obj.getClass().getMethod(getterName).invoke(obj);
+            } catch (Exception e) {
+                return "";
+            }
+        }, stringOrder);
     }
 }

@@ -1,1 +1,1 @@
-export { AnimatedPageTransition, AnimatedRoutes } from './AnimatedPageTransition';
+export { AnimatedRoutes } from './AnimatedPageTransition';

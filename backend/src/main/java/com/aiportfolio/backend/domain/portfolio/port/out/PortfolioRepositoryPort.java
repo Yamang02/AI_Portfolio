@@ -27,6 +27,12 @@ public interface PortfolioRepositoryPort {
      * ID로 특정 프로젝트를 조회합니다
      */
     Optional<Project> findProjectById(String id);
+
+    /**
+     * 비즈니스 ID에 해당하는 프로젝트의 DB 기본키(PK)를 조회합니다.
+     * (Article 필터 등 JPA FK 연동용 — 웹 계층은 이 포트만 경유합니다.)
+     */
+    Optional<Long> findProjectDatabaseIdByBusinessId(String businessId);
     
     /**
      * 프로젝트 제목으로 검색합니다

@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { Card } from './Card';
+import { ClickableCard } from './ClickableCard';
 import { Badge } from '../Badge/Badge';
 import { ArticleIcon } from '../Icon/ArticleIcon';
 import { ARTICLE_CATEGORIES } from '@/admin/entities/article';
@@ -129,11 +130,13 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({
     return count.toString();
   };
 
+  const CardComponent = onClick ? ClickableCard : Card;
+
   return (
-    <Card
+    <CardComponent
       variant="default"
       padding="md"
-      onClick={onClick}
+      {...(onClick ? { onClick } : {})}
       className={`${styles.articleCard} ${styles.noCardHover} ${onClick ? styles.clickable : ''} ${className || ''}`}
     >
       {/* 헤더 배지 영역 (type, 시리즈, 별 배지) */}
@@ -207,6 +210,6 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({
           </Badge>
         )}
       </div>
-    </Card>
+    </CardComponent>
   );
 };

@@ -140,7 +140,7 @@ public class Experience implements Sortable {
         return techStackMetadata != null ? 
                techStackMetadata.stream()
                    .map(TechStackMetadata::getName)
-                   .collect(java.util.stream.Collectors.toList()) : 
+                   .toList() : 
                new java.util.ArrayList<>();
     }
     

@@ -17,8 +17,8 @@ export interface PreloadStatus {
  * 이스터에그 모드 활성화 시 백그라운드에서 리소스를 미리 로드합니다.
  */
 export class ResourcePreloader {
-  private preloadedResources = new Map<string, HTMLMediaElement | HTMLImageElement>();
-  private preloadPromises = new Map<string, Promise<void>>();
+  private readonly preloadedResources = new Map<string, HTMLMediaElement | HTMLImageElement>();
+  private readonly preloadPromises = new Map<string, Promise<void>>();
   private status: PreloadStatus = {
     total: 0,
     loaded: 0,
@@ -135,7 +135,7 @@ export class ResourcePreloader {
 
     // 이미 프리로드 완료된 경우
     if (this.preloadedResources.has(path)) {
-      return Promise.resolve();
+      return;
     }
 
     let promise: Promise<void>;
@@ -153,7 +153,7 @@ export class ResourcePreloader {
           break;
         default:
           console.warn(`Unknown resource type: ${type}`);
-          return Promise.resolve();
+          return;
       }
 
       this.preloadPromises.set(path, promise);

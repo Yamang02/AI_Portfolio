@@ -14,12 +14,252 @@ import {
   CARD_WIDTH,
 } from './constants';
 
+const THEME_RECOVERY_STYLE_ID = 'theme-recovery-transition';
+const THEME_RECOVERY_CSS = `
+  * {
+    transition: background-color 0.8s ease-in-out,
+                color 0.8s ease-in-out,
+                border-color 0.8s ease-in-out,
+                box-shadow 0.8s ease-in-out;
+  }
+`;
+
+const applyThemeRecoveryTransition = () => {
+  const style = document.createElement('style');
+  style.id = THEME_RECOVERY_STYLE_ID;
+  style.textContent = THEME_RECOVERY_CSS;
+  document.head.appendChild(style);
+};
+
+const clearThemeRecoveryTransition = () => {
+  const transitionStyle = document.getElementById(THEME_RECOVERY_STYLE_ID);
+  if (transitionStyle) {
+    transitionStyle.remove();
+  }
+};
+
 interface DemonSlayerEffectProps {
   context: EasterEggContext;
   onClose: () => void;
   resources?: EasterEggResource[];
   config?: Record<string, unknown>;
 }
+
+interface DemonSlayerVisualLayersProps {
+  containerRef: React.RefObject<HTMLDivElement>;
+  isVisible: boolean;
+  isFadingOut: boolean;
+  backgroundFadeoutDuration: number;
+  backgroundImageOpacity: number;
+  backgroundImagePosition: number;
+  backgroundBrightness: number;
+  backgroundImagePath: string;
+  mainAreaBounds: { left: number; top: number; width: number; height: number };
+  headerBottom: number;
+  headerGlow: boolean;
+  glowPosition: number | null;
+}
+
+const DemonSlayerVisualLayers: React.FC<DemonSlayerVisualLayersProps> = ({
+  containerRef,
+  isVisible,
+  isFadingOut,
+  backgroundFadeoutDuration,
+  backgroundImageOpacity,
+  backgroundImagePosition,
+  backgroundBrightness,
+  backgroundImagePath,
+  mainAreaBounds,
+  headerBottom,
+  headerGlow,
+  glowPosition,
+}) => {
+  const hasGlowPosition = typeof glowPosition === 'number' && Number.isFinite(glowPosition);
+  const containerLayerOpacity = (() => {
+    if (isFadingOut) return 0;
+    if (isVisible) return 1;
+    return 0;
+  })();
+  return (
+    <>
+    <div
+      className="fixed pointer-events-none z-[30]"
+      style={{
+        left: `${mainAreaBounds.left}px`,
+        top: `${headerBottom}px`,
+        width: `${mainAreaBounds.width || window.innerWidth}px`,
+        height: `${window.innerHeight - headerBottom}px`,
+        backgroundImage: `url(${backgroundImagePath})`,
+        backgroundSize: '100% auto',
+        backgroundPosition: `center ${backgroundImagePosition === 0 ? 'top' : backgroundImagePosition + '%'}`,
+        backgroundRepeat: 'no-repeat',
+        filter: `brightness(${backgroundBrightness})`,
+        opacity: isFadingOut ? 0 : backgroundImageOpacity,
+        transition: isFadingOut
+          ? `opacity ${backgroundFadeoutDuration}ms ease-out, filter ${backgroundFadeoutDuration}ms ease-out`
+          : 'opacity 1s ease-in-out, filter 0.1s linear',
+        display: mainAreaBounds.width > 0 && headerBottom > 0 ? 'block' : 'none',
+      }}
+    />
+
+    {isVisible && (
+      <div
+        className="fixed inset-0 pointer-events-none z-[32]"
+        style={{
+          background: `
+            radial-gradient(circle at 20% 50%, rgba(255, 179, 102, 0.2) 0%, transparent 50%),
+            radial-gradient(circle at 80% 50%, rgba(255, 140, 66, 0.2) 0%, transparent 50%),
+            radial-gradient(circle at 50% 0%, rgba(255, 107, 53, 0.15) 0%, transparent 60%),
+            linear-gradient(180deg, rgba(26, 15, 15, 0.3) 0%, transparent 100%)
+          `,
+          opacity: isFadingOut ? 0 : 1,
+          transition: isFadingOut ? `opacity ${backgroundFadeoutDuration}ms ease-out` : 'opacity 0.5s ease-out',
+        }}
+      />
+    )}
+
+    {isVisible && (
+      <div
+        className="fixed pointer-events-none z-[31]"
+        style={{
+          left: 0,
+          right: 0,
+          top: `${headerBottom}px`,
+          height: `${window.innerHeight - headerBottom}px`,
+          background: `linear-gradient(180deg, 
+            rgba(0, 0, 0, 0.5) 0%, 
+            rgba(0, 0, 0, 0.4) 20%, 
+            rgba(0, 0, 0, 0.3) 50%, 
+            rgba(0, 0, 0, 0.2) 70%, 
+            rgba(0, 0, 0, 0.1) 85%, 
+            transparent 100%)`,
+          opacity: isFadingOut ? 0 : 1,
+          transition: isFadingOut ? `opacity ${backgroundFadeoutDuration}ms ease-out` : 'opacity 0.5s ease-out',
+        }}
+      />
+    )}
+
+    {isVisible && headerGlow && (
+      <div
+        className="fixed pointer-events-none z-[33]"
+        style={{
+          left: 0,
+          right: 0,
+          top: headerBottom - 2,
+          height: '4px',
+          background: 'linear-gradient(90deg, transparent, rgba(255, 179, 102, 0.9), rgba(255, 140, 66, 0.9), rgba(255, 107, 53, 0.9), transparent)',
+          boxShadow: '0 0 20px rgba(255, 179, 102, 0.8), 0 0 40px rgba(255, 140, 66, 0.6), 0 0 60px rgba(255, 107, 53, 0.4)',
+          transition: 'background 0.1s ease-out, box-shadow 0.1s ease-out',
+        }}
+      />
+    )}
+
+    {isVisible && headerGlow && hasGlowPosition && (
+      <>
+        <div
+          className="fixed pointer-events-none z-[31]"
+          style={{
+            left: `${glowPosition - 150}px`,
+            top: `${headerBottom}px`,
+            width: `${CARD_WIDTH + 300}px`,
+            height: `${window.innerHeight - headerBottom}px`,
+            background: `radial-gradient(ellipse at center top, 
+              rgba(255, 255, 255, 0.3) 0%, 
+              rgba(255, 255, 255, 0.2) 10%, 
+              rgba(255, 255, 255, 0.1) 25%, 
+              rgba(255, 255, 255, 0.05) 40%, 
+              transparent 60%)`,
+            opacity: 1,
+            maskImage: `linear-gradient(90deg, 
+              transparent 0%, 
+              rgba(255, 255, 255, 0.2) 5%, 
+              rgba(255, 255, 255, 0.8) 10%, 
+              rgba(255, 255, 255, 1) 15%, 
+              rgba(255, 255, 255, 1) 85%, 
+              rgba(255, 255, 255, 0.8) 90%, 
+              rgba(255, 255, 255, 0.2) 95%, 
+              transparent 100%)`,
+            WebkitMaskImage: `linear-gradient(90deg, 
+              transparent 0%, 
+              rgba(255, 255, 255, 0.2) 5%, 
+              rgba(255, 255, 255, 0.8) 10%, 
+              rgba(255, 255, 255, 1) 15%, 
+              rgba(255, 255, 255, 1) 85%, 
+              rgba(255, 255, 255, 0.8) 90%, 
+              rgba(255, 255, 255, 0.2) 95%, 
+              transparent 100%)`,
+            transition: 'opacity 0.1s ease-out, left 0.1s ease-out',
+          }}
+        />
+
+        <div
+          className="fixed pointer-events-none z-[32]"
+          style={{
+            left: `${glowPosition - 150}px`,
+            top: `${headerBottom}px`,
+            width: `${CARD_WIDTH + 300}px`,
+            height: '250px',
+            background: `radial-gradient(ellipse 100% 60% at center top, 
+              rgba(255, 179, 102, 0.8) 0%, 
+              rgba(255, 140, 66, 0.7) 12%, 
+              rgba(255, 107, 53, 0.6) 25%, 
+              rgba(255, 140, 66, 0.4) 40%, 
+              rgba(255, 107, 53, 0.2) 60%, 
+              transparent 85%)`,
+            opacity: 1,
+            maskImage: `linear-gradient(90deg, 
+              transparent 0%, 
+              rgba(255, 255, 255, 0.3) 5%, 
+              rgba(255, 255, 255, 1) 10%, 
+              rgba(255, 255, 255, 1) 90%, 
+              rgba(255, 255, 255, 0.3) 95%, 
+              transparent 100%)`,
+            WebkitMaskImage: `linear-gradient(90deg, 
+              transparent 0%, 
+              rgba(255, 255, 255, 0.3) 5%, 
+              rgba(255, 255, 255, 1) 10%, 
+              rgba(255, 255, 255, 1) 90%, 
+              rgba(255, 255, 255, 0.3) 95%, 
+              transparent 100%)`,
+            transition: 'opacity 0.1s ease-out, left 0.1s ease-out',
+          }}
+        />
+
+        <div
+          className="fixed pointer-events-none z-[32]"
+          style={{
+            left: `${glowPosition + CARD_WIDTH / 2 - 100}px`,
+            top: `${headerBottom}px`,
+            width: '200px',
+            height: '140px',
+            background: `radial-gradient(ellipse 100% 70% at center top, 
+              rgba(255, 179, 102, 0.9) 0%, 
+              rgba(255, 140, 66, 0.7) 25%, 
+              rgba(255, 107, 53, 0.5) 50%, 
+              transparent 80%)`,
+            opacity: 1,
+            transition: 'opacity 0.1s ease-out, left 0.1s ease-out',
+          }}
+        />
+      </>
+    )}
+
+    <div
+      ref={containerRef}
+      className="fixed pointer-events-none z-[34]"
+      style={{
+        left: `${mainAreaBounds.left}px`,
+        top: `${mainAreaBounds.top}px`,
+        width: `${mainAreaBounds.width || window.innerWidth}px`,
+        height: `${mainAreaBounds.height || window.innerHeight}px`,
+        opacity: containerLayerOpacity,
+        transition: isFadingOut ? `opacity ${backgroundFadeoutDuration}ms ease-out` : 'opacity 0.5s ease-out',
+        display: mainAreaBounds.width > 0 ? 'block' : 'none',
+      }}
+    />
+    </>
+  );
+};
 
 export const DemonSlayerEffect: React.FC<DemonSlayerEffectProps> = ({
   context: _context,
@@ -67,45 +307,37 @@ export const DemonSlayerEffect: React.FC<DemonSlayerEffectProps> = ({
   const beatTimings = (config?.beatTimings as number[]) ?? [];
   const lastBeatTime = beatTimings.length > 0 ? Math.max(...beatTimings) : 0;
   const recoveryStartDelay = 2000;
-  
+
+  const completeRecovery = useCallback(() => {
+    clearThemeRecoveryTransition();
+    setIsVisible(false);
+    setTimeout(() => {
+      onClose();
+    }, 500);
+  }, [onClose]);
+
+  const restoreThemeWithTransition = useCallback(() => {
+    applyThemeRecoveryTransition();
+    setTheme(previousThemeRef.current);
+    setTimeout(() => {
+      completeRecovery();
+    }, 800);
+  }, [completeRecovery, setTheme]);
+
   const startRecoverySequence = useCallback(() => {
     const mainElement = document.querySelector('main');
     if (mainElement) {
       mainElement.style.opacity = '1';
       mainElement.style.pointerEvents = '';
     }
-    
+
     setIsFadingOut(true);
     setBackgroundImageOpacity(0);
-    
+
     setTimeout(() => {
-      const style = document.createElement('style');
-      style.id = 'theme-recovery-transition';
-      style.textContent = `
-        * {
-          transition: background-color 0.8s ease-in-out,
-                      color 0.8s ease-in-out,
-                      border-color 0.8s ease-in-out,
-                      box-shadow 0.8s ease-in-out;
-        }
-      `;
-      document.head.appendChild(style);
-      
-      setTheme(previousThemeRef.current);
-      
-      setTimeout(() => {
-        const transitionStyle = document.getElementById('theme-recovery-transition');
-        if (transitionStyle) {
-          transitionStyle.remove();
-        }
-        
-        setIsVisible(false);
-        setTimeout(() => {
-          onClose();
-        }, 500);
-      }, 800);
+      restoreThemeWithTransition();
     }, backgroundFadeoutDuration);
-  }, [backgroundFadeoutDuration, onClose, setTheme]);
+  }, [backgroundFadeoutDuration, restoreThemeWithTransition]);
   
   const handleCardSpawn = useCallback((cardX: number) => {
     if (triggerHeaderGlowRef.current) {
@@ -149,11 +381,9 @@ export const DemonSlayerEffect: React.FC<DemonSlayerEffectProps> = ({
         if (slideAnimationRef.current) {
           cancelAnimationFrame(slideAnimationRef.current);
         }
-        if (mainElement) {
-          mainElement.style.opacity = '1';
-          mainElement.style.transition = '';
-          mainElement.style.pointerEvents = '';
-        }
+        mainElement.style.opacity = '1';
+        mainElement.style.transition = '';
+        mainElement.style.pointerEvents = '';
       };
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -249,188 +479,19 @@ export const DemonSlayerEffect: React.FC<DemonSlayerEffectProps> = ({
 
   return (
     <>
-      {/* 배경 이미지 */}
-      <div
-        className="fixed pointer-events-none z-[30]"
-        style={{
-          left: `${mainAreaBounds.left}px`,
-          top: `${headerBottom}px`,
-          width: `${mainAreaBounds.width || window.innerWidth}px`,
-          height: `${window.innerHeight - headerBottom}px`,
-          backgroundImage: backgroundImageResource ? `url(${backgroundImageResource.path})` : 'url(/easter-eggs/images/demonSlayer.png)',
-          backgroundSize: '100% auto',
-          backgroundPosition: `center ${backgroundImagePosition === 0 ? 'top' : `${backgroundImagePosition}%`}`,
-          backgroundRepeat: 'no-repeat',
-          filter: `brightness(${backgroundBrightness})`,
-          opacity: isFadingOut ? 0 : backgroundImageOpacity,
-          transition: isFadingOut ? `opacity ${backgroundFadeoutDuration}ms ease-out, filter ${backgroundFadeoutDuration}ms ease-out` : 'opacity 1s ease-in-out, filter 0.1s linear',
-          display: mainAreaBounds.width > 0 && headerBottom > 0 ? 'block' : 'none',
-        }}
-      />
-
-      {/* 그라데이션 오버레이 */}
-      {isVisible && (
-        <div
-          className="fixed inset-0 pointer-events-none z-[32]"
-          style={{
-            background: `
-              radial-gradient(circle at 20% 50%, rgba(255, 179, 102, 0.2) 0%, transparent 50%),
-              radial-gradient(circle at 80% 50%, rgba(255, 140, 66, 0.2) 0%, transparent 50%),
-              radial-gradient(circle at 50% 0%, rgba(255, 107, 53, 0.15) 0%, transparent 60%),
-              linear-gradient(180deg, rgba(26, 15, 15, 0.3) 0%, transparent 100%)
-            `,
-            opacity: isFadingOut ? 0 : (isVisible ? 1 : 0),
-            transition: isFadingOut ? `opacity ${backgroundFadeoutDuration}ms ease-out` : 'opacity 0.5s ease-out',
-          }}
-        />
-      )}
-
-      {/* 그림자 오버레이 - 헤더 아래 영역, 이스터에그 전체 기간 동안 유지 */}
-      {isVisible && (
-        <div
-          className="fixed pointer-events-none z-[31]"
-          style={{
-            left: 0,
-            right: 0,
-            top: `${headerBottom}px`,
-            height: `${window.innerHeight - headerBottom}px`,
-            background: `linear-gradient(180deg, 
-              rgba(0, 0, 0, 0.5) 0%, 
-              rgba(0, 0, 0, 0.4) 20%, 
-              rgba(0, 0, 0, 0.3) 50%, 
-              rgba(0, 0, 0, 0.2) 70%, 
-              rgba(0, 0, 0, 0.1) 85%, 
-              transparent 100%)`,
-            opacity: isFadingOut ? 0 : 1,
-            transition: isFadingOut ? `opacity ${backgroundFadeoutDuration}ms ease-out` : 'opacity 0.5s ease-out',
-          }}
-        />
-      )}
-
-      {/* 헤더 글로우 효과 - 전체 헤더에 글로우 */}
-      {isVisible && headerGlow && (
-        <div
-          className="fixed pointer-events-none z-[33]"
-          style={{
-            left: 0,
-            right: 0,
-            top: headerBottom - 2,
-            height: '4px',
-            background: 'linear-gradient(90deg, transparent, rgba(255, 179, 102, 0.9), rgba(255, 140, 66, 0.9), rgba(255, 107, 53, 0.9), transparent)',
-            boxShadow: '0 0 20px rgba(255, 179, 102, 0.8), 0 0 40px rgba(255, 140, 66, 0.6), 0 0 60px rgba(255, 107, 53, 0.4)',
-            transition: 'background 0.1s ease-out, box-shadow 0.1s ease-out',
-          }}
-        />
-      )}
-
-      {/* 광원 확산 효과 - 카드 생성 위치에서 헤더 아래로 빛이 퍼지는 효과 (그림자를 밝게 만드는 효과) */}
-      {isVisible && headerGlow && glowPosition !== null && (
-        <>
-          {/* 그림자를 밝게 만드는 효과 - 카드 생성 위치에서 그림자가 열리는 느낌 */}
-          <div
-            className="fixed pointer-events-none z-[31]"
-            style={{
-              left: `${glowPosition - 150}px`,
-              top: `${headerBottom}px`,
-              width: `${CARD_WIDTH + 300}px`,
-              height: `${window.innerHeight - headerBottom}px`,
-              background: `radial-gradient(ellipse at center top, 
-                rgba(255, 255, 255, 0.3) 0%, 
-                rgba(255, 255, 255, 0.2) 10%, 
-                rgba(255, 255, 255, 0.1) 25%, 
-                rgba(255, 255, 255, 0.05) 40%, 
-                transparent 60%)`,
-              opacity: 1,
-              maskImage: `linear-gradient(90deg, 
-                transparent 0%, 
-                rgba(255, 255, 255, 0.2) 5%, 
-                rgba(255, 255, 255, 0.8) 10%, 
-                rgba(255, 255, 255, 1) 15%, 
-                rgba(255, 255, 255, 1) 85%, 
-                rgba(255, 255, 255, 0.8) 90%, 
-                rgba(255, 255, 255, 0.2) 95%, 
-                transparent 100%)`,
-              WebkitMaskImage: `linear-gradient(90deg, 
-                transparent 0%, 
-                rgba(255, 255, 255, 0.2) 5%, 
-                rgba(255, 255, 255, 0.8) 10%, 
-                rgba(255, 255, 255, 1) 15%, 
-                rgba(255, 255, 255, 1) 85%, 
-                rgba(255, 255, 255, 0.8) 90%, 
-                rgba(255, 255, 255, 0.2) 95%, 
-                transparent 100%)`,
-              transition: 'opacity 0.1s ease-out, left 0.1s ease-out',
-            }}
-          />
-          
-          {/* 광원 확산 효과 - 헤더 아래로 빛이 퍼지는 효과 (y축 더 길게) */}
-          <div
-            className="fixed pointer-events-none z-[32]"
-            style={{
-              left: `${glowPosition - 150}px`,
-              top: `${headerBottom}px`,
-              width: `${CARD_WIDTH + 300}px`,
-              height: '250px',
-              background: `radial-gradient(ellipse 100% 60% at center top, 
-                rgba(255, 179, 102, 0.8) 0%, 
-                rgba(255, 140, 66, 0.7) 12%, 
-                rgba(255, 107, 53, 0.6) 25%, 
-                rgba(255, 140, 66, 0.4) 40%, 
-                rgba(255, 107, 53, 0.2) 60%, 
-                transparent 85%)`,
-              opacity: 1,
-              maskImage: `linear-gradient(90deg, 
-                transparent 0%, 
-                rgba(255, 255, 255, 0.3) 5%, 
-                rgba(255, 255, 255, 1) 10%, 
-                rgba(255, 255, 255, 1) 90%, 
-                rgba(255, 255, 255, 0.3) 95%, 
-                transparent 100%)`,
-              WebkitMaskImage: `linear-gradient(90deg, 
-                transparent 0%, 
-                rgba(255, 255, 255, 0.3) 5%, 
-                rgba(255, 255, 255, 1) 10%, 
-                rgba(255, 255, 255, 1) 90%, 
-                rgba(255, 255, 255, 0.3) 95%, 
-                transparent 100%)`,
-              transition: 'opacity 0.1s ease-out, left 0.1s ease-out',
-            }}
-          />
-          
-          {/* 추가 광원 레이어 - 더 강한 빛 (y축 더 길게) */}
-          <div
-            className="fixed pointer-events-none z-[32]"
-            style={{
-              left: `${glowPosition + CARD_WIDTH / 2 - 100}px`,
-              top: `${headerBottom}px`,
-              width: '200px',
-              height: '140px',
-              background: `radial-gradient(ellipse 100% 70% at center top, 
-                rgba(255, 179, 102, 0.9) 0%, 
-                rgba(255, 140, 66, 0.7) 25%, 
-                rgba(255, 107, 53, 0.5) 50%, 
-                transparent 80%)`,
-              opacity: 1,
-              transition: 'opacity 0.1s ease-out, left 0.1s ease-out',
-            }}
-          />
-          
-        </>
-      )}
-
-      {/* 떨어지는 카드 컨테이너 */}
-      <div
-        ref={containerRef}
-        className="fixed pointer-events-none z-[34]"
-        style={{
-          left: `${mainAreaBounds.left}px`,
-          top: `${mainAreaBounds.top}px`,
-          width: `${mainAreaBounds.width || window.innerWidth}px`,
-          height: `${mainAreaBounds.height || window.innerHeight}px`,
-          opacity: isFadingOut ? 0 : (isVisible ? 1 : 0),
-          transition: isFadingOut ? `opacity ${backgroundFadeoutDuration}ms ease-out` : 'opacity 0.5s ease-out',
-          display: mainAreaBounds.width > 0 ? 'block' : 'none',
-        }}
+      <DemonSlayerVisualLayers
+        containerRef={containerRef}
+        isVisible={isVisible}
+        isFadingOut={isFadingOut}
+        backgroundFadeoutDuration={backgroundFadeoutDuration}
+        backgroundImageOpacity={backgroundImageOpacity}
+        backgroundImagePosition={backgroundImagePosition}
+        backgroundBrightness={backgroundBrightness}
+        backgroundImagePath={backgroundImageResource?.path ?? '/easter-eggs/images/demonSlayer.png'}
+        mainAreaBounds={mainAreaBounds}
+        headerBottom={headerBottom}
+        headerGlow={headerGlow}
+        glowPosition={glowPosition}
       />
 
       {/* 오디오 플레이어 */}

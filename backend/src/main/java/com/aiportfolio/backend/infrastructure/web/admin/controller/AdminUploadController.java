@@ -5,6 +5,7 @@ import com.aiportfolio.backend.domain.admin.port.in.ManageProjectUseCase;
 import com.aiportfolio.backend.domain.admin.port.in.SearchProjectsUseCase;
 import com.aiportfolio.backend.domain.admin.model.command.ProjectUpdateCommand;
 import com.aiportfolio.backend.infrastructure.web.admin.dto.ImageUploadResponse;
+import com.aiportfolio.backend.infrastructure.web.WebApiResponseMessages;
 import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 /**
  * 관리자 이미지 업로드 컨트롤러
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class AdminUploadController {
+    private static final String TYPE_SCREENSHOTS = "screenshots";
 
     private final UploadImageUseCase uploadImageUseCase;
     private final ManageProjectUseCase manageProjectUseCase;
@@ -48,103 +50,16 @@ public class AdminUploadController {
                 type, file.getOriginalFilename(), projectId);
 
         try {
-            // 파일 유효성 검사
-            if (file.isEmpty()) {
-                return ResponseEntity.badRequest()
-                    .body(ApiResponse.error("파일이 비어있습니다", "잘못된 요청"));
-            }
-
-            if (!isValidImageFile(file)) {
-                return ResponseEntity.badRequest()
-                    .body(ApiResponse.error("지원하지 않는 이미지 형식입니다", "잘못된 요청"));
-            }
-
-            // 폴더 경로 결정
-            String folder = getFolderPath(type);
-
-            // 이미지 업로드
-            String url = uploadImageUseCase.uploadImage(file, folder);
-            
-            // 업로드 성공 여부 및 URL 유효성 검증
-            if (url == null || url.trim().isEmpty()) {
-                log.error("Image upload returned null or empty URL");
-                return ResponseEntity.internalServerError()
-                    .body(ApiResponse.error("이미지 업로드는 성공했지만 URL을 받지 못했습니다", "업로드 실패"));
-            }
-            
-            String publicId = extractPublicIdFromUrl(url);
-            log.info("Image uploaded successfully: {} -> {}", publicId, url);
-
-            // 프로젝트 ID가 제공되고 타입이 project 또는 screenshots이면 자동으로 DB에 저장
-            // 업로드가 성공하고 URL이 유효한 경우에만 DB 업데이트 수행
-            if (projectId != null && !projectId.isEmpty() && !projectId.equals("new")) {
-                try {
-                    if ("project".equals(type)) {
-                        // 썸네일 업로드 - 프로젝트 imageUrl 업데이트
-                        log.debug("Auto-saving thumbnail to DB: projectId={}, url={}", projectId, url);
-                        ProjectUpdateCommand updateCommand = ProjectUpdateCommand.builder()
-                                .imageUrl(url)
-                                .build();
-                        manageProjectUseCase.updateProject(projectId, updateCommand);
-                        log.info("Project thumbnail saved to DB automatically: projectId={}, url={}", projectId, url);
-                    } else if ("screenshots".equals(type)) {
-                        // 스크린샷 업로드 - 프로젝트 screenshots에 추가
-                        log.debug("Auto-saving screenshot to DB: projectId={}, url={}", projectId, url);
-                        var existingProject = searchProjectsUseCase.getProjectById(projectId);
-                        List<String> existingScreenshots = existingProject.getScreenshots() != null
-                            ? existingProject.getScreenshots().stream()
-                                .filter(imageUrl -> imageUrl != null && !imageUrl.trim().isEmpty())
-                                .collect(Collectors.toList())
-                            : new ArrayList<String>();
-                        
-                        // 새 스크린샷 URL 추가 (중복 방지 및 빈 값 필터링)
-                        if (!existingScreenshots.contains(url) && !url.trim().isEmpty()) {
-                            existingScreenshots.add(url);
-                            
-                            ProjectUpdateCommand updateCommand = ProjectUpdateCommand.builder()
-                                    .screenshots(existingScreenshots)
-                                    .build();
-                            manageProjectUseCase.updateProject(projectId, updateCommand);
-                            log.info("Project screenshot saved to DB automatically: projectId={}, url={}, totalScreenshots={}", 
-                                    projectId, url, existingScreenshots.size());
-                        } else {
-                            log.warn("Screenshot URL already exists or is empty, skipping: projectId={}, url={}", projectId, url);
-                        }
-                    }
-                } catch (Exception e) {
-                    log.error("Failed to auto-save image to project in DB: projectId={}, type={}, error={}", 
-                            projectId, type, e.getMessage(), e);
-                    // DB 저장 실패 시 트랜잭션 롤백되므로 DB는 변경되지 않음
-                    // 하지만 Cloudinary에는 이미 업로드되어 있으므로, 사용자에게 실패 응답 반환
-                    // TODO: 향후 보상 트랜잭션(Compensating Transaction) 패턴으로 Cloudinary 이미지 삭제 고려
-                    return ResponseEntity.internalServerError()
-                        .body(ApiResponse.error(
-                            "이미지 업로드는 성공했지만 DB 저장에 실패했습니다. 이미지는 Cloudinary에 저장되었지만 프로젝트 정보는 업데이트되지 않았습니다.", 
-                            "DB 저장 실패"));
-                }
-            } else {
-                log.debug("Skipping auto-save: projectId={}, type={}", projectId, type);
-            }
-
-            ImageUploadResponse response = ImageUploadResponse.builder()
-                .url(url)
-                .publicId(publicId)
-                .build();
-
-            return ResponseEntity.ok(ApiResponse.success(response, "이미지 업로드 성공"));
-
+            return validateSingleUploadFile(file)
+                    .orElseGet(() -> uploadImageAfterValidation(file, type, projectId));
         } catch (org.springframework.web.multipart.MaxUploadSizeExceededException e) {
             log.warn("File upload size exceeded: {}", file.getOriginalFilename(), e);
             return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
-                    .body(ApiResponse.error("파일 크기가 너무 큽니다. 최대 10MB까지 업로드 가능합니다.", "파일 크기 제한 초과"));
+                    .body(ApiResponse.error(WebApiResponseMessages.UPLOAD_MAX_SIZE_10MB_DETAIL, WebApiResponseMessages.LABEL_PAYLOAD_TOO_LARGE));
         } catch (Exception e) {
             log.error("Image upload failed: {}", file.getOriginalFilename(), e);
-            String errorMessage = "이미지 업로드 중 오류가 발생했습니다";
-            if (e.getMessage() != null && e.getMessage().contains("크기")) {
-                errorMessage = e.getMessage();
-            }
             return ResponseEntity.internalServerError()
-                .body(ApiResponse.error(errorMessage, "업로드 실패"));
+                .body(ApiResponse.error(resolveUploadErrorMessage(e), WebApiResponseMessages.LABEL_UPLOAD_FAILED));
         }
     }
 
@@ -165,107 +80,16 @@ public class AdminUploadController {
                 type, files.size(), projectId);
 
         try {
-            // 파일 유효성 검사
-            if (files.isEmpty()) {
-                return ResponseEntity.badRequest()
-                    .body(ApiResponse.error("업로드할 파일이 없습니다", "잘못된 요청"));
-            }
-
-            for (MultipartFile file : files) {
-                if (file.isEmpty() || !isValidImageFile(file)) {
-                    return ResponseEntity.badRequest()
-                        .body(ApiResponse.error("유효하지 않은 파일이 포함되어 있습니다", "잘못된 요청"));
-                }
-            }
-
-            // 폴더 경로 결정
-            String folder = getFolderPath(type);
-
-            // 이미지 업로드
-            List<String> urls = uploadImageUseCase.uploadImages(files, folder);
-
-            // 업로드된 URL 유효성 검증 (null 및 빈 문자열 필터링)
-            List<String> validUrls = urls.stream()
-                .filter(url -> url != null && !url.trim().isEmpty())
-                .collect(Collectors.toList());
-            
-            if (validUrls.size() != urls.size()) {
-                log.warn("Some images failed to upload. Expected: {}, Got: {}", urls.size(), validUrls.size());
-            }
-            
-            // 모든 업로드가 실패한 경우
-            if (validUrls.isEmpty()) {
-                log.error("All image uploads failed or returned invalid URLs");
-                return ResponseEntity.internalServerError()
-                    .body(ApiResponse.error("모든 이미지 업로드에 실패했습니다", "업로드 실패"));
-            }
-
-            log.info("Multiple images uploaded successfully: {}/{} files", validUrls.size(), files.size());
-
-            // 프로젝트 ID가 제공되고 타입이 screenshots이면 자동으로 DB에 저장
-            // 업로드가 성공하고 URL이 유효한 경우에만 DB 업데이트 수행
-            if (projectId != null && !projectId.isEmpty() && !projectId.equals("new") && "screenshots".equals(type)) {
-                try {
-                    log.debug("Auto-saving {} screenshots to DB: projectId={}", validUrls.size(), projectId);
-                    // 기존 프로젝트 조회
-                    var existingProject = searchProjectsUseCase.getProjectById(projectId);
-                    List<String> existingScreenshots = existingProject.getScreenshots() != null
-                        ? existingProject.getScreenshots().stream()
-                            .filter(imageUrl -> imageUrl != null && !imageUrl.trim().isEmpty())
-                            .collect(Collectors.toList())
-                        : new ArrayList<String>();
-                    
-                    // 새 스크린샷 URL들 추가 (중복 방지 및 빈 값 필터링)
-                    int addedCount = 0;
-                    for (String newUrl : validUrls) {
-                        if (!existingScreenshots.contains(newUrl) && !newUrl.trim().isEmpty()) {
-                            existingScreenshots.add(newUrl);
-                            addedCount++;
-                        }
-                    }
-                    
-                    if (addedCount > 0) {
-                        ProjectUpdateCommand updateCommand = ProjectUpdateCommand.builder()
-                                .screenshots(existingScreenshots)
-                                .build();
-                        manageProjectUseCase.updateProject(projectId, updateCommand);
-                        log.info("Project screenshots saved to DB automatically: projectId={}, added={}/{}, total={}", 
-                                projectId, addedCount, validUrls.size(), existingScreenshots.size());
-                    } else {
-                        log.warn("All screenshot URLs already exist or are invalid, skipping: projectId={}", projectId);
-                    }
-                } catch (Exception e) {
-                    log.error("Failed to auto-save screenshots to project in DB: projectId={}, error={}", 
-                            projectId, e.getMessage(), e);
-                    // DB 저장 실패 시 트랜잭션 롤백되므로 DB는 변경되지 않음
-                    // 하지만 Cloudinary에는 이미 업로드되어 있으므로, 사용자에게 실패 응답 반환
-                    // TODO: 향후 보상 트랜잭션(Compensating Transaction) 패턴으로 Cloudinary 이미지 삭제 고려
-                    return ResponseEntity.internalServerError()
-                        .body(ApiResponse.error(
-                            String.format("이미지 업로드는 성공했지만 DB 저장에 실패했습니다. %d개의 이미지가 Cloudinary에 저장되었지만 프로젝트 정보는 업데이트되지 않았습니다.", validUrls.size()), 
-                            "DB 저장 실패"));
-                }
-            } else {
-                log.debug("Skipping auto-save: projectId={}, type={}", projectId, type);
-            }
-            
-            // 유효한 URL만 반환
-            urls = validUrls;
-
-            return ResponseEntity.ok(ApiResponse.success(urls, "이미지 업로드 성공"));
-
+            return validateBatchUploadFiles(files)
+                    .orElseGet(() -> uploadImagesAfterValidation(files, type, projectId));
         } catch (org.springframework.web.multipart.MaxUploadSizeExceededException e) {
             log.warn("File upload size exceeded in batch upload", e);
             return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
-                    .body(ApiResponse.error("파일 크기가 너무 큽니다. 최대 10MB까지 업로드 가능합니다.", "파일 크기 제한 초과"));
+                    .body(ApiResponse.error(WebApiResponseMessages.UPLOAD_MAX_SIZE_10MB_DETAIL, WebApiResponseMessages.LABEL_PAYLOAD_TOO_LARGE));
         } catch (Exception e) {
             log.error("Multiple image upload failed", e);
-            String errorMessage = "이미지 업로드 중 오류가 발생했습니다";
-            if (e.getMessage() != null && e.getMessage().contains("크기")) {
-                errorMessage = e.getMessage();
-            }
             return ResponseEntity.internalServerError()
-                .body(ApiResponse.error(errorMessage, "업로드 실패"));
+                .body(ApiResponse.error(resolveUploadErrorMessage(e), WebApiResponseMessages.LABEL_UPLOAD_FAILED));
         }
     }
 
@@ -282,18 +106,117 @@ public class AdminUploadController {
 
             log.info("Image deleted successfully: {}", publicId);
 
-            return ResponseEntity.ok(ApiResponse.success(null, "이미지 삭제 성공"));
+            return ResponseEntity.ok(ApiResponse.success(null, WebApiResponseMessages.IMAGE_DELETE_SUCCESS));
 
         } catch (Exception e) {
             log.error("Image deletion failed: {}", publicId, e);
             return ResponseEntity.internalServerError()
-                .body(ApiResponse.error("이미지 삭제 중 오류가 발생했습니다", "삭제 실패"));
+                .body(ApiResponse.error(WebApiResponseMessages.IMAGE_DELETE_ERROR, WebApiResponseMessages.LABEL_DELETE_FAILED));
         }
+    }
+
+    private ResponseEntity<ApiResponse<ImageUploadResponse>> uploadImageAfterValidation(
+            MultipartFile file, String type, String projectId) {
+        String folder = getFolderPath(type);
+        String url = uploadImageUseCase.uploadImage(file, folder);
+        return validateNonEmptyUploadUrl(url)
+                .orElseGet(() -> finalizeSingleImageUpload(projectId, type, url));
+    }
+
+    private ResponseEntity<ApiResponse<ImageUploadResponse>> finalizeSingleImageUpload(
+            String projectId, String type, String url) {
+        String publicId = extractPublicIdFromUrl(url);
+        log.info("Image uploaded successfully: {} -> {}", publicId, url);
+        return tryAutoSaveUploadedImageToProject(projectId, type, url)
+                .orElseGet(() -> {
+                    if (!hasPersistableProjectId(projectId)) {
+                        log.debug("Skipping auto-save: projectId={}, type={}", projectId, type);
+                    }
+                    ImageUploadResponse response = ImageUploadResponse.builder()
+                            .url(url)
+                            .publicId(publicId)
+                            .build();
+                    return ResponseEntity.ok(ApiResponse.success(response, WebApiResponseMessages.IMAGE_UPLOAD_SUCCESS));
+                });
+    }
+
+    private ResponseEntity<ApiResponse<List<String>>> uploadImagesAfterValidation(
+            List<MultipartFile> files, String type, String projectId) {
+        String folder = getFolderPath(type);
+        List<String> urls = uploadImageUseCase.uploadImages(files, folder);
+        List<String> validUrls = filterNonEmptyUrls(urls);
+        if (validUrls.size() != urls.size()) {
+            log.warn("Some images failed to upload. Expected: {}, Got: {}", urls.size(), validUrls.size());
+        }
+        return validateBatchHasAtLeastOneUrl(validUrls)
+                .orElseGet(() -> finalizeBatchImageUpload(projectId, type, files, validUrls));
+    }
+
+    private ResponseEntity<ApiResponse<List<String>>> finalizeBatchImageUpload(
+            String projectId, String type, List<MultipartFile> files, List<String> validUrls) {
+        log.info("Multiple images uploaded successfully: {}/{} files", validUrls.size(), files.size());
+        return tryAutoSaveBatchScreenshots(projectId, type, validUrls)
+                .orElseGet(() -> {
+                    if (!hasPersistableProjectId(projectId) || !TYPE_SCREENSHOTS.equals(type)) {
+                        log.debug("Skipping auto-save: projectId={}, type={}", projectId, type);
+                    }
+                    return ResponseEntity.ok(ApiResponse.success(validUrls, WebApiResponseMessages.IMAGE_UPLOAD_SUCCESS));
+                });
     }
 
     /**
      * 이미지 파일 유효성 검사
      */
+    private Optional<ResponseEntity<ApiResponse<ImageUploadResponse>>> validateSingleUploadFile(MultipartFile file) {
+        if (file.isEmpty()) {
+            return Optional.of(ResponseEntity.badRequest()
+                    .body(ApiResponse.error(WebApiResponseMessages.UPLOAD_FILE_EMPTY, WebApiResponseMessages.LABEL_BAD_REQUEST)));
+        }
+        if (!isValidImageFile(file)) {
+            return Optional.of(ResponseEntity.badRequest()
+                    .body(ApiResponse.error(WebApiResponseMessages.UPLOAD_UNSUPPORTED_IMAGE_TYPE, WebApiResponseMessages.LABEL_BAD_REQUEST)));
+        }
+        return Optional.empty();
+    }
+
+    private Optional<ResponseEntity<ApiResponse<ImageUploadResponse>>> validateNonEmptyUploadUrl(String url) {
+        if (url == null || url.trim().isEmpty()) {
+            log.error("Image upload returned null or empty URL");
+            return Optional.of(ResponseEntity.internalServerError()
+                    .body(ApiResponse.error(WebApiResponseMessages.UPLOAD_URL_MISSING, WebApiResponseMessages.LABEL_UPLOAD_FAILED)));
+        }
+        return Optional.empty();
+    }
+
+    private Optional<ResponseEntity<ApiResponse<List<String>>>> validateBatchUploadFiles(List<MultipartFile> files) {
+        if (files.isEmpty()) {
+            return Optional.of(ResponseEntity.badRequest()
+                    .body(ApiResponse.error(WebApiResponseMessages.UPLOAD_NO_FILES, WebApiResponseMessages.LABEL_BAD_REQUEST)));
+        }
+        for (MultipartFile file : files) {
+            if (file.isEmpty() || !isValidImageFile(file)) {
+                return Optional.of(ResponseEntity.badRequest()
+                        .body(ApiResponse.error(WebApiResponseMessages.UPLOAD_INVALID_FILES_IN_BATCH, WebApiResponseMessages.LABEL_BAD_REQUEST)));
+            }
+        }
+        return Optional.empty();
+    }
+
+    private static List<String> filterNonEmptyUrls(List<String> urls) {
+        return urls.stream()
+                .filter(u -> u != null && !u.trim().isEmpty())
+                .toList();
+    }
+
+    private Optional<ResponseEntity<ApiResponse<List<String>>>> validateBatchHasAtLeastOneUrl(List<String> validUrls) {
+        if (validUrls.isEmpty()) {
+            log.error("All image uploads failed or returned invalid URLs");
+            return Optional.of(ResponseEntity.internalServerError()
+                    .body(ApiResponse.error(WebApiResponseMessages.UPLOAD_ALL_IMAGES_FAILED, WebApiResponseMessages.LABEL_UPLOAD_FAILED)));
+        }
+        return Optional.empty();
+    }
+
     private boolean isValidImageFile(MultipartFile file) {
         String contentType = file.getContentType();
         return contentType != null && contentType.startsWith("image/");
@@ -333,10 +256,113 @@ public class AdminUploadController {
             case "project" -> "portfolio/projects";
             case "skill" -> "portfolio/skills";
             case "profile" -> "portfolio/profile";
-            case "screenshots" -> "portfolio/projects/screenshots";
+            case TYPE_SCREENSHOTS -> "portfolio/projects/screenshots";
             case "article-thumbnail" -> "portfolio/articles/thumbnails";
             case "article-content" -> "portfolio/articles/content";
             default -> "portfolio/misc";
         };
+    }
+
+    private String resolveUploadErrorMessage(Exception exception) {
+        if (exception.getMessage() != null && exception.getMessage().contains("크기")) {
+            return exception.getMessage();
+        }
+        return WebApiResponseMessages.UPLOAD_GENERIC_ERROR;
+    }
+
+    private boolean hasPersistableProjectId(String projectId) {
+        return projectId != null && !projectId.isEmpty() && !"new".equals(projectId);
+    }
+
+    /**
+     * 단일 업로드 후 프로젝트/스크린샷 DB 반영. 실패 시 오류 응답을 담은 Optional, 스킵·성공 시 empty.
+     */
+    private Optional<ResponseEntity<ApiResponse<ImageUploadResponse>>> tryAutoSaveUploadedImageToProject(
+            String projectId, String type, String url) {
+        if (!hasPersistableProjectId(projectId)) {
+            return Optional.empty();
+        }
+        try {
+            if ("project".equals(type)) {
+                log.debug("Auto-saving thumbnail to DB: projectId={}, url={}", projectId, url);
+                ProjectUpdateCommand updateCommand = ProjectUpdateCommand.builder()
+                        .imageUrl(url)
+                        .build();
+                manageProjectUseCase.updateProject(projectId, updateCommand);
+                log.info("Project thumbnail saved to DB automatically: projectId={}, url={}", projectId, url);
+            } else if (TYPE_SCREENSHOTS.equals(type)) {
+                log.debug("Auto-saving screenshot to DB: projectId={}, url={}", projectId, url);
+                List<String> existingScreenshots = getExistingScreenshots(projectId);
+                if (addUniqueScreenshot(existingScreenshots, url)) {
+                    existingScreenshots.add(url);
+                    ProjectUpdateCommand updateCommand = ProjectUpdateCommand.builder()
+                            .screenshots(existingScreenshots)
+                            .build();
+                    manageProjectUseCase.updateProject(projectId, updateCommand);
+                    log.info("Project screenshot saved to DB automatically: projectId={}, url={}, totalScreenshots={}",
+                            projectId, url, existingScreenshots.size());
+                } else {
+                    log.warn("Screenshot URL already exists or is empty, skipping: projectId={}, url={}", projectId, url);
+                }
+            }
+            return Optional.empty();
+        } catch (Exception e) {
+            log.error("Failed to auto-save image to project in DB: projectId={}, type={}, error={}",
+                    projectId, type, e.getMessage(), e);
+            return Optional.of(ResponseEntity.internalServerError()
+                    .body(ApiResponse.error(
+                            WebApiResponseMessages.UPLOAD_DB_SAVE_FAILED_SINGLE,
+                            WebApiResponseMessages.LABEL_DB_SAVE_FAILED)));
+        }
+    }
+
+    private Optional<ResponseEntity<ApiResponse<List<String>>>> tryAutoSaveBatchScreenshots(
+            String projectId, String type, List<String> validUrls) {
+        if (!hasPersistableProjectId(projectId) || !TYPE_SCREENSHOTS.equals(type)) {
+            return Optional.empty();
+        }
+        try {
+            log.debug("Auto-saving {} screenshots to DB: projectId={}", validUrls.size(), projectId);
+            List<String> existingScreenshots = getExistingScreenshots(projectId);
+            int addedCount = 0;
+            for (String newUrl : validUrls) {
+                if (addUniqueScreenshot(existingScreenshots, newUrl)) {
+                    existingScreenshots.add(newUrl);
+                    addedCount++;
+                }
+            }
+            if (addedCount > 0) {
+                ProjectUpdateCommand updateCommand = ProjectUpdateCommand.builder()
+                        .screenshots(existingScreenshots)
+                        .build();
+                manageProjectUseCase.updateProject(projectId, updateCommand);
+                log.info("Project screenshots saved to DB automatically: projectId={}, added={}/{}, total={}",
+                        projectId, addedCount, validUrls.size(), existingScreenshots.size());
+            } else {
+                log.warn("All screenshot URLs already exist or are invalid, skipping: projectId={}", projectId);
+            }
+            return Optional.empty();
+        } catch (Exception e) {
+            log.error("Failed to auto-save screenshots to project in DB: projectId={}, error={}",
+                    projectId, e.getMessage(), e);
+            return Optional.of(ResponseEntity.internalServerError()
+                    .body(ApiResponse.error(
+                            WebApiResponseMessages.uploadDbSaveFailedMultiMessage(validUrls.size()),
+                            WebApiResponseMessages.LABEL_DB_SAVE_FAILED)));
+        }
+    }
+
+    private List<String> getExistingScreenshots(String projectId) {
+        var existingProject = searchProjectsUseCase.getProjectById(projectId);
+        if (existingProject.getScreenshots() == null) {
+            return new ArrayList<>();
+        }
+        return existingProject.getScreenshots().stream()
+                .filter(imageUrl -> imageUrl != null && !imageUrl.trim().isEmpty())
+                .collect(java.util.stream.Collectors.toCollection(ArrayList::new));
+    }
+
+    private boolean addUniqueScreenshot(List<String> existingScreenshots, String newUrl) {
+        return !existingScreenshots.contains(newUrl) && newUrl != null && !newUrl.trim().isEmpty();
     }
 }

@@ -7,6 +7,7 @@ import com.aiportfolio.backend.domain.article.port.in.ManageArticleUseCase;
 import com.aiportfolio.backend.domain.article.port.in.ManageArticleSeriesUseCase;
 import com.aiportfolio.backend.domain.article.port.in.SearchArticleSeriesUseCase;
 import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.ProjectJpaRepository;
+import com.aiportfolio.backend.infrastructure.web.WebApiResponseMessages;
 import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -42,7 +43,7 @@ public class AdminArticleController {
                 .map(Article::getSeriesId)
                 .filter(Objects::nonNull)
                 .distinct()
-                .collect(Collectors.toList());
+                .toList();
         
         Map<String, ArticleSeries> seriesMap = manageSeriesUseCase.findBySeriesIdIn(seriesIds);
         
@@ -51,7 +52,7 @@ public class AdminArticleController {
                 .map(Article::getProjectId)
                 .filter(Objects::nonNull)
                 .distinct()
-                .collect(Collectors.toList());
+                .toList();
         
         Map<Long, String> projectBusinessIdMap = projectJpaRepository.findAllById(projectIds)
                 .stream()
@@ -69,7 +70,7 @@ public class AdminArticleController {
         
         return ResponseEntity.ok(ApiResponse.success(
                 articles.map(article -> ArticleResponse.from(article, seriesMap, projectBusinessIdMap, projectTitleMap)),
-                "아티클 목록 조회 성공"));
+                WebApiResponseMessages.ARTICLE_LIST_SUCCESS));
     }
 
     /**
@@ -80,8 +81,8 @@ public class AdminArticleController {
         return getUseCase.findById(id)
                 .map(article -> ResponseEntity.ok(ApiResponse.success(
                         ArticleResponse.from(article, manageSeriesUseCase, projectJpaRepository),
-                        "아티클 조회 성공")))
-                .orElse(ResponseEntity.ok(ApiResponse.error("아티클을 찾을 수 없습니다.")));
+                        WebApiResponseMessages.ARTICLE_GET_SUCCESS)))
+                .orElse(ResponseEntity.ok(ApiResponse.error(WebApiResponseMessages.ARTICLE_NOT_FOUND)));
     }
 
     /**
@@ -107,7 +108,7 @@ public class AdminArticleController {
         Article created = manageUseCase.create(command);
         return ResponseEntity.ok(ApiResponse.success(
                 ArticleResponse.from(created, manageSeriesUseCase, projectJpaRepository),
-                "아티클 생성 성공"));
+                WebApiResponseMessages.ARTICLE_CREATE_SUCCESS));
     }
 
     /**
@@ -137,7 +138,7 @@ public class AdminArticleController {
         Article updated = manageUseCase.update(command);
         return ResponseEntity.ok(ApiResponse.success(
                 ArticleResponse.from(updated, manageSeriesUseCase, projectJpaRepository),
-                "아티클 수정 성공"));
+                WebApiResponseMessages.ARTICLE_UPDATE_SUCCESS));
     }
 
     /**
@@ -146,7 +147,7 @@ public class AdminArticleController {
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
         manageUseCase.delete(id);
-        return ResponseEntity.ok(ApiResponse.success(null, "아티클 삭제 성공"));
+        return ResponseEntity.ok(ApiResponse.success(null, WebApiResponseMessages.ARTICLE_DELETE_SUCCESS));
     }
 
     /**
@@ -159,7 +160,7 @@ public class AdminArticleController {
         List<SeriesSearchResponse> responses = series.stream()
                 .map(s -> new SeriesSearchResponse(s.getSeriesId(), s.getTitle()))
                 .toList();
-        return ResponseEntity.ok(ApiResponse.success(responses, "시리즈 검색 성공"));
+        return ResponseEntity.ok(ApiResponse.success(responses, WebApiResponseMessages.SERIES_SEARCH_SUCCESS));
     }
 
     /**
@@ -170,10 +171,10 @@ public class AdminArticleController {
             @PathVariable String seriesId) {
         ArticleSeries series = manageSeriesUseCase.findBySeriesId(seriesId);
         if (series == null) {
-            return ResponseEntity.ok(ApiResponse.error("시리즈를 찾을 수 없습니다."));
+            return ResponseEntity.ok(ApiResponse.error(WebApiResponseMessages.SERIES_NOT_FOUND));
         }
         SeriesSearchResponse response = new SeriesSearchResponse(series.getSeriesId(), series.getTitle());
-        return ResponseEntity.ok(ApiResponse.success(response, "시리즈 조회 성공"));
+        return ResponseEntity.ok(ApiResponse.success(response, WebApiResponseMessages.SERIES_GET_SUCCESS));
     }
 
     /**
@@ -184,7 +185,7 @@ public class AdminArticleController {
             @RequestBody CreateSeriesRequest request) {
         ArticleSeries series = manageSeriesUseCase.createSeries(request.title());
         SeriesSearchResponse response = new SeriesSearchResponse(series.getSeriesId(), series.getTitle());
-        return ResponseEntity.ok(ApiResponse.success(response, "시리즈 생성 성공"));
+        return ResponseEntity.ok(ApiResponse.success(response, WebApiResponseMessages.SERIES_CREATE_SUCCESS));
     }
 
     // DTOs
@@ -304,11 +305,8 @@ public class AdminArticleController {
             String projectTitle = null;
             if (domain.getProjectId() != null) {
                 var projectOpt = projectJpaRepository.findById(domain.getProjectId());
-                if (projectOpt.isPresent()) {
-                    var project = projectOpt.get();
-                    projectBusinessId = project.getBusinessId();
-                    projectTitle = project.getTitle();
-                }
+                projectBusinessId = projectOpt.map(project -> project.getBusinessId()).orElse(null);
+                projectTitle = projectOpt.map(project -> project.getTitle()).orElse(null);
             }
             
             return new ArticleResponse(

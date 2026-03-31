@@ -25,11 +25,9 @@ const ProjectScreenshotsUpload: React.FC<ProjectScreenshotsUploadProps> = ({
   onChange,
   projectId,
   hideAddButton = false,
-  isLoading = false,
   tempImageUrls = [],
 }) => {
   const [previewVisible, setPreviewVisible] = useState(false);
-  const [previewImage, setPreviewImage] = useState('');
   const [previewList, setPreviewList] = useState<string[]>([]);
   const uploadImagesMutation = useUploadImages();
   const deleteImageMutation = useDeleteImage();
@@ -116,7 +114,6 @@ const ProjectScreenshotsUpload: React.FC<ProjectScreenshotsUploadProps> = ({
   const handlePreview = (index: number) => {
     const screenshot = value[index];
     if (screenshot) {
-      setPreviewImage(screenshot.imageUrl);
       setPreviewList(value.map(s => s.imageUrl));
       setPreviewVisible(true);
     }
@@ -178,11 +175,11 @@ const ProjectScreenshotsUpload: React.FC<ProjectScreenshotsUploadProps> = ({
 
       {(value && value.length > 0) || (tempImageUrls && tempImageUrls.length > 0) ? (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px' }}>
-          {tempImageUrls.map((url, idx) => (
-            <div key={`temp-${idx}`} style={{ position: 'relative', opacity: 0.8 }}>
+          {tempImageUrls.map((url) => (
+            <div key={url} style={{ position: 'relative', opacity: 0.8 }}>
               <img
                 src={url}
-                alt={`임시 스크린샷 ${idx + 1}`}
+                alt="임시 스크린샷"
                 style={{ width: '100%', height: '150px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #d9d9d9' }}
               />
               <div style={{ position: 'absolute', inset: 0, background: 'rgba(255,255,255,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px' }}>
@@ -191,7 +188,7 @@ const ProjectScreenshotsUpload: React.FC<ProjectScreenshotsUploadProps> = ({
             </div>
           ))}
           {value.map((screenshot, index) => (
-            <div key={index} style={{ position: 'relative' }}>
+            <div key={screenshot.imageUrl} style={{ position: 'relative' }}>
               <img
                 src={screenshot.imageUrl}
                 alt={`스크린샷 ${index + 1}`}
@@ -236,11 +233,11 @@ const ProjectScreenshotsUpload: React.FC<ProjectScreenshotsUploadProps> = ({
         width={1000}
       >
         <Image.PreviewGroup>
-          {previewList.map((url, index) => (
+          {previewList.map((url) => (
             <Image
-              key={index}
+              key={url}
               src={url}
-              alt={`스크린샷 ${index + 1}`}
+              alt="스크린샷"
               style={{ width: '100%' }}
             />
           ))}

@@ -31,7 +31,7 @@ export const FeaturedProjectsSection: React.FC = () => {
                   />
                 ) : (
                   <div className={styles.imagePlaceholder}>
-                    <span role="img" aria-label="placeholder">
+                    <span aria-hidden="true">
                       🖼
                     </span>
                   </div>

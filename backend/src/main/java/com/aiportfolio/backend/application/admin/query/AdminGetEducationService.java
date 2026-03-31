@@ -11,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Admin 전용 Education 조회 서비스
@@ -43,7 +42,7 @@ public class AdminGetEducationService implements GetEducationUseCase {
                 Integer order2 = e2.getSortOrder() != null ? e2.getSortOrder() : Integer.MAX_VALUE;
                 return order1.compareTo(order2);
             })
-            .collect(Collectors.toList());
+            .toList();
     }
 
     @Override
@@ -62,7 +61,7 @@ public class AdminGetEducationService implements GetEducationUseCase {
                 Integer order2 = e2.getSortOrder() != null ? e2.getSortOrder() : Integer.MAX_VALUE;
                 return order1.compareTo(order2);
             })
-            .collect(Collectors.toList());
+            .toList();
     }
 
     @Override
@@ -75,7 +74,7 @@ public class AdminGetEducationService implements GetEducationUseCase {
                 Integer order2 = e2.getSortOrder() != null ? e2.getSortOrder() : Integer.MAX_VALUE;
                 return order1.compareTo(order2);
             })
-            .collect(Collectors.toList());
+            .toList();
     }
 
     @Override
@@ -88,7 +87,7 @@ public class AdminGetEducationService implements GetEducationUseCase {
                 Integer order2 = e2.getSortOrder() != null ? e2.getSortOrder() : Integer.MAX_VALUE;
                 return order1.compareTo(order2);
             })
-            .collect(Collectors.toList());
+            .toList();
     }
 
     @Override
@@ -103,7 +102,7 @@ public class AdminGetEducationService implements GetEducationUseCase {
                 Integer order2 = e2.getSortOrder() != null ? e2.getSortOrder() : Integer.MAX_VALUE;
                 return order1.compareTo(order2);
             })
-            .collect(Collectors.toList());
+            .toList();
     }
 
     @Override
@@ -122,7 +121,7 @@ public class AdminGetEducationService implements GetEducationUseCase {
                 Integer order2 = e2.getSortOrder() != null ? e2.getSortOrder() : Integer.MAX_VALUE;
                 return order1.compareTo(order2);
             })
-            .collect(Collectors.toList());
+            .toList();
     }
 }
 

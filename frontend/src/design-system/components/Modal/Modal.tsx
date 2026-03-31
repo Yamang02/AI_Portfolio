@@ -40,18 +40,22 @@ export const Modal: React.FC<ModalProps> = ({
 
   if (!isOpen) return null;
 
-  const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleOverlayClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (e.target === e.currentTarget) {
       onClose();
     }
   };
 
   return (
-    <div className={styles.overlay} onClick={handleOverlayClick}>
+    <button
+      type="button"
+      className={styles.overlay}
+      onClick={handleOverlayClick}
+      aria-label="모달 닫기"
+    >
       <div
         className={`${styles.modal} ${className}`}
         style={{ width }}
-        onClick={(e) => e.stopPropagation()}
       >
         {/* 헤더 */}
         {title && (
@@ -82,6 +86,6 @@ export const Modal: React.FC<ModalProps> = ({
         {/* 컨텐츠 */}
         <div className={styles.content}>{children}</div>
       </div>
-    </div>
+    </button>
   );
 };

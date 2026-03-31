@@ -11,6 +11,7 @@ import com.aiportfolio.backend.domain.portfolio.model.Project;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -29,16 +30,18 @@ import java.util.Optional;
 public class PortfolioService implements GetAllDataUseCase, GetProjectsUseCase, ManageProjectCacheUseCase {
     
     private final PortfolioRepositoryPort portfolioRepositoryPort;
+    private final ObjectProvider<PortfolioService> selfProvider;
     
     // === GetAllDataUseCase 구현 ===
     
     @Override
     public Map<String, Object> getAllPortfolioData() {
         try {
-            List<Project> projects = getAllProjects();
-            List<Experience> experiences = getAllExperiences();
-            List<Education> educations = getAllEducations();
-            List<Certification> certifications = getAllCertifications();
+            PortfolioService self = selfProvider.getObject();
+            List<Project> projects = self.getAllProjects();
+            List<Experience> experiences = self.getAllExperiences();
+            List<Education> educations = self.getAllEducations();
+            List<Certification> certifications = self.getAllCertifications();
             
             return Map.of(
                 "projects", projects,
@@ -46,9 +49,11 @@ public class PortfolioService implements GetAllDataUseCase, GetProjectsUseCase, 
                 "educations", educations,
                 "certifications", certifications
             );
+        } catch (RuntimeException e) {
+            throw e;
         } catch (Exception e) {
             log.error("포트폴리오 데이터 조회 중 오류 발생", e);
-            throw new RuntimeException("포트폴리오 데이터 조회 실패", e);
+            throw new IllegalStateException("포트폴리오 데이터 조회 실패", e);
         }
     }
     
@@ -110,11 +115,10 @@ public class PortfolioService implements GetAllDataUseCase, GetProjectsUseCase, 
     public Optional<Project> getProjectById(String id) {
         log.debug("프로젝트 ID로 조회 요청: {}", id);
         Optional<Project> project = portfolioRepositoryPort.findProjectById(id);
-        if (project.isPresent()) {
-            log.debug("프로젝트 조회 성공: {}", id);
-        } else {
-            log.debug("프로젝트를 찾을 수 없음: {}", id);
-        }
+        project.ifPresentOrElse(
+                value -> log.debug("프로젝트 조회 성공: {}", id),
+                () -> log.debug("프로젝트를 찾을 수 없음: {}", id)
+        );
         return project;
     }
     
@@ -122,11 +126,10 @@ public class PortfolioService implements GetAllDataUseCase, GetProjectsUseCase, 
     public Optional<Project> getProjectByTitle(String title) {
         log.debug("프로젝트 제목으로 조회 요청: {}", title);
         Optional<Project> project = portfolioRepositoryPort.findProjectByTitle(title);
-        if (project.isPresent()) {
-            log.debug("프로젝트 조회 성공: {}", title);
-        } else {
-            log.debug("프로젝트를 찾을 수 없음: {}", title);
-        }
+        project.ifPresentOrElse(
+                value -> log.debug("프로젝트 조회 성공: {}", title),
+                () -> log.debug("프로젝트를 찾을 수 없음: {}", title)
+        );
         return project;
     }
     
@@ -146,6 +149,11 @@ public class PortfolioService implements GetAllDataUseCase, GetProjectsUseCase, 
     public List<Project> getProjectsByTeamStatus(boolean isTeam) {
         log.debug("팀 프로젝트 여부로 조회 요청: {}", isTeam);
         return portfolioRepositoryPort.findProjectsByTeamStatus(isTeam);
+    }
+
+    @Override
+    public Optional<Long> getProjectDatabaseIdByBusinessId(String businessId) {
+        return portfolioRepositoryPort.findProjectDatabaseIdByBusinessId(businessId);
     }
     
     // === ManageProjectCacheUseCase 구현 ===

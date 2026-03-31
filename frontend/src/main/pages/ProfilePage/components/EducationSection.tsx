@@ -18,9 +18,9 @@ export const EducationSection: React.FC<EducationSectionProps> = ({
   if (isLoading) {
     return (
       <div className={styles.grid}>
-        {Array.from({ length: 2 }).map((_, index) => (
+        {['edu-skeleton-1', 'edu-skeleton-2'].map((key) => (
           <SkeletonCard
-            key={index}
+            key={key}
             showImage={false}
             showActions={false}
             lines={4}

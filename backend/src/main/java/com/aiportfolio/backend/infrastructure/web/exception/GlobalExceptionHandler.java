@@ -1,5 +1,6 @@
 package com.aiportfolio.backend.infrastructure.web.exception;
 
+import com.aiportfolio.backend.infrastructure.web.WebApiResponseMessages;
 import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -24,10 +25,10 @@ public class GlobalExceptionHandler {
             MaxUploadSizeExceededException e) {
         log.warn("File upload size exceeded: {}", e.getMessage());
         
-        String message = "파일 크기가 너무 큽니다. 최대 업로드 크기를 초과했습니다.";
-        
         return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
-                .body(ApiResponse.error(message, "파일 크기 제한 초과"));
+                .body(ApiResponse.error(
+                        WebApiResponseMessages.FILE_SIZE_EXCEEDED_DETAIL,
+                        WebApiResponseMessages.LABEL_PAYLOAD_TOO_LARGE));
     }
 
     /**
@@ -37,7 +38,17 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Object>> handleIllegalArgument(IllegalArgumentException exception) {
         log.warn("Illegal argument: {}", exception.getMessage());
         return ResponseEntity.badRequest()
-                .body(ApiResponse.error(exception.getMessage(), "잘못된 요청"));
+                .body(ApiResponse.error(exception.getMessage(), WebApiResponseMessages.LABEL_BAD_REQUEST));
+    }
+
+    /**
+     * 잘못된 상태 예외 처리
+     */
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ApiResponse<Object>> handleIllegalState(IllegalStateException exception) {
+        log.error("Illegal state: {}", exception.getMessage(), exception);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.error(exception.getMessage(), WebApiResponseMessages.LABEL_ILLEGAL_STATE));
     }
 
     /**
@@ -47,7 +58,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Object>> handleUnexpected(Exception exception) {
         log.error("Unexpected error", exception);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiResponse.error("요청 처리 중 오류가 발생했습니다.", "서버 오류"));
+                .body(ApiResponse.error(
+                        WebApiResponseMessages.GENERIC_REQUEST_FAILED,
+                        WebApiResponseMessages.LABEL_SERVER_ERROR));
     }
 }
 

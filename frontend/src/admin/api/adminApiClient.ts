@@ -19,7 +19,7 @@ const API_BASE_URL = import.meta.env?.DEV
   : (import.meta.env?.VITE_API_BASE_URL || '');
 
 export class AdminApiClient {
-  private baseURL = '/api/admin';
+  private readonly baseURL = '/api/admin';
 
   /**
    * GET 요청

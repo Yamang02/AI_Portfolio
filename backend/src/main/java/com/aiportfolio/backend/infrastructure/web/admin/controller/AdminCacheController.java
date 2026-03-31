@@ -1,6 +1,7 @@
 package com.aiportfolio.backend.infrastructure.web.admin.controller;
 
 import com.aiportfolio.backend.domain.admin.port.in.ManageCacheUseCase;
+import com.aiportfolio.backend.infrastructure.web.WebApiResponseMessages;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,11 @@ import java.util.Map;
 @Slf4j
 public class AdminCacheController {
 
+    private static final String KEY_SUCCESS = "success";
+    private static final String KEY_MESSAGE = "message";
+    private static final String KEY_TIMESTAMP = "timestamp";
+    private static final String KEY_PATTERN = "pattern";
+
     private final ManageCacheUseCase manageCacheUseCase;
 
     /**
@@ -33,17 +39,17 @@ public class AdminCacheController {
             log.info("Cache flush completed successfully");
             
             return ResponseEntity.ok(Map.of(
-                "success", true,
-                "message", "캐시가 성공적으로 초기화되었습니다.",
-                "timestamp", System.currentTimeMillis()
+                KEY_SUCCESS, true,
+                KEY_MESSAGE, WebApiResponseMessages.CACHE_FLUSH_SUCCESS,
+                KEY_TIMESTAMP, System.currentTimeMillis()
             ));
         } catch (Exception e) {
             log.error("Cache flush failed", e);
             
             return ResponseEntity.internalServerError().body(Map.of(
-                "success", false,
-                "message", "캐시 초기화 중 오류가 발생했습니다: " + e.getMessage(),
-                "timestamp", System.currentTimeMillis()
+                KEY_SUCCESS, false,
+                KEY_MESSAGE, WebApiResponseMessages.cacheFlushFailed(e.getMessage()),
+                KEY_TIMESTAMP, System.currentTimeMillis()
             ));
         }
     }
@@ -60,17 +66,17 @@ public class AdminCacheController {
             log.info("Cache stats retrieved successfully");
 
             return ResponseEntity.ok(Map.of(
-                "success", true,
+                KEY_SUCCESS, true,
                 "data", stats,
-                "timestamp", System.currentTimeMillis()
+                KEY_TIMESTAMP, System.currentTimeMillis()
             ));
         } catch (Exception e) {
             log.error("Cache stats retrieval failed", e);
 
             return ResponseEntity.internalServerError().body(Map.of(
-                "success", false,
-                "message", "캐시 통계 조회 중 오류가 발생했습니다: " + e.getMessage(),
-                "timestamp", System.currentTimeMillis()
+                KEY_SUCCESS, false,
+                KEY_MESSAGE, WebApiResponseMessages.cacheStatsQueryFailed(e.getMessage()),
+                KEY_TIMESTAMP, System.currentTimeMillis()
             ));
         }
     }
@@ -89,19 +95,19 @@ public class AdminCacheController {
             log.info("Cache keys retrieved successfully: {} keys for pattern {}", keys.size(), pattern);
 
             return ResponseEntity.ok(Map.of(
-                "success", true,
+                KEY_SUCCESS, true,
                 "data", keys,
-                "pattern", pattern,
+                KEY_PATTERN, pattern,
                 "count", keys.size(),
-                "timestamp", System.currentTimeMillis()
+                KEY_TIMESTAMP, System.currentTimeMillis()
             ));
         } catch (Exception e) {
             log.error("Cache keys by pattern retrieval failed: {}", pattern, e);
 
             return ResponseEntity.internalServerError().body(Map.of(
-                "success", false,
-                "message", "패턴별 캐시 키 조회 중 오류가 발생했습니다: " + e.getMessage(),
-                "timestamp", System.currentTimeMillis()
+                KEY_SUCCESS, false,
+                KEY_MESSAGE, WebApiResponseMessages.cacheKeysByPatternQueryFailed(e.getMessage()),
+                KEY_TIMESTAMP, System.currentTimeMillis()
             ));
         }
     }
@@ -119,19 +125,19 @@ public class AdminCacheController {
             log.info("Cache cleared by pattern successfully: {}", pattern);
 
             return ResponseEntity.ok(Map.of(
-                "success", true,
-                "message", "패턴별 캐시가 성공적으로 삭제되었습니다.",
-                "pattern", pattern,
-                "timestamp", System.currentTimeMillis()
+                KEY_SUCCESS, true,
+                KEY_MESSAGE, WebApiResponseMessages.CACHE_PATTERN_DELETE_SUCCESS,
+                KEY_PATTERN, pattern,
+                KEY_TIMESTAMP, System.currentTimeMillis()
             ));
         } catch (Exception e) {
             log.error("Cache clear by pattern failed: {}", pattern, e);
 
             return ResponseEntity.internalServerError().body(Map.of(
-                "success", false,
-                "message", "패턴별 캐시 삭제 중 오류가 발생했습니다: " + e.getMessage(),
-                "pattern", pattern,
-                "timestamp", System.currentTimeMillis()
+                KEY_SUCCESS, false,
+                KEY_MESSAGE, WebApiResponseMessages.cachePatternDeleteFailed(e.getMessage()),
+                KEY_PATTERN, pattern,
+                KEY_TIMESTAMP, System.currentTimeMillis()
             ));
         }
     }
@@ -149,17 +155,17 @@ public class AdminCacheController {
             log.info("Frontend cache version retrieved: {}", version);
 
             return ResponseEntity.ok(Map.of(
-                "success", true,
+                KEY_SUCCESS, true,
                 "version", version,
-                "timestamp", System.currentTimeMillis()
+                KEY_TIMESTAMP, System.currentTimeMillis()
             ));
         } catch (Exception e) {
             log.error("Frontend cache version retrieval failed", e);
 
             return ResponseEntity.internalServerError().body(Map.of(
-                "success", false,
-                "message", "프론트엔드 캐시 버전 조회 중 오류가 발생했습니다: " + e.getMessage(),
-                "timestamp", System.currentTimeMillis()
+                KEY_SUCCESS, false,
+                KEY_MESSAGE, WebApiResponseMessages.frontendCacheVersionQueryFailed(e.getMessage()),
+                KEY_TIMESTAMP, System.currentTimeMillis()
             ));
         }
     }
@@ -177,18 +183,18 @@ public class AdminCacheController {
             log.info("Frontend cache version updated to: {}", newVersion);
 
             return ResponseEntity.ok(Map.of(
-                "success", true,
-                "message", "모든 사용자의 프론트엔드 캐시가 무효화됩니다.",
+                KEY_SUCCESS, true,
+                KEY_MESSAGE, WebApiResponseMessages.FRONTEND_CACHE_INVALIDATE_NOTICE,
                 "newVersion", newVersion,
-                "timestamp", System.currentTimeMillis()
+                KEY_TIMESTAMP, System.currentTimeMillis()
             ));
         } catch (Exception e) {
             log.error("Frontend cache version update failed", e);
 
             return ResponseEntity.internalServerError().body(Map.of(
-                "success", false,
-                "message", "프론트엔드 캐시 버전 업데이트 중 오류가 발생했습니다: " + e.getMessage(),
-                "timestamp", System.currentTimeMillis()
+                KEY_SUCCESS, false,
+                KEY_MESSAGE, WebApiResponseMessages.frontendCacheVersionUpdateFailed(e.getMessage()),
+                KEY_TIMESTAMP, System.currentTimeMillis()
             ));
         }
     }

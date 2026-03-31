@@ -8,6 +8,11 @@ export interface SkeletonProps {
   variant?: 'text' | 'circular' | 'rectangular';
 }
 
+const toDimension = (value?: string | number): string | undefined => {
+  if (value === undefined) return undefined;
+  return typeof value === 'number' ? `${value}px` : value;
+};
+
 export const Skeleton: React.FC<SkeletonProps> = ({
   width,
   height,
@@ -15,8 +20,8 @@ export const Skeleton: React.FC<SkeletonProps> = ({
   variant = 'rectangular',
 }) => {
   const style: React.CSSProperties = {
-    width: width ? (typeof width === 'number' ? `${width}px` : width) : undefined,
-    height: height ? (typeof height === 'number' ? `${height}px` : height) : undefined,
+    width: toDimension(width),
+    height: toDimension(height),
   };
 
   const classNames = [

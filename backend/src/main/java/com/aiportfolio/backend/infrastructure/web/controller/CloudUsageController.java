@@ -3,6 +3,7 @@ package com.aiportfolio.backend.infrastructure.web.controller;
 import com.aiportfolio.backend.domain.monitoring.model.CloudProvider;
 import com.aiportfolio.backend.domain.monitoring.model.ServiceCost;
 import com.aiportfolio.backend.domain.monitoring.port.in.GetCloudUsageUseCase;
+import com.aiportfolio.backend.infrastructure.web.WebApiResponseMessages;
 import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;
 import com.aiportfolio.backend.infrastructure.web.dto.cloudusage.*;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 클라우드 사용량 API 컨트롤러
@@ -44,7 +44,7 @@ public class CloudUsageController {
         log.info("API Response: AWS current usage - totalCost={}, currency={}, services={}", 
                 usage.getTotalCost(), usage.getCurrency(), 
                 usage.getServices() != null ? usage.getServices().size() : 0);
-        return ResponseEntity.ok(ApiResponse.success(CloudUsageDto.from(usage), "AWS 현재 월 사용량 조회 성공"));
+        return ResponseEntity.ok(ApiResponse.success(CloudUsageDto.from(usage), WebApiResponseMessages.AWS_CURRENT_MONTH_SUCCESS));
     }
 
     /**
@@ -57,8 +57,8 @@ public class CloudUsageController {
         var trends = getCloudUsageUseCase.getAwsUsageTrend(days);
         List<UsageTrendDto.TrendItemDto> dtos = trends.stream()
             .map(UsageTrendDto.TrendItemDto::from)
-            .collect(Collectors.toList());
-        return ResponseEntity.ok(ApiResponse.success(dtos, "AWS 비용 추이 조회 성공"));
+            .toList();
+        return ResponseEntity.ok(ApiResponse.success(dtos, WebApiResponseMessages.AWS_USAGE_TREND_SUCCESS));
     }
 
     /**
@@ -71,8 +71,8 @@ public class CloudUsageController {
         var trends = getCloudUsageUseCase.getAwsUsageTrend30Days(granularity);
         List<UsageTrendDto.TrendItemDto> dtos = trends.stream()
             .map(UsageTrendDto.TrendItemDto::from)
-            .collect(Collectors.toList());
-        return ResponseEntity.ok(ApiResponse.success(dtos, "AWS 30일 비용 추이 조회 성공"));
+            .toList();
+        return ResponseEntity.ok(ApiResponse.success(dtos, WebApiResponseMessages.AWS_USAGE_TREND_30_SUCCESS));
     }
 
     /**
@@ -84,8 +84,8 @@ public class CloudUsageController {
         var trends = getCloudUsageUseCase.getAwsUsageTrend6Months();
         List<UsageTrendDto.TrendItemDto> dtos = trends.stream()
             .map(UsageTrendDto.TrendItemDto::from)
-            .collect(Collectors.toList());
-        return ResponseEntity.ok(ApiResponse.success(dtos, "AWS 6개월 비용 추이 조회 성공"));
+            .toList();
+        return ResponseEntity.ok(ApiResponse.success(dtos, WebApiResponseMessages.AWS_USAGE_TREND_6M_SUCCESS));
     }
 
     /**
@@ -102,10 +102,10 @@ public class CloudUsageController {
                     .cost(serviceCost.getCost())
                     .unit(serviceCost.getUnit())
                     .build())
-                .collect(Collectors.toList()))
+                .toList())
             .gcpTop5(Collections.emptyList())
             .build();
-        return ResponseEntity.ok(ApiResponse.success(breakdown, "AWS 서비스별 비용 분석 조회 성공"));
+        return ResponseEntity.ok(ApiResponse.success(breakdown, WebApiResponseMessages.AWS_SERVICE_BREAKDOWN_SUCCESS));
     }
 
     // ==================== GCP 엔드포인트 ====================
@@ -120,7 +120,7 @@ public class CloudUsageController {
         log.info("API Response: GCP current usage - totalCost={}, currency={}, services={}", 
                 usage.getTotalCost(), usage.getCurrency(), 
                 usage.getServices() != null ? usage.getServices().size() : 0);
-        return ResponseEntity.ok(ApiResponse.success(CloudUsageDto.from(usage), "GCP 현재 월 사용량 조회 성공"));
+        return ResponseEntity.ok(ApiResponse.success(CloudUsageDto.from(usage), WebApiResponseMessages.GCP_CURRENT_MONTH_SUCCESS));
     }
 
     /**
@@ -133,8 +133,8 @@ public class CloudUsageController {
         var trends = getCloudUsageUseCase.getGcpUsageTrend(days);
         List<UsageTrendDto.TrendItemDto> dtos = trends.stream()
             .map(UsageTrendDto.TrendItemDto::from)
-            .collect(Collectors.toList());
-        return ResponseEntity.ok(ApiResponse.success(dtos, "GCP 비용 추이 조회 성공"));
+            .toList();
+        return ResponseEntity.ok(ApiResponse.success(dtos, WebApiResponseMessages.GCP_USAGE_TREND_SUCCESS));
     }
 
     /**
@@ -147,9 +147,9 @@ public class CloudUsageController {
         var trends = getCloudUsageUseCase.getGcpUsageTrend30Days(granularity);
         List<UsageTrendDto.TrendItemDto> dtos = trends.stream()
             .map(UsageTrendDto.TrendItemDto::from)
-            .collect(Collectors.toList());
+            .toList();
         log.info("API Response: GCP 30days trend - granularity={}, dataPoints={}", granularity, dtos.size());
-        return ResponseEntity.ok(ApiResponse.success(dtos, "GCP 30일 비용 추이 조회 성공"));
+        return ResponseEntity.ok(ApiResponse.success(dtos, WebApiResponseMessages.GCP_USAGE_TREND_30_SUCCESS));
     }
 
     /**
@@ -161,8 +161,8 @@ public class CloudUsageController {
         var trends = getCloudUsageUseCase.getGcpUsageTrend6Months();
         List<UsageTrendDto.TrendItemDto> dtos = trends.stream()
             .map(UsageTrendDto.TrendItemDto::from)
-            .collect(Collectors.toList());
-        return ResponseEntity.ok(ApiResponse.success(dtos, "GCP 6개월 비용 추이 조회 성공"));
+            .toList();
+        return ResponseEntity.ok(ApiResponse.success(dtos, WebApiResponseMessages.GCP_USAGE_TREND_6M_SUCCESS));
     }
 
     /**
@@ -180,9 +180,9 @@ public class CloudUsageController {
                     .cost(serviceCost.getCost())
                     .unit(serviceCost.getUnit())
                     .build())
-                .collect(Collectors.toList()))
+                .toList())
             .build();
-        return ResponseEntity.ok(ApiResponse.success(breakdown, "GCP 서비스별 비용 분석 조회 성공"));
+        return ResponseEntity.ok(ApiResponse.success(breakdown, WebApiResponseMessages.GCP_SERVICE_BREAKDOWN_SUCCESS));
     }
 
     // ==================== Custom Search ====================
@@ -204,16 +204,16 @@ public class CloudUsageController {
             var trends = getCloudUsageUseCase.getCustomUsageTrend(cloudProvider, startDate, endDate, granularity);
             List<UsageTrendDto.TrendItemDto> dtos = trends.stream()
                 .map(UsageTrendDto.TrendItemDto::from)
-                .collect(Collectors.toList());
-            return ResponseEntity.ok(ApiResponse.success(dtos, "비용 검색 성공"));
+                .toList();
+            return ResponseEntity.ok(ApiResponse.success(dtos, WebApiResponseMessages.COST_SEARCH_SUCCESS));
         } catch (IllegalArgumentException e) {
             log.warn("Invalid search parameters: {}", e.getMessage());
             return ResponseEntity.badRequest()
-                .body(ApiResponse.error("잘못된 검색 조건: " + e.getMessage()));
+                .body(ApiResponse.error(WebApiResponseMessages.cloudInvalidSearchCondition(e)));
         } catch (Exception e) {
             log.error("Failed to search usage trend", e);
             return ResponseEntity.internalServerError()
-                .body(ApiResponse.error("비용 검색 실패: " + e.getMessage()));
+                .body(ApiResponse.error(WebApiResponseMessages.cloudCostSearchFailed(e)));
         }
     }
 }

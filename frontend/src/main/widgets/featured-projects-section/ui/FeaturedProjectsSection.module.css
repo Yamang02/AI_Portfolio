@@ -13,6 +13,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  opacity: 1;
+  transform: translateX(0);
 }
 
 .projectContent {
@@ -100,14 +102,6 @@
 }
 
 /* ================================
-   정적 표시 (스크롤 애니메이션 제거)
-   ================================ */
-.projectSection {
-  opacity: 1;
-  transform: translateX(0);
-}
-
-/* ================================
    접근성: 애니메이션 비활성화
    ================================ */
 @media (prefers-reduced-motion: reduce) {
@@ -160,7 +154,6 @@
   position: absolute;
   bottom: 32px;
   left: 50%;
-  transform: translateX(-50%);
   width: 48px;
   height: 48px;
   border-radius: 50%;

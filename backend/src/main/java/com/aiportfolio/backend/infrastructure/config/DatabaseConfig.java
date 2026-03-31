@@ -50,7 +50,7 @@ public class DatabaseConfig {
                     
         } catch (URISyntaxException e) {
             log.error("Invalid POSTGRE_URL format: {}", databaseUrl, e);
-            throw new RuntimeException("Failed to parse POSTGRE_URL", e);
+            throw new IllegalStateException("Failed to parse POSTGRE_URL", e);
         }
     }
     

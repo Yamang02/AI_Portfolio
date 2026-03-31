@@ -89,35 +89,55 @@ export const TechStackBadge: React.FC<TechStackBadgeProps> = ({
     getSelectedClass(),
     className
   ].filter(Boolean).join(' ');
+  const handleKeyDown = onClick ? (e: React.KeyboardEvent<HTMLButtonElement>) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onClick();
+    }
+  } : undefined;
 
   return (
-    <span
-      className={badgeClasses}
-      onClick={onClick}
-      role={onClick ? 'button' : undefined}
-      tabIndex={onClick ? 0 : undefined}
-      onKeyDown={onClick ? (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          onClick();
-        }
-      } : undefined}
-    >
-      {tech.iconUrl && (
-        <img
-          src={tech.iconUrl}
-          alt={`${tech.name} icon`}
-          className="tech-badge__icon"
-          loading="lazy"
-        />
-      )}
-      <span className="tech-badge__name">{tech.name}</span>
-      {variant === 'core' && (
-        <span className="tech-badge__core-indicator">★</span>
-      )}
-      {showCount && typeof count === 'number' && (
-        <span className="tech-badge__count">{count}</span>
-      )}
-    </span>
+    onClick ? (
+      <button
+        type="button"
+        className={badgeClasses}
+        onClick={onClick}
+        onKeyDown={handleKeyDown}
+      >
+        {tech.iconUrl && (
+          <img
+            src={tech.iconUrl}
+            alt={`${tech.name} icon`}
+            className="tech-badge__icon"
+            loading="lazy"
+          />
+        )}
+        <span className="tech-badge__name">{tech.name}</span>
+        {variant === 'core' && (
+          <span className="tech-badge__core-indicator">★</span>
+        )}
+        {showCount && typeof count === 'number' && (
+          <span className="tech-badge__count">{count}</span>
+        )}
+      </button>
+    ) : (
+      <span className={badgeClasses}>
+        {tech.iconUrl && (
+          <img
+            src={tech.iconUrl}
+            alt={`${tech.name} icon`}
+            className="tech-badge__icon"
+            loading="lazy"
+          />
+        )}
+        <span className="tech-badge__name">{tech.name}</span>
+        {variant === 'core' && (
+          <span className="tech-badge__core-indicator">★</span>
+        )}
+        {showCount && typeof count === 'number' && (
+          <span className="tech-badge__count">{count}</span>
+        )}
+      </span>
+    )
   );
 };

@@ -35,11 +35,10 @@ public class ProjectApplicationService implements GetProjectsUseCase, ManageProj
     public Optional<Project> getProjectById(String id) {
         log.debug("프로젝트 ID로 조회 요청: {}", id);
         Optional<Project> project = portfolioRepositoryPort.findProjectById(id);
-        if (project.isPresent()) {
-            log.debug("프로젝트 조회 성공: {}", id);
-        } else {
-            log.debug("프로젝트를 찾을 수 없음: {}", id);
-        }
+        project.ifPresentOrElse(
+                value -> log.debug("프로젝트 조회 성공: {}", id),
+                () -> log.debug("프로젝트를 찾을 수 없음: {}", id)
+        );
         return project;
     }
     
@@ -47,11 +46,10 @@ public class ProjectApplicationService implements GetProjectsUseCase, ManageProj
     public Optional<Project> getProjectByTitle(String title) {
         log.debug("프로젝트 제목으로 조회 요청: {}", title);
         Optional<Project> project = portfolioRepositoryPort.findProjectByTitle(title);
-        if (project.isPresent()) {
-            log.debug("프로젝트 조회 성공: {}", title);
-        } else {
-            log.debug("프로젝트를 찾을 수 없음: {}", title);
-        }
+        project.ifPresentOrElse(
+                value -> log.debug("프로젝트 조회 성공: {}", title),
+                () -> log.debug("프로젝트를 찾을 수 없음: {}", title)
+        );
         return project;
     }
     
@@ -71,6 +69,11 @@ public class ProjectApplicationService implements GetProjectsUseCase, ManageProj
     public List<Project> getProjectsByTeamStatus(boolean isTeam) {
         log.debug("팀 프로젝트 여부로 조회 요청: {}", isTeam);
         return portfolioRepositoryPort.findProjectsByTeamStatus(isTeam);
+    }
+
+    @Override
+    public Optional<Long> getProjectDatabaseIdByBusinessId(String businessId) {
+        return portfolioRepositoryPort.findProjectDatabaseIdByBusinessId(businessId);
     }
     
     @Override

@@ -179,8 +179,8 @@ const isHomePage = location.pathname === '/';
    - 사용하지 않는다면: `overflowX: 'hidden'` 유지
 
 2. **페이지 전환 애니메이션 적용 여부 결정**
-   - 적용: `AnimatedRoutes`에 포함 (기본)
-   - 제외: `AnimatedPageTransition.tsx`에서 조건부 처리
+   - 적용: `AnimatedRoutes`에 포함 (기본, CSS 전환)
+   - 제외: `MainAppRoutes`에서 해당 경로를 `AnimatedRoutes` 바깥(예: 홈과 동일한 별도 레이아웃 트리)으로 구성
 
 3. **스크롤 정책 명시**
    - `PageMeta` 컴포넌트의 `scrollPolicy` prop 설정

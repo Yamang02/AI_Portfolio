@@ -3,7 +3,6 @@ package com.aiportfolio.backend.application.common;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -184,7 +183,7 @@ public abstract class BaseCrudService<T, ID> {
      */
     @Transactional(readOnly = true)
     public T getById(ID id) {
-        return findById(id)
+        return getRepository().findById(id)
             .orElseThrow(() -> new IllegalArgumentException(
                 getEntityName() + " not found: " + id
             ));

@@ -18,6 +18,33 @@ interface FilterState {
   selectedTechs: string[];
 }
 
+const includesIgnoreCase = (value: string, query: string) =>
+  value.toLowerCase().includes(query.toLowerCase());
+
+const projectMatchesSelectedTechs = (project: Project, selectedTechs: string[]) => {
+  if (selectedTechs.length === 0) return true;
+  if (!project.technologies || project.technologies.length === 0) return false;
+
+  return selectedTechs.some((selectedTech) =>
+    project.technologies!.some((tech) => includesIgnoreCase(tech, selectedTech))
+  );
+};
+
+const renderProjectTechStackGroups = (project: Project) => {
+  const categorized = categorizeTechStack(project.technologies || []);
+  return categorized.map((group) => (
+    <div key={group.name} className={styles.techStackGroup}>
+      <span className={styles.techStackGroupLabel}>{group.name}:</span>
+      <TechStackList
+        technologies={group.techs}
+        variant="compact"
+        size="sm"
+        maxVisible={10}
+      />
+    </div>
+  ));
+};
+
 export const ProjectSearchModal: React.FC<ProjectSearchModalProps> = ({
   isOpen,
   onClose,
@@ -68,15 +95,9 @@ export const ProjectSearchModal: React.FC<ProjectSearchModalProps> = ({
     }
 
     // 기술 스택 필터
-    if (filters.selectedTechs.length > 0) {
-      filtered = filtered.filter((project) =>
-        filters.selectedTechs.some((selectedTech) =>
-          project.technologies?.some((tech) =>
-            tech.toLowerCase().includes(selectedTech.toLowerCase())
-          )
-        )
-      );
-    }
+    filtered = filtered.filter((project) =>
+      projectMatchesSelectedTechs(project, filters.selectedTechs)
+    );
 
     return filtered;
   }, [projects, filters]);
@@ -115,6 +136,8 @@ export const ProjectSearchModal: React.FC<ProjectSearchModalProps> = ({
     filters.techSearchQuery.trim() !== '' ||
     filters.projectType !== 'all' ||
     filters.selectedTechs.length > 0;
+  const techSearchInputId = 'project-search-tech-input';
+  const projectTypeSelectId = 'project-search-type-select';
 
   return (
     <Modal
@@ -129,8 +152,10 @@ export const ProjectSearchModal: React.FC<ProjectSearchModalProps> = ({
         <div className={styles.filters}>
           {/* 기술 스택 검색 입력 */}
           <div className={styles.filterGroup}>
-            <label className={styles.label}>기술 스택 검색</label>
+            <label htmlFor={techSearchInputId} className={styles.label}>기술 스택 검색</label>
             <Input
+              id={techSearchInputId}
+              aria-label="기술 스택 검색"
               type="text"
               value={filters.techSearchQuery}
               onChange={handleTechSearchChange}
@@ -141,8 +166,9 @@ export const ProjectSearchModal: React.FC<ProjectSearchModalProps> = ({
 
           {/* 프로젝트 타입 필터 */}
           <div className={styles.filterGroup}>
-            <label className={styles.label}>작업물 타입</label>
+            <label htmlFor={projectTypeSelectId} className={styles.label}>작업물 타입</label>
             <select
+              id={projectTypeSelectId}
               value={filters.projectType}
               onChange={handleProjectTypeChange}
               className={styles.select}
@@ -157,7 +183,7 @@ export const ProjectSearchModal: React.FC<ProjectSearchModalProps> = ({
           {/* 필터 초기화 버튼 */}
           {hasActiveFilters && (
             <div className={styles.filterGroup}>
-              <label className={styles.label}>&nbsp;</label>
+              <div className={styles.label} aria-hidden="true">&nbsp;</div>
               <Button variant="secondary" size="sm" onClick={handleResetFilters}>
                 필터 초기화
               </Button>
@@ -168,7 +194,7 @@ export const ProjectSearchModal: React.FC<ProjectSearchModalProps> = ({
         {/* 기술 스택 필터 (타입별로 구분) */}
         {filteredCategorizedTechs.length > 0 && (
           <div className={styles.techFilterSection}>
-            <label className={styles.label}>기술 스택 필터</label>
+            <div className={styles.label}>기술 스택 필터</div>
             {filteredCategorizedTechs.map((group) => (
               <div key={group.name} className={styles.techCategoryGroup}>
                 <div className={styles.techCategoryHeader}>
@@ -183,6 +209,7 @@ export const ProjectSearchModal: React.FC<ProjectSearchModalProps> = ({
                       size="sm"
                       onClick={() => handleTechToggle(tech)}
                       className={styles.techBadgeButton}
+                      ariaLabel={`기술 스택 ${tech} 필터 토글`}
                     >
                       {tech}
                     </Button>
@@ -232,20 +259,7 @@ export const ProjectSearchModal: React.FC<ProjectSearchModalProps> = ({
                     </td>
                     <td>
                       <div className={styles.techStackCell}>
-                        {(() => {
-                          const categorized = categorizeTechStack(project.technologies || []);
-                          return categorized.map((group) => (
-                            <div key={group.name} className={styles.techStackGroup}>
-                              <span className={styles.techStackGroupLabel}>{group.name}:</span>
-                              <TechStackList
-                                technologies={group.techs}
-                                variant="compact"
-                                size="sm"
-                                maxVisible={10}
-                              />
-                            </div>
-                          ));
-                        })()}
+                        {renderProjectTechStackGroups(project)}
                       </div>
                     </td>
                   </tr>

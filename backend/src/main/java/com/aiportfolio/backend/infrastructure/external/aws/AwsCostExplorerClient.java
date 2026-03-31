@@ -82,7 +82,7 @@ public class AwsCostExplorerClient {
         } catch (Exception e) {
             log.error("Failed to fetch AWS cost and usage data: region=US_EAST_1, startDate={}, endDate={}",
                      startDate, endDate, e);
-            throw new RuntimeException("Failed to fetch AWS cost data: " + e.getMessage(), e);
+            throw new IllegalStateException("Failed to fetch AWS cost data: " + e.getMessage(), e);
         }
     }
 }

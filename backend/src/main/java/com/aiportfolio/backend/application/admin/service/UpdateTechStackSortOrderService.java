@@ -111,48 +111,49 @@ public class UpdateTechStackSortOrderService implements UpdateTechStackSortOrder
      * @return 재정렬된 기술스택 목록
      */
     private List<TechStackMetadata> reorderTechStacks(
-            List<TechStackMetadata> allTechStacks, 
-            String targetTechName, 
-            int oldSortOrder, 
+            List<TechStackMetadata> allTechStacks,
+            String targetTechName,
+            int oldSortOrder,
             int newSortOrder) {
-        
-        List<TechStackMetadata> result = new ArrayList<>();
-        
         if (oldSortOrder < newSortOrder) {
-            // 뒤로 이동하는 경우 (예: 3번 → 7번)
-            // 3번을 7번으로 이동하고, 4,5,6,7번을 3,4,5,6번으로 이동
-            
-            for (TechStackMetadata tech : allTechStacks) {
-                if (tech.getName().equals(targetTechName)) {
-                    // 대상 기술스택을 새로운 위치로 이동
-                    result.add(createUpdatedTechStack(tech, newSortOrder));
-                } else if (tech.getSortOrder() > oldSortOrder && tech.getSortOrder() <= newSortOrder) {
-                    // 기존 4,5,6,7번을 3,4,5,6번으로 이동
-                    result.add(createUpdatedTechStack(tech, tech.getSortOrder() - 1));
-                } else {
-                    // 나머지는 그대로 유지
-                    result.add(tech);
-                }
-            }
-            
-        } else {
-            // 앞으로 이동하는 경우 (예: 7번 → 3번)
-            // 7번을 3번으로 이동하고, 3,4,5,6번을 4,5,6,7번으로 이동
-            
-            for (TechStackMetadata tech : allTechStacks) {
-                if (tech.getName().equals(targetTechName)) {
-                    // 대상 기술스택을 새로운 위치로 이동
-                    result.add(createUpdatedTechStack(tech, newSortOrder));
-                } else if (tech.getSortOrder() >= newSortOrder && tech.getSortOrder() < oldSortOrder) {
-                    // 기존 3,4,5,6번을 4,5,6,7번으로 이동
-                    result.add(createUpdatedTechStack(tech, tech.getSortOrder() + 1));
-                } else {
-                    // 나머지는 그대로 유지
-                    result.add(tech);
-                }
+            return reorderTechStacksTowardEnd(allTechStacks, targetTechName, oldSortOrder, newSortOrder);
+        }
+        return reorderTechStacksTowardStart(allTechStacks, targetTechName, oldSortOrder, newSortOrder);
+    }
+
+    private List<TechStackMetadata> reorderTechStacksTowardEnd(
+            List<TechStackMetadata> allTechStacks,
+            String targetTechName,
+            int oldSortOrder,
+            int newSortOrder) {
+        List<TechStackMetadata> result = new ArrayList<>();
+        for (TechStackMetadata tech : allTechStacks) {
+            if (tech.getName().equals(targetTechName)) {
+                result.add(createUpdatedTechStack(tech, newSortOrder));
+            } else if (tech.getSortOrder() > oldSortOrder && tech.getSortOrder() <= newSortOrder) {
+                result.add(createUpdatedTechStack(tech, tech.getSortOrder() - 1));
+            } else {
+                result.add(tech);
             }
         }
-        
+        return result;
+    }
+
+    private List<TechStackMetadata> reorderTechStacksTowardStart(
+            List<TechStackMetadata> allTechStacks,
+            String targetTechName,
+            int oldSortOrder,
+            int newSortOrder) {
+        List<TechStackMetadata> result = new ArrayList<>();
+        for (TechStackMetadata tech : allTechStacks) {
+            if (tech.getName().equals(targetTechName)) {
+                result.add(createUpdatedTechStack(tech, newSortOrder));
+            } else if (tech.getSortOrder() >= newSortOrder && tech.getSortOrder() < oldSortOrder) {
+                result.add(createUpdatedTechStack(tech, tech.getSortOrder() + 1));
+            } else {
+                result.add(tech);
+            }
+        }
         return result;
     }
     

@@ -5,7 +5,7 @@
 ## 📁 현재 에픽
 
 ### 진행 중인 에픽
-- 없음
+- [code-quality-and-test-foundation/](./code-quality-and-test-foundation/) - 코드 품질 개선 및 테스트 기반 구축 (우선순위: High; Sonar 배치·검증은 [P07](./code-quality-and-test-foundation/P07-sonarqube-quality-execution.md))
 
 ### 계획 중인 에픽 (Backlog)
 - [detail-page-ux-bugfix/](./detail-page-ux-bugfix/) - 상세 페이지 UX 버그픽스 (우선순위: High, 예상 기간: 1주)
@@ -58,6 +58,7 @@ epic/
 완료된 에픽들은 `epic/archive/` 폴더에 보관되어 있습니다:
 
 ### Epic Archive (`epic/archive/`)
+- [E01.2026-03-30_backend-sonarqube-resolution/](./archive/E01.2026-03-30_backend-sonarqube-resolution/) - Backend SonarQube Issue Resolution (P01~P04) ✅ (2026-03-31 아카이브)
 - [portfolio-renewal-refactor/](./archive/portfolio-renewal-refactor/) - Portfolio Site Renewal (Structural Refactor) ✅
 - [profile-article/](./archive/profile-article/) - Profile Article Management (자기소개 Markdown 관리 및 기술 아티클 시스템) ✅
 - [frontend-structure-optimization.md](./archive/frontend-structure-optimization.md) - 프론트엔드 구조 최적화 ✅ (2026-01-12 완료)

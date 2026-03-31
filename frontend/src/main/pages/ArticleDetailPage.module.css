@@ -149,6 +149,11 @@
   grid-template-columns: 1fr;
   gap: var(--spacing-4);
   margin-top: var(--spacing-4);
+  overflow: hidden;
+}
+
+.seriesArticles > * {
+  min-width: 0;
 }
 
 .loading,

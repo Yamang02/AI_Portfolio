@@ -85,8 +85,16 @@ export const PageMetaProvider: React.FC<PageMetaProviderProps> = ({
     onConfigChange?.(newConfig);
   }, [onConfigChange]);
 
+  const value = React.useMemo(
+    () => ({
+      config,
+      setConfig: handleSetConfig,
+    }),
+    [config, handleSetConfig]
+  );
+
   return (
-    <PageMetaContext.Provider value={{ config, setConfig: handleSetConfig }}>
+    <PageMetaContext.Provider value={value}>
       {children}
     </PageMetaContext.Provider>
   );

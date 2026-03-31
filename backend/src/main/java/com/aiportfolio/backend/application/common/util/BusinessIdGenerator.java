@@ -20,6 +20,10 @@ import java.util.Optional;
 @Slf4j
 public class BusinessIdGenerator {
 
+    private BusinessIdGenerator() {
+        throw new UnsupportedOperationException("Utility class");
+    }
+
     /**
      * 비즈니스 ID 생성
      *

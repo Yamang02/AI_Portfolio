@@ -130,9 +130,11 @@ export const useScrollToSection = (
         resolve();
         pendingScrollRef.current = null;
       }, 100);
-    } else {
-      // 요소를 찾지 못했으면 재시도 또는 MutationObserver 설정
-      if (retryCountRef.current < maxRetries) {
+      return;
+    }
+
+    // 요소를 찾지 못했으면 재시도 또는 MutationObserver 설정
+    if (retryCountRef.current < maxRetries) {
         retryCountRef.current++;
         
         // MutationObserver가 아직 설정되지 않았으면 설정
@@ -158,19 +160,19 @@ export const useScrollToSection = (
             attemptScroll(sectionId, resolve, reject);
           }
         }, retryInterval);
-      } else {
-        // 최대 재시도 횟수 초과
-        console.warn(`요소를 찾을 수 없습니다: #${sectionId}`);
-        
-        if (observerRef.current) {
-          observerRef.current.disconnect();
-          observerRef.current = null;
-        }
-        
-        reject();
-        pendingScrollRef.current = null;
-      }
+        return;
     }
+
+    // 최대 재시도 횟수 초과
+    console.warn(`요소를 찾을 수 없습니다: #${sectionId}`);
+    
+    if (observerRef.current) {
+      observerRef.current.disconnect();
+      observerRef.current = null;
+    }
+    
+    reject();
+    pendingScrollRef.current = null;
   };
 
   // cleanup

@@ -59,7 +59,7 @@ export function ArticleListPage() {
   }, [statistics?.projects]);
 
   // 추천 아티클 조회
-  const { data: featuredArticlesData, isLoading: isLoadingFeatured, error: errorFeatured } = useArticleListQuery({
+  const { data: featuredArticlesData, isLoading: isLoadingFeatured } = useArticleListQuery({
     page: 0,
     size: 10, // 추천 아티클은 최대 10개
     isFeatured: true,
@@ -144,7 +144,7 @@ export function ArticleListPage() {
 
   // 이미지 로딩 추적 (각 이미지 로드 시 높이 재계산)
   // scheduleRecalc를 사용하여 rAF 배치 처리
-  const { allImagesLoaded } = useImageLoadTracking(containerRef, scheduleRecalc || recalculateHeight);
+  useImageLoadTracking(containerRef, scheduleRecalc || recalculateHeight);
 
   const handleArticleClick = (article: { businessId: string }) => {
     navigate(`/articles/${article.businessId}`);
@@ -174,6 +174,132 @@ export function ArticleListPage() {
 
   // 에러 상태에서도 레이아웃 유지
   const hasError = !!error;
+
+  const articleListBody = (() => {
+    if (isLoading) {
+      return (
+        <div className={styles.grid}>
+          {['skeleton-1', 'skeleton-2', 'skeleton-3', 'skeleton-4', 'skeleton-5', 'skeleton-6'].map((key) => (
+            <SkeletonCard key={key} isLoading={true} />
+          ))}
+        </div>
+      );
+    }
+    if (hasError) {
+      return (
+        <div className={styles.grid}>
+          <div style={{ position: 'relative', width: '100%' }}>
+            <SkeletonCard isLoading={false} />
+            <div style={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '12px',
+              zIndex: 20
+            }}>
+              <Button
+                variant="icon"
+                size="md"
+                onClick={() => refetch()}
+                ariaLabel="재시도"
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
+                  <path d="M21 3v5h-5"></path>
+                  <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
+                  <path d="M3 21v-5h5"></path>
+                </svg>
+              </Button>
+              <span style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>
+                재시도
+              </span>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    if (filteredArticles.length > 0) {
+      if (viewMode === 'table') {
+        return (
+          <ArticleTable
+            articles={filteredArticles}
+            onArticleClick={handleArticleClick}
+          />
+        );
+      }
+      return (
+        <div className={styles.grid}>
+          {filteredArticles.map((article) => (
+            <ArticleCard
+              key={article.businessId}
+              article={{
+                businessId: article.businessId,
+                title: article.title,
+                summary: article.summary,
+                category: article.category,
+                seriesId: article.seriesId,
+                tags: article.tags,
+                techStack: article.techStack,
+                publishedAt: article.publishedAt,
+                viewCount: article.viewCount,
+                isFeatured: article.isFeatured,
+              }}
+              onClick={() => handleArticleClick(article)}
+            />
+          ))}
+        </div>
+      );
+    }
+    return (
+      <div className={styles.grid}>
+        <div style={{ position: 'relative', width: '100%' }}>
+          <EmptyCard message="표시할 글이 없습니다." />
+          <div style={{
+            position: 'absolute',
+            top: '16px',
+            right: '16px',
+            zIndex: 20
+          }}>
+            <Button
+              variant="icon"
+              size="md"
+              onClick={() => refetch()}
+              ariaLabel="재시도"
+            >
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
+                <path d="M21 3v5h-5"></path>
+                <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
+                <path d="M3 21v-5h5"></path>
+              </svg>
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  })();
 
   const meta = pageMetaDefaults.articles;
   return (
@@ -236,124 +362,7 @@ export function ArticleListPage() {
                   onViewModeChange={setViewMode}
                 />
 
-                {isLoading ? (
-                  // 로딩 상태: 스켈레톤 카드 여러 개 표시 (스피너 포함)
-                  <div className={styles.grid}>
-                    {[...Array(6)].map((_, i) => (
-                      <SkeletonCard key={i} isLoading={true} />
-                    ))}
-                  </div>
-                ) : hasError ? (
-                  // 에러 상태: 빈 스켈레톤 카드 표시 (스피너 없음) + 재시도 버튼
-                  <div className={styles.grid}>
-                    <div style={{ position: 'relative', width: '100%' }}>
-                      <SkeletonCard isLoading={false} />
-                      <div style={{ 
-                        position: 'absolute', 
-                        top: '50%', 
-                        left: '50%', 
-                        transform: 'translate(-50%, -50%)',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        gap: '12px',
-                        zIndex: 20
-                      }}>
-                        <Button
-                          variant="icon"
-                          size="md"
-                          onClick={() => refetch()}
-                          ariaLabel="재시도"
-                        >
-                          <svg
-                            width="20"
-                            height="20"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          >
-                            <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
-                            <path d="M21 3v5h-5"></path>
-                            <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
-                            <path d="M3 21v-5h5"></path>
-                          </svg>
-                        </Button>
-                        <span style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>
-                          재시도
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                ) : filteredArticles.length > 0 ? (
-                  <>
-                    {viewMode === 'table' ? (
-                      <ArticleTable
-                        articles={filteredArticles}
-                        onArticleClick={handleArticleClick}
-                      />
-                    ) : (
-                      <div className={styles.grid}>
-                        {filteredArticles.map((article) => (
-                          <ArticleCard
-                            key={article.businessId}
-                            article={{
-                              businessId: article.businessId,
-                              title: article.title,
-                              summary: article.summary,
-                              category: article.category,
-                              seriesId: article.seriesId,
-                              tags: article.tags,
-                              techStack: article.techStack,
-                              publishedAt: article.publishedAt,
-                              viewCount: article.viewCount,
-                              isFeatured: article.isFeatured,
-                            }}
-                            onClick={() => handleArticleClick(article)}
-                          />
-                        ))}
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  // 빈 상태: 빈 카드를 그리드에 표시 + 재시도 버튼
-                  <div className={styles.grid}>
-                    <div style={{ position: 'relative', width: '100%' }}>
-                      <EmptyCard message="표시할 글이 없습니다." />
-                      <div style={{ 
-                        position: 'absolute', 
-                        top: '16px', 
-                        right: '16px',
-                        zIndex: 20
-                      }}>
-                        <Button
-                          variant="icon"
-                          size="md"
-                          onClick={() => refetch()}
-                          ariaLabel="재시도"
-                        >
-                          <svg
-                            width="20"
-                            height="20"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          >
-                            <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
-                            <path d="M21 3v5h-5"></path>
-                            <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
-                            <path d="M3 21v-5h5"></path>
-                          </svg>
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                )}
+                {articleListBody}
               </section>
             </div>
 

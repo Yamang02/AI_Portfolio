@@ -8,9 +8,12 @@ const STORAGE_KEY = 'portfolio-theme';
 export function useThemeInit(): void {
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
-    const theme = stored === 'light' || stored === 'dark'
-      ? stored
-      : window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    let theme: 'light' | 'dark';
+    if (stored === 'light' || stored === 'dark') {
+      theme = stored;
+    } else {
+      theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
 
     const root = document.documentElement;
     root.classList.remove('light', 'dark');

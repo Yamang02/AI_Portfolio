@@ -50,6 +50,7 @@ export const useTOCFromDOM = (
   const [tocItems, setTocItems] = useState<TOCItem[]>([]);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const observerRef = useRef<MutationObserver | null>(null);
+  const hasContainerSelector = (containerSelector?.trim().length ?? 0) > 0;
 
   // DOM에서 헤딩 추출
   const extractHeadings = (): TOCItem[] => {
@@ -59,7 +60,7 @@ export const useTOCFromDOM = (
 
     // 컨테이너 내부에서 헤딩 찾기
     // containerSelector가 없거나 빈 문자열이면 containerRef.current를 직접 사용
-    const container = containerSelector && containerSelector.trim() 
+    const container = hasContainerSelector
       ? containerRef.current.querySelector(containerSelector) || containerRef.current
       : containerRef.current;
     if (!container) {
@@ -148,7 +149,9 @@ export const useTOCFromDOM = (
     updateTOC();
 
     // DOM 변경 감지 (MutationObserver)
-    const container = containerRef.current.querySelector(containerSelector) || containerRef.current;
+    const container = hasContainerSelector
+      ? containerRef.current.querySelector(containerSelector) || containerRef.current
+      : containerRef.current;
     
     observerRef.current = new MutationObserver(() => {
       updateTOC();
@@ -169,7 +172,7 @@ export const useTOCFromDOM = (
         observerRef.current.disconnect();
       }
     };
-  }, [containerRef, containerSelector, debounceDelay, headingLevels]);
+  }, [containerRef, containerSelector, hasContainerSelector, debounceDelay, headingLevels]);
 
   return tocItems;
 };

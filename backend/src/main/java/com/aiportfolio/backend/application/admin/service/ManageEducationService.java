@@ -128,7 +128,7 @@ public class ManageEducationService implements ManageEducationUseCase {
     public void deleteEducation(String id) {
         log.info("Deleting education: {}", id);
 
-        if (!portfolioRepositoryPort.findEducationById(id).isPresent()) {
+        if (!portfolioRepositoryPort.findEducationById(id).isEmpty()) {
             throw new IllegalArgumentException("Education not found: " + id);
         }
 
@@ -149,7 +149,7 @@ public class ManageEducationService implements ManageEducationUseCase {
             List<EducationRelationshipPort.TechStackRelation> portTechStackRelations = techStacks.stream()
                     .map(rel -> new EducationRelationshipPort.TechStackRelation(
                             rel.techStackId(), rel.isPrimary(), rel.usageDescription()))
-                    .collect(java.util.stream.Collectors.toList());
+                    .toList();
             educationRelationshipPort.replaceTechStacks(educationId, portTechStackRelations);
         }
         
@@ -162,7 +162,7 @@ public class ManageEducationService implements ManageEducationUseCase {
                         return new EducationRelationshipPort.ProjectRelation(
                                 projectEntity.getId(), rel.projectType(), rel.grade()); // projectEntity.getId()는 DB ID (Long)
                     })
-                    .collect(java.util.stream.Collectors.toList());
+                    .toList();
             educationRelationshipPort.replaceProjects(educationId, portProjectRelations);
         }
     }
@@ -187,8 +187,11 @@ public class ManageEducationService implements ManageEducationUseCase {
         // 변경된 항목만 저장
         List<Education> toUpdate = allEducations.stream()
                 .filter(edu -> !Objects.equals(edu.getSortOrder(), originalSortOrders.get(edu.getId())))
-                .peek(edu -> edu.setUpdatedAt(MetadataHelper.setupUpdatedAt()))
-                .collect(java.util.stream.Collectors.toList());
+                .map(edu -> {
+                    edu.setUpdatedAt(MetadataHelper.setupUpdatedAt());
+                    return edu;
+                })
+                .toList();
 
         if (!toUpdate.isEmpty()) {
             portfolioRepositoryPort.batchUpdateEducations(toUpdate);

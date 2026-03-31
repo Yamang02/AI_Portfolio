@@ -28,47 +28,57 @@ public class SortOrderService {
             String targetId,
             Integer newSortOrder) {
 
-        T target = items.stream()
-            .filter(item -> item.getId().equals(targetId))
-            .findFirst()
-            .orElseThrow(() -> new IllegalArgumentException("Item not found: " + targetId));
-
+        T target = findTargetItem(items, targetId);
         Integer oldSortOrder = target.getSortOrder();
 
         if (Objects.equals(oldSortOrder, newSortOrder)) {
             return items;
         }
 
-        List<T> result = new ArrayList<>();
-
         if (oldSortOrder < newSortOrder) {
-            // 뒤로 이동
-            for (T item : items) {
-                if (item.getId().equals(targetId)) {
-                    result.add(updateSortOrder(item, newSortOrder));
-                } else if (item.getSortOrder() != null &&
-                          item.getSortOrder() > oldSortOrder &&
-                          item.getSortOrder() <= newSortOrder) {
-                    result.add(updateSortOrder(item, item.getSortOrder() - 1));
-                } else {
-                    result.add(item);
-                }
-            }
-        } else {
-            // 앞으로 이동
-            for (T item : items) {
-                if (item.getId().equals(targetId)) {
-                    result.add(updateSortOrder(item, newSortOrder));
-                } else if (item.getSortOrder() != null &&
-                          item.getSortOrder() >= newSortOrder &&
-                          item.getSortOrder() < oldSortOrder) {
-                    result.add(updateSortOrder(item, item.getSortOrder() + 1));
-                } else {
-                    result.add(item);
-                }
+            return reorderMovingTowardEnd(items, targetId, oldSortOrder, newSortOrder);
+        }
+        return reorderMovingTowardStart(items, targetId, oldSortOrder, newSortOrder);
+    }
+
+    private static <T extends Sortable> T findTargetItem(List<T> items, String targetId) {
+        return items.stream()
+                .filter(item -> item.getId().equals(targetId))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Item not found: " + targetId));
+    }
+
+    private <T extends Sortable> List<T> reorderMovingTowardEnd(
+            List<T> items, String targetId, int oldSortOrder, int newSortOrder) {
+        List<T> result = new ArrayList<>();
+        for (T item : items) {
+            if (item.getId().equals(targetId)) {
+                result.add(updateSortOrder(item, newSortOrder));
+            } else if (item.getSortOrder() != null
+                    && item.getSortOrder() > oldSortOrder
+                    && item.getSortOrder() <= newSortOrder) {
+                result.add(updateSortOrder(item, item.getSortOrder() - 1));
+            } else {
+                result.add(item);
             }
         }
+        return result;
+    }
 
+    private <T extends Sortable> List<T> reorderMovingTowardStart(
+            List<T> items, String targetId, int oldSortOrder, int newSortOrder) {
+        List<T> result = new ArrayList<>();
+        for (T item : items) {
+            if (item.getId().equals(targetId)) {
+                result.add(updateSortOrder(item, newSortOrder));
+            } else if (item.getSortOrder() != null
+                    && item.getSortOrder() >= newSortOrder
+                    && item.getSortOrder() < oldSortOrder) {
+                result.add(updateSortOrder(item, item.getSortOrder() + 1));
+            } else {
+                result.add(item);
+            }
+        }
         return result;
     }
 

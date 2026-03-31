@@ -33,6 +33,21 @@ export interface TechCategoryGroup {
   techs: string[];
 }
 
+const getCategoryDisplayName = (category: TechCategory | 'other'): string => {
+  switch (category) {
+    case 'language':
+      return '언어';
+    case 'framework':
+      return '프레임워크';
+    case 'database':
+      return '데이터베이스';
+    case 'tool':
+      return '도구';
+    default:
+      return '기타';
+  }
+};
+
 // 메모이제이션을 위한 캐시
 const techStackCache = new Map<string, TechStackMetadata>();
 
@@ -78,6 +93,7 @@ export const convertToTechStackMetadata = (tech: string): TechStackMetadata => {
   
   const category = getTechCategory(tech);
   const level = getTechLevel(tech);
+  const currentTimestamp = new Date().toISOString();
   
   const metadata: TechStackMetadata = {
     name: tech,
@@ -89,8 +105,8 @@ export const convertToTechStackMetadata = (tech: string): TechStackMetadata => {
     colorHex: '#6b7280',
     description: '',
     sortOrder: 0,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
+    createdAt: currentTimestamp,
+    updatedAt: currentTimestamp
   };
   
   techStackCache.set(cacheKey, metadata);
@@ -105,10 +121,7 @@ export const categorizeTechStack = (technologies: string[]): TechCategoryGroup[]
   
   technologies.forEach(tech => {
     const category = getTechCategory(tech);
-    const categoryName = category === 'other' ? '기타' : 
-                        category === 'language' ? '언어' :
-                        category === 'framework' ? '프레임워크' :
-                        category === 'database' ? '데이터베이스' : '도구';
+    const categoryName = getCategoryDisplayName(category);
     
     if (!groups.has(categoryName)) {
       groups.set(categoryName, []);
@@ -118,7 +131,7 @@ export const categorizeTechStack = (technologies: string[]): TechCategoryGroup[]
   
   return Array.from(groups.entries()).map(([name, techs]) => ({
     name,
-    techs: techs.sort() // 알파벳 순으로 정렬
+    techs: [...techs].sort((a, b) => a.localeCompare(b)) // 알파벳 순으로 정렬
   }));
 };
 

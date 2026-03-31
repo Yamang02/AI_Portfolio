@@ -9,7 +9,6 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * 외부 사용량 API 응답을 매핑하기 위한 DTO 입니다.
@@ -42,7 +41,7 @@ public class CloudUsageApiResponse {
                 .value(metric.getValue())
                 .description(metric.getDescription())
                 .build())
-            .collect(Collectors.toList());
+            .toList();
     }
 
     @Data

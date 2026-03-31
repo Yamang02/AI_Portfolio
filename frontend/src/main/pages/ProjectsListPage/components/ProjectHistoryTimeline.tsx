@@ -182,23 +182,27 @@ export const ProjectHistoryTimeline: React.FC<ProjectHistoryTimelineProps> = ({
 
     return (
       <React.Fragment key={project.id}>
-        <div
+        <button
+          type="button"
           className={`${styles.projectBar} ${styles.projectBarDynamic}`}
           style={{
             left: `${positionX}px`,
             width: `${barWidth}px`,
             height: `${barHeight}px`,
+            background: 'transparent',
+            border: 'none',
+            padding: 0,
           }}
           onClick={handleBarClick}
           data-project-id={project.id}
         >
           <div
             className={`${styles.barContent} ${isHighlighted ? styles.highlighted : ''} ${isOngoing ? styles.ongoing : ''}`}
-            title={`${project.title} ${isOngoing ? '(진행 중)' : ''} - ${formatDate(project.startDate)}${project.endDate ? ` ~ ${formatDate(project.endDate)}` : ' ~ 진행중'}`}
+            title={`${project.title} ${isOngoing ? '(진행 중)' : ''} - ${formatDate(project.startDate)}${project.endDate ? ' ~ ' + formatDate(project.endDate) : ' ~ 진행중'}`}
           >
             <span className={styles.projectTitle}>{project.title}</span>
           </div>
-        </div>
+        </button>
         {connectionLine}
       </React.Fragment>
     );

@@ -63,10 +63,6 @@ export const ArticleControlPanel: React.FC<ArticleControlPanelProps> = ({
     { by: 'viewCount' as SortBy, order: 'asc' as SortOrder, label: '조회수 오름차순' },
   ];
 
-  const currentSortLabel = sortOptions.find(
-    opt => opt.by === sortBy && opt.order === sortOrder
-  )?.label || '발행일 내림차순';
-
   const handleSortOptionClick = (by: SortBy, order: SortOrder) => {
     onSortChange(by, order);
     setIsSortMenuOpen(false);
@@ -120,9 +116,9 @@ export const ArticleControlPanel: React.FC<ArticleControlPanelProps> = ({
           </Button>
           {isSortMenuOpen && (
             <div className={styles.sortMenu}>
-              {sortOptions.map((option, index) => (
+              {sortOptions.map((option) => (
                 <button
-                  key={index}
+                  key={`${option.by}-${option.order}`}
                   className={`${styles.sortMenuItem} ${
                     option.by === sortBy && option.order === sortOrder ? styles.active : ''
                   }`}

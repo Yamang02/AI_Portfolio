@@ -2,12 +2,10 @@ package com.aiportfolio.backend.infrastructure.persistence.postgres.mapper;
 
 // 도메인 모델 imports
 import com.aiportfolio.backend.domain.portfolio.model.Education;
-import com.aiportfolio.backend.domain.portfolio.model.TechStackMetadata;
 import com.aiportfolio.backend.domain.portfolio.model.enums.EducationType;
 
 // 인프라 레이어 imports
 import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.EducationJpaEntity;
-import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.TechStackMetadataJpaEntity;
 import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.EducationTechStackJpaEntity;
 
 // 외부 라이브러리 imports
@@ -15,7 +13,6 @@ import org.springframework.stereotype.Component;
 
 // Java 표준 라이브러리 imports
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Education 도메인 모델과 JPA 엔티티 간 변환 매퍼
@@ -53,7 +50,7 @@ public class EducationMapper {
                     jpaEntity.getEducationTechStacks() != null ? 
                     jpaEntity.getEducationTechStacks().stream()
                         .map(EducationTechStackJpaEntity::getTechStack)
-                        .collect(java.util.stream.Collectors.toList()) : 
+                        .toList() : 
                     new java.util.ArrayList<>()
                 ))
                 .projects(new java.util.ArrayList<>()) // 릴레이션 테이블로 분리됨
@@ -94,12 +91,12 @@ public class EducationMapper {
      */
     public List<Education> toDomainList(List<EducationJpaEntity> jpaEntities) {
         if (jpaEntities == null) {
-            return null;
+            return List.of();
         }
         
         return jpaEntities.stream()
                 .map(this::toDomain)
-                .collect(Collectors.toList());
+                .toList();
     }
     
     /**
@@ -107,12 +104,12 @@ public class EducationMapper {
      */
     public List<EducationJpaEntity> toJpaEntityList(List<Education> domainModels) {
         if (domainModels == null) {
-            return null;
+            return List.of();
         }
         
         return domainModels.stream()
                 .map(this::toJpaEntity)
-                .collect(Collectors.toList());
+                .toList();
     }
     
     /**

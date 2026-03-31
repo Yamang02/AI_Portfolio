@@ -28,8 +28,8 @@ export const ProjectSectionContent: React.FC<ProjectSectionContentProps> = ({
   if (isLoading) {
     return (
       <>
-        {[...Array(3)].map((_, i) => (
-          <SkeletonCard key={i} isLoading={true} />
+        {['project-skeleton-1', 'project-skeleton-2', 'project-skeleton-3'].map((skeletonKey) => (
+          <SkeletonCard key={skeletonKey} isLoading={true} />
         ))}
       </>
     );

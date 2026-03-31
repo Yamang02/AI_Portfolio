@@ -18,9 +18,9 @@ export const ExperienceSection: React.FC<ExperienceSectionProps> = ({
   if (isLoading) {
     return (
       <div className={styles.grid}>
-        {Array.from({ length: 2 }).map((_, index) => (
+        {['experience-section-skeleton-1', 'experience-section-skeleton-2'].map((skeletonKey) => (
           <SkeletonCard
-            key={index}
+            key={skeletonKey}
             showImage={false}
             showActions={false}
             lines={4}

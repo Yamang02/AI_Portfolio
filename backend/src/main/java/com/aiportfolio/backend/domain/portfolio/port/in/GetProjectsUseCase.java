@@ -40,4 +40,9 @@ public interface GetProjectsUseCase {
      * 팀 프로젝트 여부로 필터링하여 조회합니다
      */
     List<Project> getProjectsByTeamStatus(boolean isTeam);
+
+    /**
+     * 비즈니스 ID에 대응하는 프로젝트 DB PK를 조회합니다.
+     */
+    Optional<Long> getProjectDatabaseIdByBusinessId(String businessId);
 }

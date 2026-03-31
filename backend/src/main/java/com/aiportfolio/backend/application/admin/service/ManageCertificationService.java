@@ -105,7 +105,7 @@ public class ManageCertificationService implements ManageCertificationUseCase {
     public void deleteCertification(String id) {
         log.info("Deleting certification: {}", id);
 
-        if (!portfolioRepositoryPort.findCertificationById(id).isPresent()) {
+        if (!portfolioRepositoryPort.findCertificationById(id).isEmpty()) {
             throw new IllegalArgumentException("Certification not found: " + id);
         }
 
@@ -134,8 +134,11 @@ public class ManageCertificationService implements ManageCertificationUseCase {
         // 변경된 항목만 저장
         List<Certification> toUpdate = allCertifications.stream()
                 .filter(cert -> !Objects.equals(cert.getSortOrder(), originalSortOrders.get(cert.getId())))
-                .peek(cert -> cert.setUpdatedAt(MetadataHelper.setupUpdatedAt()))
-                .collect(java.util.stream.Collectors.toList());
+                .map(cert -> {
+                    cert.setUpdatedAt(MetadataHelper.setupUpdatedAt());
+                    return cert;
+                })
+                .toList();
 
         if (!toUpdate.isEmpty()) {
             portfolioRepositoryPort.batchUpdateCertifications(toUpdate);

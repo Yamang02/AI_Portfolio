@@ -39,15 +39,18 @@ export const SkeletonCard: React.FC<SkeletonCardProps> = ({
         
         {showDescription && (
           <div className={styles.description}>
-            {Array.from({ length: lines }).map((_, index) => (
+            {(() => {
+              const lineKeys = Array.from({ length: lines }, (_, idx) => `line-${idx}`);
+              return lineKeys.map((lineKey, index) => (
               <Skeleton
-                key={index}
+                key={lineKey}
                 variant="text"
                 height="16px"
                 width={index === lines - 1 ? '40%' : '100%'}
                 className={styles.line}
               />
-            ))}
+              ));
+            })()}
           </div>
         )}
         

@@ -4,7 +4,6 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 텍스트 필드 정규화 헬퍼 클래스
@@ -37,19 +36,19 @@ public final class TextFieldHelper {
      * 문자열 리스트를 정규화합니다.
      * 
      * @param values 정규화할 문자열 리스트
-     * @return 정규화된 문자열 리스트 (빈 문자열이나 공백만 있는 항목은 제거됨)
+     * @return 정규화된 문자열 리스트 (빈 문자열/공백 항목 제거, 결과가 없으면 빈 리스트)
      */
     public static List<String> normalizeTextList(List<String> values) {
         if (values == null) {
-            return null;
+            return List.of();
         }
         
         List<String> normalized = values.stream()
                 .map(TextFieldHelper::normalizeText)
                 .filter(value -> value != null)
-                .collect(Collectors.toList());
+                .toList();
         
-        return normalized.isEmpty() ? null : normalized;
+        return normalized;
     }
 
     /**

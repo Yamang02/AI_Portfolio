@@ -67,6 +67,11 @@ technical/
 | [frontend-architecture.md](./architecture/frontend-architecture.md) | Feature-Sliced Design 개요 |
 | [fsd-refactoring.md](./architecture/fsd-refactoring.md) | FSD 리팩토링 완료 상태 |
 
+### 디자인 패턴
+| 문서 | 설명 |
+|------|------|
+| [design-patterns.md](./architecture/design-patterns.md) | 프로젝트에 적용된 전체 디자인 패턴 분석 |
+
 ---
 
 ## 📚 개발 가이드
@@ -80,6 +85,7 @@ technical/
 ### 백엔드 가이드
 | 문서 | 설명 |
 |------|------|
+| [coding-principles.md](./guides/backend/coding-principles.md) | **백엔드 코딩 원칙 및 노하우** |
 | [api-documentation.md](./guides/backend/api-documentation.md) | API 문서화 및 활용 가이드 |
 | [authentication.md](./guides/backend/authentication.md) | Spring Session 기반 Admin 인증 시스템 |
 | [hexagonal-architecture-guide.md](./guides/backend/hexagonal-architecture-guide.md) | 헥사고날 아키텍처 상세 가이드 |
@@ -88,6 +94,7 @@ technical/
 ### 프론트엔드 가이드
 | 문서 | 설명 |
 |------|------|
+| [coding-principles.md](./guides/frontend/coding-principles.md) | **프론트엔드 코딩 원칙 및 노하우** |
 | [storybook-guide.md](./guides/frontend/storybook-guide.md) | 스토리북 구성 및 사용 가이드 |
 | [breakpoints-guide.md](./guides/frontend/breakpoints-guide.md) | Breakpoints 토큰 사용 가이드 |
 | [frontend-architecture-guide.md](./guides/frontend/frontend-architecture-guide.md) | FSD 아키텍처 상세 가이드 |

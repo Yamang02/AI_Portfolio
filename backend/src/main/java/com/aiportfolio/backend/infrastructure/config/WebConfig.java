@@ -16,6 +16,9 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.resource.PathResourceResolver;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.util.List;
 
@@ -90,67 +93,77 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         log.info("Configuring static resource handlers for frontend");
-        
-        // 정적 리소스 파일 확장자 목록
-        String[] staticExtensions = {".ico", ".png", ".jpg", ".jpeg", ".gif", ".svg", 
-                                     ".css", ".js", ".json", ".xml", ".woff", ".woff2", 
-                                     ".ttf", ".eot", ".webp", ".map"};
-        
-        // 프론트엔드 정적 파일 서빙 설정
-        // file:/app/static/ (Docker 컨테이너 내부 경로) 우선, 없으면 classpath:/static/ 사용
+
+        String[] staticExtensions = {".ico", ".png", ".jpg", ".jpeg", ".gif", ".svg",
+                ".css", ".js", ".json", ".xml", ".woff", ".woff2",
+                ".ttf", ".eot", ".webp", ".map"};
+
         registry.addResourceHandler("/**")
                 .addResourceLocations("file:/app/static/", "classpath:/static/")
                 .resourceChain(true)
-                .addResolver(new PathResourceResolver() {
-                    @Override
-                    protected Resource getResource(String resourcePath, Resource location) throws IOException {
-                        // API나 Actuator 경로는 제외 (가장 먼저 체크)
-                        if (resourcePath.startsWith("api/") || resourcePath.startsWith("actuator/")) {
-                            log.debug("Skipping API/Actuator path: {}", resourcePath);
-                            return null;
-                        }
-                        
-                        // 정적 리소스 파일 확장자 확인
-                        String lowerPath = resourcePath.toLowerCase();
-                        boolean isStaticResource = false;
-                        for (String ext : staticExtensions) {
-                            if (lowerPath.endsWith(ext)) {
-                                isStaticResource = true;
-                                break;
-                            }
-                        }
-                        
-                        // location에서 파일 찾기 시도
-                        Resource requestedResource = location.createRelative(resourcePath);
-                        
-                        // 파일이 존재하면 반환
-                        if (requestedResource.exists() && requestedResource.isReadable()) {
-                            log.debug("Found static resource: {}", resourcePath);
-                            return requestedResource;
-                        }
-                        
-                        // 정적 리소스 파일인데 찾지 못한 경우 404 반환
-                        if (isStaticResource) {
-                            log.warn("Static resource not found: {} (location: {})", resourcePath, location);
-                            return null;
-                        }
-                        
-                        // SPA 라우팅: 확장자가 없는 경로는 index.html로 리다이렉트
-                        if (!resourcePath.contains(".")) {
-                            log.debug("SPA routing: serving index.html for path: {}", resourcePath);
-                            Resource indexHtml = new ClassPathResource("/static/index.html");
-                            if (indexHtml.exists()) {
-                                return indexHtml;
-                            }
-                            log.warn("index.html not found in classpath:/static/");
-                            return null;
-                        }
-                        
-                        log.debug("Resource not found and not a SPA route: {}", resourcePath);
-                        return null;
-                    }
-                });
-        
+                .addResolver(new SpaStaticResourceResolver(staticExtensions));
+
         log.info("Static resource handlers configured successfully");
     }
-} 
+
+    /**
+     * API/Actuator 제외, 정적 확장자·SPA index.html 처리
+     */
+    private static final class SpaStaticResourceResolver extends PathResourceResolver {
+
+        private static final Logger log = LoggerFactory.getLogger(SpaStaticResourceResolver.class);
+
+        private final String[] staticExtensions;
+
+        SpaStaticResourceResolver(String[] staticExtensions) {
+            this.staticExtensions = staticExtensions.clone();
+        }
+
+        @Override
+        protected Resource getResource(String resourcePath, Resource location) throws IOException {
+            if (isApiOrActuatorPath(resourcePath)) {
+                log.debug("Skipping API/Actuator path: {}", resourcePath);
+                return null;
+            }
+            String lowerPath = resourcePath.toLowerCase();
+            boolean staticResourceExtension = hasStaticExtension(lowerPath, staticExtensions);
+            Resource requestedResource = location.createRelative(resourcePath);
+            if (requestedResource.exists() && requestedResource.isReadable()) {
+                log.debug("Found static resource: {}", resourcePath);
+                return requestedResource;
+            }
+            if (staticResourceExtension) {
+                log.warn("Static resource not found: {} (location: {})", resourcePath, location);
+                return null;
+            }
+            if (!resourcePath.contains(".")) {
+                return resolveSpaIndex(resourcePath);
+            }
+            log.debug("Resource not found and not a SPA route: {}", resourcePath);
+            return null;
+        }
+
+        private static boolean isApiOrActuatorPath(String resourcePath) {
+            return resourcePath.startsWith("api/") || resourcePath.startsWith("actuator/");
+        }
+
+        private static boolean hasStaticExtension(String lowerPath, String[] extensions) {
+            for (String ext : extensions) {
+                if (lowerPath.endsWith(ext)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private static Resource resolveSpaIndex(String resourcePath) {
+            log.debug("SPA routing: serving index.html for path: {}", resourcePath);
+            Resource indexHtml = new ClassPathResource("/static/index.html");
+            if (indexHtml.exists()) {
+                return indexHtml;
+            }
+            log.warn("index.html not found in classpath:/static/");
+            return null;
+        }
+    }
+}

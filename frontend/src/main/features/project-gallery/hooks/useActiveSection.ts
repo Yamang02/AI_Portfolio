@@ -151,7 +151,6 @@ function extractAllIds(tocItems: TOCItem[]): string[] {
  */
 function findCurrentSection(allIds: string[]): string | null {
   const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-  const windowHeight = window.innerHeight;
   const offset = 100; // 헤더 높이 등을 고려한 오프셋
 
   // 각 섹션의 위치를 확인하여 현재 보이는 섹션 찾기
@@ -159,7 +158,6 @@ function findCurrentSection(allIds: string[]): string | null {
     const element = document.getElementById(allIds[i]);
     if (element) {
       const elementTop = element.offsetTop;
-      const elementHeight = element.offsetHeight;
       
       // 요소가 뷰포트 상단에서 offset만큼 아래에 있을 때 활성화
       if (elementTop <= scrollTop + offset) {

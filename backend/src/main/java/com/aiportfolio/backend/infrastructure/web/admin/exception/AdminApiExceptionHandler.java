@@ -1,6 +1,7 @@
 package com.aiportfolio.backend.infrastructure.web.admin.exception;
 
 import com.aiportfolio.backend.application.admin.exception.AdminAuthenticationException;
+import com.aiportfolio.backend.infrastructure.web.WebApiResponseMessages;
 import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -24,7 +25,7 @@ public class AdminApiExceptionHandler {
     @ExceptionHandler(AdminAuthenticationException.class)
     public ResponseEntity<ApiResponse<Void>> handleAuthentication(AdminAuthenticationException exception) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(ApiResponse.error(exception.getMessage(), "인증 필요"));
+                .body(ApiResponse.error(exception.getMessage(), WebApiResponseMessages.LABEL_AUTH_REQUIRED));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -43,20 +44,31 @@ public class AdminApiExceptionHandler {
         log.warn("Validation error: {}", errorMessage);
         
         return ResponseEntity.badRequest()
-                .body(ApiResponse.error("입력값 검증 실패: " + errorMessage, "검증 오류"));
+                .body(ApiResponse.error(
+                        WebApiResponseMessages.validationFailedDetail(errorMessage),
+                        WebApiResponseMessages.LABEL_VALIDATION_ERROR));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ApiResponse<Void>> handleIllegalArgument(IllegalArgumentException exception) {
         return ResponseEntity.badRequest()
-                .body(ApiResponse.error(exception.getMessage(), "잘못된 요청"));
+                .body(ApiResponse.error(exception.getMessage(), WebApiResponseMessages.LABEL_BAD_REQUEST));
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ApiResponse<Void>> handleIllegalState(IllegalStateException exception) {
+        log.error("Illegal state in admin API: {}", exception.getMessage(), exception);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.error(exception.getMessage(), WebApiResponseMessages.LABEL_ILLEGAL_STATE));
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleUnexpected(Exception exception) {
         log.error("Unexpected admin API error", exception);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiResponse.error("관리자 API 처리 중 오류가 발생했습니다.", "서버 오류"));
+                .body(ApiResponse.error(
+                        WebApiResponseMessages.ADMIN_API_UNEXPECTED,
+                        WebApiResponseMessages.LABEL_SERVER_ERROR));
     }
 }
 

@@ -5,6 +5,10 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 
 public class DateUtils {
+
+    private DateUtils() {
+        throw new UnsupportedOperationException("Utility class");
+    }
     
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     

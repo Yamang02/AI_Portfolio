@@ -10,9 +10,43 @@ export interface ProjectDetailHeaderProps {
   project: Project;
 }
 
+const getExternalLink = (url?: string) =>
+  url && url !== '#' ? url : undefined;
+
 export const ProjectDetailHeader: React.FC<ProjectDetailHeaderProps> = ({
   project,
 }) => {
+  const githubHref = getExternalLink(project.githubUrl);
+  const liveHref = getExternalLink(project.liveUrl);
+  const notionHref = getExternalLink(project.externalUrl);
+
+  const links = [
+    {
+      key: 'github',
+      label: 'GitHub',
+      href: githubHref,
+      ariaLabel: githubHref ? 'GitHub 저장소로 이동' : 'GitHub 저장소 없음',
+      iconType: 'github' as const,
+      brandType: 'github' as const,
+    },
+    {
+      key: 'live',
+      label: 'Live Service',
+      href: liveHref,
+      ariaLabel: liveHref ? '운영 중인 서비스로 이동' : '운영 중인 서비스 없음',
+      iconType: 'external-link' as const,
+      brandType: 'live' as const,
+    },
+    {
+      key: 'notion',
+      label: 'Notion',
+      href: notionHref,
+      ariaLabel: notionHref ? 'Notion 문서로 이동' : 'Notion 문서 없음',
+      iconType: 'external-link' as const,
+      brandType: 'notion' as const,
+    },
+  ];
+
   return (
     <header className={styles.header}>
       {/* 프로젝트 제목 */}
@@ -54,50 +88,22 @@ export const ProjectDetailHeader: React.FC<ProjectDetailHeaderProps> = ({
 
         {/* 링크들 (별도 행) - 항상 표시, 링크가 없으면 비활성화 */}
         <div className={styles.links}>
-          {/* GitHub */}
-          <Button
-            variant="brand"
-            brandType="github"
-            size="sm"
-            href={project.githubUrl && project.githubUrl !== '#' ? project.githubUrl : undefined}
-            target={project.githubUrl && project.githubUrl !== '#' ? '_blank' : undefined}
-            disabled={!project.githubUrl || project.githubUrl === '#'}
-            ariaLabel={project.githubUrl && project.githubUrl !== '#' ? 'GitHub 저장소로 이동' : 'GitHub 저장소 없음'}
-            className={styles.linkButton}
-          >
-            <SocialIcon type="github" size="sm" />
-            <span>GitHub</span>
-          </Button>
-
-          {/* Live Service */}
-          <Button
-            variant="brand"
-            brandType="live"
-            size="sm"
-            href={project.liveUrl && project.liveUrl !== '#' ? project.liveUrl : undefined}
-            target={project.liveUrl && project.liveUrl !== '#' ? '_blank' : undefined}
-            disabled={!project.liveUrl || project.liveUrl === '#'}
-            ariaLabel={project.liveUrl && project.liveUrl !== '#' ? '운영 중인 서비스로 이동' : '운영 중인 서비스 없음'}
-            className={styles.linkButton}
-          >
-            <SocialIcon type="external-link" size="sm" />
-            <span>Live Service</span>
-          </Button>
-
-          {/* Notion */}
-          <Button
-            variant="brand"
-            brandType="notion"
-            size="sm"
-            href={project.externalUrl && project.externalUrl !== '#' ? project.externalUrl : undefined}
-            target={project.externalUrl && project.externalUrl !== '#' ? '_blank' : undefined}
-            disabled={!project.externalUrl || project.externalUrl === '#'}
-            ariaLabel={project.externalUrl && project.externalUrl !== '#' ? 'Notion 문서로 이동' : 'Notion 문서 없음'}
-            className={styles.linkButton}
-          >
-            <SocialIcon type="external-link" size="sm" />
-            <span>Notion</span>
-          </Button>
+          {links.map((link) => (
+            <Button
+              key={link.key}
+              variant="brand"
+              brandType={link.brandType}
+              size="sm"
+              href={link.href}
+              target={link.href ? '_blank' : undefined}
+              disabled={!link.href}
+              ariaLabel={link.ariaLabel}
+              className={styles.linkButton}
+            >
+              <SocialIcon type={link.iconType} size="sm" />
+              <span>{link.label}</span>
+            </Button>
+          ))}
         </div>
       </div>
     </header>

@@ -38,8 +38,9 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
 
   // 오디오 재생 시작
   useEffect(() => {
-    if (canStart && audioRef.current && audioRef.current.paused) {
-      audioRef.current.play().catch((error) => {
+    const audio = audioRef.current;
+    if (canStart && audio?.paused) {
+      audio!.play().catch((error) => {
         if (error.name !== 'AbortError') {
           console.error('Audio play failed:', error);
         }

@@ -123,8 +123,9 @@ const MarkdownImage: React.FC<{ src?: string; alt?: string }> = ({ src, alt }) =
   
   return (
     <>
-      <div 
-        className="mb-4 rounded-lg overflow-hidden cursor-pointer transition-opacity hover:opacity-90" 
+      <button
+        type="button"
+        className="mb-4 rounded-lg overflow-hidden cursor-pointer transition-opacity hover:opacity-90 p-0 border-0 bg-transparent"
         style={{ 
           aspectRatio: '16 / 9', 
           backgroundColor: 'var(--color-bg-secondary)',
@@ -133,14 +134,6 @@ const MarkdownImage: React.FC<{ src?: string; alt?: string }> = ({ src, alt }) =
           justifyContent: 'center',
         }}
         onClick={() => setIsModalOpen(true)}
-        role="button"
-        tabIndex={0}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            setIsModalOpen(true);
-          }
-        }}
         aria-label="이미지 확대 보기"
       >
         <img 
@@ -150,7 +143,7 @@ const MarkdownImage: React.FC<{ src?: string; alt?: string }> = ({ src, alt }) =
           loading="lazy"
           style={{ maxWidth: '100%', maxHeight: '100%' }}
         />
-      </div>
+      </button>
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}

@@ -8,10 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Cloudinary 이미지 저장소 어댑터
@@ -42,7 +40,7 @@ public class CloudinaryImageStorageAdapter implements ImageStoragePort {
             // 업로드 결과 검증
             if (url == null || url.trim().isEmpty()) {
                 log.error("Cloudinary upload succeeded but returned null or empty URL. publicId: {}", publicId);
-                throw new RuntimeException("이미지 업로드는 성공했지만 URL을 받지 못했습니다");
+                throw new IllegalStateException("이미지 업로드는 성공했지만 URL을 받지 못했습니다");
             }
             
             log.info("Image uploaded successfully: {} -> {}", publicId, url);
@@ -50,7 +48,7 @@ public class CloudinaryImageStorageAdapter implements ImageStoragePort {
             
         } catch (IOException e) {
             log.error("Failed to upload image to folder: {}", folder, e);
-            throw new RuntimeException("이미지 업로드 실패: " + e.getMessage(), e);
+            throw new IllegalStateException("이미지 업로드 실패: " + e.getMessage(), e);
         }
     }
     
@@ -64,10 +62,10 @@ public class CloudinaryImageStorageAdapter implements ImageStoragePort {
                     return uploadImage(imageData, folder, metadata);
                 } catch (Exception e) {
                     log.error("Failed to upload image in batch", e);
-                    throw new RuntimeException("배치 이미지 업로드 실패: " + e.getMessage(), e);
+                    throw new IllegalStateException("배치 이미지 업로드 실패: " + e.getMessage(), e);
                 }
             })
-            .collect(Collectors.toList());
+            .toList();
     }
     
     @Override
@@ -86,7 +84,7 @@ public class CloudinaryImageStorageAdapter implements ImageStoragePort {
             
         } catch (Exception e) {
             log.error("Failed to delete image: {}", publicId, e);
-            throw new RuntimeException("이미지 삭제 실패: " + e.getMessage(), e);
+            throw new IllegalStateException("이미지 삭제 실패: " + e.getMessage(), e);
         }
     }
     
@@ -123,13 +121,14 @@ public class CloudinaryImageStorageAdapter implements ImageStoragePort {
         try {
             String publicId = extractPublicId(url);
             if (publicId != null) {
+                com.cloudinary.Transformation<?> transformation = new com.cloudinary.Transformation<>()
+                    .width(width)
+                    .height(height)
+                    .crop("limit")
+                    .quality("auto")
+                    .fetchFormat("auto");
                 return cloudinary.url()
-                    .transformation(new com.cloudinary.Transformation()
-                        .width(width)
-                        .height(height)
-                        .crop("limit")
-                        .quality("auto")
-                        .fetchFormat("auto"))
+                    .transformation(transformation)
                     .generate(publicId);
             }
         } catch (Exception e) {

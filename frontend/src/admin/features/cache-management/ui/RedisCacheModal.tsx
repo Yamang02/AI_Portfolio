@@ -53,11 +53,6 @@ export const RedisCacheModal: React.FC<RedisCacheModalProps> = ({
     }
   };
 
-  const handleViewKeys = () => {
-    setActiveTab('3');
-    refetchKeys();
-  };
-
   const commonPatterns = [
     { label: '세션 캐시', pattern: 'spring:session:*' },
     { label: '일반 캐시', pattern: 'cache:*' },

@@ -69,16 +69,12 @@ export const CareerTimeline: React.FC<CareerTimelineProps> = ({
     });
   }, [experiences, educations]);
 
-  return (
-    <div className={styles.container}>
-      <SectionTitle level="h3" className={styles.sectionTitle}>
-        약력
-      </SectionTitle>
-      
-      {isLoadingExperiences || isLoadingEducations ? (
+  const timelineBody = (() => {
+    if (isLoadingExperiences || isLoadingEducations) {
+      return (
         <div className={styles.timeline}>
-          {Array.from({ length: 3 }).map((_, index) => (
-            <div key={index} className={styles.timelineItem}>
+          {['career-skeleton-1', 'career-skeleton-2', 'career-skeleton-3'].map((key) => (
+            <div key={key} className={styles.timelineItem}>
               <div className={styles.timelineDot} />
               <div className={styles.timelineContent}>
                 <SkeletonCard
@@ -90,26 +86,40 @@ export const CareerTimeline: React.FC<CareerTimelineProps> = ({
             </div>
           ))}
         </div>
-      ) : timelineItems.length === 0 ? (
+      );
+    }
+    if (timelineItems.length === 0) {
+      return (
         <div className={styles.empty}>
           <p className={styles.emptyText}>약력 정보가 없습니다.</p>
         </div>
-      ) : (
-        <div className={styles.timeline}>
-          {timelineItems.map((item) => (
-            <div key={item.id} className={styles.timelineItem}>
-              <div className={styles.timelineDot} />
-              <div className={styles.timelineContent}>
-                <div className={styles.timelinePeriod}>{item.period}</div>
-                <div className={styles.timelineOrganization}>{item.organization}</div>
-                {item.role && (
-                  <div className={styles.timelineRole}>{item.role}</div>
-                )}
-              </div>
+      );
+    }
+    return (
+      <div className={styles.timeline}>
+        {timelineItems.map((item) => (
+          <div key={item.id} className={styles.timelineItem}>
+            <div className={styles.timelineDot} />
+            <div className={styles.timelineContent}>
+              <div className={styles.timelinePeriod}>{item.period}</div>
+              <div className={styles.timelineOrganization}>{item.organization}</div>
+              {item.role && (
+                <div className={styles.timelineRole}>{item.role}</div>
+              )}
             </div>
-          ))}
-        </div>
-      )}
+          </div>
+        ))}
+      </div>
+    );
+  })();
+
+  return (
+    <div className={styles.container}>
+      <SectionTitle level="h3" className={styles.sectionTitle}>
+        약력
+      </SectionTitle>
+
+      {timelineBody}
     </div>
   );
 };

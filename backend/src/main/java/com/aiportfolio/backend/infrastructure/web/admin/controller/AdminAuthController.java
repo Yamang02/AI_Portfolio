@@ -5,6 +5,7 @@ import com.aiportfolio.backend.application.admin.exception.AdminAuthenticationEx
 import com.aiportfolio.backend.infrastructure.web.admin.dto.AdminUserInfo;
 import com.aiportfolio.backend.infrastructure.web.admin.dto.AdminLoginRequest;
 import com.aiportfolio.backend.infrastructure.web.admin.session.AdminSessionManager;
+import com.aiportfolio.backend.infrastructure.web.WebApiResponseMessages;
 import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -46,7 +47,7 @@ public class AdminAuthController {
         adminSessionManager.establishSession(session, userInfo);
 
         log.info("Login successful for user: {}", request.getUsername());
-        return ResponseEntity.ok(ApiResponse.success(userInfo, "로그인 성공"));
+        return ResponseEntity.ok(ApiResponse.success(userInfo, WebApiResponseMessages.ADMIN_LOGIN_SUCCESS));
     }
 
     /**
@@ -58,7 +59,7 @@ public class AdminAuthController {
         HttpSession session = httpRequest.getSession(false);
         adminSessionManager.clearSession(session);
         
-        return ResponseEntity.ok(ApiResponse.success(null, "로그아웃 성공"));
+        return ResponseEntity.ok(ApiResponse.success(null, WebApiResponseMessages.ADMIN_LOGOUT_SUCCESS));
     }
 
     /**
@@ -91,6 +92,6 @@ public class AdminAuthController {
         AdminUserInfo userInfo = adminSessionManager.resolveCurrentUser(session)
                 .orElseThrow(() -> new AdminAuthenticationException("세션이 없습니다."));
         log.info("Session check successful for user: {}", userInfo.getUsername());
-        return ResponseEntity.ok(ApiResponse.success(userInfo, "세션이 유효합니다"));
+        return ResponseEntity.ok(ApiResponse.success(userInfo, WebApiResponseMessages.ADMIN_SESSION_VALID));
     }
 }

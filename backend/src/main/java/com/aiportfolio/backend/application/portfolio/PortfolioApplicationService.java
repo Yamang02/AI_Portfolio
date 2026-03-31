@@ -49,7 +49,7 @@ public class PortfolioApplicationService implements GetAllDataUseCase {
             );
         } catch (Exception e) {
             log.error("포트폴리오 데이터 조회 중 오류 발생", e);
-            throw new RuntimeException("포트폴리오 데이터 조회 실패", e);
+            throw new IllegalStateException("포트폴리오 데이터 조회 실패", e);
         }
     }
     
@@ -59,7 +59,7 @@ public class PortfolioApplicationService implements GetAllDataUseCase {
             return portfolioRepositoryPort.findAllExperiences();
         } catch (Exception e) {
             log.error("경험 데이터 조회 중 오류 발생", e);
-            throw new RuntimeException("경험 데이터 조회 실패", e);
+            throw new IllegalStateException("경험 데이터 조회 실패", e);
         }
     }
     
@@ -69,7 +69,7 @@ public class PortfolioApplicationService implements GetAllDataUseCase {
             return portfolioRepositoryPort.findAllEducations();
         } catch (Exception e) {
             log.error("교육 데이터 조회 중 오류 발생", e);
-            throw new RuntimeException("교육 데이터 조회 실패", e);
+            throw new IllegalStateException("교육 데이터 조회 실패", e);
         }
     }
     
@@ -79,7 +79,7 @@ public class PortfolioApplicationService implements GetAllDataUseCase {
             return portfolioRepositoryPort.findAllCertifications();
         } catch (Exception e) {
             log.error("자격증 데이터 조회 중 오류 발생", e);
-            throw new RuntimeException("자격증 데이터 조회 실패", e);
+            throw new IllegalStateException("자격증 데이터 조회 실패", e);
         }
     }
 }

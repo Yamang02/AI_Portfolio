@@ -5,6 +5,39 @@
 
 type ClassValue = string | number | boolean | undefined | null | Record<string, boolean>;
 
+function collectObjectClasses(input: Record<string, boolean>, classes: string[]) {
+  for (const key in input) {
+    if (input[key]) {
+      classes.push(key);
+    }
+  }
+}
+
+function collectClassValue(input: ClassValue, classes: string[]) {
+  if (!input) return;
+
+  if (typeof input === 'string') {
+    classes.push(input);
+    return;
+  }
+
+  if (typeof input === 'number') {
+    classes.push(String(input));
+    return;
+  }
+
+  if (Array.isArray(input)) {
+    for (const value of input) {
+      collectClassValue(value as ClassValue, classes);
+    }
+    return;
+  }
+
+  if (typeof input === 'object') {
+    collectObjectClasses(input, classes);
+  }
+}
+
 /**
  * 클래스 이름을 병합하는 함수
  * 조건부 클래스와 Tailwind 클래스 충돌을 해결
@@ -13,22 +46,7 @@ export function cn(...inputs: ClassValue[]): string {
   const classes: string[] = [];
 
   for (const input of inputs) {
-    if (!input) continue;
-
-    if (typeof input === 'string') {
-      classes.push(input);
-    } else if (typeof input === 'number') {
-      classes.push(String(input));
-    } else if (Array.isArray(input)) {
-      const inner = cn(...input);
-      if (inner) classes.push(inner);
-    } else if (typeof input === 'object') {
-      for (const key in input) {
-        if (input[key]) {
-          classes.push(key);
-        }
-      }
-    }
+    collectClassValue(input, classes);
   }
 
   // Tailwind 클래스 충돌 해결 (간단한 버전)

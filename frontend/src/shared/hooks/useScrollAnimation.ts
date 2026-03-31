@@ -21,11 +21,9 @@ export const useScrollAnimation = (options?: IntersectionObserverInit) => {
           wasIntersecting.current = true;
         } else if (wasIntersecting.current) {
           // 한 번이라도 뷰포트에 들어왔었다면, 벗어날 때 역재생
-          if (scrollingDown && entry.boundingClientRect.top < 0) {
-            // 아래로 스크롤하여 섹션이 위로 벗어남 - 역재생
-            setIsVisible(false);
-          } else if (!scrollingDown && entry.boundingClientRect.bottom > window.innerHeight) {
-            // 위로 스크롤하여 섹션이 아래로 벗어남 - 역재생
+          const leftViewportUpward = scrollingDown && entry.boundingClientRect.top < 0;
+          const leftViewportDownward = !scrollingDown && entry.boundingClientRect.bottom > window.innerHeight;
+          if (leftViewportUpward || leftViewportDownward) {
             setIsVisible(false);
           }
         }

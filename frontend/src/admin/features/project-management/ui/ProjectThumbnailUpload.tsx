@@ -49,7 +49,7 @@ const ProjectThumbnailUpload: React.FC<ProjectThumbnailUploadProps> = ({
         projectId: projectId
       });
       
-      if (response && response.url) {
+      if (response?.url) {
         onChange?.(response.url);
         
         // 백엔드에서 자동으로 DB에 저장하므로 성공 메시지만 표시
@@ -99,6 +99,12 @@ const ProjectThumbnailUpload: React.FC<ProjectThumbnailUploadProps> = ({
   };
 
   const displayImage = value || tempImageUrl;
+  const getUploadPlaceholder = (): string | null => {
+    if (isLoading) return '업로드 중...';
+    if (hideControls) return '이미지가 없습니다';
+    return null;
+  };
+  const uploadPlaceholder = getUploadPlaceholder();
 
   return (
     <div style={{ display: 'flex', justifyContent: 'center' }}>
@@ -158,11 +164,11 @@ const ProjectThumbnailUpload: React.FC<ProjectThumbnailUploadProps> = ({
         </div>
       ) : (
         <div style={{ width: '480px', height: '270px', border: '1px dashed #d9d9d9', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#999' }}>
-          {isLoading ? '업로드 중...' : (!hideControls ? (
+          {uploadPlaceholder ? uploadPlaceholder : (
             <Upload customRequest={customRequest} showUploadList={false} accept="image/*">
               <Button icon={<UploadOutlined />}>이미지 업로드</Button>
             </Upload>
-          ) : '이미지가 없습니다')}
+          )}
         </div>
       )}
  

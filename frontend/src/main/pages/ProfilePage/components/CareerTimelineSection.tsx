@@ -37,6 +37,68 @@ export const CareerTimelineSection: React.FC<CareerTimelineSectionProps> = ({
     });
   }, [educations]);
 
+  const experienceContent = (() => {
+    if (isLoadingExperiences) {
+      return (
+        <div className={styles.cards}>
+          {['experience-skeleton-1', 'experience-skeleton-2'].map((skeletonKey) => (
+            <SkeletonCard
+              key={skeletonKey}
+              showImage={false}
+              showActions={false}
+              lines={4}
+            />
+          ))}
+        </div>
+      );
+    }
+    if (sortedExperiences.length === 0) {
+      return (
+        <div className={styles.empty}>
+          <p className={styles.emptyText}>경력 정보가 없습니다.</p>
+        </div>
+      );
+    }
+    return (
+      <div className={styles.cards}>
+        {sortedExperiences.map((experience) => (
+          <CareerCard key={experience.id} type="experience" data={experience} />
+        ))}
+      </div>
+    );
+  })();
+
+  const educationContent = (() => {
+    if (isLoadingEducations) {
+      return (
+        <div className={styles.cards}>
+          {['education-skeleton-1', 'education-skeleton-2'].map((skeletonKey) => (
+            <SkeletonCard
+              key={skeletonKey}
+              showImage={false}
+              showActions={false}
+              lines={4}
+            />
+          ))}
+        </div>
+      );
+    }
+    if (sortedEducations.length === 0) {
+      return (
+        <div className={styles.empty}>
+          <p className={styles.emptyText}>교육 정보가 없습니다.</p>
+        </div>
+      );
+    }
+    return (
+      <div className={styles.cards}>
+        {sortedEducations.map((education) => (
+          <CareerCard key={education.id} type="education" data={education} />
+        ))}
+      </div>
+    );
+  })();
+
   return (
     <div className={styles.container}>
       {/* 기존 경력/교육 상세 섹션 */}
@@ -48,32 +110,7 @@ export const CareerTimelineSection: React.FC<CareerTimelineSectionProps> = ({
             <SectionTitle level="h3" className={styles.sectionTitle}>
               경력
             </SectionTitle>
-            {isLoadingExperiences ? (
-              <div className={styles.cards}>
-                {Array.from({ length: 2 }).map((_, index) => (
-                  <SkeletonCard
-                    key={index}
-                    showImage={false}
-                    showActions={false}
-                    lines={4}
-                  />
-                ))}
-              </div>
-            ) : sortedExperiences.length === 0 ? (
-              <div className={styles.empty}>
-                <p className={styles.emptyText}>경력 정보가 없습니다.</p>
-              </div>
-            ) : (
-              <div className={styles.cards}>
-                {sortedExperiences.map((experience) => (
-                  <CareerCard
-                    key={experience.id}
-                    type="experience"
-                    data={experience}
-                  />
-                ))}
-              </div>
-            )}
+            {experienceContent}
           </div>
 
           {/* 오른쪽: Other Experience (교육) */}
@@ -81,32 +118,7 @@ export const CareerTimelineSection: React.FC<CareerTimelineSectionProps> = ({
             <SectionTitle level="h3" className={styles.sectionTitle}>
               교육 및 기타
             </SectionTitle>
-            {isLoadingEducations ? (
-              <div className={styles.cards}>
-                {Array.from({ length: 2 }).map((_, index) => (
-                  <SkeletonCard
-                    key={index}
-                    showImage={false}
-                    showActions={false}
-                    lines={4}
-                  />
-                ))}
-              </div>
-            ) : sortedEducations.length === 0 ? (
-              <div className={styles.empty}>
-                <p className={styles.emptyText}>교육 정보가 없습니다.</p>
-              </div>
-            ) : (
-              <div className={styles.cards}>
-                {sortedEducations.map((education) => (
-                  <CareerCard
-                    key={education.id}
-                    type="education"
-                    data={education}
-                  />
-                ))}
-              </div>
-            )}
+            {educationContent}
           </div>
         </div>
       </div>

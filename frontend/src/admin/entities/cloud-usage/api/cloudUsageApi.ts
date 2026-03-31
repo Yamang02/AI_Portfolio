@@ -15,7 +15,7 @@ const API_BASE_URL = typeof window !== 'undefined'
   : (import.meta.env?.VITE_API_BASE_URL || '');
 
 class CloudUsageApi {
-  private baseUrl = `${API_BASE_URL}/api/admin/cloud-usage`;
+  private readonly baseUrl = `${API_BASE_URL}/api/admin/cloud-usage`;
 
   private async request<T>(
     endpoint: string,

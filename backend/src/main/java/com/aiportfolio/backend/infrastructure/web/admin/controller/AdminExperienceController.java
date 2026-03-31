@@ -1,9 +1,10 @@
 package com.aiportfolio.backend.infrastructure.web.admin.controller;
 
 import com.aiportfolio.backend.domain.portfolio.model.Experience;
-import com.aiportfolio.backend.domain.portfolio.model.enums.ExperienceType;
 import com.aiportfolio.backend.domain.portfolio.port.in.GetExperienceUseCase;
 import com.aiportfolio.backend.domain.portfolio.port.in.ManageExperienceUseCase;
+import com.aiportfolio.backend.infrastructure.web.WebApiResponseMessages;
+import com.aiportfolio.backend.infrastructure.web.admin.AdminApiErrorMessages;
 import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;
 import com.aiportfolio.backend.infrastructure.web.dto.experience.ExperienceDto;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Admin 전용 Experience REST API Controller
@@ -52,13 +52,13 @@ public class AdminExperienceController {
             
             List<ExperienceDto> dtos = experiences.stream()
                 .map(this::convertToDto)
-                .collect(Collectors.toList());
+                .toList();
 
             return ResponseEntity.ok(ApiResponse.success(dtos));
         } catch (Exception e) {
             log.error("Error fetching experiences - Exception type: {}, Message: {}", e.getClass().getName(), e.getMessage(), e);
             return ResponseEntity.internalServerError()
-                .body(ApiResponse.error("경력 목록 조회 중 오류가 발생했습니다: " + e.getClass().getSimpleName() + " - " + e.getMessage()));
+                .body(ApiResponse.error(AdminApiErrorMessages.listQueryFailed("경력", e)));
         }
     }
 
@@ -80,7 +80,7 @@ public class AdminExperienceController {
         } catch (Exception e) {
             log.error("Error fetching experience by id: {}", id, e);
             return ResponseEntity.internalServerError()
-                .body(ApiResponse.error("경력 조회 중 오류가 발생했습니다: " + e.getMessage()));
+                .body(ApiResponse.error(AdminApiErrorMessages.queryFailed("경력", e)));
         }
     }
 
@@ -96,13 +96,13 @@ public class AdminExperienceController {
             List<Experience> experiences = adminGetExperienceUseCase.searchExperiences(keyword);
             List<ExperienceDto> dtos = experiences.stream()
                 .map(this::convertToDto)
-                .collect(Collectors.toList());
+                .toList();
 
             return ResponseEntity.ok(ApiResponse.success(dtos));
         } catch (Exception e) {
             log.error("Error searching experiences with keyword: {}", keyword, e);
             return ResponseEntity.internalServerError()
-                .body(ApiResponse.error("경력 검색 중 오류가 발생했습니다: " + e.getMessage()));
+                .body(ApiResponse.error(AdminApiErrorMessages.searchFailed("경력", e)));
         }
     }
 
@@ -130,7 +130,7 @@ public class AdminExperienceController {
         } catch (Exception e) {
             log.error("Error creating experience", e);
             return ResponseEntity.internalServerError()
-                .body(ApiResponse.error("경력 생성 중 오류가 발생했습니다: " + e.getMessage()));
+                .body(ApiResponse.error(AdminApiErrorMessages.createFailed("경력", e)));
         }
     }
 
@@ -157,7 +157,7 @@ public class AdminExperienceController {
         } catch (Exception e) {
             log.error("Error updating experience: {}", id, e);
             return ResponseEntity.internalServerError()
-                .body(ApiResponse.error("경력 수정 중 오류가 발생했습니다: " + e.getMessage()));
+                .body(ApiResponse.error(AdminApiErrorMessages.updateFailed("경력", e)));
         }
     }
 
@@ -171,14 +171,14 @@ public class AdminExperienceController {
 
         try {
             manageExperienceUseCase.deleteExperience(id);
-            return ResponseEntity.ok(ApiResponse.success(null, "Experience 삭제 성공"));
+            return ResponseEntity.ok(ApiResponse.success(null, WebApiResponseMessages.EXPERIENCE_DELETE_SUCCESS));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest()
                 .body(ApiResponse.error(e.getMessage()));
         } catch (Exception e) {
             log.error("Error deleting experience: {}", id, e);
             return ResponseEntity.internalServerError()
-                .body(ApiResponse.error("경력 삭제 중 오류가 발생했습니다: " + e.getMessage()));
+                .body(ApiResponse.error(AdminApiErrorMessages.deleteFailed("경력", e)));
         }
     }
 
@@ -192,14 +192,14 @@ public class AdminExperienceController {
 
         try {
             manageExperienceUseCase.updateExperienceSortOrder(sortOrderUpdates);
-            return ResponseEntity.ok(ApiResponse.success(null, "정렬 순서 업데이트 성공"));
+            return ResponseEntity.ok(ApiResponse.success(null, WebApiResponseMessages.SORT_ORDER_UPDATE_SUCCESS));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest()
                 .body(ApiResponse.error(e.getMessage()));
         } catch (Exception e) {
             log.error("Error updating sort orders", e);
             return ResponseEntity.internalServerError()
-                .body(ApiResponse.error("정렬 순서 업데이트 중 오류가 발생했습니다: " + e.getMessage()));
+                .body(ApiResponse.error(AdminApiErrorMessages.sortOrderUpdateFailed(e)));
         }
     }
 

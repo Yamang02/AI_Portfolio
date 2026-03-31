@@ -22,7 +22,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const queryClient = useQueryClient();
 
   // 세션 상태 확인
-  const { data: sessionData, isLoading, error, refetch } = useQuery({
+  const { data: sessionData, isLoading, error } = useQuery({
     queryKey: ['admin-session'],
     queryFn: async () => {
       try {
