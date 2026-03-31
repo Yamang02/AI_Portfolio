@@ -411,3 +411,22 @@
 - `typescript:S3358` — `ProjectDetailPage` / `ArticleDetailPage` / `ArticleListPage` 배치는 코드 반영됨. 다음은 재수집 후 잔여 파일(또는 `typescript:S6479` 등).
 - 해당 구간 완료 후에는 `typescript:S6479`(잔여 최다), `typescript:S2933`, `css:S125` 순으로 소거한다.
 - 위 `CLOSED/FIXED` 키는 재검토 대상에서 제외한다.
+
+## Batch 25 (2026-03-29, CRITICAL/MAJOR 확장 배치 후속 확인)
+
+### 처리 완료 (`CLOSED/FIXED`)
+
+- `af67c495-4485-4500-8058-c28f07fb9a4c` (`typescript:S3776`, `src/shared/lib/utils/cn.ts`)
+- `04034ba7-7a0a-4d81-b69e-b949baade684` (`typescript:S3776`, `src/main/pages/ProjectDetailPage/components/ProjectDetailHeader.tsx`)
+- `1e8f3e82-5c67-430e-9f8a-010727c93acb` (`typescript:S3776`, `src/design-system/components/ProjectDetailHeader/ProjectDetailHeader.tsx`)
+- `5796579f-3bb7-43aa-8f12-e23346445247` (`typescript:S3776`, `src/design-system/components/Pagination/Pagination.tsx`)
+- `f8b58a2b-c29a-4740-bf16-c6b616fd43f6` (`typescript:S3776`, `src/main/features/easter-eggs/effects/demon-slayer/DemonSlayerEffect.tsx`)
+- `4e891ae2-857e-4f60-8432-3771fd0d09ec` (`typescript:S3776`, `src/main/pages/ArticleDetailPage.tsx`)
+- `2c626fcc-5fb3-4bb2-97d5-f4a3314daee2` (`typescript:S3735`, `src/shared/hooks/useContentHeightRecalc.ts`)
+- `9a6344f0-de16-4857-890b-609b0fe57db3` (`typescript:S2004`, `src/main/pages/ProjectsListPage/components/ProjectSearchModal.tsx`)
+- `6a2203ec-a895-4e52-939f-15fcdb852ce8` (`typescript:S2004`, `src/main/features/article-view/ui/ArticleTable.tsx`)
+- `bdb80f6e-127c-4c99-bbd6-16033d035b06` (`typescript:S2004`, `src/main/features/easter-eggs/effects/demon-slayer/DemonSlayerEffect.tsx`)
+
+### 미해결 (`OPEN`)
+
+- 없음 (본 배치 10건 모두 `CLOSED/FIXED`)
