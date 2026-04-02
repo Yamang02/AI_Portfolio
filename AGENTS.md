@@ -7,6 +7,8 @@ SonarQube 품질 작업과 코드 수정 시 **프로젝트 로컬** `.cursor/sk
 - **원본:** `.cursor/skills/<name>/SKILL.md`
 - **품질·Sonar:** `local-sonarqube-agent-workflow` — basis `docs/basis/quality/SQ-01-local-sonarqube-workflow.md`
 - **이슈 배치 처리:** `docs/issues/sonarqube/sonarqube-issue-handling-guideline.md` (**SQ-02**)
+- **에픽/아키텍처 검토 (vibe_boilerplate에서 복제):** `epic-architecture-review`, `pt-01-domain-modeling`, `pt-02-implementation-patterns`
+- **파일 단위 basis 검토:** `file-basis-review`, `cc-02-method-level`, `cc-05-code-hygiene`
 
 ## Suggested routing
 
@@ -16,6 +18,8 @@ SonarQube 품질 작업과 코드 수정 시 **프로젝트 로컬** `.cursor/sk
 4. 의미 있는 변경 단위 후 → **`request-code-review`**
 5. 프론트 구현·리뷰 → `react-stack` / `typescript-stack`(Cursor에 복제한 경우)
 6. 백엔드 → `spring-boot-stack` / `java-stack`(복제한 경우)
+7. 에픽 설계 검토·종료 전 아키텍처 감사 → `epic-architecture-review` → 필요 시 `pt-01-domain-modeling`, `pt-02-implementation-patterns`
+8. 변경/리뷰 단위 파일 감사 → `file-basis-review` + `cc-02-method-level` + `cc-05-code-hygiene` (레이어에 맞게 선택)
 
 보일러플레이트 `vibe_boilerplate` 에서 스택 스킬·추가 워크플로를 가져올 때는 `AGENTS.md` 와 이 라우팅 표를 함께 맞춘다.
 

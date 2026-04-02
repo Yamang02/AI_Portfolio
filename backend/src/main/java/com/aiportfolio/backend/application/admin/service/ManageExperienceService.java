@@ -7,6 +7,7 @@ import com.aiportfolio.backend.application.common.util.TextFieldHelper;
 import com.aiportfolio.backend.domain.portfolio.model.Experience;
 import com.aiportfolio.backend.domain.portfolio.port.in.ManageExperienceUseCase;
 import com.aiportfolio.backend.domain.portfolio.port.out.PortfolioRepositoryPort;
+import com.aiportfolio.backend.infrastructure.config.CacheKeys;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -31,7 +32,7 @@ public class ManageExperienceService implements ManageExperienceUseCase {
     private final SortOrderService sortOrderService;
 
     @Override
-    @CacheEvict(value = "portfolio", allEntries = true)
+    @CacheEvict(value = CacheKeys.PORTFOLIO, key = "'" + CacheKeys.EXPERIENCES_ALL + "'")
     public Experience createExperience(Experience experience) {
         log.info("Creating new experience: {}", experience.getTitle());
 
@@ -69,7 +70,7 @@ public class ManageExperienceService implements ManageExperienceUseCase {
     }
 
     @Override
-    @CacheEvict(value = "portfolio", allEntries = true)
+    @CacheEvict(value = CacheKeys.PORTFOLIO, key = "'" + CacheKeys.EXPERIENCES_ALL + "'")
     public Experience updateExperience(String id, Experience experience) {
         log.info("Updating experience: {}", id);
 
@@ -103,7 +104,7 @@ public class ManageExperienceService implements ManageExperienceUseCase {
     }
 
     @Override
-    @CacheEvict(value = "portfolio", allEntries = true)
+    @CacheEvict(value = CacheKeys.PORTFOLIO, key = "'" + CacheKeys.EXPERIENCES_ALL + "'")
     public void deleteExperience(String id) {
         log.info("Deleting experience: {}", id);
 
@@ -117,7 +118,7 @@ public class ManageExperienceService implements ManageExperienceUseCase {
     }
 
     @Override
-    @CacheEvict(value = "portfolio", allEntries = true)
+    @CacheEvict(value = CacheKeys.PORTFOLIO, key = "'" + CacheKeys.EXPERIENCES_ALL + "'")
     public void updateExperienceSortOrder(Map<String, Integer> sortOrderUpdates) {
         log.info("Updating experience sort orders: {} items", sortOrderUpdates.size());
 

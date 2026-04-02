@@ -8,7 +8,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
-import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -46,24 +45,6 @@ public class RedisRateLimitStorageAdapter implements RateLimitStoragePort {
             return null;
         }
         if (raw instanceof SpamSubmissionRecord r) {
-            return r;
-        }
-        if (raw instanceof Map<?, ?> map) {
-            SpamSubmissionRecord r = new SpamSubmissionRecord();
-            Object countObj = map.get("count");
-            Object lastObj = map.get("lastSubmission");
-            Object blockedObj = map.get("blockedUntil");
-            if (countObj instanceof Number n) {
-                r.setCount(n.intValue());
-            }
-            if (lastObj instanceof Number n) {
-                r.setLastSubmission(n.longValue());
-            }
-            if (blockedObj instanceof Number n) {
-                r.setBlockedUntil(n.longValue());
-            } else {
-                r.setBlockedUntil(null);
-            }
             return r;
         }
         log.warn("Unexpected Redis value type for spam record: {}", raw.getClass().getName());

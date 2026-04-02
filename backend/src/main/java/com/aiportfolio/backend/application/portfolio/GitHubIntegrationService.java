@@ -1,6 +1,7 @@
 package com.aiportfolio.backend.application.portfolio;
 
 import com.aiportfolio.backend.infrastructure.config.AppConfig;
+import com.aiportfolio.backend.infrastructure.config.CacheKeys;
 import com.aiportfolio.backend.domain.portfolio.model.Project;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +22,7 @@ public class GitHubIntegrationService {
     
     private static final String GITHUB_API_BASE = "https://api.github.com";
     
-    @Cacheable(value = "github", key = "'projects'")
+    @Cacheable(value = CacheKeys.GITHUB, key = "'" + CacheKeys.GITHUB_PROJECTS + "'")
     public List<Project> getPortfolioProjects() {
         try {
             String username = appConfig.getGitHub().getUsername();
@@ -52,7 +53,7 @@ public class GitHubIntegrationService {
         }
     }
     
-    @Cacheable(value = "github", key = "'project:' + #repoName")
+    @Cacheable(value = CacheKeys.GITHUB, key = "'" + CacheKeys.GITHUB_PROJECT_PREFIX + "' + #repoName")
     public Project getProjectInfo(String repoName) {
         try {
             String username = appConfig.getGitHub().getUsername();

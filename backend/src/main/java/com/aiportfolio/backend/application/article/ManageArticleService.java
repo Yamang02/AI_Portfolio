@@ -7,6 +7,7 @@ import com.aiportfolio.backend.domain.article.port.in.ManageArticleSeriesUseCase
 import com.aiportfolio.backend.domain.article.port.out.ArticleRepositoryPort;
 import com.aiportfolio.backend.domain.article.port.out.ArticleSeriesRepositoryPort;
 import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.ProjectJpaRepository;
+import com.aiportfolio.backend.infrastructure.config.CacheKeys;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -29,7 +30,7 @@ public class ManageArticleService implements ManageArticleUseCase {
     private final ProjectJpaRepository projectJpaRepository;
 
     @Override
-    @CacheEvict(value = "portfolio", allEntries = true)
+    @CacheEvict(value = CacheKeys.PORTFOLIO, key = "'" + CacheKeys.PROJECTS_ALL + "'")
     public Article create(CreateArticleCommand command) {
         // 비즈니스 ID 생성
         String businessId = articleRepository.generateNextBusinessId();
@@ -96,7 +97,7 @@ public class ManageArticleService implements ManageArticleUseCase {
     }
 
     @Override
-    @CacheEvict(value = "portfolio", allEntries = true)
+    @CacheEvict(value = CacheKeys.PORTFOLIO, key = "'" + CacheKeys.PROJECTS_ALL + "'")
     public Article update(UpdateArticleCommand command) {
         // 기존 Article 조회
         Article existing = articleRepository.findById(command.id())
@@ -185,7 +186,7 @@ public class ManageArticleService implements ManageArticleUseCase {
     }
 
     @Override
-    @CacheEvict(value = "portfolio", allEntries = true)
+    @CacheEvict(value = CacheKeys.PORTFOLIO, key = "'" + CacheKeys.PROJECTS_ALL + "'")
     public void delete(Long id) {
         articleRepository.delete(id);
     }

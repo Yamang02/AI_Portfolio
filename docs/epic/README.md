@@ -8,6 +8,7 @@
 - [code-quality-and-test-foundation/](./code-quality-and-test-foundation/) - 코드 품질 개선 및 테스트 기반 구축 (우선순위: High; Sonar 배치·검증은 [P07](./code-quality-and-test-foundation/P07-sonarqube-quality-execution.md))
 
 ### 계획 중인 에픽 (Backlog)
+- [E02.2026-04-03_redis-cache-serialization-refactor/](./E02.2026-04-03_redis-cache-serialization-refactor/) — Epic E02: Redis 직렬화 근본 해결 및 캐시 전략 리팩토링 (우선순위: High, P01~P05)
 - [detail-page-ux-bugfix/](./detail-page-ux-bugfix/) - 상세 페이지 UX 버그픽스 (우선순위: High, 예상 기간: 1주)
 - [seo-aeo-optimization/](./seo-aeo-optimization/) - SEO/AEO 최적화 (우선순위: High, 예상 기간: 3-4주)
 - [ux-data-loading-optimization/](./ux-data-loading-optimization/) - UX 및 데이터 로딩 최적화 (우선순위: High, 예상 기간: 2-3주)

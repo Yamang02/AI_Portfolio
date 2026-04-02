@@ -4,9 +4,11 @@ import com.aiportfolio.backend.domain.portfolio.port.in.GetProjectsUseCase;
 import com.aiportfolio.backend.domain.portfolio.port.in.ManageProjectCacheUseCase;
 import com.aiportfolio.backend.domain.portfolio.port.out.PortfolioRepositoryPort;
 import com.aiportfolio.backend.domain.portfolio.model.Project;
+import com.aiportfolio.backend.infrastructure.config.CacheKeys;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -77,13 +79,16 @@ public class ProjectApplicationService implements GetProjectsUseCase, ManageProj
     }
     
     @Override
-    @CacheEvict(value = "portfolio", key = "'projects:all'")
+    @CacheEvict(value = CacheKeys.PORTFOLIO, key = "'" + CacheKeys.PROJECTS_ALL + "'")
     public void refreshProjectsCache() {
         log.info("프로젝트 캐시 무효화");
     }
 
     @Override
-    @CacheEvict(value = {"portfolio", "github"}, allEntries = true)
+    @Caching(evict = {
+        @CacheEvict(value = CacheKeys.PORTFOLIO, allEntries = true),
+        @CacheEvict(value = CacheKeys.GITHUB, allEntries = true)
+    })
     public void refreshCache() {
         log.info("전체 포트폴리오 캐시 무효화");
     }

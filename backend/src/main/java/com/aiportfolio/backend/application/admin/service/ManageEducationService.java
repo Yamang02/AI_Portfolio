@@ -12,6 +12,7 @@ import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.Educat
 import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.ProjectJpaEntity;
 import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.EducationJpaRepository;
 import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.ProjectJpaRepository;
+import com.aiportfolio.backend.infrastructure.config.CacheKeys;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -56,7 +57,7 @@ public class ManageEducationService implements ManageEducationUseCase {
     }
 
     @Override
-    @CacheEvict(value = "portfolio", allEntries = true)
+    @CacheEvict(value = CacheKeys.PORTFOLIO, key = "'" + CacheKeys.EDUCATIONS_ALL + "'")
     public Education createEducation(Education education) {
         log.info("Creating new education: {}", education.getTitle());
 
@@ -92,7 +93,7 @@ public class ManageEducationService implements ManageEducationUseCase {
     }
 
     @Override
-    @CacheEvict(value = "portfolio", allEntries = true)
+    @CacheEvict(value = CacheKeys.PORTFOLIO, key = "'" + CacheKeys.EDUCATIONS_ALL + "'")
     public Education updateEducation(String id, Education education) {
         log.info("Updating education: {}", id);
 
@@ -124,7 +125,7 @@ public class ManageEducationService implements ManageEducationUseCase {
     }
 
     @Override
-    @CacheEvict(value = "portfolio", allEntries = true)
+    @CacheEvict(value = CacheKeys.PORTFOLIO, key = "'" + CacheKeys.EDUCATIONS_ALL + "'")
     public void deleteEducation(String id) {
         log.info("Deleting education: {}", id);
 
@@ -168,7 +169,7 @@ public class ManageEducationService implements ManageEducationUseCase {
     }
 
     @Override
-    @CacheEvict(value = "portfolio", allEntries = true)
+    @CacheEvict(value = CacheKeys.PORTFOLIO, key = "'" + CacheKeys.EDUCATIONS_ALL + "'")
     public void updateEducationSortOrder(Map<String, Integer> sortOrderUpdates) {
         log.info("Updating education sort orders: {} items", sortOrderUpdates.size());
 

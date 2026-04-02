@@ -4,6 +4,7 @@ import com.aiportfolio.backend.domain.portfolio.model.TechStackMetadata;
 import com.aiportfolio.backend.domain.portfolio.port.in.ManageTechStackMetadataUseCase;
 import com.aiportfolio.backend.domain.portfolio.port.out.TechStackMetadataRepositoryPort;
 import com.aiportfolio.backend.domain.portfolio.service.TechStackDomainService;
+import com.aiportfolio.backend.infrastructure.config.CacheKeys;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -26,7 +27,7 @@ public class ManageTechStackMetadataService implements ManageTechStackMetadataUs
     private final TechStackDomainService techStackDomainService;
     
     @Override
-    @CacheEvict(value = "portfolio", allEntries = true)
+    @CacheEvict(value = CacheKeys.PORTFOLIO, key = "'" + CacheKeys.PROJECTS_ALL + "'")
     public TechStackMetadata createTechStackMetadata(TechStackMetadata techStackMetadata) {
         // 도메인 서비스를 통한 비즈니스 로직 검증
         techStackDomainService.validateForCreation(techStackMetadata);
@@ -39,7 +40,7 @@ public class ManageTechStackMetadataService implements ManageTechStackMetadataUs
     }
     
     @Override
-    @CacheEvict(value = "portfolio", allEntries = true)
+    @CacheEvict(value = CacheKeys.PORTFOLIO, key = "'" + CacheKeys.PROJECTS_ALL + "'")
     public TechStackMetadata updateTechStackMetadata(String name, TechStackMetadata techStackMetadata) {
         // 도메인 서비스를 통한 비즈니스 로직 검증
         techStackDomainService.validateForUpdate(name, techStackMetadata);
@@ -49,7 +50,7 @@ public class ManageTechStackMetadataService implements ManageTechStackMetadataUs
     }
     
     @Override
-    @CacheEvict(value = "portfolio", allEntries = true)
+    @CacheEvict(value = CacheKeys.PORTFOLIO, key = "'" + CacheKeys.PROJECTS_ALL + "'")
     public void deleteTechStackMetadata(String name) {
         if (!techStackMetadataRepositoryPort.existsByName(name)) {
             throw new IllegalArgumentException("존재하지 않는 기술명입니다: " + name);
@@ -59,7 +60,7 @@ public class ManageTechStackMetadataService implements ManageTechStackMetadataUs
     }
     
     @Override
-    @CacheEvict(value = "portfolio", allEntries = true)
+    @CacheEvict(value = CacheKeys.PORTFOLIO, key = "'" + CacheKeys.PROJECTS_ALL + "'")
     public TechStackMetadata toggleTechStackMetadataStatus(String name) {
         return techStackMetadataRepositoryPort.findByName(name)
             .map(techStack -> {
