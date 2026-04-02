@@ -5,7 +5,7 @@
 ## 📁 현재 에픽
 
 ### 진행 중인 에픽
-- [code-quality-and-test-foundation/](./code-quality-and-test-foundation/) - 코드 품질 개선 및 테스트 기반 구축 (우선순위: High; Sonar 배치·검증은 [P07](./code-quality-and-test-foundation/P07-sonarqube-quality-execution.md))
+- [E02.2026-04-02_infrastructure-as-code/](./E02.2026-04-02_infrastructure-as-code/) - 인프라 코드화 및 디버깅 환경 구축 (우선순위: High, 예상 기간: 1주, 현재: P05, 실행전략: A 빠른 이행형)
 
 ### 계획 중인 에픽 (Backlog)
 - [E02.2026-04-03_redis-cache-serialization-refactor/](./E02.2026-04-03_redis-cache-serialization-refactor/) — Epic E02: Redis 직렬화 근본 해결 및 캐시 전략 리팩토링 (우선순위: High, P01~P05)
@@ -13,6 +13,7 @@
 - [detail-page-ux-bugfix/](./detail-page-ux-bugfix/) - 상세 페이지 UX 버그픽스 (우선순위: High, 예상 기간: 1주)
 - [seo-aeo-optimization/](./seo-aeo-optimization/) - SEO/AEO 최적화 (우선순위: High, 예상 기간: 3-4주)
 - [ux-data-loading-optimization/](./ux-data-loading-optimization/) - UX 및 데이터 로딩 최적화 (우선순위: High, 예상 기간: 2-3주)
+- 현재 백로그 에픽 없음
 
 ## 📝 에픽 문서 구조
 
@@ -61,17 +62,23 @@ epic/
 
 ### Epic Archive (`epic/archive/`)
 - [E01.2026-03-30_backend-sonarqube-resolution/](./archive/E01.2026-03-30_backend-sonarqube-resolution/) - Backend SonarQube Issue Resolution (P01~P04) ✅ (2026-03-31 아카이브)
+- [chat-message-logging/](./archive/chat-message-logging/) - Chat Message Logging ✅
+- [code-quality-and-test-foundation/](./archive/code-quality-and-test-foundation/) - 코드 품질 개선 및 테스트 기반 구축 ✅
+- [detail-page-ux-bugfix/](./archive/detail-page-ux-bugfix/) - 상세 페이지 UX 버그픽스 ✅
 - [portfolio-renewal-refactor/](./archive/portfolio-renewal-refactor/) - Portfolio Site Renewal (Structural Refactor) ✅
 - [profile-article/](./archive/profile-article/) - Profile Article Management (자기소개 Markdown 관리 및 기술 아티클 시스템) ✅
+- [seo-aeo-optimization/](./archive/seo-aeo-optimization/) - SEO/AEO 최적화 ✅
+- [toc-scroll-and-naming-refactor/](./archive/toc-scroll-and-naming-refactor/) - TOC 스크롤 및 네이밍 리팩터 ✅
+- [ux-data-loading-optimization/](./archive/ux-data-loading-optimization/) - UX 및 데이터 로딩 최적화 ✅
 - [frontend-structure-optimization.md](./archive/frontend-structure-optimization.md) - 프론트엔드 구조 최적화 ✅ (2026-01-12 완료)
 
-### 기타 Archive (`docs/archive/`)
-다른 아카이브된 문서들은 `docs/archive/` 폴더에 보관되어 있습니다:
+### 기타 Archive (`epic/archive/non-epic/`)
+에픽이 아닌 아카이브 문서들은 `epic/archive/non-epic/` 폴더에 보관되어 있습니다:
 - `admin-dashboard/` - Admin Dashboard 구현
 - `ai-service-migration/` - AI 서비스 마이그레이션
 - `cloud-usage-monitoring/` - 클라우드 사용량 모니터링
 - `frontend-migration/` - 프론트엔드 마이그레이션
-- `portfolio-site-renewal/` - 포트폴리오 사이트 리뉴얼(2025년버전)
+- `portfolio-site-renewal/` - 포트폴리오 사이트 리뉴얼(2025년 버전)
 - `refactor/` - 리팩토링 작업
 
 ---
