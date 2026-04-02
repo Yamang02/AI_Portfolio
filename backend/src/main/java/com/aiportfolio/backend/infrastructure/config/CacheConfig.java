@@ -14,11 +14,9 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
 
 import java.time.Duration;
 import java.util.Arrays;
@@ -33,25 +31,20 @@ public class CacheConfig {
     @Bean
     @Primary
     public CacheManager redisCacheManager(RedisConnectionFactory connectionFactory) {
-        // 기본 캐시 설정
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());
-
-        // 날짜 직렬화 설정 개선
-        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        objectMapper.setDateFormat(new java.text.SimpleDateFormat("yyyy-MM"));
-        
-        // 타입 정보 보존 강화
-        objectMapper.activateDefaultTyping(
-            LaissezFaireSubTypeValidator.instance,
-            ObjectMapper.DefaultTyping.NON_FINAL,
-            JsonTypeInfo.As.PROPERTY
-        );
-        
-        // 컬렉션 타입 정보 보존을 위한 추가 설정
-        objectMapper.configure(com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        
-        GenericJackson2JsonRedisSerializer serializer = new GenericJackson2JsonRedisSerializer(objectMapper);
+        /*
+         * 수동 ObjectMapper.activateDefaultTyping(...) 과 GenericJackson2JsonRedisSerializer 조합은
+         * Jackson이 루트 컬렉션에 WRAPPER_ARRAY 역직렬화를 기대하는 경우가 있어
+         * PROPERTY 형태로 저장된 캐시([{"@class":...},...])와 충돌할 수 있다.
+         * Spring Data Redis가 내부 ObjectMapper에 적용하는 TypeResolverBuilder(PROPERTY)와
+         * configure()로만 JSR-310 등을 맞춘다.
+         */
+        GenericJackson2JsonRedisSerializer serializer = new GenericJackson2JsonRedisSerializer();
+        serializer.configure(om -> {
+            om.registerModule(new JavaTimeModule());
+            om.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+            om.setDateFormat(new java.text.SimpleDateFormat("yyyy-MM"));
+            om.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        });
         
         RedisCacheConfiguration defaultConfig = RedisCacheConfiguration.defaultCacheConfig()
             .entryTtl(Duration.ofHours(1)) // 기본 1시간
