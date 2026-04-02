@@ -48,9 +48,11 @@ spring:
       port: ${REDIS_PORT}
       password: ${REDIS_PASSWORD}
       database: ${REDIS_DATABASE}
+      # Redis Cloud: TLS는 REDIS_SSL=true 등 환경 변수로 제어
       ssl:
         enabled: ${REDIS_SSL}
-      timeout: 10000ms  # SCAN 명령어 사용 시 타임아웃 증가 (10초)
+      # SCAN만 사용(E02); production/local과 유사한 명령 대기 시간으로 통일
+      timeout: 3000ms
       lettuce:
         pool:
           max-active: 8

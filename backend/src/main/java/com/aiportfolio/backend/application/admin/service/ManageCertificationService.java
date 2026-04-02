@@ -7,6 +7,7 @@ import com.aiportfolio.backend.application.common.util.TextFieldHelper;
 import com.aiportfolio.backend.domain.portfolio.model.Certification;
 import com.aiportfolio.backend.domain.portfolio.port.in.ManageCertificationUseCase;
 import com.aiportfolio.backend.domain.portfolio.port.out.PortfolioRepositoryPort;
+import com.aiportfolio.backend.infrastructure.config.CacheKeys;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -31,7 +32,7 @@ public class ManageCertificationService implements ManageCertificationUseCase {
     private final SortOrderService sortOrderService;
 
     @Override
-    @CacheEvict(value = "portfolio", allEntries = true)
+    @CacheEvict(value = CacheKeys.PORTFOLIO, key = "'" + CacheKeys.CERTIFICATIONS_ALL + "'")
     public Certification createCertification(Certification certification) {
         log.info("Creating new certification: {}", certification.getName());
 
@@ -68,7 +69,7 @@ public class ManageCertificationService implements ManageCertificationUseCase {
     }
 
     @Override
-    @CacheEvict(value = "portfolio", allEntries = true)
+    @CacheEvict(value = CacheKeys.PORTFOLIO, key = "'" + CacheKeys.CERTIFICATIONS_ALL + "'")
     public Certification updateCertification(String id, Certification certification) {
         log.info("Updating certification: {}", id);
 
@@ -101,7 +102,7 @@ public class ManageCertificationService implements ManageCertificationUseCase {
     }
 
     @Override
-    @CacheEvict(value = "portfolio", allEntries = true)
+    @CacheEvict(value = CacheKeys.PORTFOLIO, key = "'" + CacheKeys.CERTIFICATIONS_ALL + "'")
     public void deleteCertification(String id) {
         log.info("Deleting certification: {}", id);
 
@@ -115,7 +116,7 @@ public class ManageCertificationService implements ManageCertificationUseCase {
     }
 
     @Override
-    @CacheEvict(value = "portfolio", allEntries = true)
+    @CacheEvict(value = CacheKeys.PORTFOLIO, key = "'" + CacheKeys.CERTIFICATIONS_ALL + "'")
     public void updateCertificationSortOrder(Map<String, Integer> sortOrderUpdates) {
         log.info("Updating certification sort orders: {} items", sortOrderUpdates.size());
 

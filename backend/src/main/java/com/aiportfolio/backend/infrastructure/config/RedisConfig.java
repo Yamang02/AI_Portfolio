@@ -1,8 +1,7 @@
 package com.aiportfolio.backend.infrastructure.config;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -10,8 +9,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
-
-import java.text.SimpleDateFormat;
 
 /**
  * Redis 설정 클래스
@@ -26,14 +23,12 @@ public class RedisConfig {
      * 캐시 데이터를 위한 직렬화 설정을 포함합니다.
      */
     @Bean
-    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {
-        GenericJackson2JsonRedisSerializer serializer = new GenericJackson2JsonRedisSerializer();
-        serializer.configure(om -> {
-            om.registerModule(new JavaTimeModule());
-            om.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-            om.setDateFormat(new SimpleDateFormat("yyyy-MM"));
-            om.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        });
+    public RedisTemplate<String, Object> redisTemplate(
+        RedisConnectionFactory connectionFactory,
+        @Qualifier("redisObjectMapper") ObjectMapper redisObjectMapper
+    ) {
+        GenericJackson2JsonRedisSerializer serializer =
+            new GenericJackson2JsonRedisSerializer(redisObjectMapper);
 
         RedisTemplate<String, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(connectionFactory);

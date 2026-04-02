@@ -1,6 +1,8 @@
 package com.aiportfolio.backend.infrastructure.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
@@ -14,9 +16,6 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import java.time.Duration;
 import java.util.Arrays;
@@ -30,22 +29,13 @@ public class CacheConfig {
 
     @Bean
     @Primary
-    public CacheManager redisCacheManager(RedisConnectionFactory connectionFactory) {
-        /*
-         * 수동 ObjectMapper.activateDefaultTyping(...) 과 GenericJackson2JsonRedisSerializer 조합은
-         * Jackson이 루트 컬렉션에 WRAPPER_ARRAY 역직렬화를 기대하는 경우가 있어
-         * PROPERTY 형태로 저장된 캐시([{"@class":...},...])와 충돌할 수 있다.
-         * Spring Data Redis가 내부 ObjectMapper에 적용하는 TypeResolverBuilder(PROPERTY)와
-         * configure()로만 JSR-310 등을 맞춘다.
-         */
-        GenericJackson2JsonRedisSerializer serializer = new GenericJackson2JsonRedisSerializer();
-        serializer.configure(om -> {
-            om.registerModule(new JavaTimeModule());
-            om.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-            om.setDateFormat(new java.text.SimpleDateFormat("yyyy-MM"));
-            om.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        });
-        
+    public CacheManager redisCacheManager(
+        RedisConnectionFactory connectionFactory,
+        @Qualifier("redisObjectMapper") ObjectMapper redisObjectMapper
+    ) {
+        GenericJackson2JsonRedisSerializer serializer =
+            new GenericJackson2JsonRedisSerializer(redisObjectMapper);
+
         RedisCacheConfiguration defaultConfig = RedisCacheConfiguration.defaultCacheConfig()
             .entryTtl(Duration.ofHours(1)) // 기본 1시간
             .serializeKeysWith(RedisSerializationContext.SerializationPair
@@ -58,11 +48,11 @@ public class CacheConfig {
         Map<String, RedisCacheConfiguration> cacheConfigurations = new HashMap<>();
         
         // 포트폴리오 데이터: 1일 캐시
-        cacheConfigurations.put("portfolio", defaultConfig
+        cacheConfigurations.put(CacheKeys.PORTFOLIO, defaultConfig
             .entryTtl(Duration.ofDays(1)));
         
         // GitHub API: 30분 캐시
-        cacheConfigurations.put("github", defaultConfig
+        cacheConfigurations.put(CacheKeys.GITHUB, defaultConfig
             .entryTtl(Duration.ofMinutes(30)));
 
         return RedisCacheManager.builder(connectionFactory)
@@ -75,7 +65,7 @@ public class CacheConfig {
     @ConditionalOnMissingBean(CacheManager.class)
     public CacheManager memoryCacheManager() {
         ConcurrentMapCacheManager cacheManager = new ConcurrentMapCacheManager();
-        cacheManager.setCacheNames(Arrays.asList("portfolio", "github"));
+        cacheManager.setCacheNames(Arrays.asList(CacheKeys.PORTFOLIO, CacheKeys.GITHUB));
         return cacheManager;
     }
 }

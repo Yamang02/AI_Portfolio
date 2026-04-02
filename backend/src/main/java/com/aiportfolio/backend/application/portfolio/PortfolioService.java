@@ -8,12 +8,14 @@ import com.aiportfolio.backend.domain.portfolio.model.Certification;
 import com.aiportfolio.backend.domain.portfolio.model.Education;
 import com.aiportfolio.backend.domain.portfolio.model.Experience;
 import com.aiportfolio.backend.domain.portfolio.model.Project;
+import com.aiportfolio.backend.infrastructure.config.CacheKeys;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -59,8 +61,8 @@ public class PortfolioService implements GetAllDataUseCase, GetProjectsUseCase, 
     
     @Override
     @Cacheable(
-        value = "portfolio",
-        key = "'experiences:all'",
+        value = CacheKeys.PORTFOLIO,
+        key = "'" + CacheKeys.EXPERIENCES_ALL + "'",
         unless = "#result == null || #result.isEmpty()"
     )
     public List<Experience> getAllExperiences() {
@@ -72,8 +74,8 @@ public class PortfolioService implements GetAllDataUseCase, GetProjectsUseCase, 
     
     @Override
     @Cacheable(
-        value = "portfolio",
-        key = "'educations:all'",
+        value = CacheKeys.PORTFOLIO,
+        key = "'" + CacheKeys.EDUCATIONS_ALL + "'",
         unless = "#result == null || #result.isEmpty()"
     )
     public List<Education> getAllEducations() {
@@ -85,8 +87,8 @@ public class PortfolioService implements GetAllDataUseCase, GetProjectsUseCase, 
     
     @Override
     @Cacheable(
-        value = "portfolio",
-        key = "'certifications:all'",
+        value = CacheKeys.PORTFOLIO,
+        key = "'" + CacheKeys.CERTIFICATIONS_ALL + "'",
         unless = "#result == null || #result.isEmpty()"
     )
     public List<Certification> getAllCertifications() {
@@ -100,8 +102,8 @@ public class PortfolioService implements GetAllDataUseCase, GetProjectsUseCase, 
     
     @Override
     @Cacheable(
-        value = "portfolio",
-        key = "'projects:all'",
+        value = CacheKeys.PORTFOLIO,
+        key = "'" + CacheKeys.PROJECTS_ALL + "'",
         unless = "#result == null || #result.isEmpty()"
     )
     public List<Project> getAllProjects() {
@@ -159,13 +161,16 @@ public class PortfolioService implements GetAllDataUseCase, GetProjectsUseCase, 
     // === ManageProjectCacheUseCase 구현 ===
     
     @Override
-    @CacheEvict(value = "portfolio", key = "'projects:all'")
+    @CacheEvict(value = CacheKeys.PORTFOLIO, key = "'" + CacheKeys.PROJECTS_ALL + "'")
     public void refreshProjectsCache() {
         log.info("프로젝트 캐시 무효화");
     }
 
     @Override
-    @CacheEvict(value = {"portfolio", "github"}, allEntries = true)
+    @Caching(evict = {
+        @CacheEvict(value = CacheKeys.PORTFOLIO, allEntries = true),
+        @CacheEvict(value = CacheKeys.GITHUB, allEntries = true)
+    })
     public void refreshCache() {
         log.info("전체 포트폴리오 캐시 무효화");
     }
