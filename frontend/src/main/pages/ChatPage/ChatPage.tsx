@@ -14,20 +14,9 @@ import { PageMeta } from '@/shared/ui/page-meta';
 import { ChatPageTopBar } from './ChatPageTopBar';
 import { ChatPageInfoModalBody } from './ChatPageInfoModalBody';
 
-import {
-  EasterEggProvider,
-  EasterEggLayer,
-  useEasterEggEscapeKey,
-  useKeyboardTrigger,
-  useScrollTrigger,
-  useEasterEggTrigger,
-  easterEggRegistry,
-} from '@/main/features/easter-eggs';
-import { loadEasterEggConfig } from '@/main/features/easter-eggs/config/easterEggConfigLoader';
-
 import styles from './ChatPage.module.css';
 
-const ChatPageContent: React.FC = () => {
+const ChatPage: React.FC = () => {
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
   const [inputValue, setInputValue] = useState('');
@@ -44,25 +33,6 @@ const ChatPageContent: React.FC = () => {
     handleMessagesScroll,
     resetChatbot,
   } = useChatMessages(refreshUsageStatus);
-
-  useEasterEggEscapeKey();
-
-  useKeyboardTrigger({
-    easterEggId: 'demon-slayer-effect',
-    key: 'PageDown',
-    targetCount: 3,
-    timeWindow: 3000,
-  });
-
-  useScrollTrigger({
-    easterEggId: 'demon-slayer-effect',
-    timeWindow: 5000,
-  });
-
-  useEasterEggTrigger({
-    inputValue,
-    debounceMs: 300,
-  });
 
   useEffect(() => {
     const handleOpenModal = () => setIsContactModalOpen(true);
@@ -148,8 +118,6 @@ const ChatPageContent: React.FC = () => {
           />
         </div>
 
-        <EasterEggLayer />
-
         <ContactModal isOpen={isContactModalOpen} onClose={() => setIsContactModalOpen(false)} />
 
         <Modal isOpen={isInfoModalOpen} onClose={() => setIsInfoModalOpen(false)} title="채팅 사용 안내">
@@ -157,24 +125,6 @@ const ChatPageContent: React.FC = () => {
         </Modal>
       </div>
     </PageMeta>
-  );
-};
-
-const ChatPage: React.FC = () => {
-  useEffect(() => {
-    try {
-      const { triggers, effects } = loadEasterEggConfig();
-      triggers.forEach(trigger => easterEggRegistry.registerTrigger(trigger));
-      effects.forEach(effect => easterEggRegistry.registerEffect(effect));
-    } catch (error) {
-      console.error('Failed to load easter egg config:', error);
-    }
-  }, []);
-
-  return (
-    <EasterEggProvider maxConcurrent={1} initialEnabled={true}>
-      <ChatPageContent />
-    </EasterEggProvider>
   );
 };
 

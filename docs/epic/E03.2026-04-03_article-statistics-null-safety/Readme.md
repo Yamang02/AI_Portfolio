@@ -1,4 +1,4 @@
-# Epic E03: article-statistics-null-safety
+﻿# Epic E03: article-statistics-null-safety
 
 ## 목표
 
@@ -27,8 +27,11 @@ TypeError: Cannot read properties of undefined (reading 'localeCompare')
 
 - E02 P01~P04 완료 후 캐시 플러시로 인해 잠재적 DB 정합성 문제가 노출됨 — 직접 원인은 E02가 아니라 E02가 캐시 마스킹을 제거한 것.
 - `GetArticleStatisticsService`에는 `@Cacheable`이 없어 Redis 역직렬화 문제가 아닌 DB → 도메인 매핑 문제임을 확인.
-- 프론트엔드 수정은 방어적 null 처리이며 이미 존재하는 seriesTitle 타입 정의(`string?`)와 일치시키는 것.
+- 프론트엔드 수정은 방어적 null 처리이며 API 타입에서 `seriesTitle: string | null`로 명시한다.
 - 백엔드 수정은 Infrastructure 레이어의 데이터 수집 로직에서 null-guard 또는 고아 참조 필터링.
+- P05 검토 시 CC-01 규칙은 **basis 문서** [`CC-01-logic-level-rules.md`](../../basis/coding/CC-01-logic-level-rules.md)를 따른다(스킬 이름 `cc-01-logic-level`과 혼동하지 않음).
+- `CareerTimeline`: 월 단위 날짜 파싱·정렬 키는 `flexibleMonthDate.ts`로 유틸화하고, 항목 생성 시 `sortKeyMs`를 넣어 정렬 시 `find()` 재조회를 제거했다(CC-01-05·가독성).
+- 직렬화 경계(ObjectMapper 분리), 디자인시스템 primitive DOM 계약(Tooltip wrapper) 같은 구조 리팩터링 항목은 E04로 분리해 진행한다.
 
 ## Phase 목록
 
@@ -40,8 +43,13 @@ TypeError: Cannot read properties of undefined (reading 'localeCompare')
 
 ## 상태
 
-- [ ] P01 완료
-- [ ] P02 완료
-- [ ] P03 완료
-- [ ] P04 완료
-- [ ] P05 완료
+- [x] P01 완료
+- [x] P02 완료
+- [x] P03 완료
+- [x] P04 완료
+- [x] P05 완료
+
+## 범위 고정 / 이관
+
+- E03은 아티클 통계 null-safety와 관련된 기능 수정 범위로 고정한다.
+- 구조 리팩터링 및 경계 재설계 항목은 [E04](../E04.2026-04-03_cache-boundary-and-ui-primitives-refactor/Readme.md)에서 진행한다.

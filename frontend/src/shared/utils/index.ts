@@ -8,4 +8,10 @@ export * from './techStackCategorization';
 export { measureCLS, getCurrentCLS } from './measureCLS';
 
 // Image optimization
-export { optimizeImage, optimizeCloudinaryImage, generateSrcSet, preloadImage } from './imageOptimization'; 
+export { optimizeImage, optimizeCloudinaryImage, generateSrcSet, preloadImage } from './imageOptimization';
+
+// Sort helpers
+export { compareStrings } from './sortUtils';
+
+// Month-partial dates (YYYY-MM, tuples)
+export { parseFlexibleMonthToDate, startOfMonthTimeMs } from './flexibleMonthDate'; 

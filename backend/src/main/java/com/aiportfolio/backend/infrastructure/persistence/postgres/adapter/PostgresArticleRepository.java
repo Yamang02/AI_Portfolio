@@ -399,9 +399,10 @@ public class PostgresArticleRepository implements ArticleRepositoryPort {
                 
                 ArticleSeriesJpaEntity series = seriesMap.get(seriesId);
                 if (series != null) {
+                    String seriesTitle = series.getTitle() != null ? series.getTitle() : "";
                     seriesStats.add(new ArticleStatistics.SeriesStatistics(
                             series.getSeriesId(),
-                            series.getTitle(),
+                            seriesTitle,
                             count
                     ));
                 }
