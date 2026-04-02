@@ -16,6 +16,7 @@ import com.aiportfolio.backend.domain.portfolio.port.out.ProjectRelationshipPort
 import com.aiportfolio.backend.domain.portfolio.port.out.TechStackMetadataRepositoryPort;
 import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.ProjectJpaEntity;
 import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.ProjectJpaRepository;
+import com.aiportfolio.backend.infrastructure.config.CacheKeys;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -86,7 +87,7 @@ public class ManageProjectService implements ManageProjectUseCase {
     }
 
     @Override
-    @CacheEvict(value = "portfolio", allEntries = true)
+    @CacheEvict(value = CacheKeys.PORTFOLIO, key = "'" + CacheKeys.PROJECTS_ALL + "'")
     public Project createProject(ProjectCreateCommand command) {
         log.info("Creating new project: {}", command.getTitle());
 
@@ -133,7 +134,7 @@ public class ManageProjectService implements ManageProjectUseCase {
     }
 
     @Override
-    @CacheEvict(value = "portfolio", allEntries = true)
+    @CacheEvict(value = CacheKeys.PORTFOLIO, key = "'" + CacheKeys.PROJECTS_ALL + "'")
     public Project updateProject(String id, ProjectUpdateCommand command) {
         log.info("Updating project: {}", id);
 
@@ -274,7 +275,7 @@ public class ManageProjectService implements ManageProjectUseCase {
     }
 
     @Override
-    @CacheEvict(value = "portfolio", allEntries = true)
+    @CacheEvict(value = CacheKeys.PORTFOLIO, key = "'" + CacheKeys.PROJECTS_ALL + "'")
     public void deleteProject(String id) {
         log.info("Deleting project: {}", id);
 

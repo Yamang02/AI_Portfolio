@@ -231,12 +231,14 @@ public class RedisCacheManagementAdapter implements CacheManagementPort {
             collectKeysUsingScan(options, keys);
 
         } catch (Exception e) {
-            log.error("Error scanning keys with pattern: {}. Error: {}", pattern, e.getMessage(), e);
-            // SCAN 실패 시 keys() 명령어로 fallback (경고 로그와 함께)
-            log.warn("Falling back to keys() command due to SCAN failure. This may cause performance issues.");
-            return fallbackKeys(pattern);
+            log.error(
+                "SCAN failed for pattern: {}. KEYS fallback is not used (Redis Cloud / managed Redis compatibility).",
+                pattern,
+                e
+            );
+            return Collections.emptySet();
         }
-        
+
         return keys;
     }
 
@@ -292,17 +294,6 @@ public class RedisCacheManagementAdapter implements CacheManagementPort {
         }
     }
 
-    private Set<String> fallbackKeys(String pattern) {
-        try {
-            Set<String> fallbackKeys = redisTemplate.keys(pattern);
-            log.info("Fallback keys() command succeeded. Found {} keys", fallbackKeys != null ? fallbackKeys.size() : 0);
-            return fallbackKeys != null ? fallbackKeys : Collections.emptySet();
-        } catch (Exception fallbackException) {
-            log.error("Fallback keys() command also failed. Error: {}", fallbackException.getMessage(), fallbackException);
-            throw new IllegalStateException("키 조회 중 오류가 발생했습니다", fallbackException);
-        }
-    }
-    
     /**
      * Redis 메모리 정보 조회
      */

@@ -1,10 +1,7 @@
 package com.aiportfolio.backend.infrastructure.config;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -12,8 +9,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
-
-import java.text.SimpleDateFormat;
 
 /**
  * Redis 설정 클래스
@@ -28,19 +23,12 @@ public class RedisConfig {
      * 캐시 데이터를 위한 직렬화 설정을 포함합니다.
      */
     @Bean
-    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {
-        // ObjectMapper에 JSR310 모듈 추가 (Java 8 날짜/시간 API 지원)
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());
-
-        // 날짜 직렬화 설정
-        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        objectMapper.setDateFormat(new SimpleDateFormat("yyyy-MM"));
-        objectMapper.activateDefaultTyping(
-            LaissezFaireSubTypeValidator.instance,
-            ObjectMapper.DefaultTyping.NON_FINAL,
-            JsonTypeInfo.As.PROPERTY
-        );
+    public RedisTemplate<String, Object> redisTemplate(
+        RedisConnectionFactory connectionFactory,
+        @Qualifier("redisObjectMapper") ObjectMapper redisObjectMapper
+    ) {
+        GenericJackson2JsonRedisSerializer serializer =
+            new GenericJackson2JsonRedisSerializer(redisObjectMapper);
 
         RedisTemplate<String, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(connectionFactory);
@@ -50,7 +38,6 @@ public class RedisConfig {
         template.setHashKeySerializer(new StringRedisSerializer());
 
         // 값 직렬화 설정 (JSON 형태로 저장, JSR310 모듈 포함)
-        GenericJackson2JsonRedisSerializer serializer = new GenericJackson2JsonRedisSerializer(objectMapper);
         template.setValueSerializer(serializer);
         template.setHashValueSerializer(serializer);
 
