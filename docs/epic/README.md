@@ -5,7 +5,7 @@
 ## 📁 현재 에픽
 
 ### 진행 중인 에픽
-- [E02.2026-04-02_infrastructure-as-code/](./E02.2026-04-02_infrastructure-as-code/) - 인프라 코드화 및 디버깅 환경 구축 (우선순위: High, 예상 기간: 1주, 현재: P05, 실행전략: A 빠른 이행형)
+- [E02.2026-04-02_infrastructure-as-code/](./E02.2026-04-02_infrastructure-as-code/) - 인프라 코드화 및 디버깅 환경 구축 (우선순위: High, 예상 기간: 1주, 현재: P05 코드·문서 완료, 실행전략: A 빠른 이행형)
 
 ### 계획 중인 에픽 (Backlog)
 - 현재 백로그 에픽 없음

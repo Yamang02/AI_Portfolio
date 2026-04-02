@@ -1,0 +1,7 @@
+# 스크립트(setup-debug-env)는 -var environment=... 로 이 값을 덮어씁니다. 수동 실행 시에는 고유 이름으로 바꾸세요.
+environment                       = "debug-REPLACE_ME"
+domain_name                       = "yamang02.com"
+gcp_project_id                    = "yamang02-ai-portfolio"
+acm_certificate_arn               = "arn:aws:acm:us-east-1:ACCOUNT:certificate/WILDCARD_OR_STAGING_CERT"
+cloud_run_service_account_email   = "493721639129-compute@developer.gserviceaccount.com"
+cloudfront_price_class            = "PriceClass_100"

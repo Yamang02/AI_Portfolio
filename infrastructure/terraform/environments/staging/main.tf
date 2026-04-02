@@ -1,0 +1,71 @@
+terraform {
+  required_version = ">= 1.5.0"
+
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+    google = {
+      source  = "hashicorp/google"
+      version = "~> 5.0"
+    }
+  }
+}
+
+provider "aws" {
+  region = var.aws_region
+}
+
+provider "aws" {
+  alias  = "us_east_1"
+  region = "us-east-1"
+}
+
+provider "google" {
+  project = var.gcp_project_id
+  region  = var.gcp_region
+}
+
+# Staging shares Route53/ACM/IAM with production; only S3 + CloudFront are managed here.
+module "frontend" {
+  source = "../../modules/aws-frontend"
+
+  providers = {
+    aws           = aws
+    aws.us_east_1 = aws.us_east_1
+  }
+
+  environment          = var.environment
+  bucket_name          = var.frontend_bucket_name
+  certificate_arn      = var.acm_certificate_arn
+  aliases              = ["staging.yamang02.com"]
+  origin_id            = var.cloudfront_origin_id
+  price_class          = var.cloudfront_price_class
+  distribution_comment = var.cloudfront_comment
+
+  create_origin_access_control      = false
+  existing_origin_access_control_id = var.shared_origin_access_control_id
+
+  default_root_object              = ""
+  enable_index_html_cache_behavior = false
+  custom_error_responses = [
+    {
+      error_code            = 403
+      response_page_path    = "/index.html"
+      response_code         = "200"
+      error_caching_min_ttl = 10
+    }
+  ]
+  distribution_name_tag = "ai-portfolio-frontend-staging"
+}
+
+module "backend" {
+  source = "../../modules/gcp-backend"
+
+  project_id            = var.gcp_project_id
+  region                = var.gcp_region
+  service_name          = "ai-portfolio-staging"
+  service_account_email = var.cloud_run_service_account_email
+  container_image       = var.cloud_run_container_image
+}
