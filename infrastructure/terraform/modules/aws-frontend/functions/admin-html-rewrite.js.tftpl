@@ -1,6 +1,6 @@
 function handler(event) {
   var request = event.request;
-  var hostHeader = request.headers.host;
+  var hostHeader = request.headers ? request.headers.host : null;
   var host = hostHeader && hostHeader.value ? hostHeader.value : '';
   var hosts = ${hosts_json};
   var match = false;
@@ -13,7 +13,12 @@ function handler(event) {
   if (!match) {
     return request;
   }
+  // request.uri 누락 시 split 예외 → 503 방지 (CloudFront Functions는 미처리 예외 시 503)
   var uri = request.uri;
+  if (uri === undefined || uri === null || uri === '') {
+    uri = '/';
+  }
+  request.uri = uri;
   if (uri.indexOf('/assets/') === 0) {
     return request;
   }

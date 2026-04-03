@@ -45,6 +45,7 @@ module "frontend" {
     "admin.staging.yamang02.com",
   ]
   admin_html_rewrite_hostnames = ["admin.staging.yamang02.com"]
+  cloudfront_admin_function_name = "ai-portfolio-staging-viewer-request-admin-spa"
   origin_id            = var.cloudfront_origin_id
   price_class          = var.cloudfront_price_class
   distribution_comment = var.cloudfront_comment
