@@ -18,6 +18,10 @@ function handler(event) {
     uri = '/';
   }
   request.uri = uri;
+  if (uri === '/index.html') {
+    request.uri = '/admin.html';
+    return request;
+  }
   if (uri.indexOf('/assets/') === 0) {
     return request;
   }

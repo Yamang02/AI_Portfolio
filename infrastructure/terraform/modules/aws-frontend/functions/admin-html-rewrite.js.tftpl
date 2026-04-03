@@ -19,6 +19,11 @@ function handler(event) {
     uri = '/';
   }
   request.uri = uri;
+  // Distribution에 DefaultRootObject=index.html이면 /가 먼저 /index.html이 되어 확장자 분기에서 스킵됨 → Admin만 엔트리로 통일
+  if (uri === '/index.html') {
+    request.uri = '/admin.html';
+    return request;
+  }
   if (uri.indexOf('/assets/') === 0) {
     return request;
   }

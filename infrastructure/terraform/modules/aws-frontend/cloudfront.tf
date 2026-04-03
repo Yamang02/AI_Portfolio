@@ -43,7 +43,7 @@ resource "aws_cloudfront_distribution" "main" {
     viewer_protocol_policy = "redirect-to-https"
     compress               = true
 
-    cache_policy_id = "658327ea-f89d-4fab-a63d-7e88639e58f6"
+    cache_policy_id = aws_cloudfront_cache_policy.default_with_host.id
 
     dynamic "function_association" {
       for_each = length(var.admin_html_rewrite_hostnames) > 0 ? [1] : []
