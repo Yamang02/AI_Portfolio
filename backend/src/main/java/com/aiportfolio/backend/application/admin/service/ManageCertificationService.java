@@ -6,11 +6,10 @@ import com.aiportfolio.backend.application.common.util.SortOrderService;
 import com.aiportfolio.backend.application.common.util.TextFieldHelper;
 import com.aiportfolio.backend.domain.portfolio.model.Certification;
 import com.aiportfolio.backend.domain.portfolio.port.in.ManageCertificationUseCase;
+import com.aiportfolio.backend.domain.portfolio.port.out.PortfolioCachePort;
 import com.aiportfolio.backend.domain.portfolio.port.out.PortfolioRepositoryPort;
-import com.aiportfolio.backend.infrastructure.config.CacheKeys;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,9 +29,9 @@ public class ManageCertificationService implements ManageCertificationUseCase {
 
     private final PortfolioRepositoryPort portfolioRepositoryPort;
     private final SortOrderService sortOrderService;
+    private final PortfolioCachePort portfolioCachePort;
 
     @Override
-    @CacheEvict(value = CacheKeys.PORTFOLIO, key = "'" + CacheKeys.CERTIFICATIONS_ALL + "'")
     public Certification createCertification(Certification certification) {
         log.info("Creating new certification: {}", certification.getName());
 
@@ -63,13 +62,13 @@ public class ManageCertificationService implements ManageCertificationUseCase {
         certification.setUpdatedAt(MetadataHelper.setupUpdatedAt());
 
         Certification saved = portfolioRepositoryPort.saveCertification(certification);
+        portfolioCachePort.evictPortfolioCertifications();
 
         log.info("Certification created successfully: {}", saved.getId());
         return saved;
     }
 
     @Override
-    @CacheEvict(value = CacheKeys.PORTFOLIO, key = "'" + CacheKeys.CERTIFICATIONS_ALL + "'")
     public Certification updateCertification(String id, Certification certification) {
         log.info("Updating certification: {}", id);
 
@@ -96,13 +95,13 @@ public class ManageCertificationService implements ManageCertificationUseCase {
         certification.setUpdatedAt(MetadataHelper.setupUpdatedAt());
 
         Certification updated = portfolioRepositoryPort.saveCertification(certification);
+        portfolioCachePort.evictPortfolioCertifications();
 
         log.info("Certification updated successfully: {}", updated.getId());
         return updated;
     }
 
     @Override
-    @CacheEvict(value = CacheKeys.PORTFOLIO, key = "'" + CacheKeys.CERTIFICATIONS_ALL + "'")
     public void deleteCertification(String id) {
         log.info("Deleting certification: {}", id);
 
@@ -111,12 +110,12 @@ public class ManageCertificationService implements ManageCertificationUseCase {
         }
 
         portfolioRepositoryPort.deleteCertification(id);
+        portfolioCachePort.evictPortfolioCertifications();
 
         log.info("Certification deleted successfully: {}", id);
     }
 
     @Override
-    @CacheEvict(value = CacheKeys.PORTFOLIO, key = "'" + CacheKeys.CERTIFICATIONS_ALL + "'")
     public void updateCertificationSortOrder(Map<String, Integer> sortOrderUpdates) {
         log.info("Updating certification sort orders: {} items", sortOrderUpdates.size());
 
@@ -143,6 +142,7 @@ public class ManageCertificationService implements ManageCertificationUseCase {
 
         if (!toUpdate.isEmpty()) {
             portfolioRepositoryPort.batchUpdateCertifications(toUpdate);
+            portfolioCachePort.evictPortfolioCertifications();
         }
 
         log.info("Certification sort orders updated successfully");

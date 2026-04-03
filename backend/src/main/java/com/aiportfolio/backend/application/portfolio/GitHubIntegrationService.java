@@ -1,11 +1,10 @@
 package com.aiportfolio.backend.application.portfolio;
 
 import com.aiportfolio.backend.infrastructure.config.AppConfig;
-import com.aiportfolio.backend.infrastructure.config.CacheKeys;
 import com.aiportfolio.backend.domain.portfolio.model.Project;
+import com.aiportfolio.backend.domain.portfolio.port.out.PortfolioCachePort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -19,11 +18,15 @@ public class GitHubIntegrationService {
     
     private final AppConfig appConfig;
     private final WebClient.Builder webClientBuilder;
+    private final PortfolioCachePort portfolioCachePort;
     
     private static final String GITHUB_API_BASE = "https://api.github.com";
     
-    @Cacheable(value = CacheKeys.GITHUB, key = "'" + CacheKeys.GITHUB_PROJECTS + "'")
     public List<Project> getPortfolioProjects() {
+        var cached = portfolioCachePort.getGithubProjects();
+        if (cached.isPresent()) {
+            return cached.get();
+        }
         try {
             String username = appConfig.getGitHub().getUsername();
             if (username == null || username.isEmpty()) {
@@ -42,10 +45,12 @@ public class GitHubIntegrationService {
                 return List.of();
             }
             
-            return repos.stream()
+            List<Project> projects = repos.stream()
                     .filter(repo -> !(Boolean) repo.get("fork"))
                     .map(this::convertToProject)
                     .toList();
+            portfolioCachePort.putGithubProjects(projects);
+            return projects;
                     
         } catch (Exception e) {
             log.error("Failed to fetch GitHub projects", e);
@@ -53,8 +58,11 @@ public class GitHubIntegrationService {
         }
     }
     
-    @Cacheable(value = CacheKeys.GITHUB, key = "'" + CacheKeys.GITHUB_PROJECT_PREFIX + "' + #repoName")
     public Project getProjectInfo(String repoName) {
+        var cached = portfolioCachePort.getGithubProject(repoName);
+        if (cached.isPresent()) {
+            return cached.get();
+        }
         try {
             String username = appConfig.getGitHub().getUsername();
             if (username == null || username.isEmpty()) {
@@ -72,7 +80,9 @@ public class GitHubIntegrationService {
                 return null;
             }
             
-            return convertToProject(repo);
+            Project project = convertToProject(repo);
+            portfolioCachePort.putGithubProject(repoName, project);
+            return project;
             
         } catch (Exception e) {
             log.error("Failed to fetch project info for: " + repoName, e);

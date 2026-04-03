@@ -2,24 +2,15 @@ package com.aiportfolio.backend.application.portfolio;
 
 import com.aiportfolio.backend.domain.portfolio.port.in.GetAllDataUseCase;
 import com.aiportfolio.backend.domain.portfolio.port.in.GetProjectsUseCase;
-import com.aiportfolio.backend.domain.portfolio.port.in.ManageProjectCacheUseCase;
+import com.aiportfolio.backend.domain.portfolio.port.out.PortfolioCachePort;
 import com.aiportfolio.backend.domain.portfolio.port.out.PortfolioRepositoryPort;
-import com.aiportfolio.backend.application.portfolio.cache.CachedCertificationList;
-import com.aiportfolio.backend.application.portfolio.cache.CachedEducationList;
-import com.aiportfolio.backend.application.portfolio.cache.CachedExperienceList;
-import com.aiportfolio.backend.application.portfolio.cache.CachedProjectList;
 import com.aiportfolio.backend.domain.portfolio.model.Certification;
 import com.aiportfolio.backend.domain.portfolio.model.Education;
 import com.aiportfolio.backend.domain.portfolio.model.Experience;
 import com.aiportfolio.backend.domain.portfolio.model.Project;
-import com.aiportfolio.backend.infrastructure.config.CacheKeys;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -33,21 +24,20 @@ import java.util.Optional;
 @Slf4j
 @Service("portfolioService")
 @RequiredArgsConstructor
-public class PortfolioService implements GetAllDataUseCase, GetProjectsUseCase, ManageProjectCacheUseCase {
+public class PortfolioService implements GetAllDataUseCase, GetProjectsUseCase {
     
     private final PortfolioRepositoryPort portfolioRepositoryPort;
-    private final ObjectProvider<PortfolioService> selfProvider;
+    private final PortfolioCachePort portfolioCachePort;
     
     // === GetAllDataUseCase 구현 ===
     
     @Override
     public Map<String, Object> getAllPortfolioData() {
         try {
-            PortfolioService self = selfProvider.getObject();
-            List<Project> projects = self.getAllProjects();
-            List<Experience> experiences = self.getAllExperiences();
-            List<Education> educations = self.getAllEducations();
-            List<Certification> certifications = self.getAllCertifications();
+            List<Project> projects = getAllProjects();
+            List<Experience> experiences = getAllExperiences();
+            List<Education> educations = getAllEducations();
+            List<Certification> certifications = getAllCertifications();
             
             return Map.of(
                 "projects", projects,
@@ -65,72 +55,56 @@ public class PortfolioService implements GetAllDataUseCase, GetProjectsUseCase, 
     
     @Override
     public List<Experience> getAllExperiences() {
-        return selfProvider.getObject().loadExperiencesForCache().items();
-    }
-
-    @Cacheable(
-        value = CacheKeys.PORTFOLIO,
-        key = "'" + CacheKeys.EXPERIENCES_ALL + "'",
-        unless = "#result == null || #result.items() == null || #result.items().isEmpty()"
-    )
-    public CachedExperienceList loadExperiencesForCache() {
+        Optional<List<Experience>> cached = portfolioCachePort.getPortfolioExperiences();
+        if (cached.isPresent()) {
+            return cached.get();
+        }
         log.debug("캐시 미스 - PostgreSQL에서 경험 조회");
         List<Experience> experiences = portfolioRepositoryPort.findAllExperiences();
         log.info("경험 데이터 조회 완료: {} 개", experiences.size());
-        return new CachedExperienceList(experiences);
+        portfolioCachePort.putPortfolioExperiences(experiences);
+        return experiences;
     }
 
     @Override
     public List<Education> getAllEducations() {
-        return selfProvider.getObject().loadEducationsForCache().items();
-    }
-
-    @Cacheable(
-        value = CacheKeys.PORTFOLIO,
-        key = "'" + CacheKeys.EDUCATIONS_ALL + "'",
-        unless = "#result == null || #result.items() == null || #result.items().isEmpty()"
-    )
-    public CachedEducationList loadEducationsForCache() {
+        Optional<List<Education>> cached = portfolioCachePort.getPortfolioEducations();
+        if (cached.isPresent()) {
+            return cached.get();
+        }
         log.debug("캐시 미스 - PostgreSQL에서 교육 조회");
         List<Education> educations = portfolioRepositoryPort.findAllEducations();
         log.info("교육 데이터 조회 완료: {} 개", educations.size());
-        return new CachedEducationList(educations);
+        portfolioCachePort.putPortfolioEducations(educations);
+        return educations;
     }
 
     @Override
     public List<Certification> getAllCertifications() {
-        return selfProvider.getObject().loadCertificationsForCache().items();
-    }
-
-    @Cacheable(
-        value = CacheKeys.PORTFOLIO,
-        key = "'" + CacheKeys.CERTIFICATIONS_ALL + "'",
-        unless = "#result == null || #result.items() == null || #result.items().isEmpty()"
-    )
-    public CachedCertificationList loadCertificationsForCache() {
+        Optional<List<Certification>> cached = portfolioCachePort.getPortfolioCertifications();
+        if (cached.isPresent()) {
+            return cached.get();
+        }
         log.debug("캐시 미스 - PostgreSQL에서 자격증 조회");
         List<Certification> certifications = portfolioRepositoryPort.findAllCertifications();
         log.info("자격증 데이터 조회 완료: {} 개", certifications.size());
-        return new CachedCertificationList(certifications);
+        portfolioCachePort.putPortfolioCertifications(certifications);
+        return certifications;
     }
     
     // === GetProjectsUseCase 구현 ===
     
     @Override
     public List<Project> getAllProjects() {
-        return selfProvider.getObject().loadProjectsForCache().items();
-    }
-
-    @Cacheable(
-        value = CacheKeys.PORTFOLIO,
-        key = "'" + CacheKeys.PROJECTS_ALL + "'",
-        unless = "#result == null || #result.items() == null || #result.items().isEmpty()"
-    )
-    public CachedProjectList loadProjectsForCache() {
+        Optional<List<Project>> cached = portfolioCachePort.getPortfolioProjects();
+        if (cached.isPresent()) {
+            return cached.get();
+        }
         log.debug("캐시 미스 - PostgreSQL에서 프로젝트 조회");
         List<Project> projects = portfolioRepositoryPort.findAllProjects();
         log.info("프로젝트 조회 완료: {} 개", projects.size());
-        return new CachedProjectList(projects);
+        portfolioCachePort.putPortfolioProjects(projects);
+        return projects;
     }
     
     @Override
@@ -178,26 +152,4 @@ public class PortfolioService implements GetAllDataUseCase, GetProjectsUseCase, 
         return portfolioRepositoryPort.findProjectDatabaseIdByBusinessId(businessId);
     }
     
-    // === ManageProjectCacheUseCase 구현 ===
-    
-    @Override
-    @CacheEvict(value = CacheKeys.PORTFOLIO, key = "'" + CacheKeys.PROJECTS_ALL + "'")
-    public void refreshProjectsCache() {
-        log.info("프로젝트 캐시 무효화");
-    }
-
-    @Override
-    @Caching(evict = {
-        @CacheEvict(value = CacheKeys.PORTFOLIO, allEntries = true),
-        @CacheEvict(value = CacheKeys.GITHUB, allEntries = true)
-    })
-    public void refreshCache() {
-        log.info("전체 포트폴리오 캐시 무효화");
-    }
-    
-    @Override
-    public boolean isCacheValid() {
-        // Redis 캐시에서는 항상 유효하다고 간주 (TTL로 자동 관리)
-        return true;
-    }
 }

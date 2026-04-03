@@ -8,14 +8,13 @@ import com.aiportfolio.backend.domain.portfolio.model.Education;
 import com.aiportfolio.backend.domain.portfolio.port.in.ManageEducationUseCase;
 import com.aiportfolio.backend.domain.portfolio.port.out.PortfolioRepositoryPort;
 import com.aiportfolio.backend.domain.portfolio.port.out.EducationRelationshipPort;
+import com.aiportfolio.backend.domain.portfolio.port.out.PortfolioCachePort;
 import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.EducationJpaEntity;
 import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.ProjectJpaEntity;
 import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.EducationJpaRepository;
 import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.ProjectJpaRepository;
-import com.aiportfolio.backend.infrastructure.config.CacheKeys;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,6 +37,7 @@ public class ManageEducationService implements ManageEducationUseCase {
     private final SortOrderService sortOrderService;
     private final EducationJpaRepository educationJpaRepository;
     private final ProjectJpaRepository projectJpaRepository;
+    private final PortfolioCachePort portfolioCachePort;
 
     public Education createEducationWithRelations(Education education,
                                                   List<TechStackRelation> techStacks,
@@ -57,7 +57,6 @@ public class ManageEducationService implements ManageEducationUseCase {
     }
 
     @Override
-    @CacheEvict(value = CacheKeys.PORTFOLIO, key = "'" + CacheKeys.EDUCATIONS_ALL + "'")
     public Education createEducation(Education education) {
         log.info("Creating new education: {}", education.getTitle());
 
@@ -87,13 +86,13 @@ public class ManageEducationService implements ManageEducationUseCase {
         education.setUpdatedAt(MetadataHelper.setupUpdatedAt());
 
         Education saved = portfolioRepositoryPort.saveEducation(education);
+        portfolioCachePort.evictPortfolioEducations();
 
         log.info("Education created successfully: {}", saved.getId());
         return saved;
     }
 
     @Override
-    @CacheEvict(value = CacheKeys.PORTFOLIO, key = "'" + CacheKeys.EDUCATIONS_ALL + "'")
     public Education updateEducation(String id, Education education) {
         log.info("Updating education: {}", id);
 
@@ -119,13 +118,13 @@ public class ManageEducationService implements ManageEducationUseCase {
         education.setUpdatedAt(MetadataHelper.setupUpdatedAt());
 
         Education updated = portfolioRepositoryPort.saveEducation(education);
+        portfolioCachePort.evictPortfolioEducations();
 
         log.info("Education updated successfully: {}", updated.getId());
         return updated;
     }
 
     @Override
-    @CacheEvict(value = CacheKeys.PORTFOLIO, key = "'" + CacheKeys.EDUCATIONS_ALL + "'")
     public void deleteEducation(String id) {
         log.info("Deleting education: {}", id);
 
@@ -134,6 +133,7 @@ public class ManageEducationService implements ManageEducationUseCase {
         }
 
         portfolioRepositoryPort.deleteEducation(id);
+        portfolioCachePort.evictPortfolioEducations();
 
         log.info("Education deleted successfully: {}", id);
     }
@@ -169,7 +169,6 @@ public class ManageEducationService implements ManageEducationUseCase {
     }
 
     @Override
-    @CacheEvict(value = CacheKeys.PORTFOLIO, key = "'" + CacheKeys.EDUCATIONS_ALL + "'")
     public void updateEducationSortOrder(Map<String, Integer> sortOrderUpdates) {
         log.info("Updating education sort orders: {} items", sortOrderUpdates.size());
 
@@ -196,6 +195,7 @@ public class ManageEducationService implements ManageEducationUseCase {
 
         if (!toUpdate.isEmpty()) {
             portfolioRepositoryPort.batchUpdateEducations(toUpdate);
+            portfolioCachePort.evictPortfolioEducations();
         }
 
         log.info("Education sort orders updated successfully");

@@ -11,15 +11,14 @@ import com.aiportfolio.backend.domain.admin.model.command.ProjectUpdateCommand;
 import com.aiportfolio.backend.domain.admin.port.in.ManageProjectUseCase;
 import com.aiportfolio.backend.domain.admin.port.out.ImageStoragePort;
 import com.aiportfolio.backend.domain.portfolio.model.Project;
+import com.aiportfolio.backend.domain.portfolio.port.out.PortfolioCachePort;
 import com.aiportfolio.backend.domain.portfolio.port.out.PortfolioRepositoryPort;
 import com.aiportfolio.backend.domain.portfolio.port.out.ProjectRelationshipPort;
 import com.aiportfolio.backend.domain.portfolio.port.out.TechStackMetadataRepositoryPort;
 import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.ProjectJpaEntity;
 import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.ProjectJpaRepository;
-import com.aiportfolio.backend.infrastructure.config.CacheKeys;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,6 +45,7 @@ public class ManageProjectService implements ManageProjectUseCase {
     private final ImageStoragePort imageStoragePort;
     private final TechStackMetadataRepositoryPort techStackMetadataRepositoryPort;
     private final ProjectJpaRepository projectJpaRepository;
+    private final PortfolioCachePort portfolioCachePort;
 
     /**
      * 관계 포함 프로젝트 생성 (DTO 반환)
@@ -63,6 +63,7 @@ public class ManageProjectService implements ManageProjectUseCase {
                     .toList();
             projectRelationshipPort.replaceTechStacks(projectEntity.getId(), portRelations);
         }
+        portfolioCachePort.evictPortfolioProjects();
         return projectResponseMapper.toDetailedResponse(created);
     }
 
@@ -83,11 +84,11 @@ public class ManageProjectService implements ManageProjectUseCase {
                     .toList();
             projectRelationshipPort.replaceTechStacks(projectEntity.getId(), portRelations);
         }
+        portfolioCachePort.evictPortfolioProjects();
         return projectResponseMapper.toDetailedResponse(updated);
     }
 
     @Override
-    @CacheEvict(value = CacheKeys.PORTFOLIO, key = "'" + CacheKeys.PROJECTS_ALL + "'")
     public Project createProject(ProjectCreateCommand command) {
         log.info("Creating new project: {}", command.getTitle());
 
@@ -128,13 +129,13 @@ public class ManageProjectService implements ManageProjectUseCase {
                 .build();
 
         Project savedProject = portfolioRepositoryPort.saveProject(project);
+        portfolioCachePort.evictPortfolioProjects();
 
         log.info("Project created successfully: {}", savedProject.getId());
         return savedProject;
     }
 
     @Override
-    @CacheEvict(value = CacheKeys.PORTFOLIO, key = "'" + CacheKeys.PROJECTS_ALL + "'")
     public Project updateProject(String id, ProjectUpdateCommand command) {
         log.info("Updating project: {}", id);
 
@@ -153,6 +154,7 @@ public class ManageProjectService implements ManageProjectUseCase {
         Project updatedProject = portfolioRepositoryPort.updateProject(project);
 
         log.info("Project updated successfully: {}", updatedProject.getId());
+        portfolioCachePort.evictPortfolioProjects();
         return updatedProject;
     }
 
@@ -275,7 +277,6 @@ public class ManageProjectService implements ManageProjectUseCase {
     }
 
     @Override
-    @CacheEvict(value = CacheKeys.PORTFOLIO, key = "'" + CacheKeys.PROJECTS_ALL + "'")
     public void deleteProject(String id) {
         log.info("Deleting project: {}", id);
 
@@ -301,6 +302,7 @@ public class ManageProjectService implements ManageProjectUseCase {
 
         // 프로젝트 삭제
         portfolioRepositoryPort.deleteProject(id);
+        portfolioCachePort.evictPortfolioProjects();
 
         log.info("Project deleted successfully: {}", id);
     }

@@ -2,11 +2,10 @@ package com.aiportfolio.backend.application.admin.service;
 
 import com.aiportfolio.backend.domain.portfolio.model.TechStackMetadata;
 import com.aiportfolio.backend.domain.portfolio.port.in.UpdateTechStackSortOrderUseCase;
+import com.aiportfolio.backend.domain.portfolio.port.out.PortfolioCachePort;
 import com.aiportfolio.backend.domain.portfolio.port.out.TechStackMetadataRepositoryPort;
-import com.aiportfolio.backend.infrastructure.config.CacheKeys;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,9 +28,9 @@ import java.util.stream.Collectors;
 public class UpdateTechStackSortOrderService implements UpdateTechStackSortOrderUseCase {
     
     private final TechStackMetadataRepositoryPort techStackMetadataRepositoryPort;
+    private final PortfolioCachePort portfolioCachePort;
     
     @Override
-    @CacheEvict(value = CacheKeys.PORTFOLIO, key = "'" + CacheKeys.PROJECTS_ALL + "'")
     public List<TechStackMetadata> updateSortOrder(String techStackName, int newSortOrder) {
         log.info("기술스택 '{}'의 정렬 순서를 {}로 변경", techStackName, newSortOrder);
         
@@ -57,13 +56,13 @@ public class UpdateTechStackSortOrderService implements UpdateTechStackSortOrder
         
         // 데이터베이스에 저장
         List<TechStackMetadata> savedTechStacks = techStackMetadataRepositoryPort.saveAll(reorderedTechStacks);
+        portfolioCachePort.evictPortfolioProjects();
         
         log.info("정렬 순서 업데이트 완료: {}개 항목", savedTechStacks.size());
         return savedTechStacks;
     }
     
     @Override
-    @CacheEvict(value = CacheKeys.PORTFOLIO, key = "'" + CacheKeys.PROJECTS_ALL + "'")
     public List<TechStackMetadata> updateSortOrders(List<SortOrderUpdate> sortOrderUpdates) {
         log.info("{}개 기술스택의 정렬 순서 일괄 업데이트", sortOrderUpdates.size());
         
@@ -97,6 +96,7 @@ public class UpdateTechStackSortOrderService implements UpdateTechStackSortOrder
         
         // 데이터베이스에 저장
         List<TechStackMetadata> savedTechStacks = techStackMetadataRepositoryPort.saveAll(updatedTechStacks);
+        portfolioCachePort.evictPortfolioProjects();
         
         log.info("일괄 정렬 순서 업데이트 완료: {}개 항목", savedTechStacks.size());
         return savedTechStacks;
