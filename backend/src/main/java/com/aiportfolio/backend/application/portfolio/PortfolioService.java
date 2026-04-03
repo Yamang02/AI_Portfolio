@@ -4,6 +4,10 @@ import com.aiportfolio.backend.domain.portfolio.port.in.GetAllDataUseCase;
 import com.aiportfolio.backend.domain.portfolio.port.in.GetProjectsUseCase;
 import com.aiportfolio.backend.domain.portfolio.port.in.ManageProjectCacheUseCase;
 import com.aiportfolio.backend.domain.portfolio.port.out.PortfolioRepositoryPort;
+import com.aiportfolio.backend.application.portfolio.cache.CachedCertificationList;
+import com.aiportfolio.backend.application.portfolio.cache.CachedEducationList;
+import com.aiportfolio.backend.application.portfolio.cache.CachedExperienceList;
+import com.aiportfolio.backend.application.portfolio.cache.CachedProjectList;
 import com.aiportfolio.backend.domain.portfolio.model.Certification;
 import com.aiportfolio.backend.domain.portfolio.model.Education;
 import com.aiportfolio.backend.domain.portfolio.model.Experience;
@@ -60,57 +64,73 @@ public class PortfolioService implements GetAllDataUseCase, GetProjectsUseCase, 
     }
     
     @Override
+    public List<Experience> getAllExperiences() {
+        return selfProvider.getObject().loadExperiencesForCache().items();
+    }
+
     @Cacheable(
         value = CacheKeys.PORTFOLIO,
         key = "'" + CacheKeys.EXPERIENCES_ALL + "'",
-        unless = "#result == null || #result.isEmpty()"
+        unless = "#result == null || #result.items() == null || #result.items().isEmpty()"
     )
-    public List<Experience> getAllExperiences() {
+    public CachedExperienceList loadExperiencesForCache() {
         log.debug("캐시 미스 - PostgreSQL에서 경험 조회");
         List<Experience> experiences = portfolioRepositoryPort.findAllExperiences();
         log.info("경험 데이터 조회 완료: {} 개", experiences.size());
-        return experiences;
+        return new CachedExperienceList(experiences);
     }
-    
+
     @Override
+    public List<Education> getAllEducations() {
+        return selfProvider.getObject().loadEducationsForCache().items();
+    }
+
     @Cacheable(
         value = CacheKeys.PORTFOLIO,
         key = "'" + CacheKeys.EDUCATIONS_ALL + "'",
-        unless = "#result == null || #result.isEmpty()"
+        unless = "#result == null || #result.items() == null || #result.items().isEmpty()"
     )
-    public List<Education> getAllEducations() {
+    public CachedEducationList loadEducationsForCache() {
         log.debug("캐시 미스 - PostgreSQL에서 교육 조회");
         List<Education> educations = portfolioRepositoryPort.findAllEducations();
         log.info("교육 데이터 조회 완료: {} 개", educations.size());
-        return educations;
+        return new CachedEducationList(educations);
     }
-    
+
     @Override
+    public List<Certification> getAllCertifications() {
+        return selfProvider.getObject().loadCertificationsForCache().items();
+    }
+
     @Cacheable(
         value = CacheKeys.PORTFOLIO,
         key = "'" + CacheKeys.CERTIFICATIONS_ALL + "'",
-        unless = "#result == null || #result.isEmpty()"
+        unless = "#result == null || #result.items() == null || #result.items().isEmpty()"
     )
-    public List<Certification> getAllCertifications() {
+    public CachedCertificationList loadCertificationsForCache() {
         log.debug("캐시 미스 - PostgreSQL에서 자격증 조회");
         List<Certification> certifications = portfolioRepositoryPort.findAllCertifications();
         log.info("자격증 데이터 조회 완료: {} 개", certifications.size());
-        return certifications;
+        return new CachedCertificationList(certifications);
     }
     
     // === GetProjectsUseCase 구현 ===
     
     @Override
+    public List<Project> getAllProjects() {
+        return selfProvider.getObject().loadProjectsForCache().items();
+    }
+
     @Cacheable(
         value = CacheKeys.PORTFOLIO,
         key = "'" + CacheKeys.PROJECTS_ALL + "'",
-        unless = "#result == null || #result.isEmpty()"
+        unless = "#result == null || #result.items() == null || #result.items().isEmpty()"
     )
-    public List<Project> getAllProjects() {
+    public CachedProjectList loadProjectsForCache() {
         log.debug("캐시 미스 - PostgreSQL에서 프로젝트 조회");
         List<Project> projects = portfolioRepositoryPort.findAllProjects();
         log.info("프로젝트 조회 완료: {} 개", projects.size());
-        return projects;
+        return new CachedProjectList(projects);
     }
     
     @Override
