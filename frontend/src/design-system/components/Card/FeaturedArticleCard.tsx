@@ -3,7 +3,7 @@ import { Card } from './Card';
 import { ClickableCard } from './ClickableCard';
 import { Badge } from '../Badge/Badge';
 import { ArticleIcon } from '../Icon/ArticleIcon';
-import { ARTICLE_CATEGORIES } from '@/admin/entities/article';
+import { ARTICLE_CATEGORIES } from '@/shared/article';
 import styles from './FeaturedArticleCard.module.css';
 
 export interface FeaturedArticleCardArticle {

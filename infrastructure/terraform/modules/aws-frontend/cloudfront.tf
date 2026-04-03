@@ -39,6 +39,14 @@ resource "aws_cloudfront_distribution" "main" {
     compress               = true
 
     cache_policy_id = "658327ea-f89d-4fab-a63d-7e88639e58f6"
+
+    dynamic "function_association" {
+      for_each = length(var.admin_html_rewrite_hostnames) > 0 ? [1] : []
+      content {
+        event_type   = "viewer-request"
+        function_arn = aws_cloudfront_function.admin_html_rewrite[0].arn
+      }
+    }
   }
 
   dynamic "ordered_cache_behavior" {

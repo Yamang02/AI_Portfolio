@@ -107,3 +107,9 @@ variable "distribution_name_tag" {
   type        = string
   default     = "ai-portfolio-frontend-prod"
 }
+
+variable "admin_html_rewrite_hostnames" {
+  description = "If non-empty, attach a viewer-request function so these Host values serve /admin.html for HTML routes (MPA)."
+  type        = list(string)
+  default     = []
+}

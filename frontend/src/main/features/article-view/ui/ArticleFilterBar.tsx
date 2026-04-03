@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button, SectionTitle } from '@/design-system';
-import { ARTICLE_CATEGORIES } from '@/admin/entities/article';
+import { ARTICLE_CATEGORIES } from '@/shared/article';
 import styles from './ArticleFilterBar.module.css';
 
 export interface ArticleFilterBarProps {

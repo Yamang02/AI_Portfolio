@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="ko" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <script>
+      (function () {
+        const theme = localStorage.getItem('portfolio-theme');
+        if (theme === 'dark') {
+          document.documentElement.classList.add('dark');
+        }
+      })();
+    </script>
+    <link rel="icon" type="image/x-icon" href="/favicons/favicon.ico" />
+    <title>관리자 — YamangSolution</title>
+  </head>
+  <body class="bg-background text-text-primary">
+    <div id="root"></div>
+    <script type="module" src="/src/admin.tsx"></script>
+  </body>
+</html>

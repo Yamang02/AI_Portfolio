@@ -66,6 +66,9 @@ jobs:
         if [ -f "dist/index.html" ]; then
           aws s3 cp dist/index.html "s3://$BUCKET/index.html" --cache-control "public, max-age=0, must-revalidate" --content-type "text/html"
         fi
+        if [ -f "dist/admin.html" ]; then
+          aws s3 cp dist/admin.html "s3://$BUCKET/admin.html" --cache-control "public, max-age=0, must-revalidate" --content-type "text/html"
+        fi
 
     - name: Upload SEO files with short cache
       run: |

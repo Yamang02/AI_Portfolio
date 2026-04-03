@@ -16,7 +16,7 @@ import { ArticleCard } from '@design-system/components/Card/ArticleCard';
 import { ProjectCard } from '@design-system';
 import type { ProjectCardProject } from '@design-system';
 import { Badge } from '@design-system/components/Badge/Badge';
-import { ARTICLE_CATEGORIES } from '@/admin/entities/article';
+import { ARTICLE_CATEGORIES } from '@/shared/article';
 import { Skeleton } from '@design-system/components/Skeleton';
 import { EmptyCard } from '@design-system';
 import { BackgroundRefetchIndicator } from '@/shared/ui';

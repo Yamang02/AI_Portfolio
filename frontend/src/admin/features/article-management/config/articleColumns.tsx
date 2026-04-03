@@ -1,5 +1,6 @@
 import { ColumnsType } from 'antd/es/table';
-import { Article, ARTICLE_CATEGORIES } from '@/admin/entities/article';
+import { Article } from '@/admin/entities/article';
+import { ARTICLE_CATEGORIES } from '@/shared/article';
 import { Tag, Button, Space } from 'antd';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 

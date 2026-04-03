@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import { Badge } from '@/design-system';
 import { ArticleIcon } from '@/design-system/components/Icon/ArticleIcon';
 import { ArticleListItem } from '@/main/entities/article';
-import { ARTICLE_CATEGORIES } from '@/admin/entities/article';
+import { ARTICLE_CATEGORIES } from '@/shared/article';
 import styles from './ArticleTable.module.css';
 
 export interface ArticleTableProps {
