@@ -1,4 +1,4 @@
-# Epic E01: Backend SonarQube Issue Resolution
+# Epic E02: Backend SonarQube Issue Resolution
 
 ## 목표
 

@@ -1,4 +1,4 @@
-# Epic E05: Admin 진입점 격리
+# Epic E06: Admin 진입점 격리
 
 ## 목표
 

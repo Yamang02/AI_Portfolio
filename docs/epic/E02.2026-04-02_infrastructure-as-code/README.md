@@ -1,4 +1,4 @@
-# Epic: infrastructure-as-code
+# Epic E02: infrastructure-as-code (IaC)
 
 ## 목표
 

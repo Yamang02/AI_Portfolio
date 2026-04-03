@@ -1,4 +1,4 @@
-# Epic E02: redis-cache-serialization-refactor
+# Epic E03: redis-cache-serialization-refactor
 
 ## 목표
 
@@ -45,9 +45,9 @@ Redis Cloud 7.4 환경에서 반복적으로 발생하는 직렬화/역직렬화
 - P05는 P01~P04 구현 후 **스킬 기반 검토·문서/경미 수정** 전용이며, 기능 추가 범위에 넣지 않는다
 - Redis에 저장된 기존 캐시 데이터는 P01/P02 완료 후 플러시 필요 (직렬화 형식 변경으로 인한 깨진 캐시 제거)
 
-## HTTP·Redis ObjectMapper 경계 (E04)
+## HTTP·Redis ObjectMapper 경계 (E05)
 
-Spring MVC는 `@Primary` `ObjectMapper`로 HTTP 요청·응답 JSON을 바인딩한다. Redis 캐시는 `@Qualifier("redisObjectMapper")`로 주입된 매퍼(`activateDefaultTyping`, WRAPPER_ARRAY)를 `GenericJackson2JsonRedisSerializer`에만 연결한다. 구현 클래스: `RedisObjectMapperConfig`, `CacheConfig`, `RedisConfig`. 경계를 HTTP에 섞이지 않게 고정한 정리는 [E04 P01](../E04.2026-04-03_cache-boundary-and-ui-primitives-refactor/P01.backend-cache-serialization-boundary.md)를 본다.
+Spring MVC는 `@Primary` `ObjectMapper`로 HTTP 요청·응답 JSON을 바인딩한다. Redis 캐시는 `@Qualifier("redisObjectMapper")`로 주입된 매퍼(`activateDefaultTyping`, WRAPPER_ARRAY)를 `GenericJackson2JsonRedisSerializer`에만 연결한다. 구현 클래스: `RedisObjectMapperConfig`, `CacheConfig`, `RedisConfig`. 경계를 HTTP에 섞이지 않게 고정한 정리는 [E05 P01](../E05.2026-04-03_cache-boundary-and-ui-primitives-refactor/P01.backend-cache-serialization-boundary.md)를 본다.
 
 ## 구현 시 준수 원칙 (코드·메서드·주석)
 
@@ -117,4 +117,8 @@ Spring MVC는 `@Primary` `ObjectMapper`로 HTTP 요청·응답 JSON을 바인딩
 
 **남은 운영·수동 항목 (에픽 외부/배포 후):** Redis 플러시(직렬화 형식 변경 시), staging에서 `GET /api/admin/cache/stats`·포트폴리오 API 스모크 — [P04 체크리스트](./P04-redis-cloud-compatibility.md) 참고.
 
-**아카이브:** `epic-lifecycle`에 따라 P05까지 검토·체크리스트 반영 후 `docs/archive/`로 옮길 때 README에 완료일을 적는다.
+## 완료
+
+아카이브일: 2026-04-03
+
+에픽 문서는 `docs/epic/archive/`로 이동했으며, P05 문서·체크리스트는 저장소 기준으로 별도 확인한다.
