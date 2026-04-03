@@ -297,3 +297,36 @@ storybook-static
 **/.scannerwork/
 .sonar/
 **/.sonar/
+
+# Infrastructure as Code - Sensitive Files
+# Terraform state files (contains sensitive data)
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+.terraform/
+# Note: .terraform.lock.hcl should be committed for version consistency
+
+# Terraform variables (may contain secrets)
+terraform.tfvars
+*.auto.tfvars
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Infrastructure documentation (private - contains IDs/ARNs)
+docs/technical/infrastructure/*.private.md
+infrastructure/**/*.private.*
+infrastructure/**/secrets/
+infrastructure/.secrets/
+
+# Terraform plan outputs
+*.tfplan
+terraform-plan-*
+
+# Debug env script outputs (next to terraform.tfvars)
+infrastructure/terraform/environments/debug/*-info.json
+
+# Crash log files
+crash.log
+crash.*.log

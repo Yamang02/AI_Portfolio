@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { compareStrings } from '@/shared/utils/sortUtils';
 import { TechStackBadge, TechStack } from './TechStackBadge';
 import { techStackApi } from '../api/techStackApi';
 
@@ -106,15 +107,15 @@ export const TechStackList: React.FC<TechStackListProps> = ({
   const techStacks = technologies
     .map(convertToTechStack)
     .sort((a, b) => {
-      // 핵심 기술을 먼저 표시
-      const aIsCore = coreTechs.has(a.name.toLowerCase());
-      const bIsCore = coreTechs.has(b.name.toLowerCase());
-      
+      const nameA = a.name ?? '';
+      const nameB = b.name ?? '';
+      const aIsCore = coreTechs.has(nameA.toLowerCase());
+      const bIsCore = coreTechs.has(nameB.toLowerCase());
+
       if (aIsCore && !bIsCore) return -1;
       if (!aIsCore && bIsCore) return 1;
-      
-      // 그 다음은 이름순
-      return a.name.localeCompare(b.name);
+
+      return compareStrings(a.name, b.name);
     });
 
   // 표시할 기술 스택과 숨길 개수 계산

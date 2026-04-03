@@ -1,123 +1,84 @@
-# 에픽 (Epic)
+﻿# 에픽 (Epic)
 
-완료되었거나 진행 중인 주요 에픽(프로젝트) 문서를 관리합니다.
+에픽·Phase 마크다운은 **의도한 현재 상태**를 담는다. 변경 이력은 Git에만 둔다 (`epic-lifecycle`, DC-05).
 
-## 📁 현재 에픽
+## 문서 레이아웃
 
-### 진행 중인 에픽
-- [code-quality-and-test-foundation/](./code-quality-and-test-foundation/) - 코드 품질 개선 및 테스트 기반 구축 (우선순위: High; Sonar 배치·검증은 [P07](./code-quality-and-test-foundation/P07-sonarqube-quality-execution.md))
-
-### 계획 중인 에픽 (Backlog)
-- [E02.2026-04-03_redis-cache-serialization-refactor/](./E02.2026-04-03_redis-cache-serialization-refactor/) — Epic E02: Redis 직렬화 근본 해결 및 캐시 전략 리팩토링 (우선순위: High, P01~P05)
-- [detail-page-ux-bugfix/](./detail-page-ux-bugfix/) - 상세 페이지 UX 버그픽스 (우선순위: High, 예상 기간: 1주)
-- [seo-aeo-optimization/](./seo-aeo-optimization/) - SEO/AEO 최적화 (우선순위: High, 예상 기간: 3-4주)
-- [ux-data-loading-optimization/](./ux-data-loading-optimization/) - UX 및 데이터 로딩 최적화 (우선순위: High, 예상 기간: 2-3주)
-
-## 📝 에픽 문서 구조
-
-### 에픽 디렉토리 구조
-
-**⚠️ 중요**: 모든 에픽은 **브랜치명과 동일한 디렉토리명**을 사용합니다.
+`epic-lifecycle` 스킬과 동일한 구조를 따른다. 본 저장소에서는 완료 에픽을 **`docs/epic/archive/`** 아래에 둔다 (스킬 예시의 `docs/archive/`와 역할이 같다).
 
 ```
-epic/
-├── {epic-name}/          # 브랜치명과 동일한 디렉토리명
-│   ├── README.md         # 에픽 메인 문서 (필수)
-│   ├── review.md         # 에픽 리뷰 문서 (선택)
-│   ├── design.md         # 설계 문서 (선택)
-│   ├── todo.md           # 작업 목록 (선택)
-│   └── ...               # 기타 관련 문서
-└── archive/              # 완료된 에픽
-    └── {epic-name}/
+docs/epic/
+  E##.YYYY-MM-DD_{epic-name}/
+    Readme.md          # 필수 (또는 이 폴더 관례에 맞는 README.md)
+    P##.{phase-name}.md
+
+docs/epic/archive/
+  E##.YYYY-MM-DD_{epic-name}/   # 아카이브 시 폴더명(E## 포함) 유지
+  legacy-epics/                 # 과거 E## 규칙 이전 문서
 ```
 
-### 에픽 생성 규칙
+## E## 번호 부여
 
-1. **디렉토리 생성**: 브랜치명과 동일한 이름으로 디렉토리 생성
-   ```bash
-   # 예시: epic/ux-data-loading-optimization/
-   mkdir epic/ux-data-loading-optimization
-   ```
+1. `docs/epic/`와 `docs/epic/archive/`의 **디렉터리명**에서 `E##` 정수를 모은다.
+2. 새 에픽 id = **전체 최댓값 + 1** (2026-04-03 기준 다음 신규 에픽은 **E07**).
 
-2. **README.md 작성**: 에픽의 메인 문서는 반드시 `README.md`로 작성
-   - 에픽 개요, 목표, 포함된 이슈, 완료 기준 등 포함
+**번호 충돌:** 활성 `E02.2026-04-02_infrastructure-as-code`와 아카이브 `E02.2026-03-30_backend-sonarqube-resolution`처럼 **같은 `E##` 접두가 날짜·주제별로 공존**할 수 있다. 식별은 항상 **`E##.YYYY-MM-DD_{이름}` 전체 경로**로 한다.
 
-3. **브랜치명 규칙**: kebab-case 사용 (예: `ux-data-loading-optimization`)
+## 진행 중인 에픽
 
-### 각 에픽 폴더에 포함될 수 있는 문서
+| 에픽 | 설명 |
+|------|------|
+| [E02.2026-04-02_infrastructure-as-code](./E02.2026-04-02_infrastructure-as-code/) | Terraform 기반 인프라 코드화·디버깅 환경 (P05 등) |
+| [E06.2026-04-03_admin-entry-isolation](./E06.2026-04-03_admin-entry-isolation/) | Main/Admin 진입점 격리, MPA `admin.html`, CloudFront `admin.yamang02.com` 등 (P01~P03) |
 
-- **README.md** (필수): 에픽 메인 문서
-- **review.md** (선택): 에픽 리뷰 및 검토 문서
-- **design.md** (선택): 설계 문서
-- **todo.md** (선택): 작업 목록
-- **PRD.md** (선택): Product Requirements Document
-- **마이그레이션 가이드** (선택): 마이그레이션 관련 문서
-- **회고 문서** (완료 시): 에픽 완료 후 회고
+## 아카이브된 에픽 (E## 네이밍)
 
-## 📚 아카이브된 에픽
+완료 후 `docs/epic/archive/`로 옮긴 에픽. 각 `Readme.md`에 **아카이브일**이 적혀 있다.
 
-완료된 에픽들은 `epic/archive/` 폴더에 보관되어 있습니다:
+| 에픽 | 요약 |
+|------|------|
+| [E02.2026-03-30_backend-sonarqube-resolution](./archive/E02.2026-03-30_backend-sonarqube-resolution/) | 백엔드 SonarQube 이슈 처리 (기존 E01→E02로 문서 넘버 갱신) |
+| [E03.2026-04-03_redis-cache-serialization-refactor](./archive/E03.2026-04-03_redis-cache-serialization-refactor/) | Redis 직렬화·ObjectMapper 경계·캐시 전략 (P01~P05 문서; 아카이브 시점 기준 P05는 저장소와 별도 대조) |
+| [E04.2026-04-03_article-statistics-null-safety](./archive/E04.2026-04-03_article-statistics-null-safety/) | 아티클 통계 null-safety·Easter egg 제거 |
+| [E05.2026-04-03_cache-boundary-and-ui-primitives-refactor](./archive/E05.2026-04-03_cache-boundary-and-ui-primitives-refactor/) | 캐시 직렬화 경계·Tooltip DOM·운영 계약 (P01~P04) |
 
-### Epic Archive (`epic/archive/`)
-- [E01.2026-03-30_backend-sonarqube-resolution/](./archive/E01.2026-03-30_backend-sonarqube-resolution/) - Backend SonarQube Issue Resolution (P01~P04) ✅ (2026-03-31 아카이브)
-- [portfolio-renewal-refactor/](./archive/portfolio-renewal-refactor/) - Portfolio Site Renewal (Structural Refactor) ✅
-- [profile-article/](./archive/profile-article/) - Profile Article Management (자기소개 Markdown 관리 및 기술 아티클 시스템) ✅
-- [frontend-structure-optimization.md](./archive/frontend-structure-optimization.md) - 프론트엔드 구조 최적화 ✅ (2026-01-12 완료)
+## 레거시 아카이브 (`archive/legacy-epics/`)
 
-### 기타 Archive (`docs/archive/`)
-다른 아카이브된 문서들은 `docs/archive/` 폴더에 보관되어 있습니다:
-- `admin-dashboard/` - Admin Dashboard 구현
-- `ai-service-migration/` - AI 서비스 마이그레이션
-- `cloud-usage-monitoring/` - 클라우드 사용량 모니터링
-- `frontend-migration/` - 프론트엔드 마이그레이션
-- `portfolio-site-renewal/` - 포트폴리오 사이트 리뉴얼(2025년버전)
-- `refactor/` - 리팩토링 작업
+`E##.YYYY-MM-DD_` 규칙 이전의 에픽·기획 문서다. 경로 예:
 
----
+- [detail-page-ux-bugfix](./archive/legacy-epics/detail-page-ux-bugfix/) — 상세 페이지 UX 버그픽스
+- [seo-aeo-optimization](./archive/legacy-epics/seo-aeo-optimization/) — SEO/AEO
+- [ux-data-loading-optimization](./archive/legacy-epics/ux-data-loading-optimization/) — UX·데이터 로딩
+- 기타: `chat-message-logging`, `profile-article`, `portfolio-renewal-refactor` 등
 
-## 🔄 에픽 관리 정책
+## 운영 절차 (요약)
 
-### 에픽 생성 절차
+스킬 전문은 `.cursor/skills/epic-lifecycle/SKILL.md`의 Operation A/B/C를 따른다.
 
-1. **브랜치명 결정**: kebab-case로 브랜치명 결정 (예: `ux-data-loading-optimization`)
+### 새 에픽 (CREATE_EPIC)
 
-2. **디렉토리 생성**: `epic/{브랜치명}/` 디렉토리 생성
-   ```bash
-   mkdir epic/ux-data-loading-optimization
-   ```
+1. 다음 `E##` 계산 (위 번호 규칙).
+2. `docs/epic/E##.YYYY-MM-DD_{epic-name}/` 생성, `Readme.md`에 목표·배경·특이점·Phase 목록·상태 체크리스트.
+3. 팀 규칙에 맞게 브랜치: 예 `epic/E##-{scope}`.
 
-3. **README.md 작성**: 에픽 메인 문서 작성
-   - 파일명: `epic/{브랜치명}/README.md`
-   - 내용: 개요, 목표, 포함된 이슈, 완료 기준 등
+### 새 Phase (CREATE_PHASE)
 
-4. **이슈 연결**: 관련 이슈들을 에픽에 연결
-   - 개별 이슈 파일은 `docs/backlog/features/`에 작성
-   - 이슈들이 에픽에 포함되면 `docs/backlog/archive/`로 이동
+1. 동일 에픽 폴더에서 `P##.{phase-name}.md` 추가 (목표·구현 상세·체크리스트).
+2. 에픽 `Readme.md`에 링크·체크박스 갱신.
 
-5. **README.md 업데이트**: `epic/README.md`에 새 에픽 추가
+### 아카이브 (ARCHIVE_EPIC)
 
-### 에픽 링크 규칙
+1. 에픽 완료 검토(목표·Phase 일치·미해결 항목 명시) 통과 후에만 이동.
+2. `docs/epic/E##.../` → `docs/epic/archive/E##.../` (폴더명 유지).
+3. 에픽 `Readme.md` 하단에 `## 완료` / `아카이브일: YYYY-MM-DD` 추가.
+4. `docs/epic/` 루트에 동명 폴더가 남지 않았는지 확인.
 
-- 아카이브된 이슈는 헤더에 에픽 링크를 포함합니다:
-  ```markdown
-  **에픽**: [에픽명](../../epic/{epic-name}/README.md)
-  ```
+### Git 브랜치 (에픽과의 추적)
 
-### 에픽 상태
+- 에픽 브랜치: `epic/E##-{scope}` (프로젝트 컨벤션에 따름).
+- Phase 작업: `feat/E##/P01-{scope}` 등으로 `E##`·`P##` 추적 가능하게 유지.
 
-- **Backlog**: 계획 단계, 아직 시작되지 않음
-- **In Progress**: 현재 진행 중
-- **On Hold**: 일시 중단
-- **Completed**: 완료됨 (아카이브로 이동)
-
-### 에픽 완료 시
-
-1. 에픽 디렉토리를 `epic/archive/{epic-name}/`로 이동
-2. `epic/README.md`에서 진행 중인 에픽 목록에서 제거하고 아카이브 섹션에 추가
-
----
-
-## 🔗 관련 문서
+## 관련 문서
 
 - [백로그 관리](../backlog/README.md)
 - [아카이브된 이슈](../backlog/archive/)

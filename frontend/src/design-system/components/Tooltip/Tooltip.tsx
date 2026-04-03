@@ -25,7 +25,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
   const [position, setPosition] = useState({ top: 0, left: 0 });
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hideTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const wrapperRef = useRef<HTMLButtonElement>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
 
   const clearTimers = useCallback(() => {
     if (timeoutRef.current) {
@@ -116,6 +116,26 @@ export const Tooltip: React.FC<TooltipProps> = ({
     setIsVisible(false);
   }, [clearTimers]);
 
+  const handleFocusCapture = useCallback(() => {
+    clearTimers();
+    timeoutRef.current = setTimeout(() => {
+      setIsVisible(true);
+      updatePosition();
+    }, delay);
+  }, [clearTimers, delay, updatePosition]);
+
+  const handleBlurCapture = useCallback(
+    (e: React.FocusEvent<HTMLDivElement>) => {
+      const next = e.relatedTarget as Node | null;
+      if (next && wrapperRef.current?.contains(next)) {
+        return;
+      }
+      clearTimers();
+      setIsVisible(false);
+    },
+    [clearTimers],
+  );
+
   const placementClass = styles[placement];
 
   const tooltipElement = isVisible ? (
@@ -134,15 +154,16 @@ export const Tooltip: React.FC<TooltipProps> = ({
 
   return (
     <>
-      <button
-        type="button"
+      <div
         ref={wrapperRef}
         className={styles.wrapper}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
+        onFocusCapture={handleFocusCapture}
+        onBlurCapture={handleBlurCapture}
       >
         {children}
-      </button>
+      </div>
       {tooltipElement && createPortal(tooltipElement, document.body)}
     </>
   );

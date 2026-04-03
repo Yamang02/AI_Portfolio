@@ -75,7 +75,7 @@ export const articleApi = {
     }>;
     series: Array<{
       seriesId: string;
-      seriesTitle: string;
+      seriesTitle: string | null;
       count: number;
     }>;
   }> => {
@@ -89,7 +89,7 @@ export const articleApi = {
       }>;
       series: Array<{
         seriesId: string;
-        seriesTitle: string;
+        seriesTitle: string | null;
         count: number;
       }>;
     }>('/api/articles/statistics');

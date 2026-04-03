@@ -11,6 +11,7 @@ import { ArticleTable, ArticleFilterBar, ArticleControlPanel, FeaturedArticleCar
 // ArticleCard는 크리티컬 체인 최적화를 위해 직접 import
 import { ArticleCard } from '@/design-system/components/Card/ArticleCard';
 import { useContentHeightRecalc, useImageLoadTracking } from '@/shared/hooks';
+import { compareStrings } from '@/shared/utils/sortUtils';
 import styles from './ArticleListPage.module.css';
 
 type ViewMode = 'table' | 'gallery';
@@ -113,9 +114,9 @@ export function ArticleListPage() {
     const seriesList = statistics.series
       .map((s) => ({
         id: s.seriesId,
-        title: s.seriesTitle,
+        title: s.seriesTitle ?? '',
       }))
-      .sort((a, b) => a.title.localeCompare(b.title));
+      .sort((a, b) => compareStrings(a.title, b.title));
 
     return {
       series: seriesList,
