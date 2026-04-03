@@ -7,6 +7,7 @@
 ### 진행 중인 에픽
 - [E02.2026-04-02_infrastructure-as-code/](./E02.2026-04-02_infrastructure-as-code/) - 인프라 코드화 및 디버깅 환경 구축 (우선순위: High, 예상 기간: 1주, 현재: P05, 실행전략: A 빠른 이행형)
 - [E04.2026-04-03_cache-boundary-and-ui-primitives-refactor/](./E04.2026-04-03_cache-boundary-and-ui-primitives-refactor/) — 캐시 직렬화 경계·디자인시스템 DOM 경계 리팩터링 (우선순위: High, P01~P04, **시작: 2026-04-03**)
+- [E05.2026-04-03_admin-entry-isolation/](./E05.2026-04-03_admin-entry-isolation/) — Admin 진입점 격리·Main/Admin 분리 (CloudFront `admin.yamang02.com` 등 MPA 진입, P01~P03)
 
 **참고 (`E##` 번호):** `E02` 접두 디렉토리가 서로 다른 주제·날짜로 둘 이상 존재할 수 있다. 식별은 **`E##.YYYY-MM-DD_{이름}` 전체 경로**로 한다 (예: 인프라 코드화 `E02.2026-04-02_...` vs Redis 직렬화 리팩터 `E02.2026-04-03_...`).
 
