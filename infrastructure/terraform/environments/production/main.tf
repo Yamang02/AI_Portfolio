@@ -61,6 +61,7 @@ module "frontend" {
   price_class                = var.cloudfront_price_class
   distribution_comment       = var.cloudfront_comment
   origin_access_control_name = var.cloudfront_oac_name
+  extra_edge_no_cache_path_patterns = ["admin.html"]
 }
 
 module "iam" {

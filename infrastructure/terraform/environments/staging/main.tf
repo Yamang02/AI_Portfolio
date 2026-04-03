@@ -53,7 +53,8 @@ module "frontend" {
   existing_origin_access_control_id = var.shared_origin_access_control_id
 
   default_root_object              = ""
-  enable_index_html_cache_behavior = false
+  enable_index_html_cache_behavior = true
+  extra_edge_no_cache_path_patterns = ["admin.html"]
   custom_error_responses = [
     {
       error_code            = 403

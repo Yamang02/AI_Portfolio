@@ -319,6 +319,8 @@ docs/technical/infrastructure/*.private.md
 infrastructure/**/*.private.*
 infrastructure/**/secrets/
 infrastructure/.secrets/
+# 로컬에만 보관하는 state/CLI 덤프 (scripts/export-local-context.ps1 출력)
+infrastructure/terraform/.local-export/
 
 # Terraform plan outputs
 *.tfplan

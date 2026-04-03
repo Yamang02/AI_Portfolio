@@ -44,6 +44,8 @@
 | yamang02.com | A/AAAA | CloudFront (Production) | 메인 도메인 |
 | www.yamang02.com | A/AAAA | CloudFront (Production) | WWW 리다이렉트 |
 | staging.yamang02.com | A | CloudFront (Staging) | 스테이징 환경 |
+| admin.staging.yamang02.com | A (별칭) | CloudFront (Staging) | Admin MPA 전용 호스트 |
+| admin.yamang02.com | A (별칭) | CloudFront (Production) | Admin MPA 전용 호스트 |
 | design.yamang02.com | CNAME | GitHub Pages | 디자인 시스템 문서 |
 | _acm-validation | CNAME | ACM Validation | SSL 인증서 검증 |
 | @ | TXT | Google Site Verification | 구글 서치 콘솔 |
@@ -119,6 +121,6 @@ Service Accounts:
 
 ---
 
-**마지막 업데이트**: 2026-04-02
+**마지막 업데이트**: 2026-04-03
 **작성자**: Infrastructure Team
 **참조**: [terraform-migration-plan.md](./terraform-migration-plan.md)

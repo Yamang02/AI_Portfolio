@@ -13,6 +13,11 @@ resource "aws_cloudfront_origin_access_control" "main" {
 
 locals {
   origin_access_control_id = var.create_origin_access_control ? aws_cloudfront_origin_access_control.main[0].id : var.existing_origin_access_control_id
+  # Managed-CachingDisabled — S3 Cache-Control과 무관하게 엣지에서 재검증/미캐시에 가깝게 (구버전 HTML 서빙 완화)
+  edge_no_cache_paths = distinct(concat(
+    var.enable_index_html_cache_behavior ? ["index.html"] : [],
+    var.extra_edge_no_cache_path_patterns
+  ))
 }
 
 resource "aws_cloudfront_distribution" "main" {
@@ -50,9 +55,9 @@ resource "aws_cloudfront_distribution" "main" {
   }
 
   dynamic "ordered_cache_behavior" {
-    for_each = var.enable_index_html_cache_behavior ? [1] : []
+    for_each = toset(local.edge_no_cache_paths)
     content {
-      path_pattern     = "index.html"
+      path_pattern     = ordered_cache_behavior.value
       allowed_methods  = ["GET", "HEAD"]
       cached_methods   = ["GET", "HEAD"]
       target_origin_id = var.origin_id

@@ -4,6 +4,14 @@
 **환경**: Staging (staging.yamang02.com)
 **CloudFront Distribution ID**: E7KKBCETIHDH6
 
+## 후속 조치 (2026-04-03)
+
+- Staging·Production CloudFront에 **`index.html` / `admin.html`용 ordered cache behavior**를 추가하고 **Managed-CachingDisabled** (`4135ea2d-6df8-44a3-9df3-4b5a84be39ad`)를 적용해, 엣지에서 HTML이 기본 정책(장 TTL)으로 오래 캐시되지 않도록 조정함.
+- Terraform 모듈(`aws-frontend`)에도 동일 의도가 반영됨: `enable_index_html_cache_behavior`, `extra_edge_no_cache_path_patterns`.
+- 수동 적용·ACM·Admin 호스트 등 전체 맥락은 **[aws-manual-operations-admin-and-cache.md](./aws-manual-operations-admin-and-cache.md)** 참고.
+
+아래 본문의 “Ordered Cache Behaviors 없음”은 **2026-04-02 시점** 분석이다.
+
 ## 문제 개요
 
 AWS Staging 환경에서 프론트엔드 배포 후 지속적으로 이전 버전이 서빙되는 캐시 문제가 발생하고 있습니다.
