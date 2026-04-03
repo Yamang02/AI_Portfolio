@@ -5,8 +5,8 @@
 - Main App UI에서 Admin으로 이어지는 모든 진입점(설정 버튼, 라우트)이 제거된다.
 - Admin App은 Vite MPA 독립 진입점(`admin.html`)을 통해서만 접근 가능하다. (동일 오리진·별도 HTML 엔트리)
 - Main App 소스가 `@/admin/**`를 직접 import하지 않는다.
-- **Staging** Admin은 호스트 **`admin.staging.yamang02.com`** 으로만 진입한다 (메인 스테이징 사이트와 호스트 분리).
-- **Production** Admin은 호스트 **`admin.yamang02.com`** 으로 진입한다 (Staging과 대칭되는 운영 전용 호스트).
+- **Staging** Admin은 **전용 호스트**로만 진입한다 (메인 스테이징 사이트와 호스트 분리). 공개 FQDN은 이 문서에 적지 않는다.
+- **Production** Admin은 **전용 호스트**로 진입한다 (Staging과 대칭). 공개 FQDN은 이 문서에 적지 않는다.
 
 ## 배경 / 맥락
 
@@ -26,12 +26,12 @@ Admin 기능은 운영자 전용임에도 Main App 라우터와 Header UI를 통
 
 | 항목 | 결정 |
 |------|------|
-| Staging Admin 공개 호스트 | **`https://admin.staging.yamang02.com`** — 메인 스테이징(`staging.yamang02.com`)과 분리 |
-| Production Admin 공개 호스트 | **`https://admin.yamang02.com`** — 메인 프로덕션과 분리 |
+| Staging Admin 호스트 | 메인 스테이징과 분리된 **전용 호스트**(FQDN 비공개) |
+| Production Admin 호스트 | 메인 프로덕션과 분리된 **전용 호스트**(FQDN 비공개) |
 | Admin 라우트 경로 | 기존과 같이 앱 내부는 **`/admin/*`** 경로 유지 (`/admin/login` 등). 서브도메인만 분리하고 경로 대규모 변경은 범위 밖으로 둔다. |
 | 딥링크·새로고침 | Admin 전용 호스트에서 HTML 요청이 **`admin.html`** 을 타도록 **CloudFront Viewer-request 함수**(또는 동등한 Edge 로직)로 오리진 URI를 정규화한다. 정적 청크(`assets/` 등)는 제외한다. |
 | 인프라 표현 | **Terraform** (`infrastructure/terraform/modules/aws-frontend` 및 staging/production 환경)에 별칭·함수 연계·Route53(필요 시) 반영. |
-| 백엔드 API | **변경 없음** 원칙. 다만 **CORS 허용 Origin**에 `https://admin.staging.yamang02.com`, `https://admin.yamang02.com` 추가는 **필수**(별도 호스트에서 API를 호출하므로). |
+| 백엔드 API | **변경 없음** 원칙. 다만 **CORS 허용 Origin**에 위 Admin 전용 호스트의 HTTPS Origin을 추가하는 것은 **필수**(별도 호스트에서 API를 호출하므로). 실제 문자열은 배포 설정에만 둔다. |
 
 ## 특이점
 

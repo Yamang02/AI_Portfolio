@@ -44,8 +44,7 @@
 | yamang02.com | A/AAAA | CloudFront (Production) | 메인 도메인 |
 | www.yamang02.com | A/AAAA | CloudFront (Production) | WWW 리다이렉트 |
 | staging.yamang02.com | A | CloudFront (Staging) | 스테이징 환경 |
-| admin.staging.yamang02.com | A (별칭) | CloudFront (Staging) | Admin MPA 전용 호스트 |
-| admin.yamang02.com | A (별칭) | CloudFront (Production) | Admin MPA 전용 호스트 |
+| *(비공개)* | A (별칭) | 각 환경 CloudFront | Admin MPA 전용 호스트(FQDN은 공개 문서에 기재하지 않음) |
 | design.yamang02.com | CNAME | GitHub Pages | 디자인 시스템 문서 |
 | _acm-validation | CNAME | ACM Validation | SSL 인증서 검증 |
 | @ | TXT | Google Site Verification | 구글 서치 콘솔 |

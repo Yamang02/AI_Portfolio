@@ -29,7 +29,7 @@ docs/epic/archive/
 | 에픽 | 설명 |
 |------|------|
 | [E02.2026-04-02_infrastructure-as-code](./E02.2026-04-02_infrastructure-as-code/) | Terraform 기반 인프라 코드화·디버깅 환경 (P05 등) |
-| [E06.2026-04-03_admin-entry-isolation](./E06.2026-04-03_admin-entry-isolation/) | Main/Admin 진입점 격리, MPA `admin.html`, Admin 호스트 `admin.staging` / `admin.yamang02.com`, CloudFront·CORS (P01~P04) |
+| [E06.2026-04-03_admin-entry-isolation](./E06.2026-04-03_admin-entry-isolation/) | Main/Admin 진입점 격리, MPA `admin.html`, Staging/Production 전용 Admin 호스트(FQDN 비공개), CloudFront·CORS (P01~P04) |
 
 ## 아카이브된 에픽 (E## 네이밍)
 

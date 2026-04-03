@@ -49,8 +49,10 @@ AI Portfolio 프로젝트의 인프라 구성 및 관리 문서입니다.
 
 | 환경 | Frontend | Backend | 도메인 |
 |------|----------|---------|--------|
-| **Production** | CloudFront (E384…) | Cloud Run (ai-portfolio) | www.yamang02.com, **admin.yamang02.com** (Admin MPA) |
-| **Staging** | CloudFront (E7KK…) | Cloud Run (ai-portfolio-staging) | staging.yamang02.com, **admin.staging.yamang02.com** (Admin MPA) |
+| **Production** | CloudFront (E384…) | Cloud Run (ai-portfolio) | www.yamang02.com |
+| **Staging** | CloudFront (E7KK…) | Cloud Run (ai-portfolio-staging) | staging.yamang02.com |
+
+운영자 전용 Admin MPA는 **별도 전용 호스트**로 서빙한다. 공개 도메인(FQDN)은 이 저장소 문서에 적지 않으며, 필요 시 팀 내부·`inventory.private.md`를 참고한다.
 
 ## 🔐 보안
 
@@ -78,7 +80,7 @@ AI Portfolio 프로젝트의 인프라 구성 및 관리 문서입니다.
 
 ## 📝 변경 이력
 
-- 2026-04-03: Admin 전용 도메인·엣지 캐시·수동 AWS 작업 메모 추가 (`aws-manual-operations-admin-and-cache.md`)
+- 2026-04-03: Admin 전용 호스트·엣지 캐시·수동 AWS 작업 메모 추가 (`aws-manual-operations-admin-and-cache.md`; Admin FQDN은 공개 문서 비기재)
 - 2026-04-02: 인프라 인벤토리 문서화 시작
 - 2025-09-15: AWS IAM 정책 생성 (S3, CloudFront)
 - 2025-09-15: Frontend AWS 인프라 구축
