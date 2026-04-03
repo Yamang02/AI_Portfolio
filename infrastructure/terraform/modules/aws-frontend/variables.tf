@@ -73,9 +73,15 @@ variable "default_root_object" {
 }
 
 variable "enable_index_html_cache_behavior" {
-  description = "Whether to add ordered cache behavior for index.html (prod has it; staging does not)"
+  description = "Whether to add ordered cache behavior for index.html with CachingDisabled (edge에서 HTML 장기 캐시 방지)"
   type        = bool
   default     = true
+}
+
+variable "extra_edge_no_cache_path_patterns" {
+  description = "추가 경로(예: admin.html)에 동일 CachingDisabled 정책 적용. SPA 엔트리 HTML은 기본 캐시 정책보다 우선한다."
+  type        = list(string)
+  default     = []
 }
 
 variable "custom_error_responses" {
@@ -106,4 +112,10 @@ variable "distribution_name_tag" {
   description = "Value for Name tag on CloudFront distribution"
   type        = string
   default     = "ai-portfolio-frontend-prod"
+}
+
+variable "admin_html_rewrite_hostnames" {
+  description = "If non-empty, attach a viewer-request function so these Host values serve /admin.html for HTML routes (MPA)."
+  type        = list(string)
+  default     = []
 }

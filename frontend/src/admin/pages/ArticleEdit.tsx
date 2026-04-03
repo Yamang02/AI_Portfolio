@@ -20,7 +20,8 @@ import { SaveOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 import { MarkdownEditor } from '@/admin/shared/ui/markdown/MarkdownEditor';
 import { ProjectSearchSelect } from '@/admin/shared/ui/ProjectSearchSelect';
 import { SeriesSearchSelect } from '@/admin/shared/ui/SeriesSearchSelect';
-import { Article, ARTICLE_CATEGORIES } from '../entities/article';
+import { Article } from '../entities/article';
+import { ARTICLE_CATEGORIES } from '@/shared/article';
 import {
   useAdminArticleQuery,
   useCreateArticleMutation,

@@ -22,6 +22,23 @@ export default defineConfig(({ mode }) => {
     const siteUrl = env.VITE_SITE_URL || 'https://www.yamang02.com';
     return {
       plugins: [
+        {
+          name: 'admin-html-spa-fallback',
+          configureServer(server) {
+            server.middlewares.use((req, _res, next) => {
+              const raw = req.url?.split('?')[0] ?? '';
+              if (raw === '/admin' || raw.startsWith('/admin/')) {
+                const last = raw.split('/').pop() ?? '';
+                const looksLikeFile = /\.[a-zA-Z0-9]+$/.test(last);
+                if (!looksLikeFile) {
+                  const q = req.url?.includes('?') ? `?${req.url!.split('?')[1]}` : '';
+                  req.url = `/admin.html${q}`;
+                }
+              }
+              next();
+            });
+          },
+        },
         react(),
         Sitemap({
           hostname: siteUrl,
@@ -125,6 +142,10 @@ export default defineConfig(({ mode }) => {
         // 동적 import를 위한 상대 경로 설정
         assetsDir: 'assets',
         rollupOptions: {
+          input: {
+            main: path.resolve(__dirname, 'index.html'),
+            admin: path.resolve(__dirname, 'admin.html'),
+          },
           onwarn(warning, warn) {
             // "use client" 지시문 경고 무시
             if (warning.code === 'MODULE_LEVEL_DIRECTIVE') {

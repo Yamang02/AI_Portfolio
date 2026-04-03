@@ -1,6 +1,6 @@
 import React from 'react';
 import { Badge, SectionTitle } from '@/design-system';
-import { ARTICLE_CATEGORIES } from '@/admin/entities/article';
+import { ARTICLE_CATEGORIES } from '@/shared/article';
 import styles from './CategoryFilterBar.module.css';
 
 export interface CategoryFilterBarProps {
