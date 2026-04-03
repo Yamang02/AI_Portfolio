@@ -17,7 +17,6 @@ interface CareerTimelineProps {
 type TimelineItem = {
   id: string;
   type: 'experience' | 'education';
-  /** 시작월 기준 정렬용 (내림차순 = 최신이 위) */
   sortKeyMs: number;
   period: string;
   organization: string;
