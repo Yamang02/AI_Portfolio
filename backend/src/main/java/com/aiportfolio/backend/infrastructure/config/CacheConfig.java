@@ -1,8 +1,6 @@
 package com.aiportfolio.backend.infrastructure.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
@@ -31,17 +29,14 @@ public class CacheConfig {
     @Primary
     public CacheManager redisCacheManager(
         RedisConnectionFactory connectionFactory,
-        @Qualifier("redisObjectMapper") ObjectMapper redisObjectMapper
+        GenericJackson2JsonRedisSerializer genericJackson2JsonRedisSerializer
     ) {
-        GenericJackson2JsonRedisSerializer serializer =
-            new GenericJackson2JsonRedisSerializer(redisObjectMapper);
-
         RedisCacheConfiguration defaultConfig = RedisCacheConfiguration.defaultCacheConfig()
             .entryTtl(Duration.ofHours(1)) // 기본 1시간
             .serializeKeysWith(RedisSerializationContext.SerializationPair
                 .fromSerializer(new StringRedisSerializer()))
             .serializeValuesWith(RedisSerializationContext.SerializationPair
-                .fromSerializer(serializer))
+                .fromSerializer(genericJackson2JsonRedisSerializer))
             .disableCachingNullValues();
 
         // 캐시별 TTL 설정
