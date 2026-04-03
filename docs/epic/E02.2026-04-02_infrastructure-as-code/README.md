@@ -43,12 +43,12 @@
 - [P02: Terraform 환경 구축](./P02-terraform-setup.md) ✅
 - [P03: AWS 인프라 Terraform 코드 작성](./P03-aws-terraform.md) ✅
 - [P04: GCP 인프라 Terraform 코드 작성](./P04-gcp-terraform.md) ✅ (BigQuery 제외)
-- [P05: 디버깅 환경 자동화 스크립트](./P05-debug-automation.md) 🔄
+- [P05: 디버깅 환경 자동화 스크립트](./P05-debug-automation.md) ✅
 
 ## 상태
 
 - **시작일**: 2026-04-02
-- **현재 Phase**: P01~P04 완료, P05 진행 중
+- **현재 Phase**: P01~P05 코드·문서 기준 완료 (클라우드에서의 최종 스모크는 팀 검증)
 - **예상 완료**: 2026-04-09 (1주)
 
 ## 실행 전략 결정 (2026-04-02)
@@ -100,11 +100,11 @@
 - [x] IAM 모듈 (Service Accounts)
 - [x] 기존 리소스 Import
 
-### Phase 5: 자동화 스크립트
-- [ ] 디버깅 환경 생성 스크립트
-- [ ] 디버깅 환경 삭제 스크립트
-- [ ] CI/CD 통합 (GitHub Actions)
-- [ ] 사용자 가이드 작성
+### Phase 5: 자동화 스크립트 ✅
+- [x] 디버깅 환경 생성 스크립트 (`scripts/setup-debug-env.ps1`, `scripts/setup-debug-env.sh`)
+- [x] 디버깅 환경 삭제 스크립트 (`scripts/teardown-debug-env.ps1`, `scripts/teardown-debug-env.sh`)
+- [ ] CI/CD 통합 (GitHub Actions) — 선택
+- [x] 사용자 가이드 — [P05-debug-automation.md](./P05-debug-automation.md)
 
 ## 성공 지표
 

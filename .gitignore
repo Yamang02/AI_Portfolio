@@ -324,6 +324,9 @@ infrastructure/.secrets/
 *.tfplan
 terraform-plan-*
 
+# Debug env script outputs (next to terraform.tfvars)
+infrastructure/terraform/environments/debug/*-info.json
+
 # Crash log files
 crash.log
 crash.*.log

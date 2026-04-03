@@ -5,6 +5,7 @@
 ## 📁 현재 에픽
 
 ### 진행 중인 에픽
+<<<<<<< HEAD
 - [E02.2026-04-02_infrastructure-as-code/](./E02.2026-04-02_infrastructure-as-code/) - 인프라 코드화 및 디버깅 환경 구축 (우선순위: High, 예상 기간: 1주, 현재: P05, 실행전략: A 빠른 이행형)
 - [E04.2026-04-03_cache-boundary-and-ui-primitives-refactor/](./E04.2026-04-03_cache-boundary-and-ui-primitives-refactor/) — 캐시 직렬화 경계·디자인시스템 DOM 경계 리팩터링 (우선순위: High, P01~P04, **시작: 2026-04-03**)
 - [E05.2026-04-03_admin-entry-isolation/](./E05.2026-04-03_admin-entry-isolation/) — Admin 진입점 격리·Main/Admin 분리 (CloudFront `admin.yamang02.com` 등 MPA 진입, P01~P03)
@@ -13,6 +14,9 @@
 
 ### 완료(아카이브 대기)
 - [E03.2026-04-03_article-statistics-null-safety/](./E03.2026-04-03_article-statistics-null-safety/) — 아티클 통계 null-safety·Easter egg 제거 (P01~P05 완료, 구조 리팩터링은 E04로 이관)
+=======
+- [E02.2026-04-02_infrastructure-as-code/](./E02.2026-04-02_infrastructure-as-code/) - 인프라 코드화 및 디버깅 환경 구축 (우선순위: High, 예상 기간: 1주, 현재: P05 코드·문서 완료, 실행전략: A 빠른 이행형)
+>>>>>>> infra/terraform
 
 ### 계획 중인 에픽 (Backlog)
 - [E02.2026-04-03_redis-cache-serialization-refactor/](./E02.2026-04-03_redis-cache-serialization-refactor/) — Epic E02: Redis 직렬화 근본 해결 및 캐시 전략 리팩토링 (우선순위: High, P01~P05)
