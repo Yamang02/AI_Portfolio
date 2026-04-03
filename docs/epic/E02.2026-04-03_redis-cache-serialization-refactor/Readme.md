@@ -45,6 +45,10 @@ Redis Cloud 7.4 환경에서 반복적으로 발생하는 직렬화/역직렬화
 - P05는 P01~P04 구현 후 **스킬 기반 검토·문서/경미 수정** 전용이며, 기능 추가 범위에 넣지 않는다
 - Redis에 저장된 기존 캐시 데이터는 P01/P02 완료 후 플러시 필요 (직렬화 형식 변경으로 인한 깨진 캐시 제거)
 
+## HTTP·Redis ObjectMapper 경계 (E04)
+
+Spring MVC는 `@Primary` `ObjectMapper`로 HTTP 요청·응답 JSON을 바인딩한다. Redis 캐시는 `@Qualifier("redisObjectMapper")`로 주입된 매퍼(`activateDefaultTyping`, WRAPPER_ARRAY)를 `GenericJackson2JsonRedisSerializer`에만 연결한다. 구현 클래스: `RedisObjectMapperConfig`, `CacheConfig`, `RedisConfig`. 경계를 HTTP에 섞이지 않게 고정한 정리는 [E04 P01](../E04.2026-04-03_cache-boundary-and-ui-primitives-refactor/P01.backend-cache-serialization-boundary.md)를 본다.
+
 ## 구현 시 준수 원칙 (코드·메서드·주석)
 
 에픽·Phase 문서 구조는 `epic-lifecycle`(DC-05)을 따른다. 아래는 **이 에픽에서 코드 작성 시** 동일하게 적용하는 basis 요약이다. (인프라·설정 코드가 많은 경우 **CC-01**은 순수 로직·계산에 집중해 적용하고, **CC-02**는 Application/Domain 경계가 바뀔 때 위주로 적용한다.)

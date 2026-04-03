@@ -1,4 +1,4 @@
-# 에픽 (Epic)
+﻿# 에픽 (Epic)
 
 완료되었거나 진행 중인 주요 에픽(프로젝트) 문서를 관리합니다.
 
@@ -6,14 +6,18 @@
 
 ### 진행 중인 에픽
 - [E02.2026-04-02_infrastructure-as-code/](./E02.2026-04-02_infrastructure-as-code/) - 인프라 코드화 및 디버깅 환경 구축 (우선순위: High, 예상 기간: 1주, 현재: P05, 실행전략: A 빠른 이행형)
+- [E04.2026-04-03_cache-boundary-and-ui-primitives-refactor/](./E04.2026-04-03_cache-boundary-and-ui-primitives-refactor/) — 캐시 직렬화 경계·디자인시스템 DOM 경계 리팩터링 (우선순위: High, P01~P04, **시작: 2026-04-03**)
+
+**참고 (`E##` 번호):** `E02` 접두 디렉토리가 서로 다른 주제·날짜로 둘 이상 존재할 수 있다. 식별은 **`E##.YYYY-MM-DD_{이름}` 전체 경로**로 한다 (예: 인프라 코드화 `E02.2026-04-02_...` vs Redis 직렬화 리팩터 `E02.2026-04-03_...`).
+
+### 완료(아카이브 대기)
+- [E03.2026-04-03_article-statistics-null-safety/](./E03.2026-04-03_article-statistics-null-safety/) — 아티클 통계 null-safety·Easter egg 제거 (P01~P05 완료, 구조 리팩터링은 E04로 이관)
 
 ### 계획 중인 에픽 (Backlog)
 - [E02.2026-04-03_redis-cache-serialization-refactor/](./E02.2026-04-03_redis-cache-serialization-refactor/) — Epic E02: Redis 직렬화 근본 해결 및 캐시 전략 리팩토링 (우선순위: High, P01~P05)
-- [E03.2026-04-03_article-statistics-null-safety/](./E03.2026-04-03_article-statistics-null-safety/) — Epic E03: 아티클 통계 API null-safety 회귀 수정 (우선순위: High, P01~P02)
 - [detail-page-ux-bugfix/](./detail-page-ux-bugfix/) - 상세 페이지 UX 버그픽스 (우선순위: High, 예상 기간: 1주)
 - [seo-aeo-optimization/](./seo-aeo-optimization/) - SEO/AEO 최적화 (우선순위: High, 예상 기간: 3-4주)
 - [ux-data-loading-optimization/](./ux-data-loading-optimization/) - UX 및 데이터 로딩 최적화 (우선순위: High, 예상 기간: 2-3주)
-- 현재 백로그 에픽 없음
 
 ## 📝 에픽 문서 구조
 
@@ -24,7 +28,7 @@
 ```
 epic/
 ├── {epic-name}/          # 브랜치명과 동일한 디렉토리명
-│   ├── README.md         # 에픽 메인 문서 (필수)
+│   ├── Readme.md         # 에픽 메인 문서 (필수, DC-05·epic-lifecycle)
 │   ├── review.md         # 에픽 리뷰 문서 (선택)
 │   ├── design.md         # 설계 문서 (선택)
 │   ├── todo.md           # 작업 목록 (선택)
@@ -41,14 +45,14 @@ epic/
    mkdir epic/ux-data-loading-optimization
    ```
 
-2. **README.md 작성**: 에픽의 메인 문서는 반드시 `README.md`로 작성
+2. **Readme.md 작성**: 에픽의 메인 문서는 반드시 `Readme.md`로 작성
    - 에픽 개요, 목표, 포함된 이슈, 완료 기준 등 포함
 
 3. **브랜치명 규칙**: kebab-case 사용 (예: `ux-data-loading-optimization`)
 
 ### 각 에픽 폴더에 포함될 수 있는 문서
 
-- **README.md** (필수): 에픽 메인 문서
+- **Readme.md** (필수): 에픽 메인 문서
 - **review.md** (선택): 에픽 리뷰 및 검토 문서
 - **design.md** (선택): 설계 문서
 - **todo.md** (선택): 작업 목록
@@ -94,21 +98,21 @@ epic/
    mkdir epic/ux-data-loading-optimization
    ```
 
-3. **README.md 작성**: 에픽 메인 문서 작성
-   - 파일명: `epic/{브랜치명}/README.md`
+3. **Readme.md 작성**: 에픽 메인 문서 작성
+   - 파일명: `epic/{브랜치명}/Readme.md`
    - 내용: 개요, 목표, 포함된 이슈, 완료 기준 등
 
 4. **이슈 연결**: 관련 이슈들을 에픽에 연결
    - 개별 이슈 파일은 `docs/backlog/features/`에 작성
    - 이슈들이 에픽에 포함되면 `docs/backlog/archive/`로 이동
 
-5. **README.md 업데이트**: `epic/README.md`에 새 에픽 추가
+5. **본 README 업데이트**: `docs/epic/README.md`에 새 에픽 항목 추가
 
 ### 에픽 링크 규칙
 
 - 아카이브된 이슈는 헤더에 에픽 링크를 포함합니다:
   ```markdown
-  **에픽**: [에픽명](../../epic/{epic-name}/README.md)
+  **에픽**: [에픽명](../../epic/{epic-name}/Readme.md)
   ```
 
 ### 에픽 상태
