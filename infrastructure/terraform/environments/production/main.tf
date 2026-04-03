@@ -57,6 +57,7 @@ module "frontend" {
     "admin.${var.domain_name}",
   ]
   admin_html_rewrite_hostnames = ["admin.${var.domain_name}"]
+  cloudfront_admin_function_name = "ai-portfolio-prod-viewer-request-admin-spa"
   origin_id                  = var.cloudfront_origin_id
   price_class                = var.cloudfront_price_class
   distribution_comment       = var.cloudfront_comment

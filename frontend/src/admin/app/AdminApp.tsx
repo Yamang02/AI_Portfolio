@@ -1,11 +1,7 @@
 import React from 'react';
 import { ConfigProvider, App as AntdApp } from 'antd';
-import { QueryClientProvider } from '@tanstack/react-query';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { SeoHead } from '@/shared/ui/seo/SeoHead';
-import { adminQueryClient } from '../config/queryClient';
-import { AuthProvider } from '../hooks/useAuth';
-import { Header } from '@/main/widgets/header';
 import { LoginForm, ProtectedRoute } from '../features/auth';
 import { AdminLayout } from '../shared/components/AdminLayout';
 import { Dashboard } from '../pages/Dashboard';
@@ -28,16 +24,9 @@ const AdminApp: React.FC = () => {
     <ConfigProvider theme={adminTheme}>
         <AntdApp>
           <SeoHead noindex title="관리자" />
-          <QueryClientProvider client={adminQueryClient}>
-            <AuthProvider>
               <Routes>
-                {/* 로그인 페이지 - 메인 헤더 포함 (일반 사용자 접근 페이지) */}
-                <Route path="login" element={
-                  <>
-                    <Header />
-                    <LoginForm />
-                  </>
-                } />
+                {/* Admin MPA 전용: 메인 앱 헤더 없음 */}
+                <Route path="login" element={<LoginForm />} />
 
                 {/* 보호된 관리자 라우트 - AdminLayout 사용 (헤더 없음) */}
                 <Route path="/" element={
@@ -61,8 +50,6 @@ const AdminApp: React.FC = () => {
                   <Route path="settings" element={<Settings />} />
                 </Route>
               </Routes>
-            </AuthProvider>
-          </QueryClientProvider>
         </AntdApp>
       </ConfigProvider>
   );

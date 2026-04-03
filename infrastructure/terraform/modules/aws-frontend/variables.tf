@@ -119,3 +119,9 @@ variable "admin_html_rewrite_hostnames" {
   type        = list(string)
   default     = []
 }
+
+variable "cloudfront_admin_function_name" {
+  description = "CloudFront Function name for admin HTML rewrite. Empty uses legacy {distribution_name_tag}-admin-html."
+  type        = string
+  default     = ""
+}

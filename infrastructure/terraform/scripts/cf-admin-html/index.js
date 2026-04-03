@@ -1,6 +1,6 @@
 function handler(event) {
   var request = event.request;
-  var hostHeader = request.headers.host;
+  var hostHeader = request.headers ? request.headers.host : null;
   var host = hostHeader && hostHeader.value ? hostHeader.value : '';
   var hosts = ['admin.staging.yamang02.com'];
   var match = false;
@@ -14,6 +14,10 @@ function handler(event) {
     return request;
   }
   var uri = request.uri;
+  if (uri === undefined || uri === null || uri === '') {
+    uri = '/';
+  }
+  request.uri = uri;
   if (uri.indexOf('/assets/') === 0) {
     return request;
   }
