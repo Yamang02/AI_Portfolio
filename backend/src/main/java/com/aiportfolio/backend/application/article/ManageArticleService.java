@@ -6,11 +6,10 @@ import com.aiportfolio.backend.domain.article.port.in.ManageArticleUseCase;
 import com.aiportfolio.backend.domain.article.port.in.ManageArticleSeriesUseCase;
 import com.aiportfolio.backend.domain.article.port.out.ArticleRepositoryPort;
 import com.aiportfolio.backend.domain.article.port.out.ArticleSeriesRepositoryPort;
+import com.aiportfolio.backend.domain.portfolio.port.out.PortfolioCachePort;
 import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.ProjectJpaRepository;
-import com.aiportfolio.backend.infrastructure.config.CacheKeys;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -28,9 +27,9 @@ public class ManageArticleService implements ManageArticleUseCase {
     private final ManageArticleSeriesUseCase seriesUseCase;
     private final ArticleSeriesRepositoryPort seriesRepository;
     private final ProjectJpaRepository projectJpaRepository;
+    private final PortfolioCachePort portfolioCachePort;
 
     @Override
-    @CacheEvict(value = CacheKeys.PORTFOLIO, key = "'" + CacheKeys.PROJECTS_ALL + "'")
     public Article create(CreateArticleCommand command) {
         // 비즈니스 ID 생성
         String businessId = articleRepository.generateNextBusinessId();
@@ -93,11 +92,12 @@ public class ManageArticleService implements ManageArticleUseCase {
         article.validate();
 
         // 저장
-        return articleRepository.save(article);
+        Article saved = articleRepository.save(article);
+        portfolioCachePort.evictPortfolioProjects();
+        return saved;
     }
 
     @Override
-    @CacheEvict(value = CacheKeys.PORTFOLIO, key = "'" + CacheKeys.PROJECTS_ALL + "'")
     public Article update(UpdateArticleCommand command) {
         // 기존 Article 조회
         Article existing = articleRepository.findById(command.id())
@@ -182,13 +182,15 @@ public class ManageArticleService implements ManageArticleUseCase {
         updated.validate();
 
         // 저장
-        return articleRepository.save(updated);
+        Article saved = articleRepository.save(updated);
+        portfolioCachePort.evictPortfolioProjects();
+        return saved;
     }
 
     @Override
-    @CacheEvict(value = CacheKeys.PORTFOLIO, key = "'" + CacheKeys.PROJECTS_ALL + "'")
     public void delete(Long id) {
         articleRepository.delete(id);
+        portfolioCachePort.evictPortfolioProjects();
     }
 
     // 기술 스택 변환 헬퍼

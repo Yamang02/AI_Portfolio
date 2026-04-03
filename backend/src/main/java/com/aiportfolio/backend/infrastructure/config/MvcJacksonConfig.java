@@ -10,7 +10,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import java.util.List;
 
 /**
- * HTTP 응답·요청 JSON은 {@code redisObjectMapper}와 무관하게 {@code @Qualifier("objectMapper")}만 사용한다.
+ * HTTP 응답·요청 JSON은 Redis 전용 Jackson 직렬화 설정과 무관하게
+ * {@code @Qualifier("objectMapper")}만 사용한다.
  */
 @Configuration
 public class MvcJacksonConfig implements WebMvcConfigurer {

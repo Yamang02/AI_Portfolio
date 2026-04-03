@@ -13,10 +13,8 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Main 앱 전용 Experience 조회 서비스
- *
- * 책임: Experience 조회 UseCase 구현 (Main 앱용)
- * 특징: Redis 캐시 사용 (Repository 레벨 @Cacheable)
+ * Main app Experience query service.
+ * Implements the Experience query use case for public APIs.
  */
 @Service("getExperienceService")
 @RequiredArgsConstructor
@@ -27,7 +25,7 @@ public class GetExperienceService implements GetExperienceUseCase {
     private final PortfolioRepositoryPort portfolioRepositoryPort;
 
     /**
-     * Main 앱용: 캐시된 데이터 조회 (@Cacheable)
+     * Internal helper for full list query.
      */
     private List<Experience> getAllExperiencesInternal() {
         return portfolioRepositoryPort.findAllExperiences();
@@ -35,7 +33,7 @@ public class GetExperienceService implements GetExperienceUseCase {
 
     @Override
     public List<Experience> getAllExperiences() {
-        log.debug("Fetching all experiences (main - with cache)");
+        log.debug("Fetching all experiences (main)");
         return getAllExperiencesInternal();
     }
 

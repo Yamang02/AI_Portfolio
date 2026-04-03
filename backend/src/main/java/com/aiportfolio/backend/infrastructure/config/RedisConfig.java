@@ -1,7 +1,5 @@
 package com.aiportfolio.backend.infrastructure.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -25,11 +23,8 @@ public class RedisConfig {
     @Bean
     public RedisTemplate<String, Object> redisTemplate(
         RedisConnectionFactory connectionFactory,
-        @Qualifier("redisObjectMapper") ObjectMapper redisObjectMapper
+        GenericJackson2JsonRedisSerializer genericJackson2JsonRedisSerializer
     ) {
-        GenericJackson2JsonRedisSerializer serializer =
-            new GenericJackson2JsonRedisSerializer(redisObjectMapper);
-
         RedisTemplate<String, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(connectionFactory);
 
@@ -38,8 +33,8 @@ public class RedisConfig {
         template.setHashKeySerializer(new StringRedisSerializer());
 
         // 값 직렬화 설정 (JSON 형태로 저장, JSR310 모듈 포함)
-        template.setValueSerializer(serializer);
-        template.setHashValueSerializer(serializer);
+        template.setValueSerializer(genericJackson2JsonRedisSerializer);
+        template.setHashValueSerializer(genericJackson2JsonRedisSerializer);
 
         template.afterPropertiesSet();
         return template;
