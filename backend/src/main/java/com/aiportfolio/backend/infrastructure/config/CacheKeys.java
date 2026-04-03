@@ -1,7 +1,7 @@
 package com.aiportfolio.backend.infrastructure.config;
 
 /**
- * Spring Cache 이름 및 Redis 캐시 엔트리 키(SpEL과 동일한 문자열 값) 상수.
+ * Redis 캐시 네임스페이스/키 상수.
  */
 public final class CacheKeys {
 
@@ -18,6 +18,4 @@ public final class CacheKeys {
 
     public static final String GITHUB_PROJECTS = "projects";
     public static final String GITHUB_PROJECT_PREFIX = "project:";
-
-    public static final String FRONTEND_CACHE_VERSION = "frontend:cache:version";
 }

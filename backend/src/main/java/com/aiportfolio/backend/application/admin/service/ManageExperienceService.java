@@ -6,11 +6,10 @@ import com.aiportfolio.backend.application.common.util.SortOrderService;
 import com.aiportfolio.backend.application.common.util.TextFieldHelper;
 import com.aiportfolio.backend.domain.portfolio.model.Experience;
 import com.aiportfolio.backend.domain.portfolio.port.in.ManageExperienceUseCase;
+import com.aiportfolio.backend.domain.portfolio.port.out.PortfolioCachePort;
 import com.aiportfolio.backend.domain.portfolio.port.out.PortfolioRepositoryPort;
-import com.aiportfolio.backend.infrastructure.config.CacheKeys;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,9 +29,9 @@ public class ManageExperienceService implements ManageExperienceUseCase {
 
     private final PortfolioRepositoryPort portfolioRepositoryPort;
     private final SortOrderService sortOrderService;
+    private final PortfolioCachePort portfolioCachePort;
 
     @Override
-    @CacheEvict(value = CacheKeys.PORTFOLIO, key = "'" + CacheKeys.EXPERIENCES_ALL + "'")
     public Experience createExperience(Experience experience) {
         log.info("Creating new experience: {}", experience.getTitle());
 
@@ -64,13 +63,13 @@ public class ManageExperienceService implements ManageExperienceUseCase {
         experience.setUpdatedAt(MetadataHelper.setupUpdatedAt());
 
         Experience saved = portfolioRepositoryPort.saveExperience(experience);
+        portfolioCachePort.evictPortfolioExperiences();
 
         log.info("Experience created successfully: {}", saved.getId());
         return saved;
     }
 
     @Override
-    @CacheEvict(value = CacheKeys.PORTFOLIO, key = "'" + CacheKeys.EXPERIENCES_ALL + "'")
     public Experience updateExperience(String id, Experience experience) {
         log.info("Updating experience: {}", id);
 
@@ -98,13 +97,13 @@ public class ManageExperienceService implements ManageExperienceUseCase {
         experience.setUpdatedAt(MetadataHelper.setupUpdatedAt());
 
         Experience updated = portfolioRepositoryPort.saveExperience(experience);
+        portfolioCachePort.evictPortfolioExperiences();
 
         log.info("Experience updated successfully: {}", updated.getId());
         return updated;
     }
 
     @Override
-    @CacheEvict(value = CacheKeys.PORTFOLIO, key = "'" + CacheKeys.EXPERIENCES_ALL + "'")
     public void deleteExperience(String id) {
         log.info("Deleting experience: {}", id);
 
@@ -113,12 +112,12 @@ public class ManageExperienceService implements ManageExperienceUseCase {
         }
 
         portfolioRepositoryPort.deleteExperience(id);
+        portfolioCachePort.evictPortfolioExperiences();
 
         log.info("Experience deleted successfully: {}", id);
     }
 
     @Override
-    @CacheEvict(value = CacheKeys.PORTFOLIO, key = "'" + CacheKeys.EXPERIENCES_ALL + "'")
     public void updateExperienceSortOrder(Map<String, Integer> sortOrderUpdates) {
         log.info("Updating experience sort orders: {} items", sortOrderUpdates.size());
 
@@ -145,6 +144,7 @@ public class ManageExperienceService implements ManageExperienceUseCase {
 
         if (!toUpdate.isEmpty()) {
             portfolioRepositoryPort.batchUpdateExperiences(toUpdate);
+            portfolioCachePort.evictPortfolioExperiences();
         }
 
         log.info("Experience sort orders updated successfully");

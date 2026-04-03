@@ -1,5 +1,6 @@
 package com.aiportfolio.backend.application.admin.service;
 
+import com.aiportfolio.backend.domain.admin.RedisStandaloneKeyNames;
 import com.aiportfolio.backend.domain.admin.port.in.ManageCacheUseCase;
 import com.aiportfolio.backend.domain.admin.port.out.CacheManagementPort;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +22,6 @@ public class CacheManagementService implements ManageCacheUseCase {
 
     private final CacheManagementPort cacheManagementPort;
 
-    private static final String FRONTEND_CACHE_VERSION_KEY = "frontend:cache:version";
     private static final DateTimeFormatter VERSION_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
     
     @Override
@@ -116,11 +116,10 @@ public class CacheManagementService implements ManageCacheUseCase {
         log.info("Retrieving frontend cache version");
 
         try {
-            String version = cacheManagementPort.getValue(FRONTEND_CACHE_VERSION_KEY);
+            String version = cacheManagementPort.getValue(RedisStandaloneKeyNames.FRONTEND_CACHE_VERSION);
             if (version == null) {
-                // 초기 버전 설정
                 version = LocalDateTime.now().format(VERSION_FORMATTER);
-                cacheManagementPort.setValue(FRONTEND_CACHE_VERSION_KEY, version);
+                cacheManagementPort.setValue(RedisStandaloneKeyNames.FRONTEND_CACHE_VERSION, version);
                 log.info("Initialized frontend cache version: {}", version);
             }
             return version;
@@ -139,7 +138,7 @@ public class CacheManagementService implements ManageCacheUseCase {
 
         try {
             String newVersion = LocalDateTime.now().format(VERSION_FORMATTER);
-            cacheManagementPort.setValue(FRONTEND_CACHE_VERSION_KEY, newVersion);
+            cacheManagementPort.setValue(RedisStandaloneKeyNames.FRONTEND_CACHE_VERSION, newVersion);
             log.info("Frontend cache version updated to: {}", newVersion);
             return newVersion;
 

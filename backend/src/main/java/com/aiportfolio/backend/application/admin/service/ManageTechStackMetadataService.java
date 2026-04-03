@@ -2,12 +2,11 @@ package com.aiportfolio.backend.application.admin.service;
 
 import com.aiportfolio.backend.domain.portfolio.model.TechStackMetadata;
 import com.aiportfolio.backend.domain.portfolio.port.in.ManageTechStackMetadataUseCase;
+import com.aiportfolio.backend.domain.portfolio.port.out.PortfolioCachePort;
 import com.aiportfolio.backend.domain.portfolio.port.out.TechStackMetadataRepositoryPort;
 import com.aiportfolio.backend.domain.portfolio.service.TechStackDomainService;
-import com.aiportfolio.backend.infrastructure.config.CacheKeys;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,9 +24,9 @@ public class ManageTechStackMetadataService implements ManageTechStackMetadataUs
     
     private final TechStackMetadataRepositoryPort techStackMetadataRepositoryPort;
     private final TechStackDomainService techStackDomainService;
+    private final PortfolioCachePort portfolioCachePort;
     
     @Override
-    @CacheEvict(value = CacheKeys.PORTFOLIO, key = "'" + CacheKeys.PROJECTS_ALL + "'")
     public TechStackMetadata createTechStackMetadata(TechStackMetadata techStackMetadata) {
         // 도메인 서비스를 통한 비즈니스 로직 검증
         techStackDomainService.validateForCreation(techStackMetadata);
@@ -36,33 +35,35 @@ public class ManageTechStackMetadataService implements ManageTechStackMetadataUs
         int maxSortOrder = techStackMetadataRepositoryPort.findMaxSortOrder();
         techStackMetadata.setSortOrder(maxSortOrder + 1);
         
-        return techStackMetadataRepositoryPort.save(techStackMetadata);
+        TechStackMetadata saved = techStackMetadataRepositoryPort.save(techStackMetadata);
+        portfolioCachePort.evictPortfolioProjects();
+        return saved;
     }
     
     @Override
-    @CacheEvict(value = CacheKeys.PORTFOLIO, key = "'" + CacheKeys.PROJECTS_ALL + "'")
     public TechStackMetadata updateTechStackMetadata(String name, TechStackMetadata techStackMetadata) {
         // 도메인 서비스를 통한 비즈니스 로직 검증
         techStackDomainService.validateForUpdate(name, techStackMetadata);
         
         // Repository의 업데이트 메서드 사용
-        return techStackMetadataRepositoryPort.updateByName(name, techStackMetadata);
+        TechStackMetadata updated = techStackMetadataRepositoryPort.updateByName(name, techStackMetadata);
+        portfolioCachePort.evictPortfolioProjects();
+        return updated;
     }
     
     @Override
-    @CacheEvict(value = CacheKeys.PORTFOLIO, key = "'" + CacheKeys.PROJECTS_ALL + "'")
     public void deleteTechStackMetadata(String name) {
         if (!techStackMetadataRepositoryPort.existsByName(name)) {
             throw new IllegalArgumentException("존재하지 않는 기술명입니다: " + name);
         }
         
         techStackMetadataRepositoryPort.deleteByName(name);
+        portfolioCachePort.evictPortfolioProjects();
     }
     
     @Override
-    @CacheEvict(value = CacheKeys.PORTFOLIO, key = "'" + CacheKeys.PROJECTS_ALL + "'")
     public TechStackMetadata toggleTechStackMetadataStatus(String name) {
-        return techStackMetadataRepositoryPort.findByName(name)
+        TechStackMetadata saved = techStackMetadataRepositoryPort.findByName(name)
             .map(techStack -> {
                 TechStackMetadata updatedTechStack = TechStackMetadata.builder()
                     .name(techStack.getName())
@@ -82,6 +83,8 @@ public class ManageTechStackMetadataService implements ManageTechStackMetadataUs
                 return techStackMetadataRepositoryPort.save(updatedTechStack);
             })
             .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 기술명입니다: " + name));
+        portfolioCachePort.evictPortfolioProjects();
+        return saved;
     }
 }
 
