@@ -45,12 +45,9 @@ resource "aws_cloudfront_distribution" "main" {
 
     cache_policy_id = aws_cloudfront_cache_policy.default_with_host.id
 
-    dynamic "function_association" {
-      for_each = length(var.admin_html_rewrite_hostnames) > 0 ? [1] : []
-      content {
-        event_type   = "viewer-request"
-        function_arn = aws_cloudfront_function.admin_html_rewrite[0].arn
-      }
+    function_association {
+      event_type   = "viewer-request"
+      function_arn = aws_cloudfront_function.admin_html_rewrite[0].arn
     }
   }
 
@@ -65,6 +62,11 @@ resource "aws_cloudfront_distribution" "main" {
       viewer_protocol_policy = "redirect-to-https"
       compress               = true
       cache_policy_id        = "4135ea2d-6df8-44a3-9df3-4b5a84be39ad"
+
+      function_association {
+        event_type   = "viewer-request"
+        function_arn = aws_cloudfront_function.admin_html_rewrite[0].arn
+      }
     }
   }
 

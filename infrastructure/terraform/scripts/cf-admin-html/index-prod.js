@@ -1,7 +1,12 @@
 function handler(event) {
   var request = event.request;
-  var hostHeader = request.headers ? request.headers.host : null;
+  if (!request.headers) {
+    request.headers = {};
+  }
+  var hostHeader = request.headers.host;
   var host = hostHeader && hostHeader.value ? hostHeader.value : '';
+  request.headers['x-cf-site-key'] = { value: host ? host.toLowerCase() : '' };
+
   var hosts = ['admin.yamang02.com'];
   var match = false;
   for (var i = 0; i < hosts.length; i++) {
