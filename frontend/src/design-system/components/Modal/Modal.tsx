@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import styles from './Modal.module.css';
 
 export interface ModalProps {
@@ -46,7 +47,7 @@ export const Modal: React.FC<ModalProps> = ({
     }
   };
 
-  return (
+  return createPortal(
     <button
       type="button"
       className={styles.overlay}
@@ -86,6 +87,7 @@ export const Modal: React.FC<ModalProps> = ({
         {/* 컨텐츠 */}
         <div className={styles.content}>{children}</div>
       </div>
-    </button>
+    </button>,
+    document.body
   );
 };
