@@ -2,9 +2,13 @@ package com.aiportfolio.backend.infrastructure.web.admin.session;
 
 import com.aiportfolio.backend.application.admin.exception.AdminAuthenticationException;
 import com.aiportfolio.backend.infrastructure.web.admin.dto.AdminUserInfo;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.util.Optional;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.session.web.http.CookieSerializer;
 import org.springframework.stereotype.Component;
 
 /**
@@ -12,8 +16,11 @@ import org.springframework.stereotype.Component;
  * 웹 계층에서만 세션을 다루고 애플리케이션 서비스는 세션 구현에 의존하지 않도록 한다.
  */
 @Component
+@RequiredArgsConstructor
 @Slf4j
 public class AdminSessionManager {
+
+    private final CookieSerializer cookieSerializer;
 
     public static final String ADMIN_USER_KEY = "ADMIN_USER";
     private static final int DEFAULT_SESSION_TIMEOUT_SECONDS = 30 * 60;
@@ -48,16 +55,18 @@ public class AdminSessionManager {
     }
 
     /**
-     * 세션을 무효화한다.
+     * 세션을 무효화하고, 브라우저의 세션 쿠키(SESSION)를 만료시킨다.
+     * 서버 세션만 지우면 쿠키가 남아 클라이언트가 세션 API를 재호출할 수 있으므로 반드시 함께 처리한다.
      */
-    public void clearSession(HttpSession session) {
-        if (session == null) {
-            return;
+    public void clearSession(HttpSession session, HttpServletRequest request, HttpServletResponse response) {
+        if (session != null) {
+            String sessionId = session.getId();
+            session.removeAttribute(ADMIN_USER_KEY);
+            session.invalidate();
+            log.debug("Admin session invalidated: {}", sessionId);
         }
 
-        session.removeAttribute(ADMIN_USER_KEY);
-        session.invalidate();
-        log.debug("Admin session invalidated: {}", session.getId());
+        cookieSerializer.writeCookieValue(new CookieSerializer.CookieValue(request, response, ""));
     }
 }
 

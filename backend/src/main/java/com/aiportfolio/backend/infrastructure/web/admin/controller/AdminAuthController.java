@@ -8,6 +8,7 @@ import com.aiportfolio.backend.infrastructure.web.admin.session.AdminSessionMana
 import com.aiportfolio.backend.infrastructure.web.WebApiResponseMessages;
 import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -54,11 +55,13 @@ public class AdminAuthController {
      * 관리자 로그아웃
      */
     @PostMapping("/logout")
-    public ResponseEntity<ApiResponse<Void>> logout(HttpServletRequest httpRequest) {
+    public ResponseEntity<ApiResponse<Void>> logout(
+            HttpServletRequest httpRequest,
+            HttpServletResponse httpResponse) {
         log.debug("Logout request received");
         HttpSession session = httpRequest.getSession(false);
-        adminSessionManager.clearSession(session);
-        
+        adminSessionManager.clearSession(session, httpRequest, httpResponse);
+
         return ResponseEntity.ok(ApiResponse.success(null, WebApiResponseMessages.ADMIN_LOGOUT_SUCCESS));
     }
 

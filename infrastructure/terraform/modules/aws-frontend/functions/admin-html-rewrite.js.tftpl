@@ -1,7 +1,12 @@
 function handler(event) {
   var request = event.request;
-  var hostHeader = request.headers ? request.headers.host : null;
+  if (!request.headers) {
+    request.headers = {};
+  }
+  var hostHeader = request.headers.host;
   var host = hostHeader && hostHeader.value ? hostHeader.value : '';
+  request.headers['x-cf-site-key'] = { value: host ? host.toLowerCase() : '' };
+
   var hosts = ${hosts_json};
   var match = false;
   for (var i = 0; i < hosts.length; i++) {
@@ -19,6 +24,11 @@ function handler(event) {
     uri = '/';
   }
   request.uri = uri;
+  // Distribution에 DefaultRootObject=index.html이면 /가 먼저 /index.html이 되어 확장자 분기에서 스킵됨 → Admin만 엔트리로 통일
+  if (uri === '/index.html') {
+    request.uri = '/admin.html';
+    return request;
+  }
   if (uri.indexOf('/assets/') === 0) {
     return request;
   }

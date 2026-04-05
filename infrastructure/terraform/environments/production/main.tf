@@ -63,6 +63,9 @@ module "frontend" {
   distribution_comment       = var.cloudfront_comment
   origin_access_control_name = var.cloudfront_oac_name
   extra_edge_no_cache_path_patterns = ["admin.html"]
+  # 스테이징과 동일: 비어 두면 /가 /index.html로 치환되지 않아 viewer-request에서 Admin 호스트를 /admin.html로 맞출 수 있음.
+  # 메인 www/apex는 403/404 커스텀 에러로 index.html SPA 폴백.
+  default_root_object = ""
 }
 
 module "iam" {

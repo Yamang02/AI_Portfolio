@@ -2,13 +2,12 @@ import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SeoHead } from '@/shared/ui/seo/SeoHead';
 import { pageMetaDefaults } from '@/shared/config/seo.config';
-import { SectionTitle, Button } from '@/design-system';
+import { SectionTitle } from '@/design-system';
 import { PageHeader } from '@/main/widgets/page-header';
 import { useProjectsQuery } from '@/main/entities/project/api/useProjectsQuery';
 import type { Project } from '@/main/entities/project/model/project.types';
 import type { ProjectCardProject } from '@/design-system/components/Card/ProjectCard';
 import { FEATURED_PROJECTS } from '@/main/widgets/featured-projects-section/model/featuredProjects.config';
-import { ProjectSearchModal } from './components/ProjectSearchModal';
 import { ProjectHistoryTimeline } from './components/ProjectHistoryTimeline';
 import { ProjectSectionContent } from './components/ProjectSectionContent';
 import { useContentHeightRecalc } from '@/shared/hooks';
@@ -24,7 +23,6 @@ type ProjectCategory = 'BUILD' | 'LAB' | 'MAINTENANCE';
 export const ProjectsListPage: React.FC = () => {
   const meta = pageMetaDefaults.projects;
   const navigate = useNavigate();
-  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [highlightedProjectId, setHighlightedProjectId] = useState<string | undefined>();
 
   // API에서 프로젝트 목록 가져오기
@@ -155,28 +153,6 @@ export const ProjectsListPage: React.FC = () => {
       />
       <PageHeader
         title="작업물"
-        actions={
-          <Button
-            variant="icon"
-            size="md"
-            onClick={() => setIsSearchModalOpen(true)}
-            ariaLabel="작업물 검색"
-          >
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <circle cx="11" cy="11" r="8"></circle>
-              <path d="m21 21-4.35-4.35"></path>
-            </svg>
-          </Button>
-        }
         description={<p>총 {projects.length}개의 작업물</p>}
       />
 
@@ -254,12 +230,6 @@ export const ProjectsListPage: React.FC = () => {
         </section>
       )}
 
-      {/* 프로젝트 검색 모달 */}
-      <ProjectSearchModal
-        isOpen={isSearchModalOpen}
-        onClose={() => setIsSearchModalOpen(false)}
-        projects={projects}
-      />
       </div>
   );
 };

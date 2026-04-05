@@ -85,15 +85,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const logout = async () => {
     try {
       await adminAuthApi.logout();
-      setIsAuthenticated(false);
-      // 로그아웃 후 세션 쿼리 무효화
-      await queryClient.invalidateQueries({ queryKey: ['admin-session'] });
-      return { success: true };
-    } catch (error) {
-      setIsAuthenticated(false);
-      await queryClient.invalidateQueries({ queryKey: ['admin-session'] });
-      return { success: true }; // 로그아웃은 항상 성공으로 처리
+    } catch {
+      // API 실패여도 클라이언트 측 세션 상태는 정리
     }
+    setIsAuthenticated(false);
+    queryClient.removeQueries({ queryKey: ['admin-session'] });
+    globalThis.location.href = '/admin/login';
+    return { success: true };
   };
 
   const value: AuthContextType = {
