@@ -82,6 +82,8 @@ spring:
       allowed-origins: 
         - "http://localhost:3000"
         - "http://127.0.0.1:3000"
+        - "http://localhost:3002"  # profile/ Vite
+        - "http://127.0.0.1:3002"
       allowed-methods: 
         - GET
         - POST
