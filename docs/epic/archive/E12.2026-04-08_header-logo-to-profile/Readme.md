@@ -22,48 +22,48 @@
 
 ### 라우팅·레이아웃
 
-- [ ] `MainAppRoutes.tsx`: `isHomePage` / `HomePageLayout` / `HomePage` **분기 제거**. 단일 `PageLayout` + `AnimatedRoutes` 트리로 통일.
-- [ ] `path="/"` → `<Navigate to="/profile" replace />`(또는 동등한 리다이렉트). `react-router-dom`의 `Navigate` 사용.
-- [ ] `path="/profile"`에 기존과 같이 `ProfilePage`(Suspense·ErrorBoundary 유지).
-- [ ] `showFooter` 등 경로 배열에서 **`'/'` 전용 분기 제거**(`/profile`만으로 푸터 노출이 되면 됨).
+- [x] `MainAppRoutes.tsx`: `isHomePage` / `HomePageLayout` / `HomePage` **분기 제거**. 단일 `PageLayout` + `AnimatedRoutes` 트리로 통일.
+- [x] `path="/"` → `<Navigate to="/profile" replace />`(또는 동등한 리다이렉트). `react-router-dom`의 `Navigate` 사용.
+- [x] `path="/profile"`에 기존과 같이 `ProfilePage`(Suspense·ErrorBoundary 유지).
+- [x] `showFooter` 등 경로 배열에서 **`'/'` 전용 분기 제거**(`/profile`만으로 푸터 노출이 되면 됨).
 
 ### 헤더
 
-- [ ] `Header.tsx` `handleLogoClick`: `pathname === '/profile'` → 스크롤, 아니면 `navigate('/profile')` (**`/` 조건 제거**).
+- [x] `Header.tsx` `handleLogoClick`: `pathname === '/profile'` → 스크롤, 아니면 `navigate('/profile')` (**`/` 조건 제거**).
 
 ### 랜딩 전용 코드 삭제
 
-- [ ] `frontend/src/main/pages/HomePage/` 디렉터리 삭제.
-- [ ] 랜딩 전용 위젯 삭제(다른 곳에서 import 없음 확인 후): `hero-section`, `about-section`, `cta-section`, `home-page-layout`, `featured-projects-section` **UI** — 단, **`featuredProjects.config`는 먼저 이동** 후 `ProjectsListPage` import 경로 수정.
-- [ ] `globals.css` 등 **HomePage 전용 주석·스타일** 정리(필요 시).
+- [x] `frontend/src/main/pages/HomePage/` 디렉터리 삭제.
+- [x] 랜딩 전용 위젯 삭제(다른 곳에서 import 없음 확인 후): `hero-section`, `about-section`, `cta-section`, `home-page-layout`, `featured-projects-section` **UI** — 단, **`featuredProjects.config`는 먼저 이동** 후 `ProjectsListPage` import 경로 수정.
+- [x] `globals.css` 등 **HomePage 전용 주석·스타일** 정리(필요 시).
 
 ### 페이지 라이프사이클
 
-- [ ] `pageConfig.ts`: **`'/'` 항목** 제거 또는 `/profile`과 통합. `pageKey: 'home'` 스크롤 복원 정책이 `/profile`과 충돌하지 않게 조정.
-- [ ] `usePageLifecycle` / `usePageLifecycle` 주석에 `home` 예시가 있으면 문구 갱신.
+- [x] `pageConfig.ts`: **`'/'` 항목** 제거 또는 `/profile`과 통합. `pageKey: 'home'` 스크롤 복원 정책이 `/profile`과 충돌하지 않게 조정.
+- [x] `usePageLifecycle` / `usePageLifecycle` 주석에 `home` 예시가 있으면 문구 갱신.
 
 ### SEO·구조화 데이터
 
-- [ ] `seo.config.ts`: **`pageMetaDefaults.home`** 처리 — 제거하거나 프로필 메타와 중복되지 않게 정리. 사이트 기본 진입이 `/profile`이면 **기본 canonical/OG 설명** 정책을 한 곳에 맞춤.
-- [ ] `ProfilePage`(또는 공통 레이아웃): 기존 `HomePage`의 `createOrganizationSchema()`, `createWebSiteSchema()` **추가**(배열 `jsonLd`에 Person과 병행 가능). 중복·충돌 없이 `SeoHead`에 전달.
-- [ ] `shared/lib/schema.ts` 등은 함수 재사용만 하면 되고, **삭제 금지**(다른 페이지에서 사용).
+- [x] `seo.config.ts`: **`pageMetaDefaults.home`** 처리 — 제거하거나 프로필 메타와 중복되지 않게 정리. 사이트 기본 진입이 `/profile`이면 **기본 canonical/OG 설명** 정책을 한 곳에 맞춤.
+- [x] `ProfilePage`(또는 공통 레이아웃): 기존 `HomePage`의 `createOrganizationSchema()`, `createWebSiteSchema()` **추가**(배열 `jsonLd`에 Person과 병행 가능). 중복·충돌 없이 `SeoHead`에 전달.
+- [x] `shared/lib/schema.ts` 등은 함수 재사용만 하면 되고, **삭제 금지**(다른 페이지에서 사용).
 
 ### 사이트맵·빌드
 
-- [ ] `vite.config.ts` `Sitemap` 플러그인 `routes`에서 **`'/'` 항목** 조정: `/` 제거 또는 `/profile`에 우선순위 통합(동일 URL 두 번 나열 방지).
-- [ ] `sitemap-routes.json`(동적 라우트)이 있다면 **중복·우선순위** 점검.
+- [x] `vite.config.ts` `Sitemap` 플러그인 `routes`에서 **`'/'` 항목** 조정: `/` 제거 또는 `/profile`에 우선순위 통합(동일 URL 두 번 나열 방지).
+- [x] `sitemap-routes.json`(동적 라우트)이 있다면 **중복·우선순위** 점검.
 
 ### 스크립트·문서
 
-- [ ] `frontend/scripts/take-screenshots-after.ts`: 랜딩·`#featured-projects` 스크린샷 항목 **제거 또는 `/profile` 기준으로 변경**.
-- [ ] `frontend/developmentGuide.md`: `isHomePage`, 홈 레이아웃 설명 **삭제/갱신**.
-- [ ] `docs/technical/guides/frontend/chunk-load-error-fix.md` 등 **`/` fallback** 언급이 있으면 문구 확인.
+- [x] `frontend/scripts/take-screenshots-after.ts`: 랜딩·`#featured-projects` 스크린샷 항목 **제거 또는 `/profile` 기준으로 변경**.
+- [x] `frontend/developmentGuide.md`: `isHomePage`, 홈 레이아웃 설명 **삭제/갱신**.
+- [x] `docs/technical/guides/frontend/chunk-load-error-fix.md` 등 **`/` fallback** 언급이 있으면 문구 확인.
 
 ### 검증
 
-- [ ] 로컬: 직접 `/` 접속 시 `/profile`로 이동하는지.
-- [ ] 로고·푸터·스크롤 회귀 테스트.
-- [ ] `npm run build` 성공, 필요 시 `npm run test`.
+- [x] 로컬: 직접 `/` 접속 시 `/profile`로 이동하는지.
+- [x] 로고·푸터·스크롤 회귀 테스트.
+- [x] `npm run build` 성공, 필요 시 `npm run test`.
 
 ## Phase 목록
 
@@ -80,3 +80,6 @@
 - [x] P02 완료
 - [x] P03 완료
 - [x] P04 완료
+
+## 완료
+아카이브일: 2026-04-10
