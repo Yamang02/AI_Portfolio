@@ -1,13 +1,9 @@
 import React, { lazy, Suspense } from 'react';
-import { Route, Routes, useLocation } from 'react-router-dom';
+import { Navigate, Route, useLocation } from 'react-router-dom';
 import { PageLayout } from '@/main/widgets/page-layout';
-import { HomePageLayout } from '@/main/widgets/home-page-layout';
 import { AnimatedRoutes } from '@/shared/ui/page-transition';
 import { LoadingScreen } from '@/shared/ui/LoadingScreen';
 import { ErrorBoundary } from '@/shared/ui/error-boundary';
-
-// 홈페이지는 즉시 로드 (초기 진입점)
-import { HomePage } from '@/main/pages/HomePage';
 
 // 나머지 페이지는 코드 스플리팅 적용
 const ProjectsListPage = lazy(() => import('@/main/pages/ProjectsListPage').then(m => ({ default: m.ProjectsListPage })));
@@ -24,14 +20,13 @@ const ArticleDetailPage = lazy(() => import('@/main/pages/ArticleDetailPage').th
 const MainAppContent: React.FC = () => {
   const location = useLocation();
 
-  // 푸터 표시: 홈페이지, 프로필 페이지, 프로젝트 페이지, 아티클 페이지에 표시
-  // 챗봇 페이지와 프로젝트 상세 페이지는 푸터 제외
-  const showFooter = ['/', '/profile', '/projects', '/articles'].includes(location.pathname) && !location.pathname.startsWith('/projects/') && !location.pathname.startsWith('/articles/');
-  
-  // 홈페이지는 스크롤 드리븐 애니메이션을 위해 overflow 제어 제외
-  const isHomePage = location.pathname === '/';
-  const isChatPage = location.pathname === '/chat';
+  // 푸터 표시: 프로필·프로젝트·아티클 목록에 표시 (챗봇·상세 제외)
+  const showFooter =
+    ['/profile', '/projects', '/articles'].includes(location.pathname) &&
+    !location.pathname.startsWith('/projects/') &&
+    !location.pathname.startsWith('/articles/');
 
+  const isChatPage = location.pathname === '/chat';
 
   // React Router의 기본 스크롤 복원 비활성화
   React.useEffect(() => {
@@ -40,18 +35,6 @@ const MainAppContent: React.FC = () => {
     }
   }, []);
 
-  // 홈페이지는 HomePageLayout 사용 (scroll-driven animation 지원)
-  if (isHomePage) {
-    return (
-      <HomePageLayout showFooter={true}>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-        </Routes>
-      </HomePageLayout>
-    );
-  }
-
-  // 다른 페이지는 PageLayout 사용
   return (
     <PageLayout showFooter={showFooter} footerVisible={true}>
       <div
@@ -60,13 +43,14 @@ const MainAppContent: React.FC = () => {
           backgroundColor: 'var(--color-background)',
           color: 'var(--color-text-primary)',
           overflowX: 'hidden',
-          overflowY: isChatPage ? 'hidden' : 'auto', // 챗봇 페이지는 내부 스크롤만 사용
+          overflowY: isChatPage ? 'hidden' : 'auto',
           flex: 1,
           display: 'flex',
           flexDirection: 'column',
         }}
       >
         <AnimatedRoutes>
+          <Route path="/" element={<Navigate to="/profile" replace />} />
           <Route
             path="/profile"
             element={
@@ -135,7 +119,7 @@ const MainAppContent: React.FC = () => {
 
 /**
  * MainApp 라우팅 컴포넌트
- * AppProvider는 상위 App.tsx에서 제공됨
+ * AppProvider는 App.tsx에서 상위로 제공됨
  */
 export const MainAppRoutes: React.FC = () => {
   return <MainAppContent />;

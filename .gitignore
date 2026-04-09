@@ -75,10 +75,22 @@ jspm_packages/
 
 # Gatsby files
 .cache/
-# Exclude all public folders except frontend/public/favicons, easter-eggs, landing, placeholder, and images/projects
+# Exclude all public folders except frontend/public and profile/public
 public/
 !frontend/public/
 frontend/public/*
+!profile/public/
+profile/public/*
+!profile/public/img/
+!profile/public/img/**
+!profile/public/video/
+!profile/public/video/**
+!profile/public/favicons/
+!profile/public/favicons/**
+!profile/public/*.ttf
+!profile/public/*.woff
+!profile/public/*.woff2
+!profile/public/*.otf
 !frontend/public/favicons/
 !frontend/public/favicons/**
 !frontend/public/favicons/*.ico

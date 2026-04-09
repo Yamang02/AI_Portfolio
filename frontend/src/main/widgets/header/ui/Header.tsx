@@ -43,10 +43,10 @@ export const Header: React.FC = () => {
 
   const handleLogoClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    if (location.pathname === '/') {
+    if (location.pathname === '/profile') {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
-      navigate('/');
+      navigate('/profile');
     }
     setIsMenuOpen(false);
   };
@@ -121,7 +121,7 @@ export const Header: React.FC = () => {
   return (
     <header className={styles.header}>
       <div className={styles.container}>
-        <a href="/" className={styles.logo} onClick={handleLogoClick}>
+        <a href="/profile" className={styles.logo} onClick={handleLogoClick}>
           야망솔루션
         </a>
         

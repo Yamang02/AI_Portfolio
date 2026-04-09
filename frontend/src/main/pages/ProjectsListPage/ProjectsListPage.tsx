@@ -7,7 +7,7 @@ import { PageHeader } from '@/main/widgets/page-header';
 import { useProjectsQuery } from '@/main/entities/project/api/useProjectsQuery';
 import type { Project } from '@/main/entities/project/model/project.types';
 import type { ProjectCardProject } from '@/design-system/components/Card/ProjectCard';
-import { FEATURED_PROJECTS } from '@/main/widgets/featured-projects-section/model/featuredProjects.config';
+import { FEATURED_PROJECTS } from '@/main/pages/ProjectsListPage/model/featuredProjects.config';
 import { ProjectHistoryTimeline } from './components/ProjectHistoryTimeline';
 import { ProjectSectionContent } from './components/ProjectSectionContent';
 import { useContentHeightRecalc } from '@/shared/hooks';

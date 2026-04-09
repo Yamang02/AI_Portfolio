@@ -122,7 +122,7 @@
   --color-glass-light: rgba(255, 255, 255, 0.1);
   --color-glass-medium: rgba(255, 255, 255, 0.2);
   
-  /* 그라데이션 색상 (HomePage 배경용 - Featured Projects 섹션부터 하단까지) */
+  /* 그라데이션 색상 (라이트 톤 섹션 배경 등) */
   /* 흰색에서 featured-bg 색상(#E8F5ED)으로 자연스럽게 전환 */
   --color-gradient-light-start: #F5FBF8;   /* 흰색과 featured-bg 사이 */
   --color-gradient-light-mid1: #F0F9F4;    /* featured-bg에 가까워짐 */

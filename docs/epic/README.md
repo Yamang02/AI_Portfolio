@@ -30,6 +30,8 @@ docs/epic/archive/
 |------|------|
 | [E02.2026-04-02_infrastructure-as-code](./E02.2026-04-02_infrastructure-as-code/) | Terraform 기반 인프라 코드화·디버깅 환경 (P05 등) |
 | [E06.2026-04-03_admin-entry-isolation](./E06.2026-04-03_admin-entry-isolation/) | Main/Admin 진입점 격리, MPA `admin.html`, Staging/Production 전용 Admin 호스트(FQDN 비공개), CloudFront·CORS (P01~P04) |
+| [E12.2026-04-08_header-logo-to-profile](./E12.2026-04-08_header-logo-to-profile/) | 랜딩 제거·`/`→`/profile`·헤더·SEO·사이트맵 (P01~P04) |
+| [E14.2026-04-09_domain-split-and-infra](./E14.2026-04-09_domain-split-and-infra/) | `yamang02.com`→profile, `yamangsolution.com`→frontend 도메인 전환 및 인프라 재편 (P01~P02) |
 
 ## 아카이브된 에픽 (E## 네이밍)
 

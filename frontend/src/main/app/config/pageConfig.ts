@@ -31,12 +31,6 @@ export interface PageConfig {
  * 각 페이지의 공통 설정을 중앙에서 관리합니다.
  */
 export const PAGE_CONFIG: Record<string, PageConfig> = {
-  '/': {
-    scrollPolicy: 'preserve',
-    restoreScroll: true,
-    showFooter: true,
-    pageKey: 'home',
-  },
   '/profile': {
     scrollPolicy: 'top',
     restoreScroll: false,
