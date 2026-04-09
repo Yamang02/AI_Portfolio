@@ -1,0 +1,70 @@
+name: "[Staging] Profile → AWS S3 + CloudFront"
+
+on:
+  push:
+    branches: [ staging ]
+    paths:
+      - 'profile/**'
+      - '.github/workflows/profile-staging-aws.yml'
+  workflow_dispatch:
+
+jobs:
+  deploy-staging:
+    if: github.ref == 'refs/heads/staging' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    environment: staging
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: profile/package-lock.json
+
+    - name: Install dependencies
+      run: |
+        cd profile
+        npm ci
+
+    - name: Build profile
+      run: |
+        cd profile
+        npm run build
+      env:
+        VITE_EMAILJS_SERVICE_ID: ${{ vars.VITE_EMAILJS_SERVICE_ID }}
+        VITE_EMAILJS_TEMPLATE_ID: ${{ vars.VITE_EMAILJS_TEMPLATE_ID }}
+        VITE_EMAILJS_PUBLIC_KEY: ${{ vars.VITE_EMAILJS_PUBLIC_KEY }}
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ vars.AWS_REGION }}
+
+    - name: Upload to S3
+      run: |
+        cd profile
+        aws s3 sync dist/ s3://${{ vars.PROFILE_AWS_S3_NAME }} --delete --cache-control "public, max-age=31536000"
+
+    - name: Upload index.html with no-cache
+      run: |
+        aws s3 cp profile/dist/index.html "s3://${{ vars.PROFILE_AWS_S3_NAME }}/index.html" \
+          --cache-control "public, max-age=0, must-revalidate" \
+          --content-type "text/html"
+
+    - name: Invalidate CloudFront cache
+      run: |
+        aws cloudfront create-invalidation \
+          --distribution-id ${{ vars.PROFILE_AWS_CLOUDFRONT_DISTRIBUTION_ID }} \
+          --paths "/*"
+
+    - name: Output deployment URL
+      run: |
+        echo "Staging Profile deployed to: https://staging.yamang02.com"
+        echo "S3: s3://${{ vars.PROFILE_AWS_S3_NAME }}"
+        echo "CloudFront: ${{ vars.PROFILE_AWS_CLOUDFRONT_DISTRIBUTION_ID }}"
