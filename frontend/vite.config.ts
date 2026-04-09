@@ -122,14 +122,9 @@ export default defineConfig(({ mode }) => {
       resolve: {
         alias: {
           '@': path.resolve(__dirname, './src'),
-          '@shared': path.resolve(__dirname, './src/shared'),
-          '@entities': path.resolve(__dirname, './src/entities'),
-          '@features': path.resolve(__dirname, './src/features'),
           '@main': path.resolve(__dirname, './src/main'),
-          '@widgets': path.resolve(__dirname, './src/widgets'),
-          '@pages': path.resolve(__dirname, './src/pages'),
-          '@processes': path.resolve(__dirname, './src/processes'),
-          '@app': path.resolve(__dirname, './src/app'),
+          '@admin': path.resolve(__dirname, './src/admin'),
+          '@shared': path.resolve(__dirname, './src/shared'),
           '@design-system': path.resolve(__dirname, './src/design-system'),
         }
       },

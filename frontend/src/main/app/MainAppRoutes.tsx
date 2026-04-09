@@ -8,7 +8,7 @@ import { ErrorBoundary } from '@/shared/ui/error-boundary';
 // 나머지 페이지는 코드 스플리팅 적용
 const ProjectsListPage = lazy(() => import('@/main/pages/ProjectsListPage').then(m => ({ default: m.ProjectsListPage })));
 const ProjectDetailPage = lazy(() => import('@/main/pages/ProjectDetailPage').then(m => ({ default: m.ProjectDetailPage })));
-const ProfilePage = lazy(() => import('@/main/pages/ProfilePage').then(m => ({ default: m.ProfilePage })));
+const FounderPage = lazy(() => import('@/main/pages/FounderPage').then(m => ({ default: m.FounderPage })));
 const ChatPage = lazy(() => import('@/main/pages/ChatPage').then(m => ({ default: m.ChatPage })));
 const ArticleListPage = lazy(() => import('@/main/pages/ArticleListPage').then(m => ({ default: m.ArticleListPage })));
 const ArticleDetailPage = lazy(() => import('@/main/pages/ArticleDetailPage').then(m => ({ default: m.ArticleDetailPage })));
@@ -55,8 +55,8 @@ const MainAppContent: React.FC = () => {
             path="/profile"
             element={
               <ErrorBoundary>
-                <Suspense fallback={<LoadingScreen message="프로필을 불러오는 중..." />}>
-                  <ProfilePage />
+                <Suspense fallback={<LoadingScreen message="대표 소개를 불러오는 중..." />}>
+                  <FounderPage />
                 </Suspense>
               </ErrorBoundary>
             }

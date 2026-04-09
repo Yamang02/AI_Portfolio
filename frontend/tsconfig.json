@@ -27,6 +27,7 @@
       "@/*": ["./src/*"],
       "@main/*": ["./src/main/*"],
       "@admin/*": ["./src/admin/*"],
+      "@shared/*": ["./src/shared/*"],
       "@design-system/*": ["./src/design-system/*"]
     }
   }

@@ -8,9 +8,9 @@ import { IntroductionSection } from './components/IntroductionSection';
 import { CareerTimeline } from './components/CareerTimeline';
 import { CareerTimelineSection } from './components/CareerTimelineSection';
 import { PageHeader } from '@/main/widgets/page-header';
-import styles from './ProfilePage.module.css';
+import styles from './FounderPage.module.css';
 
-export const ProfilePage: React.FC = () => {
+export const FounderPage: React.FC = () => {
   const meta = pageMetaDefaults.profile;
   const { data: experiences = [], isLoading: isLoadingExperiences } = useExperiencesQuery();
   const { data: educations = [], isLoading: isLoadingEducations } = useEducationQuery();
