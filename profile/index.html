@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+
+<html class="light scroll-smooth" lang="ko"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>이정준 — 포트폴리오</title>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;family=Manrope:wght@200..800&amp;family=Gowun+Batang:wght@400;700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/gh/spoqa/spoqa-han-sans@latest/css/SpoqaHanSansNeo.css" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">tailwind.config = {darkMode: "class", theme: {extend: {colors: {"tertiary-fixed-dim": "#cbedd8", primary: "#38684b", "on-surface": "#2b3437", "primary-container": "#baefca", "surface-variant": "#dbe4e7", "secondary-fixed-dim": "#c3daca", "inverse-primary": "#c0f5cf", "tertiary-dim": "#3c5949", "primary-dim": "#2c5c3f", "on-secondary-container": "#42564a", "surface-bright": "#f8f9fa", surface: "#f8f9fa", "on-secondary-fixed-variant": "#4b6053", "on-primary-container": "#2b5b3f", "surface-container-lowest": "#ffffff", background: "#f8f9fa", error: "#9f403d", "surface-container-high": "#e2e9ec", "primary-fixed": "#baefca", "on-secondary": "#e7ffee", secondary: "#4f6457", "inverse-on-surface": "#9b9d9e", "outline-variant": "#abb3b7", "surface-tint": "#38684b", "on-error": "#fff7f6", "on-tertiary-container": "#446252", "on-tertiary-fixed-variant": "#4e6d5c", "surface-container-low": "#f1f4f6", "inverse-surface": "#0c0f10", "on-tertiary": "#e6ffee", "tertiary-container": "#dafce6", "on-primary": "#e2ffe8", "surface-container-highest": "#dbe4e7", "on-background": "#2b3437", "on-primary-fixed-variant": "#356548", "surface-dim": "#d1dce0", "on-error-container": "#752121", "on-secondary-fixed": "#2f4438", "secondary-dim": "#43584b", "secondary-fixed": "#d1e8d7", "error-dim": "#4e0309", "on-surface-variant": "#586064", "primary-fixed-dim": "#ace0bc", "on-primary-fixed": "#17482d", "tertiary-fixed": "#dafce6", outline: "#737c7f", tertiary: "#476655", "surface-container": "#eaeff1", "error-container": "#fe8983", "on-tertiary-fixed": "#325040", "secondary-container": "#d1e8d7"}, borderRadius: {DEFAULT: "0.125rem", lg: "0.25rem", xl: "0.5rem", full: "0.75rem"}, fontFamily: {headline: ["Newsreader", "Gowun Batang", "serif"], body: ["Manrope", "Spoqa Han Sans Neo", "sans-serif"], label: ["Manrope", "Spoqa Han Sans Neo", "sans-serif"], display: ["Newsreader", "Gowun Batang", "serif"]}}}};</script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 200, 'GRAD' 0, 'opsz' 24;
+        }
+        .text-reveal {
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%);
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body selection:bg-primary-container selection:text-on-primary-container">
+
+<!-- 네비게이션 -->
+<nav class="fixed top-0 w-full z-50 bg-surface/80 dark:bg-inverse-surface/80 backdrop-blur-xl transition-all duration-300">
+<div class="flex justify-between items-center px-8 py-6 w-full max-w-screen-2xl mx-auto border-b border-outline-variant/20">
+<div class="text-xl font-headline font-bold text-on-surface dark:text-surface-bright tracking-tighter">
+            Lee Jung-jun
+        </div>
+<div class="hidden md:flex items-center space-x-12">
+<a class="text-primary dark:text-primary-fixed-dim border-b border-primary pb-1 font-headline italic tracking-tight hover:text-primary-dim transition-colors duration-300" href="#identity">정체성</a>
+<a class="text-on-surface-variant font-body hover:text-primary transition-colors duration-300" href="#works">작업</a>
+<a class="text-on-surface-variant font-body hover:text-primary transition-colors duration-300" href="#connect">연락</a>
+</div>
+<div class="flex items-center">
+<button class="bg-primary text-on-primary px-5 py-2 text-sm font-medium hover:bg-primary-dim transition-all duration-300 rounded-DEFAULT" onclick="document.getElementById('connect').scrollIntoView({behavior:'smooth'})">
+                AI 포트폴리오
+            </button>
+</div>
+</div>
+</nav>
+
+<main class="pt-32">
+
+<!-- 히어로 섹션 -->
+<section class="px-8 md:px-24 py-24 md:py-40 max-w-5xl mx-auto w-full flex flex-col">
+<div class="flex flex-col md:flex-row md:items-center gap-8 md:gap-16">
+<div class="flex-1 min-w-0">
+<div class="mb-6">
+<p class="font-label text-sm tracking-widest text-on-surface-variant mb-4">Hello! I'm</p>
+<div class="h-12 overflow-hidden mb-4 ml-1">
+<div class="flex flex-col animate-[scroll_10s_infinite] space-y-4">
+<span class="font-headline italic text-2xl md:text-3xl text-primary">Educator</span>
+<span class="font-headline italic text-2xl md:text-3xl text-primary">Developer</span>
+<span class="font-headline italic text-2xl md:text-3xl text-primary">Artist</span>
+<span class="font-headline italic text-2xl md:text-3xl text-primary">Entrepreneur</span>
+</div>
+</div>
+<h1 class="font-headline text-[3.5rem] md:text-[5.5rem] leading-[1.1] tracking-tight mb-8">
+                Lee<br/>JeongJun
+</h1>
+</div>
+</div>
+<!-- 프로필 사진 -->
+<div class="w-full md:w-[400px] shrink-0 order-first md:order-last">
+<div class="aspect-[3/4] overflow-hidden rounded-xl bg-surface-container-high">
+<img src="/img/hero_photo.jpg" alt="이정준 프로필 사진" class="w-full h-full object-cover object-top"/>
+</div>
+</div>
+</div>
+<style>
+            @keyframes scroll {
+                0%, 20% { transform: translateY(0); }
+                25%, 45% { transform: translateY(-3rem); }
+                50%, 70% { transform: translateY(-6rem); }
+                75%, 95% { transform: translateY(-9rem); }
+                100% { transform: translateY(0); }
+            }
+        </style>
+</section>
+
+<!-- 정체성 섹션 -->
+<section id="identity" class="bg-surface-container-low py-32 px-8 md:px-24">
+<div class="max-w-screen-2xl mx-auto space-y-16">
+    <!-- 소개 단락 -->
+    <div class="max-w-2xl">
+        <p class="font-label text-[0.75rem] uppercase tracking-widest text-secondary mb-6 block">About Me</p>
+        <p class="font-headline text-2xl md:text-3xl leading-relaxed text-on-surface">
+            스스로 <span class="font-bold text-primary">구상</span>하고<br/>직접 <span class="font-bold text-primary">만듭니다</span>.
+        </p>
+    </div>
+    <!-- 역할 카드 -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <div class="p-8 bg-surface-container-lowest rounded-xl border border-outline-variant/10 hover:border-primary/30 transition-all duration-500 space-y-3">
+            <span class="material-symbols-outlined text-primary text-3xl block" data-icon="school">school</span>
+            <h3 class="font-headline text-xl">교육자</h3>
+            <p class="font-label text-xs text-secondary">고등학교 국어교사 · 바이브코딩 과외</p>
+            <p class="font-body text-sm text-on-surface-variant leading-relaxed">교육설계 경험을 바탕으로<br/>학습자의 단계적 성장을 지향합니다</p>
+        </div>
+        <div class="p-8 bg-surface-container-lowest rounded-xl border border-outline-variant/10 hover:border-primary/30 transition-all duration-500 space-y-3">
+            <span class="material-symbols-outlined text-primary text-3xl block" data-icon="code">code</span>
+            <h3 class="font-headline text-xl">개발자</h3>
+            <p class="font-label text-xs text-secondary">ERP · WEB 개발 및 운영</p>
+            <p class="font-body text-sm text-on-surface-variant leading-relaxed">현장에서 쌓은 기획·배포·운영 경험을<br/>코드에 녹입니다</p>
+        </div>
+        <div class="p-8 bg-surface-container-lowest rounded-xl border border-outline-variant/10 hover:border-primary/30 transition-all duration-500 space-y-3">
+            <span class="material-symbols-outlined text-primary text-3xl block" data-icon="palette">palette</span>
+            <h3 class="font-headline text-xl">예술가</h3>
+            <p class="font-label text-xs text-secondary">성균관대 순수미술 동아리 성미회</p>
+            <p class="font-body text-sm text-on-surface-variant leading-relaxed">논리만으로는 부족한 자리에<br/>감각과 미감을 더합니다</p>
+        </div>
+        <div class="p-8 bg-surface-container-lowest rounded-xl border border-outline-variant/10 hover:border-primary/30 transition-all duration-500 space-y-3">
+            <span class="material-symbols-outlined text-primary text-3xl block" data-icon="rocket_launch">rocket_launch</span>
+            <h3 class="font-headline text-xl">사업가</h3>
+            <p class="font-label text-xs text-secondary">야망솔루션 대표</p>
+            <p class="font-body text-sm text-on-surface-variant leading-relaxed">다방면의 시각으로 문제를 정의하고<br/>실행으로 증명합니다</p>
+        </div>
+    </div>
+</div>
+</section>
+
+<!-- 작업 섹션 -->
+<section id="works" class="py-32 px-8 md:px-24 bg-surface">
+<div class="max-w-screen-2xl mx-auto">
+<div class="flex flex-col md:flex-row justify-between items-baseline mb-20 gap-4">
+<h2 class="font-headline text-[2.5rem] tracking-tight">내가 한 것들</h2>
+<p class="font-label text-secondary uppercase tracking-[0.2em]">큐레이션된 프로젝트 2022 — 2024</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-y-24 md:gap-y-32">
+<!-- 프로젝트 1 -->
+<div class="md:col-span-7 group">
+<div class="aspect-[16/10] bg-surface-container-high mb-8 overflow-hidden rounded-lg">
+<img alt="바이브코딩 강의" class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGANO4g6CppzUJ-gDxNjYgdLY26ImhrFy40Tl_L2pa5oaU7UORXr8EGMUtfAN3yj4UHCm0HQgwYt4eABSchCD4OWKZgFQNEJRCUOCSlORSb4AA-hTfnZyL5UqR_52wDPTGw8g18dNIs2V7oysAxwqplcFyUKB9me6VKMpuJIXhRbfpozIYiyGsSQ5t4qWaPKaqG4VIjxKNm9cr3ZZ3q3fDaZlw6SmPtCTfkKcR60-fbbv7c4Z2B3bIFcTT_vxeiUhZC8_KDI1tMfLx"/>
+</div>
+<div class="space-y-4 max-w-xl">
+<span class="font-label text-[0.7rem] bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full">EDUCATION / TECH</span>
+<h3 class="font-headline text-3xl">바이브코딩 강의</h3>
+<p class="font-body text-on-surface-variant leading-relaxed">
+                            코딩을 넘어 논리적 사고의 확장을 제안합니다. 단순 문법 전달이 아닌, 스스로 문제를 해결할 수 있는 개발자의 언어를 교육하는 커리큘럼을 설계하고 운영합니다.
+                        </p>
+<a class="inline-flex items-center group/link font-headline text-lg mt-4 text-primary" href="#">
+<span class="relative">
+                                자세히 보기
+                                <span class="absolute bottom-0 left-0 w-0 h-px bg-primary transition-all duration-300 group-hover/link:w-full"></span>
+</span>
+<span class="material-symbols-outlined ml-2 text-sm transition-transform group-hover/link:translate-x-1" data-icon="arrow_forward">arrow_forward</span>
+</a>
+</div>
+</div>
+<!-- 프로젝트 2 -->
+<div class="md:col-span-5 md:col-start-8 self-center group">
+<div class="aspect-[4/5] bg-surface-container-high mb-8 overflow-hidden rounded-lg">
+<img alt="성균관대 미술동아리 갤러리" class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCHJXId_hxufX1azh0scC43cCEJ36fsH43_oORc0PpPTC_RcKBvk9AAxHmbMPSMI-nCsAER_2nkfccgqlvvznZmmpW7sTwyyuu66bbcQtBTEp70gBrY_7A1SLZjwXMkOo__ErBi2f8sh7XpAFdKi2lyWBlpibLBStJmrs5T2ey0GlWTf9oW8Hq-iUWnV9ARaIDhKOJx4bUieqvIRlRMyV-in2VEbC-whqWcSjmDbpSScTa6U_VMfNz76cvPl_Iqc5eYr04ZqLrH7NqF"/>
+</div>
+<div class="space-y-4">
+<span class="font-label text-[0.7rem] bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full">ART / EXHIBITION</span>
+<h3 class="font-headline text-3xl">성균관대 미술동아리 갤러리</h3>
+<p class="font-body text-on-surface-variant leading-relaxed">
+                            예술과 대중을 연결하는 물리적, 디지털 공간을 큐레이션합니다. 성균관대학교 미술동아리의 정체성을 담은 전시 기획과 디지털 아카이빙 프로젝트를 총괄했습니다.
+                        </p>
+<a class="inline-flex items-center group/link font-headline text-lg mt-4 text-primary" href="https://www.skkuartclub.kr/" target="_blank" rel="noreferrer">
+<span class="relative">
+                                자세히 보기
+                                <span class="absolute bottom-0 left-0 w-0 h-px bg-primary transition-all duration-300 group-hover/link:w-full"></span>
+</span>
+<span class="material-symbols-outlined ml-2 text-sm transition-transform group-hover/link:translate-x-1" data-icon="arrow_forward">arrow_forward</span>
+</a>
+</div>
+</div>
+<!-- 프로젝트 3 -->
+<div class="md:col-span-8 md:col-start-3 group">
+<div class="aspect-[21/9] bg-surface-container-high mb-8 overflow-hidden rounded-lg">
+<img alt="디자인 레퍼런스 사이트" class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAv48rZDNGo89c8WWad0_nP5g475gM2Arfi7g_oGhzQJpZaHBHWyUE026aMPQSeu59LLmbuqMeJaNdTOlrkxvJ_aoDlOKjLDFm3hP35noMJXZmrfv6DkfGU0_8MHCn0ZRorLP1iZnRRUvFX189Ise_7je8iGypWEbAvmT5InQCAy8CI_MGSfkAeMSdYtdSExbIb_nDQrc6OF88MBldnZSAsNe3rgbwMZyHNQQPj4IR_LdvQzye1T7nP3svgLnLic6x_Az79LAqwT-L6"/>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<div class="space-y-4">
+<span class="font-label text-[0.7rem] bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full">DESIGN / CURATION</span>
+<h3 class="font-headline text-3xl">디자인 레퍼런스 사이트</h3>
+</div>
+<div class="space-y-4">
+<p class="font-body text-on-surface-variant leading-relaxed">
+                                파편화된 영감을 체계적으로 분류하고 수집합니다. 디자이너와 개발자를 위한 고품질 디자인 레퍼런스를 큐레이팅하여 창의적인 프로젝트를 돕는 아카이브 서비스를 운영합니다.
+                            </p>
+<a class="inline-flex items-center group/link font-headline text-lg mt-2 text-primary" href="#">
+<span class="relative">
+                                    자세히 보기
+                                    <span class="absolute bottom-0 left-0 w-0 h-px bg-primary transition-all duration-300 group-hover/link:w-full"></span>
+</span>
+<span class="material-symbols-outlined ml-2 text-sm transition-transform group-hover/link:translate-x-1" data-icon="arrow_forward">arrow_forward</span>
+</a>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- 관심사 섹션 -->
+<section id="interests" class="py-32 px-8 md:px-24 bg-surface-container-low">
+<div class="max-w-screen-2xl mx-auto">
+<h2 class="font-headline text-[2.5rem] tracking-tight mb-20">지금 관심 있는 것들</h2>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+<div class="p-10 bg-surface-container-lowest rounded-xl border border-outline-variant/10 hover:border-primary/30 transition-all duration-500 group">
+<span class="material-symbols-outlined text-primary text-4xl mb-6 block" data-icon="psychology">psychology</span>
+<h3 class="font-headline text-2xl mb-4">AI 연구</h3>
+<p class="font-body text-on-surface-variant leading-relaxed">인간의 사고 체계를 모방하는 인공지능의 윤리적 확장과 실용적 구현에 몰두하고 있습니다. 단순한 자동화를 넘어 창의성의 파트너로서의 AI를 탐구합니다.</p>
+</div>
+<div class="p-10 bg-surface-container-lowest rounded-xl border border-outline-variant/10 hover:border-primary/30 transition-all duration-500 group">
+<span class="material-symbols-outlined text-primary text-4xl mb-6 block" data-icon="eco">eco</span>
+<h3 class="font-headline text-2xl mb-4">지속 가능한 시스템</h3>
+<p class="font-body text-on-surface-variant leading-relaxed">기술이 생태계에 미치는 영향을 최소화하면서도 고효율을 유지하는 지속 가능한 인프라와 순환형 디자인 시스템을 설계하는 것에 관심이 깊습니다.</p>
+</div>
+<div class="p-10 bg-surface-container-lowest rounded-xl border border-outline-variant/10 hover:border-primary/30 transition-all duration-500 group">
+<span class="material-symbols-outlined text-primary text-4xl mb-6 block" data-icon="local_library">local_library</span>
+<h3 class="font-headline text-2xl mb-4">디지털 가드닝</h3>
+<p class="font-body text-on-surface-variant leading-relaxed">정보의 단순 나열이 아닌, 지식이 유기적으로 성장하고 연결되는 제2의 뇌 시스템을 구축합니다. 나만의 데이터 생태계를 가꾸는 철학을 공부합니다.</p>
+</div>
+</div>
+</div>
+</section>
+
+<!-- CTA 섹션 -->
+<section id="connect" class="py-40 px-8 md:px-24">
+<div class="max-w-4xl mx-auto text-center space-y-12">
+<p class="font-label text-secondary uppercase tracking-[0.4em] text-xs">통합된 비전</p>
+<h2 class="font-headline text-[3rem] md:text-[4.5rem] leading-[1.1] tracking-tight">
+                이 모든 것이 담긴 결과물
+            </h2>
+<div class="pt-8">
+<button class="bg-primary text-on-primary px-12 py-5 text-base font-medium hover:bg-primary-dim transition-all duration-500 rounded-DEFAULT shadow-sm hover:shadow-xl hover:-translate-y-1">
+                    AI 포트폴리오 사이트 바로가기
+                </button>
+</div>
+</div>
+</section>
+
+</main>
+
+<!-- 푸터 -->
+<footer class="bg-surface-container w-full py-12 px-8 border-t border-outline-variant/10">
+<div class="flex flex-col md:flex-row justify-between items-center gap-8 w-full max-w-screen-2xl mx-auto">
+<div class="font-label uppercase tracking-widest text-[10px] text-on-surface-variant">
+            © 2024 Lee Jung-jun. 의도를 담아 만들었습니다.
+        </div>
+<div class="flex gap-8">
+<a class="font-label uppercase tracking-widest text-[10px] text-on-surface-variant hover:text-primary hover:underline decoration-1 underline-offset-4 transition-all duration-300" href="#">LinkedIn</a>
+<a class="font-label uppercase tracking-widest text-[10px] text-on-surface-variant hover:text-primary hover:underline decoration-1 underline-offset-4 transition-all duration-300" href="#">Instagram</a>
+<a class="font-label uppercase tracking-widest text-[10px] text-on-surface-variant hover:text-primary hover:underline decoration-1 underline-offset-4 transition-all duration-300" href="#">GitHub</a>
+</div>
+</div>
+</footer>
+
+</body></html>
