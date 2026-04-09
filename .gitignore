@@ -91,6 +91,10 @@ profile/public/*
 !profile/public/*.woff
 !profile/public/*.woff2
 !profile/public/*.otf
+!profile/public/sitemap.xml
+!profile/public/robots.txt
+!frontend/public/sitemap.xml
+!frontend/public/robots.txt
 !frontend/public/favicons/
 !frontend/public/favicons/**
 !frontend/public/favicons/*.ico
