@@ -54,7 +54,7 @@ export interface PageLifecycleConfig {
  * usePageLifecycle({ 
  *   scrollPolicy: 'preserve',
  *   restoreScroll: true,
- *   pageKey: 'home'
+ *   pageKey: 'projects-list'
  * });
  * 
  * // 내부 스크롤 컨테이너 사용

@@ -1,15 +1,13 @@
 /**
- * Featured Projects Configuration
- * 
- * Phase 5: UI Implementation
- * 랜딩 페이지의 주요 프로젝트를 설정 파일로 관리합니다.
- * API 장애와 독립적으로 동작하며, 랜딩 페이지 맥락에 맞는 소개문구를 제공합니다.
+ * 주요 프로젝트 하이라이트 설정 (프로젝트 목록 페이지 등)
+ *
+ * API 장애와 독립적으로 동작하며, 목록 맥락에 맞는 소개문구를 제공합니다.
  */
 
 export interface FeaturedProject {
   id: string;
   title: string;
-  subtitle: string; // 랜딩 전용 소개문구
+  subtitle: string;
   imageUrl: string;
   tags: string[];
   link: string;
@@ -19,7 +17,8 @@ export const FEATURED_PROJECTS: FeaturedProject[] = [
   {
     id: 'prj-001',
     title: '성균관대 미술동아리 아카이브',
-    subtitle: 'Cursor로 제작한 첫 프로젝트. 에이전틱 코딩의 가능성을 보고 생소했던 기술스택 선정. 현재 운영 중',
+    subtitle:
+      'Cursor로 제작한 첫 프로젝트. 에이전틱 코딩의 가능성을 보고 생소했던 기술스택 선정. 현재 운영 중',
     imageUrl: '/images/projects/prj-001-skkufac.png',
     tags: ['Node.js', 'Express.js', 'JavaScript', 'MySQL', 'Redis', 'EJS'],
     link: '/projects/prj-001',
@@ -44,5 +43,4 @@ export const FEATURED_PROJECTS: FeaturedProject[] = [
 
 export const FEATURED_CONFIG = {
   maxDisplay: 3,
-  // 향후 확장: A/B 테스트, 다국어 등
 } as const;

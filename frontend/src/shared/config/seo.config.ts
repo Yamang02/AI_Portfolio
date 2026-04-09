@@ -19,13 +19,6 @@ export const seoConfig = {
 } as const;
 
 export const pageMetaDefaults = {
-  home: {
-    // 빈 값이면 SeoHead에서 defaultTitle('YamangSolution')만 사용 → 홈 탭/북마크에 "YamangSolution"만 표시
-    title: '',
-    description:
-      'AI와 함께 꿈을 실현하는 개발자의 포트폴리오. 프로젝트, 기술 아티클, AI 챗봇을 경험해보세요.',
-    canonicalPath: '/',
-  },
   profile: {
     title: '프로필',
     description:

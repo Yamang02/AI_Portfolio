@@ -1,7 +1,7 @@
 import React from 'react';
 import { SeoHead } from '@/shared/ui/seo/SeoHead';
 import { pageMetaDefaults } from '@/shared/config/seo.config';
-import { createPersonSchema } from '@/shared/lib/schema';
+import { createOrganizationSchema, createPersonSchema, createWebSiteSchema } from '@/shared/lib/schema';
 import { useExperiencesQuery } from '@/main/entities/experience/api/useExperienceQuery';
 import { useEducationQuery } from '@/main/entities/education/api/useEducationQuery';
 import { IntroductionSection } from './components/IntroductionSection';
@@ -27,7 +27,7 @@ export const ProfilePage: React.FC = () => {
         title={meta.title}
         description={meta.description}
         canonicalPath={meta.canonicalPath}
-        jsonLd={createPersonSchema()}
+        jsonLd={[createPersonSchema(), createOrganizationSchema(), createWebSiteSchema()]}
       />
         <PageHeader title="대표 소개" />
 

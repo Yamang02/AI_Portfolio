@@ -24,68 +24,7 @@ interface ScreenshotConfig {
 }
 
 const screenshots: ScreenshotConfig[] = [
-  // ===== Landing Page (Home) =====
-  {
-    name: 'landing-full.png',
-    url: '/',
-    viewport: { width: 1920, height: 1080 },
-    fullPage: true,
-    waitForSelector: '#hero',
-  },
-  {
-    name: 'landing-hero.png',
-    url: '/',
-    viewport: { width: 1920, height: 1080 },
-    fullPage: false,
-    waitForSelector: '#hero',
-  },
-  {
-    name: 'landing-about.png',
-    url: '/',
-    viewport: { width: 1920, height: 1080 },
-    fullPage: false,
-    waitForSelector: '#about-1',
-    actions: async (page) => {
-      await page.evaluate(() => {
-        const element = document.getElementById('about-1');
-        if (element) {
-          element.scrollIntoView({ behavior: 'instant', block: 'start' });
-        }
-      });
-      await page.waitForTimeout(500);
-    },
-  },
-  {
-    name: 'landing-featured-projects.png',
-    url: '/',
-    viewport: { width: 1920, height: 1080 },
-    fullPage: false,
-    waitForSelector: '#featured-projects',
-    actions: async (page) => {
-      await page.evaluate(() => {
-        const element = document.getElementById('featured-projects');
-        if (element) {
-          element.scrollIntoView({ behavior: 'instant', block: 'start' });
-        }
-      });
-      await page.waitForTimeout(500);
-    },
-  },
-  {
-    name: 'landing-cta.png',
-    url: '/',
-    viewport: { width: 1920, height: 1080 },
-    fullPage: false,
-    waitForSelector: 'section:has-text("프로젝트 보기")',
-    actions: async (page) => {
-      await page.evaluate(() => {
-        window.scrollTo({ top: document.body.scrollHeight, behavior: 'instant' });
-      });
-      await page.waitForTimeout(500);
-    },
-  },
-
-  // ===== Profile Page =====
+  // ===== Profile Page (진입 `/`는 `/profile`로 리다이렉트) =====
   {
     name: 'profile-full.png',
     url: '/profile',

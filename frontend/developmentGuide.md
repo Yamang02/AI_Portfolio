@@ -131,20 +131,14 @@ style={{ padding: '16px', borderRadius: '8px' }}
 애플리케이션의 각 페이지는 고유한 레이아웃 요구사항을 가지고 있으며, 이를 조건부로 관리합니다:
 
 ### 정책 관리 위치
-- **파일**: `frontend/src/main/app/MainApp.tsx`
-- **적용 지점**: `MainAppContent` 컴포넌트의 메인 컨테이너 div
+- **파일**: `frontend/src/main/app/MainAppRoutes.tsx` 등 메인 라우트·레이아웃
+- **적용 지점**: `PageLayout` 하위 메인 컨테이너 div
 
 ### 페이지별 정책
 
-#### 1. 홈페이지 (`/`)
-- **Overflow 정책**: `overflowX: 'visible'`
-- **이유**:
-  - 스크롤 드리븐 애니메이션 사용 (`window.pageYOffset`, `getBoundingClientRect()` 계산)
-  - `overflow: hidden`은 스크롤 기준점을 변경하여 애니메이션 오작동 유발
-- **특징**:
-  - 배경 그라데이션 효과 (스크롤 위치 기반)
-  - 섹션별 애니메이션 트리거
-  - 페이지 전환 효과 제외 (자연스러운 문서 플로우 유지)
+#### 1. 진입 경로 (`/`)
+- **`/`는 `/profile`로 리다이렉트**되며, 별도 홈(랜딩) 레이아웃은 없다.
+- 오버플로·전환 정책은 아래 **프로필·기타 페이지**와 동일하게 본다.
 
 #### 2. 채팅 페이지 (`/chat`)
 - **Overflow 정책**: `overflowX: 'hidden'`
@@ -152,7 +146,7 @@ style={{ padding: '16px', borderRadius: '8px' }}
   - 페이지 전환 시 좌우 슬라이드 애니메이션 적용
   - 내부 스크롤 컨테이너 사용
 
-#### 3. 기타 페이지 (`/profile`, `/projects`, `/projects/:id`)
+#### 3. 기타 페이지 (`/profile`, `/projects`, `/projects/:id`, `/articles`, …)
 - **Overflow 정책**: `overflowX: 'hidden'`
 - **이유**:
   - 페이지 전환 애니메이션 적용
@@ -160,39 +154,16 @@ style={{ padding: '16px', borderRadius: '8px' }}
 
 ### 구현 예시
 
-```typescript
-// MainApp.tsx
-const isHomePage = location.pathname === '/';
-
-<div
-  style={{
-    overflowX: isHomePage ? 'visible' : 'hidden',
-    // ... 기타 스타일
-  }}
->
-```
+`MainAppRoutes`에서 챗봇만 `overflowY: 'hidden'` 등 예외를 두고, 그 외 목록·상세는 `overflowX: 'hidden'`을 유지한다.
 
 ### 새 페이지 추가 시 체크리스트
 
-1. **스크롤 드리븐 애니메이션 사용 여부 확인**
-   - 사용한다면: `overflowX: 'visible'` 필요
-   - 사용하지 않는다면: `overflowX: 'hidden'` 유지
-
-2. **페이지 전환 애니메이션 적용 여부 결정**
-   - 적용: `AnimatedRoutes`에 포함 (기본, CSS 전환)
-   - 제외: `MainAppRoutes`에서 해당 경로를 `AnimatedRoutes` 바깥(예: 홈과 동일한 별도 레이아웃 트리)으로 구성
-
-3. **스크롤 정책 명시**
-   - `PageMeta` 컴포넌트의 `scrollPolicy` prop 설정
-   - `window` (전역 스크롤) vs `container` (내부 스크롤)
-
-4. **MainApp.tsx 정책 업데이트**
-   - 필요시 `isHomePage`와 유사한 조건 추가
-   - 주석으로 정책 적용 이유 명시
+1. **페이지 전환 애니메이션**: 기본은 `AnimatedRoutes` 안에 라우트 추가.
+2. **스크롤 정책**: `pageConfig.ts`의 `PAGE_CONFIG` 및 `usePageLifecycle`과 맞출 것.
+3. **챗봇처럼 내부 스크롤만 쓰는 경우**: `MainAppRoutes`의 컨테이너에서 `overflowY` 등 별도 처리 필요 여부 검토.
 
 ### 주의사항
 
-- **스크롤 관련 CSS 변경 시**: 홈페이지의 스크롤 드리븐 효과가 정상 작동하는지 반드시 확인
 - **애니메이션 추가 시**: 페이지별 overflow 정책과의 충돌 여부 검토
 - **레이아웃 리팩토링 시**: 각 페이지의 특수 요구사항 문서화 유지
 
