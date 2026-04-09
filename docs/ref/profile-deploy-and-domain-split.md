@@ -396,3 +396,35 @@ sitemap과 robots.txt 신규 추가:
 | `*.yamang02.com` | `*.yamang02.com` | profile production, profile staging |
 | `yamangsolution.com` + `*.yamangsolution.com` + `admin.yamang02.com` | 세 도메인 | 기존 production CF |
 | `staging.yamangsolution.com` + `admin.staging.yamang02.com` | 두 도메인 | 기존 staging CF |
+
+---
+
+## 11. Google Search Console & GA4 마무리
+
+### Google Search Console
+
+**`yamang02.com` property (기존)**
+- 기존에 React 앱 기준으로 제출된 sitemap(`/profile`, `/projects`, `/articles` 등) 삭제
+- 새 sitemap 제출: `https://www.yamang02.com/sitemap.xml` (profile 단일 페이지)
+- 기존 sitemap을 그대로 두면 `/projects`, `/articles` 등이 404로 크롤 오류 발생하므로 반드시 교체해야 한다
+
+**`yamangsolution.com` property (신규)**
+- Search Console에서 신규 property 추가 → 소유권 확인 완료
+- sitemap 제출: `https://www.yamangsolution.com/sitemap.xml`
+
+### GA4
+
+**기존 데이터 스트림 URL 변경**
+- 관리 → 데이터 스트림 → 기존 스트림
+- 웹사이트 URL: `www.yamang02.com` → `www.yamangsolution.com` 으로 수정
+- 측정 ID·gtag 코드는 변경 없음. URL은 GA4 메타데이터 필드라 재배포 불필요
+
+**profile용 신규 데이터 스트림 추가**
+- 관리 → 데이터 스트림 → 스트림 추가 → 웹
+- URL: `www.yamang02.com`, 스트림명: 야망솔루션 대표 소개 (profile)
+- 발급된 측정 ID(`G-XYQN07J7KX`)를 `profile/index.html`에 gtag 스니펫으로 삽입
+
+**확인 방법**
+- 브라우저 Network 탭 → `collect` 필터 → `google-analytics.com/g/collect` 요청 확인
+- GA4 실시간 보고서에서 활성 사용자 수 확인
+- `tid` 파라미터로 올바른 측정 ID 발화 여부 검증
