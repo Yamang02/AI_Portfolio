@@ -74,16 +74,12 @@ spring:
       flush-mode: on_save
     timeout: 1800s  # 30분 (초 단위)
 
-  # CORS 설정 (FE 분리 후 CloudFront 도메인 추가)
-  # 환경 변수 없으면 아래 기본값 사용
-  # 필요시 환경 변수에서 추가 도메인 설정 가능
+  # CORS 설정 (API를 부르는 SPA·어드민·챗봇 Origin만)
+  # staging.yamang02.com 프로필 정적 페이지는 백엔드 호출 없음 → 미포함
   web:
     cors:
       allowed-origins:
-        - "https://staging.yamang02.com"  # 프로필 스테이징
-        - "https://www.staging.yamang02.com"  # 프로필/레거시 호스트명
-        - "https://staging.yamangsolution.com"  # Frontend staging (E14)
-        - "https://www.staging.yamangsolution.com"  # www 별칭·리다이렉트 시 Origin
+        - "https://staging.yamangsolution.com"  # React 포트폴리오 스테이징 (E14)
         - "https://admin.staging.yamang02.com"  # Admin MPA (E06)
         - "https://ai-portfolio-staging-493721639129.asia-northeast3.run.app"  # 기존 스테이징 도메인
         - "https://ai-portfolio-chatbot-493721639129.asia-northeast3.run.app"  # 챗봇 도메인
