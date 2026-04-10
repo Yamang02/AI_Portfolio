@@ -8,11 +8,7 @@ import type {
   TechStack,
   TechStackMetadata,
   TechStackFormData,
-  TechStackCreateRequest,
-  TechStackUpdateRequest,
-  TechStackFilter,
   TechStackProject,
-  TechStackSortOrderUpdate
 } from '../model/tech-stack.types';
 
 class TechStackApi {
@@ -102,4 +98,3 @@ class TechStackApi {
 }
 
 export const techStackApi = new TechStackApi();
-

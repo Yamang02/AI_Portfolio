@@ -38,7 +38,7 @@ class ErrorBoundary extends Component<Props, State> {
                     extra={
                         <Button 
                             type="primary" 
-                            onClick={() => window.location.reload()}
+                            onClick={() => globalThis.location.reload()}
                         >
                             페이지 새로고침
                         </Button>

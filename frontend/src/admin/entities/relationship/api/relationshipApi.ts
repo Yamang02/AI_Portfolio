@@ -1,383 +1,163 @@
-/**
- * Relationship API 클라이언트
- */
-
 import type {
+  ProjectRelationshipRequest,
   TechStackRelationshipRequest,
-  ProjectRelationshipRequest
 } from '../model/relationship.types';
 
-// 환경 변수에서 API Base URL 가져오기 (staging/production은 절대 경로 필요)
-const API_BASE_URL = typeof window !== 'undefined'
-  ? (import.meta.env.VITE_API_BASE_URL || '')  // 빈 문자열 = 상대 경로 사용
-  : (import.meta.env?.VITE_API_BASE_URL || '');
+const API_BASE_URL = import.meta.env?.VITE_API_BASE_URL ?? '';
 
-// API 클래스
 class RelationshipApi {
   private readonly baseUrl = `${API_BASE_URL}/api/admin`;
 
-  // ==================== 기술스택 관계 ====================
-
-  /**
-   * Experience 기술스택 관계 조회
-   */
-  async getExperienceTechStacks(experienceId: string): Promise<any[]> {
-    const response = await fetch(`${this.baseUrl}/experiences/${experienceId}/tech-stacks`, {
+  private async request<T>(path: string, init?: RequestInit): Promise<T> {
+    const response = await fetch(`${this.baseUrl}${path}`, {
       credentials: 'include',
+      ...init,
     });
 
     if (!response.ok) {
-      throw new Error('기술스택 관계 조회 실패');
+      let message = 'Request failed';
+      try {
+        const error = await response.json();
+        message = error.message || message;
+      } catch {
+        message = `HTTP ${response.status}`;
+      }
+      throw new Error(message);
     }
 
     const result = await response.json();
-    return result.data || [];
+    return (result.data ?? []) as T;
   }
 
-  /**
-   * Experience 기술스택 관계 추가
-   */
-  async addExperienceTechStack(
-    experienceId: string, 
-    request: TechStackRelationshipRequest
-  ): Promise<void> {
-    const response = await fetch(`${this.baseUrl}/experiences/${experienceId}/tech-stacks`, {
+  async getExperienceTechStacks(experienceId: string): Promise<any[]> {
+    return this.request<any[]>(`/experiences/${experienceId}/tech-stacks`);
+  }
+
+  async addExperienceTechStack(experienceId: string, request: TechStackRelationshipRequest): Promise<void> {
+    await this.request<void>(`/experiences/${experienceId}/tech-stacks`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
       body: JSON.stringify(request),
     });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || '기술스택 관계 추가 실패');
-    }
   }
 
-  /**
-   * Experience 기술스택 관계 삭제
-   */
   async deleteExperienceTechStack(experienceId: string, techStackId: number): Promise<void> {
-    const response = await fetch(
-      `${this.baseUrl}/experiences/${experienceId}/tech-stacks/${techStackId}`,
-      {
-        method: 'DELETE',
-        credentials: 'include',
-      }
-    );
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || '기술스택 관계 삭제 실패');
-    }
+    await this.request<void>(`/experiences/${experienceId}/tech-stacks/${techStackId}`, {
+      method: 'DELETE',
+    });
   }
 
-  /**
-   * Experience 기술스택 관계 일괄 업데이트 (원자적 트랜잭션)
-   */
-  async updateExperienceTechStacks(
-    experienceId: string,
-    request: any
-  ): Promise<void> {
-    const response = await fetch(`${this.baseUrl}/experiences/${experienceId}/tech-stacks`, {
+  async updateExperienceTechStacks(experienceId: string, request: any): Promise<void> {
+    await this.request<void>(`/experiences/${experienceId}/tech-stacks`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
       body: JSON.stringify(request),
     });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || '기술스택 관계 일괄 업데이트 실패');
-    }
   }
 
-  // ==================== 프로젝트 관계 ====================
-
-  /**
-   * Experience 프로젝트 관계 조회
-   */
   async getExperienceProjects(experienceId: string): Promise<any[]> {
-    const url = `${this.baseUrl}/experiences/${experienceId}/projects`;
-    
-    const response = await fetch(url, {
-      credentials: 'include',
-    });
-
-    if (!response.ok) {
-      throw new Error('프로젝트 관계 조회 실패');
-    }
-
-    const result = await response.json();
-    return result.data || [];
+    return this.request<any[]>(`/experiences/${experienceId}/projects`);
   }
 
-  /**
-   * Experience 프로젝트 관계 추가
-   */
-  async addExperienceProject(
-    experienceId: string,
-    request: ProjectRelationshipRequest
-  ): Promise<void> {
-    const response = await fetch(`${this.baseUrl}/experiences/${experienceId}/projects`, {
+  async addExperienceProject(experienceId: string, request: ProjectRelationshipRequest): Promise<void> {
+    await this.request<void>(`/experiences/${experienceId}/projects`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
       body: JSON.stringify(request),
     });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || '프로젝트 관계 추가 실패');
-    }
   }
 
-  /**
-   * Experience 프로젝트 관계 삭제
-   */
   async deleteExperienceProject(experienceId: string, projectId: number): Promise<void> {
-    const response = await fetch(
-      `${this.baseUrl}/experiences/${experienceId}/projects/${projectId}`,
-      {
-        method: 'DELETE',
-        credentials: 'include',
-      }
-    );
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || '프로젝트 관계 삭제 실패');
-    }
-  }
-
-  // ==================== Education 관계 ====================
-  
-  async getEducationTechStacks(educationId: string): Promise<any[]> {
-    const response = await fetch(`${this.baseUrl}/educations/${educationId}/tech-stacks`, {
-      credentials: 'include',
+    await this.request<void>(`/experiences/${experienceId}/projects/${projectId}`, {
+      method: 'DELETE',
     });
-
-    if (!response.ok) {
-      throw new Error('기술스택 관계 조회 실패');
-    }
-
-    const result = await response.json();
-    return result.data || [];
   }
 
-  async addEducationTechStack(
-    educationId: string,
-    request: TechStackRelationshipRequest
-  ): Promise<void> {
-    const response = await fetch(`${this.baseUrl}/educations/${educationId}/tech-stacks`, {
-      method: 'POST',
+  async updateExperienceProjects(experienceId: string, request: any): Promise<void> {
+    await this.request<void>(`/experiences/${experienceId}/projects`, {
+      method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
       body: JSON.stringify(request),
     });
+  }
 
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || '기술스택 관계 추가 실패');
-    }
+  async getEducationTechStacks(educationId: string): Promise<any[]> {
+    return this.request<any[]>(`/educations/${educationId}/tech-stacks`);
+  }
+
+  async addEducationTechStack(educationId: string, request: TechStackRelationshipRequest): Promise<void> {
+    await this.request<void>(`/educations/${educationId}/tech-stacks`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    });
   }
 
   async deleteEducationTechStack(educationId: string, techStackId: number): Promise<void> {
-    const response = await fetch(
-      `${this.baseUrl}/educations/${educationId}/tech-stacks/${techStackId}`,
-      {
-        method: 'DELETE',
-        credentials: 'include',
-      }
-    );
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || '기술스택 관계 삭제 실패');
-    }
+    await this.request<void>(`/educations/${educationId}/tech-stacks/${techStackId}`, {
+      method: 'DELETE',
+    });
   }
 
-  /**
-   * Education 기술스택 관계 일괄 업데이트 (원자적 트랜잭션)
-   */
-  async updateEducationTechStacks(
-    educationId: string,
-    request: any
-  ): Promise<void> {
-    const response = await fetch(`${this.baseUrl}/educations/${educationId}/tech-stacks`, {
+  async updateEducationTechStacks(educationId: string, request: any): Promise<void> {
+    await this.request<void>(`/educations/${educationId}/tech-stacks`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
       body: JSON.stringify(request),
     });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || '기술스택 관계 일괄 업데이트 실패');
-    }
   }
 
   async getEducationProjects(educationId: string): Promise<any[]> {
-    const response = await fetch(`${this.baseUrl}/educations/${educationId}/projects`, {
-      credentials: 'include',
-    });
-
-    if (!response.ok) {
-      throw new Error('프로젝트 관계 조회 실패');
-    }
-
-    const result = await response.json();
-    return result.data || [];
+    return this.request<any[]>(`/educations/${educationId}/projects`);
   }
 
-  async addEducationProject(
-    educationId: string,
-    request: ProjectRelationshipRequest
-  ): Promise<void> {
-    const response = await fetch(`${this.baseUrl}/educations/${educationId}/projects`, {
+  async addEducationProject(educationId: string, request: ProjectRelationshipRequest): Promise<void> {
+    await this.request<void>(`/educations/${educationId}/projects`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
       body: JSON.stringify(request),
     });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || '프로젝트 관계 추가 실패');
-    }
   }
 
   async deleteEducationProject(educationId: string, projectId: number): Promise<void> {
-    const response = await fetch(
-      `${this.baseUrl}/educations/${educationId}/projects/${projectId}`,
-      {
-        method: 'DELETE',
-        credentials: 'include',
-      }
-    );
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || '프로젝트 관계 삭제 실패');
-    }
+    await this.request<void>(`/educations/${educationId}/projects/${projectId}`, {
+      method: 'DELETE',
+    });
   }
 
-  /**
-   * Education 프로젝트 관계 일괄 업데이트 (원자적 트랜잭션)
-   */
-  async updateEducationProjects(
-    educationId: string,
-    request: any
-  ): Promise<void> {
-    const response = await fetch(`${this.baseUrl}/educations/${educationId}/projects`, {
+  async updateEducationProjects(educationId: string, request: any): Promise<void> {
+    await this.request<void>(`/educations/${educationId}/projects`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
       body: JSON.stringify(request),
     });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || '프로젝트 관계 일괄 업데이트 실패');
-    }
   }
 
-  /**
-   * Experience 프로젝트 관계 일괄 업데이트 (원자적 트랜잭션)
-   */
-  async updateExperienceProjects(
-    experienceId: string,
-    request: any
-  ): Promise<void> {
-    const response = await fetch(`${this.baseUrl}/experiences/${experienceId}/projects`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify(request),
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || '프로젝트 관계 일괄 업데이트 실패');
-    }
-  }
-
-  // ==================== Project 관계 ====================
-
-  /**
-   * Project 기술스택 관계 조회
-   */
   async getProjectTechStacks(projectId: string): Promise<any[]> {
-    const response = await fetch(`${this.baseUrl}/projects/${projectId}/tech-stacks`, {
-      credentials: 'include',
-    });
-
-    if (!response.ok) {
-      throw new Error('기술스택 관계 조회 실패');
-    }
-
-    const result = await response.json();
-    return result.data || [];
+    return this.request<any[]>(`/projects/${projectId}/tech-stacks`);
   }
 
-  /**
-   * Project 기술스택 관계 추가
-   */
-  async addProjectTechStack(
-    projectId: string,
-    request: TechStackRelationshipRequest
-  ): Promise<void> {
-    const response = await fetch(`${this.baseUrl}/projects/${projectId}/tech-stacks`, {
+  async addProjectTechStack(projectId: string, request: TechStackRelationshipRequest): Promise<void> {
+    await this.request<void>(`/projects/${projectId}/tech-stacks`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
       body: JSON.stringify(request),
     });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || '기술스택 관계 추가 실패');
-    }
   }
 
-  /**
-   * Project 기술스택 관계 삭제
-   */
   async deleteProjectTechStack(projectId: string, techStackId: number): Promise<void> {
-    const response = await fetch(
-      `${this.baseUrl}/projects/${projectId}/tech-stacks/${techStackId}`,
-      {
-        method: 'DELETE',
-        credentials: 'include',
-      }
-    );
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || '기술스택 관계 삭제 실패');
-    }
+    await this.request<void>(`/projects/${projectId}/tech-stacks/${techStackId}`, {
+      method: 'DELETE',
+    });
   }
 
-  /**
-   * Project 기술스택 관계 일괄 업데이트 (원자적 트랜잭션)
-   */
-  async updateProjectTechStacks(
-    projectId: string,
-    request: any
-  ): Promise<void> {
-    const response = await fetch(`${this.baseUrl}/projects/${projectId}/tech-stacks`, {
+  async updateProjectTechStacks(projectId: string, request: any): Promise<void> {
+    await this.request<void>(`/projects/${projectId}/tech-stacks`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
       body: JSON.stringify(request),
     });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || '기술스택 관계 일괄 업데이트 실패');
-    }
   }
 }
 
 export const relationshipApi = new RelationshipApi();
-

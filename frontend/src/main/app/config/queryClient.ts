@@ -97,7 +97,7 @@ const createLocalStoragePersister = (): Persister => {
  * QueryClient에 Persistence 적용
  * 앱 시작 시 localStorage에서 캐시 복원
  */
-if (typeof window !== 'undefined') {
+if (globalThis.window !== undefined) {
   const persister = createLocalStoragePersister();
   persistQueryClient({
     queryClient,

@@ -12,7 +12,7 @@ export interface Article {
   category?: string;
   tags: string[];
   techStack: string[];
-  status: 'draft' | 'published' | 'archived';
+  status: ArticleStatus;
   publishedAt?: string;
   sortOrder: number;
   viewCount: number;
@@ -35,7 +35,7 @@ export interface CreateArticleRequest {
   category?: string;
   tags?: string[];
   techStack?: string[];
-  status?: 'draft' | 'published' | 'archived';
+  status?: ArticleStatus;
   isFeatured?: boolean;
   seriesId?: string;
   seriesOrder?: number;
@@ -52,9 +52,10 @@ export interface UpdateArticleRequest {
   category?: string;
   tags?: string[];
   techStack?: string[];
-  status?: 'draft' | 'published' | 'archived';
+  status?: ArticleStatus;
   isFeatured?: boolean;
   seriesId?: string;
   seriesOrder?: number;
 }
 
+export type ArticleStatus = 'draft' | 'published' | 'archived';

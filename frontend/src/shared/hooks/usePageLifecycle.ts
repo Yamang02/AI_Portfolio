@@ -89,10 +89,10 @@ export const usePageLifecycle = (config: PageLifecycleConfig = {}) => {
       if (restoreScroll && pageKey) {
         const savedScroll = sessionStorage.getItem(`scroll_${pageKey}`);
         if (savedScroll) {
-          const scrollY = parseInt(savedScroll, 10);
+          const scrollY = Number.parseInt(savedScroll, 10);
           // 약간의 지연을 두어 DOM 렌더링 완료 후 스크롤
           setTimeout(() => {
-            window.scrollTo({ top: scrollY, behavior: 'auto' });
+            globalThis.scrollTo({ top: scrollY, behavior: 'auto' });
           }, 100);
           return () => {
             if (typeof unmountCallback === 'function') {
@@ -107,7 +107,7 @@ export const usePageLifecycle = (config: PageLifecycleConfig = {}) => {
       
       // 스크롤 위치 복원이 없거나 실패한 경우 상단으로 이동
       if (!restoreScroll || !pageKey) {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        globalThis.scrollTo({ top: 0, behavior: 'smooth' });
       }
     }
     // 'internal' 정책은 스크롤 위치 변경 없음
@@ -115,7 +115,7 @@ export const usePageLifecycle = (config: PageLifecycleConfig = {}) => {
     return () => {
       // 스크롤 위치 저장
       if (restoreScroll && pageKey && scrollPolicy !== 'internal') {
-        const scrollY = window.scrollY;
+        const scrollY = globalThis.scrollY;
         sessionStorage.setItem(`scroll_${pageKey}`, scrollY.toString());
       }
 

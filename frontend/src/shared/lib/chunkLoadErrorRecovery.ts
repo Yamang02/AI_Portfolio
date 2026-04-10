@@ -25,7 +25,7 @@ function tryRecoverByReload(): boolean {
     const alreadyReloaded = sessionStorage.getItem(CHUNK_RELOAD_KEY);
     if (alreadyReloaded) return false;
     sessionStorage.setItem(CHUNK_RELOAD_KEY, '1');
-    window.location.reload();
+    globalThis.location.reload();
     return true;
   } catch {
     return false;
@@ -36,7 +36,7 @@ function tryRecoverByReload(): boolean {
  * 전역 리스너 등록: 동적 import 실패 시 1회 새로고침 시도
  */
 function registerChunkLoadErrorRecovery(): void {
-  window.addEventListener('unhandledrejection', (event) => {
+  globalThis.addEventListener('unhandledrejection', (event) => {
     const message =
       typeof event.reason === 'string'
         ? event.reason
@@ -48,7 +48,7 @@ function registerChunkLoadErrorRecovery(): void {
     }
   });
 
-  window.addEventListener('error', (event) => {
+  globalThis.addEventListener('error', (event) => {
     if (event.type !== 'error' || !event.message) return;
     if (!isChunkLoadError(event.message)) return;
     if (tryRecoverByReload()) {

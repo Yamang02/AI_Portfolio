@@ -23,12 +23,14 @@ export function isAnalyticsEnabled(): boolean {
 export function initGA(): void {
   if (!isAnalyticsEnabled() || typeof document === 'undefined') return;
   const id = MEASUREMENT_ID!;
-  window.dataLayer = window.dataLayer || [];
-  window.gtag = function gtag() {
-    window.dataLayer?.push(arguments);
+  const globalScope = globalThis as typeof globalThis & Window;
+
+  globalScope.dataLayer = globalScope.dataLayer || [];
+  globalScope.gtag = function gtag() {
+    globalScope.dataLayer?.push(arguments);
   };
-  window.gtag('js', new Date());
-  window.gtag('config', id, { send_page_view: true });
+  globalScope.gtag('js', new Date());
+  globalScope.gtag('config', id, { send_page_view: true });
 
   const script = document.createElement('script');
   script.async = true;
@@ -40,8 +42,9 @@ export function trackEvent(
   eventName: string,
   params?: Record<string, string | number | boolean>
 ): void {
-  if (!isAnalyticsEnabled() || typeof window.gtag !== 'function') return;
-  window.gtag('event', eventName, params);
+  const globalScope = globalThis as typeof globalThis & Window;
+  if (!isAnalyticsEnabled() || typeof globalScope.gtag !== 'function') return;
+  globalScope.gtag('event', eventName, params);
 }
 
 /** 챗봇 대화 시작 */

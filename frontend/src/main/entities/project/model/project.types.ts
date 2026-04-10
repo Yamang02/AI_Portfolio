@@ -35,7 +35,7 @@ export interface Project extends BaseItem {
   imageUrl: string;
   source: ProjectSource;
   type: ProjectCategory;
-  status?: ProjectStatus | string; // 프로젝트 상태
+  status?: ProjectStatus; // 프로젝트 상태
   sortOrder?: number; // 정렬 순서
   
   // 자격증 전용 필드들

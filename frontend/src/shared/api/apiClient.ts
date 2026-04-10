@@ -28,8 +28,8 @@ class ApiClient {
     // 네트워크 오류 또는 5xx 서버 오류
     return (
       error instanceof TypeError || // 네트워크 오류 (fetch 실패)
-      (error as any)?.status >= 500 || // 서버 오류
-      (error as any)?.status === 0 || // CORS 또는 네트워크 오류
+      error?.status >= 500 || // 서버 오류
+      error?.status === 0 || // CORS 또는 네트워크 오류
       error?.message?.includes('Failed to fetch') ||
       error?.message?.includes('NetworkError')
     );
@@ -76,6 +76,7 @@ class ApiClient {
         if (response.ok) {
           return { success: true, message: '', data: {} as T };
         }
+        console.error('Failed to parse API JSON response:', parseError);
         throw new Error(`Invalid JSON response: ${response.status}`);
       }
 
@@ -122,7 +123,7 @@ class ApiClient {
             return true;
           }
         }
-      } catch (error) {
+      } catch {
         // 네트워크 오류는 정상 (서버가 아직 시작 중)
         console.log(`백엔드 준비 확인 중... (${attempt}/${this.HEALTH_CHECK_MAX_ATTEMPTS})`);
       }
@@ -233,7 +234,7 @@ class ApiClient {
         return await response.json();
       }
       return { status: 'DOWN' };
-    } catch (error) {
+    } catch {
       return { status: 'DOWN' };
     }
   }
@@ -286,4 +287,4 @@ class ApiClient {
 export const apiClient = new ApiClient();
 
 // 타입 정의
-export type { ApiResponse }; 
+export type { ApiResponse } from '@/shared/types/api';

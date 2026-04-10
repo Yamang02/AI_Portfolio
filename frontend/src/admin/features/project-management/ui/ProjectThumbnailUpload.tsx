@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { Upload, Image, Button, message, Modal } from 'antd';
+import { Upload, Button, message, Modal } from 'antd';
 import { UploadOutlined, DeleteOutlined, EyeOutlined } from '@ant-design/icons';
 import { useUploadImage, useDeleteImage } from '../../../hooks/useUpload';
-import type { UploadFile } from 'antd/es/upload/interface';
 
 interface ProjectThumbnailUploadProps {
   value?: string;
@@ -164,7 +163,7 @@ const ProjectThumbnailUpload: React.FC<ProjectThumbnailUploadProps> = ({
         </div>
       ) : (
         <div style={{ width: '480px', height: '270px', border: '1px dashed #d9d9d9', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#999' }}>
-          {uploadPlaceholder ? uploadPlaceholder : (
+          {uploadPlaceholder ?? (
             <Upload customRequest={customRequest} showUploadList={false} accept="image/*">
               <Button icon={<UploadOutlined />}>이미지 업로드</Button>
             </Upload>

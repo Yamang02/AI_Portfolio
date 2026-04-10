@@ -94,7 +94,7 @@ const EducationManagement: React.FC = () => {
       const values = await form.validateFields();
 
       const techStackRelationshipsData = techStackRelationships.map(ts => ({
-        techStackId: typeof ts.techStack.id === 'string' ? parseInt(ts.techStack.id) : ts.techStack.id,
+        techStackId: typeof ts.techStack.id === 'string' ? Number.parseInt(ts.techStack.id, 10) : ts.techStack.id,
         isPrimary: ts.isPrimary,
         usageDescription: ts.usageDescription,
       }));
@@ -320,7 +320,7 @@ const EducationManagement: React.FC = () => {
                   {
                     validator: (_, value) => {
                       const numValue = Number(value);
-                      if (!value || isNaN(numValue) || numValue < 1) {
+                      if (!value || Number.isNaN(numValue) || numValue < 1) {
                         return Promise.reject(new Error('정렬 순서는 1 이상의 숫자여야 합니다.'));
                       }
                       return Promise.resolve();

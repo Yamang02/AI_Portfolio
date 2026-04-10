@@ -19,7 +19,7 @@ export interface StatsCardsProps {
   loading?: boolean;
 }
 
-export function StatsCards({ stats, loading }: StatsCardsProps) {
+export function StatsCards({ stats, loading }: Readonly<StatsCardsProps>) {
   return (
     <Row gutter={16}>
       {stats.map((stat) => (

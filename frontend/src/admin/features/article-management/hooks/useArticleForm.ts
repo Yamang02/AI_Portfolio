@@ -1,5 +1,5 @@
 import { Form } from 'antd';
-import { Article, CreateArticleRequest, UpdateArticleRequest } from '@/admin/entities/article';
+import { Article } from '@/admin/entities/article';
 import { useEffect } from 'react';
 
 export interface ArticleFormData {

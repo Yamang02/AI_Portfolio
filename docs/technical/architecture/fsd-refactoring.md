@@ -89,6 +89,22 @@ import { ArticleListPage } from '@main/pages/ArticleListPage';
 import { ArticleListPage } from '@main/pages/ArticleListPage/ui/ArticleListPage';
 ```
 
+### Slice import 강제 원칙
+
+- slice **외부**(상위/하위 레이어 포함)에서 해당 slice를 사용할 때는 항상 `slice root` 경로로 import한다.
+- `slice root` 경로 import는 결과적으로 해당 slice의 `index.ts` public API를 사용한다.
+- 같은 앱 내부에서도 `features/*/ui/*`, `entities/*/model/*` 같은 내부 구현 경로 직접 import를 금지한다.
+- 예외: 같은 slice 내부 파일끼리(`ui`/`model`/`api`/`lib`) 참조할 때만 내부 경로 import를 허용한다.
+- 같은 slice 내부 참조는 alias deep import 대신 상대경로를 사용한다.
+
+```typescript
+// ✅ Good — slice root(public API)
+import { LikeButton } from '@main/features/like-post';
+
+// ❌ Bad — slice 내부 구현 직접 접근
+import { LikeButton } from '@main/features/like-post/ui/LikeButton';
+```
+
 ---
 
 ## Path Alias
@@ -100,6 +116,24 @@ import { ArticleListPage } from '@main/pages/ArticleListPage/ui/ArticleListPage'
 | `@admin/*` | `src/admin/*` | admin 앱 |
 | `@shared/*` | `src/shared/*` | cross-app 공용 |
 | `@design-system/*` | `src/design-system/*` | cross-app UI |
+
+---
+
+## Import 해석 기준 (프로젝트 정책)
+
+- 물리적 루트는 `frontend/src` 하나다.
+- 아키텍처 경계 관점의 논리 루트는 `@main`, `@admin`, `@shared`, `@design-system` 4개로 본다.
+- 프론트엔드 앱 코드에서는 확장자 명시 없이 slice root import를 기본으로 사용한다.
+- 단, 이 규칙은 **번들러(Vite) + TypeScript(`moduleResolution: bundler`) 전제**다.
+- Node ESM 런타임 코드(번들러 없이 실행되는 스크립트)는 별도 규칙(확장자 명시)을 따른다.
+
+```typescript
+// 동일한 public API 해석 의도
+import { LikeButton } from '@main/features/like-post';
+import { LikeButton } from '@main/features/like-post/index';
+```
+
+프로젝트 컨벤션은 첫 번째 형태(파일명 생략)를 표준으로 사용한다.
 
 ---
 

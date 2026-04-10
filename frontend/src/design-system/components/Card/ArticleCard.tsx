@@ -4,7 +4,6 @@ import { ClickableCard } from './ClickableCard';
 import { Badge } from '../Badge/Badge';
 import { ArticleIcon } from '../Icon/ArticleIcon';
 import { ARTICLE_CATEGORIES } from '@/shared/article';
-import { safeFormatDate } from '@/shared/utils/safeStringUtils';
 import styles from './ArticleCard.module.css';
 
 export interface ArticleCardArticle {
@@ -112,7 +111,7 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({
     // 아티클 카드는 일까지 표시 (YYYY.MM.DD)
     try {
       const date = new Date(dateString);
-      if (isNaN(date.getTime())) return '';
+      if (Number.isNaN(date.getTime())) return '';
       const year = date.getFullYear();
       const month = String(date.getMonth() + 1).padStart(2, '0');
       const day = String(date.getDate()).padStart(2, '0');

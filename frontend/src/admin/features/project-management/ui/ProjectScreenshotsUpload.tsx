@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { Upload, Button, message, Modal, Image, Space } from 'antd';
+import { Upload, Button, message, Modal, Image } from 'antd';
 import { UploadOutlined, DeleteOutlined, EyeOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { useUploadImages, useDeleteImage } from '../../../hooks/useUpload';
-import type { UploadFile } from 'antd/es/upload/interface';
 
 interface Screenshot {
   id?: number;
@@ -16,7 +15,6 @@ interface ProjectScreenshotsUploadProps {
   onChange?: (screenshots: Screenshot[]) => void;
   projectId?: string;
   hideAddButton?: boolean;
-  isLoading?: boolean;
   tempImageUrls?: string[];
 }
 

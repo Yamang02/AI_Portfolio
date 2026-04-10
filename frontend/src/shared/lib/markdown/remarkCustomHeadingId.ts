@@ -45,12 +45,8 @@ export const remarkCustomHeadingId = () => {
         headingIndex++;
 
         // hProperties에 ID 설정 (rehype에서 사용)
-        if (!node.data) {
-          node.data = {};
-        }
-        if (!node.data.hProperties) {
-          node.data.hProperties = {};
-        }
+        node.data ??= {};
+        node.data.hProperties ??= {};
         node.data.hProperties.id = id;
       }
     });

@@ -7,7 +7,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { projectApi } from './projectApi';
 import { STALE_TIME } from '@/shared/config/queryCacheConfig';
 import type {
-  Project,
   ProjectCreateRequest,
   ProjectUpdateRequest,
   ProjectFilter,
@@ -146,4 +145,3 @@ export const usePrefetchProject = () => {
     });
   };
 };
-

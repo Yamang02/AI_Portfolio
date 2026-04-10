@@ -6,8 +6,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { adminTechStackApi } from './adminTechStackApi';
 import { STALE_TIME } from '@/shared/config/queryCacheConfig';
 import type {
-  TechStackFormData,
-  TechStackMetadata
+  TechStackFormData
 } from '../model/techStack.types';
 import { queryClient as mainQueryClient } from '@/main/app/config/queryClient';
 import { useDebounce } from '@/shared/hooks';

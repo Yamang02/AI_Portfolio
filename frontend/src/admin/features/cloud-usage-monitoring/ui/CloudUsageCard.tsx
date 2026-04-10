@@ -119,7 +119,7 @@ export const CloudUsageCard: React.FC<CloudUsageCardProps> = ({
   const averageDailyCost = useMemo(() => {
     try {
       if (!usage?.period) return null;
-      if (typeof usage.totalCost !== 'number' || isNaN(usage.totalCost)) return null;
+      if (typeof usage.totalCost !== 'number' || Number.isNaN(usage.totalCost)) return null;
       return calculateAverageDailyCost(usage.totalCost, usage.period);
     } catch (error) {
       console.error('averageDailyCost 계산 에러:', error);
@@ -212,7 +212,7 @@ export const CloudUsageCard: React.FC<CloudUsageCardProps> = ({
           />
         </Col>
         <Col xs={24} sm={12}>
-          {averageDailyCost !== null && averageDailyCost !== undefined && !isNaN(averageDailyCost) && (
+          {averageDailyCost !== null && averageDailyCost !== undefined && !Number.isNaN(averageDailyCost) && (
             <Statistic
               title={`${providerName} 평균 일일 비용`}
               value={formatCurrency(averageDailyCost, displayCurrency, provider)}

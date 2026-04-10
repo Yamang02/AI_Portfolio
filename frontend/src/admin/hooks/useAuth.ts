@@ -24,14 +24,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   // 세션 상태 확인
   const { data: sessionData, isLoading, error } = useQuery({
     queryKey: ['admin-session'],
-    queryFn: async () => {
-      try {
-        const result = await adminAuthApi.getSession();
-        return result;
-      } catch (err) {
-        throw err;
-      }
-    },
+    queryFn: () => adminAuthApi.getSession(),
     retry: false,
     staleTime: STALE_TIME.NONE, // 캐시 사용 안함 - 항상 최신 상태 확인
     gcTime: 0, // 가비지 컬렉션 즉시 (이전 cacheTime)

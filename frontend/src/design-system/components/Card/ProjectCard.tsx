@@ -5,7 +5,7 @@ import { Badge } from '../Badge/Badge';
 import { TeamBadge } from '../Badge/TeamBadge';
 import { SocialIcon } from '../Icon/SocialIcon';
 import { ProjectIcon, ProjectIconType } from '../Icon/ProjectIcon';
-import { formatDateRange, safeSplit } from '@/shared/utils/safeStringUtils';
+import { formatDateRange } from '@/shared/utils/safeStringUtils';
 import styles from './ProjectCard.module.css';
 
 export interface ProjectCardProject {
@@ -42,7 +42,8 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
     if (!title) return '';
     
     // 괄호 안의 내용을 추출하는 정규식
-    const match = title.match(/^(.+?)\s*\(([^)]+)\)(.*)$/);
+    const titlePattern = /^(.+?)\s*\(([^)]+)\)(.*)$/;
+    const match = titlePattern.exec(title);
     
     if (match) {
       const [, mainTitle, subTitle, rest] = match;

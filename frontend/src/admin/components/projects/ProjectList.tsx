@@ -163,11 +163,11 @@ const ProjectList: React.FC = () => {
       // 높이 재계산을 위한 강제 리플로우
       const height = containerRef.current.offsetHeight;
       // 브라우저에 레이아웃 재계산 요청
-      window.requestAnimationFrame(() => {
+      globalThis.requestAnimationFrame(() => {
         if (containerRef.current) {
           containerRef.current.style.minHeight = `${height}px`;
           // 다음 프레임에서 원래대로 복원
-          window.requestAnimationFrame(() => {
+          globalThis.requestAnimationFrame(() => {
             if (containerRef.current) {
               containerRef.current.style.minHeight = '';
             }
@@ -182,7 +182,7 @@ const ProjectList: React.FC = () => {
       await Promise.all(selectedRowKeys.map(id => deleteProjectMutation.mutateAsync(String(id))));
       message.success(`${selectedRowKeys.length}개 프로젝트가 삭제되었습니다`);
       setSelectedRowKeys([]);
-    } catch (error: any) {
+    } catch {
       message.error('프로젝트 삭제 중 오류가 발생했습니다');
     }
   };
@@ -460,4 +460,3 @@ const ProjectList: React.FC = () => {
 };
 
 export { ProjectList };
-

@@ -9,7 +9,7 @@
  * - refetchOnWindowFocus: false
  */
 
-import { useQuery, UseQueryOptions, QueryKey, keepPreviousData } from '@tanstack/react-query';
+import { useQuery, UseQueryOptions, keepPreviousData } from '@tanstack/react-query';
 
 export function useAdminQuery<TData = unknown, TError = Error>(
   options: UseQueryOptions<TData, TError>

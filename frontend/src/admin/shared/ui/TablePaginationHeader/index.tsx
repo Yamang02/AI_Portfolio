@@ -25,7 +25,7 @@ export function TablePaginationHeader({
   showExport = false,
   onExport,
   pageSizeOptions = [10, 20, 50, 100],
-}: TablePaginationHeaderProps) {
+}: Readonly<TablePaginationHeaderProps>) {
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
       <Space>

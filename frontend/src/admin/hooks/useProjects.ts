@@ -18,7 +18,7 @@ export const useProject = (id: string, options?: { enabled?: boolean }) => {
     queryKey: ['admin-project', id],
     queryFn: () => adminProjectApi.getProject(id),
     select: (response) => response.data,
-    enabled: options?.enabled !== undefined ? options.enabled : !!id,
+    enabled: options?.enabled ?? Boolean(id),
   });
 };
 
@@ -97,4 +97,3 @@ export const useDeleteProject = () => {
     },
   });
 };
-

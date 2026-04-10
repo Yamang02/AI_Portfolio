@@ -69,13 +69,13 @@ export const useTOCFromDOM = (
 
     // 헤딩 선택자 생성 (예: 'h1, h2, h3')
     const headingSelector = headingLevels.map(level => `h${level}`).join(', ');
-    const headingElements = Array.from(container.querySelectorAll(headingSelector)) as HTMLHeadingElement[];
+    const headingElements = Array.from(container.querySelectorAll<HTMLHeadingElement>(headingSelector));
 
     // 헤딩을 순서대로 변환
     const headings: TOCItem[] = headingElements.map((element, index) => {
       const text = element.textContent?.trim() || '';
       const id = element.id || `heading-${index}`;
-      const level = parseInt(element.tagName.charAt(1)) || 1;
+      const level = Number.parseInt(element.tagName.charAt(1), 10) || 1;
 
       return {
         id,
@@ -99,7 +99,7 @@ export const useTOCFromDOM = (
 
     for (const heading of headings) {
       // 스택에서 현재 레벨보다 높은 레벨의 아이템들을 제거
-      while (stack.length > 0 && stack[stack.length - 1].level >= heading.level) {
+      while (stack.length > 0 && stack.at(-1)!.level >= heading.level) {
         stack.pop();
       }
 
@@ -114,10 +114,8 @@ export const useTOCFromDOM = (
         result.push(itemWithSubItems);
       } else {
         // 하위 레벨 아이템 - 부모의 subItems에 추가
-        const parent = stack[stack.length - 1];
-        if (!parent.subItems) {
-          parent.subItems = [];
-        }
+        const parent = stack.at(-1)!;
+        parent.subItems ??= [];
         parent.subItems.push(itemWithSubItems);
       }
 

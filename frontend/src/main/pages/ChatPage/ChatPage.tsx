@@ -38,12 +38,12 @@ const ChatPage: React.FC = () => {
     const handleOpenModal = () => setIsContactModalOpen(true);
     const handleResetChatbot = () => resetChatbot();
 
-    window.addEventListener('openContactModal', handleOpenModal);
-    window.addEventListener('resetChatbot', handleResetChatbot);
+    globalThis.addEventListener('openContactModal', handleOpenModal);
+    globalThis.addEventListener('resetChatbot', handleResetChatbot);
 
     return () => {
-      window.removeEventListener('openContactModal', handleOpenModal);
-      window.removeEventListener('resetChatbot', handleResetChatbot);
+      globalThis.removeEventListener('openContactModal', handleOpenModal);
+      globalThis.removeEventListener('resetChatbot', handleResetChatbot);
     };
   }, [resetChatbot]);
 

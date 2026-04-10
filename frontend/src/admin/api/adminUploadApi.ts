@@ -37,7 +37,7 @@ class AdminUploadApi {
         } else if (response.status === 400 && errorData.data) {
           errorMessage = errorData.data || errorMessage;
         }
-      } catch (e) {
+      } catch {
         // JSON 파싱 실패 시 기본 메시지 사용
         if (response.status === 413) {
           errorMessage = '파일 크기가 너무 큽니다. 최대 10MB까지 업로드 가능합니다.';

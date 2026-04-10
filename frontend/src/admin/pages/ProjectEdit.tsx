@@ -47,7 +47,7 @@ const ProjectEdit: React.FC = () => {
     id,
     isIdUndefined: id === undefined,
     isIdNew: id === 'new',
-    location: window.location.href,
+    location: globalThis.location.href,
   });
 
   // id가 'new'이거나 undefined인 경우 새 프로젝트로 간주
@@ -80,7 +80,7 @@ const ProjectEdit: React.FC = () => {
         : '';
 
       // isFeatured 값 처리: null, undefined, false 모두 명확하게 처리
-      const isFeaturedValue = project.isFeatured === true ? true : false;
+      const isFeaturedValue = project.isFeatured === true;
 
       form.setFieldsValue({
         title: project.title,
@@ -181,7 +181,7 @@ const ProjectEdit: React.FC = () => {
           sortOrder: values.sortOrder,
         };
 
-        await updateProjectMutation.mutateAsync({ id: id!, project: updateData });
+        await updateProjectMutation.mutateAsync({ id, project: updateData });
         message.success('프로젝트가 성공적으로 수정되었습니다');
       }
       navigate('/admin/projects');
@@ -217,7 +217,7 @@ const ProjectEdit: React.FC = () => {
   const handleTechnologiesChange = (newTechs: number[]) => {
     // 타입 안전성 보장: number[]만 허용
     const validTechs = Array.isArray(newTechs)
-      ? newTechs.filter((id): id is number => typeof id === 'number' && !isNaN(id) && id > 0)
+      ? newTechs.filter((id): id is number => typeof id === 'number' && !Number.isNaN(id) && id > 0)
       : [];
     setTechnologies(validTechs);
   };
@@ -283,7 +283,7 @@ const ProjectEdit: React.FC = () => {
                     const objectUrl = URL.createObjectURL(f);
                     setTempThumbnailUrl(objectUrl);
                     setIsUploadingThumbnail(true);
-                    const response = await uploadImageMutation.mutateAsync({ file: file as File, type: 'project', projectId: !isNew ? id : undefined });
+                    const response = await uploadImageMutation.mutateAsync({ file: file as File, type: 'project', projectId: isNew ? undefined : id });
                     if (response?.url) {
                       form.setFieldValue('imageUrl', response.url);
                       message.success('이미지가 업로드되었습니다');
@@ -335,7 +335,7 @@ const ProjectEdit: React.FC = () => {
               hideControls
               isLoading={isUploadingThumbnail}
               tempImageUrl={tempThumbnailUrl}
-              projectId={!isNew ? id : undefined}
+              projectId={isNew ? undefined : id}
             />
           </Form.Item>
         </Card>
@@ -488,7 +488,7 @@ const ProjectEdit: React.FC = () => {
                 try {
                   setIsUploadingScreenshots(true);
                   setLastScreenshotsSelectionKey(selectionKey);
-                  const response = await uploadImagesMutation.mutateAsync({ files, type: 'screenshots', projectId: !isNew ? id : undefined });
+                  const response = await uploadImagesMutation.mutateAsync({ files, type: 'screenshots', projectId: isNew ? undefined : id });
                   if (response && response.length > 0) {
                     const newItems = response.map((url: string, index: number) => ({ imageUrl: url, displayOrder: (screenshots?.length || 0) + index + 1 }));
                     const updated = [...(screenshots || []), ...newItems];
@@ -514,7 +514,7 @@ const ProjectEdit: React.FC = () => {
           <ProjectScreenshotsUpload
             value={screenshots}
             onChange={handleScreenshotsChange}
-            projectId={!isNew ? id : undefined}
+            projectId={isNew ? undefined : id}
             hideAddButton
             isLoading={isUploadingScreenshots}
             tempImageUrls={tempScreenshotUrls}

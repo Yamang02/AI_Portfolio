@@ -35,7 +35,7 @@ export const ProjectHistoryTimeline: React.FC<ProjectHistoryTimelineProps> = ({
       if (safeIncludes(dateStr, '-')) {
         const parts = safeSplit(dateStr, '-');
         if (parts.length >= 2) {
-          return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, 1);
+          return new Date(Number.parseInt(parts[0], 10), Number.parseInt(parts[1], 10) - 1, 1);
         }
       }
       return new Date(dateStr);

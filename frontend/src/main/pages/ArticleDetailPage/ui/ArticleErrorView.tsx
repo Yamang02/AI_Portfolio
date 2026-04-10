@@ -1,8 +1,6 @@
 import React from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { Button } from '@design-system';
-import { TextLink } from '@design-system/components/TextLink';
-import { EmptyCard } from '@design-system';
+import { Button, EmptyCard, TextLink } from '@design-system';
 import styles from './ArticleErrorView.module.css';
 
 interface ArticleErrorViewProps {
@@ -13,7 +11,7 @@ interface ArticleErrorViewProps {
  * 아티클 에러 뷰 컴포넌트
  * 에러 타입에 따라 적절한 메시지와 재시도 버튼을 표시합니다.
  */
-export function ArticleErrorView({ error }: ArticleErrorViewProps) {
+export function ArticleErrorView({ error }: Readonly<ArticleErrorViewProps>) {
   const queryClient = useQueryClient();
 
   const handleRetry = () => {

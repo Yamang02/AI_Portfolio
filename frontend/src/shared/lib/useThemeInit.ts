@@ -12,7 +12,7 @@ export function useThemeInit(): void {
     if (stored === 'light' || stored === 'dark') {
       theme = stored;
     } else {
-      theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      theme = globalThis.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     }
 
     const root = document.documentElement;

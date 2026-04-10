@@ -24,7 +24,7 @@ export function SearchFilter({
   searchPlaceholder = '검색',
   filters = [],
   onFilterChange,
-}: SearchFilterProps) {
+}: Readonly<SearchFilterProps>) {
   return (
     <Space size="middle">
       <Input

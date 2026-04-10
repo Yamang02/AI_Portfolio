@@ -120,6 +120,7 @@ const MarkdownImage: React.FC<{ src?: string; alt?: string }> = ({ src, alt }) =
   };
   
   const modalSize = getModalSize();
+  const isAutoModalHeight = modalSize.height === 'auto';
   
   return (
     <>
@@ -157,8 +158,8 @@ const MarkdownImage: React.FC<{ src?: string; alt?: string }> = ({ src, alt }) =
           padding: '0',
           margin: '-24px', // Modal의 content padding 제거
           width: 'calc(100% + 48px)', // padding 양쪽 제거
-          height: modalSize.height !== 'auto' ? `calc(${modalSize.height} + 48px)` : 'auto',
-          minHeight: modalSize.height !== 'auto' ? `calc(${modalSize.height} + 48px)` : 'auto',
+          height: isAutoModalHeight ? 'auto' : `calc(${modalSize.height} + 48px)`,
+          minHeight: isAutoModalHeight ? 'auto' : `calc(${modalSize.height} + 48px)`,
           overflow: 'hidden', // 스크롤 제거
           boxSizing: 'border-box',
         }}>
@@ -273,7 +274,14 @@ const markdownComponents = {
     if (isMermaid) {
       const mermaidContent = typeof children === 'string'
         ? children
-        : React.Children.toArray(children).join('');
+        : React.Children.toArray(children)
+            .map((child) => {
+              if (typeof child === 'string' || typeof child === 'number') {
+                return String(child);
+              }
+              return '';
+            })
+            .join('');
       const mermaidId = `mermaid-${Math.random().toString(36).substring(2, 11)}`;
       return <MermaidDiagram diagram={mermaidContent.trim()} id={mermaidId} />;
     }
@@ -297,12 +305,12 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
     if (!content || typeof content !== 'string') return '';
 
     // 이스케이프된 백틱 복원
-    let processed = content.replace(/\\`/g, '`');
+    let processed = content.replaceAll('\\`', '`');
 
     // 기타 이스케이프 문자 복원 (필요한 경우)
-    processed = processed.replace(/\\n/g, '\n');
-    processed = processed.replace(/\\r/g, '\r');
-    processed = processed.replace(/\\t/g, '\t');
+    processed = processed.replaceAll(String.raw`\n`, '\n');
+    processed = processed.replaceAll(String.raw`\r`, '\r');
+    processed = processed.replaceAll(String.raw`\t`, '\t');
 
     return processed;
   }, [content]);
@@ -318,4 +326,3 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
 };
 
 export { MarkdownRenderer };
-

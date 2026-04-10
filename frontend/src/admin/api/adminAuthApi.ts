@@ -35,7 +35,7 @@ class AdminAuthApi {
     let data: ApiResponse<T>;
     try {
       data = await response.json();
-    } catch (error) {
+    } catch {
       // JSON 파싱 실패 시
       throw new Error(`응답을 파싱할 수 없습니다. HTTP ${response.status}`);
     }

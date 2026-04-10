@@ -98,7 +98,7 @@ export class AdminApiClient {
     
     // 상대 경로인 경우 (API_BASE_URL이 빈 문자열)
     if (!API_BASE_URL) {
-      const url = new URL(baseUrl, window.location.origin);
+      const url = new URL(baseUrl, globalThis.location.origin);
       
       if (params) {
         Object.entries(params).forEach(([key, value]) => {
@@ -121,7 +121,7 @@ export class AdminApiClient {
     }
     
     // 절대 경로인 경우
-    const url = new URL(baseUrl, window.location.origin);
+    const url = new URL(baseUrl, globalThis.location.origin);
     
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
@@ -167,6 +167,7 @@ export class AdminApiClient {
     try {
       jsonData = await response.json();
     } catch (error) {
+      console.error('[AdminApiClient] Failed to parse JSON response:', error);
       // JSON 파싱 실패 시
       if (!response.ok) {
         const apiError: ApiError = {
@@ -221,7 +222,7 @@ export class AdminApiClient {
         return {
           message: apiResponse.error || apiResponse.message || '요청 처리 중 오류가 발생했습니다.',
           status: response.status,
-          code: (data as any).code,
+          code: data.code,
         };
       }
       

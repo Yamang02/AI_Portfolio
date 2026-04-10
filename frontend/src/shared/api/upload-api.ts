@@ -50,7 +50,7 @@ export const uploadApi = {
         try {
           const errorData = await response.json();
           errorMessage = errorData.message || errorData.error || errorMessage;
-        } catch (e) {
+        } catch {
           // JSON 파싱 실패 시 기본 메시지 사용
         }
         throw new Error(errorMessage);

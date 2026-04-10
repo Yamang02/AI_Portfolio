@@ -48,9 +48,9 @@ export function useContentHeightRecalc(
     }
 
     // 스크롤 위치 재계산
-    if (window.scrollY !== undefined) {
-      const currentScroll = window.scrollY;
-      window.scrollTo(0, currentScroll);
+    if (globalThis.scrollY !== undefined) {
+      const currentScroll = globalThis.scrollY;
+      globalThis.scrollTo(0, currentScroll);
     }
 
     const afterHeight = document.documentElement.scrollHeight;
@@ -66,7 +66,7 @@ export function useContentHeightRecalc(
     // 로딩 중에도 재계산 허용 (삭제: if (isLoading) return;)
     if (rafIdRef.current != null) return;
 
-    rafIdRef.current = window.requestAnimationFrame(() => {
+    rafIdRef.current = globalThis.requestAnimationFrame(() => {
       rafIdRef.current = null;
       const currentHeight = document.documentElement.scrollHeight;
 
@@ -84,8 +84,8 @@ export function useContentHeightRecalc(
   const checkScrollBottom = useCallback(() => {
     // 로딩 중에도 체크 허용 (삭제: if (isLoading) return;)
 
-    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-    const windowHeight = window.innerHeight;
+    const scrollTop = globalThis.pageYOffset || document.documentElement.scrollTop;
+    const windowHeight = globalThis.innerHeight;
     const documentHeight = document.documentElement.scrollHeight;
 
     // 하단에 근접했는지 확인
@@ -139,7 +139,7 @@ export function useContentHeightRecalc(
     let ticking = false;
     const throttledHandleScroll = () => {
       if (!ticking) {
-        window.requestAnimationFrame(() => {
+        globalThis.requestAnimationFrame(() => {
           handleScroll();
           ticking = false;
         });
@@ -147,10 +147,10 @@ export function useContentHeightRecalc(
       }
     };
 
-    window.addEventListener('scroll', throttledHandleScroll, { passive: true });
+    globalThis.addEventListener('scroll', throttledHandleScroll, { passive: true });
 
     return () => {
-      window.removeEventListener('scroll', throttledHandleScroll);
+      globalThis.removeEventListener('scroll', throttledHandleScroll);
     };
   }, [checkScrollBottom]);
 
@@ -169,7 +169,7 @@ export function useContentHeightRecalc(
 
     return () => {
       if (rafIdRef.current != null) {
-        window.cancelAnimationFrame(rafIdRef.current);
+        globalThis.cancelAnimationFrame(rafIdRef.current);
         rafIdRef.current = null;
       }
     };

@@ -48,11 +48,11 @@ export function transformTechnologies(
   const numbers = value
     .map(item => {
       if (typeof item === 'number') {
-        return isNaN(item) || item <= 0 ? null : item;
+        return Number.isNaN(item) || item <= 0 ? null : item;
       }
       if (typeof item === 'string') {
-        const parsed = parseInt(item, 10);
-        return isNaN(parsed) || parsed <= 0 ? null : parsed;
+        const parsed = Number.parseInt(item, 10);
+        return Number.isNaN(parsed) || parsed <= 0 ? null : parsed;
       }
       return null;
     })

@@ -8,7 +8,7 @@
  */
 
 import React from 'react';
-import { Modal as AntModal, Button, Form, FormInstance, Tabs } from 'antd';
+import { Modal as AntModal, Button, Tabs } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 
 interface CRUDModalProps {

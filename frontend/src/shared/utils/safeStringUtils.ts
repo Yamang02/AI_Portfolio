@@ -84,8 +84,8 @@ export const safeIncludes = (str: unknown, pattern: string): boolean => {
  * @returns 소문자 문자열 또는 원본 값
  */
 export const safeToLowerCase = (str: unknown): string => {
-  if (!str || typeof str !== 'string') {
-    return String(str || '');
+  if (typeof str !== 'string') {
+    return '';
   }
 
   try {
@@ -105,7 +105,7 @@ export const safeToLowerCase = (str: unknown): string => {
  */
 export const formatDateRange = (
   startDate: unknown,
-  endDate?: unknown | null,
+  endDate?: unknown,
   separator: string = ' ~ '
 ): string => {
   const formattedStart = safeFormatDate(startDate);

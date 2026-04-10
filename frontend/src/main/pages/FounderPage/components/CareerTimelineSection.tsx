@@ -146,7 +146,7 @@ function parseDate(dateStr: unknown): Date {
   if (typeof dateStr === 'string') {
     const parts = dateStr.split('-');
     if (parts.length >= 2) {
-      return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, 1);
+      return new Date(Number.parseInt(parts[0], 10), Number.parseInt(parts[1], 10) - 1, 1);
     }
     return new Date(dateStr);
   }

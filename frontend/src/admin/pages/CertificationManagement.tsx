@@ -273,7 +273,7 @@ const CertificationManagement: React.FC = () => {
                 {
                   validator: (_, value) => {
                     const numValue = Number(value);
-                    if (!value || isNaN(numValue) || numValue < 1) {
+                    if (!value || Number.isNaN(numValue) || numValue < 1) {
                       return Promise.reject(new Error('정렬 순서는 1 이상의 숫자여야 합니다.'));
                     }
                     return Promise.resolve();

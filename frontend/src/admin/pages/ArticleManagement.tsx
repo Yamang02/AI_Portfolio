@@ -32,11 +32,11 @@ export function ArticleManagement() {
       // 높이 재계산을 위한 강제 리플로우
       const height = containerRef.current.offsetHeight;
       // 브라우저에 레이아웃 재계산 요청
-      window.requestAnimationFrame(() => {
+      globalThis.requestAnimationFrame(() => {
         if (containerRef.current) {
           containerRef.current.style.minHeight = `${height}px`;
           // 다음 프레임에서 원래대로 복원
-          window.requestAnimationFrame(() => {
+          globalThis.requestAnimationFrame(() => {
             if (containerRef.current) {
               containerRef.current.style.minHeight = '';
             }

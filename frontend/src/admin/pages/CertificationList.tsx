@@ -22,7 +22,7 @@ import dayjs from 'dayjs';
 import { DateRangeWithOngoing } from '../../shared/ui/date-range';
 
 // Entities 계층에서 타입과 훅 import
-import type { Certification, CertificationFormData, CertificationCategory } from '../entities/certification';
+import type { Certification, CertificationCategory } from '../entities/certification';
 
 // Features 계층에서 컴포넌트와 훅 import
 import {

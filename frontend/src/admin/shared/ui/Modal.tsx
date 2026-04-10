@@ -44,7 +44,7 @@ export const Modal = <T,>({
       onCancel={onCancel}
       confirmLoading={loading}
       width={width}
-      destroyOnClose
+      destroyOnHidden
     >
       <Form form={form} layout="vertical">
         {children}

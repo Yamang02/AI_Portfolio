@@ -28,7 +28,7 @@ export function FormModal({
   cancelText = '취소',
   children,
   ...formProps
-}: FormModalProps) {
+}: Readonly<FormModalProps>) {
   return (
     <Modal
       open={open}

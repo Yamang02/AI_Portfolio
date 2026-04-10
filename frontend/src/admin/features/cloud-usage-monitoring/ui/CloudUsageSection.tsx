@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { Row, Col, Typography, Divider } from 'antd';
 import { CloudOutlined } from '@ant-design/icons';
 import {
@@ -25,7 +25,7 @@ const { Title } = Typography;
 export const CloudUsageSection: React.FC = () => {
   // AWS 데이터
   const { data: awsUsage, isLoading: awsLoading, error: awsError } = useAwsCurrentUsage();
-  const [, setAwsGranularity] = useState<'daily' | 'monthly'>('monthly');
+  const handleAwsGranularityChange = (_granularity: 'daily' | 'monthly') => {};
   const { data: awsTrends30DaysDaily, isLoading: awsTrend30DaysDailyLoading, error: awsTrend30DaysDailyError } = 
     useAwsUsageTrend30Days('daily');
   const { data: awsTrends30DaysMonthly, isLoading: awsTrend30DaysMonthlyLoading, error: awsTrend30DaysMonthlyError } = 
@@ -36,7 +36,7 @@ export const CloudUsageSection: React.FC = () => {
 
   // GCP 데이터
   const { data: gcpUsage, isLoading: gcpLoading, error: gcpError } = useGcpCurrentUsage();
-  const [, setGcpGranularity] = useState<'daily' | 'monthly'>('daily');
+  const handleGcpGranularityChange = (_granularity: 'daily' | 'monthly') => {};
   const { data: gcpTrends30DaysDaily, isLoading: gcpTrend30DaysDailyLoading, error: gcpTrend30DaysDailyError } = 
     useGcpUsageTrend30Days('daily');
   const { data: gcpTrends30DaysMonthly, isLoading: gcpTrend30DaysMonthlyLoading, error: gcpTrend30DaysMonthlyError } = 
@@ -94,7 +94,7 @@ export const CloudUsageSection: React.FC = () => {
               error={awsError}
               provider={CloudProvider.AWS}
               trends30Days={awsTrends30DaysMemo}
-              onGranularityChange={setAwsGranularity}
+              onGranularityChange={handleAwsGranularityChange}
             />
           </Col>
         </Row>
@@ -134,7 +134,7 @@ export const CloudUsageSection: React.FC = () => {
               error={gcpError}
               provider={CloudProvider.GCP}
               trends30Days={gcpTrends30DaysMemo}
-              onGranularityChange={setGcpGranularity}
+              onGranularityChange={handleGcpGranularityChange}
             />
           </Col>
         </Row>
@@ -220,4 +220,3 @@ class ErrorBoundary extends React.Component<
     return this.props.children;
   }
 }
-

@@ -42,7 +42,7 @@ export function optimizeCloudinaryImage(
 
   // Cloudinary URL 파싱
   const urlParts = url.split('/');
-  const uploadIndex = urlParts.findIndex(part => part === 'upload');
+  const uploadIndex = urlParts.indexOf('upload');
   
   if (uploadIndex === -1) {
     return url; // upload 경로가 없으면 그대로 반환
@@ -63,9 +63,7 @@ export function optimizeCloudinaryImage(
     transformations.push(size);
   }
 
-  transformations.push(`c_${crop}`);
-  transformations.push(`q_${quality}`);
-  transformations.push(`f_${format}`);
+  transformations.push(`c_${crop}`, `q_${quality}`, `f_${format}`);
 
   // 이미 변환이 있는 경우 확인
   const uploadPart = urlParts[uploadIndex + 1];
@@ -102,7 +100,7 @@ export function optimizeImage(
   }
 
   // 로컬 이미지는 그대로 반환 (빌드 시 최적화 필요)
-  // TODO: 로컬 이미지도 WebP 변환 및 압축 적용
+  // Future improvement: apply local-image WebP conversion and compression.
   return url;
 }
 
@@ -139,7 +137,7 @@ export function generateSrcSet(
  * 중요한 이미지는 미리 로드
  */
 export function preloadImage(url: string): void {
-  if (typeof window === 'undefined') return;
+  if (globalThis.window === undefined) return;
 
   const link = document.createElement('link');
   link.rel = 'preload';

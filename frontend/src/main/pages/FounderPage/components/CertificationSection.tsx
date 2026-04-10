@@ -2,7 +2,6 @@ import React from 'react';
 import { SectionTitle, Card, SkeletonCard, TextLink } from '@/design-system';
 import { useCertificationsQuery } from '@/main/entities/certification/api/useCertificationQuery';
 import { safeFormatDate } from '@/shared/utils/safeStringUtils';
-import type { Certification } from '@/main/entities/certification/model/certification.types';
 import styles from './CertificationSection.module.css';
 
 export const CertificationSection: React.FC = () => {
@@ -70,9 +69,9 @@ export const CertificationSection: React.FC = () => {
                 <p className={styles.date}>
                   {safeFormatDate(certification.date)} 취득
                 </p>
-                {(certification as any).credentialId && (
+                {'credentialId' in certification && certification.credentialId && (
                   <p className={styles.credentialId}>
-                    자격증 번호: {(certification as any).credentialId}
+                    자격증 번호: {certification.credentialId}
                   </p>
                 )}
                 {certification.description && (

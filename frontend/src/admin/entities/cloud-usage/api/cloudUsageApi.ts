@@ -10,9 +10,7 @@ interface ApiResponse<T> {
   data: T;
 }
 
-const API_BASE_URL = typeof window !== 'undefined'
-  ? (import.meta.env.VITE_API_BASE_URL || '')
-  : (import.meta.env?.VITE_API_BASE_URL || '');
+const API_BASE_URL = import.meta.env?.VITE_API_BASE_URL ?? '';
 
 class CloudUsageApi {
   private readonly baseUrl = `${API_BASE_URL}/api/admin/cloud-usage`;

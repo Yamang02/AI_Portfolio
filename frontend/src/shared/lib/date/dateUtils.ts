@@ -9,9 +9,9 @@ import { safeSplit, safeIncludes } from '../lib/string/stringUtils';
  * @param dateString - YYYY-MM 또는 YYYY-MM-DD 형식의 날짜 문자열 또는 배열 [YYYY, MM, DD]
  * @returns Date 객체
  */
-export const parseDate = (dateString: string | any): Date => {
+export const parseDate = (dateString: unknown): Date => {
   if (!dateString) {
-    throw new Error('Date string is required');
+    throw new TypeError('Date string is required');
   }
   
   // 배열 형태의 날짜 처리 [YYYY, MM, DD]
@@ -21,12 +21,12 @@ export const parseDate = (dateString: string | any): Date => {
       const month = dateString[1];
       return new Date(year, month - 1, 1);
     }
-    throw new Error(`Invalid date array format: ${JSON.stringify(dateString)}`);
+    throw new TypeError(`Invalid date array format: ${JSON.stringify(dateString)}`);
   }
   
   // 문자열 형태의 날짜 처리
   if (typeof dateString !== 'string') {
-    throw new Error(`Invalid date string type: ${typeof dateString}`);
+    throw new TypeError(`Invalid date string type: ${typeof dateString}`);
   }
   
   // YYYY-MM 형식을 YYYY-MM-01로 변환
@@ -36,8 +36,8 @@ export const parseDate = (dateString: string | any): Date => {
     
   const date = new Date(normalizedDate);
   
-  if (isNaN(date.getTime())) {
-    throw new Error(`Invalid date string: ${dateString}`);
+  if (Number.isNaN(date.getTime())) {
+    throw new TypeError(`Invalid date string: ${dateString}`);
   }
   
   return date;
@@ -181,11 +181,11 @@ export const getRelativeTime = (date: Date | string): string => {
  * @param date - 확인할 날짜
  * @returns 유효성 여부
  */
-export const isValidDate = (date: any): boolean => {
+export const isValidDate = (date: unknown): boolean => {
   try {
     if (!date) return false;
     const parsed = parseDate(date);
-    return !isNaN(parsed.getTime());
+    return !Number.isNaN(parsed.getTime());
   } catch {
     return false;
   }

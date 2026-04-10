@@ -29,10 +29,10 @@ class AuthApi {
           message: response.error || response.message || '로그인 실패',
         };
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       return {
         success: false,
-        message: error.message || '로그인 중 오류가 발생했습니다',
+        message: error instanceof Error ? error.message : '로그인 중 오류가 발생했습니다',
       };
     }
   }
@@ -44,7 +44,7 @@ class AuthApi {
     try {
       await adminAuthApi.logout();
       return { success: true };
-    } catch (error: any) {
+    } catch {
       return { success: true }; // 로그아웃은 항상 성공으로 처리
     }
   }
@@ -61,7 +61,7 @@ class AuthApi {
       }
       
       return null;
-    } catch (error) {
+    } catch {
       return null;
     }
   }

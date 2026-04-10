@@ -113,7 +113,7 @@ const ExperienceManagement: React.FC = () => {
       try {
         // 기술스택 관계는 Bulk API 사용 (원자적 트랜잭션)
         const techStackRelationshipsData = techStackRelationships.map(ts => ({
-          techStackId: typeof ts.techStack.id === 'string' ? parseInt(ts.techStack.id) : ts.techStack.id,
+          techStackId: typeof ts.techStack.id === 'string' ? Number.parseInt(ts.techStack.id, 10) : ts.techStack.id,
           isPrimary: ts.isPrimary,
           usageDescription: ts.usageDescription,
         }));
@@ -391,7 +391,7 @@ const ExperienceManagement: React.FC = () => {
                   {
                     validator: (_, value) => {
                       const numValue = Number(value);
-                      if (!value || isNaN(numValue) || numValue < 1) {
+                      if (!value || Number.isNaN(numValue) || numValue < 1) {
                         return Promise.reject(new Error('정렬 순서는 1 이상의 숫자여야 합니다.'));
                       }
                       return Promise.resolve();
