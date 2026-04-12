@@ -27,3 +27,8 @@ output "github_actions_user_name" {
   description = "IAM user for deployment automation"
   value       = module.iam.github_actions_user_name
 }
+
+output "postgres_instance_connection_name" {
+  description = "Cloud SQL Postgres — Cloud Run 연결용 connection name"
+  value       = module.postgres.instance_connection_name
+}
