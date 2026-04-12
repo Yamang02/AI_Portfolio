@@ -1,57 +1,42 @@
 server:
-  port: ${PORT}  # Cloud Run이 제공하는 동적 포트 사용
+  port: ${PORT}  # Cloud Run dynamic port
 
 spring:
   application:
     name: ai-portfolio-backend
-  
-  # Railway PostgreSQL 설정 (POSTGRE_URL에 username/password 포함)
-  datasource:
-    url: ${POSTGRE_URL}  # Railway PostgreSQL URL (credentials 포함)
-    driver-class-name: org.postgresql.Driver
-    hikari:
-      maximum-pool-size: 5  # Cloud Run 메모리 제한 고려
-      minimum-idle: 1
-      connection-timeout: 60000  # 연결 타임아웃 증가
-      idle-timeout: 600000
-      max-lifetime: 1800000
-      leak-detection-threshold: 60000
-  
+
+  # DB is configured by split env vars:
+  # GCP_CLOUD_SQL_INSTANCE_CONNECTION_NAME, POSTGRES_DATABASE, POSTGRES_USER, POSTGRES_PASSWORD
+
   jpa:
     hibernate:
-      ddl-auto: validate  # 프로덕션 준비: 스키마 검증만 수행
-    show-sql: false      # SQL 로그 비활성화
+      ddl-auto: validate
+    show-sql: false
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: false
 
-  # Flyway 마이그레이션 설정 (스테이징)
   flyway:
     enabled: true
     locations: classpath:db/migration
     baseline-on-migrate: true
-    baseline-version: 1  # V001 베이스라인으로 설정
+    baseline-version: 1
     baseline-description: "Staging schema baseline - existing tables"
-    validate-on-migrate: true  # 마이그레이션 검증 활성화
-    clean-disabled: true  # 운영환경에서 clean 명령 비활성화
-    ignore-missing-migrations: false  # 누락된 마이그레이션 엄격하게 체크
+    validate-on-migrate: true
+    clean-disabled: true
+    ignore-missing-migrations: false
 
-  # Spring Data 설정 - JPA와 Redis Repository 구분
   data:
     redis:
-      # Redis Repository 비활성화 (Redis는 캐싱/세션용만 사용)
       repositories:
         enabled: false
-      # Redis 캐싱 설정 (로컬 환경과 일치)
       host: ${REDIS_HOST}
       port: ${REDIS_PORT}
       password: ${REDIS_PASSWORD}
       database: ${REDIS_DATABASE}
-      # Redis Cloud: TLS는 REDIS_SSL=true 등 환경 변수로 제어
       ssl:
         enabled: ${REDIS_SSL}
-      # SCAN만 사용(E02); production/local과 유사한 명령 대기 시간으로 통일
       timeout: 3000ms
       lettuce:
         pool:
@@ -60,29 +45,25 @@ spring:
           min-idle: 0
           max-wait: -1ms
 
-  # 캐시 설정
   cache:
     type: redis
     redis:
-      time-to-live: 86400000  # 1일 (밀리초)
+      time-to-live: 86400000
 
-  # 세션 설정 (Redis에 저장)
   session:
     store-type: redis
     redis:
       namespace: spring:session
       flush-mode: on_save
-    timeout: 1800s  # 30분 (초 단위)
+    timeout: 1800s
 
-  # CORS 설정 (API를 부르는 SPA·어드민·챗봇 Origin만)
-  # staging.yamang02.com 프로필 정적 페이지는 백엔드 호출 없음 → 미포함
   web:
     cors:
       allowed-origins:
-        - "https://staging.yamangsolution.com"  # React 포트폴리오 스테이징 (E14)
-        - "https://staging.admin.yamang02.com"  # Admin MPA (E16: env-first 네이밍)
-        - "https://ai-portfolio-staging-493721639129.asia-northeast3.run.app"  # 기존 스테이징 도메인
-      allowed-methods: 
+        - "https://staging.yamangsolution.com"
+        - "https://staging.admin.yamang02.com"
+        - "https://ai-portfolio-staging-493721639129.asia-northeast3.run.app"
+      allowed-methods:
         - GET
         - POST
         - PUT
@@ -90,15 +71,13 @@ spring:
         - OPTIONS
       allowed-headers: "*"
       allow-credentials: true
-  
-  # 파일 업로드 크기 제한 설정
+
   servlet:
     multipart:
       max-file-size: 10MB
       max-request-size: 50MB
       enabled: true
 
-# Swagger/OpenAPI 설정 (스테이징 - 개발자 테스트용)
 springdoc:
   api-docs:
     enabled: true
@@ -110,7 +89,6 @@ springdoc:
     tagsSorter: alpha
     tryItOutEnabled: true
 
-# Actuator 설정 (Health Check용) - Production과 동일
 management:
   endpoints:
     web:
@@ -121,41 +99,38 @@ management:
       show-details: never
   health:
     redis:
-      enabled: true  # Redis 헬스체크 활성화 (환경 진단용)
+      enabled: true
 
-# 로깅 설정 (운영 레벨)
 logging:
   level:
     com.aiportfolio.backend: INFO
-    com.aiportfolio.backend.infrastructure.persistence.redis: DEBUG  # Redis 관련 상세 로깅
+    com.aiportfolio.backend.infrastructure.persistence.redis: DEBUG
     org.springframework.web: WARN
     org.hibernate.SQL: WARN
-    org.springframework.data.redis: INFO  # Spring Data Redis 로깅 활성화
+    org.springframework.data.redis: INFO
     org.springframework.boot.autoconfigure: WARN
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%level] %logger{36} - %msg%n"
 
-# 환경변수 설정 (기존 패턴 유지)
 app:
   gemini:
     api-key: ${GEMINI_API_KEY}
     model-name: gemini-2.5-flash
   github:
-    username: Yamang02  # 하드코딩
+    username: Yamang02
   contact:
-    email: contact@yamangsolution.com  # 하드코딩
+    email: contact@yamangsolution.com
   security:
     rate-limit:
       window: 60000
-      max-requests: 50  # 스테이징에서는 더 제한적
+      max-requests: 50
   session:
     cookie:
-      secure: true  # 스테이징은 HTTPS이므로 true
-      sameSite: None  # 스테이징은 cross-origin이므로 None 사용
-      use-domain: false  # Cloud Run 기본 도메인 사용 시에는 false로 유지
-      # domain: staging.yamang02.com  # 커스텀 서브도메인으로 서비스할 때만 활성화
+      secure: true
+      sameSite: None
+      use-domain: false
+      # domain: staging.yamang02.com
 
-# Cloudinary 설정
 cloudinary:
   cloud-name: ${CLOUDINARY_CLOUD_NAME}
   api-key: ${CLOUDINARY_API_KEY}
@@ -163,7 +138,6 @@ cloudinary:
 
 cloud:
   aws:
-    # GitHub Secrets와 일치: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
     access-key: ${AWS_ACCESS_KEY_ID:${AWS_ACCESS_KEY:}}
     secret-key: ${AWS_SECRET_ACCESS_KEY:${AWS_SECRET_KEY:}}
     region: ${AWS_REGION:us-east-1}

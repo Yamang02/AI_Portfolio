@@ -95,6 +95,12 @@
             <artifactId>postgresql</artifactId>
             <scope>runtime</scope>
         </dependency>
+        <!-- Cloud SQL Java Connector (공식 JDBC Socket Factory) -->
+        <dependency>
+            <groupId>com.google.cloud.sql</groupId>
+            <artifactId>postgres-socket-factory</artifactId>
+            <version>1.28.2</version>
+        </dependency>
 
         <!-- Flyway 마이그레이션 의존성 -->
         <dependency>
