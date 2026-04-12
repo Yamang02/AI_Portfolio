@@ -14,3 +14,6 @@ cloud_run_container_image         = "gcr.io/your-gcp-project-id/ai-portfolio-sta
 
 # 선택: 본인 Google 계정에 Cloud SQL 관리자(콘솔·gcloud). 형식은 IAM member 전체.
 # gcp_cloudsql_admin_member = "user:you@gmail.com"
+
+# 선택: GitHub Actions 배포 SA가 프로젝트 기본값과 다를 때만
+# github_actions_deployer_service_account_email = "github-actions@your-project-id.iam.gserviceaccount.com"

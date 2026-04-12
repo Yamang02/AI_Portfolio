@@ -70,3 +70,9 @@ variable "gcp_cloudsql_admin_member" {
   type        = string
   default     = ""
 }
+
+variable "github_actions_deployer_service_account_email" {
+  description = "GitHub Actions(gcloud run deploy)에 쓰는 GCP 서비스 계정. Cloud Run 런타임 SA에 roles/iam.serviceAccountUser(actAs) 부여 대상."
+  type        = string
+  default     = "github-actions@yamang02-ai-portfolio.iam.gserviceaccount.com"
+}

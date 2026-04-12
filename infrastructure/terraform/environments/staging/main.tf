@@ -85,7 +85,7 @@ module "postgres" {
   environment_label = var.environment
   instance_name     = "ai-portfolio-pg-staging"
 
-  # Cloud SQL Postgres: db-f1-micro (공유 코어·~0.6GB RAM). Railway 메트릭 피크(~130MB RAM) 대비 여유.
+  # Cloud SQL Postgres: db-f1-micro (공유 코어·~0.6GB RAM). 스테이징 워로드 기준.
   # 티어·디스크·REGIONAL(HA)는 콘솔/terraform로 상향 용이. DB/사용자는 마이그레이션·수동 생성.
   create_database = false
 
@@ -104,4 +104,12 @@ module "postgres" {
 
   cloudsql_client_service_account_email = var.cloud_run_service_account_email
   cloudsql_admin_member                 = var.gcp_cloudsql_admin_member
+}
+
+# GitHub Actions가 Cloud Run에 런타임 전용 SA를 지정해 배포하려면 해당 SA에 대해 actAs 권한 필요
+# (오류: Permission iam.serviceaccounts.actAs denied on ... )
+resource "google_service_account_iam_member" "github_actions_act_as_cloud_run_runtime" {
+  service_account_id = "projects/${var.gcp_project_id}/serviceAccounts/${var.cloud_run_service_account_email}"
+  role               = "roles/iam.serviceAccountUser"
+  member             = "serviceAccount:${var.github_actions_deployer_service_account_email}"
 }
