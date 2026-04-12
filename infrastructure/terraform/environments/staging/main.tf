@@ -41,7 +41,7 @@ module "frontend" {
   # ACM 인증서(us-east-1)에 staging.admin.yamang02.com SAN이 있어야 함(*.yamang02.com만으로는 이 3단계 호스트가 커버되지 않음)
   certificate_arn      = var.acm_certificate_arn
   aliases = [
-    "staging.yamang02.com",
+    "staging.yamangsolution.com",
     "staging.admin.yamang02.com",
   ]
   admin_html_rewrite_hostnames = ["staging.admin.yamang02.com"]
