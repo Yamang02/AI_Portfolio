@@ -1,20 +1,19 @@
-import React, { useState, useRef, useEffect } from 'react';
+﻿import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+
 import { Tooltip, Button, HeaderIconButton } from '@/design-system';
-import { useTheme } from '@/shared/hooks/useTheme';
+import { useTheme } from '@/main/shared/hooks/useTheme';
 import styles from './Header.module.css';
 
 interface MenuItem {
   id: string;
   label: string;
-  tooltip: string; // 영어 툴팁
+  tooltip: string;
   href?: string;
-  onClick?: (e: React.MouseEvent) => void;
   icon: React.ReactNode;
-  isActive?: (pathname: string) => boolean; // 활성 상태 확인 함수
+  isActive?: (pathname: string) => boolean;
 }
 
-// YamangDesign 외부 링크 URL
 const YAMANG_DESIGN_URL = 'https://design.yamang02.com';
 
 export const Header: React.FC = () => {
@@ -24,7 +23,6 @@ export const Header: React.FC = () => {
   const location = useLocation();
   const { theme, toggleTheme } = useTheme();
 
-  // 메뉴 외부 클릭 시 닫기
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -54,8 +52,8 @@ export const Header: React.FC = () => {
   const menuItems: MenuItem[] = [
     {
       id: 'profile',
-      label: '대표 소개',
-      tooltip: '대표 소개',
+      label: '프로필',
+      tooltip: '프로필',
       href: '/profile',
       isActive: (pathname) => pathname === '/profile',
       icon: (
@@ -67,8 +65,8 @@ export const Header: React.FC = () => {
     },
     {
       id: 'projects',
-      label: '작업물',
-      tooltip: '작업물',
+      label: '프로젝트',
+      tooltip: '프로젝트',
       href: '/projects',
       isActive: (pathname) => pathname === '/projects' || pathname.startsWith('/projects/'),
       icon: (
@@ -79,8 +77,8 @@ export const Header: React.FC = () => {
     },
     {
       id: 'articles',
-      label: '글',
-      tooltip: '글',
+      label: '아티클',
+      tooltip: '아티클',
       href: '/articles',
       isActive: (pathname) => pathname === '/articles' || pathname.startsWith('/articles/'),
       icon: (
@@ -93,102 +91,63 @@ export const Header: React.FC = () => {
     {
       id: 'chatbot',
       label: '챗봇',
-      tooltip: 'Chatbot',
+      tooltip: '챗봇',
       href: '/chat',
       isActive: (pathname) => pathname === '/chat',
       icon: (
-        <svg width="20" height="20" viewBox="0 0 512 512" fill="currentColor" stroke="none">
-          <g transform="translate(0,512) scale(0.1,-0.1)" fill="currentColor">
-            <path d="M2442 5104 c-90 -24 -164 -66 -227 -129 -99 -99 -145 -211 -145 -350 0 -204 128 -387 323 -460 l47 -18 0 -118 0 -118 -677 -3 -678 -3 -80 -27 c-114 -39 -196 -92 -280 -179 -85 -89 -145 -199 -170 -312 l-16 -74 -87 -6 c-53 -3 -109 -13 -142 -26 -109 -41 -207 -139 -253 -251 -22 -55 -22 -56 -22 -670 l0 -615 32 -68 c36 -75 114 -164 177 -201 61 -36 141 -56 222 -56 l71 0 12 -59 c46 -236 216 -429 451 -513 64 -23 73 -23 541 -26 l477 -3 221 -383 c121 -210 232 -393 247 -407 36 -34 112 -34 148 0 15 14 126 197 247 408 l222 383 446 0 c497 0 529 4 654 64 185 90 309 244 359 449 l21 87 72 0 c80 0 160 20 221 56 63 37 141 126 177 201 l32 68 0 615 c0 614 0 615 -22 670 -46 112 -144 210 -253 251 -33 13 -89 23 -142 26 l-87 6 -16 74 c-28 124 -85 225 -184 324 -65 65 -104 95 -161 123 -149 73 -110 70 -862 73 l-678 4 0 118 0 118 48 18 c191 71 322 258 322 460 0 140 -46 251 -145 350 -122 122 -302 173 -463 129z m190 -234 c95 -27 178 -135 178 -232 0 -73 -18 -123 -64 -175 -53 -60 -103 -83 -186 -83 -83 0 -133 23 -186 83 -166 188 15 474 258 407z m1370 -1211 c154 -33 278 -149 322 -300 15 -50 16 -155 14 -1020 l-3 -964 -32 -68 c-42 -89 -121 -168 -210 -210 l-68 -32 -517 -5 c-497 -5 -518 -6 -543 -25 -15 -11 -107 -159 -213 -342 -103 -178 -189 -323 -192 -323 -3 0 -89 145 -192 323 -106 183 -198 331 -213 342 -25 19 -46 20 -543 25 l-517 5 -68 32 c-88 42 -168 121 -210 210 l-32 68 -3 965 c-2 944 -2 966 18 1031 41 138 161 249 305 285 69 17 2817 20 2897 3z m-3462 -1295 l0 -706 -73 4 c-84 4 -127 26 -168 86 l-24 36 -3 555 c-2 377 0 568 8 593 24 84 102 137 203 138 l57 0 0 -706z m4195 687 c49 -22 91 -69 105 -119 8 -25 10 -216 8 -593 l-3 -555 -24 -36 c-41 -60 -84 -82 -168 -86 l-73 -4 0 706 0 706 58 0 c34 0 74 -8 97 -19z" />
-            <path d="M1457 3026 c-84 -35 -131 -69 -176 -126 -63 -79 -85 -148 -86 -261 0 -90 2 -99 38 -171 154 -313 590 -309 738 6 94 200 11 435 -189 533 -69 35 -84 38 -171 41 -83 2 -104 -1 -154 -22z m241 -243 c88 -65 95 -197 13 -266 -73 -61 -167 -55 -233 14 -76 80 -56 208 42 261 46 25 138 21 178 -9z" />
-            <path d="M3383 3030 c-107 -38 -188 -114 -240 -226 -25 -52 -28 -71 -28 -159 0 -92 3 -106 32 -167 122 -258 440 -324 649 -135 227 205 150 577 -141 686 -72 27 -198 28 -272 1z m217 -239 c42 -22 77 -70 86 -117 22 -117 -92 -225 -206 -194 -144 39 -175 223 -51 307 43 29 121 31 171 4z" />
-            <path d="M1970 1993 c-45 -23 -73 -76 -65 -122 16 -85 165 -257 287 -329 273 -162 627 -123 858 95 98 92 163 190 164 250 1 53 -28 93 -81 112 -36 13 -43 12 -79 -5 -24 -12 -51 -37 -71 -68 -209 -320 -636 -325 -840 -9 -54 84 -109 108 -173 76z" />
-          </g>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
         </svg>
       ),
     },
   ];
 
-  const handleMenuItemClick = (item: MenuItem, e?: React.MouseEvent) => {
-    if (item.onClick && e) {
-      item.onClick(e);
+  const handleMenuItemClick = (item: MenuItem) => {
+    if (item.href?.startsWith('http')) {
+      window.open(item.href, '_blank', 'noopener,noreferrer');
     } else if (item.href) {
       navigate(item.href);
-      setIsMenuOpen(false);
     }
+    setIsMenuOpen(false);
   };
 
   return (
     <header className={styles.header}>
       <div className={styles.container}>
         <a href="/profile" className={styles.logo} onClick={handleLogoClick}>
-          야망솔루션
+          Yamang02
         </a>
-        
-        {/* Desktop Navigation */}
-        <nav className={styles.nav}>
-          {/* Theme Toggle */}
-          <Tooltip content={theme === 'dark' ? 'Light Mode' : 'Dark Mode'} placement="bottom">
-            <HeaderIconButton
-              onClick={toggleTheme}
-              className={styles.themeToggle}
-              ariaLabel={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-            >
-              {theme === 'dark' ? (
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="5" />
-                  <line x1="12" y1="1" x2="12" y2="3" />
-                  <line x1="12" y1="21" x2="12" y2="23" />
-                  <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
-                  <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
-                  <line x1="1" y1="12" x2="3" y2="12" />
-                  <line x1="21" y1="12" x2="23" y2="12" />
-                  <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
-                  <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
-                </svg>
-              ) : (
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-                </svg>
-              )}
-            </HeaderIconButton>
-          </Tooltip>
-          <div className={styles.divider} />
-          {/* Internal Page Navigation */}
+
+        <nav className={styles.desktopNav}>
           {menuItems.map((item) => {
             const isActive = item.isActive ? item.isActive(location.pathname) : false;
             return (
-              <Tooltip key={item.id} content={item.tooltip} placement="bottom">
-                <HeaderIconButton
-                  onClick={() => handleMenuItemClick(item)}
-                  isActive={isActive}
-                  ariaLabel={item.label}
-                >
-                  {item.icon}
-                </HeaderIconButton>
-              </Tooltip>
+              <Button
+                key={item.id}
+                variant="secondary"
+                size="md"
+                onClick={() => handleMenuItemClick(item)}
+                className={`${styles.navLink} ${isActive ? styles.navLinkActive : ''}`}
+                type="button"
+              >
+                <span className={styles.icon}>{item.icon}</span>
+                <span>{item.label}</span>
+              </Button>
             );
           })}
-          <div className={styles.divider} />
-          {/* YamangDesign External Link */}
-          <Tooltip content="YamangDesign" placement="bottom">
-            <a
-              href={YAMANG_DESIGN_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={styles.externalLink}
-              aria-label="YamangDesign"
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9 8 9.67 8 10.5 7.33 12 6.5 12zm3-4C8.67 8 8 7.33 8 6.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 9 17.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z" />
-              </svg>
-            </a>
-          </Tooltip>
+
+          <Button
+            variant="secondary"
+            size="md"
+            href={YAMANG_DESIGN_URL}
+            target="_blank"
+            className={styles.navLink}
+          >
+            YamangDesign
+          </Button>
         </nav>
 
-        {/* Mobile Menu */}
-        <div className={styles.mobileMenuWrapper}>
-          {/* Mobile Theme Toggle */}
+        <div className={styles.rightActions}>
           <Tooltip content={theme === 'dark' ? 'Light Mode' : 'Dark Mode'} placement="bottom">
             <HeaderIconButton
               onClick={toggleTheme}
@@ -215,33 +174,17 @@ export const Header: React.FC = () => {
             </HeaderIconButton>
           </Tooltip>
 
-          {/* Mobile Hamburger Menu */}
           <div className={styles.mobileMenu} ref={menuRef}>
             <HeaderIconButton
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className={styles.menuButton}
               ariaLabel={isMenuOpen ? '메뉴 닫기' : '메뉴 열기'}
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                {isMenuOpen ? (
-                  <path d="M18 6L6 18M6 6l12 12" />
-                ) : (
-                  <path d="M3 12h18M3 6h18M3 18h18" />
-                )}
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                {isMenuOpen ? <path d="M18 6L6 18M6 6l12 12" /> : <path d="M3 12h18M3 6h18M3 18h18" />}
               </svg>
             </HeaderIconButton>
 
-            {/* Mobile Dropdown Menu */}
             {isMenuOpen && (
               <div className={styles.dropdown}>
                 {menuItems.map((item) => {
@@ -260,6 +203,15 @@ export const Header: React.FC = () => {
                     </Button>
                   );
                 })}
+                <Button
+                  variant="secondary"
+                  size="md"
+                  href={YAMANG_DESIGN_URL}
+                  target="_blank"
+                  className={styles.dropdownLink}
+                >
+                  YamangDesign
+                </Button>
               </div>
             )}
           </div>

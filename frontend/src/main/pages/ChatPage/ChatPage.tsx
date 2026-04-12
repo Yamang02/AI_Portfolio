@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 
 import { SeoHead } from '@/shared/ui/seo/SeoHead';
 import { pageMetaDefaults } from '@/shared/config/seo.config';
@@ -7,9 +7,9 @@ import { useChatMessages } from '@/main/features/chatbot/hooks/useChatMessages';
 import { useChatUsageStatus } from '@/main/features/chatbot/hooks/useChatUsageStatus';
 import { ChatInputSection } from '@/main/features/chatbot/ui/ChatInputSection';
 
-import { ContactModal } from '@/shared/ui/modal';
+import { ContactModal } from '@/main/shared/ui/modal';
 import { Spinner, Modal } from '@/design-system';
-import { PageMeta } from '@/shared/ui/page-meta';
+import { PageMeta } from '@/main/shared/ui/page-meta';
 
 import { ChatPageTopBar } from './ChatPageTopBar';
 import { ChatPageInfoModalBody } from './ChatPageInfoModalBody';
@@ -96,13 +96,13 @@ const ChatPage: React.FC = () => {
             ref={messagesContainerRef}
             onScroll={handleMessagesScroll}
           >
-            {messages.map(message => (
+            {messages.map((message) => (
               <ChatMessage key={message.id} message={message} />
             ))}
             {isLoading && (
               <div className={styles.loadingMessage}>
                 <div className={styles.loadingBubble}>
-                  <Spinner size="sm" ariaLabel="응답 생성 중" />
+                  <Spinner size="sm" ariaLabel="Generating response" />
                 </div>
               </div>
             )}
@@ -120,7 +120,7 @@ const ChatPage: React.FC = () => {
 
         <ContactModal isOpen={isContactModalOpen} onClose={() => setIsContactModalOpen(false)} />
 
-        <Modal isOpen={isInfoModalOpen} onClose={() => setIsInfoModalOpen(false)} title="채팅 사용 안내">
+        <Modal isOpen={isInfoModalOpen} onClose={() => setIsInfoModalOpen(false)} title="Chat Usage Guide">
           <ChatPageInfoModalBody />
         </Modal>
       </div>

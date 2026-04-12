@@ -1,8 +1,8 @@
 import React from 'react';
 import { Card } from '@/design-system/components/Card';
 import { SkeletonCard } from '@/design-system/components/Skeleton/SkeletonCard';
-import { formatDateRange } from '@/shared/utils/safeStringUtils';
-import { SimpleTechStackList } from '@/shared/ui/tech-stack/TechStackList';
+import { formatDateRange } from '@/main/shared/utils/safeStringUtils';
+import { SimpleTechStackList } from '@/main/shared/ui/tech-stack/TechStackList';
 import type { Experience } from '@/main/entities/experience';
 import styles from './ExperienceSection.module.css';
 
@@ -33,8 +33,8 @@ export const ExperienceSection: React.FC<ExperienceSectionProps> = ({
   if (experiences.length === 0) {
     return (
       <div className={styles.empty}>
-        <div className={styles.emptyIcon}>💼</div>
-        <p className={styles.emptyText}>경력 정보가 없습니다.</p>
+        <div className={styles.emptyIcon}>?��</div>
+        <p className={styles.emptyText}>경력 ?�보가 ?�습?�다.</p>
       </div>
     );
   }

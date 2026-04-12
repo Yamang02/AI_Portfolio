@@ -1,9 +1,6 @@
 // 공통 훅 export
 export { useCardHover } from './useCardHover';
-export { useTheme } from './useTheme';
 export { useCarouselScroll } from './useCarouselScroll';
 export { useScrollAnimation } from './useScrollAnimation';
 export { useScrollProgress } from './useScrollProgress';
 export { useDebounce } from './useDebounce';
-export { useContentHeightRecalc } from './useContentHeightRecalc';
-export { useImageLoadTracking } from './useImageLoadTracking';

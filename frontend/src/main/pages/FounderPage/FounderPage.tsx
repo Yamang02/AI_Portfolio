@@ -1,7 +1,7 @@
 import React from 'react';
 import { SeoHead } from '@/shared/ui/seo/SeoHead';
 import { pageMetaDefaults } from '@/shared/config/seo.config';
-import { createOrganizationSchema, createPersonSchema, createWebSiteSchema } from '@/shared/lib/schema';
+import { createOrganizationSchema, createPersonSchema, createWebSiteSchema } from '@/main/shared/lib/schema';
 import { useExperiencesQuery } from '@/main/entities/experience/api/useExperienceQuery';
 import { useEducationQuery } from '@/main/entities/education/api/useEducationQuery';
 import { IntroductionSection } from './components/IntroductionSection';
@@ -29,18 +29,18 @@ export const FounderPage: React.FC = () => {
         canonicalPath={meta.canonicalPath}
         jsonLd={[createPersonSchema(), createOrganizationSchema(), createWebSiteSchema()]}
       />
-        <PageHeader title="대표 소개" />
+        <PageHeader title="?�???�개" />
 
-        {/* Main Content Section: 자기소개 + 약력 */}
+        {/* Main Content Section: ?�기?�개 + ?�력 */}
         <section className={styles.section}>
           <div className={styles.container}>
             <div className={styles.topGrid}>
-              {/* 왼쪽: 자기소개 섹션 */}
+              {/* ?�쪽: ?�기?�개 ?�션 */}
               <div className={styles.introColumn}>
                 <IntroductionSection {...contactData} />
               </div>
 
-              {/* 오른쪽: 약력 타임라인 */}
+              {/* ?�른�? ?�력 ?�?�라??*/}
               <div className={styles.timelineColumn}>
                 <CareerTimeline
                   experiences={experiences}

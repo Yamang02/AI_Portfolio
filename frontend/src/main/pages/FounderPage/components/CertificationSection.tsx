@@ -1,7 +1,7 @@
 import React from 'react';
 import { SectionTitle, Card, SkeletonCard, TextLink } from '@/design-system';
 import { useCertificationsQuery } from '@/main/entities/certification/api/useCertificationQuery';
-import { safeFormatDate } from '@/shared/utils/safeStringUtils';
+import { safeFormatDate } from '@/main/shared/utils/safeStringUtils';
 import styles from './CertificationSection.module.css';
 
 export const CertificationSection: React.FC = () => {
@@ -27,7 +27,7 @@ export const CertificationSection: React.FC = () => {
     if (certifications.length === 0) {
       return (
         <Card variant="default" padding="lg" className={styles.card}>
-          <p className={styles.emptyText}>등록된 자격증이 없습니다.</p>
+          <p className={styles.emptyText}>?�록???�격증이 ?�습?�다.</p>
         </Card>
       );
     }
@@ -43,7 +43,7 @@ export const CertificationSection: React.FC = () => {
                     href={certification.credentialUrl}
                     external={true}
                     className={styles.credentialLink}
-                    ariaLabel={`${certification.name} 자격증 확인`}
+                    ariaLabel={`${certification.name} ?�격�??�인`}
                   >
                     <svg
                       className={styles.externalIcon}
@@ -71,7 +71,7 @@ export const CertificationSection: React.FC = () => {
                 </p>
                 {'credentialId' in certification && certification.credentialId && (
                   <p className={styles.credentialId}>
-                    자격증 번호: {certification.credentialId}
+                    ?�격�?번호: {certification.credentialId}
                   </p>
                 )}
                 {certification.description && (
@@ -88,8 +88,7 @@ export const CertificationSection: React.FC = () => {
   return (
     <div className={styles.container}>
       <SectionTitle level="h3" className={styles.sectionTitle}>
-        자격증
-      </SectionTitle>
+        ?�격�?      </SectionTitle>
 
       {certificationBody}
     </div>

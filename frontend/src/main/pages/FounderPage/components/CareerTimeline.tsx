@@ -1,8 +1,8 @@
 import React, { useMemo } from 'react';
 import { SkeletonCard } from '@/design-system/components/Skeleton/SkeletonCard';
 import { SectionTitle } from '@/design-system/components/SectionTitle';
-import { formatDateRange } from '@/shared/utils/safeStringUtils';
-import { startOfMonthTimeMs } from '@/shared/utils/flexibleMonthDate';
+import { formatDateRange } from '@/main/shared/utils/safeStringUtils';
+import { startOfMonthTimeMs } from '@/main/shared/utils/flexibleMonthDate';
 import type { Experience } from '@/main/entities/experience';
 import type { Education } from '@/main/entities/education';
 import styles from './CareerTimeline.module.css';
@@ -50,7 +50,7 @@ export const CareerTimeline: React.FC<CareerTimelineProps> = ({
         sortKeyMs: startOfMonthTimeMs(edu.startDate),
         period: formatDateRange(edu.startDate, edu.endDate, ' ~ '),
         organization: edu.organization,
-        role: '과정 이수',
+        role: '과정 ?�수',
       });
     });
 
@@ -79,7 +79,7 @@ export const CareerTimeline: React.FC<CareerTimelineProps> = ({
     if (timelineItems.length === 0) {
       return (
         <div className={styles.empty}>
-          <p className={styles.emptyText}>약력 정보가 없습니다.</p>
+          <p className={styles.emptyText}>?�력 ?�보가 ?�습?�다.</p>
         </div>
       );
     }
@@ -104,7 +104,7 @@ export const CareerTimeline: React.FC<CareerTimelineProps> = ({
   return (
     <div className={styles.container}>
       <SectionTitle level="h3" className={styles.sectionTitle}>
-        약력
+        ?�력
       </SectionTitle>
 
       {timelineBody}

@@ -3,7 +3,7 @@ import { Card } from '@/design-system';
 import { CertificationSection } from './CertificationSection';
 import { ContactSection } from './ContactSection';
 import { useProfileIntroductionQuery } from '@/main/entities/profile-introduction';
-import { MarkdownRenderer } from '@/shared/ui/markdown/MarkdownRenderer';
+import { MarkdownRenderer } from '@/main/shared/ui/markdown/MarkdownRenderer';
 import styles from './IntroductionSection.module.css';
 
 interface IntroductionSectionProps {
@@ -34,7 +34,7 @@ export const IntroductionSection: React.FC<IntroductionSectionProps> = ({
 
         {error && (
           <Card variant="default" padding="lg" className={styles.introCard}>
-            <p className="text-red-500">자기소개를 불러오는데 실패했습니다.</p>
+            <p className="text-red-500">?�기?�개�?불러?�는???�패?�습?�다.</p>
           </Card>
         )}
 
@@ -47,20 +47,20 @@ export const IntroductionSection: React.FC<IntroductionSectionProps> = ({
         {!isLoading && !error && !introduction && (
           <Card variant="default" padding="lg" className={styles.introCard}>
             <p className={styles.introduction}>
-              AI와 함께, 당신의 꿈을 실현합니다.
+              AI?� ?�께, ?�신??꿈을 ?�현?�니??
             </p>
           </Card>
         )}
       </div>
 
-      {/* 연락처 섹션 */}
+      {/* ?�락�??�션 */}
       <ContactSection
         githubUrl={githubUrl}
         email={email}
         linkedInUrl={linkedInUrl}
       />
 
-      {/* 자격증 섹션 */}
+      {/* ?�격�??�션 */}
       <CertificationSection />
     </div>
   );

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useCallback } from 'react';
 import MDEditor, { commands, ICommand } from '@uiw/react-md-editor';
-import { uploadApi } from '@/shared/api/upload-api';
+import { uploadApi } from '@/admin/shared/api/uploadApi';
 import { message } from 'antd';
 
 export interface MarkdownEditorProps {

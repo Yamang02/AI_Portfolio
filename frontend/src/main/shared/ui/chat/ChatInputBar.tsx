@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { cn } from '../../lib/utils/cn';
-import { colors, transitions, easing, shadows, focusRing } from '../../config/theme';
+import { cn } from '@/shared/lib/utils/cn';
+import { colors, transitions, easing, shadows, focusRing } from '@/shared/config/theme';
 
 interface ChatInputBarProps {
   onSendMessage: (message: string) => void;
@@ -171,4 +171,3 @@ const ChatInputBar: React.FC<ChatInputBarProps> = ({
 };
 
 export { ChatInputBar };
-
