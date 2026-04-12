@@ -129,4 +129,7 @@ module "postgres" {
   retained_backups               = 7
 
   query_insights_enabled = false
+
+  cloudsql_client_service_account_email = var.cloud_run_service_account_email
+  cloudsql_admin_member                 = var.gcp_cloudsql_admin_member
 }

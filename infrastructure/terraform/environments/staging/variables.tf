@@ -64,3 +64,9 @@ variable "cloud_run_container_image" {
   description = "Current staging container image"
   type        = string
 }
+
+variable "gcp_cloudsql_admin_member" {
+  description = "IAM member 전체 문자열에 roles/cloudsql.admin 부여. 예: user:you@gmail.com. 비우면 Terraform에서 미부여."
+  type        = string
+  default     = ""
+}

@@ -120,3 +120,15 @@ variable "extra_user_labels" {
   type        = map(string)
   default     = {}
 }
+
+variable "cloudsql_client_service_account_email" {
+  description = "비우지 않으면 해당 서비스 계정에 roles/cloudsql.client 부여(Cloud Run Unix 소켓 연결 등)."
+  type        = string
+  default     = ""
+}
+
+variable "cloudsql_admin_member" {
+  description = "비우지 않으면 해당 IAM member에 roles/cloudsql.admin 부여. 예: user:you@gmail.com, group:admins@example.com"
+  type        = string
+  default     = ""
+}

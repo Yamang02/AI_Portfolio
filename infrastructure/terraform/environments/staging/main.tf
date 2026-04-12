@@ -93,11 +93,15 @@ module "postgres" {
   disk_size_gb      = 10
   availability_type = "ZONAL"
 
-  deletion_protection = false
+  # 콘솔/정책에서 켜진 삭제 방지와 일치 (apply 시 false로 되돌리지 않도록)
+  deletion_protection = true
 
   backup_enabled                 = true
   point_in_time_recovery_enabled = false
   retained_backups               = 3
 
   query_insights_enabled = false
+
+  cloudsql_client_service_account_email = var.cloud_run_service_account_email
+  cloudsql_admin_member                 = var.gcp_cloudsql_admin_member
 }

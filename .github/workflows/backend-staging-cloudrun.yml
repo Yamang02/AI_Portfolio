@@ -1,6 +1,7 @@
 name: "[Staging] Backend API → Google Cloud Run"
 
 on:
+  workflow_dispatch:
   push:
     branches: [ staging ]
     paths:
