@@ -118,9 +118,9 @@ jobs:
           --service-account "$GCP_CLOUD_RUN_SERVICE_ACCOUNT" \
           --allow-unauthenticated \
           --set-env-vars="SPRING_PROFILES_ACTIVE=staging" \
-          --set-env-vars="GCP_CLOUD_SQL_INSTANCE_CONNECTION_NAME=${{ vars.GCP_CLOUD_SQL_INSTANCE_CONNECTION_NAME }}" \
-          --set-env-vars="POSTGRES_DATABASE=${{ vars.POSTGRES_DATABASE }}" \
-          --set-env-vars="POSTGRES_USER=${{ vars.POSTGRES_USER }}" \
+          --set-env-vars="GCP_CLOUD_SQL_INSTANCE_CONNECTION_NAME=${{ secrets.GCP_CLOUD_SQL_INSTANCE_CONNECTION_NAME }}" \
+          --set-env-vars="POSTGRES_DATABASE=${{ secrets.POSTGRES_DATABASE }}" \
+          --set-env-vars="POSTGRES_USER=${{ secrets.POSTGRES_USER }}" \
           --set-env-vars="POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" \
           --set-env-vars="GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" \
           --set-env-vars="REDIS_HOST=${{ vars.REDIS_HOST }}" \
