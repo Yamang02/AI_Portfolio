@@ -3,5 +3,5 @@ aws_region           = "ap-northeast-2"
 gcp_project_id       = "your-gcp-project-id"
 gcp_region           = "asia-northeast3"
 # staging.yamang02.com — 실제로는 와일드카드 ACM (us-east-1) 사용
-acm_certificate_arn  = "arn:aws:acm:us-east-1:601326494743:certificate/168a4ce8-5764-4c10-875b-1e85825098af"
+acm_certificate_arn  = "arn:aws:acm:us-east-1:601326494743:certificate/1ef36112-08b6-4481-8bed-12996dca0c27"
 cloudfront_origin_id = "ai-portfolio-fe-staging.s3.ap-northeast-2.amazonaws.com-mfkn4ut0748"
