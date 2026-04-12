@@ -172,6 +172,12 @@
             <version>2.20.0</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.google.auth</groupId>
+            <artifactId>google-auth-library-oauth2-http</artifactId>
+            <version>1.23.0</version>
+        </dependency>
+
         <!-- gRPC 버전 명시적 지정 (GCP 라이브러리 간 충돌 방지) -->
         <dependency>
             <groupId>io.grpc</groupId>
