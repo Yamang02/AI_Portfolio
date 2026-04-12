@@ -24,7 +24,7 @@
 - P02는 `readme -> project-overview` 이관 검증을 통과하기 전까지 `DROP COLUMN projects.readme`를 실행하지 않는다.
 - 프로덕션 전환은 Flyway 자동 적용이 아니라 **수동 컷오버 SQL 1회 실행** 기준으로 관리한다.
 
-### 프로덕션 데이터 전환 원칙 (Railway -> GCP)
+### 프로덕션 데이터 전환 원칙 (레거시 호스티드 DB → GCP)
 
 1. 기존 프로덕션 DB를 dump/export 한다.
 2. 신규 GCP 프로덕션 DB에 restore/import 한다.
@@ -85,14 +85,15 @@
 
 ## 실행 순서
 
-1. P01 설계를 고정하고 구현 계약(엔티티/DTO/정렬 규칙)을 확정한다.
-2. P02에서 non-breaking DB 변경(`project_technical_cards` 생성)과 백엔드 API 계약을 구현한다.
-3. P02에서 `readme -> project-overview` 데이터 이관 및 검증을 완료한 뒤 `projects.readme` 제거를 수행한다.
+1. **P05**로 스테이징 **GCP Cloud SQL 연결**(Java Connector, 인스턴스·DB·계정 환경 변수 분리, Railway/단일 URL 제거)을 마친 뒤 스테이징에서 스키마·API 작업을 안정적으로 진행한다.
+2. P01 설계를 고정하고 구현 계약(엔티티/DTO/정렬 규칙)을 확정한다.
+3. P02에서 non-breaking DB 변경(`project_technical_cards` 생성)·백엔드 API 계약·`readme -> project-overview` 이관 및 `projects.readme` 제거를 순서대로 완료한다.
 4. P03에서 프런트 타입/페이지 렌더링을 API 계약과 동기화한다.
 5. P04에서 컷오버 검증(데이터, API, UI, 회귀 테스트)을 수행한다.
 
 ## Phase 목록
 
+- [P05: staging-gcp-database-connectivity](./P05.staging-gcp-database-connectivity.md) (스테이징 GCP DB·백엔드 연결 정리; Railway 제거)
 - [P01: technical-portfolio-schema-design](./P01.technical-portfolio-schema-design.md)
 - [P02: backend-migration-and-api-contract](./P02.backend-migration-and-api-contract.md)
 - [P03: frontend-content-model-and-rendering](./P03.frontend-content-model-and-rendering.md)
@@ -100,6 +101,7 @@
 
 ## 상태
 
+- [ ] P05 완료 (코드 반영 후 스테이징 배포·헬스 검증)
 - [x] P01 완료
 - [ ] P02 완료
 - [ ] P03 완료
