@@ -29,6 +29,7 @@ docs/epic/archive/
 | 에픽 | 설명 |
 |------|------|
 | [E15.2026-04-10_frontend-refactor-governance-and-quality](./E15.2026-04-10_frontend-refactor-governance-and-quality/) | 프론트엔드 구조 재정렬, YamangDesign 기준 토큰 체계 정비, SonarQube·성능·품질 환경 개선, `policy_compiler` 이식 기준 정리 (P01~P04) |
+| [E17.2026-04-12_multi-site-schema-and-content-model](./E17.2026-04-12_multi-site-schema-and-content-model/) | `project_visibility` 중심 멀티사이트 DB/콘텐츠 모델 후속 구현 설계 |
 
 ## 아카이브된 에픽 (E## 네이밍)
 
@@ -40,6 +41,7 @@ docs/epic/archive/
 | [E03.2026-04-03_redis-cache-serialization-refactor](./archive/E03.2026-04-03_redis-cache-serialization-refactor/) | Redis 직렬화·ObjectMapper 경계·캐시 전략 (P01~P05 문서; 아카이브 시점 기준 P05는 저장소와 별도 대조) |
 | [E04.2026-04-03_article-statistics-null-safety](./archive/E04.2026-04-03_article-statistics-null-safety/) | 아티클 통계 null-safety·Easter egg 제거 |
 | [E05.2026-04-03_cache-boundary-and-ui-primitives-refactor](./archive/E05.2026-04-03_cache-boundary-and-ui-primitives-refactor/) | 캐시 직렬화 경계·Tooltip DOM·운영 계약 (P01~P04) |
+| [E16.2026-04-12_infra-audit-and-domain-strategy](./archive/E16.2026-04-12_infra-audit-and-domain-strategy/) | 인프라/도메인 실감사, Option B 전략 확정, 스테이징 네이밍 통일, D01 유지 + E17 분리 |
 
 ## 레거시 아카이브 (`archive/legacy-epics/`)
 

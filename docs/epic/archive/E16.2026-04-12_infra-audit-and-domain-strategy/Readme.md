@@ -12,14 +12,14 @@
 ### 현재 상태
 
 - `decisions/D01.infrastructure-domain-source-of-truth.md`에 as-is 현황이 정리되어 있으나, 실제 인프라와의 정합성이 검증되지 않은 상태다.
-- 문서 간 도메인 전략이 충돌한다: `decisions/D02.infrastructure-and-domain-structure.md`와 `decisions/D03.yamangsolution-site-architecture.md`는 `portfolio.yamang02.com`으로의 이전을 전제하지만, 실제 Production CORS와 배포 워크플로우는 `yamangsolution.com`을 기준으로 운영된다.
+- 문서 간 도메인 전략 충돌이 있었고(D02/D03 원문), 해당 내용은 본 Readme의 "흡수된 결정" 섹션으로 통합되었다.
 - Staging 환경의 CloudFront alias가 `staging.yamang02.com`인지 `staging.yamangsolution.com`인지 확인되지 않아 CORS 에러 잠재 위험이 있다.
-- `decisions/D04.technical-portfolio-schema-design.md`의 `project_visibility.site` 필드 설계가 도메인 전략 미확정으로 중단된 상태다.
+- `project_visibility.site` 후속 설계 항목은 E17로 승격해 분리 진행한다.
 
 ### 문제
 
 - 인프라 상태가 문서와 다를 경우, 새 feature 개발 시 도메인 기준이 불명확해 배포/CORS 이슈로 이어진다.
-- 도메인 전략이 확정되지 않으면 DB 스키마 설계(`decisions/D04.technical-portfolio-schema-design.md`)를 재개할 수 없다.
+- 도메인 전략이 확정되지 않으면 DB 스키마 후속 설계(E17)를 진행할 수 없다.
 - 수동 관리 인프라는 변경 이력이 없어 재현이 어렵다.
 
 ## 특이점
@@ -28,7 +28,7 @@
 - **Option B 기본 가정**: `yamangsolution.com`은 최종적으로 비즈니스 전용으로 전환한다. 단, 비즈니스 사이트가 준비되기 전까지는 `www.yamangsolution.com`에서 현재 포트폴리오를 임시 운영한다.
 - **과도기 원칙**: "목표 상태(비즈니스 전용)"와 "현재 운영 상태(포트폴리오 임시 운영)"를 동시에 문서화하고, 컷오버 전까지는 DNS/CORS/리디렉션 변경을 보류한다.
 - **Terraform 범위 제한**: P03에서 작성하는 Terraform은 현재 리소스를 import하는 초안 수준이며, 실제 인프라를 변경하지 않는다. 인프라 변경은 별도 에픽으로 분리한다.
-- **`D04.technical-portfolio-schema-design.md` 재개**: 도메인 전략 확정(P02) 후 해당 문서의 `project_visibility` 필드 설계를 재개한다. 이 에픽의 범위는 아니지만 P02 완료가 전제 조건이다.
+- **후속 에픽 연계**: `project_visibility` 중심 DB/콘텐츠 모델은 E17에서 구현 설계를 진행한다.
 
 ## 문서 관리 원칙
 
@@ -45,12 +45,29 @@
 ## 결정 문서 (에픽 내부)
 
 - [D01: infrastructure-domain-source-of-truth](./decisions/D01.infrastructure-domain-source-of-truth.md)
-- [D02: infrastructure-and-domain-structure](./decisions/D02.infrastructure-and-domain-structure.md)
-- [D03: yamangsolution-site-architecture](./decisions/D03.yamangsolution-site-architecture.md)
-- [D04: technical-portfolio-schema-design](./decisions/D04.technical-portfolio-schema-design.md)
+
+## 흡수된 결정 (D02/D03)
+
+- 도메인 전략: `yamangsolution.com`은 비즈니스 전용 목표, 현재는 과도기 운영
+- 개인 사이트 후보: `portfolio.yamang02.com` / `blog.yamang02.com`
+- 스테이징 네이밍: `staging.<service>.<domain>` 규칙 적용
+- 비즈니스 사이트 IA/서비스/강의 구조는 E16에서 방향 확정, 상세 실행은 후속 에픽으로 분리
+
+## 후속 에픽
+
+- [E17.2026-04-12_multi-site-schema-and-content-model](../../E17.2026-04-12_multi-site-schema-and-content-model/)
 
 ## 상태
 
 - [x] P01 완료
 - [x] P02 완료
 - [x] P03 완료
+
+## 완료
+
+- Option B(단계적 분리) 도메인 전략 확정
+- 인프라/도메인 실측 근거를 `D01`에 고정
+- 스테이징 네이밍 `staging.<service>.<domain>` 규칙 반영
+- 실행성 높은 스키마 후속 설계는 E17로 분리
+
+아카이브일: 2026-04-12
