@@ -385,7 +385,7 @@ sitemap과 robots.txt 신규 추가:
 | `www.yamang02.com`, `yamang02.com` | 신규 production | `ai-portfolio-profile-production` | profile 정적 사이트 |
 | `staging.yamang02.com` | 신규 staging | `ai-portfolio-profile-staging` | profile staging |
 | `www.yamangsolution.com`, `yamangsolution.com`, `admin.yamang02.com` | 기존 production | `ai-portfolio-fe-production` | frontend React 앱 |
-| `staging.yamangsolution.com`, `admin.staging.yamang02.com` | 기존 staging | `ai-portfolio-fe-staging` | frontend staging |
+| `staging.yamangsolution.com`, `staging.admin.yamang02.com` | 기존 staging | `ai-portfolio-fe-staging` | frontend staging |
 
 기존 CloudFront 2개를 재활용하고 신규 CloudFront 2개를 추가한 구조다. 신규 생성이 아닌 재활용 방식을 택한 이유는 기존 S3 버킷, IAM 정책, 배포 파이프라인을 그대로 유지할 수 있기 때문이다.
 
@@ -395,7 +395,7 @@ sitemap과 robots.txt 신규 추가:
 |--------|------------|-----------|
 | `*.yamang02.com` | `*.yamang02.com` | profile production, profile staging |
 | `yamangsolution.com` + `*.yamangsolution.com` + `admin.yamang02.com` | 세 도메인 | 기존 production CF |
-| `staging.yamangsolution.com` + `admin.staging.yamang02.com` | 두 도메인 | 기존 staging CF |
+| `staging.yamangsolution.com` + `staging.admin.yamang02.com` | 두 도메인 | 기존 staging CF |
 
 ---
 

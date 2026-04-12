@@ -80,9 +80,8 @@ spring:
     cors:
       allowed-origins:
         - "https://staging.yamangsolution.com"  # React 포트폴리오 스테이징 (E14)
-        - "https://admin.staging.yamang02.com"  # Admin MPA (E06)
+        - "https://staging.admin.yamang02.com"  # Admin MPA (E16: env-first 네이밍)
         - "https://ai-portfolio-staging-493721639129.asia-northeast3.run.app"  # 기존 스테이징 도메인
-        - "https://ai-portfolio-chatbot-493721639129.asia-northeast3.run.app"  # 챗봇 도메인
       allowed-methods: 
         - GET
         - POST
