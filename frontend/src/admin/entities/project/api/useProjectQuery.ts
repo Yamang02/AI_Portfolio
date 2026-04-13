@@ -12,9 +12,8 @@ import { queryClient as mainQueryClient } from '@/main/app/config/queryClient';
 export const PROJECT_KEYS = {
   all: ['projects'] as const,
   lists: () => [...PROJECT_KEYS.all, 'list'] as const,
-  list: (filter?: any) => [...PROJECT_KEYS.lists(), filter] as const,
   details: () => [...PROJECT_KEYS.all, 'detail'] as const,
-  detail: (id: number) => [...PROJECT_KEYS.details(), id] as const,
+  detail: (id: string) => [...PROJECT_KEYS.details(), id] as const,
 };
 
 // Queries
@@ -26,11 +25,11 @@ export const useProjectsQuery = () => {
   });
 };
 
-export const useProjectQuery = (id: number | null) => {
+export const useProjectQuery = (id: string | null) => {
   return useQuery({
-    queryKey: PROJECT_KEYS.detail(id!),
+    queryKey: id ? PROJECT_KEYS.detail(id) : PROJECT_KEYS.details(),
     queryFn: () => projectApi.getProjectById(id!),
-    enabled: !!id,
+    enabled: typeof id === 'string' && id.length > 0,
   });
 };
 
@@ -63,7 +62,7 @@ export const useDeleteProjectMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: number) => projectApi.deleteProject(id),
+    mutationFn: (id: string) => projectApi.deleteProject(id),
     onSuccess: () => {
       // 어드민 캐시 무효화
       queryClient.invalidateQueries({ queryKey: PROJECT_KEYS.lists() });
@@ -76,4 +75,3 @@ export const useDeleteProjectMutation = () => {
     },
   });
 };
-

@@ -3,7 +3,7 @@
  */
 
 export interface Project {
-  id: number;
+  id: string;
   title: string;
   description: string;
   status: string;
@@ -35,7 +35,7 @@ export interface ProjectFormData {
 // 프로젝트 - 기술스택 관계
 export interface ProjectTechStackRelationship {
   id: number;
-  projectId: number;
+  projectId: string;
   techStackId: number;
   techStackName: string;
   isPrimary: boolean;

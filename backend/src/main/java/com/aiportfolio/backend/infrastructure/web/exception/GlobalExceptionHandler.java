@@ -5,6 +5,7 @@ import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
@@ -41,6 +42,15 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error(exception.getMessage(), WebApiResponseMessages.LABEL_BAD_REQUEST));
     }
 
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiResponse<Object>> handleInvalidRequestBody(HttpMessageNotReadableException exception) {
+        log.warn("Invalid request body: {}", exception.getMessage());
+        return ResponseEntity.badRequest()
+                .body(ApiResponse.error(
+                        WebApiResponseMessages.validationFailedDetail("invalid request body"),
+                        WebApiResponseMessages.LABEL_BAD_REQUEST));
+    }
+
     /**
      * 잘못된 상태 예외 처리
      */
@@ -63,4 +73,3 @@ public class GlobalExceptionHandler {
                         WebApiResponseMessages.LABEL_SERVER_ERROR));
     }
 }
-
