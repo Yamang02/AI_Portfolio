@@ -29,18 +29,18 @@ export const FounderPage: React.FC = () => {
         canonicalPath={meta.canonicalPath}
         jsonLd={[createPersonSchema(), createOrganizationSchema(), createWebSiteSchema()]}
       />
-        <PageHeader title="?�???�개" />
+        <PageHeader title="자기소개" />
 
-        {/* Main Content Section: ?�기?�개 + ?�력 */}
+        {/* Main Content Section: ?�기?�개 + ?�력 */}
         <section className={styles.section}>
           <div className={styles.container}>
             <div className={styles.topGrid}>
-              {/* ?�쪽: ?�기?�개 ?�션 */}
+              {/* ?�쪽: ?�기?�개 ?�션 */}
               <div className={styles.introColumn}>
                 <IntroductionSection {...contactData} />
               </div>
 
-              {/* ?�른�? ?�력 ?�?�라??*/}
+              {/* ?�른�? ?�력 ?�?�라??*/}
               <div className={styles.timelineColumn}>
                 <CareerTimeline
                   experiences={experiences}

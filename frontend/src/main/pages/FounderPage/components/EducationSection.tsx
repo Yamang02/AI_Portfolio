@@ -33,8 +33,8 @@ export const EducationSection: React.FC<EducationSectionProps> = ({
   if (educations.length === 0) {
     return (
       <div className={styles.empty}>
-        <div className={styles.emptyIcon}>?��</div>
-        <p className={styles.emptyText}>교육 ?�보가 ?�습?�다.</p>
+        <div className={styles.emptyIcon}>🎓</div>
+        <p className={styles.emptyText}>교육 정보가 없습니다.</p>
       </div>
     );
   }

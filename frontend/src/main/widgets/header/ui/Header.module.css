@@ -26,11 +26,51 @@
   color: var(--color-text-primary);
 }
 
-.nav {
+.desktopNav {
   display: flex;
   gap: 4px;
   align-items: center;
   overflow: visible;
+}
+
+/* Nav ghost buttons — icon + text, old HeaderIconButton feel */
+.navLink {
+  gap: 6px !important;
+  padding: 8px 10px !important;
+  background: transparent !important;
+  border: none !important;
+  color: var(--color-text-secondary) !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  border-radius: 6px;
+  box-shadow: none !important;
+  transform: none !important;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.navLink:hover {
+  background-color: var(--color-bg-secondary) !important;
+  color: var(--color-primary) !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.navLinkActive {
+  background-color: var(--color-primary) !important;
+  color: #ffffff !important;
+}
+
+.navLinkActive:hover {
+  background-color: var(--color-primary) !important;
+  color: #ffffff !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.navLink .icon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
 }
 
 .divider {
@@ -80,7 +120,7 @@
   color: var(--color-text-primary) !important;
 }
 
-.mobileMenuWrapper {
+.rightActions {
   display: none;
   align-items: center;
   gap: 8px;
@@ -173,11 +213,11 @@
     padding: 0 24px;
   }
 
-  .nav {
+  .desktopNav {
     display: none;
   }
 
-  .mobileMenuWrapper {
+  .rightActions {
     display: flex;
   }
 }

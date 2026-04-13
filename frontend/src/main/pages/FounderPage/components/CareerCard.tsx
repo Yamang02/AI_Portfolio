@@ -6,7 +6,7 @@ import type { Experience } from '@/main/entities/experience';
 import type { Education } from '@/main/entities/education';
 import styles from './CareerCard.module.css';
 
-// Briefcase ?�이�?(경력)
+// Briefcase ?�이�?(경력)
 const BriefcaseIcon: React.FC<{ className?: string }> = ({ className }) => (
   <svg
     className={className}
@@ -24,7 +24,7 @@ const BriefcaseIcon: React.FC<{ className?: string }> = ({ className }) => (
   </svg>
 );
 
-// GraduationCap ?�이�?(교육)
+// GraduationCap ?�이�?(교육)
 const GraduationCapIcon: React.FC<{ className?: string }> = ({ className }) => (
   <svg
     className={className}
@@ -74,7 +74,7 @@ export const CareerCard: React.FC<CareerCardProps> = ({ type, data }) => {
   const startDate = data.startDate;
   const endDate = data.endDate;
   
-  // 경력 ?�용 ?�드
+  // 경력 ?�용 ?�드
   const mainResponsibilities = type === 'experience' 
     ? (data as Experience).mainResponsibilities 
     : undefined;
@@ -87,7 +87,7 @@ export const CareerCard: React.FC<CareerCardProps> = ({ type, data }) => {
 
   return (
     <Card variant="default" padding="lg" className={styles.card}>
-      {/* ?�더: ?�이�? 조직/?�사, title, 근무기간 */}
+      {/* ?�더: ?�이�? 조직/?�사, title, 근무기간 */}
       <div className={styles.header}>
         <div className={styles.iconWrapper}>
           <Icon className={styles.icon} />
@@ -102,7 +102,7 @@ export const CareerCard: React.FC<CareerCardProps> = ({ type, data }) => {
         </div>
       </div>
 
-      {/* 컨텐�? ??��, 주요?�무, ?�과, ?�명 */}
+      {/* 컨텐�? ??��, 주요?�무, 성과, ?�명 */}
       <div className={styles.content}>
         {role && (
           <div className={styles.roleSection}>
@@ -112,7 +112,7 @@ export const CareerCard: React.FC<CareerCardProps> = ({ type, data }) => {
 
         {mainResponsibilities && mainResponsibilities.length > 0 && (
           <div className={styles.section}>
-            <h4 className={styles.sectionTitle}>주요 ?�무</h4>
+            <h4 className={styles.sectionTitle}>주요 업무</h4>
             <ul className={styles.list}>
               {mainResponsibilities.map((item) => (
                 (() => {
@@ -129,7 +129,7 @@ export const CareerCard: React.FC<CareerCardProps> = ({ type, data }) => {
 
         {achievements && achievements.length > 0 && (
           <div className={styles.section}>
-            <h4 className={styles.sectionTitle}>?�과</h4>
+            <h4 className={styles.sectionTitle}>성과</h4>
             <ul className={styles.list}>
               {achievements.map((item) => (
                 (() => {
@@ -153,7 +153,7 @@ export const CareerCard: React.FC<CareerCardProps> = ({ type, data }) => {
         )}
       </div>
 
-      {/* ?�터: 기술?�택 배�???*/}
+      {/* ?�터: 기술?�택 배�???*/}
       {technologies && technologies.length > 0 && (
         <div className={styles.footer}>
           <div className={styles.techStackList}>

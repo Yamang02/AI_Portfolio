@@ -50,7 +50,7 @@ export const CareerTimeline: React.FC<CareerTimelineProps> = ({
         sortKeyMs: startOfMonthTimeMs(edu.startDate),
         period: formatDateRange(edu.startDate, edu.endDate, ' ~ '),
         organization: edu.organization,
-        role: '과정 ?�수',
+        role: '과정 수료',
       });
     });
 
@@ -79,7 +79,7 @@ export const CareerTimeline: React.FC<CareerTimelineProps> = ({
     if (timelineItems.length === 0) {
       return (
         <div className={styles.empty}>
-          <p className={styles.emptyText}>?�력 ?�보가 ?�습?�다.</p>
+          <p className={styles.emptyText}>이력 정보가 없습니다.</p>
         </div>
       );
     }
@@ -104,7 +104,7 @@ export const CareerTimeline: React.FC<CareerTimelineProps> = ({
   return (
     <div className={styles.container}>
       <SectionTitle level="h3" className={styles.sectionTitle}>
-        ?�력
+        이력
       </SectionTitle>
 
       {timelineBody}

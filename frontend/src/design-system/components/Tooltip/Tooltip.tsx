@@ -25,7 +25,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
   const [position, setPosition] = useState({ top: 0, left: 0 });
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hideTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const wrapperRef = useRef<HTMLButtonElement>(null);
+  const wrapperRef = useRef<HTMLSpanElement>(null);
   const tooltipId = useId();
 
   const clearTimers = useCallback(() => {
@@ -126,7 +126,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
   }, [clearTimers, delay, updatePosition]);
 
   const handleBlurCapture = useCallback(
-    (e: React.FocusEvent<HTMLButtonElement>) => {
+    (e: React.FocusEvent<HTMLSpanElement>) => {
       const next = e.relatedTarget as Node | null;
       if (next && wrapperRef.current?.contains(next)) {
         return;
@@ -137,20 +137,12 @@ export const Tooltip: React.FC<TooltipProps> = ({
     [clearTimers],
   );
 
-  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLButtonElement>) => {
+  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLSpanElement>) => {
     if (e.key === 'Escape') {
       clearTimers();
       setIsVisible(false);
-      return;
     }
-
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      clearTimers();
-      setIsVisible(true);
-      updatePosition();
-    }
-  }, [clearTimers, updatePosition]);
+  }, [clearTimers]);
 
   const placementClass = styles[placement];
 
@@ -171,8 +163,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
 
   return (
     <>
-      <button
-        type="button"
+      <span
         ref={wrapperRef}
         className={styles.wrapper}
         aria-describedby={isVisible ? tooltipId : undefined}
@@ -183,7 +174,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
         onKeyDown={handleKeyDown}
       >
         {children}
-      </button>
+      </span>
       {tooltipElement && createPortal(tooltipElement, document.body)}
     </>
   );

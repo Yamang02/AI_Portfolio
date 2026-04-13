@@ -33,8 +33,8 @@ export const ExperienceSection: React.FC<ExperienceSectionProps> = ({
   if (experiences.length === 0) {
     return (
       <div className={styles.empty}>
-        <div className={styles.emptyIcon}>?��</div>
-        <p className={styles.emptyText}>경력 ?�보가 ?�습?�다.</p>
+        <div className={styles.emptyIcon}>💼</div>
+        <p className={styles.emptyText}>경력 정보가 없습니다.</p>
       </div>
     );
   }
