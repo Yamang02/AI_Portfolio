@@ -109,6 +109,22 @@ jobs:
         rm -rf /tmp/.buildx-cache
         mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
+    # flyway_schema_history가 비어있을 때 baseline 레코드를 삽입해
+    # V001이 실행되지 않도록 한다. 이미 baseline이 존재하면 무시됨(멱등).
+    - name: Flyway baseline (idempotent)
+      run: |
+        curl -fsSL https://storage.googleapis.com/cloud-sql-connectors/cloud-sql-proxy/v2.14.1/cloud-sql-proxy.linux.amd64 \
+          -o /usr/local/bin/cloud-sql-proxy && chmod +x /usr/local/bin/cloud-sql-proxy
+        cloud-sql-proxy ${{ secrets.GCP_CLOUD_SQL_INSTANCE_CONNECTION_NAME }} --port=5432 &
+        sleep 5
+        docker run --rm --network host flyway/flyway:9 \
+          -url="jdbc:postgresql://127.0.0.1:5432/${{ secrets.POSTGRES_DATABASE }}" \
+          -user="${{ secrets.FLYWAY_USER }}" \
+          -password="${{ secrets.FLYWAY_PASSWORD }}" \
+          -baselineVersion="1" \
+          -baselineDescription="Staging schema baseline - existing tables" \
+          baseline
+
     - name: Deploy to staging environment
       run: |
         gcloud run deploy $GCP_MAIN_SERVICE_NAME \
