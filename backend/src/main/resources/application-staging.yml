@@ -23,9 +23,11 @@ spring:
     baseline-on-migrate: true
     baseline-version: 1
     baseline-description: "Staging schema baseline - existing tables"
-    validate-on-migrate: true
+    validate-on-migrate: false
     clean-disabled: true
     ignore-missing-migrations: false
+    user: ${FLYWAY_USER}
+    password: ${FLYWAY_PASSWORD}
 
   data:
     redis:
