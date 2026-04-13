@@ -40,6 +40,7 @@ public class ProjectResponse {
     private LocalDate endDate;
     private String imageUrl;
     private List<ProjectScreenshotResponse> screenshots;
+    private List<ProjectTechnicalCardResponse> technicalCards;
     private String githubUrl;
     private String liveUrl;
     private String externalUrl;
@@ -69,5 +70,22 @@ public class ProjectResponse {
         private String category;
         private Integer proficiencyLevel;
     }
-}
 
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ProjectTechnicalCardResponse {
+        private Long id;
+        private String businessId;
+        private String title;
+        private String category;
+        private String problemStatement;
+        private String analysis;
+        private String solution;
+        private Long articleId;
+        @JsonProperty("isPinned")
+        private Boolean isPinned;
+        private Integer sortOrder;
+    }
+}

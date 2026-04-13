@@ -11,7 +11,7 @@ import { MarkdownRenderer } from '@/main/shared/ui/markdown/MarkdownRenderer';
 import { TechStackList } from '@/main/shared/ui/tech-stack/TechStackList';
 import { SimpleArticleCard } from '@design-system/components/Card/SimpleArticleCard';
 import { Pagination } from '@design-system/components/Pagination/Pagination';
-import type { Project } from '../../entities/project/model/project.types';
+import type { Project, ProjectTechnicalCard } from '../../entities/project/model/project.types';
 import { ProjectDetailHeader } from '@design-system/components/ProjectDetailHeader';
 import { TableOfContents } from '@design-system/components/TableOfContents';
 import { ProjectNavigation } from '@design-system/components/ProjectNavigation';
@@ -35,7 +35,20 @@ const ProjectDetailPage: React.FC = () => {
     return projects.find((p: Project) => p.id === id) || null;
   }, [id, projects]);
 
-  const readmeContent = project ? (project.readme || project.description || '') : '';
+  const projectOverviewContent = project
+    ? (project.projectOverviewArticle?.content || project.description || '')
+    : '';
+  const technicalCards = useMemo(() => {
+    if (!project?.technicalCards) {
+      return [];
+    }
+    return [...project.technicalCards].sort((a, b) => {
+      if (a.isPinned !== b.isPinned) {
+        return a.isPinned ? -1 : 1;
+      }
+      return (a.sortOrder ?? 0) - (b.sortOrder ?? 0);
+    });
+  }, [project]);
 
   // development-timeline ?�??Article (?�로?�트 ?�이?�에??가?�옴)
   const developmentTimelineArticles = useMemo(() => {
@@ -98,9 +111,12 @@ const ProjectDetailPage: React.FC = () => {
       baseSections.push({ id: 'screenshots', text: '스크린샷', level: 2 });
     }
 
-    // Readme ?�션???�으�?추�?
-    if (readmeContent) {
-      baseSections.push({ id: 'readme', text: '상세 설명', level: 2 });
+    if (projectOverviewContent) {
+      baseSections.push({ id: 'overview-article', text: '프로젝트 개요', level: 2 });
+    }
+
+    if (technicalCards.length > 0) {
+      baseSections.push({ id: 'technical-cards', text: '기술 카드', level: 2 });
     }
 
     // development-timeline Article ?�션???�으�?추�? (기술 스택 ?�에)
@@ -114,12 +130,11 @@ const ProjectDetailPage: React.FC = () => {
     }
 
     // DOM?�서 추출???�딩?�을 상세 설명 ?�션???�위 ??��?�로 추�?
-    if (domTocItems.length > 0 && readmeContent) {
-      // 상세 설명 ?�션??찾아???�위 ??��?�로 추�?
-      const readmeSectionIndex = baseSections.findIndex(s => s.id === 'readme');
-      if (readmeSectionIndex !== -1) {
-        baseSections[readmeSectionIndex] = {
-          ...baseSections[readmeSectionIndex],
+    if (domTocItems.length > 0 && projectOverviewContent) {
+      const overviewSectionIndex = baseSections.findIndex(s => s.id === 'overview-article');
+      if (overviewSectionIndex !== -1) {
+        baseSections[overviewSectionIndex] = {
+          ...baseSections[overviewSectionIndex],
           subItems: domTocItems
         };
       }
@@ -129,7 +144,7 @@ const ProjectDetailPage: React.FC = () => {
     }
 
     return baseSections;
-  }, [domTocItems, project, readmeContent, developmentTimelineArticles]);
+  }, [domTocItems, project, projectOverviewContent, developmentTimelineArticles, technicalCards.length]);
 
   // ������ ���� �� ������� ��ũ��
   useEffect(() => {
@@ -242,16 +257,47 @@ const ProjectDetailPage: React.FC = () => {
           </section>
         )}
 
-        {/* Readme ?�션 */}
-        {readmeContent && (
-          <section id="readme" className={styles.section}>
-            <SectionTitle level="h2" id="readme" className={styles.sectionTitle}>상세 설명</SectionTitle>
+        {projectOverviewContent && (
+          <section id="overview-article" className={styles.section}>
+            <SectionTitle level="h2" id="overview-article" className={styles.sectionTitle}>프로젝트 개요</SectionTitle>
             <article ref={markdownContainerRef} className={styles.markdownArticle}>
               <MarkdownRenderer
-                content={readmeContent}
+                content={projectOverviewContent}
                 className={styles.markdown}
               />
             </article>
+          </section>
+        )}
+
+        {technicalCards.length > 0 && (
+          <section id="technical-cards" className={styles.section}>
+            <SectionTitle level="h2" id="technical-cards" className={styles.sectionTitle}>기술 카드</SectionTitle>
+            <div className={styles.technicalCards}>
+              {technicalCards.map((card: ProjectTechnicalCard, index) => (
+                <article
+                  key={card.id || `${card.title}-${index}`}
+                  id={card.id ? `card-${card.id}` : undefined}
+                  className={styles.technicalCard}
+                >
+                  <header className={styles.technicalCardHeader}>
+                    <h3 className={styles.technicalCardTitle}>{card.title}</h3>
+                    <span className={styles.technicalCardCategory}>{card.category}</span>
+                  </header>
+                  <div className={styles.technicalCardBody}>
+                    <h4>문제</h4>
+                    <p>{card.problemStatement}</p>
+                    {card.analysis && (
+                      <>
+                        <h4>분석</h4>
+                        <p>{card.analysis}</p>
+                      </>
+                    )}
+                    <h4>해결</h4>
+                    <p>{card.solution}</p>
+                  </div>
+                </article>
+              ))}
+            </div>
           </section>
         )}
 

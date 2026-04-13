@@ -18,7 +18,7 @@ export type ProjectCategory = 'BUILD' | 'LAB' | 'MAINTENANCE';
 export interface Project extends BaseItem {
   githubUrl?: string;
   liveUrl?: string;
-  readme: string;
+  readme?: string;
   imageUrl: string;
   source: 'github' | 'local' | 'certification';
   type: ProjectCategory;

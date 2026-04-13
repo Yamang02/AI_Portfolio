@@ -7,6 +7,7 @@ export const ARTICLE_CATEGORIES = {
   architecture: '아키텍처',
   insight: '인사이트',
   'sns-posts': 'SNS 포스트',
+  'project-overview': '프로젝트 소개',
   'development-timeline': '개발 과정',
 } as const;
 

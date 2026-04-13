@@ -5,6 +5,8 @@ export interface Project {
   title: string;
   description: string;
   readme?: string;
+  projectOverviewArticle?: ProjectOverviewArticle;
+  technicalCards?: ProjectTechnicalCard[];
   type: 'BUILD' | 'LAB' | 'MAINTENANCE';
   status: 'completed' | 'in_progress' | 'maintenance';
   isTeam: boolean;
@@ -30,6 +32,25 @@ export interface ProjectScreenshot {
   imageUrl: string;
   cloudinaryPublicId?: string;
   displayOrder: number;
+}
+
+export interface ProjectOverviewArticle {
+  businessId: string;
+  title: string;
+  content: string;
+}
+
+export interface ProjectTechnicalCard {
+  id?: number;
+  businessId?: string;
+  title: string;
+  category: string;
+  problemStatement: string;
+  analysis?: string;
+  solution: string;
+  articleId?: number;
+  isPinned?: boolean;
+  sortOrder?: number;
 }
 
 export interface Technology {
@@ -58,6 +79,7 @@ export interface ProjectCreateRequest {
   liveUrl?: string;
   externalUrl?: string;
   technologies: number[];
+  technicalCards?: ProjectTechnicalCard[];
   sortOrder?: number;
 }
 
@@ -156,4 +178,3 @@ class AdminProjectApi {
 }
 
 export const adminProjectApi = new AdminProjectApi();
-

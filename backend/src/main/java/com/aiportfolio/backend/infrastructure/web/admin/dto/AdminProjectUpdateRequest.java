@@ -62,6 +62,7 @@ public class AdminProjectUpdateRequest {
     private String externalUrl;
 
     private List<Long> technologies;
+    private List<ProjectTechnicalCardRequest> technicalCards;
 
     private Integer sortOrder;
 
@@ -85,8 +86,48 @@ public class AdminProjectUpdateRequest {
                 .liveUrl(liveUrl)
                 .externalUrl(externalUrl)
                 .technologies(technologies)
+                .technicalCards(technicalCards == null ? null : technicalCards.stream()
+                        .map(ProjectTechnicalCardRequest::toCommand)
+                        .toList())
                 .sortOrder(sortOrder)
                 .build();
     }
-}
 
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class ProjectTechnicalCardRequest {
+        private Long id;
+
+        @Size(max = 50, message = "카드 비즈니스 ID는 50자를 초과할 수 없습니다")
+        private String businessId;
+
+        @Size(max = 255, message = "카드 제목은 255자를 초과할 수 없습니다")
+        private String title;
+
+        @Size(max = 50, message = "카드 카테고리는 50자를 초과할 수 없습니다")
+        private String category;
+
+        private String problemStatement;
+        private String analysis;
+        private String solution;
+        private Long articleId;
+        private Boolean isPinned;
+        private Integer sortOrder;
+
+        private ProjectUpdateCommand.ProjectTechnicalCardCommand toCommand() {
+            return ProjectUpdateCommand.ProjectTechnicalCardCommand.builder()
+                    .id(id)
+                    .businessId(businessId)
+                    .title(title)
+                    .category(category)
+                    .problemStatement(problemStatement)
+                    .analysis(analysis)
+                    .solution(solution)
+                    .articleId(articleId)
+                    .isPinned(isPinned)
+                    .sortOrder(sortOrder)
+                    .build();
+        }
+    }
+}

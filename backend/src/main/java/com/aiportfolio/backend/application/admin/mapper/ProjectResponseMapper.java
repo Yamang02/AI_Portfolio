@@ -35,6 +35,7 @@ public class ProjectResponseMapper {
                 .startDate(project.getStartDate())
                 .endDate(project.getEndDate())
                 .imageUrl(project.getImageUrl())
+                .technicalCards(toTechnicalCardResponses(project))
                 .githubUrl(project.getGithubUrl())
                 .liveUrl(project.getLiveUrl())
                 .externalUrl(project.getExternalUrl())
@@ -121,6 +122,7 @@ public class ProjectResponseMapper {
                 .endDate(project.getEndDate())
                 .imageUrl(project.getImageUrl())
                 .screenshots(screenshots)
+                .technicalCards(toTechnicalCardResponses(project))
                 .technologies(technologies)
                 .githubUrl(project.getGithubUrl())
                 .liveUrl(project.getLiveUrl())
@@ -129,5 +131,25 @@ public class ProjectResponseMapper {
                 .createdAt(project.getCreatedAt())
                 .updatedAt(project.getUpdatedAt())
                 .build();
+    }
+
+    private List<ProjectResponse.ProjectTechnicalCardResponse> toTechnicalCardResponses(Project project) {
+        if (project.getTechnicalCards() == null) {
+            return List.of();
+        }
+        return project.getTechnicalCards().stream()
+                .map(card -> ProjectResponse.ProjectTechnicalCardResponse.builder()
+                        .id(card.getId())
+                        .businessId(card.getBusinessId())
+                        .title(card.getTitle())
+                        .category(card.getCategory())
+                        .problemStatement(card.getProblemStatement())
+                        .analysis(card.getAnalysis())
+                        .solution(card.getSolution())
+                        .articleId(card.getArticleId())
+                        .isPinned(card.isPinned())
+                        .sortOrder(card.getSortOrder())
+                        .build())
+                .toList();
     }
 }

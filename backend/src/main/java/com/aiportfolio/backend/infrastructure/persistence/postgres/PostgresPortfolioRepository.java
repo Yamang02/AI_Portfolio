@@ -73,13 +73,18 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
             // 기술스택을 명시적으로 로드 (N+1 문제 방지 및 LAZY 로딩 트리거)
             // 스크린샷은 ID 배열 기반으로 별도 조회하므로 여기서는 로드하지 않음
             int loadedTechStackCount = 0;
+            int loadedTechnicalCardCount = 0;
             for (ProjectJpaEntity entity : jpaEntities) {
                 if (entity.getProjectTechStacks() != null) {
                     loadedTechStackCount += entity.getProjectTechStacks().size(); // LAZY 로딩 트리거
                 }
+                if (entity.getProjectTechnicalCards() != null) {
+                    loadedTechnicalCardCount += entity.getProjectTechnicalCards().size();
+                }
             }
             if (log.isDebugEnabled()) {
-                log.debug("Loaded tech stacks total count: {}", loadedTechStackCount);
+                log.debug("Loaded tech stacks total count: {}, technical cards total count: {}",
+                        loadedTechStackCount, loadedTechnicalCardCount);
             }
             
             List<Project> projects = projectMapper.toDomainList(jpaEntities);
@@ -101,6 +106,12 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
                     int techStacksSize = jpaEntity.getProjectTechStacks().size(); // LAZY 로딩 트리거
                     if (log.isDebugEnabled()) {
                         log.debug("Loaded tech stacks count: {}", techStacksSize);
+                    }
+                }
+                if (jpaEntity.getProjectTechnicalCards() != null) {
+                    int technicalCardSize = jpaEntity.getProjectTechnicalCards().size();
+                    if (log.isDebugEnabled()) {
+                        log.debug("Loaded technical cards count: {}", technicalCardSize);
                     }
                 }
                 Project project = projectMapper.toDomain(jpaEntity);
@@ -617,13 +628,18 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
             // 기술스택을 명시적으로 로드 (N+1 문제 방지)
             // 스크린샷은 ID 배열 기반으로 별도 조회하므로 여기서는 로드하지 않음
             int loadedTechStackCount = 0;
+            int loadedTechnicalCardCount = 0;
             for (ProjectJpaEntity entity : entities) {
                 if (entity.getProjectTechStacks() != null) {
                     loadedTechStackCount += entity.getProjectTechStacks().size(); // LAZY 로딩 트리거
                 }
+                if (entity.getProjectTechnicalCards() != null) {
+                    loadedTechnicalCardCount += entity.getProjectTechnicalCards().size();
+                }
             }
             if (log.isDebugEnabled()) {
-                log.debug("Loaded filtered tech stacks total count: {}", loadedTechStackCount);
+                log.debug("Loaded filtered tech stacks total count: {}, technical cards total count: {}",
+                        loadedTechStackCount, loadedTechnicalCardCount);
             }
 
             // 도메인 모델로 변환 (필터링은 이미 쿼리에서 수행됨)
@@ -712,6 +728,7 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
             ProjectJpaEntity existing = existingEntity.get();
             applyProjectFieldsToEntity(project, existing);
             syncProjectScreenshotsIfPresent(project, existing);
+            syncProjectTechnicalCardsIfPresent(project, existing);
 
             ProjectJpaEntity savedEntity = projectJpaRepository.save(existing);
             log.debug("Project updated successfully: {}", savedEntity.getId());
@@ -735,9 +752,6 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
         }
         if (project.getDescription() != null) {
             existing.setDescription(project.getDescription());
-        }
-        if (project.getReadme() != null) {
-            existing.setReadme(project.getReadme());
         }
         if (project.getType() != null) {
             existing.setType(project.getType());
@@ -825,6 +839,18 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
                 .toList();
         existing.setScreenshots(screenshotIds);
     }
+
+    private void syncProjectTechnicalCardsIfPresent(Project project, ProjectJpaEntity existing) {
+        if (project.getTechnicalCards() == null) {
+            return;
+        }
+        List<ProjectTechnicalCardJpaEntity> cards = projectMapper.toJpaTechnicalCards(project.getTechnicalCards(), existing);
+        if (existing.getProjectTechnicalCards() == null) {
+            existing.setProjectTechnicalCards(new ArrayList<>());
+        }
+        existing.getProjectTechnicalCards().clear();
+        existing.getProjectTechnicalCards().addAll(cards);
+    }
     
     // === 정렬 순서 관련 ===
     
@@ -909,4 +935,3 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
         log.debug("Successfully batch updated {} certifications", certifications.size());
     }
 }
-

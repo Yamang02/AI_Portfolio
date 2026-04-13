@@ -79,17 +79,19 @@
 
 ## 실행 순서
 
-1. P01에서 Admin/API 계약과 도메인 경계를 확정한다.
-2. P02에서 Admin Technical Card 편집 UI를 완성한다.
-3. P03에서 Main 렌더링 모델 전환과 톤 정렬을 적용한다.
-4. P04에서 회귀 검증 및 배포 준비 체크를 완료한다.
+1. P01에서 Admin FSD 경계 위반과 데드코드를 정리한다.
+2. P02에서 Backend TechnicalCard 도메인/유스케이스/API를 구현하고 계약을 확정한다.
+3. P03에서 Admin Technical Card 편집 UI를 완성한다.
+4. P04에서 Main 렌더링 모델 전환과 톤 정렬을 적용한다.
+5. P05에서 회귀 검증 및 배포 준비 체크를 완료한다.
 
 ## Phase 목록
 
-- [P01: admin-project-technical-card-contract](./P01.admin-project-technical-card-contract.md)
-- [P02: admin-technical-card-editor-ui](./P02.admin-technical-card-editor-ui.md)
-- [P03: main-project-detail-model-cutover-and-tone-alignment](./P03.main-project-detail-model-cutover-and-tone-alignment.md)
-- [P04: regression-validation-and-release-readiness](./P04.regression-validation-and-release-readiness.md)
+- [P01: admin-fsd-cleanup](./P01.admin-fsd-cleanup.md)
+- [P02: admin-project-technical-card-contract](./P02.admin-project-technical-card-contract.md)
+- [P03: admin-technical-card-editor-ui](./P03.admin-technical-card-editor-ui.md)
+- [P04: main-project-detail-model-cutover-and-tone-alignment](./P04.main-project-detail-model-cutover-and-tone-alignment.md)
+- [P05: regression-validation-and-release-readiness](./P05.regression-validation-and-release-readiness.md)
 
 ## 상태
 
@@ -97,4 +99,5 @@
 - [ ] P02 완료
 - [ ] P03 완료
 - [ ] P04 완료
+- [ ] P05 완료
 

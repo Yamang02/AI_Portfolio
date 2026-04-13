@@ -2,11 +2,13 @@ package com.aiportfolio.backend.infrastructure.persistence.postgres.mapper;
 
 // 도메인 모델 imports
 import com.aiportfolio.backend.domain.portfolio.model.Project;
+import com.aiportfolio.backend.domain.portfolio.model.ProjectTechnicalCard;
 
 // 인프라 레이어 imports
 import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.ProjectJpaEntity;
 import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.ProjectTechStackJpaEntity;
 import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.ProjectScreenshotJpaEntity;
+import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.ProjectTechnicalCardJpaEntity;
 import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.ProjectScreenshotJpaRepository;
 
 // 외부 라이브러리 imports
@@ -17,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 // Java 표준 라이브러리 imports
 import java.util.List;
 import java.util.ArrayList;
+import java.util.UUID;
 
 /**
  * Project 도메인 모델과 JPA 엔티티 간 변환 매퍼
@@ -60,7 +63,6 @@ public class ProjectMapper {
                 .githubUrl(jpaEntity.getGithubUrl())
                 .liveUrl(jpaEntity.getLiveUrl())
                 .imageUrl(jpaEntity.getImageUrl())
-                .readme(jpaEntity.getReadme())
                 .type(jpaEntity.getType())
                 .source(jpaEntity.getSource())
                 .status(jpaEntity.getStatus())
@@ -74,6 +76,7 @@ public class ProjectMapper {
                 .myContributions(jpaEntity.getMyContributions())
                 .role(jpaEntity.getRole())
                 .screenshots(new ArrayList<>()) // 목록 조회 시 스크린샷은 로드하지 않음 (성능 최적화)
+                .technicalCards(toDomainTechnicalCards(jpaEntity.getProjectTechnicalCards()))
                 .createdAt(jpaEntity.getCreatedAt())
                 .updatedAt(jpaEntity.getUpdatedAt())
                 .build();
@@ -89,7 +92,7 @@ public class ProjectMapper {
             return null;
         }
         
-        return ProjectJpaEntity.builder()
+        ProjectJpaEntity entity = ProjectJpaEntity.builder()
                 .businessId(domainModel.getId()) // domain.id → business_id
                 .title(domainModel.getTitle())
                 .description(domainModel.getDescription())
@@ -97,7 +100,6 @@ public class ProjectMapper {
                 .githubUrl(domainModel.getGithubUrl())
                 .liveUrl(domainModel.getLiveUrl())
                 .imageUrl(domainModel.getImageUrl())
-                .readme(domainModel.getReadme())
                 .type(domainModel.getType())
                 .source(domainModel.getSource())
                 .status(domainModel.getStatus() != null ? domainModel.getStatus() : "completed")
@@ -111,9 +113,13 @@ public class ProjectMapper {
                 .myContributions(domainModel.getMyContributions())
                 .role(domainModel.getRole())
                 .projectScreenshots(new java.util.ArrayList<>()) // 관계 테이블은 별도로 관리
+                .projectTechnicalCards(new java.util.ArrayList<>())
                 .createdAt(domainModel.getCreatedAt())
                 .updatedAt(domainModel.getUpdatedAt())
                 .build();
+
+        entity.setProjectTechnicalCards(toJpaTechnicalCards(domainModel.getTechnicalCards(), entity));
+        return entity;
     }
     
     /**
@@ -184,5 +190,54 @@ public class ProjectMapper {
             return new ArrayList<>();
         }
     }
-    
+
+    public List<ProjectTechnicalCardJpaEntity> toJpaTechnicalCards(
+            List<ProjectTechnicalCard> cards,
+            ProjectJpaEntity projectEntity) {
+        if (cards == null) {
+            return new ArrayList<>();
+        }
+        return cards.stream()
+                .map(card -> ProjectTechnicalCardJpaEntity.builder()
+                        .id(card.getId())
+                        .businessId(normalizeCardBusinessId(card.getBusinessId()))
+                        .project(projectEntity)
+                        .title(card.getTitle())
+                        .category(card.getCategory())
+                        .problemStatement(card.getProblemStatement())
+                        .analysis(card.getAnalysis())
+                        .solution(card.getSolution())
+                        .articleId(card.getArticleId())
+                        .isPinned(card.isPinned())
+                        .sortOrder(card.getSortOrder() != null ? card.getSortOrder() : 0)
+                        .build())
+                .toList();
+    }
+
+    public List<ProjectTechnicalCard> toDomainTechnicalCards(List<ProjectTechnicalCardJpaEntity> entities) {
+        if (entities == null) {
+            return new ArrayList<>();
+        }
+        return entities.stream()
+                .map(entity -> ProjectTechnicalCard.builder()
+                        .id(entity.getId())
+                        .businessId(entity.getBusinessId())
+                        .title(entity.getTitle())
+                        .category(entity.getCategory())
+                        .problemStatement(entity.getProblemStatement())
+                        .analysis(entity.getAnalysis())
+                        .solution(entity.getSolution())
+                        .articleId(entity.getArticleId())
+                        .pinned(Boolean.TRUE.equals(entity.getIsPinned()))
+                        .sortOrder(entity.getSortOrder())
+                        .build())
+                .toList();
+    }
+
+    private String normalizeCardBusinessId(String businessId) {
+        if (businessId != null && !businessId.isBlank()) {
+            return businessId;
+        }
+        return "ptc-" + UUID.randomUUID().toString().replace("-", "").substring(0, 12);
+    }
 }

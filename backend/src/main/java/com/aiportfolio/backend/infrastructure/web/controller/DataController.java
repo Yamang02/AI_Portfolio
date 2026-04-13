@@ -61,9 +61,10 @@ public class DataController {
                 .filter(Project.class::isInstance)
                 .map(Project.class::cast)
                 .map(project -> {
-                    // 각 프로젝트의 development-timeline Article 조회
                     List<ArticleSummary> developmentTimelineArticles = getDevelopmentTimelineArticles(project);
-                    return ProjectDataResponse.from(project, developmentTimelineArticles);
+                    ProjectDataResponse.ProjectOverviewArticleSummary projectOverviewArticle =
+                            getProjectOverviewArticle(project);
+                    return ProjectDataResponse.from(project, developmentTimelineArticles, projectOverviewArticle);
                 })
                 .toList();
             responseData.put("projects", mappedProjects);
@@ -78,9 +79,10 @@ public class DataController {
         List<Project> projects = getProjectsUseCase.getAllProjects();
         List<ProjectDataResponse> responses = projects.stream()
             .map(project -> {
-                // 각 프로젝트의 development-timeline Article 조회
                 List<ArticleSummary> developmentTimelineArticles = getDevelopmentTimelineArticles(project);
-                return ProjectDataResponse.from(project, developmentTimelineArticles);
+                ProjectDataResponse.ProjectOverviewArticleSummary projectOverviewArticle =
+                        getProjectOverviewArticle(project);
+                return ProjectDataResponse.from(project, developmentTimelineArticles, projectOverviewArticle);
             })
             .toList();
         return ResponseEntity.ok(ApiResponse.success(responses, WebApiResponseMessages.PROJECT_LIST_SUCCESS));
@@ -109,6 +111,29 @@ public class DataController {
             .stream()
             .map(this::toArticleSummary)
             .toList();
+    }
+
+    private ProjectDataResponse.ProjectOverviewArticleSummary getProjectOverviewArticle(Project project) {
+        Long projectDbId = getProjectsUseCase.getProjectDatabaseIdByBusinessId(project.getId()).orElse(null);
+        if (projectDbId == null) {
+            return null;
+        }
+
+        ArticleFilter filter = new ArticleFilter();
+        filter.setCategory("project-overview");
+        filter.setProjectId(projectDbId);
+
+        Pageable pageable = PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC, "publishedAt"));
+        return getArticleUseCase.findByFilter(filter, pageable)
+                .getContent()
+                .stream()
+                .findFirst()
+                .map(article -> ProjectDataResponse.ProjectOverviewArticleSummary.builder()
+                        .businessId(article.getBusinessId())
+                        .title(article.getTitle())
+                        .content(article.getContent())
+                        .build())
+                .orElse(null);
     }
 
     /**

@@ -1,6 +1,7 @@
 package com.aiportfolio.backend.infrastructure.persistence.redis.model.portfolio;
 
 import com.aiportfolio.backend.domain.portfolio.model.Project;
+import com.aiportfolio.backend.domain.portfolio.model.ProjectTechnicalCard;
 import com.aiportfolio.backend.domain.portfolio.model.TechStackMetadata;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -39,6 +40,7 @@ public class ProjectSnapshot {
     private List<String> myContributions;
     private String role;
     private List<String> screenshots;
+    private List<ProjectTechnicalCardSnapshot> technicalCards;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -69,6 +71,7 @@ public class ProjectSnapshot {
             .myContributions(copyList(domain.getMyContributions()))
             .role(domain.getRole())
             .screenshots(copyList(domain.getScreenshots()))
+            .technicalCards(toTechnicalCardSnapshots(domain.getTechnicalCards()))
             .createdAt(domain.getCreatedAt())
             .updatedAt(domain.getUpdatedAt())
             .build();
@@ -98,6 +101,7 @@ public class ProjectSnapshot {
             .myContributions(copyList(myContributions))
             .role(role)
             .screenshots(copyList(screenshots))
+            .technicalCards(toTechnicalCardDomains(technicalCards))
             .createdAt(createdAt)
             .updatedAt(updatedAt)
             .build();
@@ -119,5 +123,62 @@ public class ProjectSnapshot {
 
     private static <T> List<T> copyList(List<T> source) {
         return source == null ? new ArrayList<>() : new ArrayList<>(source);
+    }
+
+    private static List<ProjectTechnicalCardSnapshot> toTechnicalCardSnapshots(List<ProjectTechnicalCard> source) {
+        if (source == null) {
+            return new ArrayList<>();
+        }
+        return source.stream()
+                .map(card -> ProjectTechnicalCardSnapshot.builder()
+                        .id(card.getId())
+                        .businessId(card.getBusinessId())
+                        .title(card.getTitle())
+                        .category(card.getCategory())
+                        .problemStatement(card.getProblemStatement())
+                        .analysis(card.getAnalysis())
+                        .solution(card.getSolution())
+                        .articleId(card.getArticleId())
+                        .pinned(card.isPinned())
+                        .sortOrder(card.getSortOrder())
+                        .build())
+                .toList();
+    }
+
+    private static List<ProjectTechnicalCard> toTechnicalCardDomains(List<ProjectTechnicalCardSnapshot> source) {
+        if (source == null) {
+            return new ArrayList<>();
+        }
+        return source.stream()
+                .map(card -> ProjectTechnicalCard.builder()
+                        .id(card.getId())
+                        .businessId(card.getBusinessId())
+                        .title(card.getTitle())
+                        .category(card.getCategory())
+                        .problemStatement(card.getProblemStatement())
+                        .analysis(card.getAnalysis())
+                        .solution(card.getSolution())
+                        .articleId(card.getArticleId())
+                        .pinned(Boolean.TRUE.equals(card.getPinned()))
+                        .sortOrder(card.getSortOrder())
+                        .build())
+                .toList();
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ProjectTechnicalCardSnapshot {
+        private Long id;
+        private String businessId;
+        private String title;
+        private String category;
+        private String problemStatement;
+        private String analysis;
+        private String solution;
+        private Long articleId;
+        private Boolean pinned;
+        private Integer sortOrder;
     }
 }

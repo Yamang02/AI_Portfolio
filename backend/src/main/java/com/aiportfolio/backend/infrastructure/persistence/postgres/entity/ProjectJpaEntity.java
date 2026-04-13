@@ -64,9 +64,6 @@ public class ProjectJpaEntity {
     @Column(name = "image_url", length = 500)
     private String imageUrl;
     
-    @Column(name = "readme", columnDefinition = "TEXT")
-    private String readme;
-    
     @Column(name = "type", length = 100)
     private String type; // ProjectType enum을 String으로 저장
     
@@ -110,6 +107,10 @@ public class ProjectJpaEntity {
     @OneToMany(mappedBy = "project", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("displayOrder ASC")
     private List<ProjectScreenshotJpaEntity> projectScreenshots;
+
+    @OneToMany(mappedBy = "project", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("isPinned DESC, sortOrder ASC, id ASC")
+    private List<ProjectTechnicalCardJpaEntity> projectTechnicalCards;
     
     // 프로젝트 스크린샷 ID 배열 (project_screenshots 테이블의 id 값들)
     @Column(name = "screenshots", columnDefinition = "bigint[]")

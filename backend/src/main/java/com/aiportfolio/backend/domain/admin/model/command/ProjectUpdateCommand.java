@@ -30,7 +30,21 @@ public class ProjectUpdateCommand {
     private final String liveUrl;
     private final String externalUrl;
     private final List<Long> technologies;
+    private final List<ProjectTechnicalCardCommand> technicalCards;
     private final Integer sortOrder;
 
+    @Getter
+    @Builder
+    public static class ProjectTechnicalCardCommand {
+        private final Long id;
+        private final String businessId;
+        private final String title;
+        private final String category;
+        private final String problemStatement;
+        private final String analysis;
+        private final String solution;
+        private final Long articleId;
+        private final Boolean isPinned;
+        private final Integer sortOrder;
+    }
 }
-
