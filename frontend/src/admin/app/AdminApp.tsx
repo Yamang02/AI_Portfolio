@@ -5,7 +5,7 @@ import { SeoHead } from '@/shared/ui/seo/SeoHead';
 import { LoginForm, ProtectedRoute } from '../features/auth';
 import { AdminLayout } from '../shared/components/AdminLayout';
 import { Dashboard } from '../pages/Dashboard';
-import { ProjectList } from '../components/projects/ProjectList';
+import { ProjectList } from '../pages/ProjectList';
 import { ProjectEdit } from '../pages/ProjectEdit';
 import { TechStackManagement } from '../pages/TechStackManagement';
 import { CareerManagement } from '../pages/CareerManagement';

@@ -1,142 +1,132 @@
-/**
+﻿/**
  * CSS Variables - Semantic Color Tokens
  *
- * 업계 표준 컬러 시스템 구조:
- * - 단일 소스: 이 파일의 CSS 변수가 모든 컬러 값의 단일 소스
- * - Semantic Tokens: 의미 기반 컬러 (background, text, border, status 등)
- * - TypeScript 통합: design-system/tokens/colors.ts에서 이 변수들을 참조
+ * ?낃퀎 ?쒖? 而щ윭 ?쒖뒪??援ъ“:
+ * - ?⑥씪 ?뚯뒪: ???뚯씪??CSS 蹂?섍? 紐⑤뱺 而щ윭 媛믪쓽 ?⑥씪 ?뚯뒪
+ * - Semantic Tokens: ?섎? 湲곕컲 而щ윭 (background, text, border, status ??
+ * - TypeScript ?듯빀: design-system/tokens/colors.ts?먯꽌 ??蹂?섎뱾??李몄“
  *
- * 디자인 원칙:
- * - 80% 표준 + 20% 브랜드 접근법
- * - 브랜드 그린: #5F9070 (하나만 사용)
- * - 나머지는 표준 색상 (Tailwind/Material 계열)
+ * ?붿옄???먯튃:
+ * - 80% ?쒖? + 20% 釉뚮옖???묎렐踰? * - 釉뚮옖??洹몃┛: #5F9070 (?섎굹留??ъ슜)
+ * - ?섎㉧吏???쒖? ?됱긽 (Tailwind/Material 怨꾩뿴)
  */
 
-/* 커스텀 폰트 - 야망솔루션 브랜드용 */
-@font-face {
-  font-family: 'Griun PolSensibility';
-  src: url('/Griun_PolSensibility-Rg.ttf') format('truetype');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
 :root {
-  /* Layout - sticky 헤더 높이 (해시 스크롤 오프셋 등에 사용) */
+  /* Layout - sticky ?ㅻ뜑 ?믪씠 (?댁떆 ?ㅽ겕濡??ㅽ봽???깆뿉 ?ъ슜) */
   --header-height: 64px;
 
-  /* Breakpoint Tokens - 반응형 디자인용 */
-  --breakpoint-mobile: 767px;        /* 모바일: 0px ~ 767px */
-  --breakpoint-tablet: 768px;        /* 태블릿 시작: 768px */
-  --breakpoint-tablet-max: 1023px;   /* 태블릿 끝: 1023px */
-  --breakpoint-desktop: 1024px;      /* 데스크톱: 1024px 이상 */
+  /* Breakpoint Tokens - 諛섏쓳???붿옄?몄슜 */
+  --breakpoint-mobile: 767px;        /* 紐⑤컮?? 0px ~ 767px */
+  --breakpoint-tablet: 768px;        /* ?쒕툝由??쒖옉: 768px */
+  --breakpoint-tablet-max: 1023px;   /* ?쒕툝由??? 1023px */
+  --breakpoint-desktop: 1024px;      /* ?곗뒪?ы넲: 1024px ?댁긽 */
 
-  /* Background - Neutral (표준) - 옵션 1 */
-  --color-bg-primary: #ffffff;         /* 순수 흰색 */
+  /* Background - Neutral (?쒖?) - ?듭뀡 1 */
+  --color-bg-primary: #ffffff;         /* ?쒖닔 ?곗깋 */
   --color-bg-secondary: #f9fafb;       /* Gray-50 */
   --color-bg-tertiary: #f3f4f6;        /* Gray-100 */
-  --color-bg-article: #f8fbf9;         /* 아티클 카드 배경색 (더 흰색에 가까운 그린 틴트) */
-  --color-bg-article-light: #fafcfb;   /* 아티클 카드 배경색 (가장 흰색에 가까운 그린 틴트) */
+  --color-bg-article: #f8fbf9;         /* ?꾪떚??移대뱶 諛곌꼍??(???곗깋??媛源뚯슫 洹몃┛ ?댄듃) */
+  --color-bg-article-light: #fafcfb;   /* ?꾪떚??移대뱶 諛곌꼍??(媛???곗깋??媛源뚯슫 洹몃┛ ?댄듃) */
   
-  /* Header/Footer Background - 라이트 모드용 (기본 배경색과 동일) */
-  --color-bg-header-footer: #ffffff;    /* 라이트 모드: 기본 배경색 */
+  /* Header/Footer Background - ?쇱씠??紐⑤뱶??(湲곕낯 諛곌꼍?됯낵 ?숈씪) */
+  --color-bg-header-footer: #ffffff;    /* ?쇱씠??紐⑤뱶: 湲곕낯 諛곌꼍??*/
   
-  /* Landing Page Background - 옵션 2 (그린 틴트) */
-  --color-landing-bg: #FBFFFD;         /* 라이트 모드: 흰색 95% + #B1FACB 5% 블렌딩 */
+  /* Landing Page Background - ?듭뀡 2 (洹몃┛ ?댄듃) */
+  --color-landing-bg: #FBFFFD;         /* ?쇱씠??紐⑤뱶: ?곗깋 95% + #B1FACB 5% 釉붾젋??*/
 
-  /* Text - 브랜드 그린 톤 (검은색을 #051A0E로 대체) */
-  --color-text-primary: #051A0E;       /* 검은색 대체 - brandScale 1000 */
-  --color-text-secondary: #4A5F52;     /* 브랜드 그린 톤 - 서브 텍스트 */
-  --color-text-tertiary: #9ca3af;      /* Gray-400 (표준) */
-  --color-text-title: #051A0E;         /* 타이틀용 - 검은색 대체 brandScale 1000 */
+  /* Text - 釉뚮옖??洹몃┛ ??(寃??됱쓣 #051A0E濡??泥? */
+  --color-text-primary: #051A0E;       /* 寃????泥?- brandScale 1000 */
+  --color-text-secondary: #4A5F52;     /* 釉뚮옖??洹몃┛ ??- ?쒕툕 ?띿뒪??*/
+  --color-text-tertiary: #9ca3af;      /* Gray-400 (?쒖?) */
+  --color-text-title: #051A0E;         /* ??댄???- 寃????泥?brandScale 1000 */
   
-  /* Button Text - Primary 버튼 위 텍스트용 */
-  --color-button-text: #F8FBF9;        /* 버튼 텍스트 (라이트/다크 공통) */
+  /* Button Text - Primary 踰꾪듉 ???띿뒪?몄슜 */
+  --color-button-text: #F8FBF9;        /* 踰꾪듉 ?띿뒪??(?쇱씠???ㅽ겕 怨듯넻) */
 
-  /* Border - Neutral (표준) */
+  /* Border - Neutral (?쒖?) */
   --color-border-default: #e5e7eb;     /* Gray-200 */
   --color-border-hover: #d1d5db;       /* Gray-300 */
-  --color-border-accent: #e5e7eb;       /* Gray-200 (브랜드 색상 제거) */
+  --color-border-accent: #e5e7eb;       /* Gray-200 (釉뚮옖???됱긽 ?쒓굅) */
 
-  /* Brand - Primary (#5F9070) - 하나만 사용 */
-  --color-primary: #5F9070;              /* 브랜드 그린 (NEW) */
-  --color-primary-hover: #4F8060;       /* 약간 진한 hover */
-  --color-primary-active: #3F7050;      /* Active 상태 */
+  /* Brand - Primary (#5F9070) - ?섎굹留??ъ슜 */
+  --color-primary: #5F9070;              /* 釉뚮옖??洹몃┛ (NEW) */
+  --color-primary-hover: #4F8060;       /* ?쎄컙 吏꾪븳 hover */
+  --color-primary-active: #3F7050;      /* Active ?곹깭 */
   --color-primary-focus: #5F9070;      /* Focus ring */
-  --color-primary-text: #2F6040;        /* 텍스트용 진한 그린 - 섹션 타이틀 등 */
+  --color-primary-text: #2F6040;        /* ?띿뒪?몄슜 吏꾪븳 洹몃┛ - ?뱀뀡 ??댄? ??*/
   
-  /* Hero Section Background - 임팩트 있는 초록색 */
-  --color-hero-bg: #50C878;              /* Emerald Green - 히어로 섹션 배경용 */
+  /* Hero Section Background - ?꾪뙥???덈뒗 珥덈줉??*/
+  --color-hero-bg: #50C878;              /* Emerald Green - ?덉뼱濡??뱀뀡 諛곌꼍??*/
   
   /* Hero Section Text Colors */
-  --color-hero-title: #0F1F17;           /* 히어로 메인 헤드라인 (H1) */
-  --color-hero-subtext: #1F3A2C;         /* 히어로 서브 카피/설명 텍스트 */
-  --color-hero-cta-text: #F7FCF9;        /* 히어로 CTA 버튼 텍스트 */
-  --color-hero-badge: #145A32;           /* 히어로 보조 요소 (Badge, Eyebrow) */
+  --color-hero-title: #0F1F17;           /* ?덉뼱濡?硫붿씤 ?ㅻ뱶?쇱씤 (H1) */
+  --color-hero-subtext: #1F3A2C;         /* ?덉뼱濡??쒕툕 移댄뵾/?ㅻ챸 ?띿뒪??*/
+  --color-hero-cta-text: #F7FCF9;        /* ?덉뼱濡?CTA 踰꾪듉 ?띿뒪??*/
+  --color-hero-badge: #145A32;           /* ?덉뼱濡?蹂댁“ ?붿냼 (Badge, Eyebrow) */
   
   /* Featured Badge */
-  --color-featured-badge: #fbbf24;       /* Featured 별 배지 배경 (Amber-400) */
+  --color-featured-badge: #fbbf24;       /* Featured 蹂?諛곗? 諛곌꼍 (Amber-400) */
   
   /* Article Category Badge */
-  --color-article-category-bg: #1f2937;  /* 아티클 카테고리 배지 배경 (Gray-800) */
-  --color-article-category-border: #374151; /* 아티클 카테고리 배지 테두리 (Gray-700) */
-  --color-article-category-text: #f9fafb; /* 아티클 카테고리 배지 텍스트 (Gray-50) */
+  --color-article-category-bg: #1f2937;  /* ?꾪떚??移댄뀒怨좊━ 諛곗? 諛곌꼍 (Gray-800) */
+  --color-article-category-border: #374151; /* ?꾪떚??移댄뀒怨좊━ 諛곗? ?뚮몢由?(Gray-700) */
+  --color-article-category-text: #f9fafb; /* ?꾪떚??移댄뀒怨좊━ 諛곗? ?띿뒪??(Gray-50) */
   
   /* Featured / Highlight Section Colors */
-  --color-featured-bg: #E8F5ED;          /* 조용한 강조 영역 배경 - 아주 밝은 그린 틴트 (새 프라이머리 톤) */
-  --color-featured-header: #1E2F26;      /* Section Header - 그린 기 살짝 포함된 블랙 */
-  --color-featured-text: #4A5F52;        /* Body Text - 그린 뉴트럴 (새 프라이머리 톤) */
-  --color-featured-link: #3F7050;       /* Link / Accent Text - 새 프라이머리 active 톤 */
-  --color-featured-divider: #A8C9B5;     /* Divider / Icon - 보조 요소 (새 프라이머리 톤) */
+  --color-featured-bg: #E8F5ED;          /* 議곗슜??媛뺤“ ?곸뿭 諛곌꼍 - ?꾩＜ 諛앹? 洹몃┛ ?댄듃 (???꾨씪?대㉧由??? */
+  --color-featured-header: #1E2F26;      /* Section Header - 洹몃┛ 湲??댁쭩 ?ы븿??釉붾옓 */
+  --color-featured-text: #4A5F52;        /* Body Text - 洹몃┛ ?댄듃??(???꾨씪?대㉧由??? */
+  --color-featured-link: #3F7050;       /* Link / Accent Text - ???꾨씪?대㉧由?active ??*/
+  --color-featured-divider: #A8C9B5;     /* Divider / Icon - 蹂댁“ ?붿냼 (???꾨씪?대㉧由??? */
   
-  /* Utility Colors - 외부 서비스/링크용 (브랜드 톤 조정) */
-  --color-github: #6B7A8F;                /* GitHub 보라색 - 브랜드 그린 톤 추가 (기본 톤 유지, 그린 틴트) */
-  --color-github-hover: #5A6B7F;          /* GitHub hover - 브랜드 톤 조정 */
-  --color-live: #4F9070;                   /* Live Service - 브랜드 그린 톤 (#5F9070 기반, 약간 어둡게) */
-  --color-live-hover: #3F8060;            /* Live Service hover - 브랜드 톤 조정 */
-  --color-notion: #4A7A9F;                /* Notion 블루 - 브랜드 그린 톤 추가 (기본 톤 유지, 그린 틴트) */
-  --color-notion-hover: #3A6A8F;          /* Notion hover - 브랜드 톤 조정 */
-  --color-disabled: #6b7280;             /* Gray-500 - 비활성화 버튼 */
+  /* Utility Colors - ?몃? ?쒕퉬??留곹겕??(釉뚮옖????議곗젙) */
+  --color-github: #6B7A8F;                /* GitHub 蹂대씪??- 釉뚮옖??洹몃┛ ??異붽? (湲곕낯 ???좎?, 洹몃┛ ?댄듃) */
+  --color-github-hover: #5A6B7F;          /* GitHub hover - 釉뚮옖????議곗젙 */
+  --color-live: #4F9070;                   /* Live Service - 釉뚮옖??洹몃┛ ??(#5F9070 湲곕컲, ?쎄컙 ?대몼寃? */
+  --color-live-hover: #3F8060;            /* Live Service hover - 釉뚮옖????議곗젙 */
+  --color-notion: #4A7A9F;                /* Notion 釉붾（ - 釉뚮옖??洹몃┛ ??異붽? (湲곕낯 ???좎?, 洹몃┛ ?댄듃) */
+  --color-notion-hover: #3A6A8F;          /* Notion hover - 釉뚮옖????議곗젙 */
+  --color-disabled: #6b7280;             /* Gray-500 - 鍮꾪솢?깊솕 踰꾪듉 */
   
-  /* Primary Dark - 섹션 타이틀용 */
-  --color-primary-dark: #2F6040;         /* 텍스트용 진한 그린 */
+  /* Primary Dark - ?뱀뀡 ??댄???*/
+  --color-primary-dark: #2F6040;         /* ?띿뒪?몄슜 吏꾪븳 洹몃┛ */
   
-  /* Brand Scale 1000 - 매우 진한 초록 (다크모드 헤더/푸터용) */
+  /* Brand Scale 1000 - 留ㅼ슦 吏꾪븳 珥덈줉 (?ㅽ겕紐⑤뱶 ?ㅻ뜑/?명꽣?? */
   --color-brand-1000: #051A0E;
 
   /* Neutral Colors */
   --color-white: #ffffff;
-  --color-black: #051A0E;                /* #000000 대체 - brandScale 1000 사용 */
+  --color-black: #051A0E;                /* #000000 ?泥?- brandScale 1000 ?ъ슜 */
 
   /* Tooltip Colors */
-  --color-tooltip-bg: #051A0E;           /* 툴팁 배경 - 검은색 대체 brandScale 1000 */
-  --color-tooltip-text: #ffffff;         /* 툴팁 텍스트 - 순수 흰색 */
+  --color-tooltip-bg: #051A0E;           /* ?댄똻 諛곌꼍 - 寃????泥?brandScale 1000 */
+  --color-tooltip-text: #ffffff;         /* ?댄똻 ?띿뒪??- ?쒖닔 ?곗깋 */
 
-  /* 그림자 색상 */
+  /* 洹몃┝???됱긽 */
   --color-shadow-light: rgba(0, 0, 0, 0.08);
   --color-shadow-medium: rgba(0, 0, 0, 0.1);
   --color-shadow-heavy: rgba(0, 0, 0, 0.15);
-  --color-shadow-tooltip: 0 4px 12px rgba(0, 0, 0, 0.15);  /* 툴팁 전용 그림자 */
+  --color-shadow-tooltip: 0 4px 12px rgba(0, 0, 0, 0.15);  /* ?댄똻 ?꾩슜 洹몃┝??*/
   
-  /* 글라스모피즘 효과 */
+  /* 湲?쇱뒪紐⑦뵾利??④낵 */
   --color-glass-light: rgba(255, 255, 255, 0.1);
   --color-glass-medium: rgba(255, 255, 255, 0.2);
   
-  /* 그라데이션 색상 (라이트 톤 섹션 배경 등) */
-  /* 흰색에서 featured-bg 색상(#E8F5ED)으로 자연스럽게 전환 */
-  --color-gradient-light-start: #F5FBF8;   /* 흰색과 featured-bg 사이 */
-  --color-gradient-light-mid1: #F0F9F4;    /* featured-bg에 가까워짐 */
-  --color-gradient-light-mid2: #ECF7F0;    /* featured-bg에 더 가까움 */
-  --color-gradient-light-mid3: #E8F5ED;    /* featured-bg 최종 색상 (새 프라이머리 톤) */
+  /* 洹몃씪?곗씠???됱긽 (?쇱씠?????뱀뀡 諛곌꼍 ?? */
+  /* ?곗깋?먯꽌 featured-bg ?됱긽(#E8F5ED)?쇰줈 ?먯뿰?ㅻ읇寃??꾪솚 */
+  --color-gradient-light-start: #F5FBF8;   /* ?곗깋怨?featured-bg ?ъ씠 */
+  --color-gradient-light-mid1: #F0F9F4;    /* featured-bg??媛源뚯썙吏?*/
+  --color-gradient-light-mid2: #ECF7F0;    /* featured-bg????媛源뚯? */
+  --color-gradient-light-mid3: #E8F5ED;    /* featured-bg 理쒖쥌 ?됱긽 (???꾨씪?대㉧由??? */
 
-  /* Link - Neutral 기본, 브랜드 hover만 */
+  /* Link - Neutral 湲곕낯, 釉뚮옖??hover留?*/
   --color-link-default: #6b7280;        /* Gray-500 (neutral) */
-  --color-link-hover: #5F9070;         /* 브랜드 그린 (강조 링크만) */
+  --color-link-hover: #5F9070;         /* 釉뚮옖??洹몃┛ (媛뺤“ 留곹겕留? */
   --color-link-visited: #6b7280;        /* Gray-500 (neutral) */
 
-  /* Status - 표준 색상 (브랜드 톤 조정) */
+  /* Status - ?쒖? ?됱긽 (釉뚮옖????議곗젙) */
   --color-status-info: #3b82f6;        /* Blue-500 */
-  --color-status-success: #4F8060;     /* 브랜드 그린 톤 (brandScale 500) - 톤 다운 */
+  --color-status-success: #4F8060;     /* 釉뚮옖??洹몃┛ ??(brandScale 500) - ???ㅼ슫 */
   --color-status-warning: #f59e0b;     /* Amber-500 */
   --color-status-error: #ef4444;       /* Red-500 */
 
@@ -199,9 +189,8 @@
 }
 
 /*
- * 다크 모드 설정
- * - useThemeInit 훅이 .dark/.light 클래스 관리
- * - 아래는 색상만 오버라이드 (typography, spacing 등은 :root에서 상속)
+ * ?ㅽ겕 紐⑤뱶 ?ㅼ젙
+ * - useThemeInit ?낆씠 .dark/.light ?대옒??愿由? * - ?꾨옒???됱긽留??ㅻ쾭?쇱씠??(typography, spacing ?깆? :root?먯꽌 ?곸냽)
  */
 :root.dark {
   /* Background */
@@ -265,7 +254,7 @@
   --color-tooltip-text: #f3f4f6;
   --color-shadow-tooltip: 0 4px 12px rgba(0, 0, 0, 0.3);
 
-  /* Gradient (단색으로 오버라이드) */
+  /* Gradient (?⑥깋?쇰줈 ?ㅻ쾭?쇱씠?? */
   --color-gradient-light-start: #111827;
   --color-gradient-light-mid1: #111827;
   --color-gradient-light-mid2: #111827;
@@ -283,20 +272,20 @@
   --color-status-error: #f87171;
 }
 
-/* Body 기본 스타일 */
+/* Body 湲곕낯 ?ㅽ???*/
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+  font-family: 'Manrope', 'Spoqa Han Sans Neo', 'Pretendard', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   background-color: var(--color-bg-primary);
   color: var(--color-text-primary);
   line-height: 1.5;
 }
 
-/* SVG 기본 색상 - 약간의 초록색이 섞인 검정색 대체 색상 */
-/* currentColor를 사용하는 SVG는 부모의 color를 상속받으므로,
-   전역 설정은 최소화하고 각 컴포넌트에서 명시적으로 색상 지정 */
+/* SVG 湲곕낯 ?됱긽 - ?쎄컙??珥덈줉?됱씠 ?욎씤 寃?뺤깋 ?泥??됱긽 */
+/* currentColor瑜??ъ슜?섎뒗 SVG??遺紐⑥쓽 color瑜??곸냽諛쏆쑝誘濡?
+   ?꾩뿭 ?ㅼ젙? 理쒖냼?뷀븯怨?媛?而댄룷?뚰듃?먯꽌 紐낆떆?곸쑝濡??됱긽 吏??*/
 
-/* Markdown 코드 블록 스타일링 */
-/* highlight.js 테마를 재정의하여 프로젝트 테마와 일관성 유지 */
+/* Markdown 肄붾뱶 釉붾줉 ?ㅽ??쇰쭅 */
+/* highlight.js ?뚮쭏瑜??ъ젙?섑븯???꾨줈?앺듃 ?뚮쭏? ?쇨????좎? */
 .hljs {
   display: block;
   overflow-x: auto;
@@ -305,7 +294,7 @@ body {
   color: var(--color-text-primary) !important;
 }
 
-/* 코드 블록 언어별 하이라이팅 색상 */
+/* 肄붾뱶 釉붾줉 ?몄뼱蹂??섏씠?쇱씠???됱긽 */
 .hljs-comment,
 .hljs-quote {
   color: var(--color-text-tertiary);
@@ -372,9 +361,9 @@ body {
   font-weight: bold;
 }
 
-/* 다크 모드용 코드 하이라이팅은 아래 :root.dark 선택자로 처리됩니다 */
+/* ?ㅽ겕 紐⑤뱶??肄붾뱶 ?섏씠?쇱씠?낆? ?꾨옒 :root.dark ?좏깮?먮줈 泥섎━?⑸땲??*/
 
-/* 다크 모드 수동 토글 */
+/* ?ㅽ겕 紐⑤뱶 ?섎룞 ?좉? */
 :root.dark .hljs {
   background: var(--color-bg-tertiary) !important;
 }
@@ -430,3 +419,5 @@ body {
 :root.dark .hljs-formula {
   background-color: #444;
 }
+
+

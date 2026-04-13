@@ -1,4 +1,4 @@
-.footer {
+﻿.footer {
   padding: var(--spacing-5) var(--spacing-8);
   border-top: 1px solid var(--color-border-default);
   background: linear-gradient(
@@ -34,7 +34,7 @@
 }
 
 .brand {
-  font-family: 'Griun PolSensibility', 'Cormorant Garamond', 'Noto Serif KR', Georgia, 'Times New Roman', serif;
+  font-family: 'Newsreader', 'Gowun Batang', 'Noto Serif KR', Georgia, serif;
   font-size: 1rem;
   font-weight: 400;
   color: var(--color-text-primary);
@@ -84,14 +84,14 @@
   margin: 0;
 }
 
-/* GitHub 링크 */
+/* GitHub 留곹겕 */
 .githubLink:hover:not(:disabled) {
   background-color: var(--color-github) !important;
   color: var(--color-white) !important;
   border-color: var(--color-github) !important;
 }
 
-/* Email 링크 */
+/* Email 留곹겕 */
 .emailLink:hover:not(:disabled) {
   background-color: var(--color-primary) !important;
   color: var(--color-white) !important;
@@ -128,7 +128,7 @@
   }
 }
 
-/* 접근성: 애니메이션 비활성화 */
+/* ?묎렐?? ?좊땲硫붿씠??鍮꾪솢?깊솕 */
 @media (prefers-reduced-motion: reduce) {
   .footer {
     transition: none;
@@ -136,3 +136,4 @@
     transform: none;
   }
 }
+

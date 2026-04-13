@@ -23,6 +23,7 @@ public class ProjectResponse {
     private String id; // 비즈니스 ID
     private String title;
     private String description;
+    @Deprecated(since = "E18", forRemoval = false)
     private String readme;
     private String type;
     private String status;

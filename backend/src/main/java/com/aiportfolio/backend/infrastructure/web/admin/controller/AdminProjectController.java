@@ -6,6 +6,7 @@ import com.aiportfolio.backend.domain.admin.port.in.SearchProjectsUseCase;
 import com.aiportfolio.backend.infrastructure.web.admin.dto.response.ProjectResponse;
 import com.aiportfolio.backend.domain.admin.model.vo.ProjectFilter;
 import com.aiportfolio.backend.infrastructure.web.admin.dto.AdminProjectCreateRequest;
+import com.aiportfolio.backend.infrastructure.web.admin.dto.AdminProjectTechnicalCardsUpdateRequest;
 import com.aiportfolio.backend.infrastructure.web.admin.dto.AdminProjectUpdateRequest;
 import com.aiportfolio.backend.infrastructure.web.WebApiResponseMessages;
 import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;
@@ -90,6 +91,14 @@ public class AdminProjectController {
         return ResponseEntity.ok(ApiResponse.success(project, WebApiResponseMessages.PROJECT_GET_SUCCESS));
     }
 
+    @GetMapping("/{id}/technical-cards")
+    public ResponseEntity<ApiResponse<List<ProjectResponse.ProjectTechnicalCardResponse>>> getProjectTechnicalCards(
+            @PathVariable String id) {
+        ProjectResponse project = projectResponseMapper.toDetailedResponse(searchProjectsUseCase.getProjectById(id));
+        return ResponseEntity.ok(
+                ApiResponse.success(project.getTechnicalCards(), WebApiResponseMessages.PROJECT_GET_SUCCESS));
+    }
+
     /**
      * 프로젝트 생성
      */
@@ -128,6 +137,16 @@ public class AdminProjectController {
                 request.getTechnologies()
         );
         return ResponseEntity.ok(ApiResponse.success(project, WebApiResponseMessages.PROJECT_UPDATE_SUCCESS));
+    }
+
+    @PutMapping("/{id}/technical-cards")
+    public ResponseEntity<ApiResponse<List<ProjectResponse.ProjectTechnicalCardResponse>>> updateProjectTechnicalCards(
+            @PathVariable String id,
+            @Valid @RequestBody AdminProjectTechnicalCardsUpdateRequest request) {
+        var updatedProject = manageProjectService.updateProjectTechnicalCards(id, request.toCommands());
+        var response = projectResponseMapper.toDetailedResponse(updatedProject);
+        return ResponseEntity.ok(
+                ApiResponse.success(response.getTechnicalCards(), WebApiResponseMessages.PROJECT_UPDATE_SUCCESS));
     }
 
     /**

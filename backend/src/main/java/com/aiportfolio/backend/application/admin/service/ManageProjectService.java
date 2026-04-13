@@ -401,6 +401,15 @@ public class ManageProjectService implements ManageProjectUseCase {
         }
     }
 
+    public Project updateProjectTechnicalCards(
+            String id,
+            List<ProjectUpdateCommand.ProjectTechnicalCardCommand> technicalCards) {
+        ProjectUpdateCommand command = ProjectUpdateCommand.builder()
+                .technicalCards(technicalCards)
+                .build();
+        return updateProject(id, command);
+    }
+
     private List<ProjectTechnicalCard> toProjectTechnicalCards(
             List<ProjectCreateCommand.ProjectTechnicalCardCommand> commands) {
         if (commands == null) {

@@ -1,16 +1,12 @@
-/* Cormorant Garamond - 야망솔루션 영문 브랜드 폰트 (붓글씨와 어울리는 우아한 세리프) */
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&display=swap');
-/* Noto Serif KR - 한글 서브타이틀용 (Cormorant와 비슷한 세리프 감성) */
-@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600;700&display=swap');
-
+﻿@import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=Manrope:wght@200..800&family=Gowun+Batang:wght@400;700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* CSS 변수 - 라이트 모드 (기본값) */
-/* 디자인 시스템 변수 사용 (globals.css 참조) */
+/* CSS 蹂??- ?쇱씠??紐⑤뱶 (湲곕낯媛? */
+/* ?붿옄???쒖뒪??蹂???ъ슜 (globals.css 李몄“) */
 :root {
-  /* 디자인 시스템 변수로 매핑 */
+  /* ?붿옄???쒖뒪??蹂?섎줈 留ㅽ븨 */
   --color-background: var(--color-bg-primary);
   --color-background-secondary: var(--color-bg-secondary);
   --color-surface: var(--color-bg-primary);
@@ -22,8 +18,8 @@
   --color-border-light: var(--color-border-hover);
 }
 
-/* CSS 변수 - 다크 모드 */
-/* 디자인 시스템 변수 사용 (globals.css 참조) */
+/* CSS 蹂??- ?ㅽ겕 紐⑤뱶 */
+/* ?붿옄???쒖뒪??蹂???ъ슜 (globals.css 李몄“) */
 .dark {
   --color-background: var(--color-bg-primary);
   --color-background-secondary: var(--color-bg-secondary);
@@ -36,11 +32,11 @@
   --color-border-light: var(--color-border-hover);
 }
 
-/* CSS 변수 - Matrix 테마 */
+/* CSS 蹂??- Matrix ?뚮쭏 */
 .matrix-theme {
-  --color-background: #051A0E;  /* #000000 대체 - brandScale 1000 사용 */
+  --color-background: #051A0E;  /* #000000 ?泥?- brandScale 1000 ?ъ슜 */
   --color-background-secondary: #001100;
-  --color-surface: #051A0E;  /* #000000 대체 - brandScale 1000 사용 */
+  --color-surface: #051A0E;  /* #000000 ?泥?- brandScale 1000 ?ъ슜 */
   --color-surface-elevated: #003300;
   --color-text-primary: #00ff00;
   --color-text-secondary: #00ff41;
@@ -50,14 +46,14 @@
   transition: all 3s ease-in-out;
 }
 
-/* Matrix 테마 전환 애니메이션 */
+/* Matrix ?뚮쭏 ?꾪솚 ?좊땲硫붿씠??*/
 .matrix-theme * {
   transition: background-color 3s ease-in-out, 
               color 3s ease-in-out, 
               border-color 3s ease-in-out;
 }
 
-/* CSS 변수 - Demon Slayer 테마 (무한성편) - 따뜻한 오렌지/레드 톤 */
+/* CSS 蹂??- Demon Slayer ?뚮쭏 (臾댄븳?깊렪) - ?곕쑜???ㅻ젋吏/?덈뱶 ??*/
 .demon-slayer-theme {
   --color-background: #0f172a;
   --color-background-secondary: #1a0f0f;
@@ -71,7 +67,7 @@
   transition: all 0.5s ease-out;
 }
 
-/* Demon Slayer 테마 전환 애니메이션 */
+/* Demon Slayer ?뚮쭏 ?꾪솚 ?좊땲硫붿씠??*/
 .demon-slayer-theme * {
   transition: background-color 0.5s ease-out, 
               color 0.5s ease-out, 
@@ -81,24 +77,24 @@
 @layer base {
   html {
     scroll-behavior: smooth;
-    /* 스크롤바 공간 예약 (레이아웃 시프트 방지) */
+    /* ?ㅽ겕濡ㅻ컮 怨듦컙 ?덉빟 (?덉씠?꾩썐 ?쒗봽??諛⑹?) */
     scrollbar-gutter: stable;
-    /* Inter 사용 시 */
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
+    /* Inter ?ъ슜 ??*/
+    font-family: 'Manrope', 'Spoqa Han Sans Neo', 'Pretendard', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
     
   }
 
   body {
-    /* 최소 높이 보장 */
+    /* 理쒖냼 ?믪씠 蹂댁옣 */
     min-height: 100vh;
-    min-height: 100dvh; /* 모바일 뷰포트 */
-    /* Inter 사용 시 */
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
+    min-height: 100dvh; /* 紐⑤컮??酉고룷??*/
+    /* Inter ?ъ슜 ??*/
+    font-family: 'Manrope', 'Spoqa Han Sans Neo', 'Pretendard', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
     
   }
 }
 
-/* 스크롤바 스타일 */
+/* ?ㅽ겕濡ㅻ컮 ?ㅽ???*/
 .scrollbar-thin {
   scrollbar-width: thin;
 }
@@ -161,19 +157,19 @@
   background: transparent;
 }
 
-/* highlight.js 스타일 - 라이트 모드 기본 */
+/* highlight.js ?ㅽ???- ?쇱씠??紐⑤뱶 湲곕낯 */
 .hljs {
   background: #f6f8fa !important;
   color: #24292e !important;
 }
 
-/* highlight.js 스타일 - 다크 모드 */
+/* highlight.js ?ㅽ???- ?ㅽ겕 紐⑤뱶 */
 .dark .hljs {
   background: #0d1117 !important;
   color: #c9d1d9 !important;
 }
 
-/* Skeleton 로딩 애니메이션 */
+/* Skeleton 濡쒕뵫 ?좊땲硫붿씠??*/
 @keyframes skeleton-loading {
   0% {
     background-position: 200% 0;

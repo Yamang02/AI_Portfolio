@@ -4,6 +4,7 @@ export interface Project {
   id: string;
   title: string;
   description: string;
+  /** @deprecated E18 이후 projectOverviewArticle.content 사용 */
   readme?: string;
   projectOverviewArticle?: ProjectOverviewArticle;
   technicalCards?: ProjectTechnicalCard[];
@@ -63,6 +64,7 @@ export interface Technology {
 export interface ProjectCreateRequest {
   title: string;
   description: string;
+  /** @deprecated E18 이후 projectOverviewArticle 기반으로 전환 */
   readme?: string;
   type: 'BUILD' | 'LAB' | 'MAINTENANCE';
   status: 'completed' | 'in_progress' | 'maintenance';
@@ -167,6 +169,17 @@ class AdminProjectApi {
     return this.request<Project>(`/api/admin/projects/${id}`, {
       method: 'PUT',
       body: JSON.stringify(project),
+    });
+  }
+
+  async getProjectTechnicalCards(id: string): Promise<ApiResponse<ProjectTechnicalCard[]>> {
+    return this.request<ProjectTechnicalCard[]>(`/api/admin/projects/${id}/technical-cards`);
+  }
+
+  async updateProjectTechnicalCards(id: string, technicalCards: ProjectTechnicalCard[]): Promise<ApiResponse<ProjectTechnicalCard[]>> {
+    return this.request<ProjectTechnicalCard[]>(`/api/admin/projects/${id}/technical-cards`, {
+      method: 'PUT',
+      body: JSON.stringify({ technicalCards }),
     });
   }
 

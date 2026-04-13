@@ -31,6 +31,7 @@ export interface Project extends BaseItem {
   dbId?: number; // 데이터베이스 ID (관계 테이블에서 사용, Admin API에서 제공)
   githubUrl?: string;
   liveUrl?: string;
+  /** @deprecated E18 이후 projectOverviewArticle.content 사용 */
   readme?: string;
   projectOverviewArticle?: ProjectOverviewArticle;
   technicalCards?: ProjectTechnicalCard[];

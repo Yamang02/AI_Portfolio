@@ -1,4 +1,4 @@
-.page {
+﻿.page {
   min-height: 100vh;
 }
 
@@ -28,32 +28,32 @@
 }
 
 .mainContent {
-  min-width: 0; /* Grid에서 overflow 방지 */
+  min-width: 0; /* Grid?먯꽌 overflow 諛⑹? */
 }
 
 .grid {
   display: grid;
-  /* 기본값: 데스크톱 auto-fill */
+  /* 湲곕낯媛? ?곗뒪?ы넲 auto-fill */
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: var(--spacing-4);
   margin-bottom: var(--spacing-6);
 }
 
-/* Tablet (768px - 1023px) - 2열 */
+/* Tablet (768px - 1023px) - 2??*/
 @media (min-width: 768px) and (max-width: 1023px) {
   .grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
-/* Mobile (< 768px) - 1열 */
+/* Mobile (< 768px) - 1??*/
 @media (max-width: 767px) {
   .grid {
     grid-template-columns: 1fr;
   }
 }
 
-/* 페이지네이션 래퍼 - 별도 행으로 중앙 배치 */
+/* ?섏씠吏?ㅼ씠???섑띁 - 蹂꾨룄 ?됱쑝濡?以묒븰 諛곗튂 */
 .paginationWrapper {
   display: flex;
   justify-content: center;
@@ -85,37 +85,37 @@
   color: var(--color-text-secondary);
 }
 
-/* Featured Articles 섹션 */
+/* Featured Articles ?뱀뀡 */
 .featuredSection {
   padding: 0;
   margin-bottom: var(--spacing-8);
 }
 
-/* Featured Section 헤더 래퍼 */
+/* Featured Section ?ㅻ뜑 ?섑띁 */
 .featuredHeaderWrapper {
   padding: var(--spacing-8) var(--spacing-8) var(--spacing-6);
   background-color: var(--color-bg-primary);
 }
 
-/* Featured Section 헤더 */
+/* Featured Section ?ㅻ뜑 */
 .featuredHeader {
   text-align: center;
   margin-bottom: 0;
 }
 
-/* Featured Section 내 SectionTitle 색상 */
+/* Featured Section ??SectionTitle ?됱긽 */
 .featuredSection h2 {
   color: var(--color-primary-text);
   margin: 0;
 }
 
-/* 아티클 목록 섹션 */
+/* ?꾪떚??紐⑸줉 ?뱀뀡 */
 .articleListSection {
   padding: 0;
-  margin-bottom: 0; /* 페이지네이션이 별도 행이므로 하단 여백 제거 */
+  margin-bottom: 0; /* ?섏씠吏?ㅼ씠?섏씠 蹂꾨룄 ?됱씠誘濡??섎떒 ?щ갚 ?쒓굅 */
 }
 
-/* 섹션 헤더 */
+/* ?뱀뀡 ?ㅻ뜑 */
 .sectionHeader {
   display: flex;
   align-items: baseline;
@@ -125,13 +125,13 @@
   padding-bottom: var(--spacing-4);
 }
 
-/* 일반 섹션 내 SectionTitle 색상 */
+/* ?쇰컲 ?뱀뀡 ??SectionTitle ?됱긽 */
 .articleListSection h2 {
   color: var(--color-primary-text);
   margin: 0;
 }
 
-/* 타이틀과 설명 사이 구분선 */
+/* ??댄?怨??ㅻ챸 ?ъ씠 援щ텇??*/
 .sectionHeader .divider {
   width: 1px;
   height: 16px;
@@ -139,18 +139,18 @@
   flex-shrink: 0;
 }
 
-/* 섹션 설명 */
+/* ?뱀뀡 ?ㅻ챸 */
 .sectionDescription {
   color: var(--color-text-secondary);
   font-size: var(--font-size-sm);
-  font-family: 'Cormorant Garamond', 'Noto Serif KR', Georgia, 'Times New Roman', serif;
+  font-family: 'Newsreader', 'Gowun Batang', 'Noto Serif KR', Georgia, serif;
   font-style: italic;
   line-height: 1.5;
   margin: 0;
   flex-shrink: 0;
 }
 
-/* 반응형 */
+/* 諛섏쓳??*/
 @media (max-width: 1023px) {
   .layout {
     grid-template-columns: 1fr;
@@ -158,7 +158,7 @@
 
   .sidebar {
     position: static;
-    order: -1; /* 모바일에서 필터 바를 위로 */
+    order: -1; /* 紐⑤컮?쇱뿉???꾪꽣 諛붾? ?꾨줈 */
     margin-top: 0;
   }
 }
@@ -185,3 +185,4 @@
     gap: var(--spacing-2);
   }
 }
+

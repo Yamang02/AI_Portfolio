@@ -1,4 +1,4 @@
-.page {
+﻿.page {
   min-height: 100vh;
 }
 
@@ -14,42 +14,42 @@
   font-size: 1rem;
 }
 
-/* 프로젝트 히스토리 섹션 */
+/* ?꾨줈?앺듃 ?덉뒪?좊━ ?뱀뀡 */
 .historySection {
   padding: 24px 32px;
   background-color: var(--color-bg-secondary);
 }
 
-/* Featured Projects 섹션 */
+/* Featured Projects ?뱀뀡 */
 .featuredSection {
   padding: 0;
   background-color: var(--color-featured-bg);
 }
 
-/* Featured Section 헤더 래퍼 */
+/* Featured Section ?ㅻ뜑 ?섑띁 */
 .featuredHeaderWrapper {
   padding: 48px 32px 48px;
   background-color: var(--color-bg-primary);
 }
 
-/* Featured Section 헤더 */
+/* Featured Section ?ㅻ뜑 */
 .featuredHeader {
   text-align: center;
   margin-bottom: 0;
 }
 
-/* Featured Section 그리드 컨테이너 */
+/* Featured Section 洹몃━??而⑦뀒?대꼫 */
 .featuredSection > .container:last-child {
   padding: 48px 32px;
 }
 
-/* Featured Section 내 SectionTitle 색상 - typeSection과 통일 */
+/* Featured Section ??SectionTitle ?됱긽 - typeSection怨??듭씪 */
 .featuredSection h2 {
   color: var(--color-primary-text);
   margin: 0;
 }
 
-/* 프로젝트 타입별 섹션 */
+/* ?꾨줈?앺듃 ??낅퀎 ?뱀뀡 */
 .typeSection {
   padding: 48px 32px;
 }
@@ -58,7 +58,7 @@
   border-bottom: 1px solid var(--color-border-default);
 }
 
-/* 섹션 헤더 */
+/* ?뱀뀡 ?ㅻ뜑 */
 .sectionHeader {
   display: flex;
   align-items: baseline;
@@ -67,13 +67,13 @@
   padding-bottom: 32px;
 }
 
-/* 일반 섹션 내 SectionTitle 색상 - 텍스트용 진한 그린 */
+/* ?쇰컲 ?뱀뀡 ??SectionTitle ?됱긽 - ?띿뒪?몄슜 吏꾪븳 洹몃┛ */
 .typeSection h2 {
   color: var(--color-primary-text);
   margin: 0;
 }
 
-/* 타이틀과 설명 사이 구분선 */
+/* ??댄?怨??ㅻ챸 ?ъ씠 援щ텇??*/
 .sectionHeader .divider {
   width: 1px;
   height: 16px;
@@ -81,25 +81,25 @@
   flex-shrink: 0;
 }
 
-/* 섹션 설명 - 서브타이틀과 폰트 통일, 이탤릭으로 구분 */
+/* ?뱀뀡 ?ㅻ챸 - ?쒕툕??댄?怨??고듃 ?듭씪, ?댄깶由?쑝濡?援щ텇 */
 .sectionDescription {
   color: var(--color-text-secondary);
   font-size: 0.875rem; /* 14px */
-  font-family: 'Cormorant Garamond', 'Noto Serif KR', Georgia, 'Times New Roman', serif;
+  font-family: 'Newsreader', 'Gowun Batang', 'Noto Serif KR', Georgia, serif;
   font-style: italic;
   line-height: 1.5;
   margin: 0;
   flex-shrink: 0;
 }
 
-/* 프로젝트 그리드 */
+/* ?꾨줈?앺듃 洹몃━??*/
 .projects {
   padding: 32px;
 }
 
 .grid {
   display: grid;
-  /* 기본값: 데스크톱 3열 */
+  /* 湲곕낯媛? ?곗뒪?ы넲 3??*/
   grid-template-columns: repeat(3, 1fr);
   gap: 32px;
   margin-top: 0;
@@ -108,13 +108,13 @@
   margin-right: auto;
 }
 
-/* 프로젝트 카드를 감싼 div가 grid 아이템으로 작동하도록 */
+/* ?꾨줈?앺듃 移대뱶瑜?媛먯떬 div媛 grid ?꾩씠?쒖쑝濡??묐룞?섎룄濡?*/
 .grid > div {
-  min-width: 0; /* grid 아이템이 제대로 작동하도록 */
-  scroll-margin-top: 100px; /* 스크롤 시 여백 추가 */
+  min-width: 0; /* grid ?꾩씠?쒖씠 ?쒕?濡??묐룞?섎룄濡?*/
+  scroll-margin-top: 100px; /* ?ㅽ겕濡????щ갚 異붽? */
 }
 
-/* 에러/빈 상태 */
+/* ?먮윭/鍮??곹깭 */
 .error,
 .empty {
   padding: 48px;
@@ -128,14 +128,14 @@
   font-size: 1rem;
 }
 
-/* Mobile (< 768px) - 1열 */
+/* Mobile (< 768px) - 1??*/
 @media (max-width: 767px) {
   .grid {
     grid-template-columns: 1fr;
   }
 }
 
-/* Tablet (768px - 1023px) - 2열 및 기타 스타일 */
+/* Tablet (768px - 1023px) - 2??諛?湲고? ?ㅽ???*/
 @media (min-width: 768px) and (max-width: 1023px) {
   .grid {
     grid-template-columns: repeat(2, 1fr);
@@ -187,7 +187,7 @@
   }
 }
 
-/* 재시도 오버레이 */
+/* ?ъ떆???ㅻ쾭?덉씠 */
 .retryOverlay {
   position: absolute;
   top: 50%;
@@ -215,3 +215,4 @@
 .relativeContainer {
   position: relative;
 }
+

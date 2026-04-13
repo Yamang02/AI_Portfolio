@@ -27,6 +27,7 @@ public class AdminProjectCreateRequest {
     @Size(max = 2000, message = "프로젝트 설명은 2000자를 초과할 수 없습니다")
     private String description;
 
+    @Deprecated(since = "E18", forRemoval = false)
     @Size(max = 10000, message = "README는 10000자를 초과할 수 없습니다")
     private String readme;
 

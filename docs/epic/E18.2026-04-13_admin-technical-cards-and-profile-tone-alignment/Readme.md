@@ -1,91 +1,85 @@
-# Epic E18: admin-technical-cards-and-profile-tone-alignment
+﻿# Epic E18: admin-technical-cards-and-profile-tone-alignment
 
-## 목표
+## 紐⑺몴
 
-- E17에서 확정한 스키마(`project_technical_cards`, `project-overview` article)를 실제 Admin 편집 UI와 API 계약에 연결한다.
-- 포트폴리오 메인(`frontend/src/main`)에서 기존 `readme` 중심 렌더링을 제거하고 E17 콘텐츠 모델로 전환한다.
-- 포트폴리오 페이지의 카피/타이포/톤을 루트 `profile/` 프로젝트와 유사한 방향으로 정렬하고, "그리운 경찰 감성체"를 제거한다.
+- E17?먯꽌 ?뺤젙???ㅽ궎留?`project_technical_cards`, `project-overview` article)瑜??ㅼ젣 Admin ?몄쭛 UI? API 怨꾩빟???곌껐?쒕떎.
+- ?ы듃?대━??硫붿씤(`frontend/src/main`)?먯꽌 湲곗〈 `readme` 以묒떖 ?뚮뜑留곸쓣 ?쒓굅?섍퀬 E17 肄섑뀗痢?紐⑤뜽濡??꾪솚?쒕떎.
+- ?ы듃?대━???섏씠吏??移댄뵾/??댄룷/?ㅼ쓣 猷⑦듃 `profile/` ?꾨줈?앺듃? ?좎궗??諛⑺뼢?쇰줈 ?뺣젹?섍퀬, "洹몃━??寃쎌같 媛먯꽦泥?瑜??쒓굅?쒕떎.
 
-## 배경 / 맥락
+## 諛곌꼍 / 留λ씫
 
-### 현재 상태
+### ?꾩옱 ?곹깭
 
-- Admin 프로젝트 편집 화면은 `readme` 필드를 직접 편집하며, Technical Card 입력/정렬/핀 관리 UI가 없다.
-- 메인 프로젝트 상세 화면도 `project.readme`를 `MarkdownRenderer`로 렌더링하는 구조다.
-- E17 문서에서 설계된 `project-overview` + `technicalCards` 조합이 런타임에 아직 반영되지 않았다.
-- `profile/` 쪽과 `main` 쪽의 콘텐츠 톤/문체/시각 리듬이 분리되어 사용자 경험이 이질적이다.
+- Admin ?꾨줈?앺듃 ?몄쭛 ?붾㈃? `readme` ?꾨뱶瑜?吏곸젒 ?몄쭛?섎ŉ, Technical Card ?낅젰/?뺣젹/? 愿由?UI媛 ?녿떎.
+- 硫붿씤 ?꾨줈?앺듃 ?곸꽭 ?붾㈃??`project.readme`瑜?`MarkdownRenderer`濡??뚮뜑留곹븯??援ъ“??
+- E17 臾몄꽌?먯꽌 ?ㅺ퀎??`project-overview` + `technicalCards` 議고빀???고??꾩뿉 ?꾩쭅 諛섏쁺?섏? ?딆븯??
+- `profile/` 履쎄낵 `main` 履쎌쓽 肄섑뀗痢???臾몄껜/?쒓컖 由щ벉??遺꾨━?섏뼱 ?ъ슜??寃쏀뿕???댁쭏?곸씠??
 
-### 선행 에픽과의 관계
+### ?좏뻾 ?먰뵿怨쇱쓽 愿怨?
+- E17? 硫?곗궗?댄듃 ?ㅽ궎留덉? 肄섑뀗痢?紐⑤뜽??湲곗????뺤젙?덈떎.
+- E18? 洹?湲곗???Admin ?묒꽦 寃쏀뿕怨?Public ?뚮뜑留?寃쏀뿕???ㅼ젣濡??곌껐?섎뒗 援ы쁽 ?먰뵿?대떎.
+- E15??FSD 寃쎄퀎 洹쒖튃???좎??섎㈃??蹂寃쏀븳??
 
-- E17은 멀티사이트 스키마와 콘텐츠 모델의 기준을 확정했다.
-- E18은 그 기준을 Admin 작성 경험과 Public 렌더링 경험에 실제로 연결하는 구현 에픽이다.
-- E15의 FSD 경계 규칙을 유지하면서 변경한다.
+## ?꾪궎?띿쿂 寃곗젙
 
-## 아키텍처 결정
+### Backend 援ъ“
 
-### Backend 구조
+- 湲곗〈 ?꾨찓???좏뵆由ъ??댁뀡/?명봽??寃쎄퀎瑜??좎??쒕떎.
+- `Project` Aggregate? Technical Card 議고쉶/?섏젙 ?좎뒪耳?댁뒪 寃쎄퀎瑜?臾몄꽌濡?紐낆떆?쒕떎.
+- Admin API??湲곗〈 `/api/admin/projects/**` 寃쎈줈 泥닿퀎瑜??좎??섎릺, 移대뱶 愿??怨꾩빟??紐낆떆?곸쑝濡?異붽??쒕떎.
 
-- 기존 도메인/애플리케이션/인프라 경계를 유지한다.
-- `Project` Aggregate와 Technical Card 조회/수정 유스케이스 경계를 문서로 명시한다.
-- Admin API는 기존 `/api/admin/projects/**` 경로 체계를 유지하되, 카드 관련 계약을 명시적으로 추가한다.
+### Frontend 援ъ“
 
-### Frontend 구조
-
-- Admin: `frontend/src/admin` 내부 FSD 경계 유지, Project 편집 하위 feature로 Technical Card 편집 블록을 추가한다.
-- Main: `frontend/src/main`의 ProjectDetail 렌더링을 `projectOverviewArticle` + `technicalCards` 중심으로 재구성한다.
-- Profile 톤 정렬은 `profile`과 시각 언어를 맞추되 런타임 분리는 유지한다.
+- Admin: `frontend/src/admin` ?대? FSD 寃쎄퀎 ?좎?, Project ?몄쭛 ?섏쐞 feature濡?Technical Card ?몄쭛 釉붾줉??異붽??쒕떎.
+- Main: `frontend/src/main`??ProjectDetail ?뚮뜑留곸쓣 `projectOverviewArticle` + `technicalCards` 以묒떖?쇰줈 ?ш뎄?깊븳??
+- Profile ???뺣젹? `profile`怨??쒓컖 ?몄뼱瑜?留욎텛???고???遺꾨━???좎??쒕떎.
 
 ### Read / Write Pattern
 
-- 표준 CRUD + 조회 조합을 유지한다.
-- 카드 정렬은 `isPinned DESC, sortOrder ASC`를 백엔드 계약으로 고정하고 프론트는 결과를 그대로 사용한다.
+- ?쒖? CRUD + 議고쉶 議고빀???좎??쒕떎.
+- 移대뱶 ?뺣젹? `isPinned DESC, sortOrder ASC`瑜?諛깆뿏??怨꾩빟?쇰줈 怨좎젙?섍퀬 ?꾨줎?몃뒗 寃곌낵瑜?洹몃?濡??ъ슜?쒕떎.
 
 ### Module Boundary
 
-- `frontend/src/admin`과 `frontend/src/main`은 직접 import하지 않는다.
-- 공통 UI/토큰은 `design-system` 또는 앱별 `shared` 경로에서만 사용한다.
-- `profile/`은 독립 런타임으로 유지하고, 스타일 가이드 참조만 수행한다.
+- `frontend/src/admin`怨?`frontend/src/main`? 吏곸젒 import?섏? ?딅뒗??
+- 怨듯넻 UI/?좏겙? `design-system` ?먮뒗 ?깅퀎 `shared` 寃쎈줈?먯꽌留??ъ슜?쒕떎.
+- `profile/`? ?낅┰ ?고??꾩쑝濡??좎??섍퀬, ?ㅽ???媛?대뱶 李몄“留??섑뻾?쒕떎.
 
-## 아키텍처 리뷰 메모 (epic-architecture-review + PT-01/PT-02)
+## ?꾪궎?띿쿂 由щ럭 硫붾え (epic-architecture-review + PT-01/PT-02)
 
-- IMPORTANT [PT-01] `Project`와 `ProjectTechnicalCard`의 쓰기 책임(동일 트랜잭션 vs 별도 유스케이스) 경계를 P01에서 명시해야 한다.
-- IMPORTANT [AR-02-02] Main 상세 페이지가 `readme`에 직접 의존하고 있어 E17 계약과 의존 방향(도메인 계약 중심) 불일치가 있다. P03에서 제거한다.
-- MINOR [AR-02-01] `profile`과 `main`의 문체/톤 가이드가 문서화되어 있지 않다. P02에서 UI 톤 가이드를 먼저 확정한다.
+- IMPORTANT [PT-01] `Project`? `ProjectTechnicalCard`???곌린 梨낆엫(?숈씪 ?몃옖??뀡 vs 蹂꾨룄 ?좎뒪耳?댁뒪) 寃쎄퀎瑜?P01?먯꽌 紐낆떆?댁빞 ?쒕떎.
+- IMPORTANT [AR-02-02] Main ?곸꽭 ?섏씠吏媛 `readme`??吏곸젒 ?섏〈?섍퀬 ?덉뼱 E17 怨꾩빟怨??섏〈 諛⑺뼢(?꾨찓??怨꾩빟 以묒떖) 遺덉씪移섍? ?덈떎. P03?먯꽌 ?쒓굅?쒕떎.
+- MINOR [AR-02-01] `profile`怨?`main`??臾몄껜/??媛?대뱶媛 臾몄꽌?붾릺???덉? ?딅떎. P02?먯꽌 UI ??媛?대뱶瑜?癒쇱? ?뺤젙?쒕떎.
 
-## 범위
+## 踰붿쐞
 
 ### In
 
-- Admin 프로젝트 편집에서 Technical Card 생성/수정/삭제/정렬/핀 처리
-- Admin API/DTO/검증 로직의 E17 스키마 정렬
-- Main 프로젝트 상세의 `readme` 의존 제거 및 `projectOverviewArticle` + `technicalCards` 렌더링
-- "그리운 경찰 감성체" 제거 및 `profile` 톤에 맞춘 카피/타이포/색 톤 조정
-- 회귀 테스트, Sonar 이슈 확인, 문서 동기화
-
+- Admin ?꾨줈?앺듃 ?몄쭛?먯꽌 Technical Card ?앹꽦/?섏젙/??젣/?뺣젹/? 泥섎━
+- Admin API/DTO/寃利?濡쒖쭅??E17 ?ㅽ궎留??뺣젹
+- Main ?꾨줈?앺듃 ?곸꽭??`readme` ?섏〈 ?쒓굅 諛?`projectOverviewArticle` + `technicalCards` ?뚮뜑留?- "洹몃━??寃쎌같 媛먯꽦泥? ?쒓굅 諛?`profile` ?ㅼ뿉 留욎텣 移댄뵾/??댄룷/????議곗젙
+- ?뚭? ?뚯뒪?? Sonar ?댁뒋 ?뺤씤, 臾몄꽌 ?숆린??
 ### Out
 
-- 신규 도메인 추가
-- `profile` 런타임 자체를 `frontend`로 통합하는 구조 변경
-- 멀티사이트 인프라/배포 파이프라인 변경
-- E17 스키마 자체 재설계
+- ?좉퇋 ?꾨찓??異붽?
+- `profile` ?고????먯껜瑜?`frontend`濡??듯빀?섎뒗 援ъ“ 蹂寃?- 硫?곗궗?댄듃 ?명봽??諛고룷 ?뚯씠?꾨씪??蹂寃?- E17 ?ㅽ궎留??먯껜 ?ъ꽕怨?
+## ?꾨즺 湲곗?
 
-## 완료 기준
+- Admin?먯꽌 ?꾨줈?앺듃蹂?Technical Card瑜??묒꽦/?뺣젹/? 愿由ы븷 ???덇퀬 ???寃곌낵媛 ?ъ“?뚯뿉 ?쇨??섍쾶 諛섏쁺?쒕떎.
+- Main ?곸꽭 ?섏씠吏?먯꽌 `project.readme`瑜????댁긽 ?ъ슜?섏? ?딅뒗??
+- Main ?곸꽭??`projectOverviewArticle`怨?Technical Card瑜?E17 怨꾩빟?濡??뚮뜑留곹븳??
+- ?ы듃?대━??移댄뵾/?ㅼ씠 `profile` 湲곗?怨?異⑸룎?섏? ?딄퀬, 湲곗〈 媛먯꽦泥닿? ?쒓굅?쒕떎.
+- ?꾨윴??諛깆뿏??愿???뚯뒪?몄? lint/鍮뚮뱶 寃利앹씠 ?듦낵?쒕떎.
 
-- Admin에서 프로젝트별 Technical Card를 작성/정렬/핀 관리할 수 있고 저장 결과가 재조회에 일관되게 반영된다.
-- Main 상세 페이지에서 `project.readme`를 더 이상 사용하지 않는다.
-- Main 상세는 `projectOverviewArticle`과 Technical Card를 E17 계약대로 렌더링한다.
-- 포트폴리오 카피/톤이 `profile` 기준과 충돌하지 않고, 기존 감성체가 제거된다.
-- 프런트/백엔드 관련 테스트와 lint/빌드 검증이 통과한다.
+## ?ㅽ뻾 ?쒖꽌
 
-## 실행 순서
+1. P01?먯꽌 Admin FSD 寃쎄퀎 ?꾨컲怨??곕뱶肄붾뱶瑜??뺣━?쒕떎.
+2. P02?먯꽌 Backend TechnicalCard ?꾨찓???좎뒪耳?댁뒪/API瑜?援ы쁽?섍퀬 怨꾩빟???뺤젙?쒕떎.
+3. P03?먯꽌 Admin Technical Card ?몄쭛 UI瑜??꾩꽦?쒕떎.
+4. P04?먯꽌 Main ?뚮뜑留?紐⑤뜽 ?꾪솚怨????뺣젹???곸슜?쒕떎.
+5. P05?먯꽌 ?뚭? 寃利?諛?諛고룷 以鍮?泥댄겕瑜??꾨즺?쒕떎.
 
-1. P01에서 Admin FSD 경계 위반과 데드코드를 정리한다.
-2. P02에서 Backend TechnicalCard 도메인/유스케이스/API를 구현하고 계약을 확정한다.
-3. P03에서 Admin Technical Card 편집 UI를 완성한다.
-4. P04에서 Main 렌더링 모델 전환과 톤 정렬을 적용한다.
-5. P05에서 회귀 검증 및 배포 준비 체크를 완료한다.
-
-## Phase 목록
+## Phase 紐⑸줉
 
 - [P01: admin-fsd-cleanup](./P01.admin-fsd-cleanup.md)
 - [P02: admin-project-technical-card-contract](./P02.admin-project-technical-card-contract.md)
@@ -93,11 +87,11 @@
 - [P04: main-project-detail-model-cutover-and-tone-alignment](./P04.main-project-detail-model-cutover-and-tone-alignment.md)
 - [P05: regression-validation-and-release-readiness](./P05.regression-validation-and-release-readiness.md)
 
-## 상태
+## ?곹깭
 
-- [ ] P01 완료
-- [ ] P02 완료
-- [ ] P03 완료
-- [ ] P04 완료
-- [ ] P05 완료
+- [x] P01 ?꾨즺
+- [x] P02 ?꾨즺
+- [x] P03 ?꾨즺
+- [x] P04 ?꾨즺
+- [ ] P05 ?꾨즺
 

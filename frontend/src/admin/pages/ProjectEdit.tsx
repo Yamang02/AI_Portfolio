@@ -19,7 +19,7 @@ import {
 } from 'antd';
 import { SaveOutlined, ArrowLeftOutlined, DeleteOutlined, UploadOutlined, EyeOutlined, PlusOutlined, MinusCircleOutlined } from '@ant-design/icons';
 import { useProject, useUpdateProject, useCreateProject, useDeleteProject } from '../hooks/useProjects';
-import { ProjectUpdateRequest, ProjectCreateRequest } from '../api/adminProjectApi';
+import { ProjectUpdateRequest, ProjectCreateRequest, adminProjectApi } from '../api/adminProjectApi';
 import { ProjectThumbnailUpload } from '../features/project-management/ui/ProjectThumbnailUpload';
 import { ProjectScreenshotsUpload } from '../features/project-management/ui/ProjectScreenshotsUpload';
 import { ProjectMarkdownEditor } from '../features/project-management/ui/ProjectMarkdownEditor';
@@ -165,11 +165,16 @@ const ProjectEdit: React.FC = () => {
           liveUrl: values.liveUrl,
           externalUrl: values.externalUrl,
           technologies: technologiesArray && technologiesArray.length > 0 ? technologiesArray : undefined,
-          technicalCards,
           sortOrder: values.sortOrder,
         };
 
         await updateProjectMutation.mutateAsync({ id, project: updateData });
+        try {
+          await adminProjectApi.updateProjectTechnicalCards(id!, technicalCards);
+        } catch (technicalCardsError: any) {
+          message.error(technicalCardsError?.message || '프로젝트 기본 정보는 저장되었지만 기술 카드 저장에 실패했습니다');
+          return;
+        }
         message.success('프로젝트가 성공적으로 수정되었습니다');
       }
       navigate('/admin/projects');

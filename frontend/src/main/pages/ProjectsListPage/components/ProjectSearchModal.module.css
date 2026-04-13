@@ -1,6 +1,6 @@
-/* 모달 타이틀 - 서브타이틀과 동일한 디자인 */
+﻿/* 紐⑤떖 ??댄? - ?쒕툕??댄?怨??숈씪???붿옄??*/
 .modal h2 {
-  font-family: 'Cormorant Garamond', 'Noto Serif KR', Georgia, 'Times New Roman', serif;
+  font-family: 'Newsreader', 'Gowun Batang', 'Noto Serif KR', Georgia, serif;
   font-weight: 700;
 }
 
@@ -221,7 +221,7 @@
   padding-top: 2px;
 }
 
-/* 모바일 반응형 */
+/* 紐⑤컮??諛섏쓳??*/
 @media (max-width: 767px) {
   .filters {
     grid-template-columns: 1fr;
@@ -250,3 +250,4 @@
     width: 40%;
   }
 }
+
