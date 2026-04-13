@@ -14,7 +14,6 @@ interface MenuItem {
   isActive?: (pathname: string) => boolean;
 }
 
-const YAMANG_DESIGN_URL = 'https://design.yamang02.com';
 
 export const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -52,8 +51,8 @@ export const Header: React.FC = () => {
   const menuItems: MenuItem[] = [
     {
       id: 'profile',
-      label: '프로필',
-      tooltip: '프로필',
+      label: '소개',
+      tooltip: '소개',
       href: '/profile',
       isActive: (pathname) => pathname === '/profile',
       icon: (
@@ -65,8 +64,8 @@ export const Header: React.FC = () => {
     },
     {
       id: 'projects',
-      label: '프로젝트',
-      tooltip: '프로젝트',
+      label: '작업물',
+      tooltip: '작업물',
       href: '/projects',
       isActive: (pathname) => pathname === '/projects' || pathname.startsWith('/projects/'),
       icon: (
@@ -77,8 +76,8 @@ export const Header: React.FC = () => {
     },
     {
       id: 'articles',
-      label: '아티클',
-      tooltip: '아티클',
+      label: '글',
+      tooltip: '글',
       href: '/articles',
       isActive: (pathname) => pathname === '/articles' || pathname.startsWith('/articles/'),
       icon: (
@@ -136,15 +135,7 @@ export const Header: React.FC = () => {
             );
           })}
 
-          <Button
-            variant="secondary"
-            size="md"
-            href={YAMANG_DESIGN_URL}
-            target="_blank"
-            className={styles.navLink}
-          >
-            YamangDesign
-          </Button>
+
         </nav>
 
         <div className={styles.rightActions}>
@@ -203,15 +194,7 @@ export const Header: React.FC = () => {
                     </Button>
                   );
                 })}
-                <Button
-                  variant="secondary"
-                  size="md"
-                  href={YAMANG_DESIGN_URL}
-                  target="_blank"
-                  className={styles.dropdownLink}
-                >
-                  YamangDesign
-                </Button>
+
               </div>
             )}
           </div>

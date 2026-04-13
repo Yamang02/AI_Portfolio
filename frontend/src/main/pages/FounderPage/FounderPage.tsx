@@ -29,7 +29,7 @@ export const FounderPage: React.FC = () => {
         canonicalPath={meta.canonicalPath}
         jsonLd={[createPersonSchema(), createOrganizationSchema(), createWebSiteSchema()]}
       />
-        <PageHeader title="자기소개" />
+        <PageHeader title="소개" />
 
         {/* Main Content Section: ?�기?�개 + ?�력 */}
         <section className={styles.section}>

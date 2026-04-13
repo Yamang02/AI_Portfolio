@@ -52,20 +52,20 @@ export const ProjectsListPage: React.FC = () => {
     return [
       {
         type: 'MAINTENANCE' as ProjectCategory,
-        title: 'Maintenance',
-        description: 'Operational maintenance and long-term improvement projects.',
+        title: '유지보수',
+        description: '운영 중인 서비스의 유지보수 및 장기 개선 작업물입니다.',
         projects: grouped.MAINTENANCE,
       },
       {
         type: 'BUILD' as ProjectCategory,
-        title: 'Build',
-        description: 'Products and services delivered end-to-end.',
+        title: '구축',
+        description: '처음부터 끝까지 직접 만든 제품 및 서비스입니다.',
         projects: grouped.BUILD,
       },
       {
         type: 'LAB' as ProjectCategory,
-        title: 'Lab',
-        description: 'Experimental and research-oriented projects.',
+        title: '실험',
+        description: '실험적·연구 목적으로 진행한 작업물입니다.',
         projects: grouped.LAB,
       },
     ];
@@ -137,8 +137,8 @@ export const ProjectsListPage: React.FC = () => {
       <SeoHead title={meta.title} description={meta.description} canonicalPath={meta.canonicalPath} />
 
       <PageHeader
-        title="프로젝트"
-        description={<p>총 {projects.length}개의 프로젝트</p>}
+        title="작업물"
+        description={<p>총 {projects.length}개의 작업물</p>}
       />
 
       <section id="featured-section" className={styles.featuredSection}>
