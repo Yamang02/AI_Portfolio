@@ -10,6 +10,7 @@ import lombok.Value;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Value
 @Builder
@@ -46,35 +47,8 @@ public class ProjectDataResponse {
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
 
-    public static ProjectDataResponse from(Project project) {
-        return ProjectDataResponse.builder()
-                .id(project.getId()) // 비즈니스 ID
-                .title(project.getTitle())
-                .description(project.getDescription())
-                .type(project.getType())
-                .source(project.getSource())
-                .status(project.getStatus())
-                .sortOrder(project.getSortOrder())
-                .startDate(project.getStartDate())
-                .endDate(project.getEndDate())
-                .isTeam(project.isTeam())
-                .isFeatured(project.isFeatured())
-                .teamSize(project.getTeamSize())
-                .role(project.getRole())
-                .myContributions(project.getMyContributions())
-                .githubUrl(project.getGithubUrl())
-                .liveUrl(project.getLiveUrl())
-                .externalUrl(project.getExternalUrl())
-                .imageUrl(project.getImageUrl())
-                .screenshots(project.getScreenshots())
-                .technicalCards(toTechnicalCards(project))
-                .technologies(project.getTechnologies())
-                .techStackMetadata(project.getTechStackMetadata())
-                .projectOverviewArticle(null)
-                .developmentTimelineArticles(List.of()) // 기본값은 빈 리스트, DataController에서 채움
-                .createdAt(project.getCreatedAt())
-                .updatedAt(project.getUpdatedAt())
-                .build();
+    public static ProjectDataResponse from(Project project, Map<Long, String> articleBusinessIdMap) {
+        return from(project, List.of(), null, articleBusinessIdMap);
     }
 
     /**
@@ -83,9 +57,10 @@ public class ProjectDataResponse {
     public static ProjectDataResponse from(
             Project project,
             List<ArticleSummary> developmentTimelineArticles,
-            ProjectOverviewArticleSummary projectOverviewArticle) {
+            ProjectOverviewArticleSummary projectOverviewArticle,
+            Map<Long, String> articleBusinessIdMap) {
         return ProjectDataResponse.builder()
-                .id(project.getId()) // 비즈니스 ID
+                .id(project.getId())
                 .title(project.getTitle())
                 .description(project.getDescription())
                 .type(project.getType())
@@ -104,7 +79,7 @@ public class ProjectDataResponse {
                 .externalUrl(project.getExternalUrl())
                 .imageUrl(project.getImageUrl())
                 .screenshots(project.getScreenshots())
-                .technicalCards(toTechnicalCards(project))
+                .technicalCards(toTechnicalCards(project, articleBusinessIdMap))
                 .technologies(project.getTechnologies())
                 .techStackMetadata(project.getTechStackMetadata())
                 .projectOverviewArticle(projectOverviewArticle)
@@ -114,7 +89,7 @@ public class ProjectDataResponse {
                 .build();
     }
 
-    private static List<ProjectTechnicalCardSummary> toTechnicalCards(Project project) {
+    private static List<ProjectTechnicalCardSummary> toTechnicalCards(Project project, Map<Long, String> articleBusinessIdMap) {
         if (project.getTechnicalCards() == null) {
             return List.of();
         }
@@ -126,7 +101,7 @@ public class ProjectDataResponse {
                         .problemStatement(card.getProblemStatement())
                         .analysis(card.getAnalysis())
                         .solution(card.getSolution())
-                        .articleId(card.getArticleId())
+                        .articleBusinessId(card.getArticleId() != null ? articleBusinessIdMap.get(card.getArticleId()) : null)
                         .isPinned(card.isPinned())
                         .sortOrder(card.getSortOrder())
                         .build())
@@ -142,7 +117,7 @@ public class ProjectDataResponse {
         String problemStatement;
         String analysis;
         String solution;
-        Long articleId;
+        String articleBusinessId;
         @JsonProperty("isPinned")
         boolean isPinned;
         Integer sortOrder;

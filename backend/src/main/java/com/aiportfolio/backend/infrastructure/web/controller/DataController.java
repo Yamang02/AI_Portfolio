@@ -11,6 +11,7 @@ import com.aiportfolio.backend.domain.portfolio.model.Certification;
 import com.aiportfolio.backend.domain.portfolio.model.Education;
 import com.aiportfolio.backend.domain.portfolio.model.Experience;
 import com.aiportfolio.backend.domain.portfolio.model.Project;
+import com.aiportfolio.backend.domain.portfolio.model.ProjectTechnicalCard;
 import com.aiportfolio.backend.domain.portfolio.port.in.GetProjectsUseCase;
 import com.aiportfolio.backend.domain.portfolio.port.in.GetAllDataUseCase;
 import io.swagger.v3.oas.annotations.Operation;
@@ -40,7 +41,7 @@ public class DataController {
     private final GetProjectsUseCase getProjectsUseCase;
     private final GetAllDataUseCase getAllDataUseCase;
     private final GetArticleUseCase getArticleUseCase;
-    
+
     public DataController(
             @Qualifier("portfolioService") GetProjectsUseCase getProjectsUseCase,
             @Qualifier("portfolioApplicationService") GetAllDataUseCase getAllDataUseCase,
@@ -65,7 +66,8 @@ public class DataController {
                     List<ArticleSummary> developmentTimelineArticles = getDevelopmentTimelineArticles(project);
                     ProjectDataResponse.ProjectOverviewArticleSummary projectOverviewArticle =
                             getProjectOverviewArticle(project);
-                    return ProjectDataResponse.from(project, developmentTimelineArticles, projectOverviewArticle);
+                    Map<Long, String> articleBusinessIdMap = buildArticleBusinessIdMap(project);
+                    return ProjectDataResponse.from(project, developmentTimelineArticles, projectOverviewArticle, articleBusinessIdMap);
                 })
                 .toList();
             responseData.put("projects", mappedProjects);
@@ -83,7 +85,8 @@ public class DataController {
                 List<ArticleSummary> developmentTimelineArticles = getDevelopmentTimelineArticles(project);
                 ProjectDataResponse.ProjectOverviewArticleSummary projectOverviewArticle =
                         getProjectOverviewArticle(project);
-                return ProjectDataResponse.from(project, developmentTimelineArticles, projectOverviewArticle);
+                Map<Long, String> articleBusinessIdMap = buildArticleBusinessIdMap(project);
+                return ProjectDataResponse.from(project, developmentTimelineArticles, projectOverviewArticle, articleBusinessIdMap);
             })
             .toList();
         return ResponseEntity.ok(ApiResponse.success(responses, WebApiResponseMessages.PROJECT_LIST_SUCCESS));
@@ -100,7 +103,8 @@ public class DataController {
         Project project = found.get();
         List<ArticleSummary> developmentTimelineArticles = getDevelopmentTimelineArticles(project);
         ProjectDataResponse.ProjectOverviewArticleSummary projectOverviewArticle = getProjectOverviewArticle(project);
-        ProjectDataResponse response = ProjectDataResponse.from(project, developmentTimelineArticles, projectOverviewArticle);
+        Map<Long, String> articleBusinessIdMap = buildArticleBusinessIdMap(project);
+        ProjectDataResponse response = ProjectDataResponse.from(project, developmentTimelineArticles, projectOverviewArticle, articleBusinessIdMap);
         return ResponseEntity.ok(ApiResponse.success(response, WebApiResponseMessages.PROJECT_GET_SUCCESS));
     }
 
@@ -150,6 +154,17 @@ public class DataController {
                         .content(article.getContent())
                         .build())
                 .orElse(null);
+    }
+
+    private Map<Long, String> buildArticleBusinessIdMap(Project project) {
+        if (project.getTechnicalCards() == null) return Map.of();
+        List<Long> articleIds = project.getTechnicalCards().stream()
+                .map(ProjectTechnicalCard::getArticleId)
+                .filter(id -> id != null)
+                .distinct()
+                .toList();
+        if (articleIds.isEmpty()) return Map.of();
+        return getArticleUseCase.resolveBusinessIds(articleIds);
     }
 
     /**

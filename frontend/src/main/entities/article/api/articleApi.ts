@@ -27,7 +27,7 @@ export const articleApi = {
     if (params.category) {
       queryParams.append('category', params.category);
     }
-    if (params.projectId) {
+    if (params.projectId !== undefined) {
       queryParams.append('projectId', params.projectId.toString());
     }
     if (params.seriesId) {

@@ -63,6 +63,52 @@
   margin-top: var(--spacing-4);
 }
 
+.technicalCardsHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-4);
+}
+
+.cardNav {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.cardNavBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--border-radius-sm);
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.cardNavBtn:hover:not(:disabled) {
+  color: var(--color-text-primary);
+  border-color: var(--color-text-primary);
+}
+
+.cardNavBtn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.cardNavPage {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  min-width: 40px;
+  text-align: center;
+}
+
 .technicalCards {
   display: flex;
   flex-direction: column;

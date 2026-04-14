@@ -6,6 +6,8 @@ import com.aiportfolio.backend.domain.article.model.ArticleStatistics;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface ArticleRepositoryPort {
@@ -48,4 +50,9 @@ public interface ArticleRepositoryPort {
      * 현재 아티클보다 나중에 발행된 아티클 중 가장 오래된 것
      */
     Optional<Article> findNextArticle(java.time.LocalDateTime publishedAt);
+
+    /**
+     * DB ID 목록을 businessId 맵으로 변환
+     */
+    Map<Long, String> resolveBusinessIds(List<Long> ids);
 }

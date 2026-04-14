@@ -82,7 +82,7 @@ export interface ProjectTechnicalCard {
   problemStatement: string;
   analysis?: string;
   solution: string;
-  articleId?: number;
+  articleBusinessId?: string;
   isPinned: boolean;
   sortOrder?: number;
 }

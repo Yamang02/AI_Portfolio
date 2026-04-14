@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useMemo } from 'react';
+import React, { useEffect, useRef, useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { SeoHead } from '@/shared/ui/seo/SeoHead';
 import { createProjectSchema, createBreadcrumbSchema } from '@/main/shared/lib/schema';
@@ -18,6 +18,8 @@ import { ProjectThumbnailCarousel } from '@design-system/components/Carousel';
 import { Skeleton } from '@design-system/components/Skeleton';
 import { EmptyCard } from '@design-system';
 import styles from './ProjectDetailPage.module.css';
+
+const CARDS_PER_PAGE = 5;
 
 const ProjectDetailPage: React.FC = () => {
   const { id: idParam } = useParams<{ id: string }>();
@@ -49,6 +51,13 @@ const ProjectDetailPage: React.FC = () => {
       return (a.sortOrder ?? 0) - (b.sortOrder ?? 0);
     });
   }, [project]);
+
+  const [cardPage, setCardPage] = useState(0);
+  const cardTotalPages = Math.ceil(technicalCards.length / CARDS_PER_PAGE);
+  const paginatedCards = technicalCards.slice(
+    cardPage * CARDS_PER_PAGE,
+    (cardPage + 1) * CARDS_PER_PAGE
+  );
 
   // TOC ?�성 (?�체 ?�이지 ?�더 ?�함)
   // contentRef�?직접 ?�용 (containerSelector ?�이)
@@ -103,9 +112,9 @@ const ProjectDetailPage: React.FC = () => {
     return baseSections;
   }, [domTocItems, project, projectOverviewContent, technicalCards.length]);
 
-  // ������ ���� �� ������� ��ũ��
   useEffect(() => {
     window.scrollTo(0, 0);
+    setCardPage(0);
   }, [id]);
 
   // ResizeObserver�??�한 ?�적 ?�이 추적
@@ -227,9 +236,32 @@ const ProjectDetailPage: React.FC = () => {
 
         {technicalCards.length > 0 && (
           <section id="technical-cards" className={styles.section}>
-            <SectionTitle level="h2" id="technical-cards" className={styles.sectionTitle}>기술 카드</SectionTitle>
+            <div className={styles.technicalCardsHeader}>
+              <SectionTitle level="h2" id="technical-cards" className={styles.sectionTitle}>기술 카드</SectionTitle>
+              <nav className={styles.cardNav} aria-label="기술 카드 페이지 탐색">
+                <button
+                  className={styles.cardNavBtn}
+                  onClick={() => setCardPage(p => p - 1)}
+                  disabled={cardPage === 0}
+                  aria-label="이전 카드"
+                >
+                  ‹
+                </button>
+                <span className={styles.cardNavPage}>
+                  {cardPage * CARDS_PER_PAGE + 1}–{Math.min((cardPage + 1) * CARDS_PER_PAGE, technicalCards.length)} / {technicalCards.length}
+                </span>
+                <button
+                  className={styles.cardNavBtn}
+                  onClick={() => setCardPage(p => p + 1)}
+                  disabled={cardPage >= cardTotalPages - 1}
+                  aria-label="다음 카드"
+                >
+                  ›
+                </button>
+              </nav>
+            </div>
             <div className={styles.technicalCards}>
-              {technicalCards.map((card: ProjectTechnicalCard, index) => (
+              {paginatedCards.map((card: ProjectTechnicalCard, index) => (
                 <TechnicalCardItem
                   key={card.id || `${card.title}-${index}`}
                   card={{
@@ -241,6 +273,7 @@ const ProjectDetailPage: React.FC = () => {
                     solution: card.solution,
                     isPinned: card.isPinned,
                     sortOrder: card.sortOrder,
+                    articleBusinessId: card.articleBusinessId,
                   }}
                 />
               ))}

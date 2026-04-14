@@ -42,21 +42,18 @@ export function ArticleListPage() {
   // ������Ʈ ���Ϳ� ������ ��ȯ
   const filterProjects = useMemo(() => {
     if (!statistics?.projects) {
-      return { projects: [], projectMap: new Map<string, number>() };
+      return { projects: [] };
     }
 
-    const projectMap = new Map<string, number>();
-    const projects = statistics.projects.map((p, index) => {
-      const id = index + 1;
-      projectMap.set(p.projectBusinessId, id);
+    const projects = statistics.projects.map((p) => {
       return {
-        id,
+        id: p.projectId,
         businessId: p.projectBusinessId,
         title: p.projectTitle,
       };
     });
 
-    return { projects, projectMap };
+    return { projects };
   }, [statistics?.projects]);
 
   // 추천 ?�티??조회
@@ -75,7 +72,7 @@ export function ArticleListPage() {
     category: selectedCategory,
     // projectId??백엔?�에??businessId�?PK�?변?�해???��?�??�단 undefined�??�달
     // 추후 백엔??API ?�정 ?�요
-    projectId: undefined, // selectedProjectBusinessId�?PK�?변?�하??로직 ?�요
+    projectId: selectedProjectId,
     seriesId: selectedSeriesId,
     searchKeyword: searchQuery || undefined,
     sortBy: sortBy,
@@ -98,10 +95,7 @@ export function ArticleListPage() {
     // ?�로?�트 카운??매핑 (filterProjects??ID�?변??
     const projectCounts: Record<number, number> = {};
     statistics.projects.forEach((p) => {
-      const id = filterProjects.projectMap.get(p.projectBusinessId);
-      if (id) {
-        projectCounts[id] = p.count;
-      }
+      projectCounts[p.projectId] = p.count;
     });
 
     // ?�리�?카운??매핑
@@ -126,7 +120,7 @@ export function ArticleListPage() {
         series: seriesCounts,
       },
     };
-  }, [statistics, filterProjects.projectMap]);
+  }, [statistics]);
 
   // ?�터링된 ?�티??(?�버?�서 ?��? ?�터링됨)
   const filteredArticles = data?.content || [];

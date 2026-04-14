@@ -29,7 +29,6 @@ const createBaseTocSections = (article: any): TOCItem[] => {
   const sections: TOCItem[] = [];
   if (article.content) sections.push({ id: 'content', text: '본문', level: 2 });
   if (article.project) sections.push({ id: 'related-project', text: '관련 프로젝트', level: 2 });
-  if (article.technicalCards?.length > 0) sections.push({ id: 'related-technical-cards', text: '연관 기술카드', level: 2 });
   if (article.techStack?.length > 0) sections.push({ id: 'tech-stack', text: '기술 스택', level: 2 });
 
   return sections;
@@ -251,6 +250,16 @@ export function ArticleDetailPage() {
           </div>
         </header>
 
+        {article.technicalCards && article.technicalCards.length > 0 && (
+          <section id="related-technical-cards" className={styles.section}>
+            <div className={styles.technicalCards}>
+              {article.technicalCards.map((card: ArticleRelatedTechnicalCard) => (
+                <TechnicalCardItem key={card.id} card={card} />
+              ))}
+            </div>
+          </section>
+        )}
+
         {tocItems.length > 0 && (
           <section id="toc" className={styles.section}>
             <TableOfContents items={tocItems} />
@@ -276,17 +285,6 @@ export function ArticleDetailPage() {
                 project={projectCardData}
                 onClick={() => navigate(`/projects/${projectCardData.id}`)}
               />
-            </div>
-          </section>
-        )}
-
-        {article.technicalCards && article.technicalCards.length > 0 && (
-          <section id="related-technical-cards" className={styles.section}>
-            <SectionTitle level="h2" id="related-technical-cards" className={styles.sectionTitle}>연관 기술카드</SectionTitle>
-            <div className={styles.technicalCards}>
-              {article.technicalCards.map((card: ArticleRelatedTechnicalCard) => (
-                <TechnicalCardItem key={card.id} card={card} />
-              ))}
             </div>
           </section>
         )}

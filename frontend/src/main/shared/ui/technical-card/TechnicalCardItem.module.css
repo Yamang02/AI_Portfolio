@@ -15,8 +15,9 @@
 
 .title {
   margin: 0;
-  font-size: var(--font-size-xl);
-  color: var(--color-text-primary);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-accent-primary);
 }
 
 .body {
@@ -45,4 +46,31 @@
   line-height: 1.7;
   color: var(--color-text-primary);
   padding-left: calc(14px + var(--spacing-2));
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: var(--spacing-4);
+  padding-top: var(--spacing-4);
+  border-top: 1px solid var(--color-border-default);
+}
+
+.articleLink {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--border-radius-sm);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.articleLink:hover {
+  color: var(--color-accent-primary);
+  border-color: var(--color-accent-primary);
 }
