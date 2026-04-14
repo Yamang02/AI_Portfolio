@@ -105,8 +105,8 @@ export const ProjectsListPage: React.FC = () => {
     };
   };
 
-  const handleCardClick = (project: { id: string }) => {
-    navigate(`/projects/${project.id}`);
+  const handleCardClick = (projectId: string) => {
+    navigate(`/projects/${projectId}`);
   };
 
   const handleTimelineProjectClick = (projectId: string) => {
