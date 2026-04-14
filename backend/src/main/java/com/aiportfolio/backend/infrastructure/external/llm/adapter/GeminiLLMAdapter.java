@@ -1,4 +1,4 @@
-package com.aiportfolio.backend.infrastructure.adapters.outbound.llm;
+package com.aiportfolio.backend.infrastructure.external.llm.adapter;
 
 import com.aiportfolio.backend.domain.chatbot.port.out.LLMPort;
 import dev.langchain4j.model.googleai.GoogleAiGeminiChatModel;

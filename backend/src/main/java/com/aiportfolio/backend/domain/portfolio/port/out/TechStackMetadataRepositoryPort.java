@@ -60,6 +60,26 @@ public interface TechStackMetadataRepositoryPort {
      * 기술명이 포함된 기술 스택 메타데이터 조회 (검색용)
      */
     List<TechStackMetadata> findByNameContaining(String name);
+
+    /**
+     * 활성 기술스택 총 개수 조회
+     */
+    long countActiveTechnologies();
+
+    /**
+     * 핵심 기술스택 총 개수 조회
+     */
+    long countCoreTechnologies();
+
+    /**
+     * 활성 기술스택 카테고리별 개수 조회
+     */
+    List<GroupCount> countByCategory();
+
+    /**
+     * 활성 기술스택 레벨별 개수 조회
+     */
+    List<GroupCount> countByLevel();
     
     /**
      * 프로젝트에서 사용된 기술 스택들의 메타데이터 조회
@@ -95,5 +115,10 @@ public interface TechStackMetadataRepositoryPort {
      * 최대 정렬 순서 조회
      */
     int findMaxSortOrder();
-}
 
+    /**
+     * 그룹별 카운트 VO
+     */
+    record GroupCount(String key, long count) {
+    }
+}

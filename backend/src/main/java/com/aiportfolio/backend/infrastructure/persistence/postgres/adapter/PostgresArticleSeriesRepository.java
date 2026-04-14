@@ -63,6 +63,16 @@ public class PostgresArticleSeriesRepository implements ArticleSeriesRepositoryP
     }
 
     @Override
+    public List<ArticleSeries> searchByTitleContaining(String keyword) {
+        if (keyword == null || keyword.isBlank()) {
+            return List.of();
+        }
+        return jpaRepository.findByTitleContainingIgnoreCase(keyword).stream()
+                .map(this::toDomain)
+                .toList();
+    }
+
+    @Override
     public boolean existsBySeriesId(String seriesId) {
         return jpaRepository.existsBySeriesId(seriesId);
     }

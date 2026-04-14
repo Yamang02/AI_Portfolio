@@ -81,6 +81,32 @@ public class PostgresTechStackMetadataRepository implements TechStackMetadataRep
         List<TechStackMetadataJpaEntity> entities = jpaRepository.findByNameContainingIgnoreCaseAndIsActiveTrueOrderBySortOrderAsc(name);
         return mapper.toDomainList(entities);
     }
+
+    @Override
+    public long countActiveTechnologies() {
+        Long count = jpaRepository.countActiveTechnologies();
+        return count != null ? count : 0L;
+    }
+
+    @Override
+    public long countCoreTechnologies() {
+        Long count = jpaRepository.countCoreTechnologies();
+        return count != null ? count : 0L;
+    }
+
+    @Override
+    public List<GroupCount> countByCategory() {
+        return jpaRepository.countByCategory().stream()
+                .map(row -> new GroupCount((String) row[0], ((Number) row[1]).longValue()))
+                .toList();
+    }
+
+    @Override
+    public List<GroupCount> countByLevel() {
+        return jpaRepository.countByLevel().stream()
+                .map(row -> new GroupCount((String) row[0], ((Number) row[1]).longValue()))
+                .toList();
+    }
     
     @Override
     public List<TechStackMetadata> findTechnologiesUsedInProjects() {
@@ -142,4 +168,3 @@ public class PostgresTechStackMetadataRepository implements TechStackMetadataRep
         return maxSortOrder != null ? maxSortOrder : 0;
     }
 }
-

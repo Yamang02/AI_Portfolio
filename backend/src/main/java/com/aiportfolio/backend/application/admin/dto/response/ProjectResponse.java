@@ -1,4 +1,4 @@
-package com.aiportfolio.backend.infrastructure.web.admin.dto.response;
+package com.aiportfolio.backend.application.admin.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -10,30 +10,26 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-/**
- * 프로젝트 응답 DTO
- * Infrastructure Layer의 Web 계층에서 사용되는 프로젝트 응답 데이터 전송 객체
- */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProjectResponse {
 
-    private String id; // 비즈니스 ID
+    private String id;
     private String title;
     private String description;
     @Deprecated(since = "E18", forRemoval = false)
     private String readme;
     private String type;
     private String status;
-    
+
     @JsonProperty("isTeam")
     private Boolean isTeam;
-    
+
     @JsonProperty("isFeatured")
     private Boolean isFeatured;
-    
+
     private Integer teamSize;
     private String role;
     private List<String> myContributions;

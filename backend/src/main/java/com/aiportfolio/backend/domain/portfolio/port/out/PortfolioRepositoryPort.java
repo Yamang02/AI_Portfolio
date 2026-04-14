@@ -140,6 +140,11 @@ public interface PortfolioRepositoryPort {
     Optional<Education> findEducationById(String id);
 
     /**
+     * Education businessId에 해당하는 DB PK를 조회합니다.
+     */
+    Optional<Long> findEducationDatabaseIdByBusinessId(String businessId);
+
+    /**
      * Education을 저장합니다 (생성/수정 공통)
      */
     Education saveEducation(Education education);

@@ -378,6 +378,16 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
     }
 
     @Override
+    public Optional<Long> findEducationDatabaseIdByBusinessId(String businessId) {
+        try {
+            return educationJpaRepository.findByBusinessId(businessId).map(EducationJpaEntity::getId);
+        } catch (Exception e) {
+            log.error("Failed to resolve education database id: {}", businessId, e);
+            return Optional.empty();
+        }
+    }
+
+    @Override
     public Education saveEducation(Education education) {
         try {
             EducationJpaEntity jpaEntity = educationMapper.toJpaEntity(education);

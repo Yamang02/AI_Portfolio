@@ -1,10 +1,10 @@
 package com.aiportfolio.backend.application.admin.service;
 
 import com.aiportfolio.backend.application.admin.mapper.ProjectResponseMapper;
+import com.aiportfolio.backend.application.admin.dto.response.ProjectResponse;
 import com.aiportfolio.backend.application.common.util.BusinessIdGenerator;
 import com.aiportfolio.backend.application.common.util.MetadataHelper;
 import com.aiportfolio.backend.application.common.util.TextFieldHelper;
-import com.aiportfolio.backend.infrastructure.web.admin.dto.response.ProjectResponse;
 import com.aiportfolio.backend.domain.admin.model.ProjectAssetSnapshot;
 import com.aiportfolio.backend.domain.admin.model.command.ProjectCreateCommand;
 import com.aiportfolio.backend.domain.admin.model.command.ProjectUpdateCommand;
@@ -16,8 +16,6 @@ import com.aiportfolio.backend.domain.portfolio.port.out.PortfolioCachePort;
 import com.aiportfolio.backend.domain.portfolio.port.out.PortfolioRepositoryPort;
 import com.aiportfolio.backend.domain.portfolio.port.out.ProjectRelationshipPort;
 import com.aiportfolio.backend.domain.portfolio.port.out.TechStackMetadataRepositoryPort;
-import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.ProjectJpaEntity;
-import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.ProjectJpaRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -45,7 +43,6 @@ public class ManageProjectService implements ManageProjectUseCase {
     private final ProjectResponseMapper projectResponseMapper;
     private final ImageStoragePort imageStoragePort;
     private final TechStackMetadataRepositoryPort techStackMetadataRepositoryPort;
-    private final ProjectJpaRepository projectJpaRepository;
     private final PortfolioCachePort portfolioCachePort;
 
     /**
@@ -56,13 +53,13 @@ public class ManageProjectService implements ManageProjectUseCase {
             List<Long> techStackIds) {
         Project created = createProject(command);
         if (techStackIds != null && !techStackIds.isEmpty()) {
-            ProjectJpaEntity projectEntity = projectJpaRepository.findByBusinessId(created.getId())
+            Long projectId = portfolioRepositoryPort.findProjectDatabaseIdByBusinessId(created.getId())
                     .orElseThrow(() -> new IllegalArgumentException("Project not found: " + created.getId()));
             List<TechStackRelation> techStacks = toTechStackRelations(techStackIds);
             List<ProjectRelationshipPort.TechStackRelation> portRelations = techStacks.stream()
                     .map(TechStackRelation::toPortRelation)
                     .toList();
-            projectRelationshipPort.replaceTechStacks(projectEntity.getId(), portRelations);
+            projectRelationshipPort.replaceTechStacks(projectId, portRelations);
         }
         portfolioCachePort.evictPortfolioProjects();
         return projectResponseMapper.toDetailedResponse(created);
@@ -77,13 +74,13 @@ public class ManageProjectService implements ManageProjectUseCase {
             List<Long> techStackIds) {
         Project updated = updateProject(id, command);
         if (techStackIds != null) {
-            ProjectJpaEntity projectEntity = projectJpaRepository.findByBusinessId(updated.getId())
+            Long projectId = portfolioRepositoryPort.findProjectDatabaseIdByBusinessId(updated.getId())
                     .orElseThrow(() -> new IllegalArgumentException("Project not found: " + updated.getId()));
             List<TechStackRelation> techStacks = toTechStackRelations(techStackIds);
             List<ProjectRelationshipPort.TechStackRelation> portRelations = techStacks.stream()
                     .map(TechStackRelation::toPortRelation)
                     .toList();
-            projectRelationshipPort.replaceTechStacks(projectEntity.getId(), portRelations);
+            projectRelationshipPort.replaceTechStacks(projectId, portRelations);
         }
         portfolioCachePort.evictPortfolioProjects();
         return projectResponseMapper.toDetailedResponse(updated);

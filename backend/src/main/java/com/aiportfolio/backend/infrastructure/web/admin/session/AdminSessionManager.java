@@ -1,7 +1,7 @@
 package com.aiportfolio.backend.infrastructure.web.admin.session;
 
 import com.aiportfolio.backend.application.admin.exception.AdminAuthenticationException;
-import com.aiportfolio.backend.infrastructure.web.admin.dto.AdminUserInfo;
+import com.aiportfolio.backend.application.admin.dto.AdminUserInfo;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -69,4 +69,3 @@ public class AdminSessionManager {
         cookieSerializer.writeCookieValue(new CookieSerializer.CookieValue(request, response, ""));
     }
 }
-
