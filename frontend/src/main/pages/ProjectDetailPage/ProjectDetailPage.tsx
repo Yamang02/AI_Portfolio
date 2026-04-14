@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useMemo, useState } from 'react';
+import React, { useEffect, useRef, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { SeoHead } from '@/shared/ui/seo/SeoHead';
 import { createProjectSchema, createBreadcrumbSchema } from '@/main/shared/lib/schema';
@@ -9,8 +9,6 @@ import { useTOCFromDOM } from '@/main/features/project-gallery/hooks';
 import type { TOCItem } from '@/main/features/project-gallery/hooks/types';
 import { MarkdownRenderer } from '@/main/shared/ui/markdown/MarkdownRenderer';
 import { TechStackList } from '@/main/shared/ui/tech-stack/TechStackList';
-import { SimpleArticleCard } from '@design-system/components/Card/SimpleArticleCard';
-import { Pagination } from '@design-system/components/Pagination/Pagination';
 import type { ProjectTechnicalCard } from '../../entities/project/model/project.types';
 import { ProjectDetailHeader } from '@design-system/components/ProjectDetailHeader';
 import { TableOfContents } from '@design-system/components/TableOfContents';
@@ -51,44 +49,6 @@ const ProjectDetailPage: React.FC = () => {
     });
   }, [project]);
 
-  // development-timeline ?�??Article (?�로?�트 ?�이?�에??가?�옴)
-  const developmentTimelineArticles = useMemo(() => {
-    if (!project?.developmentTimelineArticles) return [];
-    // ?��? 백엔?�에??최신?�으�??�렬?�어 ?�음
-    return project.developmentTimelineArticles;
-  }, [project]);
-
-  // 관???�티???�이지?�이??(5개씩 ?�시)
-  const ARTICLES_PER_PAGE = 5;
-  const [currentArticlePage, setCurrentArticlePage] = useState(1);
-  
-  // ?�재 ?�이지???�시???�티??계산
-  const paginatedArticles = useMemo(() => {
-    const startIndex = (currentArticlePage - 1) * ARTICLES_PER_PAGE;
-    const endIndex = startIndex + ARTICLES_PER_PAGE;
-    return developmentTimelineArticles.slice(startIndex, endIndex);
-  }, [developmentTimelineArticles, currentArticlePage]);
-  
-  // ?�체 ?�이지 ??계산
-  const totalArticlePages = useMemo(() => {
-    return Math.ceil(developmentTimelineArticles.length / ARTICLES_PER_PAGE);
-  }, [developmentTimelineArticles.length]);
-  
-  // ������ ���� �� ������� ��ũ��
-  useEffect(() => {
-    setCurrentArticlePage(1);
-  }, [id]);
-  
-  // ������ ���� �� ������� ��ũ��
-  useEffect(() => {
-    if (currentArticlePage > 1) {
-      const sectionElement = document.getElementById('development-timeline');
-      if (sectionElement) {
-        sectionElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    }
-  }, [currentArticlePage]);
-
   // TOC ?�성 (?�체 ?�이지 ?�더 ?�함)
   // contentRef�?직접 ?�용 (containerSelector ?�이)
   const domTocItems = useTOCFromDOM(
@@ -120,11 +80,6 @@ const ProjectDetailPage: React.FC = () => {
       baseSections.push({ id: 'technical-cards', text: '기술 카드', level: 2 });
     }
 
-    // development-timeline Article ?�션???�으�?추�? (기술 스택 ?�에)
-    if (developmentTimelineArticles.length > 0) {
-      baseSections.push({ id: 'development-timeline', text: '관련 글', level: 2 });
-    }
-
     // 기술 스택 ?�션???�으�?추�?
     if (project.technologies && project.technologies.length > 0) {
       baseSections.push({ id: 'tech-stack', text: '기술 스택', level: 2 });
@@ -145,7 +100,7 @@ const ProjectDetailPage: React.FC = () => {
     }
 
     return baseSections;
-  }, [domTocItems, project, projectOverviewContent, developmentTimelineArticles, technicalCards.length]);
+  }, [domTocItems, project, projectOverviewContent, technicalCards.length]);
 
   // ������ ���� �� ������� ��ũ��
   useEffect(() => {
@@ -298,37 +253,6 @@ const ProjectDetailPage: React.FC = () => {
                 </article>
               ))}
             </div>
-          </section>
-        )}
-
-        {/* development-timeline Article ?�션 (기술 스택 ?�에) */}
-        {developmentTimelineArticles.length > 0 && (
-          <section id="development-timeline" className={styles.section}>
-            <SectionTitle level="h2" id="development-timeline" className={styles.sectionTitle}>관련 글</SectionTitle>
-            <div className={styles.articlesList}>
-              {paginatedArticles.map((article) => (
-                <SimpleArticleCard
-                  key={article.businessId}
-                  article={{
-                    businessId: article.businessId,
-                    title: article.title,
-                    summary: article.summary,
-                    publishedAt: article.publishedAt,
-                  }}
-                  onClick={() => navigate(`/articles/${article.businessId}`)}
-                />
-              ))}
-            </div>
-            {totalArticlePages > 1 && (
-              <div className={styles.paginationWrapper}>
-                <Pagination
-                  currentPage={currentArticlePage}
-                  totalPages={totalArticlePages}
-                  onPageChange={setCurrentArticlePage}
-                  maxVisiblePages={5}
-                />
-              </div>
-            )}
           </section>
         )}
 
