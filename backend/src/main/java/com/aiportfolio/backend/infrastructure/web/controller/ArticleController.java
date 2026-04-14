@@ -9,6 +9,7 @@ import com.aiportfolio.backend.domain.article.port.in.GetArticleUseCase;
 import com.aiportfolio.backend.domain.article.port.in.ManageArticleSeriesUseCase;
 import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.ProjectJpaRepository;
 import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.ProjectTechStackJpaRepository;
+import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.ProjectTechnicalCardJpaRepository;
 import com.aiportfolio.backend.infrastructure.web.WebApiResponseMessages;
 import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;
 import com.aiportfolio.backend.infrastructure.web.dto.ArticleListRequest;
@@ -36,6 +37,7 @@ public class ArticleController {
     private final GetArticleStatisticsUseCase statisticsUseCase;
     private final ProjectJpaRepository projectJpaRepository;
     private final ProjectTechStackJpaRepository projectTechStackJpaRepository;
+    private final ProjectTechnicalCardJpaRepository projectTechnicalCardJpaRepository;
 
     /**
      * 전체 목록 조회 (페이징, 발행된 것만)
@@ -112,7 +114,7 @@ public class ArticleController {
                     // 조회수 증가
                     getUseCase.incrementViewCount(article.getId());
                     return ResponseEntity.ok(ApiResponse.success(
-                            ArticleDetailResponse.from(article, manageSeriesUseCase, projectJpaRepository, projectTechStackJpaRepository),
+                            ArticleDetailResponse.from(article, manageSeriesUseCase, projectJpaRepository, projectTechStackJpaRepository, projectTechnicalCardJpaRepository),
                             WebApiResponseMessages.ARTICLE_GET_SUCCESS));
                 })
                 .orElse(ResponseEntity.ok(ApiResponse.error(WebApiResponseMessages.ARTICLE_NOT_FOUND)));
@@ -215,7 +217,8 @@ public class ArticleController {
             String seriesId,
             String seriesTitle,
             Integer seriesOrder,
-            ProjectInfo project  // 프로젝트 정보 (있는 경우)
+            ProjectInfo project,
+            List<TechnicalCardInfo> technicalCards
     ) {
         public record ProjectInfo(
                 String id,  // businessId
@@ -230,10 +233,22 @@ public class ArticleController {
                 String githubUrl,
                 String liveUrl
         ) {}
-        
-        public static ArticleDetailResponse from(Article domain, ManageArticleSeriesUseCase seriesUseCase, 
-                                                 ProjectJpaRepository projectJpaRepository, 
-                                                 ProjectTechStackJpaRepository projectTechStackJpaRepository) {
+
+        public record TechnicalCardInfo(
+                String id,
+                String title,
+                String category,
+                String problemStatement,
+                String analysis,
+                String solution,
+                Boolean isPinned,
+                Integer sortOrder
+        ) {}
+
+        public static ArticleDetailResponse from(Article domain, ManageArticleSeriesUseCase seriesUseCase,
+                                                 ProjectJpaRepository projectJpaRepository,
+                                                 ProjectTechStackJpaRepository projectTechStackJpaRepository,
+                                                 ProjectTechnicalCardJpaRepository projectTechnicalCardJpaRepository) {
             // 상세 조회는 단일 조회이므로 기존 방식 유지
             String seriesTitle = null;
             if (domain.getSeriesId() != null) {
@@ -271,7 +286,23 @@ public class ArticleController {
                         })
                         .orElse(null);
             }
-            
+
+            // 연관 기술카드 조회 (article_id 기준 역방향)
+            List<TechnicalCardInfo> technicalCards = projectTechnicalCardJpaRepository
+                    .findByArticleId(domain.getId())
+                    .stream()
+                    .map(card -> new TechnicalCardInfo(
+                            card.getBusinessId(),
+                            card.getTitle(),
+                            card.getCategory(),
+                            card.getProblemStatement(),
+                            card.getAnalysis(),
+                            card.getSolution(),
+                            card.getIsPinned(),
+                            card.getSortOrder()
+                    ))
+                    .toList();
+
             return new ArticleDetailResponse(
                     domain.getBusinessId(),
                     domain.getTitle(),
@@ -289,7 +320,8 @@ public class ArticleController {
                     domain.getSeriesId(),
                     seriesTitle,
                     domain.getSeriesOrder(),
-                    projectInfo
+                    projectInfo,
+                    technicalCards
             );
         }
     }

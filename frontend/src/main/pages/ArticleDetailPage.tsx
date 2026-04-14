@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { SeoHead } from '@/shared/ui/seo/SeoHead';
 import { createArticleSchema, createBreadcrumbSchema } from '@/main/shared/lib/schema';
 import { useArticleQuery, useArticleListQuery, useArticleNavigationQuery } from '../entities/article';
+import type { ArticleRelatedTechnicalCard } from '../entities/article/model/article.types';
 import { SectionTitle } from '@design-system/components/SectionTitle';
 import { useTOCFromDOM } from '@/main/features/project-gallery/hooks';
 import type { TOCItem } from '@/main/features/project-gallery/hooks/types';
@@ -27,6 +28,7 @@ const createBaseTocSections = (article: any): TOCItem[] => {
   const sections: TOCItem[] = [];
   if (article.content) sections.push({ id: 'content', text: '본문', level: 2 });
   if (article.project) sections.push({ id: 'related-project', text: '관련 프로젝트', level: 2 });
+  if (article.technicalCards?.length > 0) sections.push({ id: 'related-technical-cards', text: '연관 기술카드', level: 2 });
   if (article.techStack?.length > 0) sections.push({ id: 'tech-stack', text: '기술 스택', level: 2 });
 
   return sections;
@@ -273,6 +275,34 @@ export function ArticleDetailPage() {
                 project={projectCardData}
                 onClick={() => navigate(`/projects/${projectCardData.id}`)}
               />
+            </div>
+          </section>
+        )}
+
+        {article.technicalCards && article.technicalCards.length > 0 && (
+          <section id="related-technical-cards" className={styles.section}>
+            <SectionTitle level="h2" id="related-technical-cards" className={styles.sectionTitle}>연관 기술카드</SectionTitle>
+            <div className={styles.technicalCards}>
+              {article.technicalCards.map((card: ArticleRelatedTechnicalCard) => (
+                <article key={card.id} className={styles.technicalCard}>
+                  <header className={styles.technicalCardHeader}>
+                    <h3 className={styles.technicalCardTitle}>{card.title}</h3>
+                    <span className={styles.technicalCardCategory}>{card.category}</span>
+                  </header>
+                  <div className={styles.technicalCardBody}>
+                    <h4>문제</h4>
+                    <p>{card.problemStatement}</p>
+                    {card.analysis && (
+                      <>
+                        <h4>분석</h4>
+                        <p>{card.analysis}</p>
+                      </>
+                    )}
+                    <h4>해결</h4>
+                    <p>{card.solution}</p>
+                  </div>
+                </article>
+              ))}
             </div>
           </section>
         )}
