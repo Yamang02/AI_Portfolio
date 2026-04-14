@@ -25,6 +25,7 @@ import { ProjectScreenshotsUpload } from '../features/project-management/ui/Proj
 import { ProjectMarkdownEditor } from '../features/project-management/ui/ProjectMarkdownEditor';
 import { TechStackSelector } from '../features/project-management/ui/TechStackSelector';
 import { ProjectLinksForm } from '../features/project-management/ui/ProjectLinksForm';
+import { ArticleSearchSelect } from '../shared/ui/ArticleSearchSelect';
 import { DateRangeWithOngoing } from '../../shared/ui/date-range';
 import dayjs from 'dayjs';
 import { useUploadImage, useUploadImages, useDeleteImage } from '../hooks/useUpload';
@@ -601,8 +602,8 @@ const ProjectEdit: React.FC = () => {
                         </Form.Item>
                       </Col>
                       <Col span={18}>
-                        <Form.Item name={[field.name, 'articleId']} label="연결 Article ID">
-                          <InputNumber min={1} style={{ width: '100%' }} />
+                        <Form.Item name={[field.name, 'articleId']} label="연결 아티클">
+                          <ArticleSearchSelect />
                         </Form.Item>
                       </Col>
                     </Row>

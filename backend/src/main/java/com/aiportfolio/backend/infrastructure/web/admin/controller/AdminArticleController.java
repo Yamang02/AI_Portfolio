@@ -1,5 +1,6 @@
 package com.aiportfolio.backend.infrastructure.web.admin.controller;
 
+import com.aiportfolio.backend.domain.article.filter.ArticleFilter;
 import com.aiportfolio.backend.domain.article.model.Article;
 import com.aiportfolio.backend.domain.article.model.ArticleSeries;
 import com.aiportfolio.backend.domain.article.port.in.GetArticleUseCase;
@@ -32,35 +33,42 @@ public class AdminArticleController {
     private final ProjectJpaRepository projectJpaRepository;
 
     /**
-     * 전체 목록 조회 (페이징)
+     * 전체 목록 조회 (페이징), searchKeyword 제공 시 제목 검색
      */
     @GetMapping
-    public ResponseEntity<ApiResponse<Page<ArticleResponse>>> getAll(Pageable pageable) {
-        Page<Article> articles = getUseCase.findAll(pageable);
+    public ResponseEntity<ApiResponse<Page<ArticleResponse>>> getAll(
+            Pageable pageable,
+            @RequestParam(required = false) String searchKeyword) {
+        Page<Article> articles;
+        if (searchKeyword != null && !searchKeyword.isBlank()) {
+            ArticleFilter filter = new ArticleFilter();
+            filter.setSearchKeyword(searchKeyword);
+            articles = getUseCase.findByFilter(filter, pageable);
+        } else {
+            articles = getUseCase.findAll(pageable);
+        }
         
-        // 시리즈 정보 배치 조회 (N+1 문제 방지)
         List<String> seriesIds = articles.getContent().stream()
                 .map(Article::getSeriesId)
                 .filter(Objects::nonNull)
                 .distinct()
                 .toList();
-        
+
         Map<String, ArticleSeries> seriesMap = manageSeriesUseCase.findBySeriesIdIn(seriesIds);
-        
-        // 프로젝트 정보 배치 조회 (N+1 문제 방지)
+
         List<Long> projectIds = articles.getContent().stream()
                 .map(Article::getProjectId)
                 .filter(Objects::nonNull)
                 .distinct()
                 .toList();
-        
+
         Map<Long, String> projectBusinessIdMap = projectJpaRepository.findAllById(projectIds)
                 .stream()
                 .collect(Collectors.toMap(
                         project -> project.getId(),
                         project -> project.getBusinessId()
                 ));
-        
+
         Map<Long, String> projectTitleMap = projectJpaRepository.findAllById(projectIds)
                 .stream()
                 .collect(Collectors.toMap(
