@@ -90,6 +90,7 @@ public final class WebApiResponseMessages {
     public static final String PROJECT_CREATE_SUCCESS = "프로젝트 생성 성공";
     public static final String PROJECT_UPDATE_SUCCESS = "프로젝트 수정 성공";
     public static final String PROJECT_DELETE_SUCCESS = "프로젝트 삭제 성공";
+    public static final String PROJECT_NOT_FOUND = "프로젝트를 찾을 수 없습니다.";
 
     // --- Public data API (DataController) ---
 

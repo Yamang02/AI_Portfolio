@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * 데이터 웹 컨트롤러 (헥사고날 아키텍처 Infrastructure/Web Layer)
@@ -86,6 +87,21 @@ public class DataController {
             })
             .toList();
         return ResponseEntity.ok(ApiResponse.success(responses, WebApiResponseMessages.PROJECT_LIST_SUCCESS));
+    }
+
+    @GetMapping("/projects/{id}")
+    @Operation(summary = "프로젝트 단건 조회", description = "비즈니스 ID로 단일 프로젝트를 조회합니다.")
+    public ResponseEntity<ApiResponse<ProjectDataResponse>> getProject(@PathVariable String id) {
+        Optional<Project> found = getProjectsUseCase.getProjectById(id);
+        if (found.isEmpty()) {
+            return ResponseEntity.status(404)
+                    .body(ApiResponse.error(WebApiResponseMessages.PROJECT_NOT_FOUND, "id: " + id));
+        }
+        Project project = found.get();
+        List<ArticleSummary> developmentTimelineArticles = getDevelopmentTimelineArticles(project);
+        ProjectDataResponse.ProjectOverviewArticleSummary projectOverviewArticle = getProjectOverviewArticle(project);
+        ProjectDataResponse response = ProjectDataResponse.from(project, developmentTimelineArticles, projectOverviewArticle);
+        return ResponseEntity.ok(ApiResponse.success(response, WebApiResponseMessages.PROJECT_GET_SUCCESS));
     }
 
     /**

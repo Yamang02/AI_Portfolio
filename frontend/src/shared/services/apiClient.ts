@@ -84,7 +84,7 @@ class ApiClient {
   }
 
   async getProjectById(id: string): Promise<any> {
-    const response = await this.request<any>(`/api/projects/${id}`);
+    const response = await this.request<any>(`/api/data/projects/${encodeURIComponent(id)}`);
     return response.data;
   }
 

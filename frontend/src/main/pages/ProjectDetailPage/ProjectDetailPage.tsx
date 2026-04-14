@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { SeoHead } from '@/shared/ui/seo/SeoHead';
 import { createProjectSchema, createBreadcrumbSchema } from '@/main/shared/lib/schema';
-import { useProjectsQuery } from '../../entities/project/api/useProjectsQuery';
+import { useProjectsQuery, useProjectQuery } from '../../entities/project/api/useProjectsQuery';
 import { SectionTitle } from '@design-system/components/SectionTitle';
 import { TextLink } from '@design-system/components/TextLink';
 import { useTOCFromDOM } from '@/main/features/project-gallery/hooks';
@@ -11,7 +11,7 @@ import { MarkdownRenderer } from '@/main/shared/ui/markdown/MarkdownRenderer';
 import { TechStackList } from '@/main/shared/ui/tech-stack/TechStackList';
 import { SimpleArticleCard } from '@design-system/components/Card/SimpleArticleCard';
 import { Pagination } from '@design-system/components/Pagination/Pagination';
-import type { Project, ProjectTechnicalCard } from '../../entities/project/model/project.types';
+import type { ProjectTechnicalCard } from '../../entities/project/model/project.types';
 import { ProjectDetailHeader } from '@design-system/components/ProjectDetailHeader';
 import { TableOfContents } from '@design-system/components/TableOfContents';
 import { ProjectNavigation } from '@design-system/components/ProjectNavigation';
@@ -21,19 +21,20 @@ import { EmptyCard } from '@design-system';
 import styles from './ProjectDetailPage.module.css';
 
 const ProjectDetailPage: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+  const { id: idParam } = useParams<{ id: string }>();
+  const id = idParam?.trim();
   const navigate = useNavigate();
   const markdownContainerRef = useRef<HTMLElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
-  // 기존 main 방식: ?�로?�트 목록??가?��???ID�?찾기
-  const { data: projects = [], isLoading } = useProjectsQuery();
-  
-  // ?�로?�트 찾기
-  const project = useMemo(() => {
-    if (!id) return null;
-    return projects.find((p: Project) => p.id === id) || null;
-  }, [id, projects]);
+  const { data: projects = [], isLoading: isProjectsLoading } = useProjectsQuery({ type: 'project' });
+  const {
+    data: project,
+    isLoading: isProjectLoading,
+    isError: isProjectError,
+  } = useProjectQuery(id ?? '');
+
+  const isLoading = isProjectLoading || isProjectsLoading;
 
   const projectOverviewContent = project
     ? (project.projectOverviewArticle?.content || project.description || '')
@@ -167,8 +168,7 @@ const ProjectDetailPage: React.FC = () => {
     };
   }, []);
 
-  // ?�러 ?�태 체크
-  const hasError = !isLoading && !project;
+  const hasError = !isLoading && (!project || isProjectError);
 
   const projectUpdatedAtForSchema = useMemo(() => {
     if (!project?.updatedAt) return undefined;
