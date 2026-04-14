@@ -7,7 +7,7 @@ FILE_EXTENSIONS=".ts .tsx .js .jsx .java"
 # Limits for token optimization (raise MAX_FILES if the dump truncates too aggressively)
 MAX_LINES_PER_FILE=150
 # Default cap — raise if you need broader dumps (runtime grows quickly on Git Bash / Windows).
-MAX_FILES=50
+MAX_FILES=200
 MAX_FILE_SIZE=120000
 
 # Excluded patterns (tool may also honor .gitignore — see RESPECT_GITIGNORE)

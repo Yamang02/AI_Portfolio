@@ -25,7 +25,7 @@
     "test:frontend": "cd frontend && npm run test",
     "test:backend": "cd backend && mvnd test",
     "codesight:ensure": "node scripts/ensure-codesight.mjs",
-    "codesight": "npm run codesight:ensure && node scripts/run-codesight.mjs"
+    "codesight": "node scripts/run-codesight.mjs"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^8.46.4",

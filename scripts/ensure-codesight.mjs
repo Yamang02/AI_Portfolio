@@ -13,6 +13,7 @@ const bin = path.join(root, 'tools', 'codesight', 'bin', 'codesight');
 if (fs.existsSync(bin)) {
   patchCodesightBinIfNeeded(bin);
   patchCodesightAnalyzerIfNeeded(path.join(root, 'tools', 'codesight', 'src', 'commands', 'analyze', 'analyzer.sh'));
+  patchCodesightTokensIfNeeded(path.join(root, 'tools', 'codesight', 'src', 'commands', 'visualize', 'tokens.sh'));
   process.exit(0);
 }
 
@@ -37,6 +38,7 @@ if (r.status !== 0) {
 // Upstream bin/codesight may set SCRIPT_DIR to .../bin; sources expect repo root (see install.sh template).
 patchCodesightBinIfNeeded(path.join(toolsCodesight, 'bin', 'codesight'));
 patchCodesightAnalyzerIfNeeded(path.join(toolsCodesight, 'src', 'commands', 'analyze', 'analyzer.sh'));
+patchCodesightTokensIfNeeded(path.join(toolsCodesight, 'src', 'commands', 'visualize', 'tokens.sh'));
 process.exit(0);
 
 function patchCodesightBinIfNeeded(binPath) {
@@ -91,4 +93,51 @@ function patchCodesightAnalyzerIfNeeded(analyzerPath) {
   }
   s = s.replace(anchor, injection);
   fs.writeFileSync(analyzerPath, s);
+}
+
+/** Git Bash / Windows: /tmp is unreliable; tokens.sh wrote to /tmp/codesight_token_analysis without a usable parent. */
+function patchCodesightTokensIfNeeded(tokensPath) {
+  if (!fs.existsSync(tokensPath)) {
+    return;
+  }
+  let s = fs.readFileSync(tokensPath, 'utf8');
+  if (s.includes('codesight-ai-portfolio-patch-tokens')) {
+    return;
+  }
+  const oldBlock =
+    '    local temp_dir="/tmp/codesight_token_analysis"\n' +
+    '    mkdir -p "$temp_dir" || { echo "Error: Failed to create temp directory"; return 1; }\n' +
+    '    \n' +
+    '    # Make sure temp dir is empty\n' +
+    '    rm -f "$temp_dir"/* 2>/dev/null';
+  const newBlock =
+    '    # codesight-ai-portfolio-patch-tokens: use TMPDIR (Git Bash on Windows)\n' +
+    '    local _cs_tmp="${TMPDIR:-/tmp}"\n' +
+    '    [[ -z "$_cs_tmp" ]] && _cs_tmp="/tmp"\n' +
+    '    mkdir -p "$_cs_tmp" || true\n' +
+    '    local temp_dir="$_cs_tmp/codesight_token_analysis"\n' +
+    '    mkdir -p "$temp_dir" || { echo "Error: Failed to create temp directory"; return 1; }\n' +
+    '    \n' +
+    '    # Make sure temp dir is empty\n' +
+    '    rm -f "$temp_dir"/* 2>/dev/null';
+  if (!s.includes(oldBlock)) {
+    return;
+  }
+  s = s.replace(oldBlock, newBlock);
+
+  const oldSortBlock =
+    '    if [[ ${#file_stats[@]} -gt 0 ]]; then\n' +
+    '        local tmp_sort_file="$temp_dir/file_stats.txt"\n' +
+    '        # Make sure the temp file exists and is empty\n' +
+    '        > "$tmp_sort_file"';
+  const newSortBlock =
+    '    if [[ ${#file_stats[@]} -gt 0 ]]; then\n' +
+    '        mkdir -p "$temp_dir" || { echo "Error: Failed to create temp directory for stats"; return 1; }\n' +
+    '        local tmp_sort_file="$temp_dir/file_stats.txt"\n' +
+    '        # Make sure the temp file exists and is empty\n' +
+    '        > "$tmp_sort_file"';
+  if (s.includes(oldSortBlock)) {
+    s = s.replace(oldSortBlock, newSortBlock);
+  }
+  fs.writeFileSync(tokensPath, s);
 }

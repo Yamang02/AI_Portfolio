@@ -25,7 +25,7 @@ SonarQube 품질 작업과 코드 수정 시 **프로젝트 로컬** `.cursor/sk
 
 ## CodeSight (LLM용 코드 덤프)
 
-[mattsilv/codesight](https://github.com/mattsilv/codesight) 로 저장소를 스캔해 단일 텍스트 컨텍스트를 만든다. 저장소 **루트**에서 `npm run codesight` — 최초 실행 시 `tools/codesight` 에 shallow clone 후 `docs/agent/codesight-context.txt` 생성(용량이 크므로 gitignore). 설정은 `.codesight/config` . **Bash 필요**(Windows는 Git for Windows 권장).
+[mattsilv/codesight](https://github.com/mattsilv/codesight) 로 저장소를 스캔해 단일 텍스트 컨텍스트를 만든다. 저장소 **루트**에서 `npm run codesight` — 최초 실행 시 `tools/codesight` 에 shallow clone 후 `docs/agent/codesight-context.txt` 생성(용량이 크므로 gitignore). 설정은 `.codesight/config` (`MAX_FILES`, 확장자 목록 등). 스크립트가 upstream `bin/codesight` 의 `SCRIPT_DIR` 버그와 분석기의 무제한 수집을 완화하는 패치를 적용한다. **Bash 필요**(Windows는 Git for Windows 권장). 파일 수가 많으면 완료까지 수 분 걸릴 수 있다.
 
 ## Sonar 한 줄 (모듈)
 

@@ -8,6 +8,14 @@ import { spawnSync } from 'node:child_process';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
+
+const ensured = spawnSync(process.execPath, [path.join(__dirname, 'ensure-codesight.mjs')], {
+  cwd: root,
+  stdio: 'inherit',
+});
+if (ensured.status !== 0) {
+  process.exit(ensured.status ?? 1);
+}
 const bin = path.join(root, 'tools', 'codesight', 'bin', 'codesight');
 const outFile = path.join(root, 'docs', 'agent', 'codesight-context.txt');
 
