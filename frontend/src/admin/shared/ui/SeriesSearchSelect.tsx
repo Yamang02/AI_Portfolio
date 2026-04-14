@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Select, message } from 'antd';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { adminArticleApi } from '@/admin/entities/article/api/adminArticleApi';
+import { adminArticleApi } from '@/admin/entities/article';
 
 interface SeriesSearchSelectProps {
   value?: string;

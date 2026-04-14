@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
-import { adminUploadApi } from '../api/adminUploadApi';
+import { adminUploadApi } from '../api';
 
 type UploadType = 'project' | 'screenshots' | 'skill' | 'profile';
 

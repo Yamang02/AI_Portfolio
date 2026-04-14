@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { Select } from 'antd';
 import { useQuery } from '@tanstack/react-query';
-import { adminArticleApi } from '@/admin/entities/article/api/adminArticleApi';
+import { adminArticleApi } from '@/admin/entities/article';
 
 interface ArticleSearchSelectProps {
   value?: number;

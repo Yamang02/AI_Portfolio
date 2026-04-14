@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Upload, Button, message, Modal } from 'antd';
 import { UploadOutlined, DeleteOutlined, EyeOutlined } from '@ant-design/icons';
-import { useUploadImage, useDeleteImage } from '../../../shared/hooks/useUpload';
+import { useUploadImage, useDeleteImage } from '../../../shared/hooks';
 
 interface ProjectThumbnailUploadProps {
   value?: string;

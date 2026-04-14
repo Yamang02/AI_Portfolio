@@ -1,5 +1,4 @@
-import { useAdminQuery } from '@/admin/shared/hooks/useAdminQuery';
-import { useAdminMutation } from '@/admin/shared/hooks/useAdminMutation';
+import { useAdminQuery, useAdminMutation } from '@/admin/shared/hooks';
 import { adminProfileIntroductionApi } from './adminProfileIntroductionApi';
 import { SaveProfileIntroductionRequest } from '../model/profileIntroduction.types';
 import { useQueryClient } from '@tanstack/react-query';

@@ -6,7 +6,7 @@
 
 import { Input, Select, Button, Space } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
-import { FilterOption } from '@/admin/shared/types/dataTable.types';
+import { FilterOption } from '@/admin/shared/types';
 
 export interface SearchFilterProps {
   searchValue: string;

@@ -16,7 +16,7 @@ import {
   EditOutlined,
 } from '@ant-design/icons';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../../features/auth/model/useAuth';
+import { useAuth } from '../../features/auth';
 
 const { Header, Sider, Content } = Layout;
 const { Text } = Typography;

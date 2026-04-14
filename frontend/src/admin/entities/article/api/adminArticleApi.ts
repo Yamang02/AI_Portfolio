@@ -1,4 +1,4 @@
-import { adminApiClient } from '@/admin/shared/api/adminApiClient';
+import { adminApiClient } from '@/admin/shared/api';
 import { Article, CreateArticleRequest, UpdateArticleRequest } from '../model/article.types';
 
 /**

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Upload, Button, message, Modal, Image } from 'antd';
 import { UploadOutlined, DeleteOutlined, EyeOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons';
-import { useUploadImages, useDeleteImage } from '../../../shared/hooks/useUpload';
+import { useUploadImages, useDeleteImage } from '../../../shared/hooks';
 
 interface Screenshot {
   id?: number;

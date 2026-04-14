@@ -21,8 +21,7 @@ import {
   PlusOutlined,
   SearchOutlined,
 } from '@ant-design/icons';
-import { useProjects, useDeleteProject } from '../entities/project/api/useProjects';
-import { Project, ProjectFilter } from '../entities/project/api/adminProjectApi';
+import { useProjects, useDeleteProject, Project, ProjectFilter } from '../entities/project';
 import { useNavigate } from 'react-router-dom';
 
 const { Title } = Typography;
