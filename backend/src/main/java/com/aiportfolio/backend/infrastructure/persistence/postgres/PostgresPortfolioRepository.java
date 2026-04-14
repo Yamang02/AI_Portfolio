@@ -27,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 // Java 표준 라이브러리 imports
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * PostgreSQL 기반 PortfolioRepository 구현체
@@ -49,6 +50,7 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
     private final ProjectTechStackJpaRepository projectTechStackJpaRepository;
     private final TechStackMetadataJpaRepository techStackMetadataJpaRepository;
     private final ProjectScreenshotJpaRepository projectScreenshotJpaRepository;
+    private final ProjectTechnicalCardJpaRepository projectTechnicalCardJpaRepository;
 
     // 매퍼들 (도메인 ↔ JPA 엔티티 변환)
     private final ProjectMapper projectMapper;
@@ -100,31 +102,32 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
     @Transactional(readOnly = true)
     public Optional<Project> findProjectById(String id) {
         try {
-            Optional<ProjectJpaEntity> jpaEntityOpt = projectJpaRepository.findByBusinessId(id);
-            return jpaEntityOpt.map(jpaEntity -> {
-                if (jpaEntity.getProjectTechStacks() != null) {
-                    int techStacksSize = jpaEntity.getProjectTechStacks().size(); // LAZY 로딩 트리거
-                    if (log.isDebugEnabled()) {
-                        log.debug("Loaded tech stacks count: {}", techStacksSize);
-                    }
-                }
-                if (jpaEntity.getProjectTechnicalCards() != null) {
-                    int technicalCardSize = jpaEntity.getProjectTechnicalCards().size();
-                    if (log.isDebugEnabled()) {
-                        log.debug("Loaded technical cards count: {}", technicalCardSize);
-                    }
-                }
-                Project project = projectMapper.toDomain(jpaEntity);
-                if (project != null && jpaEntity.getScreenshots() != null && !jpaEntity.getScreenshots().isEmpty()) {
-                    List<String> screenshotUrls = projectMapper.getScreenshotUrlsFromIds(jpaEntity);
-                    project.setScreenshots(screenshotUrls);
-                }
-                return project;
-            });
+            return projectJpaRepository.findByBusinessId(id).map(this::loadProjectGraph);
         } catch (Exception e) {
             log.error("프로젝트 ID로 조회 중 오류 발생: {}", id, e);
             return Optional.empty();
         }
+    }
+
+    private Project loadProjectGraph(ProjectJpaEntity jpaEntity) {
+        if (jpaEntity.getProjectTechStacks() != null) {
+            int techStacksSize = jpaEntity.getProjectTechStacks().size();
+            if (log.isDebugEnabled()) {
+                log.debug("Loaded tech stacks count: {}", techStacksSize);
+            }
+        }
+        if (jpaEntity.getProjectTechnicalCards() != null) {
+            int technicalCardSize = jpaEntity.getProjectTechnicalCards().size();
+            if (log.isDebugEnabled()) {
+                log.debug("Loaded technical cards count: {}", technicalCardSize);
+            }
+        }
+        Project project = projectMapper.toDomain(jpaEntity);
+        if (project != null && jpaEntity.getScreenshots() != null && !jpaEntity.getScreenshots().isEmpty()) {
+            List<String> screenshotUrls = projectMapper.getScreenshotUrlsFromIds(jpaEntity);
+            project.setScreenshots(screenshotUrls);
+        }
+        return project;
     }
 
     @Override
@@ -134,6 +137,67 @@ public class PostgresPortfolioRepository implements PortfolioRepositoryPort {
         } catch (Exception e) {
             log.error("프로젝트 DB ID 조회 중 오류 발생: {}", businessId, e);
             return Optional.empty();
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Map<Long, ProjectReferenceByDatabaseId> findProjectReferencesByDatabaseIds(List<Long> databaseIds) {
+        if (databaseIds == null || databaseIds.isEmpty()) {
+            return Map.of();
+        }
+        try {
+            return projectJpaRepository.findAllById(databaseIds).stream()
+                    .collect(Collectors.toMap(
+                            ProjectJpaEntity::getId,
+                            e -> new ProjectReferenceByDatabaseId(e.getId(), e.getBusinessId(), e.getTitle())));
+        } catch (Exception e) {
+            log.error("프로젝트 참조 배치 조회 중 오류 발생", e);
+            return Map.of();
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<ProjectReferenceByDatabaseId> findProjectReferenceByDatabaseId(Long databaseId) {
+        if (databaseId == null) {
+            return Optional.empty();
+        }
+        try {
+            return projectJpaRepository.findById(databaseId)
+                    .map(e -> new ProjectReferenceByDatabaseId(e.getId(), e.getBusinessId(), e.getTitle()));
+        } catch (Exception e) {
+            log.error("프로젝트 참조 조회 중 오류 발생: {}", databaseId, e);
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<Project> findProjectByDatabaseId(Long databaseId) {
+        if (databaseId == null) {
+            return Optional.empty();
+        }
+        try {
+            return projectJpaRepository.findById(databaseId).map(this::loadProjectGraph);
+        } catch (Exception e) {
+            log.error("프로젝트 DB PK로 조회 중 오류 발생: {}", databaseId, e);
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ProjectTechnicalCard> findTechnicalCardsByArticleDatabaseId(Long articleDatabaseId) {
+        if (articleDatabaseId == null) {
+            return List.of();
+        }
+        try {
+            return projectMapper.toDomainTechnicalCards(
+                    projectTechnicalCardJpaRepository.findByArticleId(articleDatabaseId));
+        } catch (Exception e) {
+            log.error("아티클 연계 기술카드 조회 중 오류 발생: {}", articleDatabaseId, e);
+            return List.of();
         }
     }
 

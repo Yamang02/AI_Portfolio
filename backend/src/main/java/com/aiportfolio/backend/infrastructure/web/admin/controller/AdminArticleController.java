@@ -7,10 +7,12 @@ import com.aiportfolio.backend.domain.article.port.in.GetArticleUseCase;
 import com.aiportfolio.backend.domain.article.port.in.ManageArticleUseCase;
 import com.aiportfolio.backend.domain.article.port.in.ManageArticleSeriesUseCase;
 import com.aiportfolio.backend.domain.article.port.in.SearchArticleSeriesUseCase;
-import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.ProjectJpaRepository;
+import com.aiportfolio.backend.domain.portfolio.model.ProjectReferenceByDatabaseId;
+import com.aiportfolio.backend.domain.portfolio.port.in.GetProjectsUseCase;
 import com.aiportfolio.backend.infrastructure.web.WebApiResponseMessages;
 import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/admin/articles")
@@ -30,7 +32,8 @@ public class AdminArticleController {
     private final GetArticleUseCase getUseCase;
     private final SearchArticleSeriesUseCase searchSeriesUseCase;
     private final ManageArticleSeriesUseCase manageSeriesUseCase;
-    private final ProjectJpaRepository projectJpaRepository;
+    @Qualifier("portfolioService")
+    private final GetProjectsUseCase getProjectsUseCase;
 
     /**
      * 전체 목록 조회 (페이징), searchKeyword 제공 시 제목 검색
@@ -62,22 +65,11 @@ public class AdminArticleController {
                 .distinct()
                 .toList();
 
-        Map<Long, String> projectBusinessIdMap = projectJpaRepository.findAllById(projectIds)
-                .stream()
-                .collect(Collectors.toMap(
-                        project -> project.getId(),
-                        project -> project.getBusinessId()
-                ));
+        Map<Long, ProjectReferenceByDatabaseId> projectRefs =
+                getProjectsUseCase.getProjectReferencesByDatabaseIds(projectIds);
 
-        Map<Long, String> projectTitleMap = projectJpaRepository.findAllById(projectIds)
-                .stream()
-                .collect(Collectors.toMap(
-                        project -> project.getId(),
-                        project -> project.getTitle()
-                ));
-        
         return ResponseEntity.ok(ApiResponse.success(
-                articles.map(article -> ArticleResponse.from(article, seriesMap, projectBusinessIdMap, projectTitleMap)),
+                articles.map(article -> ArticleResponse.from(article, seriesMap, projectRefs)),
                 WebApiResponseMessages.ARTICLE_LIST_SUCCESS));
     }
 
@@ -88,7 +80,10 @@ public class AdminArticleController {
     public ResponseEntity<ApiResponse<ArticleResponse>> getById(@PathVariable Long id) {
         return getUseCase.findById(id)
                 .map(article -> ResponseEntity.ok(ApiResponse.success(
-                        ArticleResponse.from(article, manageSeriesUseCase, projectJpaRepository),
+                        ArticleResponse.from(
+                                article,
+                                manageSeriesUseCase,
+                                projectRefForArticle(article)),
                         WebApiResponseMessages.ARTICLE_GET_SUCCESS)))
                 .orElse(ResponseEntity.ok(ApiResponse.error(WebApiResponseMessages.ARTICLE_NOT_FOUND)));
     }
@@ -115,7 +110,7 @@ public class AdminArticleController {
 
         Article created = manageUseCase.create(command);
         return ResponseEntity.ok(ApiResponse.success(
-                ArticleResponse.from(created, manageSeriesUseCase, projectJpaRepository),
+                ArticleResponse.from(created, manageSeriesUseCase, projectRefForArticle(created)),
                 WebApiResponseMessages.ARTICLE_CREATE_SUCCESS));
     }
 
@@ -145,7 +140,7 @@ public class AdminArticleController {
 
         Article updated = manageUseCase.update(command);
         return ResponseEntity.ok(ApiResponse.success(
-                ArticleResponse.from(updated, manageSeriesUseCase, projectJpaRepository),
+                ArticleResponse.from(updated, manageSeriesUseCase, projectRefForArticle(updated)),
                 WebApiResponseMessages.ARTICLE_UPDATE_SUCCESS));
     }
 
@@ -156,6 +151,13 @@ public class AdminArticleController {
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
         manageUseCase.delete(id);
         return ResponseEntity.ok(ApiResponse.success(null, WebApiResponseMessages.ARTICLE_DELETE_SUCCESS));
+    }
+
+    private Optional<ProjectReferenceByDatabaseId> projectRefForArticle(Article article) {
+        if (article.getProjectId() == null) {
+            return Optional.empty();
+        }
+        return getProjectsUseCase.getProjectReferenceByDatabaseId(article.getProjectId());
     }
 
     /**
@@ -251,7 +253,10 @@ public class AdminArticleController {
             String updatedAt
     ) {
         // 배치 조회용 (목록 조회 시 사용)
-        public static ArticleResponse from(Article domain, Map<String, ArticleSeries> seriesMap, Map<Long, String> projectBusinessIdMap, Map<Long, String> projectTitleMap) {
+        public static ArticleResponse from(
+                Article domain,
+                Map<String, ArticleSeries> seriesMap,
+                Map<Long, ProjectReferenceByDatabaseId> projectRefs) {
             // 시리즈 제목 조회 (Map에서 조회)
             String seriesTitle = null;
             if (domain.getSeriesId() != null) {
@@ -264,9 +269,12 @@ public class AdminArticleController {
             // 프로젝트 비즈니스 ID 및 제목 조회 (Map에서 조회)
             String projectBusinessId = null;
             String projectTitle = null;
-            if (domain.getProjectId() != null) {
-                projectBusinessId = projectBusinessIdMap.get(domain.getProjectId());
-                projectTitle = projectTitleMap.get(domain.getProjectId());
+            if (domain.getProjectId() != null && projectRefs != null) {
+                ProjectReferenceByDatabaseId ref = projectRefs.get(domain.getProjectId());
+                if (ref != null) {
+                    projectBusinessId = ref.businessId();
+                    projectTitle = ref.title();
+                }
             }
             
             return new ArticleResponse(
@@ -298,7 +306,10 @@ public class AdminArticleController {
         }
         
         // 단일 조회용 (상세 조회 시 사용)
-        public static ArticleResponse from(Article domain, ManageArticleSeriesUseCase seriesUseCase, ProjectJpaRepository projectJpaRepository) {
+        public static ArticleResponse from(
+                Article domain,
+                ManageArticleSeriesUseCase seriesUseCase,
+                Optional<ProjectReferenceByDatabaseId> projectRef) {
             // 시리즈 제목 조회
             String seriesTitle = null;
             if (domain.getSeriesId() != null) {
@@ -311,10 +322,10 @@ public class AdminArticleController {
             // 프로젝트 DB ID를 비즈니스 ID 및 제목으로 변환
             String projectBusinessId = null;
             String projectTitle = null;
-            if (domain.getProjectId() != null) {
-                var projectOpt = projectJpaRepository.findById(domain.getProjectId());
-                projectBusinessId = projectOpt.map(project -> project.getBusinessId()).orElse(null);
-                projectTitle = projectOpt.map(project -> project.getTitle()).orElse(null);
+            if (domain.getProjectId() != null && projectRef.isPresent()) {
+                ProjectReferenceByDatabaseId ref = projectRef.get();
+                projectBusinessId = ref.businessId();
+                projectTitle = ref.title();
             }
             
             return new ArticleResponse(

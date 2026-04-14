@@ -180,4 +180,50 @@ public class ExperienceRelationshipAdapter implements ExperienceRelationshipPort
         log.debug("Successfully replaced projects for experience: {} (deleted: {}, added: {})",
                 experienceId, toDelete.size(), toAdd.size());
     }
+
+    @Override
+    public boolean hasProjectRelationship(Long experienceDbId, String projectBusinessId) {
+        if (projectBusinessId == null || projectBusinessId.isBlank()) {
+            return false;
+        }
+        return projectJpaRepository.findByBusinessId(projectBusinessId)
+                .map(p -> experienceProjectJpaRepository.findByExperienceIdAndProjectId(experienceDbId, p.getId()) != null)
+                .orElse(false);
+    }
+
+    @Override
+    public void addProjectRelationship(
+            Long experienceDbId,
+            String projectBusinessId,
+            String roleInProject,
+            String contributionDescription) {
+        ExperienceJpaEntity experience = experienceJpaRepository.findById(experienceDbId)
+                .orElseThrow(() -> new IllegalArgumentException("Experience not found"));
+        ProjectJpaEntity project = projectJpaRepository.findByBusinessId(projectBusinessId)
+                .orElseThrow(() -> new IllegalArgumentException("Project not found: " + projectBusinessId));
+        ExperienceProjectJpaEntity relation = ExperienceProjectJpaEntity.builder()
+                .experience(experience)
+                .project(project)
+                .roleInProject(roleInProject)
+                .contributionDescription(contributionDescription)
+                .build();
+        experienceProjectJpaRepository.save(relation);
+    }
+
+    @Override
+    public void replaceProjectsFromBusinessIds(
+            Long experienceDbId, List<ExperienceRelationshipPort.ExperienceProjectBulkItem> items) {
+        List<ProjectRelation> resolved = (items == null || items.isEmpty())
+                ? Collections.emptyList()
+                : items.stream()
+                        .map(i -> {
+                            ProjectJpaEntity project = projectJpaRepository.findByBusinessId(i.projectBusinessId())
+                                    .orElseThrow(() -> new IllegalArgumentException(
+                                            "Project not found: " + i.projectBusinessId()));
+                            return new ProjectRelation(
+                                    project.getId(), i.roleInProject(), i.contributionDescription());
+                        })
+                        .toList();
+        replaceProjects(experienceDbId, resolved);
+    }
 }
