@@ -23,6 +23,10 @@ SonarQube 품질 작업과 코드 수정 시 **프로젝트 로컬** `.cursor/sk
 
 보일러플레이트 `vibe_boilerplate` 에서 스택 스킬·추가 워크플로를 가져올 때는 `AGENTS.md` 와 이 라우팅 표를 함께 맞춘다.
 
+## CodeSight (LLM용 코드 덤프)
+
+[mattsilv/codesight](https://github.com/mattsilv/codesight) 로 저장소를 스캔해 단일 텍스트 컨텍스트를 만든다. 저장소 **루트**에서 `npm run codesight` — 최초 실행 시 `tools/codesight` 에 shallow clone 후 `docs/agent/codesight-context.txt` 생성(용량이 크므로 gitignore). 설정은 `.codesight/config` . **Bash 필요**(Windows는 Git for Windows 권장).
+
 ## Sonar 한 줄 (모듈)
 
 - **Frontend:** `frontend/` 에서 `npm run test:coverage` 후 `sonar-scanner`(또는 팀 표준 CLI). `sonar-project.properties` 참고.

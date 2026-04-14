@@ -349,3 +349,7 @@ infrastructure/terraform/environments/debug/*-info.json
 crash.log
 crash.*.log
 staging_dump_all.csv
+
+# CodeSight — vendored CLI (npm run codesight:ensure) + generated LLM dump
+tools/codesight/
+docs/agent/codesight-context.txt
