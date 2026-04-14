@@ -4,6 +4,7 @@ import { SeoHead } from '@/shared/ui/seo/SeoHead';
 import { createArticleSchema, createBreadcrumbSchema } from '@/main/shared/lib/schema';
 import { useArticleQuery, useArticleListQuery, useArticleNavigationQuery } from '../entities/article';
 import type { ArticleRelatedTechnicalCard } from '../entities/article/model/article.types';
+import { TechnicalCardItem } from '@/main/shared/ui/technical-card/TechnicalCardItem';
 import { SectionTitle } from '@design-system/components/SectionTitle';
 import { useTOCFromDOM } from '@/main/features/project-gallery/hooks';
 import type { TOCItem } from '@/main/features/project-gallery/hooks/types';
@@ -284,24 +285,7 @@ export function ArticleDetailPage() {
             <SectionTitle level="h2" id="related-technical-cards" className={styles.sectionTitle}>연관 기술카드</SectionTitle>
             <div className={styles.technicalCards}>
               {article.technicalCards.map((card: ArticleRelatedTechnicalCard) => (
-                <article key={card.id} className={styles.technicalCard}>
-                  <header className={styles.technicalCardHeader}>
-                    <h3 className={styles.technicalCardTitle}>{card.title}</h3>
-                    <span className={styles.technicalCardCategory}>{card.category}</span>
-                  </header>
-                  <div className={styles.technicalCardBody}>
-                    <h4>문제</h4>
-                    <p>{card.problemStatement}</p>
-                    {card.analysis && (
-                      <>
-                        <h4>분석</h4>
-                        <p>{card.analysis}</p>
-                      </>
-                    )}
-                    <h4>해결</h4>
-                    <p>{card.solution}</p>
-                  </div>
-                </article>
+                <TechnicalCardItem key={card.id} card={card} />
               ))}
             </div>
           </section>

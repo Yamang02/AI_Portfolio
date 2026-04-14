@@ -10,6 +10,7 @@ import type { TOCItem } from '@/main/features/project-gallery/hooks/types';
 import { MarkdownRenderer } from '@/main/shared/ui/markdown/MarkdownRenderer';
 import { TechStackList } from '@/main/shared/ui/tech-stack/TechStackList';
 import type { ProjectTechnicalCard } from '../../entities/project/model/project.types';
+import { TechnicalCardItem } from '@/main/shared/ui/technical-card/TechnicalCardItem';
 import { ProjectDetailHeader } from '@design-system/components/ProjectDetailHeader';
 import { TableOfContents } from '@design-system/components/TableOfContents';
 import { ProjectNavigation } from '@design-system/components/ProjectNavigation';
@@ -229,28 +230,19 @@ const ProjectDetailPage: React.FC = () => {
             <SectionTitle level="h2" id="technical-cards" className={styles.sectionTitle}>기술 카드</SectionTitle>
             <div className={styles.technicalCards}>
               {technicalCards.map((card: ProjectTechnicalCard, index) => (
-                <article
+                <TechnicalCardItem
                   key={card.id || `${card.title}-${index}`}
-                  id={card.id ? `card-${card.id}` : undefined}
-                  className={styles.technicalCard}
-                >
-                  <header className={styles.technicalCardHeader}>
-                    <h3 className={styles.technicalCardTitle}>{card.title}</h3>
-                    <span className={styles.technicalCardCategory}>{card.category}</span>
-                  </header>
-                  <div className={styles.technicalCardBody}>
-                    <h4>문제</h4>
-                    <p>{card.problemStatement}</p>
-                    {card.analysis && (
-                      <>
-                        <h4>분석</h4>
-                        <p>{card.analysis}</p>
-                      </>
-                    )}
-                    <h4>해결</h4>
-                    <p>{card.solution}</p>
-                  </div>
-                </article>
+                  card={{
+                    id: card.id,
+                    title: card.title,
+                    category: card.category,
+                    problemStatement: card.problemStatement,
+                    analysis: card.analysis,
+                    solution: card.solution,
+                    isPinned: card.isPinned,
+                    sortOrder: card.sortOrder,
+                  }}
+                />
               ))}
             </div>
           </section>
