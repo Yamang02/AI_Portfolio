@@ -1,5 +1,5 @@
-import { useAdminQuery } from '@/admin/hooks/useAdminQuery';
-import { useAdminMutation } from '@/admin/hooks/useAdminMutation';
+import { useAdminQuery } from '@/admin/shared/hooks/useAdminQuery';
+import { useAdminMutation } from '@/admin/shared/hooks/useAdminMutation';
 import { adminArticleApi } from './adminArticleApi';
 import { CreateArticleRequest, UpdateArticleRequest } from '../model/article.types';
 import { useQueryClient } from '@tanstack/react-query';

@@ -2,7 +2,7 @@
  * 인증 API 클라이언트
  */
 
-import { adminAuthApi } from '../../../../admin/api/adminAuthApi';
+import { adminAuthApi } from '@/admin/entities/auth/api/adminAuthApi';
 import type { 
   AdminUserInfo, 
   LoginRequest, 

@@ -1,4 +1,4 @@
-import { adminApiClient } from '@/admin/api/adminApiClient';
+import { adminApiClient } from '@/admin/shared/api/adminApiClient';
 import { ProfileIntroduction, SaveProfileIntroductionRequest } from '../model/profileIntroduction.types';
 
 /**

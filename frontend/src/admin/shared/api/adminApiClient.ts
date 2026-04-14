@@ -9,7 +9,7 @@
  */
 
 import { message } from 'antd';
-import { ApiError } from './types';
+import { ApiError } from '../types/apiError';
 import { ApiResponse } from '@/shared/types/api';
 
 // 개발 환경: 빈 문자열 사용하여 Vite 프록시로 same-origin 쿠키 전송

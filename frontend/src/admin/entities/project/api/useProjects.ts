@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { adminProjectApi, ProjectCreateRequest, ProjectUpdateRequest, ProjectFilter } from '../api/adminProjectApi';
+import { adminProjectApi, ProjectCreateRequest, ProjectUpdateRequest, ProjectFilter } from './adminProjectApi';
 import { queryClient as mainQueryClient } from '@/main/app/config/queryClient';
 import { STALE_TIME } from '@/shared/config/queryCacheConfig';
 

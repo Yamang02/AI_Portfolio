@@ -1,7 +1,7 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { Spinner } from '@design-system/components';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../features/auth/model/useAuth';
 import styles from '../features/auth/ui/ProtectedRoute.module.css';
 
 /**

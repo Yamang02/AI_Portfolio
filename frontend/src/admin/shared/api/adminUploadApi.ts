@@ -1,4 +1,4 @@
-import { ApiResponse } from '../../shared/types/api';
+import { ApiResponse } from '@/shared/types/api';
 
 export interface ImageUploadResponse {
   url: string;
@@ -52,7 +52,7 @@ class AdminUploadApi {
 
   async uploadImage(
     file: File, 
-    type: 'project' | 'screenshots' | 'skill' | 'profile',
+    type: 'project' | 'screenshots' | 'skill' | 'profile' | 'article-thumbnail' | 'article-content',
     projectId?: string
   ): Promise<ApiResponse<ImageUploadResponse>> {
     const formData = new FormData();
@@ -70,7 +70,7 @@ class AdminUploadApi {
 
   async uploadImages(
     files: File[], 
-    type: 'project' | 'screenshots' | 'skill' | 'profile',
+    type: 'project' | 'screenshots' | 'skill' | 'profile' | 'article-thumbnail' | 'article-content',
     projectId?: string
   ): Promise<ApiResponse<string[]>> {
     const formData = new FormData();

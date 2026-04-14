@@ -7,7 +7,7 @@ import React, { useState, useMemo } from 'react';
 import { Select, Button, Tag, Input, Switch, App } from 'antd';
 import { CheckCircleOutlined } from '@ant-design/icons';
 import { type EntityProjectRelationship } from '../../entities/project';
-import { useProjects } from '../../hooks/useProjects';
+import { useProjects } from '../../entities/project/api/useProjects';
 
 const { Option } = Select;
 const { TextArea } = Input;

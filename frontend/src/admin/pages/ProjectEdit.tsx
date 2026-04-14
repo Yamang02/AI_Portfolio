@@ -18,8 +18,8 @@ import {
   Upload,
 } from 'antd';
 import { SaveOutlined, ArrowLeftOutlined, DeleteOutlined, UploadOutlined, EyeOutlined, PlusOutlined, MinusCircleOutlined } from '@ant-design/icons';
-import { useProject, useUpdateProject, useCreateProject, useDeleteProject } from '../hooks/useProjects';
-import { ProjectUpdateRequest, ProjectCreateRequest, adminProjectApi } from '../api/adminProjectApi';
+import { useProject, useUpdateProject, useCreateProject, useDeleteProject } from '../entities/project/api/useProjects';
+import { ProjectUpdateRequest, ProjectCreateRequest, adminProjectApi } from '../entities/project/api/adminProjectApi';
 import { ProjectThumbnailUpload } from '../features/project-management/ui/ProjectThumbnailUpload';
 import { ProjectScreenshotsUpload } from '../features/project-management/ui/ProjectScreenshotsUpload';
 import { ProjectMarkdownEditor } from '../features/project-management/ui/ProjectMarkdownEditor';
@@ -28,8 +28,8 @@ import { ProjectLinksForm } from '../features/project-management/ui/ProjectLinks
 import { ArticleSearchSelect } from '../shared/ui/ArticleSearchSelect';
 import { DateRangeWithOngoing } from '../../shared/ui/date-range';
 import dayjs from 'dayjs';
-import { useUploadImage, useUploadImages, useDeleteImage } from '../hooks/useUpload';
-import { transformMyContributions, transformTechnologies, transformScreenshots } from '../utils/dataTransformers';
+import { useUploadImage, useUploadImages, useDeleteImage } from '../shared/hooks/useUpload';
+import { transformMyContributions, transformTechnologies, transformScreenshots } from '../shared/lib/dataTransformers';
 
 const { Title } = Typography;
 const { Option } = Select;
