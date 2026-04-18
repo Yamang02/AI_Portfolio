@@ -28,7 +28,7 @@ variable "frontend_bucket_name" {
 }
 
 variable "acm_certificate_arn" {
-  description = "ACM certificate ARN for staging.yamang02.com (wildcard cert in us-east-1)"
+  description = "ACM certificate ARN for staging.admin.yamang02.com (82cf62f2, us-east-1)"
   type        = string
 }
 

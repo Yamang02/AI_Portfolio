@@ -19,8 +19,13 @@ output "frontend_bucket_id" {
 }
 
 output "frontend_cloudfront_id" {
-  description = "Frontend CloudFront distribution ID"
+  description = "AI Portfolio app CloudFront distribution ID (admin.yamang02.com)"
   value       = module.frontend.cloudfront_id
+}
+
+output "profile_cloudfront_id" {
+  description = "Profile site CloudFront distribution ID (www.yamang02.com)"
+  value       = module.frontend_profile.cloudfront_id
 }
 
 output "github_actions_user_name" {

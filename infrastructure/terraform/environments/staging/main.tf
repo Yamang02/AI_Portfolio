@@ -40,10 +40,7 @@ module "frontend" {
   bucket_name = var.frontend_bucket_name
   # ACM 인증서(us-east-1)에 staging.admin.yamang02.com SAN이 있어야 함(*.yamang02.com만으로는 이 3단계 호스트가 커버되지 않음)
   certificate_arn = var.acm_certificate_arn
-  aliases = [
-    "staging.yamangsolution.com",
-    "staging.admin.yamang02.com",
-  ]
+  aliases         = ["staging.admin.yamang02.com"]
   admin_html_rewrite_hostnames   = ["staging.admin.yamang02.com"]
   cloudfront_admin_function_name = "ai-portfolio-staging-viewer-request-admin-spa"
   origin_id                      = var.cloudfront_origin_id

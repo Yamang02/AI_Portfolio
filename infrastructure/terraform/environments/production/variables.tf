@@ -24,6 +24,7 @@ variable "gcp_region" {
 variable "domain_name" {
   description = "Root domain name"
   type        = string
+  default     = "yamang02.com"
 }
 
 variable "route53_zone_comment" {
@@ -33,8 +34,20 @@ variable "route53_zone_comment" {
 }
 
 variable "frontend_bucket_name" {
-  description = "Production frontend S3 bucket name"
+  description = "Production AI Portfolio app S3 bucket name"
   type        = string
+}
+
+variable "profile_bucket_name" {
+  description = "Production profile site S3 bucket name"
+  type        = string
+  default     = "ai-portfolio-profile-production"
+}
+
+variable "profile_cloudfront_origin_id" {
+  description = "CloudFront origin ID for profile production distribution (E22O2QL7DWQJDY)"
+  type        = string
+  default     = "profile-production-s3"
 }
 
 variable "cloudfront_origin_id" {
