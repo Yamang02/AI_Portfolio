@@ -52,7 +52,10 @@ module "frontend" {
   environment     = var.environment
   bucket_name     = var.frontend_bucket_name
   certificate_arn = module.dns.wildcard_certificate_arn
-  aliases         = ["admin.${var.domain_name}"]
+  aliases = [
+    "admin.${var.domain_name}",
+    "portfolio.${var.domain_name}",
+  ]
 
   admin_html_rewrite_hostnames      = ["admin.${var.domain_name}"]
   cloudfront_admin_function_name    = "ai-portfolio-prod-viewer-request-admin-spa"

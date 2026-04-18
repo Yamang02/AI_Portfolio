@@ -64,6 +64,7 @@ spring:
       allowed-origins:
         - "https://staging.yamangsolution.com"
         - "https://staging.admin.yamang02.com"
+        - "https://staging.portfolio.yamang02.com"
         - "https://ai-portfolio-staging-493721639129.asia-northeast3.run.app"
       allowed-methods:
         - GET
