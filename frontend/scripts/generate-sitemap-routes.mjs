@@ -12,7 +12,11 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const baseUrl = process.env.VITE_API_BASE_URL || '';
 const outPath = path.resolve(__dirname, '..', 'sitemap-routes.json');
 
-const staticRoutes = ['/', '/profile', '/projects', '/articles', '/chat'];
+/**
+ * 정적 라우트 — 루트 `/`는 vite-plugin-sitemap이 기본으로 한 번 넣으므로 여기서는 제외(중복 방지).
+ * `/chat`은 robots.txt에서 Disallow이므로 사이트맵에 넣지 않음.
+ */
+const staticRoutes = ['/profile', '/projects', '/articles'];
 
 async function fetchJson(url) {
   const res = await fetch(url, { signal: AbortSignal.timeout(15000) });

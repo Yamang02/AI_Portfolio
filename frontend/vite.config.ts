@@ -47,7 +47,8 @@ export default defineConfig(({ mode }) => {
           changefreq: 'weekly',
           priority: 0.8,
           routes: {
-            '/profile': { priority: 1.0, changefreq: 'weekly' },
+            '/': { priority: 1.0, changefreq: 'weekly' },
+            '/profile': { priority: 0.95, changefreq: 'weekly' },
             '/projects': { priority: 0.9, changefreq: 'weekly' },
             '/articles': { priority: 0.9, changefreq: 'daily' },
           },
