@@ -4,7 +4,7 @@ export function createPersonSchema() {
   return {
     '@context': 'https://schema.org',
     '@type': 'Person',
-    name: 'YamangSolution',
+    name: seoConfig.author,
     url: seoConfig.siteUrl,
     image: `${seoConfig.siteUrl}/images/profile.jpg`,
     jobTitle: 'AI 풀스택 개발자',
@@ -32,7 +32,7 @@ export function createOrganizationSchema() {
   return {
     '@context': 'https://schema.org',
     '@type': 'Organization',
-    name: 'YamangSolution',
+    name: seoConfig.author,
     url: seoConfig.siteUrl,
     logo: `${seoConfig.siteUrl}/favicons/favicon-96x96.png`,
     contactPoint: {
@@ -47,7 +47,7 @@ export function createWebSiteSchema() {
   return {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
-    name: `${seoConfig.siteName} Portfolio`,
+    name: seoConfig.defaultTitle,
     url: seoConfig.siteUrl,
     potentialAction: {
       '@type': 'SearchAction',
@@ -71,7 +71,7 @@ export function createProjectSchema(project: {
     '@type': 'SoftwareApplication',
     name: project.title,
     description: project.description,
-    author: { '@type': 'Person', name: 'YamangSolution' },
+    author: { '@type': 'Person', name: seoConfig.author },
     applicationCategory: 'WebApplication',
     operatingSystem: 'Web',
     url: `${seoConfig.siteUrl}/projects/${project.id}`,
@@ -97,12 +97,12 @@ export function createArticleSchema(article: {
       : { image: seoConfig.defaultOgImage }),
     author: {
       '@type': 'Person',
-      name: 'YamangSolution',
+      name: seoConfig.author,
       url: `${seoConfig.siteUrl}/profile`,
     },
     publisher: {
       '@type': 'Organization',
-      name: 'YamangSolution',
+      name: seoConfig.author,
       logo: {
         '@type': 'ImageObject',
         url: `${seoConfig.siteUrl}/favicons/favicon-96x96.png`,

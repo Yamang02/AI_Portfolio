@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { seoConfig } from '@/shared/config/seo.config';
 import { SeoHead } from '@/shared/ui/seo/SeoHead';
 import { createArticleSchema, createBreadcrumbSchema } from '@/main/shared/lib/schema';
 import { useArticleQuery, useArticleListQuery, useArticleNavigationQuery } from '../entities/article';
@@ -351,7 +352,7 @@ export function ArticleDetailPage() {
               ? {
                   publishedTime: article.publishedAt,
                   modifiedTime: article.updatedAt ?? article.publishedAt,
-                  author: 'YamangSolution',
+                  author: seoConfig.author,
                   tags: article.tags,
                 }
               : undefined

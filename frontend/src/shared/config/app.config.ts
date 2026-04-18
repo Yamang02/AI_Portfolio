@@ -27,12 +27,12 @@ export interface AppConfig {
 const loadConfig = (): AppConfig => {
   return {
     app: {
-      name: 'YamangSolution',
-      description: 'AI와 함께, 당신의 꿈을 실현합니다',
+      name: '이정준 | 포트폴리오',
+      description: '이정준의 개발자 포트폴리오',
       contactEmail: 'contact@yamangsolution.com',
       version: '1.0.0',
-      developerName: '야망솔루션',
-      developerTitle: 'YamangSolution',
+      developerName: '이정준',
+      developerTitle: '포트폴리오',
     },
     
     api: {
