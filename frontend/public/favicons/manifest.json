@@ -1,7 +1,7 @@
 {
-  "name": "YamangSolution",
-  "short_name": "야망솔루션",
-  "description": "AI와 함께, 당신의 꿈을 실현합니다",
+  "name": "이정준 | 포트폴리오",
+  "short_name": "포트폴리오",
+  "description": "이정준의 개발자 포트폴리오",
   "start_url": "/",
   "display": "browser",
   "background_color": "#ffffff",
