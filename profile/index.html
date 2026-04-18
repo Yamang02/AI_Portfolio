@@ -44,7 +44,13 @@
 </script>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-<script type="module" src="/src/emailjs-config.ts"></script>
+<script>
+  var EMAILJS_CONFIG = {
+    serviceId: '%VITE_EMAILJS_SERVICE_ID%',
+    templateId: '%VITE_EMAILJS_TEMPLATE_ID%',
+    publicKey: '%VITE_EMAILJS_PUBLIC_KEY%'
+  };
+</script>
 <script id="tailwind-config">tailwind.config = {darkMode: "class", theme: {extend: {colors: {"tertiary-fixed-dim": "#cbedd8", primary: "#38684b", "on-surface": "#2b3437", "primary-container": "#baefca", "surface-variant": "#dbe4e7", "secondary-fixed-dim": "#c3daca", "inverse-primary": "#c0f5cf", "tertiary-dim": "#3c5949", "primary-dim": "#2c5c3f", "on-secondary-container": "#42564a", "surface-bright": "#f8f9fa", surface: "#f8f9fa", "on-secondary-fixed-variant": "#4b6053", "on-primary-container": "#2b5b3f", "surface-container-lowest": "#ffffff", background: "#f8f9fa", error: "#9f403d", "surface-container-high": "#e2e9ec", "primary-fixed": "#baefca", "on-secondary": "#e7ffee", secondary: "#4f6457", "inverse-on-surface": "#9b9d9e", "outline-variant": "#abb3b7", "surface-tint": "#38684b", "on-error": "#fff7f6", "on-tertiary-container": "#446252", "on-tertiary-fixed-variant": "#4e6d5c", "surface-container-low": "#f1f4f6", "inverse-surface": "#0c0f10", "on-tertiary": "#e6ffee", "tertiary-container": "#dafce6", "on-primary": "#ffffff", "surface-container-highest": "#dbe4e7", "on-background": "#2b3437", "on-primary-fixed-variant": "#356548", "surface-dim": "#d1dce0", "on-error-container": "#752121", "on-secondary-fixed": "#2f4438", "secondary-dim": "#43584b", "secondary-fixed": "#d1e8d7", "error-dim": "#4e0309", "on-surface-variant": "#586064", "primary-fixed-dim": "#ace0bc", "on-primary-fixed": "#17482d", "tertiary-fixed": "#dafce6", outline: "#737c7f", tertiary: "#476655", "surface-container": "#eaeff1", "error-container": "#fe8983", "on-tertiary-fixed": "#325040", "secondary-container": "#d1e8d7"}, borderRadius: {DEFAULT: "0.125rem", lg: "0.25rem", xl: "0.5rem", full: "0.75rem"}, fontFamily: {headline: ["Newsreader", "Gowun Batang", "serif"], body: ["Manrope", "Spoqa Han Sans Neo", "sans-serif"], label: ["Manrope", "Spoqa Han Sans Neo", "sans-serif"], display: ["Newsreader", "Gowun Batang", "serif"]}}}};</script>
 <style>
         .material-symbols-outlined {
@@ -673,8 +679,6 @@ updateNav();
 
 <script>
 // ── 연락하기 모달 ────────────────────────────────────────────────
-// EMAILJS_CONFIG는 /src/emailjs-config.ts에서 Vite 빌드 시 주입됩니다
-
 function openContactModal() {
     const overlay = document.getElementById('contact-modal-overlay');
     overlay.classList.remove('hidden');
@@ -718,7 +722,7 @@ async function sendContactEmail(e) {
     submitBtn.textContent = '전송 중...';
 
     try {
-        const cfg = globalThis.EMAILJS_CONFIG;
+        const cfg = EMAILJS_CONFIG;
         await emailjs.send(
             cfg.serviceId,
             cfg.templateId,

@@ -17,6 +17,17 @@ export interface ArticleListItem {
   isFeatured?: boolean; // 추천 아티클 여부
 }
 
+export interface ArticleRelatedTechnicalCard {
+  id: string;
+  title: string;
+  category: string;
+  problemStatement: string;
+  analysis?: string;
+  solution: string;
+  isPinned?: boolean;
+  sortOrder?: number;
+}
+
 export interface ArticleDetail {
   businessId: string;
   title: string;
@@ -29,10 +40,10 @@ export interface ArticleDetail {
   updatedAt?: string;
   viewCount: number;
   seriesId?: string;
-  seriesTitle?: string; // 시리즈 제목
-  seriesOrder?: number; // 시리즈 순서
+  seriesTitle?: string;
+  seriesOrder?: number;
   project?: {
-    id: string; // businessId
+    id: string;
     title: string;
     description: string;
     imageUrl?: string;
@@ -44,4 +55,5 @@ export interface ArticleDetail {
     githubUrl?: string;
     liveUrl?: string;
   };
+  technicalCards?: ArticleRelatedTechnicalCard[];
 }

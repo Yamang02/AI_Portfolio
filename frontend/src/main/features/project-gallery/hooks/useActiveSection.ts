@@ -42,7 +42,7 @@ export const useActiveSection = (
 ): string | null => {
   const {
     rootMargin = '-100px 0px -66%',
-    threshold = 1.0,
+    threshold = 1,
     useScrollEvent = false,
     throttleDelay = 100
   } = options;
@@ -67,13 +67,13 @@ export const useActiveSection = (
         setActiveId(currentSection);
       }, throttleDelay);
 
-      window.addEventListener('scroll', handleScroll, { passive: true });
+      globalThis.addEventListener('scroll', handleScroll, { passive: true });
       
       // 초기 실행
       handleScroll();
 
       return () => {
-        window.removeEventListener('scroll', handleScroll);
+        globalThis.removeEventListener('scroll', handleScroll);
         if (timeoutRef.current) {
           clearTimeout(timeoutRef.current);
         }
@@ -150,7 +150,7 @@ function extractAllIds(tocItems: TOCItem[]): string[] {
  * @returns 현재 섹션 ID 또는 null
  */
 function findCurrentSection(allIds: string[]): string | null {
-  const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+  const scrollTop = globalThis.pageYOffset || document.documentElement.scrollTop;
   const offset = 100; // 헤더 높이 등을 고려한 오프셋
 
   // 각 섹션의 위치를 확인하여 현재 보이는 섹션 찾기
@@ -232,17 +232,17 @@ export const scrollToSection = (
     if (element) {
       // getBoundingClientRect를 사용하여 정확한 위치 계산
       const rect = element.getBoundingClientRect();
-      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      const scrollTop = globalThis.pageYOffset || document.documentElement.scrollTop;
       const elementTop = rect.top + scrollTop;
       
       // CSS scroll-margin-top을 고려 (scroll-mt-20 = 5rem = 80px)
-      const computedStyle = window.getComputedStyle(element);
-      const scrollMarginTop = parseInt(computedStyle.scrollMarginTop) || 0;
+      const computedStyle = globalThis.getComputedStyle(element);
+      const scrollMarginTop = Number.parseInt(computedStyle.scrollMarginTop, 10) || 0;
       const finalOffset = offset + scrollMarginTop;
       
       const targetScrollTop = elementTop - finalOffset;
       
-      window.scrollTo({
+      globalThis.scrollTo({
         top: Math.max(0, targetScrollTop),
         behavior
       });

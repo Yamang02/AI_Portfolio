@@ -429,12 +429,22 @@ public class PostgresArticleRepository implements ArticleRepositoryPort {
     public Optional<Article> findNextArticle(java.time.LocalDateTime publishedAt) {
         Pageable pageable = PageRequest.of(0, 1);
         Page<ArticleJpaEntity> page = jpaRepository.findNextArticle(publishedAt, pageable);
-        
+
         if (page.isEmpty()) {
             return Optional.empty();
         }
-        
+
         ArticleJpaEntity entity = page.getContent().get(0);
         return Optional.of(mapper.toDomain(entity));
+    }
+
+    @Override
+    public Map<Long, String> resolveBusinessIds(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) return Map.of();
+        return jpaRepository.findAllById(ids).stream()
+                .collect(Collectors.toMap(
+                        ArticleJpaEntity::getId,
+                        ArticleJpaEntity::getBusinessId
+                ));
     }
 }

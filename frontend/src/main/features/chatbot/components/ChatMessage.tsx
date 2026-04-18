@@ -9,7 +9,7 @@ interface ChatMessageProps {
 
 const openContactModal = () => {
   const event = new CustomEvent('openContactModal');
-  window.dispatchEvent(event);
+  globalThis.dispatchEvent(event);
 };
 
 const ContactAction: React.FC = () => (

@@ -6,10 +6,13 @@ import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -32,7 +35,9 @@ public class AdminApiExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleValidationException(MethodArgumentNotValidException exception) {
         Map<String, String> errors = new HashMap<>();
         exception.getBindingResult().getAllErrors().forEach(error -> {
-            String fieldName = ((FieldError) error).getField();
+            String fieldName = error instanceof FieldError fieldError
+                    ? fieldError.getField()
+                    : error.getObjectName();
             String errorMessage = error.getDefaultMessage();
             errors.put(fieldName, errorMessage);
         });
@@ -47,6 +52,33 @@ public class AdminApiExceptionHandler {
                 .body(ApiResponse.error(
                         WebApiResponseMessages.validationFailedDetail(errorMessage),
                         WebApiResponseMessages.LABEL_VALIDATION_ERROR));
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiResponse<Void>> handleInvalidRequestBody(HttpMessageNotReadableException exception) {
+        log.warn("Invalid request body: {}", exception.getMessage());
+        return ResponseEntity.badRequest()
+                .body(ApiResponse.error(
+                        WebApiResponseMessages.validationFailedDetail("invalid request body"),
+                        WebApiResponseMessages.LABEL_VALIDATION_ERROR));
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ApiResponse<Void>> handleMissingRequestParameter(
+            MissingServletRequestParameterException exception) {
+        String message = "missing parameter: " + exception.getParameterName();
+        log.warn("Bad request parameter: {}", message);
+        return ResponseEntity.badRequest()
+                .body(ApiResponse.error(message, WebApiResponseMessages.LABEL_BAD_REQUEST));
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ApiResponse<Void>> handleMethodArgumentTypeMismatch(
+            MethodArgumentTypeMismatchException exception) {
+        String message = "invalid parameter type: " + exception.getName();
+        log.warn("Bad request parameter type: {}", message);
+        return ResponseEntity.badRequest()
+                .body(ApiResponse.error(message, WebApiResponseMessages.LABEL_BAD_REQUEST));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
@@ -71,4 +103,3 @@ public class AdminApiExceptionHandler {
                         WebApiResponseMessages.LABEL_SERVER_ERROR));
     }
 }
-

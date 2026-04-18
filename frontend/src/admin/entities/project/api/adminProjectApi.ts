@@ -1,0 +1,193 @@
+import { ApiResponse } from '@/shared/types/api';
+
+export interface Project {
+  id: string;
+  title: string;
+  description: string;
+  /** @deprecated E18 이후 projectOverviewArticle.content 사용 */
+  readme?: string;
+  projectOverviewArticle?: ProjectOverviewArticle;
+  technicalCards?: ProjectTechnicalCard[];
+  type: 'BUILD' | 'LAB' | 'MAINTENANCE';
+  status: 'completed' | 'in_progress' | 'maintenance';
+  isTeam: boolean;
+  isFeatured?: boolean;
+  teamSize?: number;
+  role?: string;
+  myContributions?: string[];
+  startDate?: string;
+  endDate?: string;
+  imageUrl?: string;
+  screenshots?: ProjectScreenshot[];
+  githubUrl?: string;
+  liveUrl?: string;
+  externalUrl?: string;
+  technologies?: Technology[];
+  sortOrder: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ProjectScreenshot {
+  id: number;
+  imageUrl: string;
+  cloudinaryPublicId?: string;
+  displayOrder: number;
+}
+
+export interface ProjectOverviewArticle {
+  businessId: string;
+  title: string;
+  content: string;
+}
+
+export interface ProjectTechnicalCard {
+  id?: number;
+  businessId?: string;
+  title: string;
+  category: string;
+  problemStatement: string;
+  analysis?: string;
+  solution: string;
+  articleId?: number;
+  isPinned?: boolean;
+  sortOrder?: number;
+}
+
+export interface Technology {
+  id: number;
+  name: string;
+  category: string;
+  proficiencyLevel?: number;
+}
+
+export interface ProjectCreateRequest {
+  title: string;
+  description: string;
+  /** @deprecated E18 이후 projectOverviewArticle 기반으로 전환 */
+  readme?: string;
+  type: 'BUILD' | 'LAB' | 'MAINTENANCE';
+  status: 'completed' | 'in_progress' | 'maintenance';
+  isTeam?: boolean;
+  isFeatured?: boolean;
+  teamSize?: number;
+  role?: string;
+  myContributions?: string[];
+  startDate?: string;
+  endDate?: string;
+  imageUrl?: string;
+  screenshots?: string[];
+  githubUrl?: string;
+  liveUrl?: string;
+  externalUrl?: string;
+  technologies: number[];
+  technicalCards?: ProjectTechnicalCard[];
+  sortOrder?: number;
+}
+
+export interface ProjectUpdateRequest extends Partial<ProjectCreateRequest> {}
+
+export interface ProjectFilter {
+  search?: string;
+  isTeam?: 'all' | 'team' | 'individual';
+  projectType?: 'all' | 'BUILD' | 'LAB' | 'MAINTENANCE';
+  status?: 'all' | 'completed' | 'in_progress' | 'maintenance';
+  techs?: string[];
+  sortBy?: 'startDate' | 'endDate' | 'title' | 'status' | 'sortOrder' | 'type';
+  sortOrder?: 'asc' | 'desc';
+  page?: number;
+  size?: number;
+}
+
+// 개발 환경에서는 상대 경로로 호출하여 Vite 프록시를 통해 동일 출처 쿠키를 사용
+const API_BASE_URL = import.meta.env?.DEV
+  ? (import.meta.env.VITE_API_BASE_URL || '')  // 빈 문자열 = 상대 경로 사용
+  : (import.meta.env?.VITE_API_BASE_URL || '');
+
+class AdminProjectApi {
+  private async request<T>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
+    const url = `${API_BASE_URL}${endpoint}`;
+    
+    const defaultOptions: RequestInit = {
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers,
+      },
+      credentials: 'include',
+    };
+
+    const response = await fetch(url, { ...defaultOptions, ...options });
+    
+    if (!response.ok) {
+      let errorMessage = `HTTP ${response.status}`;
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.message || errorMessage;
+        // 디버깅을 위해 에러 데이터 로깅
+        console.error('[AdminProjectApi] Error response:', errorData);
+      } catch {
+        // JSON 파싱 실패 시 기본 메시지 사용
+        console.error('[AdminProjectApi] Failed to parse error response');
+      }
+      throw new Error(errorMessage);
+    }
+
+    return response.json();
+  }
+
+  async getProjects(filter: ProjectFilter = {}): Promise<ApiResponse<Project[]>> {
+    const params = new URLSearchParams();
+    
+    if (filter.search) params.append('search', filter.search);
+    if (filter.isTeam) params.append('isTeam', filter.isTeam);
+    if (filter.projectType) params.append('projectType', filter.projectType);
+    if (filter.status) params.append('status', filter.status);
+    if (filter.techs) filter.techs.forEach(tech => params.append('techs', tech));
+    if (filter.sortBy) params.append('sortBy', filter.sortBy);
+    if (filter.sortOrder) params.append('sortOrder', filter.sortOrder);
+    if (filter.page !== undefined) params.append('page', filter.page.toString());
+    if (filter.size !== undefined) params.append('size', filter.size.toString());
+
+    const queryString = params.toString();
+    const endpoint = queryString ? `/api/admin/projects?${queryString}` : '/api/admin/projects';
+    
+    return this.request<Project[]>(endpoint);
+  }
+
+  async getProject(id: string): Promise<ApiResponse<Project>> {
+    return this.request<Project>(`/api/admin/projects/${id}`);
+  }
+
+  async createProject(project: ProjectCreateRequest): Promise<ApiResponse<Project>> {
+    return this.request<Project>('/api/admin/projects', {
+      method: 'POST',
+      body: JSON.stringify(project),
+    });
+  }
+
+  async updateProject(id: string, project: ProjectUpdateRequest): Promise<ApiResponse<Project>> {
+    return this.request<Project>(`/api/admin/projects/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(project),
+    });
+  }
+
+  async getProjectTechnicalCards(id: string): Promise<ApiResponse<ProjectTechnicalCard[]>> {
+    return this.request<ProjectTechnicalCard[]>(`/api/admin/projects/${id}/technical-cards`);
+  }
+
+  async updateProjectTechnicalCards(id: string, technicalCards: ProjectTechnicalCard[]): Promise<ApiResponse<ProjectTechnicalCard[]>> {
+    return this.request<ProjectTechnicalCard[]>(`/api/admin/projects/${id}/technical-cards`, {
+      method: 'PUT',
+      body: JSON.stringify({ technicalCards }),
+    });
+  }
+
+  async deleteProject(id: string): Promise<ApiResponse<void>> {
+    return this.request<void>(`/api/admin/projects/${id}`, {
+      method: 'DELETE',
+    });
+  }
+}
+
+export const adminProjectApi = new AdminProjectApi();

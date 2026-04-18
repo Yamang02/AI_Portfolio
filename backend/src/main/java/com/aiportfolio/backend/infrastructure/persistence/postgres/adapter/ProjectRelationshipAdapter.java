@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -106,6 +107,65 @@ public class ProjectRelationshipAdapter implements ProjectRelationshipPort {
 
         log.debug("Successfully replaced tech stacks for project: {} (deleted: {}, added: {})",
                 projectId, toDelete.size(), toAdd.size());
+    }
+
+    @Override
+    public List<ProjectTechStackRow> listTechStacksByProjectBusinessId(String projectBusinessId) {
+        ProjectJpaEntity project = projectJpaRepository.findByBusinessId(projectBusinessId)
+                .orElseThrow(() -> new IllegalArgumentException("Project not found: " + projectBusinessId));
+        return projectTechStackJpaRepository.findByProjectId(project.getId()).stream()
+                .map(rel -> new ProjectTechStackRow(
+                        rel.getId(),
+                        rel.getTechStack().getId(),
+                        rel.getTechStack().getName(),
+                        rel.getTechStack().getDisplayName(),
+                        rel.getTechStack().getCategory(),
+                        rel.getIsPrimary(),
+                        rel.getUsageDescription()))
+                .toList();
+    }
+
+    @Override
+    public void addTechStackByProjectBusinessId(
+            String projectBusinessId,
+            Long techStackIdOrLegacy,
+            boolean isPrimary,
+            String usageDescription) {
+        ProjectJpaEntity project = projectJpaRepository.findByBusinessId(projectBusinessId)
+                .orElseThrow(() -> new IllegalArgumentException("Project not found"));
+
+        Optional<TechStackMetadataJpaEntity> techStackOpt = techStackMetadataJpaRepository.findById(techStackIdOrLegacy);
+        TechStackMetadataJpaEntity techStack = techStackOpt.orElseGet(() ->
+                techStackMetadataJpaRepository
+                        .findByName(String.valueOf(techStackIdOrLegacy))
+                        .orElseThrow(() -> new IllegalArgumentException("TechStack not found")));
+
+        if (projectTechStackJpaRepository.findByProjectIdAndTechStackId(project.getId(), techStack.getId()) != null) {
+            throw new IllegalArgumentException("이미 관계가 존재합니다");
+        }
+
+        ProjectTechStackJpaEntity relationship = ProjectTechStackJpaEntity.builder()
+                .project(project)
+                .techStack(techStack)
+                .isPrimary(isPrimary)
+                .usageDescription(usageDescription)
+                .build();
+        projectTechStackJpaRepository.save(relationship);
+    }
+
+    @Override
+    public void deleteTechStackByProjectBusinessId(String projectBusinessId, long techStackId) {
+        ProjectJpaEntity project = projectJpaRepository.findByBusinessId(projectBusinessId)
+                .orElseThrow(() -> new IllegalArgumentException("Project not found"));
+        projectTechStackJpaRepository.deleteByProjectIdAndTechStackId(project.getId(), techStackId);
+    }
+
+    @Override
+    public void replaceTechStacksByProjectBusinessId(
+            String projectBusinessId, List<TechStackRelation> relationships) {
+        ProjectJpaEntity project = projectJpaRepository.findByBusinessId(projectBusinessId)
+                .orElseThrow(() -> new IllegalArgumentException("Project not found: " + projectBusinessId));
+        replaceTechStacks(project.getId(), relationships);
     }
 }
 

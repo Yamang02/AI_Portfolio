@@ -4,16 +4,18 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { SeoHead } from '@/shared/ui/seo/SeoHead';
 import { LoginForm, ProtectedRoute } from '../features/auth';
 import { AdminLayout } from '../shared/components/AdminLayout';
-import { Dashboard } from '../pages/Dashboard';
-import { ProjectList } from '../components/projects/ProjectList';
-import { ProjectEdit } from '../pages/ProjectEdit';
-import { TechStackManagement } from '../pages/TechStackManagement';
-import { CareerManagement } from '../pages/CareerManagement';
-import { CertificationManagement } from '../pages/CertificationManagement';
-import { Settings } from '../pages/Settings';
-import { ProfileIntroductionManagement } from '../pages/ProfileIntroductionManagement';
-import { ArticleManagement } from '../pages/ArticleManagement';
-import { ArticleEdit } from '../pages/ArticleEdit';
+import {
+  Dashboard,
+  ProjectList,
+  ProjectEdit,
+  TechStackManagement,
+  CareerManagement,
+  CertificationManagement,
+  Settings,
+  ProfileIntroductionManagement,
+  ArticleManagement,
+  ArticleEdit,
+} from '../pages';
 import { adminTheme } from '../shared/theme/antdTheme';
 
 const AdminApp: React.FC = () => {

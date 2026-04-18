@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { ChatInputBar } from '@/shared/ui/chat';
+import { ChatInputBar } from '@/main/shared/ui/chat';
 
 export interface ChatInputSectionProps {
   onSendMessage: (message: string) => void | Promise<void>;
@@ -16,7 +16,7 @@ export const ChatInputSection: React.FC<ChatInputSectionProps> = ({
   isLoading,
   inputValue,
   onInputChange,
-  placeholder = '작업물에 대해 궁금한 점을 물어보세요...',
+  placeholder = '작업물에 대해 궁금한 점을 물어보세요.',
   className,
 }) => (
   <div className={className}>

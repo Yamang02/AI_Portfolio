@@ -21,6 +21,11 @@ public interface ArticleSeriesRepositoryPort {
      * @return 시리즈 목록
      */
     List<ArticleSeries> findBySeriesIdIn(List<String> seriesIds);
+
+    /**
+     * 제목 키워드 포함 검색
+     */
+    List<ArticleSeries> searchByTitleContaining(String keyword);
     
     boolean existsBySeriesId(String seriesId);
     

@@ -5,7 +5,7 @@ import { Badge } from '../Badge/Badge';
 import { TeamBadge } from '../Badge/TeamBadge';
 import { SocialIcon } from '../Icon/SocialIcon';
 import { ProjectIcon, ProjectIconType } from '../Icon/ProjectIcon';
-import { formatDateRange, safeSplit } from '@/shared/utils/safeStringUtils';
+import { formatDateRange } from '@/main/shared/utils/safeStringUtils';
 import styles from './ProjectCard.module.css';
 
 export interface ProjectCardProject {
@@ -37,12 +37,13 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   const titleRef = useRef<HTMLHeadingElement>(null);
   const [fontSize, setFontSize] = useState<number | undefined>(undefined);
 
-  // 프로젝트명 줄바꿈 처리
+  // ?�로?�트�?줄바�?처리
   const formatTitle = (title: string) => {
     if (!title) return '';
     
-    // 괄호 안의 내용을 추출하는 정규식
-    const match = title.match(/^(.+?)\s*\(([^)]+)\)(.*)$/);
+    // 괄호 ?�의 ?�용??추출?�는 ?�규??
+    const titlePattern = /^(.+?)\s*\(([^)]+)\)(.*)$/;
+    const match = titlePattern.exec(title);
     
     if (match) {
       const [, mainTitle, subTitle, rest] = match;
@@ -58,14 +59,14 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
     return title;
   };
 
-  // 이미지 URL이 유효한지 확인
+  // ?��?지 URL???�효?��? ?�인
   const hasValidImage =
     project.imageUrl &&
     project.imageUrl !== '#' &&
     project.imageUrl !== '' &&
     !imageError;
 
-  // 제목 글자 크기 자동 조정 (한 줄로 제한)
+  // ?�목 글???�기 ?�동 조정 (??줄로 ?�한)
   useEffect(() => {
     const adjustFontSize = () => {
       if (!titleRef.current) return;
@@ -74,11 +75,11 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
       const container = titleElement.parentElement;
       if (!container) return;
 
-      const containerWidth = container.clientWidth - 32; // padding 양쪽 고려
-      const minFontSize = 0.75; // 12px (더 작게 조정 가능)
+      const containerWidth = container.clientWidth - 32; // padding ?�쪽 고려
+      const minFontSize = 0.75; // 12px (???�게 조정 가??
       const maxFontSize = 1.5; // 24px
 
-      // 임시 스타일로 실제 너비 측정
+      // ?�시 ?��??�로 ?�제 ?�비 측정
       const originalStyles = {
         fontSize: titleElement.style.fontSize,
         whiteSpace: titleElement.style.whiteSpace,
@@ -87,7 +88,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         display: titleElement.style.display,
       };
 
-      // 측정을 위한 임시 스타일
+      // 측정???�한 ?�시 ?��???
       titleElement.style.fontSize = `${maxFontSize}rem`;
       titleElement.style.whiteSpace = 'nowrap';
       titleElement.style.visibility = 'hidden';
@@ -97,17 +98,17 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
 
       const textWidth = titleElement.scrollWidth;
 
-      // 원래 스타일 복원
+      // ?�래 ?��???복원
       Object.entries(originalStyles).forEach(([key, value]) => {
         (titleElement.style as any)[key] = value || '';
       });
 
       let currentFontSize = maxFontSize;
 
-      // 텍스트가 컨테이너보다 크면 크기 조정
+      // ?�스?��? 컨테?�너보다 ?�면 ?�기 조정
       if (textWidth > containerWidth) {
-        // 여유 공간을 고려하여 조금 더 작게 조정
-        const ratio = (containerWidth / textWidth) * 0.95; // 5% 여유 공간
+        // ?�유 공간??고려?�여 조금 ???�게 조정
+        const ratio = (containerWidth / textWidth) * 0.95; // 5% ?�유 공간
         currentFontSize = ratio * maxFontSize;
         currentFontSize = Math.max(minFontSize, Math.min(maxFontSize, currentFontSize));
       }
@@ -115,10 +116,10 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
       setFontSize(currentFontSize);
     };
 
-    // 초기 조정 (약간의 지연을 두어 DOM이 완전히 렌더링된 후 실행)
+    // 초기 조정 (?�간??지?�을 ?�어 DOM???�전???�더링된 ???�행)
     const timeoutId = setTimeout(adjustFontSize, 10);
 
-    // 리사이즈 이벤트 리스너
+    // 리사?�즈 ?�벤??리스??
     const resizeObserver = new ResizeObserver(() => {
       adjustFontSize();
     });
@@ -133,9 +134,9 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
     };
   }, [project.title]);
 
-  // 프로젝트 타입에 따른 아이콘 타입 결정
+  // ?�로?�트 ?�?�에 ?�른 ?�이�??�??결정
   const getProjectIconType = (): ProjectIconType => {
-    // 기술 스택 기반으로 아이콘 타입 추론
+    // 기술 ?�택 기반?�로 ?�이�??�??추론
     const techs = project.technologies.map((t) => t.toLowerCase());
     if (techs.some((t) => ['react', 'vue', 'angular', 'next'].includes(t))) {
       return 'web';
@@ -170,14 +171,14 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
       {...(onClick ? { onClick } : {})}
       className={`${styles.projectCard} ${styles.noCardHover} ${className || ''}`}
     >
-      {/* 상단 이미지/아이콘 영역 */}
+      {/* ?�단 ?��?지/?�이�??�역 */}
       <div className={styles.imageContainer}>
-        {/* 팀/개인 배지 (왼쪽 상단) */}
+        {/* ?�/개인 배�? (?�쪽 ?�단) */}
         <div className={styles.badges}>
           <TeamBadge isTeam={project.isTeam} size="sm" />
         </div>
 
-        {/* Featured 별 배지 (우측 상단) */}
+        {/* Featured �?배�? (?�측 ?�단) */}
         {project.isFeatured && (
           <div className={styles.featuredBadge} title="주요 프로젝트">
             <svg
@@ -192,7 +193,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           </div>
         )}
 
-        {/* 이미지 또는 아이콘 */}
+        {/* ?��?지 ?�는 ?�이�?*/}
         {hasValidImage ? (
           <img
             src={project.imageUrl}
@@ -221,7 +222,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         <div className={styles.divider}></div>
         <p className={styles.description}>{project.description}</p>
 
-        {/* 기술 스택 */}
+        {/* 기술 ?�택 */}
         {project.technologies && project.technologies.length > 0 && (
           <div className={styles.techStack}>
             {project.technologies.slice(0, 4).map((tech, index) => (
@@ -246,7 +247,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           </div>
         )}
 
-        {/* 하단 정보 */}
+        {/* ?�단 ?�보 */}
         <div className={styles.footer}>
           <span className={styles.date}>
             {formatDateRange(project.startDate, project.endDate)}
@@ -270,7 +271,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                 target="_blank"
                 rel="noopener noreferrer"
                 className={`${styles.link} ${styles.liveLink}`}
-                title="Live 서비스"
+                title="Live Service"
                 onClick={(e) => e.stopPropagation()}
               >
                 <SocialIcon type="external-link" size="sm" />

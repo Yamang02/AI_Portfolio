@@ -1,4 +1,4 @@
-.header {
+﻿.header {
   position: sticky;
   top: 0;
   background-color: var(--color-bg-header-footer, var(--color-bg-primary));
@@ -21,16 +21,56 @@
 .logo {
   font-size: 1.125rem;
   font-weight: 400;
-  font-family: 'Griun PolSensibility', 'Cormorant Garamond', 'Noto Serif KR', Georgia, 'Times New Roman', serif;
+  font-family: 'Newsreader', 'Gowun Batang', 'Noto Serif KR', Georgia, serif;
   text-decoration: none;
   color: var(--color-text-primary);
 }
 
-.nav {
+.desktopNav {
   display: flex;
   gap: 4px;
   align-items: center;
   overflow: visible;
+}
+
+/* Nav ghost buttons ??icon + text, old HeaderIconButton feel */
+.navLink {
+  gap: 6px !important;
+  padding: 8px 10px !important;
+  background: transparent !important;
+  border: none !important;
+  color: var(--color-text-secondary) !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  border-radius: 6px;
+  box-shadow: none !important;
+  transform: none !important;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.navLink:hover {
+  background-color: var(--color-bg-secondary) !important;
+  color: var(--color-primary) !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.navLinkActive {
+  background-color: var(--color-primary) !important;
+  color: #ffffff !important;
+}
+
+.navLinkActive:hover {
+  background-color: var(--color-primary) !important;
+  color: #ffffff !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.navLink .icon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
 }
 
 .divider {
@@ -40,10 +80,10 @@
   margin: 0 8px;
 }
 
-/* HeaderIconButton 컴포넌트를 사용하므로 기본 스타일 제거 */
-/* 필요한 경우에만 특수 스타일 추가 */
+/* HeaderIconButton 而댄룷?뚰듃瑜??ъ슜?섎?濡?湲곕낯 ?ㅽ????쒓굅 */
+/* ?꾩슂??寃쎌슦?먮쭔 ?뱀닔 ?ㅽ???異붽? */
 
-/* 외부 링크 버튼 스타일 */
+/* ?몃? 留곹겕 踰꾪듉 ?ㅽ???*/
 .externalLink {
   display: flex;
   align-items: center;
@@ -70,17 +110,17 @@
   height: 20px;
 }
 
-/* 테마 토글 버튼 전용 스타일 (데스크톱) - 라이트 모드에서만 #051A0E 사용 */
+/* ?뚮쭏 ?좉? 踰꾪듉 ?꾩슜 ?ㅽ???(?곗뒪?ы넲) - ?쇱씠??紐⑤뱶?먯꽌留?#051A0E ?ъ슜 */
 .themeToggle {
   color: var(--color-text-primary);
 }
 
-/* 테마 토글 버튼 hover 시에도 텍스트 색상 유지 */
+/* ?뚮쭏 ?좉? 踰꾪듉 hover ?쒖뿉???띿뒪???됱긽 ?좎? */
 .themeToggle:hover {
   color: var(--color-text-primary) !important;
 }
 
-.mobileMenuWrapper {
+.rightActions {
   display: none;
   align-items: center;
   gap: 8px;
@@ -90,8 +130,8 @@
   position: relative;
 }
 
-/* HeaderIconButton 컴포넌트를 사용하므로 기본 스타일 제거 */
-/* 필요한 경우에만 특수 스타일 추가 */
+/* HeaderIconButton 而댄룷?뚰듃瑜??ъ슜?섎?濡?湲곕낯 ?ㅽ????쒓굅 */
+/* ?꾩슂??寃쎌슦?먮쭔 ?뱀닔 ?ㅽ???異붽? */
 .mobileThemeToggle {
   color: var(--color-text-primary);
 }
@@ -134,14 +174,14 @@
   }
 }
 
-/* 디자인시스템 Button.secondary를 사용하므로 기본 스타일 제거 */
+/* ?붿옄?몄떆?ㅽ뀥 Button.secondary瑜??ъ슜?섎?濡?湲곕낯 ?ㅽ????쒓굅 */
 .dropdownLink {
   display: flex;
   align-items: center;
   gap: 12px;
   width: 100%;
   padding: 12px 16px;
-  border: none; /* 디자인시스템 border 오버라이드 */
+  border: none; /* ?붿옄?몄떆?ㅽ뀥 border ?ㅻ쾭?쇱씠??*/
   text-align: left;
   font-size: 0.875rem;
   transition: background-color 0.2s;
@@ -173,11 +213,12 @@
     padding: 0 24px;
   }
 
-  .nav {
+  .desktopNav {
     display: none;
   }
 
-  .mobileMenuWrapper {
+  .rightActions {
     display: flex;
   }
 }
+

@@ -3,7 +3,6 @@ package com.aiportfolio.backend.application.portfolio;
 import com.aiportfolio.backend.domain.portfolio.model.TechStackMetadata;
 import com.aiportfolio.backend.domain.portfolio.port.in.GetTechStackMetadataUseCase;
 import com.aiportfolio.backend.domain.portfolio.port.out.TechStackMetadataRepositoryPort;
-import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.TechStackMetadataJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,7 +20,6 @@ import java.util.Optional;
 public class TechStackMetadataService implements GetTechStackMetadataUseCase {
     
     private final TechStackMetadataRepositoryPort repositoryPort;
-    private final TechStackMetadataJpaRepository jpaRepository;
     
     @Override
     public List<TechStackMetadata> getAllActiveTechStackMetadata() {
@@ -70,31 +68,23 @@ public class TechStackMetadataService implements GetTechStackMetadataUseCase {
     
     @Override
     public TechStackStatistics getTechStackStatistics() {
-        // 전체 활성화된 기술 스택 개수
-        Long totalTechnologies = jpaRepository.countActiveTechnologies();
-        
-        // 핵심 기술 스택 개수
-        Long coreTechnologies = jpaRepository.countCoreTechnologies();
-        
-        // 카테고리별 개수
-        List<Object[]> categoryCounts = jpaRepository.countByCategory();
-        List<CategoryCount> categoryCountList = categoryCounts.stream()
-                .map(result -> new CategoryCount((String) result[0], (Long) result[1]))
+        long totalTechnologies = repositoryPort.countActiveTechnologies();
+        long coreTechnologies = repositoryPort.countCoreTechnologies();
+
+        List<CategoryCount> categoryCountList = repositoryPort.countByCategory().stream()
+                .map(result -> new CategoryCount(result.key(), result.count()))
                 .toList();
-        
-        // 레벨별 개수
-        List<Object[]> levelCounts = jpaRepository.countByLevel();
-        List<LevelCount> levelCountList = levelCounts.stream()
-                .map(result -> new LevelCount((String) result[0], (Long) result[1]))
+
+        List<LevelCount> levelCountList = repositoryPort.countByLevel().stream()
+                .map(result -> new LevelCount(result.key(), result.count()))
                 .toList();
-        
+
         return new TechStackStatistics(
-                totalTechnologies != null ? totalTechnologies : 0L,
-                coreTechnologies != null ? coreTechnologies : 0L,
-                totalTechnologies != null ? totalTechnologies : 0L,
+                totalTechnologies,
+                coreTechnologies,
+                totalTechnologies,
                 categoryCountList,
                 levelCountList
         );
     }
 }
-

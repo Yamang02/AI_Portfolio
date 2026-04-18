@@ -83,7 +83,7 @@ function buildHierarchy(headings: TOCItem[]): TOCItem[] {
 
   for (const heading of headings) {
     // 스택에서 현재 레벨보다 높은 레벨의 아이템들을 제거
-    while (stack.length > 0 && stack[stack.length - 1].level >= heading.level) {
+    while (stack.length > 0 && stack.at(-1)!.level >= heading.level) {
       stack.pop();
     }
 
@@ -98,10 +98,8 @@ function buildHierarchy(headings: TOCItem[]): TOCItem[] {
       result.push(itemWithSubItems);
     } else {
       // 하위 레벨 아이템 - 부모의 subItems에 추가
-      const parent = stack[stack.length - 1];
-      if (!parent.subItems) {
-        parent.subItems = [];
-      }
+      const parent = stack.at(-1)!;
+      parent.subItems ??= [];
       parent.subItems.push(itemWithSubItems);
     }
 

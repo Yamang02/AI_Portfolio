@@ -8,10 +8,11 @@ import { Pagination } from '@/design-system/components/Pagination/Pagination';
 import { useArticleListQuery } from '../entities/article/api/useArticleQuery';
 import { useArticleStatisticsQuery } from '../entities/article';
 import { ArticleTable, ArticleFilterBar, ArticleControlPanel, FeaturedArticleCarousel } from '../features/article-view/ui';
-// ArticleCard는 크리티컬 체인 최적화를 위해 직접 import
+// ArticleCard???�리?�컬 체인 최적?��? ?�해 직접 import
 import { ArticleCard } from '@/design-system/components/Card/ArticleCard';
-import { useContentHeightRecalc, useImageLoadTracking } from '@/shared/hooks';
-import { compareStrings } from '@/shared/utils/sortUtils';
+import { useContentHeightRecalc } from '@/main/shared/hooks/useContentHeightRecalc';
+import { useImageLoadTracking } from '@/main/shared/hooks/useImageLoadTracking';
+import { compareStrings } from '@/main/shared/utils/sortUtils';
 import styles from './ArticleListPage.module.css';
 
 type ViewMode = 'table' | 'gallery';
@@ -19,9 +20,8 @@ type SortOrder = 'asc' | 'desc';
 type SortBy = 'publishedAt' | 'viewCount';
 
 /**
- * 아티클 목록 페이지
- * 디자인 시스템 기반으로 재구성
- */
+ * ?�티??목록 ?�이지
+ * ?�자???�스??기반?�로 ?�구?? */
 export function ArticleListPage() {
   const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -30,59 +30,56 @@ export function ArticleListPage() {
   const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined);
   const [selectedProjectId, setSelectedProjectId] = useState<number | undefined>(undefined);
   const [selectedSeriesId, setSelectedSeriesId] = useState<string | undefined>(undefined);
-  const [searchInput, setSearchInput] = useState(''); // 입력 중인 검색어
-  const [searchQuery, setSearchQuery] = useState(''); // 실제 검색에 사용되는 검색어
+  const [searchInput, setSearchInput] = useState(''); // ?�력 중인 검?�어
+  const [searchQuery, setSearchQuery] = useState(''); // ?�제 검?�에 ?�용?�는 검?�어
   const [sortBy, setSortBy] = useState<SortBy>('publishedAt');
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
   const pageSize = 12;
 
-  // 아티클 통계 조회
+  // ?�티???�계 조회
   const { data: statistics } = useArticleStatisticsQuery();
 
-  // 프로젝트 필터용 데이터 변환
+  // ������Ʈ ���Ϳ� ������ ��ȯ
   const filterProjects = useMemo(() => {
     if (!statistics?.projects) {
-      return { projects: [], projectMap: new Map<string, number>() };
+      return { projects: [] };
     }
 
-    const projectMap = new Map<string, number>();
-    const projects = statistics.projects.map((p, index) => {
-      const id = index + 1;
-      projectMap.set(p.projectBusinessId, id);
+    const projects = statistics.projects.map((p) => {
       return {
-        id,
+        id: p.projectId,
         businessId: p.projectBusinessId,
         title: p.projectTitle,
       };
     });
 
-    return { projects, projectMap };
+    return { projects };
   }, [statistics?.projects]);
 
-  // 추천 아티클 조회
+  // 추천 ?�티??조회
   const { data: featuredArticlesData, isLoading: isLoadingFeatured } = useArticleListQuery({
     page: 0,
-    size: 10, // 추천 아티클은 최대 10개
+    size: 10, // ��õ ��ƼŬ�� �ִ� 10��
     isFeatured: true,
     sortBy: 'publishedAt',
     sortOrder: 'desc',
   });
 
-  // 아티클 목록 조회 (필터링된 결과)
+  // ?�티??목록 조회 (?�터링된 결과)
   const { data, isLoading, error, refetch } = useArticleListQuery({ 
     page: page - 1, 
     size: pageSize,
     category: selectedCategory,
-    // projectId는 백엔드에서 businessId를 PK로 변환해야 하므로 일단 undefined로 전달
-    // 추후 백엔드 API 수정 필요
-    projectId: undefined, // selectedProjectBusinessId를 PK로 변환하는 로직 필요
+    // projectId??백엔?�에??businessId�?PK�?변?�해???��?�??�단 undefined�??�달
+    // 추후 백엔??API ?�정 ?�요
+    projectId: selectedProjectId,
     seriesId: selectedSeriesId,
     searchKeyword: searchQuery || undefined,
     sortBy: sortBy,
     sortOrder: sortOrder,
   });
 
-  // 시리즈 목록 및 카운트 계산 (통계 API에서 가져온 데이터 사용)
+  // ?�리�?목록 �?카운??계산 (?�계 API?�서 가?�온 ?�이???�용)
   const { series, articleCounts } = useMemo(() => {
     if (!statistics) {
       return {
@@ -95,22 +92,19 @@ export function ArticleListPage() {
       };
     }
 
-    // 프로젝트 카운트 매핑 (filterProjects의 ID로 변환)
+    // ?�로?�트 카운??매핑 (filterProjects??ID�?변??
     const projectCounts: Record<number, number> = {};
     statistics.projects.forEach((p) => {
-      const id = filterProjects.projectMap.get(p.projectBusinessId);
-      if (id) {
-        projectCounts[id] = p.count;
-      }
+      projectCounts[p.projectId] = p.count;
     });
 
-    // 시리즈 카운트 매핑
+    // ?�리�?카운??매핑
     const seriesCounts: Record<string, number> = {};
     statistics.series.forEach((s) => {
       seriesCounts[s.seriesId] = s.count;
     });
 
-    // 시리즈 목록 (제목으로 정렬)
+    // ?�리�?목록 (?�목?�로 ?�렬)
     const seriesList = statistics.series
       .map((s) => ({
         id: s.seriesId,
@@ -126,13 +120,12 @@ export function ArticleListPage() {
         series: seriesCounts,
       },
     };
-  }, [statistics, filterProjects.projectMap]);
+  }, [statistics]);
 
-  // 필터링된 아티클 (서버에서 이미 필터링됨)
+  // ?�터링된 ?�티??(?�버?�서 ?��? ?�터링됨)
   const filteredArticles = data?.content || [];
 
-  // 페이지 높이 재계산 훅
-  // dependencies를 안정화하기 위해 배열 길이와 첫 번째 항목의 ID를 사용
+  // ?�이지 ?�이 ?�계????  // dependencies�??�정?�하�??�해 배열 길이?� �?번째 ??��??ID�??�용
   const articlesKey = useMemo(() => {
     if (!filteredArticles.length) return 'empty';
     return `${filteredArticles.length}-${filteredArticles[0]?.businessId || ''}`;
@@ -143,8 +136,8 @@ export function ArticleListPage() {
     useResizeObserver: true,
   });
 
-  // 이미지 로딩 추적 (각 이미지 로드 시 높이 재계산)
-  // scheduleRecalc를 사용하여 rAF 배치 처리
+  // ?��?지 로딩 추적 (�??��?지 로드 ???�이 ?�계??
+  // scheduleRecalc�??�용?�여 rAF 배치 처리
   useImageLoadTracking(containerRef, scheduleRecalc || recalculateHeight);
 
   const handleArticleClick = (article: { businessId: string }) => {
@@ -153,7 +146,7 @@ export function ArticleListPage() {
 
   const handleCategorySelect = (category: string | undefined) => {
     setSelectedCategory(category);
-    setPage(1); // 필터 변경 시 첫 페이지로
+    setPage(1);
   };
 
   const handleProjectSelect = (projectId: number | undefined) => {
@@ -162,8 +155,8 @@ export function ArticleListPage() {
   };
 
   const handleSearch = () => {
-    setSearchQuery(searchInput); // 입력된 검색어를 실제 검색어로 설정
-    setPage(1); // 검색 시 첫 페이지로
+    setSearchQuery(searchInput); // ?�력??검?�어�??�제 검?�어�??�정
+    setPage(1);
   };
 
   const handleSeriesSelect = (seriesId: string | undefined) => {
@@ -173,7 +166,7 @@ export function ArticleListPage() {
 
   const totalPages = Math.ceil((data?.totalElements || 0) / pageSize);
 
-  // 에러 상태에서도 레이아웃 유지
+  // ?�러 ?�태?�서???�이?�웃 ?��?
   const hasError = !!error;
 
   const articleListBody = (() => {
@@ -206,7 +199,7 @@ export function ArticleListPage() {
                 variant="icon"
                 size="md"
                 onClick={() => refetch()}
-                ariaLabel="재시도"
+                ariaLabel="다시 시도"
               >
                 <svg
                   width="20"
@@ -225,7 +218,7 @@ export function ArticleListPage() {
                 </svg>
               </Button>
               <span style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>
-                재시도
+                다시 시도
               </span>
             </div>
           </div>
@@ -278,7 +271,7 @@ export function ArticleListPage() {
               variant="icon"
               size="md"
               onClick={() => refetch()}
-              ariaLabel="재시도"
+              ariaLabel="다시 시도"
             >
               <svg
                 width="20"
@@ -315,10 +308,10 @@ export function ArticleListPage() {
         description={<p>총 {data?.totalElements || 0}개의 글</p>}
       />
 
-      {/* 메인 컨텐츠 */}
+      {/* 메인 컨텐�?*/}
       <section className={styles.content}>
         <div className={styles.container}>
-          {/* 추천 아티클 섹션 - 전체 너비 */}
+          {/* 추천 ?�티???�션 - ?�체 ?�비 */}
           {(!isLoadingFeatured && featuredArticlesData?.content && featuredArticlesData.content.length > 0) && (
             <section className={styles.featuredSection}>
               <div className={styles.featuredHeaderWrapper}>
@@ -333,11 +326,11 @@ export function ArticleListPage() {
             </section>
           )}
 
-          {/* 아티클 목록과 사이드바 - 같은 행 */}
+          {/* ?�티??목록�??�이?�바 - 같�? ??*/}
           <div className={styles.layout}>
-            {/* 좌측: 아티클 목록 */}
+            {/* 좌측: ?�티??목록 */}
             <div className={styles.mainContent}>
-              {/* 아티클 목록 섹션 */}
+              {/* ?�티??목록 ?�션 */}
               <section className={styles.articleListSection}>
                 <div className={styles.sectionHeader}>
                   <SectionTitle level="h2">글 목록</SectionTitle>
@@ -347,7 +340,7 @@ export function ArticleListPage() {
                   </p>
                 </div>
 
-                {/* 컨트롤 패널 */}
+                {/* 컨트�??�널 */}
                 <ArticleControlPanel
                   searchQuery={searchInput}
                   onSearchChange={setSearchInput}
@@ -357,7 +350,7 @@ export function ArticleListPage() {
                   onSortChange={(by: SortBy, order: SortOrder) => {
                     setSortBy(by);
                     setSortOrder(order);
-                    setPage(1); // 정렬 변경 시 첫 페이지로
+                    setPage(1); // ���� ���� �� ù ��������
                   }}
                   viewMode={viewMode}
                   onViewModeChange={setViewMode}
@@ -367,7 +360,7 @@ export function ArticleListPage() {
               </section>
             </div>
 
-            {/* 우측: 필터 바 */}
+            {/* ?�측: ?�터 �?*/}
             <aside className={styles.sidebar}>
               <ArticleFilterBar
                 selectedCategory={selectedCategory}
@@ -383,7 +376,7 @@ export function ArticleListPage() {
             </aside>
           </div>
 
-          {/* 페이지네이션 - 별도 행으로 중앙 배치 */}
+          {/* ?�이지?�이??- 별도 ?�으�?중앙 배치 */}
           {filteredArticles.length > 0 && (
             <div className={styles.paginationWrapper}>
               <Pagination

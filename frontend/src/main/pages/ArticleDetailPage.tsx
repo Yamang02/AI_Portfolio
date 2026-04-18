@@ -1,24 +1,24 @@
 import React, { useEffect, useRef, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { SeoHead } from '@/shared/ui/seo/SeoHead';
-import { createArticleSchema, createBreadcrumbSchema } from '@/shared/lib/schema';
+import { createArticleSchema, createBreadcrumbSchema } from '@/main/shared/lib/schema';
 import { useArticleQuery, useArticleListQuery, useArticleNavigationQuery } from '../entities/article';
+import type { ArticleRelatedTechnicalCard } from '../entities/article/model/article.types';
+import { TechnicalCardItem } from '@/main/shared/ui/technical-card/TechnicalCardItem';
 import { SectionTitle } from '@design-system/components/SectionTitle';
-import { TextLink } from '@design-system/components/TextLink';
 import { useTOCFromDOM } from '@/main/features/project-gallery/hooks';
 import type { TOCItem } from '@/main/features/project-gallery/hooks/types';
-import { MarkdownRenderer } from '@/shared/ui/markdown/MarkdownRenderer';
-import { TechStackList } from '@/shared/ui/tech-stack/TechStackList';
+import { MarkdownRenderer } from '@/main/shared/ui/markdown/MarkdownRenderer';
+import { TechStackList } from '@/main/shared/ui/tech-stack/TechStackList';
 import { TableOfContents } from '@design-system/components/TableOfContents';
 import { ArticleNavigation } from '@design-system/components/ArticleNavigation';
-// ArticleCard는 크리티컬 체인 최적화를 위해 직접 import
+// ArticleCard???�리?�컬 체인 최적?��? ?�해 직접 import
 import { ArticleCard } from '@design-system/components/Card/ArticleCard';
 import { ProjectCard } from '@design-system';
 import type { ProjectCardProject } from '@design-system';
 import { Badge } from '@design-system/components/Badge/Badge';
 import { ARTICLE_CATEGORIES } from '@/shared/article';
 import { Skeleton } from '@design-system/components/Skeleton';
-import { EmptyCard } from '@design-system';
 import { BackgroundRefetchIndicator } from '@/shared/ui';
 import { ArticleErrorView } from './ArticleDetailPage/ui/ArticleErrorView';
 import styles from './ArticleDetailPage.module.css';
@@ -28,7 +28,7 @@ const createBaseTocSections = (article: any): TOCItem[] => {
 
   const sections: TOCItem[] = [];
   if (article.content) sections.push({ id: 'content', text: '본문', level: 2 });
-  if (article.project) sections.push({ id: 'related-project', text: '관련 작업물', level: 2 });
+  if (article.project) sections.push({ id: 'related-project', text: '관련 프로젝트', level: 2 });
   if (article.techStack?.length > 0) sections.push({ id: 'tech-stack', text: '기술 스택', level: 2 });
 
   return sections;
@@ -61,49 +61,48 @@ const getSeriesArticles = (article: any, content?: any[]) => {
 };
 
 /**
- * 아티클 상세 페이지
- * 프로젝트 상세페이지 구조를 참고하여 재구성
- */
+ * ?�티???�세 ?�이지
+ * ?�로?�트 ?�세?�이지 구조�?참고?�여 ?�구?? */
 export function ArticleDetailPage() {
   const { businessId } = useParams<{ businessId: string }>();
   const navigate = useNavigate();
   const markdownContainerRef = useRef<HTMLElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
-  // 아티클 상세 조회
+  // ?�티???�세 조회
   const { 
     data: article, 
     isLoading, 
     isError,
-    isFetching,  // 백그라운드 리페치 상태
+    isFetching,  // 백그?�운??리페�??�태
     error 
   } = useArticleQuery(businessId!);
 
-  // 아티클 네비게이션 조회 (이전/다음 아티클만)
+  // ?�티???�비게이??조회 (?�전/?�음 ?�티?�만)
   const { data: navigationData } = useArticleNavigationQuery(businessId!);
 
-  // 시리즈 아티클 조회 (같은 시리즈의 다른 아티클들)
+  // ?�리�??�티??조회 (같�? ?�리즈의 ?�른 ?�티?�들)
   const { data: articlesData } = useArticleListQuery({
     page: 0,
-    size: 50, // 시리즈 아티클용 (시리즈는 보통 많지 않으므로 50으로 충분)
+    size: 50, // ?�리�??�티?�용 (?�리즈는 보통 많�? ?�으므�?50?�로 충분)
     sortBy: 'publishedAt',
     sortOrder: 'desc',
   });
 
-  // TOC 생성 (마크다운에서 헤딩 추출)
-  // markdownContainerRef를 사용하여 마크다운 내부의 헤딩만 추출
+  // TOC ?�성 (마크?�운?�서 ?�딩 추출)
+  // markdownContainerRef�??�용?�여 마크?�운 ?��????�딩�?추출
   const domTocItems = useTOCFromDOM(
     markdownContainerRef as React.RefObject<HTMLElement>,
     { 
-      containerSelector: undefined, // markdownContainerRef 내부에서 헤딩 찾기
+      containerSelector: undefined, // markdownContainerRef ?��??�서 ?�딩 찾기
       headingLevels: [1, 2, 3, 4, 5, 6] 
     }
   );
 
-  // 기본 섹션 헤더를 수동으로 추가
+  // 기본 ?�션 ?�더�??�동?�로 추�?
   const tocItems = useMemo(() => buildTocItems(article, domTocItems), [article, domTocItems]);
 
-  // ProjectCard에 필요한 형식으로 변환
+  // ProjectCard�� �ʿ��� �������� ��ȯ
   const projectCardData = useMemo((): ProjectCardProject | null => {
     if (!article?.project) return null;
     return {
@@ -121,26 +120,23 @@ export function ArticleDetailPage() {
     };
   }, [article?.project]);
 
-  // 같은 시리즈의 다른 아티클 찾기
+  // 같�? ?�리즈의 ?�른 ?�티??찾기
   const seriesArticles = useMemo(
     () => getSeriesArticles(article, articlesData?.content),
     [article, articlesData?.content]
   );
 
 
-  // 페이지 최상단으로 스크롤
-  useEffect(() => {
+    useEffect(() => {
     window.scrollTo(0, 0);
   }, [businessId]);
 
-  // ResizeObserver를 통한 동적 높이 추적
-  // 마크다운, 이미지, Mermaid 다이어그램 등 비동기 컨텐츠 로딩 시 높이 변화 감지
-  useEffect(() => {
+  // ResizeObserver�??�한 ?�적 ?�이 추적
+    useEffect(() => {
     if (!contentRef.current) return;
 
     const resizeObserver = new ResizeObserver(() => {
-      // 컨텐츠 높이 변화 감지 시 브라우저가 자동으로 스크롤 영역을 재계산
-      // 명시적인 조작 없이도 스크롤이 올바르게 작동함
+      // Resize updates are handled implicitly by layout.
     });
 
     resizeObserver.observe(contentRef.current);
@@ -150,7 +146,7 @@ export function ArticleDetailPage() {
     };
   }, []);
 
-  // 에러 상태 체크: 백그라운드 리페치 중이 아닐 때만 에러로 처리
+  // ?�러 ?�태 체크: 백그?�운??리페�?중이 ?�닐 ?�만 ?�러�?처리
   const hasError = (isError || (!isLoading && !article)) && !isFetching;
   const errorTitle = isError && error?.message?.includes('404')
     ? '글을 찾을 수 없습니다'
@@ -254,6 +250,16 @@ export function ArticleDetailPage() {
           </div>
         </header>
 
+        {article.technicalCards && article.technicalCards.length > 0 && (
+          <section id="related-technical-cards" className={styles.section}>
+            <div className={styles.technicalCards}>
+              {article.technicalCards.map((card: ArticleRelatedTechnicalCard) => (
+                <TechnicalCardItem key={card.id} card={card} />
+              ))}
+            </div>
+          </section>
+        )}
+
         {tocItems.length > 0 && (
           <section id="toc" className={styles.section}>
             <TableOfContents items={tocItems} />
@@ -273,7 +279,7 @@ export function ArticleDetailPage() {
 
         {projectCardData && (
           <section id="related-project" className={styles.section}>
-            <SectionTitle level="h2" id="related-project" className={styles.sectionTitle}>관련 작업물</SectionTitle>
+            <SectionTitle level="h2" id="related-project" className={styles.sectionTitle}>관련 프로젝트</SectionTitle>
             <div className={styles.relatedProjectWrapper}>
               <ProjectCard
                 project={projectCardData}
@@ -369,7 +375,7 @@ export function ArticleDetailPage() {
           }
         />
       )}
-      {/* 백그라운드 리페치 인디케이터 */}
+      {/* 백그?�운??리페�??�디케?�터 */}
       {isFetching && !isLoading && article && (
         <BackgroundRefetchIndicator />
       )}

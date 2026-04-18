@@ -1,4 +1,4 @@
-import { adminApiClient } from '@/admin/api/adminApiClient';
+import { adminApiClient } from '@/admin/shared/api';
 import { Article, CreateArticleRequest, UpdateArticleRequest } from '../model/article.types';
 
 /**
@@ -8,7 +8,7 @@ export const adminArticleApi = {
   /**
    * 전체 목록 조회 (페이징)
    */
-  getAll: (params: { page: number; size: number; sort?: string }) =>
+  getAll: (params: { page: number; size: number; sort?: string; searchKeyword?: string }) =>
     adminApiClient.get<{ content: Article[]; totalElements: number; totalPages: number }>('/articles', {
       ...params,
       sort: params.sort || 'id,desc', // 기본값: 최신순 (ID 내림차순)

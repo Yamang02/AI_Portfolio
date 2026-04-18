@@ -41,6 +41,6 @@ variable "wildcard_tags" {
   description = "Tags for wildcard ACM certificate"
   type        = map(string)
   default = {
-    Project = " AI-Portfolio"
+    Project = "AI-Portfolio"
   }
 }

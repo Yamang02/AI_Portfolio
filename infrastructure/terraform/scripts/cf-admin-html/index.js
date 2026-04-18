@@ -7,7 +7,7 @@ function handler(event) {
   var host = hostHeader && hostHeader.value ? hostHeader.value : '';
   request.headers['x-cf-site-key'] = { value: host ? host.toLowerCase() : '' };
 
-  var hosts = ['admin.staging.yamang02.com'];
+  var hosts = ['staging.admin.yamang02.com'];
   var match = false;
   for (var i = 0; i < hosts.length; i++) {
     if (host === hosts[i]) {

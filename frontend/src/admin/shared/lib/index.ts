@@ -3,3 +3,4 @@
  */
 
 export * from './currencyFormatter';
+export * from './dataTransformers';

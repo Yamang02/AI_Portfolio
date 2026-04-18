@@ -27,6 +27,7 @@ public class AdminProjectCreateRequest {
     @Size(max = 2000, message = "프로젝트 설명은 2000자를 초과할 수 없습니다")
     private String description;
 
+    @Deprecated(since = "E18", forRemoval = false)
     @Size(max = 10000, message = "README는 10000자를 초과할 수 없습니다")
     private String readme;
 
@@ -71,6 +72,8 @@ public class AdminProjectCreateRequest {
     @NotNull(message = "기술 스택은 필수입니다")
     private List<Long> technologies;
 
+    private List<ProjectTechnicalCardRequest> technicalCards;
+
     private Integer sortOrder = 0;
 
     public ProjectCreateCommand toCommand() {
@@ -93,8 +96,55 @@ public class AdminProjectCreateRequest {
                 .liveUrl(liveUrl)
                 .externalUrl(externalUrl)
                 .technologies(technologies)
+                .technicalCards(technicalCards == null ? List.of() : technicalCards.stream()
+                        .map(ProjectTechnicalCardRequest::toCommand)
+                        .toList())
                 .sortOrder(sortOrder)
                 .build();
     }
-}
 
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class ProjectTechnicalCardRequest {
+        private Long id;
+
+        @Size(max = 50, message = "카드 비즈니스 ID는 50자를 초과할 수 없습니다")
+        private String businessId;
+
+        @NotBlank(message = "카드 제목은 필수입니다")
+        @Size(max = 255, message = "카드 제목은 255자를 초과할 수 없습니다")
+        private String title;
+
+        @NotBlank(message = "카드 카테고리는 필수입니다")
+        @Size(max = 50, message = "카드 카테고리는 50자를 초과할 수 없습니다")
+        private String category;
+
+        @NotBlank(message = "문제 정의는 필수입니다")
+        private String problemStatement;
+
+        private String analysis;
+
+        @NotBlank(message = "해결 내용은 필수입니다")
+        private String solution;
+
+        private Long articleId;
+        private Boolean isPinned = Boolean.FALSE;
+        private Integer sortOrder = 0;
+
+        private ProjectCreateCommand.ProjectTechnicalCardCommand toCommand() {
+            return ProjectCreateCommand.ProjectTechnicalCardCommand.builder()
+                    .id(id)
+                    .businessId(businessId)
+                    .title(title)
+                    .category(category)
+                    .problemStatement(problemStatement)
+                    .analysis(analysis)
+                    .solution(solution)
+                    .articleId(articleId)
+                    .isPinned(isPinned)
+                    .sortOrder(sortOrder)
+                    .build();
+        }
+    }
+}

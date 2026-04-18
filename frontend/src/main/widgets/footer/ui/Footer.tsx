@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
+
 import { SocialIcon, Button } from '@/design-system';
-import { ContactModal } from '@/shared/ui/modal';
+import { ContactModal } from '@/main/shared/ui/modal';
 import styles from './Footer.module.css';
 
 interface FooterProps {
@@ -13,14 +14,11 @@ export const Footer: React.FC<FooterProps> = ({ isVisible = false }) => {
 
   return (
     <>
-      <footer 
-        id="footer" 
-        className={`${styles.footer} ${isVisible ? styles.visible : ''}`}
-      >
+      <footer id="footer" className={`${styles.footer} ${isVisible ? styles.visible : ''}`}>
         <div className={styles.container}>
           <div className={styles.topRow}>
-            <span className={styles.brand}>야망솔루션</span>
-            <p className={styles.copyright}>© 2026, Lee Jeongjun(Yamang02)</p>
+            <span className={styles.brand}>Yamang02</span>
+            <p className={styles.copyright}>© 2026, Lee Jeongjun (Yamang02)</p>
             <div className={styles.links}>
               <Button
                 variant="icon"
@@ -43,6 +41,7 @@ export const Footer: React.FC<FooterProps> = ({ isVisible = false }) => {
               </Button>
             </div>
           </div>
+
           <dl className={styles.infoRow}>
             <div className={styles.infoItem}>
               <dt>대표자</dt>
@@ -52,23 +51,19 @@ export const Footer: React.FC<FooterProps> = ({ isVisible = false }) => {
               <dt>사업자등록번호</dt>
               <dd>882-30-01752</dd>
             </div>
-<div className={styles.infoItem}>
-                <dt>업태</dt>
-                <dd>정보통신업</dd>
-              </div>
-              <div className={styles.infoItem}>
-                <dt>종목</dt>
-                <dd>컴퓨터 프로그래밍 서비스업</dd>
-              </div>
+            <div className={styles.infoItem}>
+              <dt>업태</dt>
+              <dd>정보통신업</dd>
+            </div>
+            <div className={styles.infoItem}>
+              <dt>종목</dt>
+              <dd>컴퓨터 프로그래밍 서비스업</dd>
+            </div>
           </dl>
         </div>
       </footer>
 
-      {/* 문의 모달 */}
-      <ContactModal 
-        isOpen={isContactModalOpen}
-        onClose={() => setIsContactModalOpen(false)}
-      />
+      <ContactModal isOpen={isContactModalOpen} onClose={() => setIsContactModalOpen(false)} />
     </>
   );
 };

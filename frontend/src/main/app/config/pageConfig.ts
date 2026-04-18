@@ -1,34 +1,33 @@
-import type { ScrollPolicy } from '@/shared/hooks/usePageLifecycle';
+import type { ScrollPolicy } from '@/main/shared/hooks/usePageLifecycle';
 
 /**
- * 페이지별 설정 타입
- */
+ * ?�이지�??�정 ?�?? */
 export interface PageConfig {
   /**
-   * 스크롤 정책
+   * ?�크�??�책
    */
   scrollPolicy: ScrollPolicy;
   
   /**
-   * 스크롤 위치 복원 여부
+   * ?�크�??�치 복원 ?��?
    */
   restoreScroll: boolean;
   
   /**
-   * Footer 표시 여부
+   * Footer ?�시 ?��?
    */
   showFooter: boolean;
   
   /**
-   * 페이지 키 (스크롤 위치 저장/복원 시 사용)
+   * ?�이지 ??(?�크�??�치 ?�??복원 ???�용)
    */
   pageKey?: string;
 }
 
 /**
- * 페이지별 설정 매핑
+ * ?�이지�??�정 매핑
  * 
- * 각 페이지의 공통 설정을 중앙에서 관리합니다.
+ * �??�이지??공통 ?�정??중앙?�서 관리합?�다.
  */
 export const PAGE_CONFIG: Record<string, PageConfig> = {
   '/profile': {
@@ -58,24 +57,21 @@ export const PAGE_CONFIG: Record<string, PageConfig> = {
 } as const;
 
 /**
- * 현재 경로에 대한 페이지 설정 가져오기
- * 
- * @param pathname - 현재 경로
- * @returns 페이지 설정 또는 기본값
- */
+ * ?�재 경로???�???�이지 ?�정 가?�오�? * 
+ * @param pathname - ?�재 경로
+ * @returns ?�이지 ?�정 ?�는 기본�? */
 export const getPageConfig = (pathname: string): PageConfig => {
-  // 정확한 매칭
+  // ?�확??매칭
   if (PAGE_CONFIG[pathname]) {
     return PAGE_CONFIG[pathname];
   }
   
-  // 동적 경로 매칭 (예: /projects/:id)
+  // ?�적 경로 매칭 (?? /projects/:id)
   if (pathname.startsWith('/projects/') && pathname !== '/projects') {
     return PAGE_CONFIG['/projects/:id'];
   }
   
-  // 기본값
-  return {
+  // 기본�?  return {
     scrollPolicy: 'top',
     restoreScroll: false,
     showFooter: true,
@@ -83,8 +79,7 @@ export const getPageConfig = (pathname: string): PageConfig => {
 };
 
 /**
- * PageConfig를 PageLifecycleConfig로 변환
- * (showFooter 속성 제외)
+ * PageConfig�?PageLifecycleConfig�?변?? * (showFooter ?�성 ?�외)
  */
 export const toPageLifecycleConfig = (config: PageConfig): Omit<PageConfig, 'showFooter'> => {
   const { showFooter, ...lifecycleConfig } = config;

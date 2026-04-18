@@ -22,23 +22,20 @@
   padding-top: 0;
 }
 
-/* TOC 섹션 여백 조정 */
 .section#toc {
   padding-top: var(--spacing-12);
   margin-bottom: var(--spacing-4);
 }
 
-/* TOC 다음 본문 섹션 여백 조정 */
 .section#toc + .section#content {
   padding-top: var(--spacing-4);
 }
 
-/* 섹션 헤더 색상 */
 .sectionTitle {
   color: var(--color-primary-text);
 }
 
-/* 마크다운 내부 헤딩은 원래 색상 유지 */
+
 .markdownArticle h1,
 .markdownArticle h2,
 .markdownArticle h3,
@@ -48,7 +45,6 @@
   color: var(--color-text-primary);
 }
 
-/* 헤더 */
 .header {
   margin-bottom: var(--spacing-8);
 }
@@ -63,7 +59,6 @@
   margin-bottom: var(--spacing-6);
 }
 
-/* 시리즈 정보가 있을 때 title 여백 조정 */
 .title:has(+ .seriesInfo) {
   margin-bottom: var(--spacing-2);
 }
@@ -127,23 +122,19 @@
   color: var(--color-article-category-text);
 }
 
-/* 본문 */
 .markdown {
   margin-top: var(--spacing-4);
 }
 
-/* 기술 스택 */
 .techStackWrapper {
   margin-top: var(--spacing-4);
 }
 
-/* 관련 프로젝트 */
 .relatedProjectWrapper {
   margin-top: var(--spacing-4);
   max-width: 100%;
 }
 
-/* 시리즈 아티클 */
 .seriesArticles {
   display: grid;
   grid-template-columns: 1fr;
@@ -188,7 +179,6 @@
   color: var(--color-link-hover);
 }
 
-/* 반응형 */
 @media (min-width: 768px) {
   .seriesArticles {
     grid-template-columns: repeat(2, 1fr);
@@ -199,4 +189,10 @@
   .seriesArticles {
     grid-template-columns: repeat(3, 1fr);
   }
+}
+
+.technicalCards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
 }

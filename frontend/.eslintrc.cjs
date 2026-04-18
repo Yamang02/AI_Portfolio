@@ -34,27 +34,17 @@ module.exports = {
             position: 'before',
           },
           {
-            pattern: '@entities/**',
+            pattern: '@design-system/**',
+            group: 'internal',
+            position: 'before',
+          },
+          {
+            pattern: '@main/**',
             group: 'internal',
             position: 'after',
           },
           {
-            pattern: '@features/**',
-            group: 'internal',
-            position: 'after',
-          },
-          {
-            pattern: '@widgets/**',
-            group: 'internal',
-            position: 'after',
-          },
-          {
-            pattern: '@pages/**',
-            group: 'internal',
-            position: 'after',
-          },
-          {
-            pattern: '@app/**',
+            pattern: '@admin/**',
             group: 'internal',
             position: 'after',
           },
@@ -69,7 +59,20 @@ module.exports = {
         patterns: [
           {
             group: ['../../../*', '../../../../*', '../../../../../*'],
-            message: 'Deep relative imports are not allowed. Use path aliases instead (@shared, @entities, etc.)',
+            message: 'Deep relative imports are not allowed. Use path aliases instead (@main, @admin, @shared, @design-system).',
+          },
+          {
+            group: [
+              '@main/pages/*/**',
+              '@main/widgets/*/**',
+              '@main/features/*/**',
+              '@main/entities/*/**',
+              '@admin/pages/*/**',
+              '@admin/widgets/*/**',
+              '@admin/features/*/**',
+              '@admin/entities/*/**',
+            ],
+            message: 'Do not import slice internals through aliases. Import via slice public API (e.g. @main/features/foo) and use relative paths only inside the same slice.',
           },
         ],
       },

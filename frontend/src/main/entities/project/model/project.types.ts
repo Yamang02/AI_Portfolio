@@ -31,11 +31,14 @@ export interface Project extends BaseItem {
   dbId?: number; // 데이터베이스 ID (관계 테이블에서 사용, Admin API에서 제공)
   githubUrl?: string;
   liveUrl?: string;
-  readme: string;
+  /** @deprecated E18 이후 projectOverviewArticle.content 사용 */
+  readme?: string;
+  projectOverviewArticle?: ProjectOverviewArticle;
+  technicalCards?: ProjectTechnicalCard[];
   imageUrl: string;
   source: ProjectSource;
   type: ProjectCategory;
-  status?: ProjectStatus | string; // 프로젝트 상태
+  status?: ProjectStatus; // 프로젝트 상태
   sortOrder?: number; // 정렬 순서
   
   // 자격증 전용 필드들
@@ -64,6 +67,24 @@ export interface DevelopmentTimelineArticle {
   title: string;
   summary?: string;
   publishedAt?: string;
+}
+
+export interface ProjectOverviewArticle {
+  businessId: string;
+  title: string;
+  content: string;
+}
+
+export interface ProjectTechnicalCard {
+  id: string;
+  title: string;
+  category: string;
+  problemStatement: string;
+  analysis?: string;
+  solution: string;
+  articleBusinessId?: string;
+  isPinned: boolean;
+  sortOrder?: number;
 }
 
 // 프로젝트 스크린샷 인터페이스

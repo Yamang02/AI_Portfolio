@@ -48,6 +48,7 @@ public class Project {
     private List<String> myContributions;
     private String role; // 팀 프로젝트에서의 역할
     private List<String> screenshots; // 추가 스크린샷 URL 배열
+    private List<ProjectTechnicalCard> technicalCards;
 
     private LocalDateTime createdAt; // 생성일시
     

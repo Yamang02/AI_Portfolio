@@ -34,7 +34,6 @@ public class AdminEducationRelationshipController {
 
     private final EducationJpaRepository educationJpaRepository;
     private final TechStackMetadataJpaRepository techStackMetadataJpaRepository;
-    private final ProjectJpaRepository projectJpaRepository;
     private final EducationTechStackJpaRepository educationTechStackJpaRepository;
     private final EducationProjectJpaRepository educationProjectJpaRepository;
     private final EducationRelationshipPort educationRelationshipPort;
@@ -210,24 +209,16 @@ public class AdminEducationRelationshipController {
             EducationJpaEntity education = educationJpaRepository.findByBusinessId(id)
                 .orElseThrow(() -> new IllegalArgumentException(EDUCATION_NOT_FOUND));
 
-            // Business ID로 프로젝트 조회
-            ProjectJpaEntity project = projectJpaRepository.findByBusinessId(request.getProjectBusinessId())
-                .orElseThrow(() -> new IllegalArgumentException("Project not found: " + request.getProjectBusinessId()));
-
-            if (educationProjectJpaRepository
-                .findByEducationIdAndProjectId(education.getId(), project.getId()) != null) {
+            if (educationRelationshipPort.hasProjectRelationship(education.getId(), request.getProjectBusinessId())) {
                 return ResponseEntity.badRequest()
                     .body(ApiResponse.error(AdminApiErrorMessages.RELATION_ALREADY_EXISTS));
             }
 
-            EducationProjectJpaEntity relationship = EducationProjectJpaEntity.builder()
-                .education(education)
-                .project(project)
-                .projectType(request.getProjectType())
-                .grade(request.getGrade())
-                .build();
-
-            educationProjectJpaRepository.save(relationship);
+            educationRelationshipPort.addProjectRelationship(
+                    education.getId(),
+                    request.getProjectBusinessId(),
+                    request.getProjectType(),
+                    request.getGrade());
 
             log.info("Added project relationship: education={}, project={}", id, request.getProjectBusinessId());
             return ResponseEntity.ok(ApiResponse.success(null, WebApiResponseMessages.PROJECT_RELATION_ADD_SUCCESS));
@@ -275,25 +266,17 @@ public class AdminEducationRelationshipController {
             EducationJpaEntity education = educationJpaRepository.findByBusinessId(id)
                 .orElseThrow(() -> new IllegalArgumentException(EDUCATION_NOT_FOUND_WITH_ID + id));
 
-            // BulkProjectRelationshipRequest를 EducationRelationshipPort.ProjectRelation으로 변환
-            // 비즈니스 ID를 DB ID로 변환
-            List<EducationRelationshipPort.ProjectRelation> projectRelations = 
-                (request.getProjectRelationships() == null || request.getProjectRelationships().isEmpty())
-                    ? Collections.emptyList()
-                    : request.getProjectRelationships().stream()
-                        .map(item -> {
-                            ProjectJpaEntity project = projectJpaRepository.findByBusinessId(item.getProjectBusinessId())
-                                .orElseThrow(() -> new IllegalArgumentException("Project not found: " + item.getProjectBusinessId()));
-                            return new EducationRelationshipPort.ProjectRelation(
-                                project.getId(),
-                                item.getProjectType(),
-                                item.getGrade()
-                            );
-                        })
-                        .toList();
+            List<EducationRelationshipPort.EducationProjectBulkItem> projectInputs =
+                    (request.getProjectRelationships() == null || request.getProjectRelationships().isEmpty())
+                            ? Collections.emptyList()
+                            : request.getProjectRelationships().stream()
+                                    .map(item -> new EducationRelationshipPort.EducationProjectBulkItem(
+                                            item.getProjectBusinessId(),
+                                            item.getProjectType(),
+                                            item.getGrade()))
+                                    .toList();
 
-            // Merge 전략을 사용하여 관계 업데이트
-            educationRelationshipPort.replaceProjects(education.getId(), projectRelations);
+            educationRelationshipPort.replaceProjectsFromBusinessIds(education.getId(), projectInputs);
 
             return ResponseEntity.ok(ApiResponse.success(null, WebApiResponseMessages.PROJECT_RELATION_BULK_UPDATE_SUCCESS));
         } catch (IllegalArgumentException e) {

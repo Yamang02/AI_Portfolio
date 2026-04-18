@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../../hooks/useAuth';
+import { useAuth } from '../model/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { Card, Button, Input, PasswordInput, Text, SectionTitle, Spinner } from '@design-system/components';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';

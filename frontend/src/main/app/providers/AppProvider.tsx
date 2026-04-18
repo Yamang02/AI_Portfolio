@@ -24,18 +24,18 @@ interface AppProviderProps {
  */
 export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const [isWideScreen, setIsWideScreen] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return window.innerWidth > 2400;
+    if (globalThis.window !== undefined) {
+      return globalThis.innerWidth > 2400;
     }
     return true;
   });
 
   useEffect(() => {
     const handleResize = () => {
-      setIsWideScreen(window.innerWidth > 2400);
+      setIsWideScreen(globalThis.innerWidth > 2400);
     };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    globalThis.addEventListener('resize', handleResize);
+    return () => globalThis.removeEventListener('resize', handleResize);
   }, []);
 
   const value = React.useMemo<AppContextValue>(

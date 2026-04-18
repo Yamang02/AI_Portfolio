@@ -1,22 +1,21 @@
 package com.aiportfolio.backend.application.admin.service;
 
 import com.aiportfolio.backend.application.admin.mapper.ProjectResponseMapper;
+import com.aiportfolio.backend.application.admin.dto.response.ProjectResponse;
 import com.aiportfolio.backend.application.common.util.BusinessIdGenerator;
 import com.aiportfolio.backend.application.common.util.MetadataHelper;
 import com.aiportfolio.backend.application.common.util.TextFieldHelper;
-import com.aiportfolio.backend.infrastructure.web.admin.dto.response.ProjectResponse;
 import com.aiportfolio.backend.domain.admin.model.ProjectAssetSnapshot;
 import com.aiportfolio.backend.domain.admin.model.command.ProjectCreateCommand;
 import com.aiportfolio.backend.domain.admin.model.command.ProjectUpdateCommand;
 import com.aiportfolio.backend.domain.admin.port.in.ManageProjectUseCase;
 import com.aiportfolio.backend.domain.admin.port.out.ImageStoragePort;
 import com.aiportfolio.backend.domain.portfolio.model.Project;
+import com.aiportfolio.backend.domain.portfolio.model.ProjectTechnicalCard;
 import com.aiportfolio.backend.domain.portfolio.port.out.PortfolioCachePort;
 import com.aiportfolio.backend.domain.portfolio.port.out.PortfolioRepositoryPort;
 import com.aiportfolio.backend.domain.portfolio.port.out.ProjectRelationshipPort;
 import com.aiportfolio.backend.domain.portfolio.port.out.TechStackMetadataRepositoryPort;
-import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.ProjectJpaEntity;
-import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.ProjectJpaRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -44,7 +43,6 @@ public class ManageProjectService implements ManageProjectUseCase {
     private final ProjectResponseMapper projectResponseMapper;
     private final ImageStoragePort imageStoragePort;
     private final TechStackMetadataRepositoryPort techStackMetadataRepositoryPort;
-    private final ProjectJpaRepository projectJpaRepository;
     private final PortfolioCachePort portfolioCachePort;
 
     /**
@@ -55,13 +53,13 @@ public class ManageProjectService implements ManageProjectUseCase {
             List<Long> techStackIds) {
         Project created = createProject(command);
         if (techStackIds != null && !techStackIds.isEmpty()) {
-            ProjectJpaEntity projectEntity = projectJpaRepository.findByBusinessId(created.getId())
+            Long projectId = portfolioRepositoryPort.findProjectDatabaseIdByBusinessId(created.getId())
                     .orElseThrow(() -> new IllegalArgumentException("Project not found: " + created.getId()));
             List<TechStackRelation> techStacks = toTechStackRelations(techStackIds);
             List<ProjectRelationshipPort.TechStackRelation> portRelations = techStacks.stream()
                     .map(TechStackRelation::toPortRelation)
                     .toList();
-            projectRelationshipPort.replaceTechStacks(projectEntity.getId(), portRelations);
+            projectRelationshipPort.replaceTechStacks(projectId, portRelations);
         }
         portfolioCachePort.evictPortfolioProjects();
         return projectResponseMapper.toDetailedResponse(created);
@@ -76,13 +74,13 @@ public class ManageProjectService implements ManageProjectUseCase {
             List<Long> techStackIds) {
         Project updated = updateProject(id, command);
         if (techStackIds != null) {
-            ProjectJpaEntity projectEntity = projectJpaRepository.findByBusinessId(updated.getId())
+            Long projectId = portfolioRepositoryPort.findProjectDatabaseIdByBusinessId(updated.getId())
                     .orElseThrow(() -> new IllegalArgumentException("Project not found: " + updated.getId()));
             List<TechStackRelation> techStacks = toTechStackRelations(techStackIds);
             List<ProjectRelationshipPort.TechStackRelation> portRelations = techStacks.stream()
                     .map(TechStackRelation::toPortRelation)
                     .toList();
-            projectRelationshipPort.replaceTechStacks(projectEntity.getId(), portRelations);
+            projectRelationshipPort.replaceTechStacks(projectId, portRelations);
         }
         portfolioCachePort.evictPortfolioProjects();
         return projectResponseMapper.toDetailedResponse(updated);
@@ -108,7 +106,6 @@ public class ManageProjectService implements ManageProjectUseCase {
                 .id(projectId)
                 .title(command.getTitle()) // 필수 필드: 정규화 없음 (유효성 검증에서 처리)
                 .description(command.getDescription()) // 필수 필드: 정규화 없음 (유효성 검증에서 처리)
-                .readme(TextFieldHelper.normalizeText(command.getReadme())) // 선택 필드
                 .type(TextFieldHelper.normalizeText(command.getType())) // 선택 필드
                 .status(TextFieldHelper.normalizeText(command.getStatus())) // 선택 필드
                 .isTeam(isTeam)
@@ -124,6 +121,7 @@ public class ManageProjectService implements ManageProjectUseCase {
                 .liveUrl(TextFieldHelper.normalizeText(command.getLiveUrl())) // 선택 필드
                 .externalUrl(TextFieldHelper.normalizeText(command.getExternalUrl())) // 선택 필드
                 .sortOrder(sortOrder)
+                .technicalCards(toProjectTechnicalCards(command.getTechnicalCards()))
                 .createdAt(MetadataHelper.setupCreatedAt(null))
                 .updatedAt(MetadataHelper.setupUpdatedAt())
                 .build();
@@ -159,22 +157,20 @@ public class ManageProjectService implements ManageProjectUseCase {
     }
 
     private void applyUpdateCommandFields(Project project, ProjectUpdateCommand command) {
-        applyUpdateCommandTitleDescriptionReadmeTypeStatus(project, command);
+        applyUpdateCommandTitleDescriptionTypeStatus(project, command);
         applyUpdateCommandRoleContributionsDates(project, command);
         project.updateTeamInfo(command.getIsTeam(), command.getTeamSize());
         applyUpdateCommandFeaturedImageScreenshots(project, command);
         applyUpdateCommandLinksAndSortOrder(project, command);
+        applyUpdateCommandTechnicalCards(project, command);
     }
 
-    private void applyUpdateCommandTitleDescriptionReadmeTypeStatus(Project project, ProjectUpdateCommand command) {
+    private void applyUpdateCommandTitleDescriptionTypeStatus(Project project, ProjectUpdateCommand command) {
         if (command.getTitle() != null) {
             project.setTitle(command.getTitle());
         }
         if (command.getDescription() != null) {
             project.setDescription(command.getDescription());
-        }
-        if (command.getReadme() != null) {
-            project.setReadme(TextFieldHelper.normalizeText(command.getReadme()));
         }
         if (command.getType() != null) {
             project.setType(TextFieldHelper.normalizeText(command.getType()));
@@ -228,6 +224,13 @@ public class ManageProjectService implements ManageProjectUseCase {
         if (command.getSortOrder() != null) {
             project.setSortOrder(command.getSortOrder());
         }
+    }
+
+    private void applyUpdateCommandTechnicalCards(Project project, ProjectUpdateCommand command) {
+        if (command.getTechnicalCards() == null) {
+            return;
+        }
+        project.setTechnicalCards(toProjectTechnicalCardsForUpdate(command.getTechnicalCards()));
     }
 
     private void removeObsoleteCloudinaryAssetsAfterUpdate(
@@ -394,5 +397,63 @@ public class ManageProjectService implements ManageProjectUseCase {
             return new ProjectRelationshipPort.TechStackRelation(techStackId, isPrimary, usageDescription);
         }
     }
-}
 
+    public Project updateProjectTechnicalCards(
+            String id,
+            List<ProjectUpdateCommand.ProjectTechnicalCardCommand> technicalCards) {
+        ProjectUpdateCommand command = ProjectUpdateCommand.builder()
+                .technicalCards(technicalCards)
+                .build();
+        return updateProject(id, command);
+    }
+
+    private List<ProjectTechnicalCard> toProjectTechnicalCards(
+            List<ProjectCreateCommand.ProjectTechnicalCardCommand> commands) {
+        if (commands == null) {
+            return new ArrayList<>();
+        }
+        return commands.stream()
+                .map(this::toProjectTechnicalCard)
+                .toList();
+    }
+
+    private List<ProjectTechnicalCard> toProjectTechnicalCardsForUpdate(
+            List<ProjectUpdateCommand.ProjectTechnicalCardCommand> commands) {
+        if (commands == null) {
+            return null;
+        }
+        return commands.stream()
+                .map(this::toProjectTechnicalCard)
+                .toList();
+    }
+
+    private ProjectTechnicalCard toProjectTechnicalCard(ProjectCreateCommand.ProjectTechnicalCardCommand command) {
+        return ProjectTechnicalCard.builder()
+                .id(command.getId())
+                .businessId(TextFieldHelper.normalizeText(command.getBusinessId()))
+                .title(TextFieldHelper.normalizeText(command.getTitle()))
+                .category(TextFieldHelper.normalizeText(command.getCategory()))
+                .problemStatement(TextFieldHelper.normalizeText(command.getProblemStatement()))
+                .analysis(TextFieldHelper.normalizeText(command.getAnalysis()))
+                .solution(TextFieldHelper.normalizeText(command.getSolution()))
+                .articleId(command.getArticleId())
+                .pinned(Boolean.TRUE.equals(command.getIsPinned()))
+                .sortOrder(command.getSortOrder() != null ? command.getSortOrder() : 0)
+                .build();
+    }
+
+    private ProjectTechnicalCard toProjectTechnicalCard(ProjectUpdateCommand.ProjectTechnicalCardCommand command) {
+        return ProjectTechnicalCard.builder()
+                .id(command.getId())
+                .businessId(TextFieldHelper.normalizeText(command.getBusinessId()))
+                .title(TextFieldHelper.normalizeText(command.getTitle()))
+                .category(TextFieldHelper.normalizeText(command.getCategory()))
+                .problemStatement(TextFieldHelper.normalizeText(command.getProblemStatement()))
+                .analysis(TextFieldHelper.normalizeText(command.getAnalysis()))
+                .solution(TextFieldHelper.normalizeText(command.getSolution()))
+                .articleId(command.getArticleId())
+                .pinned(Boolean.TRUE.equals(command.getIsPinned()))
+                .sortOrder(command.getSortOrder() != null ? command.getSortOrder() : 0)
+                .build();
+    }
+}

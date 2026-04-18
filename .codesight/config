@@ -1,0 +1,27 @@
+# CodeSight configuration — AI_PortFolio (see https://github.com/mattsilv/codesight)
+# Regenerate dump: npm run codesight (repo root)
+
+# File extensions to include (space-separated). Omit .md/.css by default — epic/docs and styles balloon file count.
+FILE_EXTENSIONS=".ts .tsx .js .jsx .java"
+
+# Limits for token optimization (raise MAX_FILES if the dump truncates too aggressively)
+MAX_LINES_PER_FILE=150
+# Default cap — raise if you need broader dumps (runtime grows quickly on Git Bash / Windows).
+MAX_FILES=200
+MAX_FILE_SIZE=120000
+
+# Excluded patterns (tool may also honor .gitignore — see RESPECT_GITIGNORE)
+EXCLUDED_FILES=("package-lock.json" "yarn.lock" "pnpm-lock.yaml" ".DS_Store")
+EXCLUDED_FOLDERS=("node_modules" "dist" "build" "target" ".git" "coverage" "storybook-static" ".scannerwork" ".sonar" "venv" "__pycache__")
+
+RESPECT_GITIGNORE=true
+
+ENABLE_ULTRA_COMPACT_FORMAT=false
+REMOVE_COMMENTS=true
+REMOVE_EMPTY_LINES=true
+REMOVE_IMPORTS=false
+ABBREVIATE_HEADERS=false
+TRUNCATE_PATHS=false
+MINIMIZE_METADATA=false
+SHORT_DATE_FORMAT=true
+SKIP_BINARY_FILES=true

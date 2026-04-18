@@ -110,17 +110,17 @@ export const useScrollToSection = (
     if (element) {
       // 요소를 찾았으면 스크롤 수행
       const rect = element.getBoundingClientRect();
-      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      const scrollTop = globalThis.pageYOffset || document.documentElement.scrollTop;
       const elementTop = rect.top + scrollTop;
 
       // CSS scroll-margin-top을 고려
-      const computedStyle = window.getComputedStyle(element);
-      const scrollMarginTop = parseInt(computedStyle.scrollMarginTop) || 0;
+      const computedStyle = globalThis.getComputedStyle(element);
+      const scrollMarginTop = Number.parseInt(computedStyle.scrollMarginTop, 10) || 0;
       const finalOffset = offset + scrollMarginTop;
 
       const targetScrollTop = elementTop - finalOffset;
 
-      window.scrollTo({
+      globalThis.scrollTo({
         top: Math.max(0, targetScrollTop),
         behavior
       });

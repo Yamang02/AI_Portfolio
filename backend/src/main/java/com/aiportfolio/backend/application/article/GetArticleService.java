@@ -10,6 +10,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -53,5 +55,10 @@ public class GetArticleService implements GetArticleUseCase {
     @Override
     public Optional<Article> findNextArticle(java.time.LocalDateTime publishedAt) {
         return articleRepository.findNextArticle(publishedAt);
+    }
+
+    @Override
+    public Map<Long, String> resolveBusinessIds(List<Long> ids) {
+        return articleRepository.resolveBusinessIds(ids);
     }
 }

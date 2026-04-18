@@ -31,7 +31,7 @@ export const RedisCacheCard: React.FC<RedisCacheCardProps> = ({
     <Card
       hoverable
       style={{ height: '100%' }}
-      bodyStyle={{ padding: '24px' }}
+      styles={{ body: { padding: '24px' } }}
     >
       <Space direction="vertical" size="large" style={{ width: '100%' }}>
         {/* 헤더 */}

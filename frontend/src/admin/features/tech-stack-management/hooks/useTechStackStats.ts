@@ -10,7 +10,7 @@ export const useTechStackStats = (techStacks: TechStackMetadata[] = []) => {
     const total = techStacks.length;
     const active = techStacks.filter(t => t.isActive).length;
     const core = techStacks.filter(t => t.isCore).length;
-    const categories = [...new Set(techStacks.map(t => t.category))].length;
+    const categories = new Set(techStacks.map((t) => t.category)).size;
 
     return {
       total,

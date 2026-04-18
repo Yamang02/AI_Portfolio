@@ -1,4 +1,4 @@
-.sectionTitle {
+﻿.sectionTitle {
   font-family: inherit;
   color: var(--color-text-title);
   line-height: 1.25;
@@ -6,51 +6,47 @@
 }
 
 .h1 {
-  font-size: 2.25rem; /* 36px */
-  font-weight: 400;
-  font-family: 'Griun PolSensibility', 'Cormorant Garamond', 'Noto Serif KR', Georgia, 'Times New Roman', serif;
-  margin-bottom: 1.5rem; /* 24px */
-  /* color는 부모 .sectionTitle에서 var(--color-text-title) 상속 */
+  font-size: 2.25rem;
+  font-weight: 500;
+  font-family: 'Newsreader', 'Gowun Batang', 'Noto Serif KR', Georgia, serif;
+  margin-bottom: 1.5rem;
 }
 
-/* 서브타이틀: Cormorant Garamond(영문) + Noto Serif KR(한글) - 타이틀과 본문 사이 중간 단계 */
 .h2 {
-  font-size: 1.875rem; /* 30px */
-  font-weight: 700; /* 굵게 */
-  font-family: 'Cormorant Garamond', 'Noto Serif KR', Georgia, 'Times New Roman', serif;
-  margin-bottom: 1.25rem; /* 20px */
+  font-size: 1.875rem;
+  font-weight: 700;
+  font-family: 'Newsreader', 'Gowun Batang', 'Noto Serif KR', Georgia, serif;
+  margin-bottom: 1.25rem;
 }
 
 .h3 {
-  font-size: 1.5rem; /* 24px */
-  font-weight: 700; /* 굵게 */
-  font-family: 'Cormorant Garamond', 'Noto Serif KR', Georgia, 'Times New Roman', serif;
-  margin-bottom: 1rem; /* 16px */
-  /* color는 부모 .sectionTitle에서 var(--color-text-title) 상속 */
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: 'Newsreader', 'Gowun Batang', 'Noto Serif KR', Georgia, serif;
+  margin-bottom: 1rem;
 }
 
 .h4 {
-  font-size: 1.25rem; /* 20px */
-  font-weight: 700; /* 굵게 */
-  font-family: 'Cormorant Garamond', 'Noto Serif KR', Georgia, 'Times New Roman', serif;
-  margin-bottom: 0.75rem; /* 12px */
+  font-size: 1.25rem;
+  font-weight: 700;
+  font-family: 'Newsreader', 'Gowun Batang', 'Noto Serif KR', Georgia, serif;
+  margin-bottom: 0.75rem;
 }
 
-/* Mobile */
 @media (max-width: 767px) {
   .h1 {
-    font-size: 1.875rem; /* 30px */
+    font-size: 1.875rem;
   }
 
   .h2 {
-    font-size: 1.5rem; /* 24px */
+    font-size: 1.5rem;
   }
 
   .h3 {
-    font-size: 1.25rem; /* 20px */
+    font-size: 1.25rem;
   }
 
   .h4 {
-    font-size: 1.125rem; /* 18px */
+    font-size: 1.125rem;
   }
 }

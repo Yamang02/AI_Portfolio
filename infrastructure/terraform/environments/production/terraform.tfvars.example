@@ -4,3 +4,6 @@ gcp_project_id = "your-gcp-project-id"
 gcp_region     = "asia-northeast3"
 domain_name    = "example.com"
 frontend_bucket_name = "ai-portfolio-fe-production"
+
+# 선택: IAM member에 roles/cloudsql.admin
+# gcp_cloudsql_admin_member = "user:you@gmail.com"

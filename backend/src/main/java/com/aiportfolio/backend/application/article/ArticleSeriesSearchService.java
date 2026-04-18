@@ -2,8 +2,7 @@ package com.aiportfolio.backend.application.article;
 
 import com.aiportfolio.backend.domain.article.model.ArticleSeries;
 import com.aiportfolio.backend.domain.article.port.in.SearchArticleSeriesUseCase;
-import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.ArticleSeriesJpaEntity;
-import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.ArticleSeriesJpaRepository;
+import com.aiportfolio.backend.domain.article.port.out.ArticleSeriesRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -22,34 +21,16 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class ArticleSeriesSearchService implements SearchArticleSeriesUseCase {
     
-    private final ArticleSeriesJpaRepository jpaRepository;
+    private final ArticleSeriesRepositoryPort seriesRepositoryPort;
     
     @Override
     public List<ArticleSeries> searchByTitle(String keyword) {
         log.debug("Searching article series with keyword: {}", keyword);
         
         if (!StringUtils.hasText(keyword)) {
-            // 키워드가 없으면 빈 리스트 반환
             return List.of();
         }
-        
-        List<ArticleSeriesJpaEntity> entities = jpaRepository.findByTitleContainingIgnoreCase(keyword);
-        
-        return entities.stream()
-                .map(this::toDomain)
-                .toList();
-    }
-    
-    private ArticleSeries toDomain(ArticleSeriesJpaEntity entity) {
-        return ArticleSeries.builder()
-                .id(entity.getId())
-                .seriesId(entity.getSeriesId())
-                .title(entity.getTitle())
-                .description(entity.getDescription())
-                .thumbnailUrl(entity.getThumbnailUrl())
-                .sortOrder(entity.getSortOrder())
-                .createdAt(entity.getCreatedAt())
-                .updatedAt(entity.getUpdatedAt())
-                .build();
+
+        return seriesRepositoryPort.searchByTitleContaining(keyword);
     }
 }

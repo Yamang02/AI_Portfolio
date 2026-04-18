@@ -8,6 +8,8 @@ import com.aiportfolio.backend.domain.portfolio.model.Certification;
 import com.aiportfolio.backend.domain.portfolio.model.Education;
 import com.aiportfolio.backend.domain.portfolio.model.Experience;
 import com.aiportfolio.backend.domain.portfolio.model.Project;
+import com.aiportfolio.backend.domain.portfolio.model.ProjectReferenceByDatabaseId;
+import com.aiportfolio.backend.domain.portfolio.model.ProjectTechnicalCard;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -151,5 +153,24 @@ public class PortfolioService implements GetAllDataUseCase, GetProjectsUseCase {
     public Optional<Long> getProjectDatabaseIdByBusinessId(String businessId) {
         return portfolioRepositoryPort.findProjectDatabaseIdByBusinessId(businessId);
     }
-    
+
+    @Override
+    public Map<Long, ProjectReferenceByDatabaseId> getProjectReferencesByDatabaseIds(List<Long> databaseIds) {
+        return portfolioRepositoryPort.findProjectReferencesByDatabaseIds(databaseIds);
+    }
+
+    @Override
+    public Optional<ProjectReferenceByDatabaseId> getProjectReferenceByDatabaseId(Long databaseId) {
+        return portfolioRepositoryPort.findProjectReferenceByDatabaseId(databaseId);
+    }
+
+    @Override
+    public Optional<Project> getProjectByDatabaseId(Long databaseId) {
+        return portfolioRepositoryPort.findProjectByDatabaseId(databaseId);
+    }
+
+    @Override
+    public List<ProjectTechnicalCard> getTechnicalCardsByArticleDatabaseId(Long articleDatabaseId) {
+        return portfolioRepositoryPort.findTechnicalCardsByArticleDatabaseId(articleDatabaseId);
+    }
 }

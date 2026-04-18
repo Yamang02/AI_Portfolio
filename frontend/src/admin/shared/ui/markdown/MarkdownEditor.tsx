@@ -1,6 +1,6 @@
 import React, { useState, useRef, useCallback } from 'react';
 import MDEditor, { commands, ICommand } from '@uiw/react-md-editor';
-import { uploadApi } from '@/shared/api/upload-api';
+import { uploadApi } from '@/admin/shared/api';
 import { message } from 'antd';
 
 export interface MarkdownEditorProps {
@@ -42,7 +42,7 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
 
       // 현재 커서 위치 또는 지정된 위치에 업로드 중 표시
       const currentText = value || '';
-      const position = insertPosition !== undefined ? insertPosition : currentText.length;
+      const position = insertPosition ?? currentText.length;
       const uploadingText = `\n![업로드 중: ${file.name}...]()\n`;
       const newText = currentText.slice(0, position) + uploadingText + currentText.slice(position);
       
@@ -66,8 +66,9 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
       
       // 업로드 실패 시 업로드 중 텍스트 제거
       const currentText = value || '';
-      const cleanedText = currentText.replace(
-        new RegExp(`\\n!\\[업로드 중: ${file.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\.\\.\\.\\]\\(\\)\\n`, 'g'),
+      const escapedName = file.name.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
+      const cleanedText = currentText.replaceAll(
+        new RegExp(String.raw`\n!\[업로드 중: ${escapedName}\.\.\.\]\(\)\n`, 'g'),
         ''
       );
       onChange?.(cleanedText);

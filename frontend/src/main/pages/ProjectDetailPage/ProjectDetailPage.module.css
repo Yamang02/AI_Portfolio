@@ -63,18 +63,58 @@
   margin-top: var(--spacing-4);
 }
 
-.articlesList {
+.technicalCardsHeader {
   display: flex;
-  flex-direction: column;
-  gap: var(--spacing-4);
-  margin-top: var(--spacing-4);
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-4);
 }
 
-.paginationWrapper {
+.cardNav {
   display: flex;
-  justify-content: center;
-  margin-top: var(--spacing-6);
+  align-items: center;
+  gap: var(--spacing-2);
 }
+
+.cardNavBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--border-radius-sm);
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.cardNavBtn:hover:not(:disabled) {
+  color: var(--color-text-primary);
+  border-color: var(--color-text-primary);
+}
+
+.cardNavBtn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.cardNavPage {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  min-width: 40px;
+  text-align: center;
+}
+
+.technicalCards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+}
+
 
 .loading,
 .error {
@@ -119,4 +159,15 @@
   .screenshots {
     grid-template-columns: repeat(3, 1fr);
   }
+}
+
+@media (max-width: 767px) {
+  .container {
+    padding-top: var(--spacing-16);
+  }
+
+  .content {
+    padding: 0 var(--spacing-4);
+  }
+
 }

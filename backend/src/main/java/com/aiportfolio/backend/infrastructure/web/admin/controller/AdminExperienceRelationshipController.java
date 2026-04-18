@@ -34,7 +34,6 @@ public class AdminExperienceRelationshipController {
 
     private final ExperienceJpaRepository experienceJpaRepository;
     private final TechStackMetadataJpaRepository techStackMetadataJpaRepository;
-    private final ProjectJpaRepository projectJpaRepository;
     private final ExperienceTechStackJpaRepository experienceTechStackJpaRepository;
     private final ExperienceProjectJpaRepository experienceProjectJpaRepository;
     private final ExperienceRelationshipPort experienceRelationshipPort;
@@ -238,25 +237,17 @@ public class AdminExperienceRelationshipController {
             ExperienceJpaEntity experience = experienceJpaRepository.findByBusinessId(id)
                 .orElseThrow(() -> new IllegalArgumentException(EXPERIENCE_NOT_FOUND));
 
-            // Business ID로 프로젝트 조회
-            ProjectJpaEntity project = projectJpaRepository.findByBusinessId(request.getProjectBusinessId())
-                .orElseThrow(() -> new IllegalArgumentException("Project not found: " + request.getProjectBusinessId()));
-
-            // 중복 체크
-            if (experienceProjectJpaRepository
-                .findByExperienceIdAndProjectId(experience.getId(), project.getId()) != null) {
+            if (experienceRelationshipPort.hasProjectRelationship(
+                    experience.getId(), request.getProjectBusinessId())) {
                 return ResponseEntity.badRequest()
                     .body(ApiResponse.error(AdminApiErrorMessages.RELATION_ALREADY_EXISTS));
             }
 
-            ExperienceProjectJpaEntity relationship = ExperienceProjectJpaEntity.builder()
-                .experience(experience)
-                .project(project)
-                .roleInProject(request.getRoleInProject())
-                .contributionDescription(request.getContributionDescription())
-                .build();
-
-            experienceProjectJpaRepository.save(relationship);
+            experienceRelationshipPort.addProjectRelationship(
+                    experience.getId(),
+                    request.getProjectBusinessId(),
+                    request.getRoleInProject(),
+                    request.getContributionDescription());
 
             log.info("Added project relationship: experience={}, project={}", id, request.getProjectBusinessId());
             return ResponseEntity.ok(ApiResponse.success(null, WebApiResponseMessages.PROJECT_RELATION_ADD_SUCCESS));
@@ -308,25 +299,17 @@ public class AdminExperienceRelationshipController {
             ExperienceJpaEntity experience = experienceJpaRepository.findByBusinessId(id)
                 .orElseThrow(() -> new IllegalArgumentException(EXPERIENCE_NOT_FOUND_WITH_ID + id));
             
-            // BulkProjectRelationshipRequest를 ExperienceRelationshipPort.ProjectRelation으로 변환
-            // 비즈니스 ID를 DB ID로 변환
-            List<ExperienceRelationshipPort.ProjectRelation> projectRelations = 
-                (request.getProjectRelationships() == null || request.getProjectRelationships().isEmpty())
-                    ? Collections.emptyList()
-                    : request.getProjectRelationships().stream()
-                        .map(item -> {
-                            ProjectJpaEntity project = projectJpaRepository.findByBusinessId(item.getProjectBusinessId())
-                                .orElseThrow(() -> new IllegalArgumentException("Project not found: " + item.getProjectBusinessId()));
-                            return new ExperienceRelationshipPort.ProjectRelation(
-                                project.getId(),
-                                item.getRoleInProject(),
-                                item.getContributionDescription()
-                            );
-                        })
-                        .toList();
+            List<ExperienceRelationshipPort.ExperienceProjectBulkItem> projectInputs =
+                    (request.getProjectRelationships() == null || request.getProjectRelationships().isEmpty())
+                            ? Collections.emptyList()
+                            : request.getProjectRelationships().stream()
+                                    .map(item -> new ExperienceRelationshipPort.ExperienceProjectBulkItem(
+                                            item.getProjectBusinessId(),
+                                            item.getRoleInProject(),
+                                            item.getContributionDescription()))
+                                    .toList();
 
-            // Merge 전략을 사용하여 관계 업데이트
-            experienceRelationshipPort.replaceProjects(experience.getId(), projectRelations);
+            experienceRelationshipPort.replaceProjectsFromBusinessIds(experience.getId(), projectInputs);
             
             log.info("Updated project relationships for experience: {} (using merge strategy)", id);
             return ResponseEntity.ok(ApiResponse.success(null, WebApiResponseMessages.PROJECT_RELATION_BULK_UPDATE_SUCCESS));

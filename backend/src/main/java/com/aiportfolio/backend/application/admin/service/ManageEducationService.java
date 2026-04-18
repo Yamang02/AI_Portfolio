@@ -9,10 +9,6 @@ import com.aiportfolio.backend.domain.portfolio.port.in.ManageEducationUseCase;
 import com.aiportfolio.backend.domain.portfolio.port.out.PortfolioRepositoryPort;
 import com.aiportfolio.backend.domain.portfolio.port.out.EducationRelationshipPort;
 import com.aiportfolio.backend.domain.portfolio.port.out.PortfolioCachePort;
-import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.EducationJpaEntity;
-import com.aiportfolio.backend.infrastructure.persistence.postgres.entity.ProjectJpaEntity;
-import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.EducationJpaRepository;
-import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.ProjectJpaRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -35,8 +31,6 @@ public class ManageEducationService implements ManageEducationUseCase {
     private final PortfolioRepositoryPort portfolioRepositoryPort;
     private final EducationRelationshipPort educationRelationshipPort;
     private final SortOrderService sortOrderService;
-    private final EducationJpaRepository educationJpaRepository;
-    private final ProjectJpaRepository projectJpaRepository;
     private final PortfolioCachePort portfolioCachePort;
 
     public Education createEducationWithRelations(Education education,
@@ -141,10 +135,8 @@ public class ManageEducationService implements ManageEducationUseCase {
     private void replaceAllRelationships(String educationBusinessId,
                                          List<TechStackRelation> techStacks,
                                          List<ProjectRelation> projects) {
-        // Education businessId를 DB ID로 변환
-        EducationJpaEntity educationEntity = educationJpaRepository.findByBusinessId(educationBusinessId)
+        Long educationId = portfolioRepositoryPort.findEducationDatabaseIdByBusinessId(educationBusinessId)
                 .orElseThrow(() -> new IllegalArgumentException("Education not found: " + educationBusinessId));
-        Long educationId = educationEntity.getId();
         
         if (techStacks != null) {
             List<EducationRelationshipPort.TechStackRelation> portTechStackRelations = techStacks.stream()
@@ -157,11 +149,10 @@ public class ManageEducationService implements ManageEducationUseCase {
         if (projects != null) {
             List<EducationRelationshipPort.ProjectRelation> portProjectRelations = projects.stream()
                     .map(rel -> {
-                        // Project businessId를 DB ID로 변환
-                        ProjectJpaEntity projectEntity = projectJpaRepository.findByBusinessId(rel.projectBusinessId())
+                        Long projectId = portfolioRepositoryPort.findProjectDatabaseIdByBusinessId(rel.projectBusinessId())
                                 .orElseThrow(() -> new IllegalArgumentException("Project not found: " + rel.projectBusinessId()));
                         return new EducationRelationshipPort.ProjectRelation(
-                                projectEntity.getId(), rel.projectType(), rel.grade()); // projectEntity.getId()는 DB ID (Long)
+                                projectId, rel.projectType(), rel.grade());
                     })
                     .toList();
             educationRelationshipPort.replaceProjects(educationId, portProjectRelations);
@@ -207,4 +198,3 @@ public class ManageEducationService implements ManageEducationUseCase {
     public record ProjectRelation(String projectBusinessId, String projectType, String grade) {
     }
 }
-

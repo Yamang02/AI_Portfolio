@@ -1,5 +1,5 @@
 // API 클라이언트 - 백엔드 서버와 통신 (하이브리드 방식)
-import type { ApiResponse, BackendChatResponse, ChatbotResponse } from '@/shared/types/api';
+import type { ApiResponse as ApiResponseType, BackendChatResponse, ChatbotResponse } from '@/shared/types/api';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
@@ -13,7 +13,7 @@ class ApiClient {
   private async request<T>(
     endpoint: string,
     options: RequestInit = {}
-  ): Promise<ApiResponse<T>> {
+  ): Promise<ApiResponseType<T>> {
     const url = `${this.baseURL}${endpoint}`;
 
     const defaultOptions: RequestInit = {
@@ -84,7 +84,7 @@ class ApiClient {
   }
 
   async getProjectById(id: string): Promise<any> {
-    const response = await this.request<any>(`/api/projects/${id}`);
+    const response = await this.request<any>(`/api/data/projects/${encodeURIComponent(id)}`);
     return response.data;
   }
 
@@ -176,4 +176,4 @@ class ApiClient {
 export const apiClient = new ApiClient();
 
 // 타입 정의
-export type { ApiResponse }; 
+export type { ApiResponse } from '@/shared/types/api';

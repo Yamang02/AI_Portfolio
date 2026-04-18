@@ -20,7 +20,6 @@ import { SaveOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 import { MarkdownEditor } from '@/admin/shared/ui/markdown/MarkdownEditor';
 import { ProjectSearchSelect } from '@/admin/shared/ui/ProjectSearchSelect';
 import { SeriesSearchSelect } from '@/admin/shared/ui/SeriesSearchSelect';
-import { Article } from '../entities/article';
 import { ARTICLE_CATEGORIES } from '@/shared/article';
 import {
   useAdminArticleQuery,
@@ -45,7 +44,7 @@ const ArticleEdit: React.FC = () => {
 
   const isNew = !id || id === 'new';
   const articleId = id && id !== 'new' ? Number(id) : 0;
-  const { data: article, isLoading } = useAdminArticleQuery(articleId, { enabled: !isNew && !!id && !isNaN(articleId) && articleId > 0 });
+  const { data: article, isLoading } = useAdminArticleQuery(articleId, { enabled: !isNew && !!id && !Number.isNaN(articleId) && articleId > 0 });
   const createMutation = useCreateArticleMutation();
   const updateMutation = useUpdateArticleMutation();
 

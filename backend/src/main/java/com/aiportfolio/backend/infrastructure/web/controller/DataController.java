@@ -11,6 +11,7 @@ import com.aiportfolio.backend.domain.portfolio.model.Certification;
 import com.aiportfolio.backend.domain.portfolio.model.Education;
 import com.aiportfolio.backend.domain.portfolio.model.Experience;
 import com.aiportfolio.backend.domain.portfolio.model.Project;
+import com.aiportfolio.backend.domain.portfolio.model.ProjectTechnicalCard;
 import com.aiportfolio.backend.domain.portfolio.port.in.GetProjectsUseCase;
 import com.aiportfolio.backend.domain.portfolio.port.in.GetAllDataUseCase;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * 데이터 웹 컨트롤러 (헥사고날 아키텍처 Infrastructure/Web Layer)
@@ -39,7 +41,7 @@ public class DataController {
     private final GetProjectsUseCase getProjectsUseCase;
     private final GetAllDataUseCase getAllDataUseCase;
     private final GetArticleUseCase getArticleUseCase;
-    
+
     public DataController(
             @Qualifier("portfolioService") GetProjectsUseCase getProjectsUseCase,
             @Qualifier("portfolioApplicationService") GetAllDataUseCase getAllDataUseCase,
@@ -61,9 +63,11 @@ public class DataController {
                 .filter(Project.class::isInstance)
                 .map(Project.class::cast)
                 .map(project -> {
-                    // 각 프로젝트의 development-timeline Article 조회
                     List<ArticleSummary> developmentTimelineArticles = getDevelopmentTimelineArticles(project);
-                    return ProjectDataResponse.from(project, developmentTimelineArticles);
+                    ProjectDataResponse.ProjectOverviewArticleSummary projectOverviewArticle =
+                            getProjectOverviewArticle(project);
+                    Map<Long, String> articleBusinessIdMap = buildArticleBusinessIdMap(project);
+                    return ProjectDataResponse.from(project, developmentTimelineArticles, projectOverviewArticle, articleBusinessIdMap);
                 })
                 .toList();
             responseData.put("projects", mappedProjects);
@@ -78,12 +82,30 @@ public class DataController {
         List<Project> projects = getProjectsUseCase.getAllProjects();
         List<ProjectDataResponse> responses = projects.stream()
             .map(project -> {
-                // 각 프로젝트의 development-timeline Article 조회
                 List<ArticleSummary> developmentTimelineArticles = getDevelopmentTimelineArticles(project);
-                return ProjectDataResponse.from(project, developmentTimelineArticles);
+                ProjectDataResponse.ProjectOverviewArticleSummary projectOverviewArticle =
+                        getProjectOverviewArticle(project);
+                Map<Long, String> articleBusinessIdMap = buildArticleBusinessIdMap(project);
+                return ProjectDataResponse.from(project, developmentTimelineArticles, projectOverviewArticle, articleBusinessIdMap);
             })
             .toList();
         return ResponseEntity.ok(ApiResponse.success(responses, WebApiResponseMessages.PROJECT_LIST_SUCCESS));
+    }
+
+    @GetMapping("/projects/{id}")
+    @Operation(summary = "프로젝트 단건 조회", description = "비즈니스 ID로 단일 프로젝트를 조회합니다.")
+    public ResponseEntity<ApiResponse<ProjectDataResponse>> getProject(@PathVariable String id) {
+        Optional<Project> found = getProjectsUseCase.getProjectById(id);
+        if (found.isEmpty()) {
+            return ResponseEntity.status(404)
+                    .body(ApiResponse.error(WebApiResponseMessages.PROJECT_NOT_FOUND, "id: " + id));
+        }
+        Project project = found.get();
+        List<ArticleSummary> developmentTimelineArticles = getDevelopmentTimelineArticles(project);
+        ProjectDataResponse.ProjectOverviewArticleSummary projectOverviewArticle = getProjectOverviewArticle(project);
+        Map<Long, String> articleBusinessIdMap = buildArticleBusinessIdMap(project);
+        ProjectDataResponse response = ProjectDataResponse.from(project, developmentTimelineArticles, projectOverviewArticle, articleBusinessIdMap);
+        return ResponseEntity.ok(ApiResponse.success(response, WebApiResponseMessages.PROJECT_GET_SUCCESS));
     }
 
     /**
@@ -109,6 +131,40 @@ public class DataController {
             .stream()
             .map(this::toArticleSummary)
             .toList();
+    }
+
+    private ProjectDataResponse.ProjectOverviewArticleSummary getProjectOverviewArticle(Project project) {
+        Long projectDbId = getProjectsUseCase.getProjectDatabaseIdByBusinessId(project.getId()).orElse(null);
+        if (projectDbId == null) {
+            return null;
+        }
+
+        ArticleFilter filter = new ArticleFilter();
+        filter.setCategory("project-overview");
+        filter.setProjectId(projectDbId);
+
+        Pageable pageable = PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC, "publishedAt"));
+        return getArticleUseCase.findByFilter(filter, pageable)
+                .getContent()
+                .stream()
+                .findFirst()
+                .map(article -> ProjectDataResponse.ProjectOverviewArticleSummary.builder()
+                        .businessId(article.getBusinessId())
+                        .title(article.getTitle())
+                        .content(article.getContent())
+                        .build())
+                .orElse(null);
+    }
+
+    private Map<Long, String> buildArticleBusinessIdMap(Project project) {
+        if (project.getTechnicalCards() == null) return Map.of();
+        List<Long> articleIds = project.getTechnicalCards().stream()
+                .map(ProjectTechnicalCard::getArticleId)
+                .filter(id -> id != null)
+                .distinct()
+                .toList();
+        if (articleIds.isEmpty()) return Map.of();
+        return getArticleUseCase.resolveBusinessIds(articleIds);
     }
 
     /**

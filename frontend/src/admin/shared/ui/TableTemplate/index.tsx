@@ -14,7 +14,7 @@ export interface TableTemplateProps<T> extends TableProps<T> {
 export function TableTemplate<T extends Record<string, any>>({
   header,
   ...tableProps
-}: TableTemplateProps<T>) {
+}: Readonly<TableTemplateProps<T>>) {
   return (
     <div className="table-template">
       {header && <div className="table-template__header" style={{ marginBottom: 16 }}>{header}</div>}

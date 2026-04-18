@@ -22,3 +22,21 @@ export {
   PROJECT_KEYS,
 } from './api/useProjectQuery';
 
+// Admin CRUD API + hooks
+export {
+  adminProjectApi,
+} from './api/adminProjectApi';
+export type {
+  ProjectFilter,
+  ProjectCreateRequest,
+  ProjectUpdateRequest,
+  ProjectTechnicalCard,
+} from './api/adminProjectApi';
+export {
+  useProjects,
+  useProject,
+  useCreateProject,
+  useUpdateProject,
+  useDeleteProject,
+} from './api/useProjects';
+

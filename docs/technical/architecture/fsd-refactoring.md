@@ -1,89 +1,155 @@
-# FSD 아키텍처 리팩토링
+# Frontend 아키텍처 가이드
 
-> Feature-Sliced Design 아키텍처로의 전환 및 정리 작업
+## 구조 원칙
 
-## 현재 상태
+`frontend`는 `main`(portfolio-public)과 `admin`(portfolio-admin) 두 개의 독립 앱으로 구성된다.
+각 앱은 FSD 6레이어를 적용하고, 추후 별도 repo로 분리 가능하도록 상호 직접 import를 금지한다.
 
-### ✅ 완료된 작업
+---
 
-#### Phase 1: shared 레이어 통합 ✅
-- ✅ `main/components/common/` → `shared/ui/` 통합 완료
-- ✅ `main/hooks/` → `shared/hooks/` 통합 완료
-- ✅ `main/shared/ui/` 제거 완료
-
-#### Phase 2: widgets 레이어 생성 ✅
-- ✅ `main/layout/` → `main/widgets/` 이동 완료
-- ✅ pages 내부 섹션 → widgets 이동 완료
-  - HeroSection, AboutSection, FeaturedProjectsSection, CTASection
-
-#### Phase 3: features 통합 ✅
-- ✅ `features/projects` 디렉토리 제거 완료
-- ✅ `features/project-gallery`만 유지 (ProjectDetailPage에서 사용 중)
-- ✅ 중복 컴포넌트 및 utils 제거 완료
-
-#### Phase 4: entities 정리 ✅
-- ✅ `entities/techstack` 빈 디렉토리 제거 완료
-- ✅ `TechStackStatistics` 타입 이동 완료
-- ✅ export 정리 완료
-
-## 최종 FSD 구조
+## 디렉터리 구조
 
 ```
-src/
-├── main/
-│   ├── app/              # 애플리케이션 초기화, 라우팅, 프로바이더
-│   ├── pages/            # 페이지 컴포넌트
-│   ├── widgets/          # 복합 UI 블록 (레이아웃, 섹션)
-│   ├── features/         # 사용자 기능
-│   └── entities/         # 비즈니스 엔티티
-│
-├── admin/
-│   ├── app/
-│   ├── pages/
-│   ├── features/
-│   └── entities/
-│
-├── design-system/        # 디자인 시스템 컴포넌트
-└── shared/              # 재사용 가능한 코드
-    ├── ui/
-    ├── hooks/
-    ├── lib/
-    ├── services/
-    └── types/
+frontend/src/
+  main/                  ← portfolio-public 앱
+    app/
+    pages/
+    widgets/
+    features/
+    entities/
+    shared/              ← main 전용 공용 코드
+  admin/                 ← portfolio-admin 앱
+    app/
+    pages/
+    widgets/
+    features/
+    entities/
+    shared/              ← admin 전용 공용 코드
+  design-system/         ← cross-app UI 컴포넌트 및 토큰
+  shared/                ← cross-app 공용 코드 (최소화)
 ```
 
-## FSD 원칙
+---
 
-### 레이어 의존성 규칙
-- ✅ `app` → 모든 레이어 사용 가능
-- ✅ `pages` → `widgets`, `features`, `entities`, `shared` 사용
-- ✅ `widgets` → `features`, `entities`, `shared` 사용
-- ✅ `features` → `entities`, `shared` 사용
-- ✅ `entities` → `shared` 사용
-- ✅ `shared` → 의존성 없음
+## FSD 레이어 규칙
 
-### 세그먼트 구조
-각 슬라이스는 다음 세그먼트를 가질 수 있음:
-- `ui/` - UI 컴포넌트
-- `model/` - 타입, 인터페이스, 상태
-- `api/` - API 호출 (entities, features만)
-- `lib/` - 유틸리티 함수
-- `config/` - 설정 파일
+각 앱 내부의 의존 방향 (단방향, 아래로만):
 
-### Public API
-각 슬라이스는 `index.ts`를 통해 Public API만 export:
+```
+app → pages → widgets → features → entities → shared
+```
+
+- `app`: 진입점, 라우팅, 전역 Provider
+- `pages`: 라우트에 대응하는 페이지 컴포넌트
+- `widgets`: 여러 feature/entity를 조합하는 복합 UI 블록
+- `features`: 사용자 인터랙션 단위 기능
+- `entities`: 비즈니스 도메인 객체 (타입, API, 상태)
+- `shared`: 앱 내 공용 유틸, UI 프리미티브
+
+---
+
+## 파일 depth 규칙
+
+layer를 depth 1로 기준 삼아 최대 4 depth:
+
+```
+pages/                          ← depth 1 (layer)
+  ArticleListPage/               ← depth 2 (slice)
+    index.ts                     ← slice public API
+    ui/                          ← depth 3 (segment)
+      ArticleListPage.tsx        ← depth 4
+      ArticleListPage.module.css ← depth 4
+    model/                       ← depth 3 (segment)
+      types.ts                   ← depth 4
+    api/                         ← depth 3 (segment)
+      useArticleListQuery.ts     ← depth 4
+```
+
+### Segment 종류
+
+| segment | 용도 |
+|---------|------|
+| `ui/` | React 컴포넌트, CSS Module |
+| `model/` | 타입, 인터페이스, 상태 |
+| `api/` | API 호출, React Query hooks |
+| `lib/` | 유틸리티 함수 |
+| `config/` | 상수, 설정값 |
+
+---
+
+## Public API 규칙
+
+각 slice는 `index.ts`를 통해서만 외부에 노출한다.
+
 ```typescript
-// ✅ Good
-export { Component } from './ui/Component';
-export type { ComponentProps } from './model/types';
+// ✅ Good — slice 외부에서
+import { ArticleListPage } from '@main/pages/ArticleListPage';
 
-// ❌ Bad
-export * from './ui/Component';
-export * from './lib/utils';  // 내부 구현 노출
+// ❌ Bad — 내부 구현에 직접 접근
+import { ArticleListPage } from '@main/pages/ArticleListPage/ui/ArticleListPage';
 ```
 
-## 참고 자료
+### Slice import 강제 원칙
 
-- [FSD 공식 문서](https://feature-sliced.design/)
-- [FSD Best Practices](https://feature-sliced.design/docs/guides/best-practices)
-- [FSD 레이어 규칙](https://feature-sliced.design/docs/get-started/architecture)
+- slice **외부**(상위/하위 레이어 포함)에서 해당 slice를 사용할 때는 항상 `slice root` 경로로 import한다.
+- `slice root` 경로 import는 결과적으로 해당 slice의 `index.ts` public API를 사용한다.
+- 같은 앱 내부에서도 `features/*/ui/*`, `entities/*/model/*` 같은 내부 구현 경로 직접 import를 금지한다.
+- 예외: 같은 slice 내부 파일끼리(`ui`/`model`/`api`/`lib`) 참조할 때만 내부 경로 import를 허용한다.
+- 같은 slice 내부 참조는 alias deep import 대신 상대경로를 사용한다.
+
+```typescript
+// ✅ Good — slice root(public API)
+import { LikeButton } from '@main/features/like-post';
+
+// ❌ Bad — slice 내부 구현 직접 접근
+import { LikeButton } from '@main/features/like-post/ui/LikeButton';
+```
+
+---
+
+## Path Alias
+
+| alias | 경로 | 용도 |
+|-------|------|------|
+| `@/*` | `src/*` | 절대경로 fallback |
+| `@main/*` | `src/main/*` | main 앱 |
+| `@admin/*` | `src/admin/*` | admin 앱 |
+| `@shared/*` | `src/shared/*` | cross-app 공용 |
+| `@design-system/*` | `src/design-system/*` | cross-app UI |
+
+---
+
+## Import 해석 기준 (프로젝트 정책)
+
+- 물리적 루트는 `frontend/src` 하나다.
+- 아키텍처 경계 관점의 논리 루트는 `@main`, `@admin`, `@shared`, `@design-system` 4개로 본다.
+- 프론트엔드 앱 코드에서는 확장자 명시 없이 slice root import를 기본으로 사용한다.
+- 단, 이 규칙은 **번들러(Vite) + TypeScript(`moduleResolution: bundler`) 전제**다.
+- Node ESM 런타임 코드(번들러 없이 실행되는 스크립트)는 별도 규칙(확장자 명시)을 따른다.
+
+```typescript
+// 동일한 public API 해석 의도
+import { LikeButton } from '@main/features/like-post';
+import { LikeButton } from '@main/features/like-post/index';
+```
+
+프로젝트 컨벤션은 첫 번째 형태(파일명 생략)를 표준으로 사용한다.
+
+---
+
+## Cross-app 의존 규칙
+
+- `main`과 `admin`은 서로 직접 import하지 않는다.
+- cross-app 공유가 필요한 코드는 `src/shared/` 또는 `src/design-system/`으로 승격한다.
+- `src/shared/`와 `src/design-system/`은 `main`/`admin`의 layer 코드를 import하지 않는다.
+
+---
+
+## shared/ 분류 기준
+
+| 위치 | 기준 |
+|------|------|
+| `main/shared/` | main 앱에서만 사용 |
+| `admin/shared/` | admin 앱에서만 사용 |
+| `src/shared/` | 두 앱 모두 실제로 사용 |
+| `src/design-system/` | UI 컴포넌트 및 디자인 토큰 |

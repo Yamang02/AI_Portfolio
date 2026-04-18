@@ -19,7 +19,7 @@ function sendToGA(metric: { name: string; value: number; id: string }): void {
 }
 
 export function reportWebVitals(onPerfEntry?: MetricHandler): void {
-  if (typeof window === 'undefined') return;
+  if (globalThis.window === undefined) return;
   import('web-vitals').then(({ onCLS, onINP, onFCP, onLCP, onTTFB }) => {
     const handle: MetricHandler = (metric) => {
       sendToGA(metric);

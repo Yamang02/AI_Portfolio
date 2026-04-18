@@ -1,8 +1,11 @@
 package com.aiportfolio.backend.domain.portfolio.port.in;
 
 import com.aiportfolio.backend.domain.portfolio.model.Project;
+import com.aiportfolio.backend.domain.portfolio.model.ProjectReferenceByDatabaseId;
+import com.aiportfolio.backend.domain.portfolio.model.ProjectTechnicalCard;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -45,4 +48,24 @@ public interface GetProjectsUseCase {
      * 비즈니스 ID에 대응하는 프로젝트 DB PK를 조회합니다.
      */
     Optional<Long> getProjectDatabaseIdByBusinessId(String businessId);
+
+    /**
+     * 프로젝트 DB PK 목록에 대한 businessId·제목 (배치, 단일 쿼리).
+     */
+    Map<Long, ProjectReferenceByDatabaseId> getProjectReferencesByDatabaseIds(List<Long> databaseIds);
+
+    /**
+     * 프로젝트 DB PK 한 건에 대한 businessId·제목.
+     */
+    Optional<ProjectReferenceByDatabaseId> getProjectReferenceByDatabaseId(Long databaseId);
+
+    /**
+     * 프로젝트 DB PK로 단일 프로젝트 조회 (공개 기사 상세의 프로젝트 블록용).
+     */
+    Optional<Project> getProjectByDatabaseId(Long databaseId);
+
+    /**
+     * 아티클 DB PK에 매핑된 프로젝트 기술 카드 목록.
+     */
+    List<ProjectTechnicalCard> getTechnicalCardsByArticleDatabaseId(Long articleDatabaseId);
 }

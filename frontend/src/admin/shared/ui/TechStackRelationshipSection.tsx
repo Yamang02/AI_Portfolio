@@ -4,8 +4,8 @@
  */
 
 import React, { useState, useMemo } from 'react';
-import { Select, Button, List, Tag, Input, Switch, App } from 'antd';
-import { SearchOutlined, CheckCircleOutlined } from '@ant-design/icons';
+import { Select, Button, Tag, Input, Switch, App } from 'antd';
+import { CheckCircleOutlined } from '@ant-design/icons';
 import { useAdminTechStacksQuery } from '../../entities/tech-stack';
 import type { TechStackMetadata } from '../../entities/tech-stack';
 

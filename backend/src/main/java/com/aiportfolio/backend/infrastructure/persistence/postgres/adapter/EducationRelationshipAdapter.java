@@ -187,7 +187,50 @@ public class EducationRelationshipAdapter implements EducationRelationshipPort {
         log.debug("Successfully replaced projects for education: {} (deleted: {}, added: {})",
                 educationId, toDelete.size(), toAdd.size());
     }
+
+    @Override
+    public boolean hasProjectRelationship(Long educationDbId, String projectBusinessId) {
+        if (projectBusinessId == null || projectBusinessId.isBlank()) {
+            return false;
+        }
+        return projectJpaRepository.findByBusinessId(projectBusinessId)
+                .map(p -> educationProjectJpaRepository.findByEducationIdAndProjectId(educationDbId, p.getId()) != null)
+                .orElse(false);
+    }
+
+    @Override
+    public void addProjectRelationship(
+            Long educationDbId,
+            String projectBusinessId,
+            String projectType,
+            String grade) {
+        EducationJpaEntity education = educationJpaRepository.findById(educationDbId)
+                .orElseThrow(() -> new IllegalArgumentException("Education not found"));
+        ProjectJpaEntity project = projectJpaRepository.findByBusinessId(projectBusinessId)
+                .orElseThrow(() -> new IllegalArgumentException("Project not found: " + projectBusinessId));
+        EducationProjectJpaEntity relation = EducationProjectJpaEntity.builder()
+                .education(education)
+                .project(project)
+                .projectType(projectType)
+                .grade(grade)
+                .build();
+        educationProjectJpaRepository.save(relation);
+    }
+
+    @Override
+    public void replaceProjectsFromBusinessIds(
+            Long educationDbId, List<EducationRelationshipPort.EducationProjectBulkItem> items) {
+        List<ProjectRelation> resolved = (items == null || items.isEmpty())
+                ? Collections.emptyList()
+                : items.stream()
+                        .map(i -> {
+                            ProjectJpaEntity project = projectJpaRepository.findByBusinessId(i.projectBusinessId())
+                                    .orElseThrow(() -> new IllegalArgumentException(
+                                            "Project not found: " + i.projectBusinessId()));
+                            return new ProjectRelation(project.getId(), i.projectType(), i.grade());
+                        })
+                        .toList();
+        replaceProjects(educationDbId, resolved);
+    }
 }
-
-
 

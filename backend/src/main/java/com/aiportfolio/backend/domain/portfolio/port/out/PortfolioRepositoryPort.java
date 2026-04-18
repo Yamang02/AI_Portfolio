@@ -2,12 +2,15 @@ package com.aiportfolio.backend.domain.portfolio.port.out;
 
 import com.aiportfolio.backend.domain.admin.model.ProjectAssetSnapshot;
 import com.aiportfolio.backend.domain.portfolio.model.Project;
+import com.aiportfolio.backend.domain.portfolio.model.ProjectReferenceByDatabaseId;
+import com.aiportfolio.backend.domain.portfolio.model.ProjectTechnicalCard;
 import com.aiportfolio.backend.domain.portfolio.model.Experience;
 import com.aiportfolio.backend.domain.portfolio.model.Education;
 import com.aiportfolio.backend.domain.portfolio.model.Certification;
 import com.aiportfolio.backend.domain.admin.model.vo.ProjectFilter;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -33,6 +36,26 @@ public interface PortfolioRepositoryPort {
      * (Article 필터 등 JPA FK 연동용 — 웹 계층은 이 포트만 경유합니다.)
      */
     Optional<Long> findProjectDatabaseIdByBusinessId(String businessId);
+
+    /**
+     * DB PK 목록에 해당하는 프로젝트의 businessId·제목을 한 번에 조회합니다 (배치).
+     */
+    Map<Long, ProjectReferenceByDatabaseId> findProjectReferencesByDatabaseIds(List<Long> databaseIds);
+
+    /**
+     * DB PK 한 건에 대한 businessId·제목 조회.
+     */
+    Optional<ProjectReferenceByDatabaseId> findProjectReferenceByDatabaseId(Long databaseId);
+
+    /**
+     * 프로젝트 DB PK로 단일 프로젝트를 조회합니다 (기술스택·카드 그래프 로딩 포함).
+     */
+    Optional<Project> findProjectByDatabaseId(Long databaseId);
+
+    /**
+     * 아티클 DB PK에 연결된 프로젝트 기술 카드 목록 (공개 기사 상세용).
+     */
+    List<ProjectTechnicalCard> findTechnicalCardsByArticleDatabaseId(Long articleDatabaseId);
     
     /**
      * 프로젝트 제목으로 검색합니다
@@ -115,6 +138,11 @@ public interface PortfolioRepositoryPort {
      * ID로 특정 교육을 조회합니다
      */
     Optional<Education> findEducationById(String id);
+
+    /**
+     * Education businessId에 해당하는 DB PK를 조회합니다.
+     */
+    Optional<Long> findEducationDatabaseIdByBusinessId(String businessId);
 
     /**
      * Education을 저장합니다 (생성/수정 공통)

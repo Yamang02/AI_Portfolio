@@ -1,26 +1,26 @@
 import React, { lazy, Suspense } from 'react';
 import { Navigate, Route, useLocation } from 'react-router-dom';
 import { PageLayout } from '@/main/widgets/page-layout';
-import { AnimatedRoutes } from '@/shared/ui/page-transition';
-import { LoadingScreen } from '@/shared/ui/LoadingScreen';
+import { AnimatedRoutes } from '@/main/shared/ui/page-transition';
+import { LoadingScreen } from '@/main/shared/ui/LoadingScreen';
 import { ErrorBoundary } from '@/shared/ui/error-boundary';
 
-// 나머지 페이지는 코드 스플리팅 적용
+// ?�머지 ?�이지??코드 ?�플리팅 ?�용
 const ProjectsListPage = lazy(() => import('@/main/pages/ProjectsListPage').then(m => ({ default: m.ProjectsListPage })));
 const ProjectDetailPage = lazy(() => import('@/main/pages/ProjectDetailPage').then(m => ({ default: m.ProjectDetailPage })));
-const ProfilePage = lazy(() => import('@/main/pages/ProfilePage').then(m => ({ default: m.ProfilePage })));
+const FounderPage = lazy(() => import('@/main/pages/FounderPage').then(m => ({ default: m.FounderPage })));
 const ChatPage = lazy(() => import('@/main/pages/ChatPage').then(m => ({ default: m.ChatPage })));
 const ArticleListPage = lazy(() => import('@/main/pages/ArticleListPage').then(m => ({ default: m.ArticleListPage })));
 const ArticleDetailPage = lazy(() => import('@/main/pages/ArticleDetailPage').then(m => ({ default: m.ArticleDetailPage })));
 
 /**
- * MainApp의 라우팅 컴포넌트
- * AppProvider는 App.tsx에서 상위로 감싼다.
+ * MainApp???�우??컴포?�트
+ * AppProvider??App.tsx?�서 ?�위�?감싼??
  */
 const MainAppContent: React.FC = () => {
   const location = useLocation();
 
-  // 푸터 표시: 프로필·프로젝트·아티클 목록에 표시 (챗봇·상세 제외)
+  // ?�터 ?�시: ?�로?�·프로젝?�·아?�클 목록???�시 (챗봇·?�세 ?�외)
   const showFooter =
     ['/profile', '/projects', '/articles'].includes(location.pathname) &&
     !location.pathname.startsWith('/projects/') &&
@@ -28,7 +28,7 @@ const MainAppContent: React.FC = () => {
 
   const isChatPage = location.pathname === '/chat';
 
-  // React Router의 기본 스크롤 복원 비활성화
+  // React Router??기본 ?�크�?복원 비활?�화
   React.useEffect(() => {
     if ('scrollRestoration' in history) {
       history.scrollRestoration = 'manual';
@@ -55,8 +55,8 @@ const MainAppContent: React.FC = () => {
             path="/profile"
             element={
               <ErrorBoundary>
-                <Suspense fallback={<LoadingScreen message="프로필을 불러오는 중..." />}>
-                  <ProfilePage />
+                <Suspense fallback={<LoadingScreen message="자기소개를 불러오는 중..." />}>
+                  <FounderPage />
                 </Suspense>
               </ErrorBoundary>
             }
@@ -118,9 +118,8 @@ const MainAppContent: React.FC = () => {
 };
 
 /**
- * MainApp 라우팅 컴포넌트
- * AppProvider는 App.tsx에서 상위로 제공됨
- */
+ * MainApp ?�우??컴포?�트
+ * AppProvider??App.tsx?�서 ?�위�??�공?? */
 export const MainAppRoutes: React.FC = () => {
   return <MainAppContent />;
 };

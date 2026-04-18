@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Tag, Checkbox, Input, Select, Row, Col, Card, Empty } from 'antd';
+import { Tag, Input, Select, Row, Col, Card, Empty } from 'antd';
 import { useQuery } from '@tanstack/react-query';
 import { SearchOutlined } from '@ant-design/icons';
 
@@ -32,9 +32,7 @@ const TechStackSelector: React.FC<TechStackSelectorProps> = ({ value = [], onCha
   const [levelFilter, setLevelFilter] = useState<string>('all');
 
   // 환경 변수에서 API Base URL 가져오기
-  const API_BASE_URL = typeof window !== 'undefined'
-    ? (import.meta.env.VITE_API_BASE_URL || '')
-    : (import.meta.env?.VITE_API_BASE_URL || '');
+  const API_BASE_URL = import.meta.env?.VITE_API_BASE_URL ?? '';
 
   // 기술 스택 목록 조회
   const { data: techStacks, isLoading } = useQuery<TechStackOption[]>({

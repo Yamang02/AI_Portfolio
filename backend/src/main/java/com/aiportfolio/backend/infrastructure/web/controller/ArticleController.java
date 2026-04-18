@@ -7,12 +7,15 @@ import com.aiportfolio.backend.domain.article.model.ArticleStatistics;
 import com.aiportfolio.backend.domain.article.port.in.GetArticleStatisticsUseCase;
 import com.aiportfolio.backend.domain.article.port.in.GetArticleUseCase;
 import com.aiportfolio.backend.domain.article.port.in.ManageArticleSeriesUseCase;
-import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.ProjectJpaRepository;
-import com.aiportfolio.backend.infrastructure.persistence.postgres.repository.ProjectTechStackJpaRepository;
+import com.aiportfolio.backend.domain.portfolio.model.Project;
+import com.aiportfolio.backend.domain.portfolio.model.ProjectTechnicalCard;
+import com.aiportfolio.backend.domain.portfolio.model.TechStackMetadata;
+import com.aiportfolio.backend.domain.portfolio.port.in.GetProjectsUseCase;
 import com.aiportfolio.backend.infrastructure.web.WebApiResponseMessages;
 import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;
 import com.aiportfolio.backend.infrastructure.web.dto.ArticleListRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -34,8 +37,8 @@ public class ArticleController {
     private final GetArticleUseCase getUseCase;
     private final ManageArticleSeriesUseCase manageSeriesUseCase;
     private final GetArticleStatisticsUseCase statisticsUseCase;
-    private final ProjectJpaRepository projectJpaRepository;
-    private final ProjectTechStackJpaRepository projectTechStackJpaRepository;
+    @Qualifier("portfolioService")
+    private final GetProjectsUseCase getProjectsUseCase;
 
     /**
      * 전체 목록 조회 (페이징, 발행된 것만)
@@ -106,16 +109,27 @@ public class ArticleController {
      */
     @GetMapping("/{businessId}")
     public ResponseEntity<ApiResponse<ArticleDetailResponse>> getByBusinessId(@PathVariable String businessId) {
-        return getUseCase.findByBusinessId(businessId)
-                .filter(Article::isPublished)
-                .map(article -> {
-                    // 조회수 증가
-                    getUseCase.incrementViewCount(article.getId());
-                    return ResponseEntity.ok(ApiResponse.success(
-                            ArticleDetailResponse.from(article, manageSeriesUseCase, projectJpaRepository, projectTechStackJpaRepository),
-                            WebApiResponseMessages.ARTICLE_GET_SUCCESS));
-                })
-                .orElse(ResponseEntity.ok(ApiResponse.error(WebApiResponseMessages.ARTICLE_NOT_FOUND)));
+        Optional<Article> articleOpt = getUseCase.findByBusinessId(businessId).filter(Article::isPublished);
+        if (articleOpt.isEmpty()) {
+            return ResponseEntity.ok(ApiResponse.error(WebApiResponseMessages.ARTICLE_NOT_FOUND));
+        }
+        Article article = articleOpt.get();
+        getUseCase.incrementViewCount(article.getId());
+        String seriesTitle = null;
+        if (article.getSeriesId() != null) {
+            ArticleSeries series = manageSeriesUseCase.findBySeriesId(article.getSeriesId());
+            if (series != null) {
+                seriesTitle = series.getTitle();
+            }
+        }
+        Optional<Project> linkedProject = article.getProjectId() != null
+                ? getProjectsUseCase.getProjectByDatabaseId(article.getProjectId())
+                : Optional.empty();
+        List<ProjectTechnicalCard> technicalCards =
+                getProjectsUseCase.getTechnicalCardsByArticleDatabaseId(article.getId());
+        ArticleDetailResponse body =
+                ArticleDetailResponse.from(article, seriesTitle, linkedProject, technicalCards);
+        return ResponseEntity.ok(ApiResponse.success(body, WebApiResponseMessages.ARTICLE_GET_SUCCESS));
     }
 
     /**
@@ -215,7 +229,8 @@ public class ArticleController {
             String seriesId,
             String seriesTitle,
             Integer seriesOrder,
-            ProjectInfo project  // 프로젝트 정보 (있는 경우)
+            ProjectInfo project,
+            List<TechnicalCardInfo> technicalCards
     ) {
         public record ProjectInfo(
                 String id,  // businessId
@@ -230,48 +245,61 @@ public class ArticleController {
                 String githubUrl,
                 String liveUrl
         ) {}
-        
-        public static ArticleDetailResponse from(Article domain, ManageArticleSeriesUseCase seriesUseCase, 
-                                                 ProjectJpaRepository projectJpaRepository, 
-                                                 ProjectTechStackJpaRepository projectTechStackJpaRepository) {
-            // 상세 조회는 단일 조회이므로 기존 방식 유지
-            String seriesTitle = null;
-            if (domain.getSeriesId() != null) {
-                ArticleSeries series = seriesUseCase.findBySeriesId(domain.getSeriesId());
-                if (series != null) {
-                    seriesTitle = series.getTitle();
-                }
-            }
-            
-            // 프로젝트 정보 조회
-            ProjectInfo projectInfo = null;
-            if (domain.getProjectId() != null) {
-                projectInfo = projectJpaRepository.findById(domain.getProjectId())
-                        .map(projectEntity -> {
-                            // 기술 스택 조회 (LAZY 로딩을 위해 명시적으로 조회)
-                            List<String> technologies = projectTechStackJpaRepository.findByProjectId(domain.getProjectId())
-                                    .stream()
-                                    .filter(pt -> pt.getTechStack() != null)
-                                    .map(pt -> pt.getTechStack().getName())
-                                    .toList();
 
-                            return new ProjectInfo(
-                                    projectEntity.getBusinessId(),
-                                    projectEntity.getTitle(),
-                                    projectEntity.getDescription(),
-                                    projectEntity.getImageUrl(),
-                                    projectEntity.getIsTeam(),
-                                    projectEntity.getIsFeatured(),
-                                    technologies,
-                                    projectEntity.getStartDate() != null ? projectEntity.getStartDate().toString() : null,
-                                    projectEntity.getEndDate() != null ? projectEntity.getEndDate().toString() : null,
-                                    projectEntity.getGithubUrl(),
-                                    projectEntity.getLiveUrl()
-                            );
-                        })
-                        .orElse(null);
-            }
-            
+        public record TechnicalCardInfo(
+                String id,
+                String title,
+                String category,
+                String problemStatement,
+                String analysis,
+                String solution,
+                Boolean isPinned,
+                Integer sortOrder
+        ) {}
+
+        public static ArticleDetailResponse from(
+                Article domain,
+                String seriesTitle,
+                Optional<Project> linkedProject,
+                List<ProjectTechnicalCard> technicalCards) {
+            ProjectInfo projectInfo = linkedProject
+                    .map(p -> {
+                        List<String> technologies = List.of();
+                        if (p.getTechStackMetadata() != null) {
+                            technologies = p.getTechStackMetadata().stream()
+                                    .map(TechStackMetadata::getName)
+                                    .filter(Objects::nonNull)
+                                    .toList();
+                        }
+                        return new ProjectInfo(
+                                p.getId(),
+                                p.getTitle(),
+                                p.getDescription(),
+                                p.getImageUrl(),
+                                p.isTeam(),
+                                p.isFeatured(),
+                                technologies,
+                                p.getStartDate() != null ? p.getStartDate().toString() : null,
+                                p.getEndDate() != null ? p.getEndDate().toString() : null,
+                                p.getGithubUrl(),
+                                p.getLiveUrl()
+                        );
+                    })
+                    .orElse(null);
+
+            List<TechnicalCardInfo> cardInfos = technicalCards.stream()
+                    .map(card -> new TechnicalCardInfo(
+                            card.getBusinessId(),
+                            card.getTitle(),
+                            card.getCategory(),
+                            card.getProblemStatement(),
+                            card.getAnalysis(),
+                            card.getSolution(),
+                            card.isPinned(),
+                            card.getSortOrder()
+                    ))
+                    .toList();
+
             return new ArticleDetailResponse(
                     domain.getBusinessId(),
                     domain.getTitle(),
@@ -289,7 +317,8 @@ public class ArticleController {
                     domain.getSeriesId(),
                     seriesTitle,
                     domain.getSeriesOrder(),
-                    projectInfo
+                    projectInfo,
+                    cardInfos
             );
         }
     }

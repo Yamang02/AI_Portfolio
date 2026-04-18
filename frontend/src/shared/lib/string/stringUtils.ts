@@ -84,8 +84,8 @@ export const safeIncludes = (str: unknown, pattern: string): boolean => {
  * @returns 소문자 문자열 또는 원본 값
  */
 export const safeToLowerCase = (str: unknown): string => {
-  if (!str || typeof str !== 'string') {
-    return String(str || '');
+  if (typeof str !== 'string') {
+    return '';
   }
 
   try {
@@ -105,7 +105,7 @@ export const safeToLowerCase = (str: unknown): string => {
  */
 export const formatDateRange = (
   startDate: unknown,
-  endDate?: unknown | null,
+  endDate?: unknown,
   separator: string = ' ~ '
 ): string => {
   const formattedStart = safeFormatDate(startDate);
@@ -120,8 +120,8 @@ export const formatDateRange = (
  * @returns 대문자 문자열 또는 원본 값
  */
 export const safeToUpperCase = (str: unknown): string => {
-  if (!str || typeof str !== 'string') {
-    return String(str || '');
+  if (typeof str !== 'string') {
+    return '';
   }
 
   try {
@@ -138,8 +138,8 @@ export const safeToUpperCase = (str: unknown): string => {
  * @returns 트림된 문자열
  */
 export const safeTrim = (str: unknown): string => {
-  if (!str || typeof str !== 'string') {
-    return String(str || '');
+  if (typeof str !== 'string') {
+    return '';
   }
 
   try {
@@ -176,8 +176,8 @@ export const safeLength = (str: unknown): number => {
  * @returns 잘린 문자열
  */
 export const safeTruncate = (str: unknown, maxLength: number, suffix: string = '...'): string => {
-  if (!str || typeof str !== 'string') {
-    return String(str || '');
+  if (typeof str !== 'string') {
+    return '';
   }
 
   try {
@@ -218,8 +218,8 @@ export const safeIndexOf = (str: unknown, searchTerm: string): number => {
  * @returns 교체된 문자열
  */
 export const safeReplace = (str: unknown, searchValue: string, replaceValue: string): string => {
-  if (!str || typeof str !== 'string') {
-    return String(str || '');
+  if (typeof str !== 'string') {
+    return '';
   }
 
   try {

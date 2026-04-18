@@ -17,18 +17,18 @@ import {
   Modal,
   Upload,
 } from 'antd';
-import { SaveOutlined, ArrowLeftOutlined, DeleteOutlined, UploadOutlined, EyeOutlined } from '@ant-design/icons';
-import { useProject, useUpdateProject, useCreateProject, useDeleteProject } from '../hooks/useProjects';
-import { ProjectUpdateRequest, ProjectCreateRequest } from '../api/adminProjectApi';
+import { SaveOutlined, ArrowLeftOutlined, DeleteOutlined, UploadOutlined, EyeOutlined, PlusOutlined, MinusCircleOutlined } from '@ant-design/icons';
+import { useProject, useUpdateProject, useCreateProject, useDeleteProject, ProjectUpdateRequest, ProjectCreateRequest, adminProjectApi } from '../entities/project';
 import { ProjectThumbnailUpload } from '../features/project-management/ui/ProjectThumbnailUpload';
 import { ProjectScreenshotsUpload } from '../features/project-management/ui/ProjectScreenshotsUpload';
 import { ProjectMarkdownEditor } from '../features/project-management/ui/ProjectMarkdownEditor';
 import { TechStackSelector } from '../features/project-management/ui/TechStackSelector';
 import { ProjectLinksForm } from '../features/project-management/ui/ProjectLinksForm';
+import { ArticleSearchSelect } from '../shared/ui/ArticleSearchSelect';
 import { DateRangeWithOngoing } from '../../shared/ui/date-range';
 import dayjs from 'dayjs';
-import { useUploadImage, useUploadImages, useDeleteImage } from '../hooks/useUpload';
-import { transformMyContributions, transformTechnologies, transformScreenshots } from '../utils/dataTransformers';
+import { useUploadImage, useUploadImages, useDeleteImage } from '../shared/hooks';
+import { transformMyContributions, transformTechnologies, transformScreenshots } from '../shared/lib';
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -41,14 +41,6 @@ const ProjectEdit: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [form] = Form.useForm();
-
-  // 디버깅: URL 파라미터 확인
-  console.log('[ProjectEdit] Component mounted/updated', {
-    id,
-    isIdUndefined: id === undefined,
-    isIdNew: id === 'new',
-    location: window.location.href,
-  });
 
   // id가 'new'이거나 undefined인 경우 새 프로젝트로 간주
   const isNew = !id || id === 'new';
@@ -80,7 +72,7 @@ const ProjectEdit: React.FC = () => {
         : '';
 
       // isFeatured 값 처리: null, undefined, false 모두 명확하게 처리
-      const isFeaturedValue = project.isFeatured === true ? true : false;
+      const isFeaturedValue = project.isFeatured === true;
 
       form.setFieldsValue({
         title: project.title,
@@ -100,6 +92,7 @@ const ProjectEdit: React.FC = () => {
         externalUrl: project.externalUrl,
         sortOrder: project.sortOrder,
         readme: project.readme,
+        technicalCards: normalizeTechnicalCards(project.technicalCards),
       });
       
       setIsTeam(project.isTeam || false);
@@ -121,16 +114,12 @@ const ProjectEdit: React.FC = () => {
 
   const handleSubmit = async (values: any) => {
     try {
-      console.log('[ProjectEdit] handleSubmit called', { isNew, id, values });
-
-      // 데이터 변환 유틸리티 사용 (타입 안전성 보장)
       const screenshotsArray = transformScreenshots(screenshots);
       const myContributionsArray = transformMyContributions(values.myContributions);
       const technologiesArray = transformTechnologies(technologies);
+      const technicalCards = normalizeTechnicalCards(values.technicalCards);
 
       if (isNew) {
-        console.log('[ProjectEdit] Creating new project');
-        // 새 프로젝트 생성
         const createData: ProjectCreateRequest = {
           title: values.title,
           description: values.description,
@@ -150,15 +139,13 @@ const ProjectEdit: React.FC = () => {
           liveUrl: values.liveUrl,
           externalUrl: values.externalUrl,
           technologies: technologiesArray || [],
+          technicalCards,
           sortOrder: values.sortOrder,
         };
 
-        console.log('[ProjectEdit] Create data:', createData);
         await createProjectMutation.mutateAsync(createData);
         message.success('프로젝트가 성공적으로 생성되었습니다');
       } else {
-        console.log('[ProjectEdit] Updating existing project');
-        // 프로젝트 수정
         const updateData: ProjectUpdateRequest = {
           title: values.title,
           description: values.description,
@@ -181,7 +168,13 @@ const ProjectEdit: React.FC = () => {
           sortOrder: values.sortOrder,
         };
 
-        await updateProjectMutation.mutateAsync({ id: id!, project: updateData });
+        await updateProjectMutation.mutateAsync({ id, project: updateData });
+        try {
+          await adminProjectApi.updateProjectTechnicalCards(id!, technicalCards);
+        } catch (technicalCardsError: any) {
+          message.error(technicalCardsError?.message || '프로젝트 기본 정보는 저장되었지만 기술 카드 저장에 실패했습니다');
+          return;
+        }
         message.success('프로젝트가 성공적으로 수정되었습니다');
       }
       navigate('/admin/projects');
@@ -215,11 +208,30 @@ const ProjectEdit: React.FC = () => {
   };
 
   const handleTechnologiesChange = (newTechs: number[]) => {
-    // 타입 안전성 보장: number[]만 허용
     const validTechs = Array.isArray(newTechs)
-      ? newTechs.filter((id): id is number => typeof id === 'number' && !isNaN(id) && id > 0)
+      ? newTechs.filter((id): id is number => typeof id === 'number' && !Number.isNaN(id) && id > 0)
       : [];
     setTechnologies(validTechs);
+  };
+
+  const normalizeTechnicalCards = (cards: any[] | undefined) => {
+    if (!Array.isArray(cards)) {
+      return [];
+    }
+    return cards
+      .map((card, index) => ({
+        id: typeof card?.id === 'number' ? card.id : undefined,
+        businessId: typeof card?.businessId === 'string' ? card.businessId : undefined,
+        title: typeof card?.title === 'string' ? card.title.trim() : '',
+        category: typeof card?.category === 'string' ? card.category.trim() : '',
+        problemStatement: typeof card?.problemStatement === 'string' ? card.problemStatement.trim() : '',
+        analysis: typeof card?.analysis === 'string' ? card.analysis.trim() : undefined,
+        solution: typeof card?.solution === 'string' ? card.solution.trim() : '',
+        articleId: typeof card?.articleId === 'number' ? card.articleId : undefined,
+        isPinned: Boolean(card?.isPinned),
+        sortOrder: typeof card?.sortOrder === 'number' ? card.sortOrder : index,
+      }))
+      .filter(card => card.title && card.category && card.problemStatement && card.solution);
   };
 
   if (!isNew && isLoading) {
@@ -283,7 +295,7 @@ const ProjectEdit: React.FC = () => {
                     const objectUrl = URL.createObjectURL(f);
                     setTempThumbnailUrl(objectUrl);
                     setIsUploadingThumbnail(true);
-                    const response = await uploadImageMutation.mutateAsync({ file: file as File, type: 'project', projectId: !isNew ? id : undefined });
+                    const response = await uploadImageMutation.mutateAsync({ file: file as File, type: 'project', projectId: isNew ? undefined : id });
                     if (response?.url) {
                       form.setFieldValue('imageUrl', response.url);
                       message.success('이미지가 업로드되었습니다');
@@ -335,7 +347,7 @@ const ProjectEdit: React.FC = () => {
               hideControls
               isLoading={isUploadingThumbnail}
               tempImageUrl={tempThumbnailUrl}
-              projectId={!isNew ? id : undefined}
+              projectId={isNew ? undefined : id}
             />
           </Form.Item>
         </Card>
@@ -488,7 +500,7 @@ const ProjectEdit: React.FC = () => {
                 try {
                   setIsUploadingScreenshots(true);
                   setLastScreenshotsSelectionKey(selectionKey);
-                  const response = await uploadImagesMutation.mutateAsync({ files, type: 'screenshots', projectId: !isNew ? id : undefined });
+                  const response = await uploadImagesMutation.mutateAsync({ files, type: 'screenshots', projectId: isNew ? undefined : id });
                   if (response && response.length > 0) {
                     const newItems = response.map((url: string, index: number) => ({ imageUrl: url, displayOrder: (screenshots?.length || 0) + index + 1 }));
                     const updated = [...(screenshots || []), ...newItems];
@@ -514,7 +526,7 @@ const ProjectEdit: React.FC = () => {
           <ProjectScreenshotsUpload
             value={screenshots}
             onChange={handleScreenshotsChange}
-            projectId={!isNew ? id : undefined}
+            projectId={isNew ? undefined : id}
             hideAddButton
             isLoading={isUploadingScreenshots}
             tempImageUrls={tempScreenshotUrls}
@@ -529,6 +541,96 @@ const ProjectEdit: React.FC = () => {
           <Form.Item name="readme" noStyle>
             <ProjectMarkdownEditor />
           </Form.Item>
+        </Card>
+
+        <Card title="기술 카드" style={{ marginBottom: '24px' }}>
+          <Form.List name="technicalCards">
+            {(fields, { add, remove }) => (
+              <Space direction="vertical" style={{ width: '100%' }} size={16}>
+                {fields.map((field) => (
+                  <Card
+                    key={field.key}
+                    size="small"
+                    title={`카드 ${field.name + 1}`}
+                    extra={
+                      <Button
+                        type="text"
+                        danger
+                        icon={<MinusCircleOutlined />}
+                        onClick={() => remove(field.name)}
+                      >
+                        삭제
+                      </Button>
+                    }
+                  >
+                    <Form.Item name={[field.name, 'id']} hidden>
+                      <InputNumber />
+                    </Form.Item>
+                    <Form.Item name={[field.name, 'businessId']} hidden>
+                      <Input />
+                    </Form.Item>
+                    <Row gutter={16}>
+                      <Col span={12}>
+                        <Form.Item
+                          name={[field.name, 'title']}
+                          label="제목"
+                          rules={[{ required: true, message: '제목을 입력해주세요' }]}
+                        >
+                          <Input placeholder="카드 제목" />
+                        </Form.Item>
+                      </Col>
+                      <Col span={8}>
+                        <Form.Item
+                          name={[field.name, 'category']}
+                          label="카테고리"
+                          rules={[{ required: true, message: '카테고리를 입력해주세요' }]}
+                        >
+                          <Input placeholder="예: architecture" />
+                        </Form.Item>
+                      </Col>
+                      <Col span={4}>
+                        <Form.Item name={[field.name, 'sortOrder']} label="정렬">
+                          <InputNumber min={0} style={{ width: '100%' }} />
+                        </Form.Item>
+                      </Col>
+                    </Row>
+                    <Row gutter={16}>
+                      <Col span={6}>
+                        <Form.Item name={[field.name, 'isPinned']} label="Pin" valuePropName="checked">
+                          <Switch />
+                        </Form.Item>
+                      </Col>
+                      <Col span={18}>
+                        <Form.Item name={[field.name, 'articleId']} label="연결 아티클">
+                          <ArticleSearchSelect />
+                        </Form.Item>
+                      </Col>
+                    </Row>
+                    <Form.Item
+                      name={[field.name, 'problemStatement']}
+                      label="문제 정의"
+                      rules={[{ required: true, message: '문제 정의를 입력해주세요' }]}
+                    >
+                      <TextArea rows={3} />
+                    </Form.Item>
+                    <Form.Item name={[field.name, 'analysis']} label="분석">
+                      <TextArea rows={3} />
+                    </Form.Item>
+                    <Form.Item
+                      name={[field.name, 'solution']}
+                      label="해결"
+                      rules={[{ required: true, message: '해결 내용을 입력해주세요' }]}
+                    >
+                      <TextArea rows={4} />
+                    </Form.Item>
+                  </Card>
+                ))}
+                <Button type="dashed" icon={<PlusOutlined />} onClick={() => add({ isPinned: false, sortOrder: fields.length })}>
+                  기술 카드 추가
+                </Button>
+              </Space>
+            )}
+          </Form.List>
         </Card>
 
         <div style={{ textAlign: 'right', marginTop: '24px' }}>

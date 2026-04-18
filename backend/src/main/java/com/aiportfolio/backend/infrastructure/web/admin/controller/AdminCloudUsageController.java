@@ -1,6 +1,6 @@
 package com.aiportfolio.backend.infrastructure.web.admin.controller;
 
-import com.aiportfolio.backend.infrastructure.web.admin.dto.response.CloudUsageDashboardResponse;
+import com.aiportfolio.backend.domain.admin.model.CloudUsageDashboardResponse;
 import com.aiportfolio.backend.domain.admin.port.in.GetCloudUsageUseCase;
 import com.aiportfolio.backend.infrastructure.web.WebApiResponseMessages;
 import com.aiportfolio.backend.infrastructure.web.dto.ApiResponse;

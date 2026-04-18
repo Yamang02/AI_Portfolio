@@ -29,6 +29,25 @@ public interface EducationRelationshipPort {
     void replaceProjects(Long educationId, List<ProjectRelation> relationships);
 
     /**
+     * 교육–프로젝트 관계 존재 여부 (프로젝트는 비즈니스 ID 기준).
+     */
+    boolean hasProjectRelationship(Long educationDbId, String projectBusinessId);
+
+    /**
+     * 교육–프로젝트 관계 단건 추가.
+     */
+    void addProjectRelationship(
+            Long educationDbId,
+            String projectBusinessId,
+            String projectType,
+            String grade);
+
+    /**
+     * 교육–프로젝트 관계 일괄 반영: 요청은 프로젝트 비즈니스 ID 기준.
+     */
+    void replaceProjectsFromBusinessIds(Long educationDbId, List<EducationProjectBulkItem> items);
+
+    /**
      * 기술 스택 관계를 표현하는 record
      */
     record TechStackRelation(Long techStackId, boolean isPrimary, String usageDescription) {}
@@ -38,7 +57,7 @@ public interface EducationRelationshipPort {
      * @param projectDbId 프로젝트 DB ID (Long, 비즈니스 ID 아님)
      */
     record ProjectRelation(Long projectDbId, String projectType, String grade) {}
+
+    record EducationProjectBulkItem(String projectBusinessId, String projectType, String grade) {}
 }
-
-
 

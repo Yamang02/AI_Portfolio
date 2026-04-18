@@ -1,10 +1,10 @@
 package com.aiportfolio.backend.application.portfolio;
 
-import com.aiportfolio.backend.infrastructure.config.AppConfig;
 import com.aiportfolio.backend.domain.portfolio.model.Project;
 import com.aiportfolio.backend.domain.portfolio.port.out.PortfolioCachePort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -16,9 +16,10 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class GitHubIntegrationService {
     
-    private final AppConfig appConfig;
     private final WebClient.Builder webClientBuilder;
     private final PortfolioCachePort portfolioCachePort;
+    @Value("${app.github.username:}")
+    private String githubUsername;
     
     private static final String GITHUB_API_BASE = "https://api.github.com";
     
@@ -28,7 +29,7 @@ public class GitHubIntegrationService {
             return cached.get();
         }
         try {
-            String username = appConfig.getGitHub().getUsername();
+            String username = githubUsername;
             if (username == null || username.isEmpty()) {
                 log.warn("GitHub username not configured");
                 return List.of();
@@ -64,7 +65,7 @@ public class GitHubIntegrationService {
             return cached.get();
         }
         try {
-            String username = appConfig.getGitHub().getUsername();
+            String username = githubUsername;
             if (username == null || username.isEmpty()) {
                 return null;
             }

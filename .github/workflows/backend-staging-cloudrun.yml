@@ -1,6 +1,7 @@
 name: "[Staging] Backend API → Google Cloud Run"
 
 on:
+  workflow_dispatch:
   push:
     branches: [ staging ]
     paths:
@@ -17,6 +18,8 @@ env:
   GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
   GCP_MAIN_SERVICE_NAME: ${{ vars.GCP_MAIN_SERVICE_NAME }}
   GCP_MAIN_REGION: ${{ vars.GCP_MAIN_REGION }}
+  # Cloud Run 런타임 SA 전체 이메일 (Repository 또는 environment `staging` Variables)
+  GCP_CLOUD_RUN_SERVICE_ACCOUNT: ${{ vars.GCP_CLOUD_RUN_SERVICE_ACCOUNT }}
   REDIS_HOST: ${{ vars.REDIS_HOST }}
   REDIS_PORT: ${{ vars.REDIS_PORT }}
   REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
@@ -112,9 +115,15 @@ jobs:
           --image gcr.io/$GCP_PROJECT_ID/$GCP_MAIN_SERVICE_NAME:$GITHUB_SHA \
           --platform managed \
           --region $GCP_MAIN_REGION \
+          --service-account "$GCP_CLOUD_RUN_SERVICE_ACCOUNT" \
           --allow-unauthenticated \
           --set-env-vars="SPRING_PROFILES_ACTIVE=staging" \
-          --set-env-vars="POSTGRE_URL=${{ secrets.POSTGRE_URL }}" \
+          --set-env-vars="GCP_CLOUD_SQL_INSTANCE_CONNECTION_NAME=${{ secrets.GCP_CLOUD_SQL_INSTANCE_CONNECTION_NAME }}" \
+          --set-env-vars="POSTGRES_DATABASE=${{ secrets.POSTGRES_DATABASE }}" \
+          --set-env-vars="POSTGRES_USER=${{ secrets.POSTGRES_USER }}" \
+          --set-env-vars="POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" \
+          --set-env-vars="FLYWAY_USER=${{ secrets.FLYWAY_USER }}" \
+          --set-env-vars="FLYWAY_PASSWORD=${{ secrets.FLYWAY_PASSWORD }}" \
           --set-env-vars="GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" \
           --set-env-vars="REDIS_HOST=${{ vars.REDIS_HOST }}" \
           --set-env-vars="REDIS_PORT=${{ vars.REDIS_PORT }}" \

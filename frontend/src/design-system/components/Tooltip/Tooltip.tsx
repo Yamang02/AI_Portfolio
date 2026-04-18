@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useId } from 'react';
 import { createPortal } from 'react-dom';
 import styles from './Tooltip.module.css';
 
@@ -25,7 +25,8 @@ export const Tooltip: React.FC<TooltipProps> = ({
   const [position, setPosition] = useState({ top: 0, left: 0 });
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hideTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const wrapperRef = useRef<HTMLDivElement>(null);
+  const wrapperRef = useRef<HTMLSpanElement>(null);
+  const tooltipId = useId();
 
   const clearTimers = useCallback(() => {
     if (timeoutRef.current) {
@@ -125,7 +126,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
   }, [clearTimers, delay, updatePosition]);
 
   const handleBlurCapture = useCallback(
-    (e: React.FocusEvent<HTMLDivElement>) => {
+    (e: React.FocusEvent<HTMLSpanElement>) => {
       const next = e.relatedTarget as Node | null;
       if (next && wrapperRef.current?.contains(next)) {
         return;
@@ -136,10 +137,18 @@ export const Tooltip: React.FC<TooltipProps> = ({
     [clearTimers],
   );
 
+  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLSpanElement>) => {
+    if (e.key === 'Escape') {
+      clearTimers();
+      setIsVisible(false);
+    }
+  }, [clearTimers]);
+
   const placementClass = styles[placement];
 
   const tooltipElement = isVisible ? (
     <div
+      id={tooltipId}
       className={`${styles.tooltip} ${placementClass} ${className || ''}`}
       style={{
         top: `${position.top}px`,
@@ -154,16 +163,18 @@ export const Tooltip: React.FC<TooltipProps> = ({
 
   return (
     <>
-      <div
+      <span
         ref={wrapperRef}
         className={styles.wrapper}
+        aria-describedby={isVisible ? tooltipId : undefined}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         onFocusCapture={handleFocusCapture}
         onBlurCapture={handleBlurCapture}
+        onKeyDown={handleKeyDown}
       >
         {children}
-      </div>
+      </span>
       {tooltipElement && createPortal(tooltipElement, document.body)}
     </>
   );
