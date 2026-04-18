@@ -1,8 +1,9 @@
-# Production environment (Railway + Cloud Run)
+# Production environment (Cloud SQL + Cloud Run)
 spring:
-  # Railway PostgreSQL Configuration (URL에 username/password 포함)
+  # Cloud SQL PostgreSQL Configuration
+  # DataSource는 DatabaseConfig(CloudSqlDataSourceCondition)가 @Primary로 생성.
+  # GCP_CLOUD_SQL_INSTANCE_CONNECTION_NAME, POSTGRES_DATABASE, POSTGRES_USER, POSTGRES_PASSWORD 환경변수 필요.
   datasource:
-    url: ${POSTGRE_URL}  # Railway PostgreSQL URL (credentials 포함)
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 5  # Cloud Run 메모리 제한 고려
