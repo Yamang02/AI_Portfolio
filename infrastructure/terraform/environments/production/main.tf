@@ -135,6 +135,13 @@ module "gcp_iam" {
   display_name = "github-actions"
 }
 
+# GitHub Actions가 Cloud Run에 런타임 전용 SA를 지정해 배포하려면 해당 SA에 대해 actAs 권한 필요
+resource "google_service_account_iam_member" "github_actions_act_as_cloud_run_runtime" {
+  service_account_id = "projects/${var.gcp_project_id}/serviceAccounts/${var.cloud_run_service_account_email}"
+  role               = "roles/iam.serviceAccountUser"
+  member             = "serviceAccount:${var.github_actions_deployer_service_account_email}"
+}
+
 module "postgres" {
   source = "../../modules/gcp-cloud-sql-postgres"
 
