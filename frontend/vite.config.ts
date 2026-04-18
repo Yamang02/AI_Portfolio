@@ -19,7 +19,7 @@ function getSitemapRoutes(): string[] {
 
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
-    const siteUrl = env.VITE_SITE_URL || 'https://www.yamang02.com';
+    const siteUrl = env.VITE_SITE_URL || 'https://portfolio.yamang02.com';
     return {
       plugins: [
         {
@@ -47,7 +47,8 @@ export default defineConfig(({ mode }) => {
           changefreq: 'weekly',
           priority: 0.8,
           routes: {
-            '/profile': { priority: 1.0, changefreq: 'weekly' },
+            '/': { priority: 1.0, changefreq: 'weekly' },
+            '/profile': { priority: 0.95, changefreq: 'weekly' },
             '/projects': { priority: 0.9, changefreq: 'weekly' },
             '/articles': { priority: 0.9, changefreq: 'daily' },
           },

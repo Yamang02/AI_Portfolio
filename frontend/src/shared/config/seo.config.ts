@@ -1,8 +1,8 @@
 /**
  * SEO 공통 설정
- * VITE_SITE_URL은 빌드 시 환경 변수로 주입 (프로덕션: https://www.yamang02.com)
+ * VITE_SITE_URL은 빌드 시 환경 변수로 주입 (프로덕션 SPA: https://portfolio.yamang02.com)
  */
-const siteUrl = import.meta.env.VITE_SITE_URL || 'https://www.yamang02.com';
+const siteUrl = import.meta.env.VITE_SITE_URL || 'https://portfolio.yamang02.com';
 
 export const seoConfig = {
   siteName: 'YamangSolution',

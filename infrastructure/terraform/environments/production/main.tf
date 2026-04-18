@@ -52,7 +52,10 @@ module "frontend" {
   environment     = var.environment
   bucket_name     = var.frontend_bucket_name
   certificate_arn = module.dns.wildcard_certificate_arn
-  aliases         = ["admin.${var.domain_name}"]
+  aliases = [
+    "admin.${var.domain_name}",
+    "portfolio.${var.domain_name}",
+  ]
 
   admin_html_rewrite_hostnames      = ["admin.${var.domain_name}"]
   cloudfront_admin_function_name    = "ai-portfolio-prod-viewer-request-admin-spa"
@@ -130,6 +133,13 @@ module "gcp_iam" {
   project_id   = var.gcp_project_id
   account_id   = "github-actions"
   display_name = "github-actions"
+}
+
+# GitHub Actions가 Cloud Run에 런타임 전용 SA를 지정해 배포하려면 해당 SA에 대해 actAs 권한 필요
+resource "google_service_account_iam_member" "github_actions_act_as_cloud_run_runtime" {
+  service_account_id = "projects/${var.gcp_project_id}/serviceAccounts/${var.cloud_run_service_account_email}"
+  role               = "roles/iam.serviceAccountUser"
+  member             = "serviceAccount:${var.github_actions_deployer_service_account_email}"
 }
 
 module "postgres" {
