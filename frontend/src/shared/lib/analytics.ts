@@ -1,6 +1,7 @@
 /**
- * Google Analytics 4 연동
- * VITE_GA_MEASUREMENT_ID가 설정된 경우에만 활성화 (프로덕션 권장)
+ * Google Analytics 4 — `portfolio.yamang02.com` 포트폴리오 SPA 전용
+ * 기본 측정 ID `G-XB0PBX9VNG`. `VITE_GA_MEASUREMENT_ID`가 있으면 그 값이 우선한다.
+ * (`www.yamang02.com` 프로필 정적 페이지 GA는 `profile/index.html`과 별개.)
  */
 
 declare global {
@@ -14,15 +15,25 @@ declare global {
   }
 }
 
-const MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID;
+const DEFAULT_PORTFOLIO_MEASUREMENT_ID = 'G-XB0PBX9VNG';
+
+function resolveMeasurementId(): string {
+  const fromEnv = import.meta.env.VITE_GA_MEASUREMENT_ID;
+  if (typeof fromEnv === 'string' && fromEnv.trim().length > 0) {
+    return fromEnv.trim();
+  }
+  return DEFAULT_PORTFOLIO_MEASUREMENT_ID;
+}
+
+const MEASUREMENT_ID = resolveMeasurementId();
 
 export function isAnalyticsEnabled(): boolean {
-  return typeof MEASUREMENT_ID === 'string' && MEASUREMENT_ID.length > 0;
+  return MEASUREMENT_ID.length > 0;
 }
 
 export function initGA(): void {
   if (!isAnalyticsEnabled() || typeof document === 'undefined') return;
-  const id = MEASUREMENT_ID!;
+  const id = MEASUREMENT_ID;
   const globalScope = globalThis as typeof globalThis & Window;
 
   globalScope.dataLayer = globalScope.dataLayer || [];

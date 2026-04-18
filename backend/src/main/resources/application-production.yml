@@ -73,8 +73,6 @@ spring:
         - "https://www.yamang02.com"        # 프로필 랜딩
         - "https://portfolio.yamang02.com"  # AI Portfolio 메인 앱
         - "https://admin.yamang02.com"      # Admin MPA
-        - "https://yamangsolution.com"
-        - "https://www.yamangsolution.com"  # YamangSolution 비즈니스
         - "https://ai-portfolio-493721639129.asia-northeast3.run.app"  # Cloud Run 직접 도메인
       allowed-methods: 
         - GET

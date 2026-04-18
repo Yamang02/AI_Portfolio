@@ -19,7 +19,7 @@ function getSitemapRoutes(): string[] {
 
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
-    const siteUrl = env.VITE_SITE_URL || 'https://www.yamang02.com';
+    const siteUrl = env.VITE_SITE_URL || 'https://portfolio.yamang02.com';
     return {
       plugins: [
         {
