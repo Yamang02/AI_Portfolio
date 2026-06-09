@@ -76,15 +76,15 @@ const ChatInputBar: React.FC<ChatInputBarProps> = ({
   };
 
   return (
-    <div 
-      className="fixed bottom-0 left-0 right-0 border-t z-40 transition-colors"
+    <div
+      className="border-t transition-colors"
       style={{
         backgroundColor: 'var(--color-surface)',
         borderColor: 'var(--color-border)',
         boxShadow: shadows.lg,
       }}
     >
-      <div className="container mx-auto px-4 py-4 max-w-4xl">
+      <div className="mx-auto px-4 py-3" style={{ maxWidth: '1200px' }}>
         <div className="flex items-center gap-3">
           {/* Input Field */}
           <input

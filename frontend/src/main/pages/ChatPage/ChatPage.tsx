@@ -75,7 +75,7 @@ const ChatPage: React.FC = () => {
       <div
         style={{
           width: '100%',
-          height: '100vh',
+          height: '100%',
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden',
@@ -108,15 +108,15 @@ const ChatPage: React.FC = () => {
             )}
             <div ref={messagesEndRef} />
           </div>
-
-          <ChatInputSection
-            className={styles.inputContainer}
-            onSendMessage={handleSendMessage}
-            isLoading={isLoading}
-            inputValue={inputValue}
-            onInputChange={setInputValue}
-          />
         </div>
+
+        <ChatInputSection
+          className={styles.inputContainer}
+          onSendMessage={handleSendMessage}
+          isLoading={isLoading}
+          inputValue={inputValue}
+          onInputChange={setInputValue}
+        />
 
         <ContactModal isOpen={isContactModalOpen} onClose={() => setIsContactModalOpen(false)} />
 
