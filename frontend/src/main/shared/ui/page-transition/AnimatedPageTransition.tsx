@@ -29,7 +29,7 @@ export const AnimatedRoutes: React.FC<AnimatedRoutesProps> = ({ children }) => {
 
   useEffect(() => {
     if (isChatPage && containerRef.current) {
-      containerRef.current.style.height = '100vh';
+      containerRef.current.style.height = 'calc(100vh - var(--header-height))';
     }
   }, [isChatPage]);
 
@@ -73,7 +73,7 @@ export const AnimatedRoutes: React.FC<AnimatedRoutesProps> = ({ children }) => {
         overflow: 'hidden',
         width: '100%',
         position: 'relative',
-        height: '100vh',
+        height: 'calc(100vh - var(--header-height))',
       }
     : {
         width: '100%',

@@ -45,6 +45,8 @@ const MainAppContent: React.FC = () => {
           overflowX: 'hidden',
           overflowY: isChatPage ? 'hidden' : 'auto',
           flex: 1,
+          minHeight: 0,
+          height: isChatPage ? 'calc(100vh - var(--header-height))' : undefined,
           display: 'flex',
           flexDirection: 'column',
         }}

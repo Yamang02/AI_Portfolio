@@ -146,15 +146,14 @@
 .chatPage {
   display: flex;
   flex-direction: column;
-  flex: 1; /* 남은 공간을 모두 차지 */
-  min-height: 0; /* flex 자식이 축소될 수 있도록 */
-  max-width: 72rem; /* max-w-6xl (1152px) - 더 넓은 채팅 영역 */
+  flex: 1;
+  min-height: 0;
+  max-width: 72rem;
   margin: 0 auto;
-  padding: var(--spacing-md, 16px) var(--spacing-md, 16px) var(--spacing-md, 16px) var(--spacing-md, 16px); /* 상단, 좌우, 하단 패딩 */
-  padding-bottom: calc(var(--spacing-md, 16px) + 100px); /* 하단 패딩 + ChatInputBar 높이 여유 공간 (80px → 100px로 증가) */
+  padding: var(--spacing-md, 16px) var(--spacing-md, 16px) 0 var(--spacing-md, 16px);
   position: relative;
   width: 100%;
-  overflow: hidden; /* 채팅 영역이 입력 필드 위에 고정되도록 */
+  overflow: hidden;
 }
 
 /* 초기 상태: 중앙 배치 */
@@ -263,14 +262,9 @@
   justify-content: center;
 }
 
-/* 입력 영역 - 하단 고정 */
+/* 입력 영역 - ChatPage outer flex 하단 */
 .inputContainer {
   flex-shrink: 0;
-  background: var(--color-background, #ffffff);
-  z-index: 10;
-  margin-top: auto;
-  padding-top: var(--spacing-md, 16px);
-  padding-bottom: var(--spacing-md, 16px); /* 하단 패딩 추가 */
 }
 
 /* 다크 모드 지원 */
@@ -331,9 +325,6 @@
     border-color: var(--color-border-default, #374151);
   }
 
-  .inputContainer {
-    background: var(--color-background, #111827);
-  }
 }
 
 /* 반응형 디자인 */

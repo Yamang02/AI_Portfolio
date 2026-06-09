@@ -13,7 +13,7 @@
 
 :root {
   /* Layout - sticky ?ㅻ뜑 ?믪씠 (?댁떆 ?ㅽ겕濡??ㅽ봽???깆뿉 ?ъ슜) */
-  --header-height: 64px;
+  --header-height: 65px; /* 64px container + 1px border-bottom */
 
   /* Breakpoint Tokens - 諛섏쓳???붿옄?몄슜 */
   --breakpoint-mobile: 767px;        /* 紐⑤컮?? 0px ~ 767px */
@@ -418,6 +418,12 @@ body {
 
 :root.dark .hljs-formula {
   background-color: #444;
+}
+
+@media (max-width: 767px) {
+  :root {
+    --header-height: 57px; /* 56px container + 1px border-bottom */
+  }
 }
 
 
