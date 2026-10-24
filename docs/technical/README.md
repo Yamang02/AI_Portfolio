@@ -19,7 +19,7 @@ technical/
 │   └── fsd-refactoring.md              # FSD 아키텍처 리팩토링
 │
 ├── guides/                             # 📚 개발 가이드
-│   ├── agent-development-guide.md          # AI Agent 종합 가이드
+│   └── (에이전트 규칙은 docs/dev/conventions.md 참조)
 │   ├── DEVELOPMENT.md                      # 개발 환경 설정
 │   │
 │   ├── backend/                           # 백엔드 가이드
@@ -79,7 +79,7 @@ technical/
 ### 핵심 가이드
 | 문서 | 설명 |
 |------|------|
-| [agent-development-guide.md](./guides/agent-development-guide.md) | **AI Agent 종합 개발 가이드** |
+| [개발 공통 관례](../dev/conventions.md) | 공통 코딩 관례 (Dev authority) |
 | [DEVELOPMENT.md](./guides/DEVELOPMENT.md) | 개발 환경 설정 및 빠른 시작 |
 
 ### 백엔드 가이드

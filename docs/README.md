@@ -9,7 +9,8 @@
 
 ## Existing directories during migration
 - [Technical](./technical/README.md): existing technical documents. Review and migrate based on ownership, not directory name.
-- [Basis](./basis/): existing code/quality rules pending deduplication.
+- [Quality basis](./basis/quality/SQ-01-local-sonarqube-workflow.md): retained SonarQube operating policy; coding conventions are now in [Dev conventions](./dev/conventions.md).
+- [Templates](./templates/README.md): authoring aids for Brief/Epic and issue documents.
 - [Epics](./epic/README.md): active and archived epics, retained in place until links and numbering are audited.
 - [Backlog](./backlog/README.md): existing backlog.
 - [Issues](./issues/README.md): historical and active issue investigations.

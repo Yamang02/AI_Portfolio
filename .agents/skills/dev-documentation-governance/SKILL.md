@@ -5,7 +5,7 @@ description: Use when writing, moving, or materially changing AI_Portfolio durab
 
 # Dev Documentation Governance
 
-Read `docs/README.md`, `docs/dev/README.md`, and the relevant existing authority before editing.
+Read `docs/README.md`, `docs/dev/README.md`, `docs/dev/conventions.md` when coding conventions are relevant, and the relevant existing authority before editing.
 
 - Product concepts, behavior and experience -> `docs/product/`.
 - Technical owners, invariant contracts, architecture and conventions -> `docs/dev/`.

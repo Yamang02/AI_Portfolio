@@ -6,7 +6,7 @@
 
 - **아키텍처**: `docs/technical/architecture/`
 - **개발 가이드**: `docs/technical/guides/backend/`
-- **AI Agent 개발 가이드**: `docs/technical/guides/agent-development-guide.md`
+- **AI Agent 개발 가이드**: `docs/dev/conventions.md`
 - **API 스펙**: `docs/technical/api-spec.yml`
 
 ## 🚀 빠른 시작

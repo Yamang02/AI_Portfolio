@@ -23,8 +23,9 @@
 - `docs/product/`: product meaning/behavior/experience.
 - `docs/dev/`: durable technical ownership and implementation contracts.
 - `docs/workflow/` and `docs/epic/`: active planning/execution context.
+- `docs/dev/conventions.md`: shared coding conventions; skills govern when/how to work, not coding rules themselves.
 - Code is authoritative for current implementation; historic epics are not present-day technical authority.
-- During transition, legacy `docs/technical/`, `docs/basis/`, `docs/backlog/`, and `docs/issues/` remain available until audited and migrated.
+- During transition, legacy `docs/technical/`, `docs/basis/quality/`, `docs/backlog/`, and `docs/issues/` remain available until audited and migrated.
 
 ## Verified repository commands
 - Frontend: `npm run build:frontend`, `npm run test:frontend`.

@@ -6,7 +6,7 @@
 
 - **아키텍처**: `docs/technical/architecture/frontend-architecture.md`
 - **개발 가이드**: `docs/technical/guides/frontend/`
-- **AI Agent 개발 가이드**: `docs/technical/guides/agent-development-guide.md`
+- **AI Agent 개발 가이드**: `docs/dev/conventions.md`
 - **마이그레이션 가이드**: `docs/archive/frontend-migration/`
 - **디자인 시스템**: `docs/technical/design-system/`
   - **사용 가이드**: `docs/technical/design-system/usage-guide.md` (상세 가이드)

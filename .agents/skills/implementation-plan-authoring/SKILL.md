@@ -61,3 +61,7 @@ After creating or updating a standalone Brief, refresh `docs/workflow/briefs/REA
 ## Documentation governance
 
 Creating, moving, or materially updating `docs/dev/**` requires loading and following `dev-documentation-governance`; run `npm run check:dev-docs` before claiming the documentation slice complete.
+
+## Templates
+
+When authoring a new Epic or Phase, use `docs/templates/epic-readme.md` and `docs/templates/epic-phase.md` as optional starting shapes; the skill's lifecycle and acceptance contract takes precedence. Do not create a separate templates skill.
