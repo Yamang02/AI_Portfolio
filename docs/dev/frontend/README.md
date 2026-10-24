@@ -5,7 +5,7 @@ Frontend technical authority for `frontend/` (main and admin) and `profile/` (se
 ## Reading route
 1. [Common conventions](../conventions.md)
 2. [Frontend conventions](./conventions.md)
-3. [Ownership](./ownership.md) — migration note; not yet normative
+3. Actual component, state, and public-contract owners identified from current code.
 4. Existing [frontend architecture](../../technical/architecture/frontend-architecture.md), [frontend coding principles](../../technical/guides/frontend/coding-principles.md), and [design system](../../technical/design-system/README.md) only when their claims match current code.
 5. Actual source, package scripts, public APIs, and tests.
 

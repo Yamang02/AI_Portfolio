@@ -8,14 +8,14 @@
 - Historical work records do not redefine Product/Dev rules.
 
 ## Existing directories during migration
-- [Technical](./technical/README.md): existing technical documents. Review and migrate based on ownership, not directory name.
+- [Technical](./technical/README.md): retained reference library for examples, historical designs, and operations; not a migration queue.
 - [Quality basis](./basis/quality/SQ-01-local-sonarqube-workflow.md): retained SonarQube operating policy; coding conventions are now in [Dev conventions](./dev/conventions.md).
 - [Templates](./templates/README.md): authoring aids for Brief/Epic and issue documents.
-- [Epics](./epic/README.md): active and archived epics, retained in place until links and numbering are audited.
-- [Backlog](./backlog/README.md): existing backlog.
+- [Epics](./epic/README.md): Epic authoring rules. Active work is the immediate `E##.*` directories; do not search archive by default.
+- [Backlog](./backlog.md): unpromoted active problem list; [authoring rules](./backlog/README.md).
 - [Issues](./issues/README.md): historical and active issue investigations.
 - [Hotfixes](./hotfixes/README.md): targeted emergency change records.
-- `docs/epic/archive/`: completed or historical epic material.
+- `docs/epic/archive/`: historical work, excluded from normal discovery unless expressly requested.
 
 ## Editing rules
 - One canonical owner for each durable rule; link instead of copying.

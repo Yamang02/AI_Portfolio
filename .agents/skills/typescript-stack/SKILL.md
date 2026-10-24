@@ -34,7 +34,7 @@ Own TypeScript-specific code decisions.
 ## Composition
 
 - Load `react-stack` for React components, hooks, accessibility, and FSD placement.
-- Use `layered-tdd-workflow` only when the user explicitly requests TDD; tests are otherwise written at merge hardening.
+- Use `layered-tdd-workflow` only when the user explicitly requests TDD; write relevant regression tests during implementation when justified by the behavior or risk.
 - Use `test-selection-and-verification` for target/fast/full lane selection.
 - Use `evidence-before-completion` for success claims.
 

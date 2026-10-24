@@ -31,7 +31,7 @@ For standalone work, prefer one coherent Plan. If the proposed work grows across
 
 Every Brief Design and executable Epic Phase must include a compact **Ownership & Boundaries** section before Tasks. Identify only responsibilities the planned change creates, relocates, or composes; do not copy a project-wide owner inventory.
 
-For each material responsibility, state: **responsibility/guarantee**, **existing or proposed owner and ownership dimension** (policy, state instance, mechanics, data, composition, or presentation as relevant), **upstream Product/Dev authority or existing public contract**, and **consumer/adapter boundary**. Mark an unverified owner or library gap as an open decision instead of treating a proposal as authoritative. Frontend owner resolution uses actual code and `docs/dev/frontend/conventions.md` (ownership.md is non-normative).
+For each material responsibility, state: **responsibility/guarantee**, **existing or proposed owner and ownership dimension** (policy, state instance, mechanics, data, composition, or presentation as relevant), **upstream Product/Dev authority or existing public contract**, and **consumer/adapter boundary**. Mark an unverified owner or library gap as an open decision instead of treating a proposal as authoritative. Frontend owner resolution uses actual code and `docs/dev/frontend/conventions.md`.
 
 Use this minimal section shape in the Brief or Phase (omit irrelevant ownership dimensions):
 

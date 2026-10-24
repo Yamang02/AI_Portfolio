@@ -27,7 +27,7 @@
 - Code is authoritative for current implementation; historic epics are not present-day technical authority.
 - Active work discovery: enumerate files in `docs/workflow/briefs/` and top-level `E##.*` folders in `docs/epic/`. Root `README.md` files contain writing rules, never manually maintained status indexes.
 - Do not search or read `docs/epic/archive/` unless the user explicitly requests past records, recovery, comparison, or archival. Archived work is not current execution context.
-- During transition, legacy `docs/technical/`, `docs/basis/quality/`, `docs/backlog/`, and `docs/issues/` remain available until audited and migrated.
+- `docs/technical/` remains a reference library, not an automatic migration target; `docs/basis/quality/` preserves SonarQube guidance. Legacy issues and backlog archives are historical, not default work context.
 
 ## Verified repository commands
 - Frontend: `npm run build:frontend`, `npm run test:frontend`.
