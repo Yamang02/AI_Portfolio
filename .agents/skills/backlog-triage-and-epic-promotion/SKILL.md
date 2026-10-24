@@ -1,11 +1,11 @@
 ---
 name: backlog-triage-and-epic-promotion
-description: Use when triaging docs/workflow/backlog.md, deciding standalone Brief vs Epic, or routing scope drift discovered during active work.
+description: Use when triaging docs/backlog.md, deciding standalone Brief vs Epic, or routing scope drift discovered during active work.
 ---
 
 # Backlog Triage and Work Promotion
 
-Primary file: `docs/workflow/backlog.md`.
+Primary file: `docs/backlog.md`.
 
 ## Routing
 
@@ -39,4 +39,4 @@ Use current Product/Dev SSOT and code when triaging. Do not require retired curr
 ---
 ## Documentation governance
 
-Creating, moving, or materially updating `docs/dev/**` requires loading and following `dev-documentation-governance`; run `npm run check:dev-docs` before claiming the documentation slice complete.
+Creating, moving, or materially updating `docs/dev/**` requires loading and following `dev-documentation-governance`; verify changed Markdown links and only run documented checks.

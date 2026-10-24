@@ -10,7 +10,7 @@ Own behavior-preserving structural change discipline.
 ## Process
 
 1. Define observable behavior that must remain equivalent: outputs, errors, API surfaces, side effects, persisted data, and performance constraints that are contractual.
-2. Establish a safety net before broad movement: existing tests or compile/static checks. Do not launch the app or use browser tools; running-app checks belong to the user. Do not author characterization tests at work stage unless the user explicitly asks; tests are written at merge hardening.
+2. Establish a behavior-preservation safety net with existing or new characterization tests and compile/static or browser checks where appropriate.
 3. Make one structural intent at a time: rename, extract, move, dependency inversion, then verify.
 4. If persistence shape changes, use `database-schema-design` for expand/migrate/switch/contract order.
 5. If new required behavior appears, stop treating it as a refactor and return to design/planning.

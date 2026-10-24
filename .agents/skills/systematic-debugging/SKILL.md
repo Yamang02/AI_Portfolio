@@ -1,6 +1,6 @@
 ---
 name: systematic-debugging
-description: Use when hitting any bug, test failure, unexpected behavior, flaky test, or build error. Establish a reproducible root cause before fixing; use the smallest appropriate repro as proof; regression tests are written at merge hardening, not per fix.
+description: Use when hitting any bug, test failure, unexpected behavior, flaky test, or build error. Establish a reproducible root cause before fixing; use the smallest appropriate repro as proof; regression tests may be written during implementation.
 ---
 
 # Systematic Debugging
@@ -30,10 +30,7 @@ Do not fix before establishing a supported root-cause hypothesis.
 
 ## 4. Fix and verify
 
-1. Establish the smallest regression proof:
-   - behavior bug → reproducible steps the user runs in the app (do not launch the app or use browser tools yourself), or an existing test that already fails; new regression tests are written at merge hardening, or fail-first through `layered-tdd-workflow` only when the user explicitly asks
-   - compiler/type/configuration error → the narrow failing build/type/check command may be the repro
-   - environment/manual behavior → reproducible script or explicit manual steps
+1. Establish a focused regression proof using a failing test, command, integration request, or reproducible browser scenario; add regression tests during implementation when appropriate.
 2. Make one logical fix without drive-by refactoring.
 3. Confirm the original repro passes and use `test-selection-and-verification` for the affected broader lane.
 4. After three failed fix hypotheses, stop and reassess the architecture or premise with the user.

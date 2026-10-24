@@ -5,8 +5,6 @@ description: Use only when the user explicitly invokes EP or ep to discuss and a
 
 # EP — Epic Authoring
 
-> AI_Portfolio migration note: Follow `docs/dev/development.md` and the actual repository build/test scripts for verification timing and commands. ClipPro-only examples (Tauri, Rust, Cargo, pnpm, IPC, SQLite, local media) are not applicable unless directly evidenced in AI_Portfolio. Backend/API, auth, PostgreSQL, cloud and browser boundaries take precedence when relevant. Any references to uncreated workflow docs are transitional and do not authorize inventing content.
-
 Use Epic only when the work crosses multiple domains/layers, needs multiple independently verifiable slices, or requires staged migration and broad integration/regression verification.
 
 ## Workflow
@@ -16,7 +14,7 @@ Use Epic only when the work crosses multiple domains/layers, needs multiple inde
 3. Settle goals, constraints, non-goals, architecture boundaries, and acceptance intent.
 4. Use `epic-lifecycle` to create or revise `docs/epic/...`.
 5. Use `implementation-plan-authoring` to write executable Tasks inside the owning Phase, including its SSOT consistency check against `docs/product/**` and `docs/dev/**`. Add the dependency and parallel-execution summary described below near the top of the README and every Phase; do not create a duplicate standalone Brief.
-6. Use `test-selection-and-verification` to name the checks each Phase closes with: affected-stack `check` and `build` only. Do not launch the app or use browser tools to observe behavior; until beta, running-app observation belongs to the user's `## 사용자 검증` lane. Do not plan test-writing Tasks or require test lanes per Phase; automated write or run tests during implementation when justified by the change; use the repository verification policy.
+6. Use `test-selection-and-verification` to choose acceptance-specific tests, build, integration and browser checks where appropriate; record gaps as unverified.
 7. Leave implementation and completion status unchecked until separately verified.
 
 Current implementation is read from code. Product/Dev SSOT provides durable meaning and rules. Do not depend on retired capability ledgers, As-Is inventories, or old document paths.
@@ -45,4 +43,4 @@ Place an execution summary immediately after status, before detailed goals, cont
 ---
 ## Documentation governance
 
-Creating, moving, or materially updating `docs/dev/**` requires loading and following `dev-documentation-governance`; run `npm run check:dev-docs` before claiming the documentation slice complete.
+Creating, moving, or materially updating `docs/dev/**` requires loading and following `dev-documentation-governance`; verify changed Markdown links and only run documented checks.

@@ -1,11 +1,9 @@
 ---
 name: branch-completion-options
-description: Use only when the user asks to merge, open a PR, keep, discard, or clean up the current branch/worktree after implementation. Owns merge hardening (writing tests for implemented features) when a merge into master is confirmed. Do not trigger automatically when code or an epic is complete.
+description: Use only when the user asks to merge, open a PR, keep, discard, or clean up the current branch/worktree after implementation. Owns integration verification when a merge/PR is requested. Do not trigger automatically when code or an epic is complete.
 ---
 
 # Branch Completion Options
-
-> AI_Portfolio migration note: Follow `docs/dev/development.md` and the actual repository build/test scripts for verification timing and commands. ClipPro-only examples (Tauri, Rust, Cargo, pnpm, IPC, SQLite, local media) are not applicable unless directly evidenced in AI_Portfolio. Backend/API, auth, PostgreSQL, cloud and browser boundaries take precedence when relevant. Any references to uncreated workflow docs are transitional and do not authorize inventing content.
 
 Own user-requested branch/worktree disposition. It does not decide whether implementation requirements are complete.
 
@@ -16,17 +14,9 @@ Own user-requested branch/worktree disposition. It does not decide whether imple
 3. If verification fails, report it before offering merge or PR.
 4. Preserve unrelated user changes.
 
-## Merge hardening
+## Integration verification
 
-When the user confirms a merge (or PR) of the work branch into the target branch, run merge hardening before the merge mutation. `docs/dev/development.md` § Test authoring timing is the SSOT.
-
-1. Build a feature list from `git diff master...HEAD` and the branch's workflow artifacts (Epic Phases, Briefs). Name each implemented feature and its owning layer and stack.
-2. For each feature, write tests with the kinds and placement from `test-selection-and-verification`. Put core contracts first: data integrity, transactions, workspace isolation, IPC/failure projection, then UI logical behavior.
-3. Repair or replace pre-existing tests that the branch broke. Record intentional contract changes rather than silently loosening assertions.
-4. Run root `verify`. Do not merge while it fails. Report the failure and the remaining features without tests.
-5. Report the feature list with each feature's test file(s), or an explicit reason when a feature gets no test (for example, visual-only, which belongs to the user-verification lane).
-
-Committing the hardening tests follows the user's commit instructions; do not commit unasked.
+Confirm the target branch and compare against its actual merge base, not an assumed `master`. Audit feature-to-test coverage and use `test-selection-and-verification` for applicable frontend, profile and backend checks. Add missing justified regression tests at implementation or integration time; do not assume a root `verify` command. Report failures and unverified boundaries before the requested PR/merge. All mutations require explicit authorization.
 
 ## Options
 
@@ -48,6 +38,6 @@ Creating or switching a branch still requires an explicit user request. Pushing,
 
 ## Done when
 
-- For a merge into the target branch, merge hardening produced the feature-to-test report and root `verify` passed before the merge.
+- For a merge/PR, applicable integration verification is reported before mutation.
 - The exact requested disposition is executed and the resulting branch/worktree state is reported, or
 - A failing verification or ambiguous/destructive target is reported without mutation.

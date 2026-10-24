@@ -22,7 +22,7 @@ Use a separate reviewer pass or bounded review worker when the host supports it.
 
 1. Compare the diff to required outcomes: missing behavior and unrequested scope.
 2. Inspect correctness, error paths, boundaries, tests, maintainability, and project conventions.
-3. For Rust backend diffs, apply `rust-stack` concerns.
+3. For Java/Spring Boot diffs apply `docs/dev/backend/conventions.md` and for React/TypeScript use the applicable frontend conventions.
 4. Classify findings as Critical, Important, or Minor and cite files/symbols.
 5. Fix or explicitly disposition findings; rerun the review when material changes follow.
 

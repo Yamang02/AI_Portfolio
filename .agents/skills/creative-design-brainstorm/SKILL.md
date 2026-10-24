@@ -38,4 +38,4 @@ Own the transition from **unsettled problem** to **approved design decision**. D
 ---
 ## Documentation governance
 
-Creating, moving, or materially updating `docs/dev/**` requires loading and following `dev-documentation-governance`; run `npm run check:dev-docs` before claiming the documentation slice complete.
+Creating, moving, or materially updating `docs/dev/**` requires loading and following `dev-documentation-governance`; verify changed Markdown links and only run documented checks.
