@@ -1,9 +1,10 @@
 # AI Portfolio 로컬 개발환경
+name: ai-portfolio-local
+
 services:
   # PostgreSQL Database
   postgres:
     image: postgres:15-alpine
-    container_name: ai-portfolio-postgres
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -25,7 +26,6 @@ services:
   # Redis for Caching
   redis:
     image: redis:7-alpine
-    container_name: ai-portfolio-redis
     ports:
       - "6379:6379"
     volumes:
@@ -39,7 +39,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.dev
-    container_name: ai-portfolio-backend
     ports:
       - "8080:8080"
     environment:
@@ -78,7 +77,6 @@ services:
   backend-sonar:
     profiles: ["sonar"]
     image: maven:3.9-eclipse-temurin-17
-    container_name: ai-portfolio-backend-sonar
     working_dir: /app
     volumes:
       - .:/app
@@ -98,7 +96,6 @@ services:
   # pgAdmin (선택사항 - 필요시에만 실행)
   pgadmin:
     image: dpage/pgadmin4:latest
-    container_name: ai-portfolio-pgadmin
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
