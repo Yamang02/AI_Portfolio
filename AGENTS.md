@@ -25,6 +25,8 @@
 - `docs/workflow/` and `docs/epic/`: active planning/execution context.
 - `docs/dev/conventions.md`: cross-stack conventions; `docs/dev/frontend/` and `docs/dev/backend/` own stack-specific conventions. Skills govern when/how to work, not the coding rules themselves.
 - Code is authoritative for current implementation; historic epics are not present-day technical authority.
+- Active work discovery: enumerate files in `docs/workflow/briefs/` and top-level `E##.*` folders in `docs/epic/`. Root `README.md` files contain writing rules, never manually maintained status indexes.
+- Do not search or read `docs/epic/archive/` unless the user explicitly requests past records, recovery, comparison, or archival. Archived work is not current execution context.
 - During transition, legacy `docs/technical/`, `docs/basis/quality/`, `docs/backlog/`, and `docs/issues/` remain available until audited and migrated.
 
 ## Verified repository commands

@@ -11,7 +11,7 @@ User-facing, explicit archival command for a standalone Brief or whole Epic. `/i
 
 ## Resolve target and status
 
-1. Resolve the explicitly supplied Brief or Epic, or an unambiguous active artifact from the conversation. A Phase ID resolves to its owning Epic; never archive a single Phase separately.
+1. Resolve the explicitly supplied Brief or Epic from active files/directories, or an unambiguous active artifact from the conversation. Do not inspect unrelated archive content. A Phase ID resolves to its owning Epic; never archive a single Phase separately.
 2. Read the complete owning Brief or Epic README and all Phase documents, relevant Product/Dev SSOT, current code, and work-stage verification records.
 3. Inspect the current implementation and use `evidence-before-completion` before asserting that any Task, Brief, Phase, or Epic is complete. Do not convert unverified or incomplete items to complete merely to permit archival.
 4. Distinguish `completed`, `partially completed`, and `unverified` explicitly. The user's `## 사용자 검증` lane remains separately owned and non-gating. An explicit `/co` authorizes archival even with unfinished work, provided the gaps and risks are preserved; it does not authorize a false completion claim.
@@ -22,7 +22,7 @@ User-facing, explicit archival command for a standalone Brief or whole Epic. `/i
 2. Update the owning workflow artifact with truthful Task/Phase status, changed decisions, current evidence, known gaps, unresolved risks, and any deferred work. Route still-actionable independent work through `backlog-triage-and-epic-promotion` where appropriate; do not silently drop it.
 3. Apply `dev-documentation-governance` and its required checks for material changes under `docs/dev/**`; use `test-selection-and-verification` to select other applicable documentation/structural checks. Do not launch the app or drive a browser.
 4. Move a Brief from `docs/workflow/briefs/<name>.md` to `docs/epic/archive/brief/<name>.md`, or the entire Epic directory from `docs/epic/E##.*` to `docs/epic/archive/E##.*`, preserving its README and every Phase.
-5. Update affected active workflow indexes and links, especially `docs/workflow/briefs/README.md` for Briefs. Repair references intended to remain navigable, without rewriting historical archive content solely for cosmetic reasons.
+5. Do not update any hand-maintained active or archived index: active inventory is directory membership. Repair links explicitly needed for current navigation, without scanning or rewriting unrelated historical documents.
 6. Inspect the resulting moved files and diff. Confirm the source is no longer active, the archive is readable, links/indexes resolve, and archived completion wording matches evidence. Report the archive location, documentation changes, verification, and remaining gaps.
 
 ## Boundaries

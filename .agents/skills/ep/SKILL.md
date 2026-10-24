@@ -11,7 +11,7 @@ Use Epic only when the work crosses multiple domains/layers, needs multiple inde
 
 ## Workflow
 
-1. Inspect `docs/backlog/README.md`, relevant Product/Dev SSOT, code, and active Epics.
+1. Inspect `docs/backlog.md`, relevant Product/Dev SSOT, code, and active Epic directories (not archive). Root Epic README contains authoring rules only; never maintain an Epic status list.
 2. If the work is a narrow single item, route to `br` instead.
 3. Settle goals, constraints, non-goals, architecture boundaries, and acceptance intent.
 4. Use `epic-lifecycle` to create or revise `docs/epic/...`.

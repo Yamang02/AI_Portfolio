@@ -17,7 +17,7 @@ docs/epic/E##.YYYY-MM-DD_<epic-name>/
 docs/epic/archive/E##.YYYY-MM-DD_<epic-name>/
 ```
 
-For numbering, scan both active Epic and archive directories.
+The active Epic inventory is the set of `E##.*` directories directly under `docs/epic/`. Do not scan archive contents or maintain an active list in the root README. When creating a new Epic, choose an unused ID after checking current active names; resolve a historical ID collision only if necessary without reading unrelated archived documents.
 
 ## Epic contract
 
@@ -29,10 +29,10 @@ Do not create a parallel standalone Brief for an Epic-owned Phase.
 
 ## Lifecycle
 
-- Create: establish Epic and at least the first Phase.
+- Create: establish the Epic README first and add a Phase only when an independently verifiable stage is needed.
 - Synchronize: only check Phase/Epic status after inspecting implementation and verification evidence.
 - Closeout: reconcile changed Product/Dev SSOT, remove temporary work, classify remaining findings, and verify Epic goals.
-- Archive: only on an explicit `/co` request (which supplies user approval); move the whole Epic folder to `docs/epic/archive/` and record the archive date. Archiving an incomplete Epic is allowed only with its unfinished acceptance and risk explicitly preserved; archival is not completion evidence.
+- Archive: only on an explicit `/co` request (which supplies user approval); move the whole Epic folder to `docs/epic/archive/` and record the archive date. Do not read unrelated archived Epic contents or update manual index tables. Archiving an incomplete Epic is allowed only with its unfinished acceptance and risk explicitly preserved; archival is not completion evidence.
 
 Discoveries outside Epic goals route through `backlog-triage-and-epic-promotion` to `docs/workflow/backlog.md`.
 
