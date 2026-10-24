@@ -19,7 +19,7 @@ Own the selection and execution of checks. `evidence-before-completion` alone au
 - Profile: `npm run build:profile` (no test script currently declared).
 - Backend: `npm run test:backend`, `npm run build:backend`; inspect Maven/Docker execution requirements first.
 - Root: `npm run test`, `npm run build`.
-- No pnpm, Cargo, or ClipTagger's root `verify` should be assumed.
+- Do not assume a root `verify` script or tooling absent from tracked manifests.
 
 ## Test kinds
 - Unit: isolated logic, fake dependencies.

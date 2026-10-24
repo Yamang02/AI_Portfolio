@@ -11,7 +11,7 @@ Review an epic as an adversarial pre-execution gate. The epic text is a proposal
 
 1. Use the supplied epic path or identifier. Infer only when exactly one active epic is an unambiguous target; otherwise ask.
 2. Read the epic `Readme.md` and all Phase documents in full.
-3. Inspect relevant current code, product SSOT, dev architecture, data/file boundaries, IPC contracts, and tests. Do not treat stale As-Is documentation or prior agent reports as proof.
+3. Inspect relevant current code, product SSOT, dev architecture, data/API boundaries, persistence, integrations, and tests. Do not treat stale As-Is documentation or prior agent reports as proof.
 4. For scope touching `frontend/src/**` or cross-stack contracts, trace affected frontend responsibilities, public interfaces, consumers, and integration points from current code and Product/Dev SSOT through the Epic goals and Phases; do not require retired capability ledgers.
 5. Load specialized lenses only when triggered, such as `database-schema-design`, `security-threat-assessment`, language stack skills, or `test-selection-and-verification`.
 
@@ -21,10 +21,10 @@ Review an epic as an adversarial pre-execution gate. The epic text is a proposal
 - Missing consumers, affected surfaces, cross-layer contracts, and operational impact
 - Missing or falsely scoped impact: unaccounted consumers, changed public contracts, affected responsibilities, and Phase outcomes without traceable acceptance
 - Architecture dependency violations, incompatible ownership, and duplicated sources of truth
-- **Ownership & Boundaries conformance:** For every Phase creating, relocating, or composing material responsibility, verify its stated responsibility/guarantee, owner and ownership dimension, upstream Product/Dev authority or public contract, and consumer/adapter boundary against current SSOT, library/native API, and code. Apply `docs/dev/frontend/ownership.md` to frontend decisions. Distinguish architectural ownership from agent/file edit ownership; do not infer an owner from package placement or the first consumer. Check whether planned Tasks and acceptance explicitly preserve the assigned owner without duplicating existing mechanics, policy, state, or execution. Treat a missing, contradictory, or unsupported ownership claim as an execution gap; label genuinely unresolved ownership rather than inventing certainty.
+- **Ownership & Boundaries conformance:** For every Phase creating, relocating, or composing material responsibility, verify its stated responsibility/guarantee, owner and ownership dimension, upstream Product/Dev authority or public contract, and consumer/adapter boundary against current SSOT, library/native API, and code. Use actual frontend code and `docs/dev/frontend/conventions.md` for frontend decisions; `ownership.md` is non-normative. Distinguish architectural ownership from agent/file edit ownership; do not infer an owner from package placement or the first consumer. Check whether planned Tasks and acceptance explicitly preserve the assigned owner without duplicating existing mechanics, policy, state, or execution. Treat a missing, contradictory, or unsupported ownership claim as an execution gap; label genuinely unresolved ownership rather than inventing certainty.
 - False premises about current behavior or available infrastructure
 - Sequencing, migration, rollback, recovery, concurrency, security, and irreversible operations
-- Acceptance criteria and verification commands capable of proving the claimed outcome at work stage: `check` and `build`, with running-app observation routed to the user's `## 사용자 검증` lane. Missing or absent automated tests are not a verification gap; they belong to merge hardening into the target branch
+- Acceptance criteria supported by relevant test, build, API/integration and browser verification; missing required evidence remains unverified.
 - Dependencies or unknowns that block execution before implementation starts
 
 ## Output contract

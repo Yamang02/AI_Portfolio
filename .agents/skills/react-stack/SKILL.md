@@ -40,13 +40,13 @@ Apply `typescript-stack` as the foundation and own React-specific choices.
 
 ## Test shape
 
-Applies when tests are written at merge hardening or on explicit user request.
+Applies whenever appropriate tests are added or reviewed, including during implementation.
 
 - Presentational behavior: Testing Library queries by role/name.
 - Hooks: `renderHook` for observable return/state transitions.
 - Multi-boundary flows: integration tests with established backend mocks.
 - Assert logical DOM structure, accessible names/states, callbacks, keyboard/focus transitions, and state outcomes.
-- Do not add tests for CSS appearance, computed style, actual layout geometry, screenshots, pixel diffs, stacking, cascade, or hover/focus paint results.
+- Do not infer visual appearance from DOM-only tests. Use browser/E2E or visual regression tools when visual fidelity is in scope and the tools are available.
 
 Use `test-selection-and-verification` to choose target/fast/full commands and `evidence-before-completion` for claims.
 

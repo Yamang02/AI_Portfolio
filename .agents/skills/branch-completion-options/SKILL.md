@@ -16,7 +16,7 @@ Own user-requested branch/worktree disposition. It does not decide whether imple
 
 ## Integration verification
 
-Confirm the target branch and compare against its actual merge base, not an assumed `master`. Audit feature-to-test coverage and use `test-selection-and-verification` for applicable frontend, profile and backend checks. Add missing justified regression tests at implementation or integration time; do not assume a root `verify` command. Report failures and unverified boundaries before the requested PR/merge. All mutations require explicit authorization.
+Confirm the target branch and compare against its actual merge base, not an assumed default branch. Audit feature-to-test coverage and use `test-selection-and-verification` for applicable frontend, profile and backend checks. Add missing justified regression tests at implementation or integration time; do not assume a root `verify` command. Report failures and unverified boundaries before the requested PR/merge. All mutations require explicit authorization.
 
 ## Options
 
