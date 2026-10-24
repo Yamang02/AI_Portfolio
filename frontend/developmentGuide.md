@@ -19,8 +19,8 @@
 
 ```bash
 cd frontend
-npm install
-npm run dev
+pnpm install
+pnpm run dev
 ```
 
 ## 📚 주요 기술 스택
@@ -40,7 +40,7 @@ npm run dev
 - **컬러 시스템**: `docs/technical/design-system/color-palette.md`
 - **Phase 3 구현 가이드**: `docs/technical/design-system/phase-3-implementation-guide.md`
 - **Phase 3 사용 예시**: `docs/technical/design-system/phase-3-usage-examples.md`
-- **스토리북**: `npm run storybook` 실행 후 디자인 시스템 컴포넌트 확인
+- **스토리북**: `pnpm run storybook` 실행 후 디자인 시스템 컴포넌트 확인
 
 ### ✅ DO (패턴)
 

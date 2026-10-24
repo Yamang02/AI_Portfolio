@@ -115,7 +115,7 @@ import { Button } from './Button';
 npm run storybook
 
 # 빌드
-npm run build-storybook
+pnpm run build-storybook
 ```
 
 ## 문제 해결

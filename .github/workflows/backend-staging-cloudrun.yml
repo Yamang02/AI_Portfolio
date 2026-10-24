@@ -6,12 +6,16 @@ on:
     branches: [ staging ]
     paths:
       - 'backend/**'
+      - '!backend/docker-compose.yml'
+      - '!backend/.env.example'
       - 'Dockerfile.prod'
       - '.github/workflows/backend-staging-cloudrun.yml'
   pull_request:
     branches: [ main ]
     paths:
       - 'backend/**'
+      - '!backend/docker-compose.yml'
+      - '!backend/.env.example'
       - 'Dockerfile.prod'
 
 env:

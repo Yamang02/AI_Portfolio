@@ -15,7 +15,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U dev_user -d ai_portfolio"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -37,7 +37,7 @@ services:
   # Spring Boot Backend
   backend:
     build:
-      context: ./backend
+      context: .
       dockerfile: Dockerfile.dev
     container_name: ai-portfolio-backend
     ports:
@@ -59,10 +59,10 @@ services:
       - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
       - GEMINI_API_KEY=${GEMINI_API_KEY}
     volumes:
-      - ./backend/src:/app/src
-      - ./backend/pom.xml:/app/pom.xml
+      - ./src:/app/src
+      - ./pom.xml:/app/pom.xml
       - maven_cache:/root/.m2  # Maven 의존성 캐시
-      - ./backend/target:/app/target  # 빌드 결과물 캐시
+      - ./target:/app/target  # 빌드 결과물 캐시
     depends_on:
       postgres:
         condition: service_healthy
@@ -72,46 +72,19 @@ services:
     networks:
       - ai-portfolio-network
 
-  # React Frontend (로컬 개발용 - Docker 제외)
-  # frontend:
-  #   build:
-  #     context: ./frontend
-  #     dockerfile: Dockerfile.dev
-  #   container_name: ai-portfolio-frontend
-  #   ports:
-  #     - "3000:3000"
-  #   environment:
-  #     - VITE_API_BASE_URL=http://localhost:8080
-  #     - VITE_AI_API_BASE_URL=http://localhost:8001
-  #   volumes:
-  #     - ./frontend/src:/app/src
-  #     - ./frontend/public:/app/public
-  #     - ./frontend/package.json:/app/package.json
-  #     - ./frontend/vite.config.ts:/app/vite.config.ts
-  #     - ./frontend/index.html:/app/index.html
-  #     - ./frontend/postcss.config.js:/app/postcss.config.js
-  #     - ./frontend/tailwind.config.js:/app/tailwind.config.js
-  #     - ./frontend/package-lock.json:/app/package-lock.json
-  #     - /app/node_modules
-  #   depends_on:
-  #     - backend
-  #   restart: unless-stopped
-  #   networks:
-  #     - ai-portfolio-network
-
   # 백엔드 SonarQube 분석 — 로컬에 Maven 없이 재현할 때 사용. `profiles: sonar` 로 일반 `compose up`에는 안 뜸.
-  # 전제: 호스트에서 SonarQube :9000 가동, 레포 루트 .env에 SONAR_TOKEN.
-  # 실행: docker compose --profile sonar run --rm backend-sonar  (레포 루트에서)
+  # 전제: 호스트에서 SonarQube :9000 가동, backend/.env에 SONAR_TOKEN.
+  # 실행: docker compose --profile sonar run --rm backend-sonar  (backend 디렉터리에서)
   backend-sonar:
     profiles: ["sonar"]
     image: maven:3.9-eclipse-temurin-17
     container_name: ai-portfolio-backend-sonar
     working_dir: /app
     volumes:
-      - ./backend:/app
+      - .:/app
       - maven_cache:/root/.m2
     environment:
-      SONAR_TOKEN: ${SONAR_TOKEN}
+      SONAR_TOKEN: ${SONAR_TOKEN:-}
     extra_hosts:
       - "host.docker.internal:host-gateway"
     entrypoint: ["/bin/sh", "-c"]
@@ -142,9 +115,13 @@ services:
 
 volumes:
   postgres_data:
+    name: ai_portfolio_postgres_data
   redis_data:
+    name: ai_portfolio_redis_data
   pgadmin_data:
-  maven_cache:  # Maven 의존성 캐시용
+    name: ai_portfolio_pgadmin_data
+  maven_cache:
+    name: ai_portfolio_maven_cache
 
 networks:
   ai-portfolio-network:
