@@ -1,40 +1,19 @@
-# 이슈 (Issues)
+# Issue 조사자료 작성 규칙
 
-발견된 이슈, 버그 분석, 개선 사항 등을 기능별로 분류하여 관리합니다.
+이 디렉터리에는 문제 조사, 원인 분석, 해결 시도 및 SonarQube 분석 당시의 **증거와 스냅샷**을 보관한다. 문서에서 '현재', '긴급', '완료'라고 표현하더라도 작성 당시의 상태일 수 있으므로 현재 코드·검증 결과와 대조한다.
 
-## 📁 기능별 분류
+## 분류 기준
 
-```
-issues/
-├── admin/              # 관리자 관련 이슈
-├── billing/            # 결제/빌링 관련 이슈
-├── cache/              # 캐시 관련 이슈
-├── data-processing/    # 데이터 처리 관련 이슈
-├── frontend/           # 프론트엔드 관련 이슈
-├── sonarqube/          # SonarQube 분석 스냅샷
-└── (루트)              # 일반 이슈 및 메타 문서
-```
+- `admin/`, `billing/`, `cache/`, `data-processing/`, `frontend/`: 주제별 조사 기록
+- `sonarqube/`: 특정 시점의 분석 결과, 처리 로그, JSON 스냅샷 및 SQ-02 처리 지침
+- 루트의 기존 문서: 과거 개별 문제의 실행 계획 및 원인 설명 기록
 
-## 📝 이슈 문서 작성 가이드
+## 작성 원칙
 
-각 이슈 문서는 다음을 포함해야 합니다:
-- 문제 설명
-- 원인 분석
-- 해결 방안
-- 영향 범위
-- 관련 파일/코드
+1. 재현 가능한 문제·영향 범위·확인 근거를 구분한다.
+2. 원인(확인/추정), 개선 방향, 검증 방법, 확인하지 못한 사항을 명시한다.
+3. 실제 구현을 변경하는 실행 작업은 [Brief](../workflow/briefs/README.md) 또는 [Epic](../epic/README.md)이 소유한다. Issue 문서를 별도의 병행 작업 목록으로 운영하지 않는다.
+4. 현재 기술 규칙은 [Dev](../dev/README.md), SonarQube 운영 정책은 [SQ-01](../basis/quality/SQ-01-local-sonarqube-workflow.md)을 따른다.
+5. 이 README에는 이슈 목록, 배치 진행률, 미처리 건수 같은 수동 현황을 기재하지 않는다. 스냅샷의 상태를 현재 상태로 주장하지 않는다.
 
-## 🔍 SonarQube 이슈 스냅샷
-
-- `docs/issues/sonarqube/sonarqube-issue-handling-guideline.md`
-- `docs/issues/sonarqube/2026-03-27-sonarqube-open-issues-summary.md`
-- `docs/issues/sonarqube/2026-03-27-frontend-issue-processing-log.md`
-- `docs/issues/sonarqube/2026-03-27-frontend-root-cause-notes-batch3-4.md`
-- `docs/issues/sonarqube/2026-03-27-frontend-open-issues.json`
-- `docs/issues/sonarqube/2026-03-27-backend-open-issues.json`
-
-### 현재 진행 상태 (로그 기준)
-
-- Frontend Sonar 처리 로그는 `Batch 24`까지 갱신됨
-- 미처리 BLOCKER/CRITICAL은 현재 없음
-- 다음 시작 지점: `typescript:S3358` 잔여 3건 (처리 로그 하단 우선 대상)
+기존 기록은 필요 시 참고하되 일괄 삭제·재분류하지 않는다.
