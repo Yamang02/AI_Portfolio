@@ -48,7 +48,7 @@ Use the repo’s real branch naming (e.g. `feat/E##/P01-scope` per GC-01).
 
 ## 4. Setup
 
-Auto-detect: `package.json` → `npm install` / `pnpm install`; `Cargo.toml` → `cargo build`; `pyproject.toml` / `requirements.txt` → project standard; `go.mod` → `go mod download`, etc.
+Use the actual repository's npm scripts and approved Maven/Docker workflow; inspect manifests before environment preparation. Do not assume other stack tools.
 
 ## 5. Baseline verify
 

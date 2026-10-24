@@ -5,8 +5,6 @@ description: Use only when the user explicitly invokes RV or rv to perform a rea
 
 # RV — Epic Executability Review
 
-> AI_Portfolio migration note: Follow `docs/dev/development.md` and the actual repository build/test scripts for verification timing and commands. ClipPro-only examples (Tauri, Rust, Cargo, pnpm, IPC, SQLite, local media) are not applicable unless directly evidenced in AI_Portfolio. Backend/API, auth, PostgreSQL, cloud and browser boundaries take precedence when relevant. Any references to uncreated workflow docs are transitional and do not authorize inventing content.
-
 Review an epic as an adversarial pre-execution gate. The epic text is a proposal; repository artifacts and current SSOT are evidence.
 
 ## Establish target and evidence
@@ -60,4 +58,4 @@ For every finding, state severity, the conflicting claim, concrete repository ev
 ---
 ## Documentation governance
 
-Creating, moving, or materially updating `docs/dev/**` requires loading and following `dev-documentation-governance`; run `npm run check:dev-docs` before claiming the documentation slice complete.
+Creating, moving, or materially updating `docs/dev/**` requires loading and following `dev-documentation-governance`; verify edited links and only run checks actually available in this repository.

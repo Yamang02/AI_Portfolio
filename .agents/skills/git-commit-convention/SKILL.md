@@ -5,8 +5,6 @@ description: Use when creating a git commit — enforces Conventional Commits fo
 
 # Git Commit Convention
 
-> AI_Portfolio migration note: Follow `docs/dev/development.md` and the actual repository build/test scripts for verification timing and commands. ClipPro-only examples (Tauri, Rust, Cargo, pnpm, IPC, SQLite, local media) are not applicable unless directly evidenced in AI_Portfolio. Backend/API, auth, PostgreSQL, cloud and browser boundaries take precedence when relevant. Any references to uncreated workflow docs are transitional and do not authorize inventing content.
-
 Enforce consistent, machine-parseable, human-readable commit messages. Distilled from GC-01 (rules 03–05, 07).
 
 ## Instructions

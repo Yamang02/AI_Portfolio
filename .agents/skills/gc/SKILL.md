@@ -5,8 +5,6 @@ description: Use only when the user explicitly invokes GC or gc to split and com
 
 # GC — Current-Session Logical Commits
 
-> AI_Portfolio migration note: Follow `docs/dev/development.md` and the actual repository build/test scripts for verification timing and commands. ClipPro-only examples (Tauri, Rust, Cargo, pnpm, IPC, SQLite, local media) are not applicable unless directly evidenced in AI_Portfolio. Backend/API, auth, PostgreSQL, cloud and browser boundaries take precedence when relevant. Any references to uncreated workflow docs are transitional and do not authorize inventing content.
-
 Commit only changes that can be attributed to the current conversation or work session.
 
 ## Establish scope
@@ -43,4 +41,4 @@ Use `evidence-before-completion` for claims about verification or completion. Le
 ---
 ## Documentation governance
 
-Creating, moving, or materially updating `docs/dev/**` requires loading and following `dev-documentation-governance`; run `npm run check:dev-docs` before claiming the documentation slice complete.
+Creating, moving, or materially updating `docs/dev/**` requires loading and following `dev-documentation-governance`; verify edited links and only run checks actually available in this repository.

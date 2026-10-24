@@ -5,8 +5,6 @@ description: Use only when the user explicitly requests TDD or fail-first tests 
 
 # Layered TDD Workflow
 
-> AI_Portfolio migration note: Follow `docs/dev/development.md` and the actual repository build/test scripts for verification timing and commands. ClipPro-only examples (Tauri, Rust, Cargo, pnpm, IPC, SQLite, local media) are not applicable unless directly evidenced in AI_Portfolio. Backend/API, auth, PostgreSQL, cloud and browser boundaries take precedence when relevant. Any references to uncreated workflow docs are transitional and do not authorize inventing content.
-
 Own the fail-first loop when the user **explicitly requests TDD**. Default test authoring happens at merge hardening (`docs/dev/development.md` § Test authoring timing), not during Task, Brief, or Epic Phase work.
 
 ## Applicability

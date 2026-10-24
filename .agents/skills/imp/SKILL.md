@@ -5,8 +5,6 @@ description: Use only when the user explicitly invokes IMP or imp to implement a
 
 # IMP — Plan Implementation
 
-> AI_Portfolio migration note: Follow `docs/dev/development.md` and the actual repository build/test scripts for verification timing and commands. ClipPro-only examples (Tauri, Rust, Cargo, pnpm, IPC, SQLite, local media) are not applicable unless directly evidenced in AI_Portfolio. Backend/API, auth, PostgreSQL, cloud and browser boundaries take precedence when relevant. Any references to uncreated workflow docs are transitional and do not authorize inventing content.
-
 Execute an approved Brief, Epic Phase, or explicitly selected Tasks. This skill is the user-facing entrypoint; `plan-execution-checkpoints` owns the execution procedure, verification checkpoints, and status updates.
 
 ## Workflow
