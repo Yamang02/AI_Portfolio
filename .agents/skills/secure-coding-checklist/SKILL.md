@@ -1,49 +1,36 @@
 ---
 name: secure-coding-checklist
-description: Use during AI_Portfolio implementation when code handles Tauri IPC input, filesystem paths or destructive operations, SQLite writes, external commands, network services, secrets, sensitive logs, or new dependencies. Applies coding-time controls; does not perform final security review.
+description: Use while implementing code that touches API inputs, authentication, authorization, persistence, external services, secrets, sensitive data, deployment, or dependencies. Apply design-time security controls; does not replace final security review.
 ---
 
 # Secure Coding Checklist
 
-> AI_Portfolio migration note: Follow `docs/dev/development.md` and the actual repository build/test scripts for verification timing and commands. ClipPro-only examples (Tauri, Rust, Cargo, pnpm, IPC, SQLite, local media) are not applicable unless directly evidenced in AI_Portfolio. Backend/API, auth, PostgreSQL, cloud and browser boundaries take precedence when relevant. Any references to uncreated workflow docs are transitional and do not authorize inventing content.
+Apply only to the changed threat boundaries. Ground controls in current source and applicable requirements.
 
-Apply only sections touched by the change.
+## HTTP/API and browser
 
-## Boundary input
+- Validate untrusted input types, bounds, identifiers, query parameters, and payload shape at runtime.
+- Enforce authentication and per-resource authorization server-side; the UI hiding an action is not authorization.
+- Check CSRF, CORS, session cookies, XSS/HTML rendering, upload bounds and error disclosure where applicable.
+- Do not expose internal IDs, stack traces, sensitive payloads, or secrets through public DTOs, logs, or client bundles.
+- Confirm rate/resource limits when an endpoint triggers expensive external or AI calls.
 
-- Validate type, length, range, enum membership, and required relationships at the system boundary.
-- Treat TypeScript types as compile-time help, not runtime validation of IPC or external data.
-- Return stable errors without internal paths, SQL details, secrets, or stack traces.
+## Persistence, cache, integrations
 
-## Filesystem and media
+- Use parameterized queries and domain validation; retain transactional and relational invariants.
+- Plan Flyway changes for existing data, compatibility, and rollback/recovery. Avoid accidental destructive updates.
+- Preserve explicit Port/Adapter boundaries for Redis and external integrations as established in the repository. Do not reintroduce framework cache annotations based on old examples.
+- Use timeouts, response validation and bounded retries for outbound requests; review SSRF and webhook authenticity where applicable.
 
-- Resolve and validate paths against the intended root before move, delete, overwrite, or import.
-- Account for symlinks/junctions, name collisions, partial copies, and cross-volume moves.
-- Use recoverable or staged operations where the product contract requires recovery.
-- Validate media size/type before expensive parsing; never trust extension alone for security decisions.
+## Deployment and secrets
 
-## Persistence
+- Keep secrets in approved runtime/CI secret stores, never tracked files or application logs.
+- Scope AWS/GCP identity privileges and confirm protected environment/branch boundaries for release changes.
+- Restrict sensitive CI outputs, artifacts and failure messages.
+- Inspect dependency provenance and vulnerabilities before adding packages; update matching manifests and lockfiles.
 
-- Use parameterized SQL.
-- Keep filesystem and SQLite ordering consistent with the documented transaction/recovery contract.
-- Preserve foreign-key and migration compatibility; do not silently discard data.
+## Verification and handoff
 
-## External process and network
-
-- Pass process arguments as an argument array; do not construct shell command strings from input.
-- Bound time, output, and resource consumption where malformed media can hang work.
-- Minimize data sent to remote services and use TLS.
-- Keep credentials outside tracked source; redact them from logs and errors.
-
-## Dependencies
-
-- Prefer existing capability.
-- Inspect maintenance and known severe vulnerabilities before adding a dependency.
-- Update and preserve the lockfile.
-- Use established libraries for security-sensitive parsing or cryptography.
-
-## Done when
-
-- Every applicable design-time security requirement is implemented or explicitly risk-accepted.
-- No introduced path, command, persistence, secret, or dependency hazard remains hidden.
-- Final diff assessment is left to `security-review`.
+- Use the targeted tests, static analysis and runtime checks warranted by the change.
+- Document controls that cannot be exercised and any explicit accepted risks.
+- `security-review` owns the diff-level security verdict; `evidence-before-completion` owns completion claims.
