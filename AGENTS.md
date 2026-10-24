@@ -23,7 +23,7 @@
 - `docs/product/`: product meaning/behavior/experience.
 - `docs/dev/`: durable technical ownership and implementation contracts.
 - `docs/workflow/` and `docs/epic/`: active planning/execution context.
-- `docs/dev/conventions.md`: shared coding conventions; skills govern when/how to work, not coding rules themselves.
+- `docs/dev/conventions.md`: cross-stack conventions; `docs/dev/frontend/` and `docs/dev/backend/` own stack-specific conventions. Skills govern when/how to work, not the coding rules themselves.
 - Code is authoritative for current implementation; historic epics are not present-day technical authority.
 - During transition, legacy `docs/technical/`, `docs/basis/quality/`, `docs/backlog/`, and `docs/issues/` remain available until audited and migrated.
 
