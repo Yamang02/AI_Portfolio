@@ -1,14 +1,9 @@
 {
-  "hero": {
-    "nameEn": "Lee JeongJun",
-    "nameKo": "이정준",
-    "roles": [
-      "Educator",
-      "Developer",
-      "Artist",
-      "Entrepreneur"
-    ],
-    "imageSrc": "/img/profile_teacher.jpg"
+  "opening": {
+    "brand": "야망솔루션",
+    "name": "이정준",
+    "heroAlt": "이정준 프로필 사진",
+    "artworkCredit": "Alexandre Cabanel, 〈타락천사〉(1847), 몽펠리에 파브르 미술관"
   },
   "identity": {
     "tagline": "스스로 구상하고 직접 만듭니다",
@@ -190,8 +185,6 @@
       "Lee Jeongjun",
       "Yamang02"
     ],
-    "heroGreeting": "Hello! I'm",
-    "heroImageAlt": "이정준 프로필 사진",
     "navigation": [
       {
         "href": "#identity",

@@ -10,8 +10,7 @@ export function Footer({ content }: FooterProps) {
       <div className="mx-auto flex w-full max-w-screen-2xl flex-col items-center gap-6 text-center md:gap-8">
         <div className="flex flex-col items-center gap-1.5 md:gap-2">
           <p
-            className="text-[1.625rem] leading-tight tracking-tight md:text-[2rem]"
-            style={{ fontFamily: 'Griun PolSensibility, serif' }}
+            className="font-brand text-[1.625rem] leading-tight tracking-tight md:text-[2rem]"
           >
             {content.title}
           </p>

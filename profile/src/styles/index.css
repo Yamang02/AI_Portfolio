@@ -68,13 +68,14 @@ body {
   --font-body: "Manrope", "Spoqa Han Sans Neo", sans-serif;
   --font-label: "Manrope", "Spoqa Han Sans Neo", sans-serif;
   --font-display: "Newsreader", "Gowun Batang", serif;
+  --font-brand: "Griun PolSensibility", serif;
 }
 
 @custom-variant dark (&:where(.dark, .dark *));
 
 @font-face {
   font-family: "Griun PolSensibility";
-  src: url("/Griun_PolSensibility-Rg.ttf") format("truetype");
+  src: url("/fonts/griun-yamang-v1.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -90,12 +91,4 @@ body {
 
 .no-scrollbar::-webkit-scrollbar {
   display: none;
-}
-
-@keyframes scroll {
-  0%, 20% { transform: translateY(0); }
-  25%, 45% { transform: translateY(-3rem); }
-  50%, 70% { transform: translateY(-6rem); }
-  75%, 95% { transform: translateY(-9rem); }
-  100% { transform: translateY(0); }
 }

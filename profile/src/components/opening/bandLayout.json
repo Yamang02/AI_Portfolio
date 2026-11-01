@@ -1,0 +1,32 @@
+{
+  "frame": {
+    "leftPercent": 2.71,
+    "widthPercent": 94.51
+  },
+  "bands": [
+    {
+      "id": "top",
+      "topPercent": 2.71,
+      "heightPercent": 29.66,
+      "tearCenterPercent": 48,
+      "scrollStart": 0.05,
+      "scrollEnd": 0.35
+    },
+    {
+      "id": "middle",
+      "topPercent": 35.11,
+      "heightPercent": 12.94,
+      "tearCenterPercent": 55,
+      "scrollStart": 0.5,
+      "scrollEnd": 0.8
+    },
+    {
+      "id": "bottom",
+      "topPercent": 50.78,
+      "heightPercent": 46.44,
+      "tearCenterPercent": 52,
+      "scrollStart": 0.2,
+      "scrollEnd": 0.5
+    }
+  ]
+}

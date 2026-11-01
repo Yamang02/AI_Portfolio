@@ -1,8 +1,8 @@
-export interface ProfileHero {
-  readonly nameEn: string;
-  readonly nameKo: string;
-  readonly roles: readonly string[];
-  readonly imageSrc: string;
+export interface ProfileOpening {
+  readonly brand: string;
+  readonly name: string;
+  readonly heroAlt: string;
+  readonly artworkCredit: string;
 }
 
 export interface ProfileIdentityCard {
@@ -80,8 +80,6 @@ export interface ProfileNavigationItem {
 
 export interface ProfileSiteContent {
   readonly logoTexts: readonly string[];
-  readonly heroGreeting: string;
-  readonly heroImageAlt: string;
   readonly navigation: readonly ProfileNavigationItem[];
   readonly homeLink: ProfileNavigationItem;
   readonly closeLabel: string;
@@ -134,7 +132,7 @@ export interface ProfileSiteContent {
 }
 
 export interface ProfileContent {
-  readonly hero: ProfileHero;
+  readonly opening: ProfileOpening;
   readonly identity: ProfileIdentitySection;
   readonly activities: readonly ProfileActivity[];
   readonly interests: readonly ProfileInterest[];

@@ -85,6 +85,8 @@ profile/public/*
 !profile/public/img/**
 !profile/public/video/
 !profile/public/video/**
+!profile/public/fonts/
+!profile/public/fonts/**
 !profile/public/favicons/
 !profile/public/favicons/**
 !profile/public/*.ttf

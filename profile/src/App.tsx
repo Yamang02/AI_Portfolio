@@ -5,10 +5,10 @@ import { ActivitiesSection } from './components/ActivitiesSection';
 import { ConnectSection } from './components/ConnectSection';
 import { ContactModal } from './components/ContactModal';
 import { Footer } from './components/Footer';
-import { Hero } from './components/Hero';
 import { IdentitySection } from './components/IdentitySection';
 import { InterestsSection } from './components/InterestsSection';
 import { Nav } from './components/Nav';
+import { OpeningScene } from './components/opening/OpeningScene';
 import './styles/index.css';
 
 export function App() {
@@ -20,8 +20,8 @@ export function App() {
     <MotionConfig reducedMotion="user">
       <div className="bg-surface font-body text-on-surface selection:bg-primary-container selection:text-on-primary-container">
         <Nav content={profileContent.site} />
-        <main className="pt-32">
-          <Hero content={profileContent.hero} siteContent={profileContent.site} />
+        <main>
+          <OpeningScene content={profileContent.opening} />
           <IdentitySection content={profileContent.identity} siteContent={profileContent.site} />
           <ActivitiesSection activities={profileContent.activities} siteContent={profileContent.site} />
           <InterestsSection interests={profileContent.interests} siteContent={profileContent.site} />

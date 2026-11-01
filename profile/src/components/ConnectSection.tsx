@@ -11,8 +11,7 @@ export function ConnectSection({ content, onOpenContact }: ConnectSectionProps) 
       <div className="mx-auto max-w-4xl space-y-12 text-center">
         <p className="font-label text-xs uppercase tracking-[0.4em] text-secondary">{content.eyebrow}</p>
         <h2
-          className="text-[3rem] leading-[1.1] tracking-tight md:text-[4.5rem]"
-          style={{ color: '#a33638', fontFamily: 'Griun PolSensibility, serif' }}
+          className="font-brand text-[3rem] leading-[1.1] tracking-tight text-brand-red md:text-[4.5rem]"
         >
           {content.title}
         </h2>

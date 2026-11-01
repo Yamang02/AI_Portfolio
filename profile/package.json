@@ -11,6 +11,8 @@
     "dev": "vite --port 3002 --host 0.0.0.0",
     "build": "vite build && vite build --ssr src/entry-server.tsx --outDir dist-ssr && node scripts/prerender.mjs",
     "preview": "vite preview --port 3002 --host 0.0.0.0",
+    "assets:opening": "node scripts/generate-tear-paths.mjs && node scripts/build-opening-assets.mjs",
+    "assets:tears": "node scripts/generate-tear-paths.mjs",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
@@ -24,6 +26,8 @@
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.2",
+    "sharp": "0.35.5",
+    "subset-font": "2.9.0",
     "tailwindcss": "^4.3.3",
     "typescript": "^7.0.2",
     "vite": "^8.3.5"
