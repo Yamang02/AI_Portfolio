@@ -1,0 +1,282 @@
+{
+  "hero": {
+    "nameEn": "Lee JeongJun",
+    "nameKo": "이정준",
+    "roles": [
+      "Educator",
+      "Developer",
+      "Artist",
+      "Entrepreneur"
+    ],
+    "imageSrc": "/img/profile_teacher.jpg"
+  },
+  "identity": {
+    "tagline": "스스로 구상하고 직접 만듭니다",
+    "cards": [
+      {
+        "icon": "school",
+        "title": "교육자",
+        "subTitle": "고등학교 국어교사 · 바이브코딩 과외",
+        "body": "교육설계 경험을 바탕으로<br/>학습자의 단계적 성장을 지향합니다"
+      },
+      {
+        "icon": "code",
+        "title": "개발자",
+        "subTitle": "ERP · WEB 개발 및 운영",
+        "body": "현장에서 쌓은 기획·배포·운영 경험을<br/>코드에 녹입니다"
+      },
+      {
+        "icon": "palette",
+        "title": "예술가",
+        "subTitle": "성균관대 순수미술 동아리 성미회",
+        "body": "논리만으로는 부족한 자리에<br/>감각과 미감을 더합니다"
+      },
+      {
+        "icon": "rocket_launch",
+        "title": "사업가",
+        "subTitle": "야망솔루션 대표",
+        "body": "다방면의 시각으로 문제를 정의하고<br/>실행으로 증명합니다"
+      }
+    ]
+  },
+  "activities": [
+    {
+      "id": "teaching",
+      "badge": "교육자",
+      "cardTitle": "국어 교사",
+      "colSpan": 7,
+      "minHeight": 320,
+      "modalLayout": "columns",
+      "mediaType": "img",
+      "mediaSrc": "/img/featured_activity_education.jpg",
+      "columns": [
+        {
+          "label": "",
+          "items": [
+            {
+              "org": "상명고등학교",
+              "subOrg": "노원구 인문계열 고등학교",
+              "period": "2019.03 — 2021.03",
+              "duties": [
+                "원격수업 제작 및 교사연수 관리",
+                "엑셀 활용 교원학습공동체 운영",
+                "학생 자습시간 통계 관리"
+              ]
+            }
+          ]
+        },
+        {
+          "label": "",
+          "items": [
+            {
+              "org": "배재고등학교",
+              "subOrg": "강동구 자립형 사립 고등학교",
+              "period": "2021.03 — 2022.03",
+              "duties": [
+                "학년부 모의고사 데이터 관리",
+                "수상대상자 선정기준 적용",
+                "학급 운영 및 교육활동"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "career",
+      "badge": "개발자",
+      "cardTitle": "개발 교육 수료 & 경력",
+      "colSpan": 5,
+      "minHeight": 320,
+      "modalLayout": "columns",
+      "mediaType": "img",
+      "mediaSrc": "/img/featured_activity_dev.jpg",
+      "itemStyle": "career",
+      "columns": [
+        {
+          "label": "교육",
+          "items": [
+            {
+              "org": "KH정보교육원 강남지사",
+              "period": "2022.11 — 2023.04",
+              "desc": "Java기반 클라우드 융합 개발자 양성과정"
+            },
+            {
+              "org": "Sesac 강동지점",
+              "period": "2025.06 — 2025.09",
+              "desc": "Cloud 기반 Multi Modal AI 개발자 양성과정"
+            }
+          ]
+        },
+        {
+          "label": "경력",
+          "items": [
+            {
+              "org": "(주)디아이티",
+              "period": "2023.07 — 2025.01",
+              "desc": "ERP · WEB 개발/유지보수"
+            },
+            {
+              "org": "(주)리콘랩스",
+              "period": "2025.09 — 2025.12",
+              "desc": "Software Engineer"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "artclub",
+      "badge": "예술가 · 개발자",
+      "cardTitle": "미술 동아리 사이트 개발&운영",
+      "cardTitleClass": "text-xl md:text-2xl",
+      "colSpan": 4,
+      "minHeight": 340,
+      "modalLayout": "site",
+      "mediaType": "img",
+      "mediaSrc": "/img/featured_activity_artclub.png",
+      "period": "2025.02 — 현재",
+      "body": "성균관대학교 순수미술 동아리 성미회의 작품을 아카이빙하는 공식 사이트.",
+      "link": "https://www.skkuartclub.kr/",
+      "linkLabel": "사이트 방문하기"
+    },
+    {
+      "id": "design",
+      "badge": "개발자 · 예술가",
+      "cardTitle": "디자인랩 개발&운영",
+      "colSpan": 4,
+      "minHeight": 340,
+      "modalLayout": "site",
+      "mediaType": "video",
+      "mediaSrc": "/video/featured_activity_design.mp4",
+      "period": "2026.03 — 현재",
+      "body": "UIUX · 프론트엔드 학습을 위해 직접 기획·개발한 디자인 레퍼런스 아카이브.",
+      "link": "https://design.yamang02.com",
+      "linkLabel": "사이트 방문하기"
+    },
+    {
+      "id": "vibe",
+      "badge": "기술자 · 교육자 · 사업가",
+      "cardTitle": "강의 · 개발 사업",
+      "colSpan": 4,
+      "minHeight": 340,
+      "modalLayout": "none",
+      "mediaType": "none",
+      "highlight": true,
+      "body": "2026년 1월, 야망솔루션을 설립했습니다.<br><br>AI의 발전은 아이디어를 가진 모든 사람에게 구현의 기회를 열어주고 있습니다. 저는 이 흐름을 포착해 강의 사업을 운영합니다. 단순 코딩 문법이 아닌, 문제를 스스로 정의하고 AI와 함께 해결해 나가는 개발자의 사고방식을 가르치는 것이 핵심입니다.<br><br>교직에서 쌓은 교육 설계 경험을 바탕으로 학습자 단계에 맞는 커리큘럼을 운영합니다.<br><br>동시에 개발업체로서의 성격도 유지합니다. 실제 프로덕트의 개발과 유지보수 업무를 병행하며 현장 감각을 교육에 녹여냅니다.",
+      "period": "2026.01 — 현재"
+    }
+  ],
+  "interests": [
+    {
+      "icon": "explore",
+      "title": "지식 접근성의 확대",
+      "body": "AI가 정보와 교육의 접근성을 평등하게 만들고 있습니다. 개인이 스스로 전문 지식을 수집하고 학습할 수 있는 환경이 갖춰지면서, 진입장벽이 허물어진 자리에 새로운 기회가 열립니다."
+    },
+    {
+      "icon": "integration_instructions",
+      "title": "하네스 엔지니어링",
+      "body": "LLM의 출력은 본질적으로 비결정적입니다. 프롬프트·테스트·워크플로우로 짜인 하네스는 이 불확실성을 제어하려는 시도입니다. AI 시대 개발자에게 가장 중요한 설계 역량이라 생각합니다."
+    },
+    {
+      "icon": "auto_awesome",
+      "title": "AI와 예술 창작",
+      "body": "AI 도구를 활용해 작품을 구상하고 제작합니다. 기술이 창작의 파트너가 될 때, 상상력의 구현 속도와 표현 범위가 어떻게 달라지는지를 직접 실험하고 있습니다."
+    }
+  ],
+  "site": {
+    "logoTexts": [
+      "이정준",
+      "Lee Jeongjun",
+      "Yamang02"
+    ],
+    "heroGreeting": "Hello! I'm",
+    "heroImageAlt": "이정준 프로필 사진",
+    "navigation": [
+      {
+        "href": "#identity",
+        "label": "정체성"
+      },
+      {
+        "href": "#works",
+        "label": "주요 활동"
+      },
+      {
+        "href": "#interests",
+        "label": "현재 관심사"
+      },
+      {
+        "href": "#connect",
+        "label": "야망솔루션"
+      }
+    ],
+    "homeLink": {
+      "href": "https://portfolio.yamang02.com",
+      "label": "포트폴리오 방문하기"
+    },
+    "sections": {
+      "identity": "정체성",
+      "activities": "주요 활동",
+      "activitiesPeriod": "2019 — 현재",
+      "interests": "현재 관심사"
+    },
+    "nowLabel": "Now",
+    "connect": {
+      "eyebrow": "Yamang02",
+      "title": "야망솔루션",
+      "body": "야망솔루션은 개발자 아이디 Yamang02에서 따온 이름입니다.<br/>만들고 싶은 것이 많아 전직을 결심했던 그 야망과,<br/>AI 시대 빌더들의 꿈을 기술로 풀어내겠다는 의지를 담았습니다.<br/>작업·글은 포트폴리오, 협업·문의는 아래 링크에서.",
+      "portfolioHref": "https://portfolio.yamang02.com",
+      "portfolioLabel": "포트폴리오 보기",
+      "companyHref": "https://www.yamangsolution.com",
+      "companyLabel": "야망솔루션 방문하기",
+      "contactLabel": "연락하기"
+    },
+    "footer": {
+      "title": "야망솔루션",
+      "copyright": "2026 Copyright by 이정준",
+      "businessInformation": [
+        {
+          "label": "대표자",
+          "value": "이정준",
+          "minWidth": "7rem"
+        },
+        {
+          "label": "사업자등록번호",
+          "value": "882-30-01752",
+          "minWidth": "7rem"
+        },
+        {
+          "label": "업태",
+          "value": "정보통신업",
+          "minWidth": "7rem"
+        },
+        {
+          "label": "종목",
+          "value": "컴퓨터 프로그래밍 서비스업",
+          "minWidth": "7.5rem"
+        }
+      ]
+    },
+    "contact": {
+      "eyebrow": "Get in touch",
+      "title": "연락하기",
+      "nameLabel": "이름",
+      "namePlaceholder": "이름을 입력하세요",
+      "emailLabel": "이메일",
+      "emailPlaceholder": "이메일을 입력하세요",
+      "subjectLabel": "제목",
+      "subjectPlaceholder": "제목을 입력하세요",
+      "messageLabel": "메시지",
+      "messagePlaceholder": "메시지를 입력하세요 (최소 10자)",
+      "cancelLabel": "취소",
+      "submitLabel": "전송",
+      "sendingLabel": "전송 중...",
+      "emailValidationMessage": "올바른 이메일 주소를 입력해주세요.",
+      "messageValidationMessage": "메시지는 최소 10자 이상 입력해주세요.",
+      "successMessage": "메시지가 성공적으로 전송되었습니다!",
+      "sendFailedMessage": "메시지 전송에 실패했습니다. 다시 시도해주세요.",
+      "toEmail": "contact@yamangsolution.com"
+    },
+    "closeLabel": "닫기"
+  }
+}

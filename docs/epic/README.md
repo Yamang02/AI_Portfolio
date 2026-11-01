@@ -31,6 +31,7 @@ docs/epic/archive/
 | [E15.2026-04-10_frontend-refactor-governance-and-quality](./E15.2026-04-10_frontend-refactor-governance-and-quality/) | 프론트엔드 구조 재정렬, YamangDesign 기준 토큰 체계 정비, SonarQube·성능·품질 환경 개선, `policy_compiler` 이식 기준 정리 (P01~P04) |
 | [E17.2026-04-12_multi-site-schema-and-content-model](./E17.2026-04-12_multi-site-schema-and-content-model/) | `project_visibility` 중심 멀티사이트 DB/콘텐츠 모델 후속 구현 설계 |
 | [E18.2026-04-13_admin-technical-cards-and-profile-tone-alignment](./E18.2026-04-13_admin-technical-cards-and-profile-tone-alignment/) | E17 스키마를 Admin 기술카드 편집 UI와 Main 렌더링에 반영하고, 포트폴리오 톤을 `profile` 기준으로 정렬 |
+| [E22.2026-11-01_profile-redesign](./E22.2026-11-01_profile-redesign/) | `profile`을 React + Tailwind v4 + Motion(pnpm, 최신 의존성)으로 전환하고 "명함" 컨셉(찢김 오프닝 + 정적 에디토리얼)으로 재구성 (P01 React 전환 정비, P02 찢김 오프닝 장면, P03 소개 역할 그리드) |
 
 ## 아카이브된 에픽 (E## 네이밍)
 

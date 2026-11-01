@@ -1,0 +1,40 @@
+import { useCallback, useState } from 'react';
+import { MotionConfig } from 'motion/react';
+import { profileContent } from './content';
+import { ActivitiesSection } from './components/ActivitiesSection';
+import { ConnectSection } from './components/ConnectSection';
+import { ContactModal } from './components/ContactModal';
+import { Footer } from './components/Footer';
+import { Hero } from './components/Hero';
+import { IdentitySection } from './components/IdentitySection';
+import { InterestsSection } from './components/InterestsSection';
+import { Nav } from './components/Nav';
+import './styles/index.css';
+
+export function App() {
+  const [isContactOpen, setIsContactOpen] = useState(false);
+  const openContact = useCallback(() => setIsContactOpen(true), []);
+  const closeContact = useCallback(() => setIsContactOpen(false), []);
+
+  return (
+    <MotionConfig reducedMotion="user">
+      <div className="bg-surface font-body text-on-surface selection:bg-primary-container selection:text-on-primary-container">
+        <Nav content={profileContent.site} />
+        <main className="pt-32">
+          <Hero content={profileContent.hero} siteContent={profileContent.site} />
+          <IdentitySection content={profileContent.identity} siteContent={profileContent.site} />
+          <ActivitiesSection activities={profileContent.activities} siteContent={profileContent.site} />
+          <InterestsSection interests={profileContent.interests} siteContent={profileContent.site} />
+          <ConnectSection content={profileContent.site.connect} onOpenContact={openContact} />
+        </main>
+        <Footer content={profileContent.site.footer} />
+        <ContactModal
+          closeLabel={profileContent.site.closeLabel}
+          content={profileContent.site.contact}
+          isOpen={isContactOpen}
+          onClose={closeContact}
+        />
+      </div>
+    </MotionConfig>
+  );
+}
