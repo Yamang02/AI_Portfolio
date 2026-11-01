@@ -1,47 +1,24 @@
-# 📚 AI_Portfolio 문서
+# AI_Portfolio documentation
 
-이 디렉토리는 AI_Portfolio 프로젝트의 모든 문서를 포함합니다.
+## Authority
+- [Product](./product/README.md): stable product concepts, behavior, experience, and guarantees.
+- [Dev](./dev/README.md): durable technical ownership, architecture, contracts, conventions, and validation.
+- [Workflow](./workflow/README.md): outstanding work and implementation steps.
+- Current code: authoritative description of existing implementation.
+- Historical work records do not redefine Product/Dev rules.
 
-## 📂 폴더 구조
+## Existing directories during migration
+- [Technical](./technical/README.md): retained reference library for examples, historical designs, and operations; not a migration queue.
+- [Quality basis](./basis/quality/SQ-01-local-sonarqube-workflow.md): retained SonarQube operating policy; coding conventions are now in [Dev conventions](./dev/conventions.md).
+- [Templates](./templates/README.md): authoring aids for Brief/Epic and issue documents.
+- [Epics](./epic/README.md): Epic authoring rules. Active work is the immediate `E##.*` directories; do not search archive by default.
+- [Backlog](./backlog.md): unpromoted active problem list; [authoring rules](./backlog/README.md).
+- [Issues](./issues/README.md): historical and active issue investigations.
+- [Hotfixes](./hotfixes/README.md): targeted emergency change records.
+- `docs/epic/archive/`: historical work, excluded from normal discovery unless expressly requested.
 
-```
-docs/
-├── backlog/           # 백로그 (아이디어, 에픽 초안, 피처 요청)
-├── epic/              # 진행중/완료된 에픽
-├── hotfixes/          # 에픽 없이 반영한 긴급 수정 요약 (날짜·슬러그 파일)
-├── issues/            # 이슈 트래킹 (기능별 분류)
-├── technical/         # 기술 문서 (아키텍처, 가이드 등)
-├── templates/         # 문서 템플릿
-└── archive/           # 아카이브 (완료된 작업, 백업 등)
-```
-
-## 📖 각 폴더 설명
-
-### backlog/
-프로젝트 백로그, 아이디어, 계획 중인 피처 요청 등을 포함합니다.
-
-### epic/
-완료되었거나 진행 중인 주요 에픽(프로젝트) 문서를 포함합니다.
-
-### hotfixes/
-에픽 없이 핫픽스로 처리한 결함의 원인·조치·운영 메모만 짧게 남긴다. [hotfixes/README.md](./hotfixes/README.md)에서 목록을 본다.
-
-### issues/
-발견된 이슈, 버그 분석, 개선 사항 등을 기능별로 분류하여 관리합니다.
-
-### technical/
-- `architecture/`: 시스템 아키텍처 문서
-- `guides/`: 개발 가이드 및 설정 가이드
-- `decisions/`: 기술적 결정 사항 (ADR)
-
-### templates/
-문서 작성을 위한 템플릿 파일들입니다.
-
-### archive/
-완료된 작업, 백업 파일, 더 이상 사용하지 않는 문서 등을 보관합니다.
-
-## 🔗 관련 문서
-
-- 프론트엔드 개발 가이드: `frontend/developmentGuide.md`
-- 백엔드 개발 가이드: `backend/developmentGuide.md`
-- 기술 문서 상세: `docs/technical/README.md`
+## Editing rules
+- One canonical owner for each durable rule; link instead of copying.
+- Read relevant authority and code, not every document in advance.
+- Move documents only after auditing inbound links and ensuring their meaning survives.
+- Keep migration notes and one-time inspections out of active Product/Dev SSOT.

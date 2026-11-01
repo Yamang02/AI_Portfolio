@@ -6,7 +6,7 @@
 
 - **아키텍처**: `docs/technical/architecture/frontend-architecture.md`
 - **개발 가이드**: `docs/technical/guides/frontend/`
-- **AI Agent 개발 가이드**: `docs/technical/guides/agent-development-guide.md`
+- **코딩 관례**: `docs/dev/frontend/conventions.md` (공통: `docs/dev/conventions.md`)
 - **마이그레이션 가이드**: `docs/archive/frontend-migration/`
 - **디자인 시스템**: `docs/technical/design-system/`
   - **사용 가이드**: `docs/technical/design-system/usage-guide.md` (상세 가이드)
@@ -19,8 +19,8 @@
 
 ```bash
 cd frontend
-npm install
-npm run dev
+pnpm install
+pnpm run dev
 ```
 
 ## 📚 주요 기술 스택
@@ -40,7 +40,7 @@ npm run dev
 - **컬러 시스템**: `docs/technical/design-system/color-palette.md`
 - **Phase 3 구현 가이드**: `docs/technical/design-system/phase-3-implementation-guide.md`
 - **Phase 3 사용 예시**: `docs/technical/design-system/phase-3-usage-examples.md`
-- **스토리북**: `npm run storybook` 실행 후 디자인 시스템 컴포넌트 확인
+- **스토리북**: `pnpm run storybook` 실행 후 디자인 시스템 컴포넌트 확인
 
 ### ✅ DO (패턴)
 
