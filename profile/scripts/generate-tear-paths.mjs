@@ -7,7 +7,7 @@ const PROJECT_DIRECTORY = path.resolve(SCRIPT_DIRECTORY, '..');
 const LAYOUT_PATH = path.resolve(PROJECT_DIRECTORY, 'src', 'components', 'opening', 'bandLayout.json');
 const OUTPUT_PATH = path.resolve(PROJECT_DIRECTORY, 'src', 'components', 'opening', 'tearPaths.ts');
 const JSON_OUTPUT_PATH = path.resolve(PROJECT_DIRECTORY, 'src', 'components', 'opening', 'tearPaths.json');
-const BAND_SEEDS = { top: 4817, middle: 16055, bottom: 9383 };
+const POINT_COUNT = 52;
 
 function createRandom(seed) {
   let state = seed >>> 0;
@@ -22,57 +22,60 @@ function createRandom(seed) {
 }
 
 function format(value) {
-  return Number(value.toFixed(2));
+  return Number(value.toFixed(3));
 }
 
-function createBandPaths(band) {
-  const random = createRandom(BAND_SEEDS[band.id]);
-  const pointCount = 32;
-  const lowFrequency = 1.1 + random() * 1.2;
+function createTearPath(tear) {
+  const random = createRandom(tear.seed);
+  const lowFrequency = 1.4 + random() * 0.8;
   const lowPhase = random() * Math.PI * 2;
   const highPhase = random() * Math.PI * 2;
-  const lowAmplitude = 0.45 + random() * 1.05;
-  const points = Array.from({ length: pointCount }, (_, index) => {
-    const y = index / (pointCount - 1) * 100;
-    const position = index / (pointCount - 1);
+  const lowAmplitude = 0.55 + random() * 0.3;
+  const halfGap = tear.gapHeightPercent / 2;
+  const lowLimit = tear.centerPercent - halfGap + 0.08;
+  const highLimit = tear.centerPercent + halfGap - 0.08;
+
+  return Array.from({ length: POINT_COUNT }, (_, index) => {
+    const position = index / (POINT_COUNT - 1);
     const lowNoise = Math.sin(position * lowFrequency * Math.PI * 2 + lowPhase) * lowAmplitude;
-    const highNoise = Math.sin(position * 22 * Math.PI * 2 + highPhase) * (0.1 + random() * 0.3);
-    const x = Math.min(98, Math.max(2, band.tearCenterPercent + lowNoise + highNoise));
+    const highNoise = Math.sin(position * 21 * Math.PI * 2 + highPhase) * (0.1 + random() * 0.2);
+    const y = Math.min(highLimit, Math.max(lowLimit, tear.centerPercent + lowNoise + highNoise));
 
-    return { x: format(x), y: format(y), fiberWidth: format(0.3 + random() * 0.6) };
+    return {
+      x: format(position * 100),
+      y: format(y),
+      fiberWidth: format(0.3 + random() * 0.6),
+    };
   });
-  const boundary = points.map(({ x, y }) => ({ x, y }));
-  const leftFiber = [
-    ...boundary,
-    ...points.toReversed().map(({ x, y, fiberWidth }) => ({ x: format(x - fiberWidth), y })),
-  ];
-  const rightFiber = [
-    ...boundary,
-    ...points.toReversed().map(({ x, y, fiberWidth }) => ({ x: format(x + fiberWidth), y })),
-  ];
-  const leftClip = [
-    { x: 0, y: 0 },
-    ...boundary,
-    { x: 0, y: 100 },
-  ];
-  const rightClip = [
-    ...boundary,
-    { x: 100, y: 100 },
-    { x: 100, y: 0 },
-  ];
-
-  return {
-    leftClip,
-    rightClip,
-    leftFiber,
-    rightFiber,
-  };
 }
 
 const layout = JSON.parse(await readFile(LAYOUT_PATH, 'utf8'));
-const generated = Object.fromEntries(layout.bands.map(band => [band.id, createBandPaths(band)]));
-const output = `import tearPathData from './tearPaths.json';\n\nexport interface TearPoint {\n  readonly x: number;\n  readonly y: number;\n}\n\nexport interface TearBandPaths {\n  readonly leftClip: readonly TearPoint[];\n  readonly rightClip: readonly TearPoint[];\n  readonly leftFiber: readonly TearPoint[];\n  readonly rightFiber: readonly TearPoint[];\n}\n\nexport const TEAR_PATHS = tearPathData satisfies Record<'top' | 'middle' | 'bottom', TearBandPaths>;\n`;
+const generated = Object.fromEntries(layout.tears.map(tear => [tear.id, createTearPath(tear)]));
+
+for (const tear of layout.tears) {
+  const points = generated[tear.id];
+  const gapBottom = tear.gapTopPercent + tear.gapHeightPercent;
+
+  if (points.some(point => point.y < tear.gapTopPercent || point.y > gapBottom)) {
+    throw new Error(`Tear ${tear.id} extends beyond its hero gap`);
+  }
+}
+
+const output = [
+  "import tearPathData from './tearPaths.json';",
+  '',
+  'export interface TearPoint {',
+  '  readonly x: number;',
+  '  readonly y: number;',
+  '  readonly fiberWidth: number;',
+  '}',
+  '',
+  'export type TearPath = readonly TearPoint[];',
+  '',
+  "export const TEAR_PATHS = tearPathData satisfies Record<'first' | 'second', TearPath>;",
+  '',
+].join('\n');
 
 await writeFile(OUTPUT_PATH, output, 'utf8');
 await writeFile(JSON_OUTPUT_PATH, `${JSON.stringify(generated, null, 2)}\n`, 'utf8');
-console.log(`Generated deterministic tear path data: ${OUTPUT_PATH}`);
+console.log(`Generated two deterministic horizontal tear paths: ${JSON_OUTPUT_PATH}`);

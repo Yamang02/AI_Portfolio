@@ -1,6 +1,5 @@
 export interface ProfileOpening {
-  readonly brand: string;
-  readonly name: string;
+  readonly heading: string;
   readonly heroAlt: string;
   readonly artworkCredit: string;
 }

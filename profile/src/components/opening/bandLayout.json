@@ -7,26 +7,33 @@
     {
       "id": "top",
       "topPercent": 2.71,
-      "heightPercent": 29.66,
-      "tearCenterPercent": 48,
-      "scrollStart": 0.05,
-      "scrollEnd": 0.35
+      "heightPercent": 29.66
     },
     {
       "id": "middle",
       "topPercent": 35.11,
-      "heightPercent": 12.94,
-      "tearCenterPercent": 55,
-      "scrollStart": 0.5,
-      "scrollEnd": 0.8
+      "heightPercent": 12.94
     },
     {
       "id": "bottom",
       "topPercent": 50.78,
-      "heightPercent": 46.44,
-      "tearCenterPercent": 52,
-      "scrollStart": 0.2,
-      "scrollEnd": 0.5
+      "heightPercent": 46.44
+    }
+  ],
+  "tears": [
+    {
+      "id": "first",
+      "gapTopPercent": 32.37,
+      "gapHeightPercent": 2.73,
+      "centerPercent": 33.735,
+      "seed": 4817
+    },
+    {
+      "id": "second",
+      "gapTopPercent": 48.05,
+      "gapHeightPercent": 2.73,
+      "centerPercent": 49.415,
+      "seed": 16055
     }
   ]
 }
