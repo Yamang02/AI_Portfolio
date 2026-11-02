@@ -1,40 +1,39 @@
-import type { CSSProperties } from 'react';
+import type { OpeningBandId } from './bandLayout';
 import { getOpeningAssetUrl } from './openingAssets';
 
 type OpeningPictureProps = {
-  readonly name: `fallen-${string}`;
+  readonly pieceId: OpeningBandId;
   readonly highPriority?: boolean;
-  readonly imageStyle?: CSSProperties;
 };
 
 const IMAGE_WIDTHS = [640, 1280, 2048] as const;
 const sizes = '(max-width: 720px) min(calc(100vw - 32px), calc(100svh - 176px)), calc(100svh - 176px)';
 
-function getImageUrl(name: OpeningPictureProps['name'], width: typeof IMAGE_WIDTHS[number], format: 'avif' | 'webp') {
-  return getOpeningAssetUrl(`${name}-${width}.${format}`);
+function getImageUrl(pieceId: OpeningBandId, width: typeof IMAGE_WIDTHS[number], format: 'avif' | 'webp') {
+  return getOpeningAssetUrl(`fallen-${pieceId}-piece-${width}.${format}`);
 }
 
-function getImageSrcSet(name: OpeningPictureProps['name'], format: 'avif' | 'webp') {
-  return IMAGE_WIDTHS.map(width => `${getImageUrl(name, width, format)} ${width}w`).join(', ');
+function getImageSrcSet(pieceId: OpeningBandId, format: 'avif' | 'webp') {
+  return IMAGE_WIDTHS.map(width => `${getImageUrl(pieceId, width, format)} ${width}w`).join(', ');
 }
 
-export function OpeningPicture({ name, highPriority = false, imageStyle }: OpeningPictureProps) {
+export function OpeningPicture({ pieceId, highPriority = false }: OpeningPictureProps) {
   return (
     <picture className="absolute inset-0 block h-full w-full">
-      <source sizes={sizes} srcSet={getImageSrcSet(name, 'avif')} type="image/avif" />
+      <source sizes={sizes} srcSet={getImageSrcSet(pieceId, 'avif')} type="image/avif" />
       <img
         alt=""
         aria-hidden="true"
         className="absolute inset-0 size-full object-fill"
         data-opening-image
+        data-opening-piece={pieceId}
         decoding="async"
         fetchPriority={highPriority ? 'high' : undefined}
         height={640}
         loading="eager"
         sizes={sizes}
-        src={getImageUrl(name, 640, 'webp')}
-        srcSet={getImageSrcSet(name, 'webp')}
-        style={imageStyle}
+        src={getImageUrl(pieceId, 640, 'webp')}
+        srcSet={getImageSrcSet(pieceId, 'webp')}
         width={640}
       />
     </picture>

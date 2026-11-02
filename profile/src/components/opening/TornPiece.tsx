@@ -1,131 +1,96 @@
-import { motion } from 'motion/react';
-import { TEAR_PATHS } from './tearPaths';
-import type { OpeningTearId } from './bandLayout';
-import { OpeningPicture } from './OpeningPicture';
+import type { CSSProperties } from 'react';
+import { OPENING_COLUMN_COUNT, OPENING_SWEEP_DIRECTIONS } from './bandLayout';
+import type { OpeningBandId, OpeningTearId } from './bandLayout';
 import { getOpeningAssetUrl } from './openingAssets';
-
-type PieceId = 'top' | 'middle' | 'bottom';
-type FiberSide = 'upper' | 'lower';
-
-interface CurlDefinition {
-  readonly id: string;
-  readonly tearId: OpeningTearId;
-  readonly side: FiberSide;
-  readonly hingePercent: number;
-}
+import { FIBER_HIDDEN_CLIP } from './openingTimeline';
 
 interface TornPieceProps {
-  readonly pieceId: PieceId;
+  readonly pieceId: OpeningBandId;
+  readonly imageUrl: string;
 }
 
-function averageY(tearId: OpeningTearId) {
-  const path = TEAR_PATHS[tearId];
-  return path.reduce((total, point) => total + point.y, 0) / path.length;
-}
-
-const firstCenter = averageY('first');
-const secondCenter = averageY('second');
-const topCurlHeight = firstCenter * 0.08;
-const middleCurlHeight = (secondCenter - firstCenter) * 0.08;
-const bottomCurlHeight = (100 - secondCenter) * 0.08;
-
-const CURLS_BY_PIECE: Record<PieceId, readonly CurlDefinition[]> = {
-  top: [
-    {
-      id: 'top-bottom',
-      tearId: 'first',
-      side: 'upper',
-      hingePercent: firstCenter - topCurlHeight,
-    },
-  ],
-  middle: [
-    {
-      id: 'middle-top',
-      tearId: 'first',
-      side: 'lower',
-      hingePercent: firstCenter + middleCurlHeight,
-    },
-    {
-      id: 'middle-bottom',
-      tearId: 'second',
-      side: 'upper',
-      hingePercent: secondCenter - middleCurlHeight,
-    },
-  ],
-  bottom: [
-    {
-      id: 'bottom-top',
-      tearId: 'second',
-      side: 'lower',
-      hingePercent: secondCenter + bottomCurlHeight,
-    },
-  ],
+const PIECE_Z_INDEX: Record<OpeningBandId, number> = {
+  top: 1,
+  bottom: 2,
+  middle: 3,
 };
+const FIBER_SIDES = ['upper', 'lower'] as const;
+const TEAR_IDS: readonly OpeningTearId[] = ['first', 'second'];
 
-function CurlBand({ definition }: { readonly definition: CurlDefinition }) {
-  return (
-    <motion.div
-      className="absolute inset-0"
-      data-curl={definition.id}
-      style={{
-        transformOrigin: `50% ${definition.hingePercent}%`,
-        transformStyle: 'preserve-3d',
-      }}
-    >
-      <OpeningPicture
-        imageStyle={{ backfaceVisibility: 'hidden' }}
-        name={`fallen-curl-${definition.id}-front`}
-      />
-      <img
-        alt=""
-        aria-hidden="true"
-        className="absolute inset-0 size-full object-fill"
-        data-opening-image
-        decoding="async"
-        height={640}
-        loading="eager"
-        src={getOpeningAssetUrl(`fallen-curl-${definition.id}-back.webp`)}
-        style={{ backfaceVisibility: 'hidden', transform: 'rotateX(180deg)' }}
-        width={640}
-      />
-      <motion.img
-        alt=""
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 size-full object-fill"
-        data-opening-image
-        data-tear={definition.tearId}
-        decoding="async"
-        height={640}
-        loading="eager"
-        src={getOpeningAssetUrl(`fiber-${definition.tearId}-${definition.side}.png`)}
-        style={{
-          scaleX: 0,
-          transformOrigin: definition.tearId === 'second' ? 'right center' : 'left center',
-        }}
-        width={640}
-      />
-    </motion.div>
-  );
+export function getPieceBackUrl(pieceId: OpeningBandId) {
+  return getOpeningAssetUrl(`fallen-${pieceId}-back.webp`);
 }
 
-export function TornPiece({ pieceId }: TornPieceProps) {
-  return (
-    <motion.div
-      aria-hidden="true"
-      className="absolute inset-0"
+export function getFiberUrl(tearId: OpeningTearId, side: typeof FIBER_SIDES[number]) {
+  return getOpeningAssetUrl(`fiber-${tearId}-${side}.png`);
+}
+
+export function getAllFiberUrls() {
+  return TEAR_IDS.flatMap(tearId => FIBER_SIDES.map(side => getFiberUrl(tearId, side)));
+}
+
+function getColumnStyle(pieceId: OpeningBandId, columnIndex: number): CSSProperties {
+  return {
+    height: '100%',
+    left: `calc(${columnIndex} * 100cqw / ${OPENING_COLUMN_COUNT})`,
+    transformOrigin: OPENING_SWEEP_DIRECTIONS[pieceId] === 'left-to-right' ? '100% 50%' : '0% 50%',
+    transformStyle: 'preserve-3d',
+    width: `calc(100cqw / ${OPENING_COLUMN_COUNT} + 1px)`,
+    zIndex: PIECE_Z_INDEX[pieceId],
+  };
+}
+
+function getFaceStyle(imageUrl: string, columnIndex: number, isBack: boolean): CSSProperties {
+  return {
+    backfaceVisibility: 'hidden',
+    backgroundImage: `url("${imageUrl}")`,
+    backgroundPosition: `calc(${columnIndex} * -100cqw / ${OPENING_COLUMN_COUNT}) 0`,
+    backgroundRepeat: 'no-repeat',
+    backgroundSize: '100cqw 100%',
+    transform: isBack ? 'rotateY(180deg)' : undefined,
+  };
+}
+
+export function TornPiece({ pieceId, imageUrl }: TornPieceProps) {
+  const backUrl = getPieceBackUrl(pieceId);
+
+  return Array.from({ length: OPENING_COLUMN_COUNT }, (_, columnIndex) => (
+    <div
+      className="absolute top-0"
+      data-column={columnIndex}
       data-piece={pieceId}
-      style={{
-        transformStyle: 'preserve-3d',
-        zIndex: pieceId === 'middle' ? 3 : pieceId === 'bottom' ? 2 : 1,
-      }}
+      key={`${pieceId}-${columnIndex}`}
+      style={getColumnStyle(pieceId, columnIndex)}
     >
-      <OpeningPicture
-        highPriority={pieceId === 'bottom'}
-        name={`fallen-${pieceId}-body`}
-      />
-      {CURLS_BY_PIECE[pieceId].map(definition => (
-        <CurlBand definition={definition} key={definition.id} />
+      <div className="absolute inset-0" style={getFaceStyle(imageUrl, columnIndex, false)} />
+      <div className="absolute inset-0" style={getFaceStyle(backUrl, columnIndex, true)} />
+    </div>
+  ));
+}
+
+export function TearFibers() {
+  return (
+    <div className="pointer-events-none absolute inset-0" style={{ zIndex: 4 }}>
+      {TEAR_IDS.map(tearId => (
+        <div
+          className="absolute inset-0"
+          data-fiber-tear={tearId}
+          key={tearId}
+          style={{ clipPath: FIBER_HIDDEN_CLIP }}
+        >
+          {FIBER_SIDES.map(side => (
+            <img
+              alt=""
+              className="absolute inset-0 size-full object-fill"
+              decoding="async"
+              height={1280}
+              key={side}
+              src={getFiberUrl(tearId, side)}
+              width={1280}
+            />
+          ))}
+        </div>
       ))}
-    </motion.div>
+    </div>
   );
 }

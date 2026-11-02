@@ -2,6 +2,14 @@ import layoutData from './bandLayout.json';
 
 export type OpeningBandId = 'top' | 'middle' | 'bottom';
 export type OpeningTearId = 'first' | 'second';
+export type OpeningSweepDirection = 'left-to-right' | 'right-to-left';
+
+export const OPENING_COLUMN_COUNT = 64;
+export const OPENING_SWEEP_DIRECTIONS: Record<OpeningBandId, OpeningSweepDirection> = {
+  top: 'left-to-right',
+  middle: 'left-to-right',
+  bottom: 'right-to-left',
+};
 
 export interface OpeningBandLayout {
   readonly id: OpeningBandId;

@@ -12,8 +12,13 @@ const OUTPUT_DIRECTORY = path.resolve(PROJECT_DIRECTORY, 'src', 'assets', 'openi
 const FONT_OUTPUT_DIRECTORY = path.resolve(PROJECT_DIRECTORY, 'public', 'fonts');
 const PREVIEW_PATH = path.join(os.tmpdir(), `profile-p02-horizontal-tears-${Date.now()}.png`);
 const WIDTHS = [640, 1280, 2048];
-const CURL_BACK_WIDTH = 1280;
+const PAPER_BACK_WIDTH = 1280;
 const FIBER_WIDTH = 1280;
+const FINAL_TITLE_WIDTH = 1280;
+const FINAL_TITLE_ALIGNMENT_OFFSETS = {
+  top: { x: 1, y: 1 },
+  bottom: { x: 0, y: 1 },
+};
 const PREVIEW_SIZE = 1024;
 const IMAGE_SOURCES = [
   { name: 'hero', filename: 'hero_original.jpg' },
@@ -32,17 +37,6 @@ function round(value) {
 
 function toSvgPoints(points) {
   return points.map(({ x, y }) => `${x},${y}`).join(' ');
-}
-
-function averageY(points) {
-  return points.reduce((total, point) => total + point.y, 0) / points.length;
-}
-
-function offsetPath(points, offset) {
-  return points.map(point => ({
-    ...point,
-    y: round(Math.min(100, Math.max(0, point.y + offset))),
-  }));
 }
 
 function createMaskSvg(points, width, height) {
@@ -70,63 +64,24 @@ function createFiberSvg(pathPoints, side, width, height, seed) {
 function getPieceGeometry() {
   const firstPath = TEAR_PATHS.first;
   const secondPath = TEAR_PATHS.second;
-  const firstCenter = averageY(firstPath);
-  const secondCenter = averageY(secondPath);
-  const topCurlHeight = firstCenter * 0.08;
-  const middleCurlHeight = (secondCenter - firstCenter) * 0.08;
-  const bottomCurlHeight = (100 - secondCenter) * 0.08;
-  const topHinge = offsetPath(firstPath, -topCurlHeight);
-  const middleTopHinge = offsetPath(firstPath, middleCurlHeight);
-  const middleBottomHinge = offsetPath(secondPath, -middleCurlHeight);
-  const bottomHinge = offsetPath(secondPath, bottomCurlHeight);
 
   return {
-    bodies: {
+    pieces: {
       top: [
         { x: 0, y: 0 },
         { x: 100, y: 0 },
-        ...topHinge.toReversed(),
+        ...firstPath.toReversed(),
       ],
       middle: [
-        ...middleTopHinge,
-        ...middleBottomHinge.toReversed(),
+        ...firstPath,
+        ...secondPath.toReversed(),
       ],
       bottom: [
-        ...bottomHinge,
+        ...secondPath,
         { x: 100, y: 100 },
         { x: 0, y: 100 },
       ],
     },
-    curls: [
-      {
-        id: 'top-bottom',
-        tearId: 'first',
-        side: 'upper',
-        hingePercent: firstCenter - topCurlHeight,
-        polygon: [...firstPath, ...topHinge.toReversed()],
-      },
-      {
-        id: 'middle-top',
-        tearId: 'first',
-        side: 'lower',
-        hingePercent: firstCenter + middleCurlHeight,
-        polygon: [...firstPath, ...middleTopHinge.toReversed()],
-      },
-      {
-        id: 'middle-bottom',
-        tearId: 'second',
-        side: 'upper',
-        hingePercent: secondCenter - middleCurlHeight,
-        polygon: [...middleBottomHinge, ...secondPath.toReversed()],
-      },
-      {
-        id: 'bottom-top',
-        tearId: 'second',
-        side: 'lower',
-        hingePercent: secondCenter + bottomCurlHeight,
-        polygon: [...secondPath, ...bottomHinge.toReversed()],
-      },
-    ],
     fibers: [
       { tearId: 'first', side: 'upper', points: firstPath },
       { tearId: 'first', side: 'lower', points: firstPath },
@@ -184,18 +139,50 @@ async function renderMaskedImage(sourceBuffer, polygon, width, format, destinati
   return renderEncoded(maskedImage, format, destination);
 }
 
-async function renderCurlBack(sourceBuffer, polygon, width, destination) {
-  const mirroredImage = await sharp(sourceBuffer)
-    .resize({ width, height: width, kernel: sharp.kernel.lanczos3 })
-    .flop()
-    .jpeg({ quality: 76 })
-    .toBuffer();
-  const clipPoints = toSvgPoints(polygon);
-  const svg = Buffer.from(
-    `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${width}" viewBox="0 0 100 100" preserveAspectRatio="none"><defs><clipPath id="curl-mask"><polygon points="${clipPoints}" stroke="#fff" stroke-width="0.12" stroke-linejoin="round"/></clipPath><linearGradient id="curl-shade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#433a30" stop-opacity="0.18"/><stop offset="0.5" stop-color="#433a30" stop-opacity="0.02"/><stop offset="1" stop-color="#ffffff" stop-opacity="0.12"/></linearGradient></defs><g clip-path="url(#curl-mask)"><rect width="100" height="100" fill="#efe6d6"/><image href="data:image/jpeg;base64,${mirroredImage.toString('base64')}" width="100" height="100" opacity="0.1"/><rect width="100" height="100" fill="url(#curl-shade)"/></g></svg>`,
-  );
+async function renderPaperBack(polygon, width, destination) {
+  const mask = createMaskSvg(polygon, width, width);
 
-  return sharp(svg).webp({ quality: 80, effort: 5, alphaQuality: 90 }).toFile(destination);
+  return sharp(mask).webp({ quality: 80, effort: 5, alphaQuality: 90 }).toFile(destination);
+}
+
+async function getAlphaBounds(imageBuffer) {
+  const { data, info } = await sharp(imageBuffer).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+  let left = info.width;
+  let top = info.height;
+  let right = -1;
+  let bottom = -1;
+
+  for (let y = 0; y < info.height; y += 1) {
+    for (let x = 0; x < info.width; x += 1) {
+      if (data[(y * info.width + x) * info.channels + info.channels - 1] > 0) {
+        left = Math.min(left, x);
+        top = Math.min(top, y);
+        right = Math.max(right, x);
+        bottom = Math.max(bottom, y);
+      }
+    }
+  }
+
+  if (right < left || bottom < top) {
+    throw new Error('Final hero composition has no visible pixels');
+  }
+
+  return { left, top, width: right - left + 1, height: bottom - top + 1 };
+}
+
+async function renderFinalTitleBand(imageBuffer, bounds, band, destination) {
+  const alignmentOffset = FINAL_TITLE_ALIGNMENT_OFFSETS[band.id];
+  const left = bounds.left + Math.round(bounds.width * LAYOUT.frame.leftPercent / 100) + alignmentOffset.x;
+  const width = Math.round(bounds.width * LAYOUT.frame.widthPercent / 100);
+  const top = bounds.top + Math.round(bounds.height * band.topPercent / 100) + alignmentOffset.y;
+  const height = Math.round(bounds.height * band.heightPercent / 100);
+  const outputHeight = Math.round(FINAL_TITLE_WIDTH * band.heightPercent / LAYOUT.frame.widthPercent);
+
+  return sharp(imageBuffer)
+    .extract({ left, top, width, height })
+    .resize({ width: FINAL_TITLE_WIDTH, height: outputHeight, kernel: sharp.kernel.lanczos3 })
+    .webp({ quality: 88, effort: 5 })
+    .toFile(destination);
 }
 
 async function renderTearFiber(fiber, destination) {
@@ -252,10 +239,7 @@ async function createPreview(sourceData, geometry) {
     create: { width: PREVIEW_SIZE, height: PREVIEW_SIZE, channels: 3, background: '#ffffff' },
   }).composite(heroLayers).png().toBuffer();
   const lines = createTearLinesSvg(TEAR_PATHS, PREVIEW_SIZE);
-  const piecePolygons = [
-    ...Object.values(geometry.bodies),
-    ...geometry.curls.map(curl => curl.polygon),
-  ];
+  const piecePolygons = Object.values(geometry.pieces);
   const assemblyLayers = [];
 
   for (const polygon of piecePolygons) {
@@ -304,8 +288,10 @@ await mkdir(FONT_OUTPUT_DIRECTORY, { recursive: true });
 for (const filename of await readdir(OUTPUT_DIRECTORY)) {
   const isOldPiece = /^fallen-(top|middle|bottom)-(left|right)-/.test(filename);
   const isOldOverlay = /^(tear|shadow)-(top|middle|bottom)-(left|right)\.png$/.test(filename);
+  const isObsoleteBody = /^fallen-(top|middle|bottom)-body-(?:back\.webp|\d+\.(?:avif|webp))$/.test(filename);
+  const isObsoleteCurl = /^fallen-curl-.*-(?:back\.webp|front-\d+\.(?:avif|webp))$/.test(filename);
 
-  if (isOldPiece || isOldOverlay) {
+  if (isOldPiece || isOldOverlay || isObsoleteBody || isObsoleteCurl) {
     await rm(path.resolve(OUTPUT_DIRECTORY, filename), { force: true });
   }
 }
@@ -350,10 +336,10 @@ for (const source of IMAGE_SOURCES) {
 const fallenSource = sourceData.get('fallen');
 const fallenImage = await sharp(fallenSource.path).png().toBuffer();
 
-for (const [pieceId, polygon] of Object.entries(geometry.bodies)) {
+for (const [pieceId, polygon] of Object.entries(geometry.pieces)) {
   for (const width of WIDTHS) {
     for (const format of ['avif', 'webp']) {
-      const filename = `fallen-${pieceId}-body-${width}.${format}`;
+      const filename = `fallen-${pieceId}-piece-${width}.${format}`;
       const destination = path.resolve(OUTPUT_DIRECTORY, filename);
       const image = await renderMaskedImage(fallenImage, polygon, width, format, destination);
       const file = await stat(destination);
@@ -365,28 +351,32 @@ for (const [pieceId, polygon] of Object.entries(geometry.bodies)) {
       responsiveImages.push({ filename, bytes: file.size, width: image.width, height: image.height });
     }
   }
+
+  const backFilename = `fallen-${pieceId}-back.webp`;
+  const backPath = path.resolve(OUTPUT_DIRECTORY, backFilename);
+  await renderPaperBack(polygon, PAPER_BACK_WIDTH, backPath);
+  staticImages.push({ filename: backFilename, bytes: (await stat(backPath)).size });
 }
 
-for (const curl of geometry.curls) {
-  for (const width of WIDTHS) {
-    for (const format of ['avif', 'webp']) {
-      const filename = `fallen-curl-${curl.id}-front-${width}.${format}`;
-      const destination = path.resolve(OUTPUT_DIRECTORY, filename);
-      const image = await renderMaskedImage(fallenImage, curl.polygon, width, format, destination);
-      const file = await stat(destination);
+const finalCompositionPath = path.join(SOURCE_DIRECTORY, 'hero_final.png');
+const finalCompositionBuffer = await readFile(finalCompositionPath);
+const finalCompositionBounds = await getAlphaBounds(finalCompositionBuffer);
 
-      if (width === 640 && format === 'avif' && file.size > 60 * 1024) {
-        throw new Error(`${filename} exceeds the 60 KB budget (${file.size} bytes)`);
-      }
+if (finalCompositionBounds.width !== finalCompositionBounds.height) {
+  throw new Error(`Expected a square visible final composition: ${finalCompositionBounds.width}x${finalCompositionBounds.height}`);
+}
 
-      responsiveImages.push({ filename, bytes: file.size, width: image.width, height: image.height });
-    }
+for (const bandId of ['top', 'bottom']) {
+  const band = LAYOUT.bands.find(candidate => candidate.id === bandId);
+
+  if (!band) {
+    throw new Error(`Missing hero layout for final title band: ${bandId}`);
   }
 
-  const backFilename = `fallen-curl-${curl.id}-back.webp`;
-  const backPath = path.resolve(OUTPUT_DIRECTORY, backFilename);
-  await renderCurlBack(fallenImage, curl.polygon, CURL_BACK_WIDTH, backPath);
-  staticImages.push({ filename: backFilename, bytes: (await stat(backPath)).size });
+  const filename = `hero-final-${bandId}.webp`;
+  const destination = path.resolve(OUTPUT_DIRECTORY, filename);
+  await renderFinalTitleBand(finalCompositionBuffer, finalCompositionBounds, band, destination);
+  staticImages.push({ filename, bytes: (await stat(destination)).size });
 }
 
 for (const fiber of geometry.fibers) {
@@ -408,19 +398,20 @@ if (fontBytes > 10 * 1024) {
 
 const previewDifference = await createPreview(sourceData, geometry);
 
-const expectedResponsiveCount = (LAYOUT.bands.length + Object.keys(geometry.bodies).length + geometry.curls.length) * WIDTHS.length * 2;
+const expectedResponsiveCount = (LAYOUT.bands.length + Object.keys(geometry.pieces).length) * WIDTHS.length * 2;
 
 if (responsiveImages.length !== expectedResponsiveCount) {
   throw new Error(`Expected ${expectedResponsiveCount} responsive images, received ${responsiveImages.length}`);
 }
-if (staticImages.length !== geometry.curls.length + geometry.fibers.length) {
-  throw new Error(`Expected ${geometry.curls.length + geometry.fibers.length} static tear assets, received ${staticImages.length}`);
+const expectedStaticImageCount = Object.keys(geometry.pieces).length + geometry.fibers.length + 2;
+if (staticImages.length !== expectedStaticImageCount) {
+  throw new Error(`Expected ${expectedStaticImageCount} static opening assets, received ${staticImages.length}`);
 }
 
 console.log(JSON.stringify({
   outputDirectory: OUTPUT_DIRECTORY,
   responsiveImageCount: responsiveImages.length,
-  staticTearAssetCount: staticImages.length,
+  staticAssetCount: staticImages.length,
   responsiveImages,
   staticImages,
   previewDifference,
