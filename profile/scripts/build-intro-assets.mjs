@@ -8,7 +8,7 @@ const sourceImages = [
   { id: 'educator', filename: 'educator.jpg' },
   { id: 'developer', filename: 'developer.jpg' },
   { id: 'artist', filename: 'artist.jpg' },
-  { id: 'entrepreneur', filename: 'entrepreneur.jpg' },
+  { id: 'entrepreneur', filename: 'entrepreneur.jpg', crop: { left: 240, top: 0, width: 1440, height: 1920 } },
 ];
 const targetWidths = [400, 800, 1200];
 const outputSummary = [];
@@ -17,19 +17,23 @@ await mkdir(outputDirectory, { recursive: true });
 
 for (const sourceImage of sourceImages) {
   const sourcePath = path.join(sourceDirectory, sourceImage.filename);
-  const metadata = await sharp(sourcePath).metadata();
+  const sourceMetadata = await sharp(sourcePath).metadata();
 
-  if (!metadata.width || !metadata.height) {
+  if (!sourceMetadata.width || !sourceMetadata.height) {
     throw new Error('Could not read image dimensions: ' + sourcePath);
   }
 
-  for (const targetWidth of targetWidths) {
-    const width = Math.min(targetWidth, metadata.width);
+  const metadata = sourceImage.crop ?? sourceMetadata;
 
+  const widths = [...new Set(targetWidths.map(targetWidth => Math.min(targetWidth, metadata.width)))];
+
+  for (const width of widths) {
     for (const format of ['avif', 'webp']) {
       const filename = sourceImage.id + '-' + width + '.' + format;
       const destination = path.join(outputDirectory, filename);
-      const pipeline = sharp(sourcePath).resize({ width, withoutEnlargement: true });
+      const source = sharp(sourcePath);
+      const pipeline = (sourceImage.crop ? source.extract(sourceImage.crop) : source)
+        .resize({ width, withoutEnlargement: true });
 
       if (format === 'avif') {
         await pipeline.avif({ quality: 48, effort: 5 }).toFile(destination);

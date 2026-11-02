@@ -5,33 +5,18 @@
     "artworkCredit": "Alexandre Cabanel, 〈타락천사〉(1847), 몽펠리에 파브르 미술관"
   },
   "intro": {
-    "greeting": "Hello! I'm",
+    "greeting": "Hello, I'm",
     "name": "이정준",
+    "nameSuffix": "",
+    "taglineSubject": "I",
     "tabListLabel": "소개 역할",
     "pauseLabel": "자동 전환 정지",
     "playLabel": "자동 전환 재생",
     "roles": [
       {
-        "id": "educator",
-        "label": "Educator",
-        "fact": "고등학교 국어교사 · 바이브코딩 과외",
-        "imageAlt": "교육자 이정준",
-        "sceneFocus": "66% 52%",
-        "portraitFocus": "66% 37%",
-        "portraitZoom": 1.4
-      },
-      {
-        "id": "entrepreneur",
-        "label": "Entrepreneur",
-        "fact": "야망솔루션 대표",
-        "imageAlt": "사업가 이정준",
-        "sceneFocus": "50% 34%",
-        "portraitFocus": "59% 43%",
-        "portraitZoom": 1.3
-      },
-      {
         "id": "artist",
         "label": "Artist",
+        "verb": "design",
         "fact": "성균관대 순수미술 동아리 성미회",
         "imageAlt": "예술가 이정준",
         "sceneFocus": "76% 66%",
@@ -39,13 +24,34 @@
         "portraitZoom": 1.4
       },
       {
+        "id": "educator",
+        "label": "Educator",
+        "verb": "explain",
+        "fact": "고등학교 국어교사 · 바이브코딩 과외",
+        "imageAlt": "교육자 이정준",
+        "sceneFocus": "66% 52%",
+        "portraitFocus": "66% 37%",
+        "portraitZoom": 1.4
+      },
+      {
         "id": "developer",
         "label": "Developer",
+        "verb": "code",
         "fact": "ERP · WEB 개발 및 운영",
         "imageAlt": "개발자 이정준",
         "sceneFocus": "37% 42%",
         "portraitFocus": "34% 27%",
         "portraitZoom": 1.4
+      },
+      {
+        "id": "entrepreneur",
+        "label": "Entrepreneur",
+        "verb": "deliver",
+        "fact": "야망솔루션 대표",
+        "imageAlt": "사업가 이정준",
+        "sceneFocus": "43% 30%",
+        "portraitFocus": "43% 28%",
+        "portraitZoom": 1.1
       }
     ]
   },

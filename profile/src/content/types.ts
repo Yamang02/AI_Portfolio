@@ -9,6 +9,7 @@ export type ProfileIntroRoleId = 'educator' | 'developer' | 'artist' | 'entrepre
 export interface ProfileIntroRole {
   readonly id: ProfileIntroRoleId;
   readonly label: string;
+  readonly verb: string;
   readonly fact: string;
   readonly imageAlt: string;
   readonly sceneFocus: string;
@@ -19,6 +20,8 @@ export interface ProfileIntroRole {
 export interface ProfileIntroContent {
   readonly greeting: string;
   readonly name: string;
+  readonly nameSuffix: string;
+  readonly taglineSubject: string;
   readonly tabListLabel: string;
   readonly pauseLabel: string;
   readonly playLabel: string;

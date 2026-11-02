@@ -439,9 +439,8 @@ export function OpeningScene({ content }: OpeningSceneProps) {
           <button
             aria-disabled={phase !== 'done'}
             aria-label={REPLAY_BUTTON_LABEL}
-            className="absolute inline-flex size-8 items-center justify-center rounded-full text-on-surface/70 transition-colors hover:bg-surface-container-high hover:text-on-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary aria-disabled:cursor-not-allowed aria-disabled:opacity-40"
+            className="absolute right-0 top-[calc(100%+12px)] inline-flex size-10 items-center justify-center rounded-full text-on-surface/70 transition-colors hover:bg-surface-container-high hover:text-on-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary aria-disabled:cursor-not-allowed aria-disabled:opacity-40 landscape:bottom-0 landscape:left-[calc(100%+12px)] landscape:right-auto landscape:top-auto"
             onClick={handleReplay}
-            style={{ right: 0, top: 'calc(100% + 12px)' }}
             type="button"
           >
             <svg

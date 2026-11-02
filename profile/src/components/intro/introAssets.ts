@@ -18,10 +18,10 @@ import artist800Webp from '../../assets/intro/artist-800.webp';
 import artist1200Webp from '../../assets/intro/artist-1200.webp';
 import entrepreneur400Avif from '../../assets/intro/entrepreneur-400.avif';
 import entrepreneur800Avif from '../../assets/intro/entrepreneur-800.avif';
-import entrepreneur1200Avif from '../../assets/intro/entrepreneur-1080.avif';
+import entrepreneur1200Avif from '../../assets/intro/entrepreneur-1200.avif';
 import entrepreneur400Webp from '../../assets/intro/entrepreneur-400.webp';
 import entrepreneur800Webp from '../../assets/intro/entrepreneur-800.webp';
-import entrepreneur1200Webp from '../../assets/intro/entrepreneur-1080.webp';
+import entrepreneur1200Webp from '../../assets/intro/entrepreneur-1200.webp';
 
 interface ResponsiveAsset {
   readonly width: number;
@@ -64,11 +64,11 @@ export const introImageAssets = {
     ],
   },
   entrepreneur: {
-    aspectRatio: 1080 / 1440,
+    aspectRatio: 1440 / 1920,
     images: [
       asset(400, entrepreneur400Avif, entrepreneur400Webp),
       asset(800, entrepreneur800Avif, entrepreneur800Webp),
-      asset(1080, entrepreneur1200Avif, entrepreneur1200Webp),
+      asset(1200, entrepreneur1200Avif, entrepreneur1200Webp),
     ],
   },
 } satisfies Record<string, IntroImageAssetSet>;

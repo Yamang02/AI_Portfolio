@@ -4,8 +4,9 @@ import { useReducedMotion, motion } from 'motion/react';
 import type { ProfileIntroContent } from '../../content/types';
 import { useInView } from '../../hooks/useInView';
 import { useRoleCycle } from '../../hooks/useRoleCycle';
+import { IntroGreeting } from './IntroGreeting';
 import { RoleBento } from './RoleBento';
-import { RoleCopy } from './RoleCopy';
+import { RoleFact } from './RoleFact';
 import { RoleTabs } from './RoleTabs';
 
 interface IntroSectionProps {
@@ -15,10 +16,10 @@ interface IntroSectionProps {
 const useIsomorphicLayoutEffect = typeof window === 'undefined' ? useEffect : useLayoutEffect;
 
 export function IntroSection({ content }: IntroSectionProps) {
-  const sectionRef = useRef<HTMLElement | null>(null);
+  const stageRef = useRef<HTMLDivElement | null>(null);
   const hasEnteredRef = useRef(false);
   const prefersReducedMotion = useReducedMotion() ?? false;
-  const isInView = useInView(sectionRef);
+  const isInView = useInView(stageRef);
   const [isEntered, setIsEntered] = useState(true);
   const [isEntryAnimationComplete, setIsEntryAnimationComplete] = useState(false);
   const [isTabListFocused, setIsTabListFocused] = useState(false);
@@ -34,7 +35,7 @@ export function IntroSection({ content }: IntroSectionProps) {
   const activeRole = content.roles[cycle.activeIndex];
 
   useIsomorphicLayoutEffect(() => {
-    const section = sectionRef.current;
+    const stage = stageRef.current;
 
     if (prefersReducedMotion) {
       hasEnteredRef.current = true;
@@ -43,11 +44,11 @@ export function IntroSection({ content }: IntroSectionProps) {
       return;
     }
 
-    if (!section) {
+    if (!stage) {
       return;
     }
 
-    const bounds = section.getBoundingClientRect();
+    const bounds = stage.getBoundingClientRect();
     const isInitiallyVisible = bounds.top < window.innerHeight && bounds.bottom > 0;
 
     if (!isInitiallyVisible) {
@@ -103,60 +104,69 @@ export function IntroSection({ content }: IntroSectionProps) {
       aria-labelledby="intro-name"
       className="px-6 pb-24 md:px-12 lg:px-20"
       id="identity"
-      ref={sectionRef}
       style={{ paddingTop: '12svh' }}
     >
       <div className="mx-auto max-w-screen-2xl">
-        <motion.div
-          animate={revealState(0)}
-          className="mb-8 flex items-start gap-5 border-t border-outline-variant/50 pt-4 md:mb-12 md:gap-8"
-          initial={false}
-        >
-          <RoleTabs
-            activeIndex={cycle.activeIndex}
-            onFocusChange={setIsTabListFocused}
-            onSelect={cycle.selectRole}
-            progress={cycle.progress}
-            roles={content.roles}
-            tabListLabel={content.tabListLabel}
-          />
-          <button
-            aria-label={cycle.playState === 'playing' ? content.pauseLabel : content.playLabel}
-            className="mt-1 inline-flex size-10 shrink-0 items-center justify-center rounded-full border border-outline-variant/60 text-on-surface transition-colors hover:bg-surface-container-high focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-            onClick={cycle.togglePlayback}
-            type="button"
-          >
-            {cycle.playState === 'playing'
-              ? (
-                <svg aria-hidden="true" className="size-4" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M7 5h4v14H7zm6 0h4v14h-4z" />
-                </svg>
-              )
-              : (
-                <svg aria-hidden="true" className="size-4" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M8 5v14l11-7z" />
-                </svg>
-              )}
-          </button>
-        </motion.div>
+        <IntroGreeting activeIndex={cycle.activeIndex} content={content} />
         <div
-          aria-labelledby={'intro-tab-' + activeRole.id}
-          aria-live={cycle.isRunning ? 'off' : 'polite'}
-          className="grid items-center gap-8 md:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] md:gap-12 xl:gap-20"
-          id="intro-tabpanel"
-          role="tabpanel"
-          tabIndex={0}
+          className="flex flex-col gap-10 md:flex-row md:items-start md:justify-center md:gap-8 lg:gap-12"
+          ref={stageRef}
         >
-          <motion.div animate={revealState(0.1)} initial={false}>
-            <RoleCopy activeIndex={cycle.activeIndex} content={content} />
+          <motion.div
+            animate={revealState(0)}
+            className="w-full pl-12 font-headline text-[clamp(2.25rem,4.4vw,3.75rem)] font-medium leading-[1.15] tracking-tight md:w-auto md:shrink-0"
+            initial={false}
+          >
+            <RoleTabs
+              activeIndex={cycle.activeIndex}
+              onFocusChange={setIsTabListFocused}
+              onSelect={cycle.selectRole}
+              progress={cycle.progress}
+              roles={content.roles}
+              tabListLabel={content.tabListLabel}
+            />
+            <RoleFact
+              activeIndex={cycle.activeIndex}
+              className="mt-8 max-w-full text-left font-body text-sm font-normal leading-relaxed tracking-normal md:mt-10 md:text-base"
+              isAnnounced={!cycle.isRunning}
+              roles={content.roles}
+            />
           </motion.div>
           <motion.div
-            animate={revealState(0.2)}
-            className="min-w-0"
+            animate={revealState(0.1)}
+            className="w-full min-w-0 md:max-w-[44.5rem] md:flex-1"
             initial={false}
             onAnimationComplete={() => setIsEntryAnimationComplete(true)}
           >
-            <RoleBento activeIndex={cycle.activeIndex} roles={content.roles} />
+            <div
+              aria-labelledby={'intro-tab-' + activeRole.id}
+              className="mx-auto grid w-full max-w-[44.5rem] grid-cols-[minmax(0,1fr)_auto] gap-x-2 gap-y-2"
+              id="intro-tabpanel"
+              role="tabpanel"
+              tabIndex={0}
+            >
+              <div className="col-span-2 min-w-0 md:col-span-1">
+                <RoleBento activeIndex={cycle.activeIndex} roles={content.roles} />
+              </div>
+              <button
+                aria-label={cycle.playState === 'playing' ? content.pauseLabel : content.playLabel}
+                className="col-start-2 row-start-2 inline-flex size-10 items-center justify-center self-end rounded-full text-on-surface/70 transition-colors hover:bg-surface-container-high hover:text-on-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary md:row-start-1"
+                onClick={cycle.togglePlayback}
+                type="button"
+              >
+                {cycle.playState === 'playing'
+                  ? (
+                    <svg aria-hidden="true" className="size-5" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M7 5h4v14H7zm6 0h4v14h-4z" />
+                    </svg>
+                  )
+                  : (
+                    <svg aria-hidden="true" className="size-5" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M8 5v14l11-7z" />
+                    </svg>
+                  )}
+              </button>
+            </div>
           </motion.div>
         </div>
       </div>
