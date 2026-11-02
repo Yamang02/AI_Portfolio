@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react';
 import { OPENING_BAND_LAYOUT, OPENING_FRAME_LAYOUT } from './bandLayout';
 import type { OpeningBandId } from './bandLayout';
 import { getOpeningAssetUrl } from './openingAssets';
+import { OPENING_TEMPO } from './openingTimeline';
 
 const FINAL_TITLE_BAND_IDS: readonly OpeningBandId[] = ['top', 'bottom'];
-const BOTTOM_TITLE_DELAY_MS = 180;
 
 function getTitleUrl(bandId: OpeningBandId) {
   return getOpeningAssetUrl(`hero-final-${bandId}.webp`);
@@ -23,14 +23,21 @@ export function decodeFinalTitleImages() {
 }
 
 export function FinalTitleBands() {
+  const [isTopVisible, setIsTopVisible] = useState(false);
   const [isBottomVisible, setIsBottomVisible] = useState(false);
   const bands = OPENING_BAND_LAYOUT.filter(band => (
-    band.id === 'top' || (band.id === 'bottom' && isBottomVisible)
+    (band.id === 'top' && isTopVisible) || (band.id === 'bottom' && isBottomVisible)
   ));
 
   useEffect(() => {
-    const timeout = window.setTimeout(() => setIsBottomVisible(true), BOTTOM_TITLE_DELAY_MS);
-    return () => window.clearTimeout(timeout);
+    const { topDelayMs, bottomDelayMs } = OPENING_TEMPO.finalTitles;
+    const topTimeout = window.setTimeout(() => setIsTopVisible(true), topDelayMs);
+    const bottomTimeout = window.setTimeout(() => setIsBottomVisible(true), bottomDelayMs);
+
+    return () => {
+      window.clearTimeout(topTimeout);
+      window.clearTimeout(bottomTimeout);
+    };
   }, []);
 
   return (

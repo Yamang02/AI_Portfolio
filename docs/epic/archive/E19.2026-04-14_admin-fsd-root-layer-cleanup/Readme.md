@@ -65,3 +65,11 @@ E18(P01)에서 `components/` 데드코드와 `shared/ui` 중복을 제거했지�
 - [ ] P03 완료
 - [ ] P04 완료
 - [ ] P05 완료
+
+## 종결 상태 및 아카이브 (2026-11-02)
+
+**분류: 부분 완료 / 검증 미완료.** 현재 admin 루트에는 app, entities, features, pages, shared, widgets 여섯 레이어만 있는 것을 확인했다. 그러나 project API와 query 모듈에 adminProjectApi/projectApi 및 useProjects/useProjectQuery 쌍이 함께 남아 있고, 일부 Admin 파일은 shared UI 내부 파일을 직접 가져온다. P02와 P05의 통합·공개 진입점 조건은 완료되지 않았다.
+
+frontend build/test 명령은 Vite 설정 로딩 중 esbuild의 sandbox 상위 경로 접근 오류로 종료 코드 1을 반환했다. Admin 로그인·프로젝트 목록·기술스택·프로필 화면의 브라우저 확인도 하지 않았다. 따라서 전체 Epic 완료로 표시하지 않는다.
+
+API/query 단일화와 public index 정리, 성공적인 build/test 및 Admin 화면 확인을 backlog에 기록했다. 아카이브일: 2026-11-02.

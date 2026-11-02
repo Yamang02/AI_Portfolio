@@ -19,11 +19,14 @@ interface OpeningSceneProps {
   readonly content: ProfileOpening;
 }
 
-type OpeningPhase = 'static' | 'columns' | 'done';
+type OpeningPhase = 'static' | 'webgl' | 'columns' | 'done';
 type PieceImageUrls = Record<OpeningBandId, string>;
 
 const START_DELAY_MS = 600;
 const FALLBACK_FADE_DURATION = 0.6;
+const OPENING_FRAME_SIZE = 'min(calc(100vw - 32px), calc(100svh - 176px))';
+const REPLAY_BUTTON_LABEL = '오프닝 애니메이션 다시 재생';
+const REPLAY_ICON_PATH = 'M18.364 3.05762C18.7782 3.05762 19.114 3.3934 19.114 3.80762V8.05026C19.114 8.46447 18.7782 8.80026 18.364 8.80026H14.1213C13.7071 8.80026 13.3713 8.46447 13.3713 8.05026C13.3713 7.63604 13.7071 7.30026 14.1213 7.30026H16.4817C13.6363 5.05718 9.4987 5.24825 6.87348 7.87348C4.04217 10.7048 4.04217 15.2952 6.87348 18.1265C9.70478 20.9578 14.2952 20.9578 17.1265 18.1265C19.0234 16.2297 19.6504 13.5428 19.0039 11.1219C18.897 10.7217 19.1348 10.3106 19.535 10.2038C19.9352 10.0969 20.3462 10.3347 20.4531 10.7349C21.2321 13.6518 20.478 16.8964 18.1872 19.1872C14.7701 22.6043 9.2299 22.6043 5.81282 19.1872C2.39573 15.7701 2.39573 10.2299 5.81282 6.81282C9.04483 3.5808 14.1762 3.40576 17.614 6.28768V3.80762C17.614 3.3934 17.9497 3.05762 18.364 3.05762Z';
 const TEAR_IDS: readonly OpeningTearId[] = ['first', 'second'];
 
 function decodeUrl(url: string) {
@@ -85,11 +88,22 @@ function playColumns(root: HTMLElement) {
 export function OpeningScene({ content }: OpeningSceneProps) {
   const frameRef = useRef<HTMLDivElement>(null);
   const staticLayerRef = useRef<HTMLDivElement>(null);
+  const webglLayerRef = useRef<HTMLDivElement>(null);
   const columnLayerRef = useRef<HTMLDivElement>(null);
   const prefersReducedMotion = useReducedMotion();
   const [phase, setPhase] = useState<OpeningPhase>('static');
   const [pieceImageUrls, setPieceImageUrls] = useState<PieceImageUrls | null>(null);
   const [finalTitlesReady, setFinalTitlesReady] = useState(false);
+  const [hasReachedFinal, setHasReachedFinal] = useState(false);
+
+  const handleReplay = () => {
+    if (phase !== 'done') {
+      return;
+    }
+
+    setPieceImageUrls(null);
+    setPhase('static');
+  };
 
   useEffect(() => {
     const frame = frameRef.current;
@@ -112,6 +126,7 @@ export function OpeningScene({ content }: OpeningSceneProps) {
         fadeControls = animate(staticLayer, { opacity: 0 }, { duration: FALLBACK_FADE_DURATION, ease: 'easeInOut' });
         void fadeControls.then(() => {
           if (!isDisposed) {
+            setHasReachedFinal(true);
             setPhase('done');
           }
         });
@@ -124,7 +139,7 @@ export function OpeningScene({ content }: OpeningSceneProps) {
       })) as PieceImageUrls;
 
       setPieceImageUrls(urls);
-      setPhase('columns');
+      setPhase('webgl');
     };
 
     const startWhenReady = () => {
@@ -168,6 +183,7 @@ export function OpeningScene({ content }: OpeningSceneProps) {
       startWhenReady();
     }).catch(() => {
       if (!isDisposed) {
+        setHasReachedFinal(true);
         setPhase('done');
       }
     });
@@ -182,6 +198,91 @@ export function OpeningScene({ content }: OpeningSceneProps) {
       }
     };
   }, [phase, prefersReducedMotion]);
+
+  useEffect(() => {
+    const frame = frameRef.current;
+    const mountNode = webglLayerRef.current;
+    const staticLayer = staticLayerRef.current;
+
+    if (phase !== 'webgl' || !frame || !mountNode || !staticLayer || !pieceImageUrls) {
+      return;
+    }
+
+    if (prefersReducedMotion) {
+      setPhase('static');
+      return;
+    }
+
+    let isDisposed = false;
+    let renderer: import('./curlRenderer').CurlRendererHandle | undefined;
+    let controls: ReturnType<typeof animate> | undefined;
+    const controller = new AbortController();
+    const fallbackTimer = window.setTimeout(() => {
+      if (!isDisposed) {
+        setPhase('columns');
+      }
+    }, 3000);
+
+    const finish = () => {
+      if (!isDisposed) {
+        setHasReachedFinal(true);
+        setPhase('done');
+      }
+    };
+
+    const run = async () => {
+      const { createCurlRenderer } = await import('./curlRenderer');
+
+      if (isDisposed) {
+        return;
+      }
+
+      const nextRenderer = await createCurlRenderer({
+        frame,
+        mountNode,
+        pieceImageUrls,
+        signal: controller.signal,
+        onContextLost: finish,
+      });
+
+      if (isDisposed) {
+        nextRenderer.destroy();
+        return;
+      }
+
+      renderer = nextRenderer;
+      window.clearTimeout(fallbackTimer);
+      await waitForPaint();
+
+      if (isDisposed) {
+        return;
+      }
+
+      staticLayer.style.visibility = 'hidden';
+      controls = animate(0, OPENING_TOTAL_DURATION, {
+        duration: OPENING_TOTAL_DURATION,
+        ease: 'linear',
+        onUpdate: elapsed => renderer?.renderAt(elapsed),
+      });
+      await controls;
+      finish();
+    };
+
+    void run().catch(() => {
+      if (!isDisposed) {
+        window.clearTimeout(fallbackTimer);
+        setPhase('columns');
+      }
+    });
+
+    return () => {
+      isDisposed = true;
+      controller.abort();
+      window.clearTimeout(fallbackTimer);
+      controls?.stop();
+      renderer?.destroy();
+    };
+  }, [phase, prefersReducedMotion, pieceImageUrls]);
 
   useEffect(() => {
     const columnLayer = columnLayerRef.current;
@@ -206,6 +307,7 @@ export function OpeningScene({ content }: OpeningSceneProps) {
       await controls;
 
       if (!isDisposed) {
+        setHasReachedFinal(true);
         setPhase('done');
       }
     };
@@ -226,58 +328,93 @@ export function OpeningScene({ content }: OpeningSceneProps) {
     >
       <h1 className="sr-only" id="opening-name">{content.heading}</h1>
       <div
-        className="relative bg-white"
-        ref={frameRef}
+        className="relative"
         style={{
           aspectRatio: '1',
-          overflow: 'clip',
-          perspective: '1200px',
-          perspectiveOrigin: '50% 50%',
-          width: 'min(calc(100vw - 32px), calc(100svh - 176px))',
+          height: OPENING_FRAME_SIZE,
+          width: OPENING_FRAME_SIZE,
         }}
       >
-        {OPENING_BAND_LAYOUT.map(band => (
-          <div
-            className="absolute"
-            key={`hero-${band.id}`}
-            style={{
-              height: `${band.heightPercent}%`,
-              left: `${OPENING_FRAME_LAYOUT.leftPercent}%`,
-              top: `${band.topPercent}%`,
-              width: `${OPENING_FRAME_LAYOUT.widthPercent}%`,
-            }}
+        <div
+          className="relative size-full bg-white"
+          ref={frameRef}
+          style={{
+            aspectRatio: '1',
+            overflow: 'clip',
+            perspective: '1200px',
+            perspectiveOrigin: '50% 50%',
+          }}
+        >
+          {OPENING_BAND_LAYOUT.map(band => (
+            <div
+              className="absolute"
+              key={`hero-${band.id}`}
+              style={{
+                height: `${band.heightPercent}%`,
+                left: `${OPENING_FRAME_LAYOUT.leftPercent}%`,
+                top: `${band.topPercent}%`,
+                width: `${OPENING_FRAME_LAYOUT.widthPercent}%`,
+              }}
+            >
+              <BandPicture alt={band.id === 'middle' ? content.heroAlt : ''} name={`hero-${band.id}`} />
+            </div>
+          ))}
+
+          {phase !== 'done' && (
+            <div aria-hidden="true" className="absolute inset-0" ref={staticLayerRef}>
+              {OPENING_PIECE_IDS.map(pieceId => (
+                <OpeningPicture highPriority={pieceId === 'bottom'} key={pieceId} pieceId={pieceId} />
+              ))}
+            </div>
+          )}
+
+          {phase === 'webgl' && (
+            <div aria-hidden="true" className="pointer-events-none absolute inset-0" ref={webglLayerRef} />
+          )}
+
+          {phase === 'columns' && pieceImageUrls && (
+            <div
+              aria-hidden="true"
+              className="absolute inset-0"
+              ref={columnLayerRef}
+              style={{ containerType: 'inline-size' }}
+            >
+              {OPENING_PIECE_IDS.map(pieceId => (
+                <TornPiece imageUrl={pieceImageUrls[pieceId]} key={pieceId} pieceId={pieceId} />
+              ))}
+              <TearFibers />
+            </div>
+          )}
+
+          {phase === 'done' && finalTitlesReady && (
+            <FinalTitleBands />
+          )}
+        </div>
+
+        {hasReachedFinal && finalTitlesReady && (
+          <button
+            aria-disabled={phase !== 'done'}
+            aria-label={REPLAY_BUTTON_LABEL}
+            className="absolute inline-flex size-8 items-center justify-center rounded-full text-on-surface/70 transition-colors hover:bg-surface-container-high hover:text-on-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary aria-disabled:cursor-not-allowed aria-disabled:opacity-40"
+            onClick={handleReplay}
+            style={{ right: 0, top: 'calc(100% + 12px)' }}
+            type="button"
           >
-            <BandPicture alt={band.id === 'middle' ? content.heroAlt : ''} name={`hero-${band.id}`} />
-          </div>
-        ))}
-
-        {phase !== 'done' && (
-          <div aria-hidden="true" className="absolute inset-0" ref={staticLayerRef}>
-            {OPENING_PIECE_IDS.map(pieceId => (
-              <OpeningPicture highPriority={pieceId === 'bottom'} key={pieceId} pieceId={pieceId} />
-            ))}
-          </div>
-        )}
-
-        {phase === 'columns' && pieceImageUrls && (
-          <div
-            aria-hidden="true"
-            className="absolute inset-0"
-            ref={columnLayerRef}
-            style={{ containerType: 'inline-size' }}
-          >
-            {OPENING_PIECE_IDS.map(pieceId => (
-              <TornPiece imageUrl={pieceImageUrls[pieceId]} key={pieceId} pieceId={pieceId} />
-            ))}
-            <TearFibers />
-          </div>
-        )}
-
-        {phase === 'done' && finalTitlesReady && (
-          <FinalTitleBands />
+            <svg
+              aria-hidden="true"
+              fill="none"
+              focusable="false"
+              height="24"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path clipRule="evenodd" d={REPLAY_ICON_PATH} fill="currentColor" fillRule="evenodd" />
+            </svg>
+          </button>
         )}
       </div>
-      <p className="sr-only">{content.artworkCredit}</p>
-    </section>
+    <p className="sr-only">{content.artworkCredit}</p>
+  </section>
   );
 }

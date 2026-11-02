@@ -24,39 +24,15 @@ docs/epic/archive/
 
 **번호 충돌:** 활성 `E02.2026-04-02_infrastructure-as-code`와 아카이브 `E02.2026-03-30_backend-sonarqube-resolution`처럼 **같은 `E##` 접두가 날짜·주제별로 공존**할 수 있다. 식별은 항상 **`E##.YYYY-MM-DD_{이름}` 전체 경로**로 한다.
 
-## 진행 중인 에픽
+## 활성·아카이브 문서 분류
 
-| 에픽 | 설명 |
-|------|------|
-| [E15.2026-04-10_frontend-refactor-governance-and-quality](./E15.2026-04-10_frontend-refactor-governance-and-quality/) | 프론트엔드 구조 재정렬, YamangDesign 기준 토큰 체계 정비, SonarQube·성능·품질 환경 개선, `policy_compiler` 이식 기준 정리 (P01~P04) |
-| [E17.2026-04-12_multi-site-schema-and-content-model](./E17.2026-04-12_multi-site-schema-and-content-model/) | `project_visibility` 중심 멀티사이트 DB/콘텐츠 모델 후속 구현 설계 |
-| [E18.2026-04-13_admin-technical-cards-and-profile-tone-alignment](./E18.2026-04-13_admin-technical-cards-and-profile-tone-alignment/) | E17 스키마를 Admin 기술카드 편집 UI와 Main 렌더링에 반영하고, 포트폴리오 톤을 `profile` 기준으로 정렬 |
-| [E22.2026-11-01_profile-redesign](./E22.2026-11-01_profile-redesign/) | `profile`을 React + Tailwind v4 + Motion(pnpm, 최신 의존성)으로 전환하고 "명함" 컨셉(찢김 오프닝 + 정적 에디토리얼)으로 재구성 (P01 React 전환 정비, P02 찢김 오프닝 장면, P03 소개 역할 벤토) |
-
-## 아카이브된 에픽 (E## 네이밍)
-
-완료 후 `docs/epic/archive/`로 옮긴 에픽. 각 `Readme.md`에 **아카이브일**이 적혀 있다.
-
-| 에픽 | 요약 |
-|------|------|
-| [E02.2026-03-30_backend-sonarqube-resolution](./archive/E02.2026-03-30_backend-sonarqube-resolution/) | 백엔드 SonarQube 이슈 처리 (기존 E01→E02로 문서 넘버 갱신) |
-| [E03.2026-04-03_redis-cache-serialization-refactor](./archive/E03.2026-04-03_redis-cache-serialization-refactor/) | Redis 직렬화·ObjectMapper 경계·캐시 전략 (P01~P05 문서; 아카이브 시점 기준 P05는 저장소와 별도 대조) |
-| [E04.2026-04-03_article-statistics-null-safety](./archive/E04.2026-04-03_article-statistics-null-safety/) | 아티클 통계 null-safety·Easter egg 제거 |
-| [E05.2026-04-03_cache-boundary-and-ui-primitives-refactor](./archive/E05.2026-04-03_cache-boundary-and-ui-primitives-refactor/) | 캐시 직렬화 경계·Tooltip DOM·운영 계약 (P01~P04) |
-| [E16.2026-04-12_infra-audit-and-domain-strategy](./archive/E16.2026-04-12_infra-audit-and-domain-strategy/) | 인프라/도메인 실감사, Option B 전략 확정, 스테이징 네이밍 통일, D01 유지 + E17 분리 |
-
-## 레거시 아카이브 (`archive/legacy-epics/`)
-
-`E##.YYYY-MM-DD_` 규칙 이전의 에픽·기획 문서다. 경로 예:
-
-- [detail-page-ux-bugfix](./archive/legacy-epics/detail-page-ux-bugfix/) — 상세 페이지 UX 버그픽스
-- [seo-aeo-optimization](./archive/legacy-epics/seo-aeo-optimization/) — SEO/AEO
-- [ux-data-loading-optimization](./archive/legacy-epics/ux-data-loading-optimization/) — UX·데이터 로딩
-- 기타: `chat-message-logging`, `profile-article`, `portfolio-renewal-refactor` 등
-
+- 활성 Epic은 이 디렉터리 바로 아래의 E##.* 디렉터리다.
+- 아카이브 Epic은 docs/epic/archive/ 아래의 E##.* 디렉터리다.
+- 별도 수동 목록은 관리하지 않는다. 상태와 아카이브 날짜는 Epic 자체 README에 기록한다.
+- 아카이브 내용은 과거 조사·복구·대조 또는 명시적 아카이빙 요청이 있을 때만 연다.
 ## 운영 절차 (요약)
 
-스킬 전문은 `.cursor/skills/epic-lifecycle/SKILL.md`의 Operation A/B/C를 따른다.
+세부 절차는 [Epic lifecycle 스킬](../../.agents/skills/epic-lifecycle/SKILL.md)을 따른다.
 
 ### 새 에픽 (CREATE_EPIC)
 
@@ -71,11 +47,10 @@ docs/epic/archive/
 
 ### 아카이브 (ARCHIVE_EPIC)
 
-1. 에픽 완료 검토(목표·Phase 일치·미해결 항목 명시) 통과 후에만 이동.
-2. `docs/epic/E##.../` → `docs/epic/archive/E##.../` (폴더명 유지).
-3. 에픽 `Readme.md` 하단에 `## 완료` / `아카이브일: YYYY-MM-DD` 추가.
-4. `docs/epic/` 루트에 동명 폴더가 남지 않았는지 확인.
-
+1. 실제 결과를 수용 기준과 대조하고 completed, partially completed, unverified를 구분한다. 남은 조건과 위험은 보존한다.
+2. Epic README에 종결 상태와 아카이브일을 기록한다. 미완료 상태도 사용자 명시 요청에 따라 아카이브할 수 있다.
+3. Epic 디렉터리 전체를 docs/epic/archive/ 아래로 이동하고 모든 Phase 파일을 보존한다.
+4. 활성 경로가 남지 않았는지 확인하고, 현재 문서에서 필요한 개별 링크만 고친다. 수동 활성·아카이브 목록은 만들거나 갱신하지 않는다.
 ### Git 브랜치 (에픽과의 추적)
 
 - 에픽 브랜치: `epic/E##-{scope}` (프로젝트 컨벤션에 따름).

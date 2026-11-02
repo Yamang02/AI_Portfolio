@@ -31,8 +31,13 @@
 - [P02: 아티클 상세 연관 기술카드 표시](./P02.article-detail-related-technical-cards.md)
 - [P03: 프로젝트 개요 아티클 1~2문단 압축 (데이터)](./P03.project-overview-article-content-trim.md)
 
-## 상태
 
-- [x] P01 완료
-- [x] P02 완료
-- [x] P03 완료
+## 상태 (2026-11-02 closeout)
+
+- [ ] P01 부분 구현 확인 — 관련 글 제거는 현재 소스에서 확인했으나 build/typecheck와 다른 섹션 회귀 검증은 완료되지 않았다.
+- [ ] P02 부분 구현 확인 — API 응답과 조건부 기술카드 UI 코드는 있으나 backend/API 통합 검증과 frontend build는 완료되지 않았다.
+- [ ] P03 미검증 — 네 프로젝트의 DB 업데이트는 이전 작업 기록에 남아 있지만 현재 데이터베이스 내용과 브라우저 렌더링을 확인하지 못했다.
+
+frontend build/test는 설정 로딩 단계에서 sandbox의 상위 경로 접근 거부로 종료 코드 1을 반환했다. 백엔드 테스트와 실제 DB/browser 확인은 수행하지 않았다. Phase의 기존 체크 표시는 이전 실행 시점의 기록이며, 위 closeout 상태가 현재 증거를 반영한다.
+
+데이터 내용, 연관 카드 API, 카드 유무별 표시를 확인하는 후속 작업을 backlog에 기록했다. 아카이브일: 2026-11-02.
