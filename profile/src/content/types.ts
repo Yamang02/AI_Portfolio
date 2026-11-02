@@ -4,16 +4,25 @@ export interface ProfileOpening {
   readonly artworkCredit: string;
 }
 
-export interface ProfileIdentityCard {
-  readonly icon: string;
-  readonly title: string;
-  readonly subTitle: string;
-  readonly body: string;
+export type ProfileIntroRoleId = 'educator' | 'developer' | 'artist' | 'entrepreneur';
+
+export interface ProfileIntroRole {
+  readonly id: ProfileIntroRoleId;
+  readonly label: string;
+  readonly fact: string;
+  readonly imageAlt: string;
+  readonly sceneFocus: string;
+  readonly portraitFocus: string;
+  readonly portraitZoom: number;
 }
 
-export interface ProfileIdentitySection {
-  readonly tagline: string;
-  readonly cards: readonly ProfileIdentityCard[];
+export interface ProfileIntroContent {
+  readonly greeting: string;
+  readonly name: string;
+  readonly tabListLabel: string;
+  readonly pauseLabel: string;
+  readonly playLabel: string;
+  readonly roles: readonly ProfileIntroRole[];
 }
 
 interface ActivityBase {
@@ -83,7 +92,6 @@ export interface ProfileSiteContent {
   readonly homeLink: ProfileNavigationItem;
   readonly closeLabel: string;
   readonly sections: {
-    readonly identity: string;
     readonly activities: string;
     readonly activitiesPeriod: string;
     readonly interests: string;
@@ -132,7 +140,7 @@ export interface ProfileSiteContent {
 
 export interface ProfileContent {
   readonly opening: ProfileOpening;
-  readonly identity: ProfileIdentitySection;
+  readonly intro: ProfileIntroContent;
   readonly activities: readonly ProfileActivity[];
   readonly interests: readonly ProfileInterest[];
   readonly site: ProfileSiteContent;

@@ -50,6 +50,7 @@ export const OPENING_TEMPO = {
   finalColumn: { scale: 0.18, scaleDuration: 0.06, holdDuration: 0.14, exitDuration: 0.18 },
   fiber: { leadColumns: 0, spanColumns: 3 },
   finalTitles: { topDelayMs: 800, bottomDelayMs: 1350 },
+  scrollHint: { delayAfterTitleMs: 400 },
 } as const satisfies Record<OpeningBandId, BandTempo> & Record<string, unknown>;
 
 const FIBER_HIDDEN_CLIP = 'inset(0 100% 0 0)';

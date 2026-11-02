@@ -5,7 +5,7 @@ import { ActivitiesSection } from './components/ActivitiesSection';
 import { ConnectSection } from './components/ConnectSection';
 import { ContactModal } from './components/ContactModal';
 import { Footer } from './components/Footer';
-import { IdentitySection } from './components/IdentitySection';
+import { IntroSection } from './components/intro/IntroSection';
 import { InterestsSection } from './components/InterestsSection';
 import { Nav } from './components/Nav';
 import { OpeningScene } from './components/opening/OpeningScene';
@@ -22,7 +22,7 @@ export function App() {
         <Nav content={profileContent.site} />
         <main>
           <OpeningScene content={profileContent.opening} />
-          <IdentitySection content={profileContent.identity} siteContent={profileContent.site} />
+          <IntroSection content={profileContent.intro} />
           <ActivitiesSection activities={profileContent.activities} siteContent={profileContent.site} />
           <InterestsSection interests={profileContent.interests} siteContent={profileContent.site} />
           <ConnectSection content={profileContent.site.connect} onOpenContact={openContact} />

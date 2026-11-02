@@ -1,0 +1,82 @@
+@property --bento-x {
+  syntax: '<percentage>';
+  inherits: true;
+  initial-value: 50%;
+}
+
+@property --bento-y-left {
+  syntax: '<percentage>';
+  inherits: true;
+  initial-value: 50%;
+}
+
+@property --bento-y-right {
+  syntax: '<percentage>';
+  inherits: true;
+  initial-value: 50%;
+}
+
+.intro-bento-layout {
+  display: flex;
+  gap: 8px;
+  contain: layout paint;
+  transition:
+    --bento-x 500ms ease-in-out,
+    --bento-y-left 500ms ease-in-out 250ms,
+    --bento-y-right 500ms ease-in-out 250ms;
+}
+
+.intro-bento-layout__column {
+  display: flex;
+  min-width: 0;
+  height: 100%;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.intro-bento-layout__column--left {
+  flex: 0 0 calc(var(--bento-x) - 4px);
+}
+
+.intro-bento-layout__column--right {
+  flex: 1 1 0%;
+}
+
+.intro-bento-layout__cell {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  flex: 1 1 0%;
+  overflow: hidden;
+}
+
+.intro-bento-layout__cell img {
+  object-position: var(--portrait-focus);
+  transform-origin: var(--portrait-focus);
+  transform: scale(var(--portrait-zoom, 1.4));
+  transition:
+    object-position 500ms ease-in-out,
+    transform 500ms ease-in-out,
+    filter 500ms ease-in-out,
+    opacity 500ms ease-in-out;
+}
+
+.intro-bento-layout__cell[data-active='true'] img {
+  object-position: var(--scene-focus);
+  transform: scale(1);
+}
+
+.intro-bento-layout__cell--top-left {
+  flex: 0 0 calc(var(--bento-y-left) - 4px);
+}
+
+.intro-bento-layout__cell--top-right {
+  flex: 0 0 calc(var(--bento-y-right) - 4px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .intro-bento-layout,
+  .intro-bento-layout__cell img {
+    transition: none;
+  }
+}

@@ -2,10 +2,24 @@ import contentData from './content.json';
 import type {
   ColumnsActivity,
   HighlightActivity,
+  ProfileIntroRole,
+  ProfileIntroRoleId,
   ProfileActivity,
   ProfileContent,
   SiteActivity,
 } from './types';
+
+function isProfileIntroRoleId(id: string): id is ProfileIntroRoleId {
+  return id === 'educator' || id === 'developer' || id === 'artist' || id === 'entrepreneur';
+}
+
+function narrowIntroRole(role: typeof contentData.intro.roles[number]): ProfileIntroRole {
+  if (!isProfileIntroRoleId(role.id)) {
+    throw new Error('Profile intro content contains an unsupported role id: ' + role.id);
+  }
+
+  return { ...role, id: role.id };
+}
 
 function narrowActivity(activity: typeof contentData.activities[number]): ProfileActivity {
   if (Array.isArray(activity.columns) && typeof activity.mediaSrc === 'string') {
@@ -46,8 +60,13 @@ function narrowActivity(activity: typeof contentData.activities[number]): Profil
 }
 
 const activities = contentData.activities.map(narrowActivity);
+const intro = {
+  ...contentData.intro,
+  roles: contentData.intro.roles.map(narrowIntroRole),
+};
 
 export const profileContent = {
   ...contentData,
+  intro,
   activities,
 } satisfies ProfileContent;

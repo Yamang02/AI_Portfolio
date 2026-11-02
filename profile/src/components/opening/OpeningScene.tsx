@@ -6,10 +6,12 @@ import type { OpeningBandId, OpeningTearId } from './bandLayout';
 import { BandPicture } from './BandPicture';
 import { OpeningPicture } from './OpeningPicture';
 import { decodeFinalTitleImages, FinalTitleBands } from './FinalTitleBands';
+import { ScrollHint } from './ScrollHint';
 import { TearFibers, TornPiece, getAllFiberUrls, getPieceBackUrl } from './TornPiece';
 import {
   FIBER_HIDDEN_CLIP,
   OPENING_PIECE_IDS,
+  OPENING_TEMPO,
   OPENING_TOTAL_DURATION,
   getColumnFrame,
   getFiberClip,
@@ -28,6 +30,7 @@ const OPENING_FRAME_SIZE = 'min(calc(100vw - 32px), calc(100svh - 176px))';
 const REPLAY_BUTTON_LABEL = '오프닝 애니메이션 다시 재생';
 const REPLAY_ICON_PATH = 'M18.364 3.05762C18.7782 3.05762 19.114 3.3934 19.114 3.80762V8.05026C19.114 8.46447 18.7782 8.80026 18.364 8.80026H14.1213C13.7071 8.80026 13.3713 8.46447 13.3713 8.05026C13.3713 7.63604 13.7071 7.30026 14.1213 7.30026H16.4817C13.6363 5.05718 9.4987 5.24825 6.87348 7.87348C4.04217 10.7048 4.04217 15.2952 6.87348 18.1265C9.70478 20.9578 14.2952 20.9578 17.1265 18.1265C19.0234 16.2297 19.6504 13.5428 19.0039 11.1219C18.897 10.7217 19.1348 10.3106 19.535 10.2038C19.9352 10.0969 20.3462 10.3347 20.4531 10.7349C21.2321 13.6518 20.478 16.8964 18.1872 19.1872C14.7701 22.6043 9.2299 22.6043 5.81282 19.1872C2.39573 15.7701 2.39573 10.2299 5.81282 6.81282C9.04483 3.5808 14.1762 3.40576 17.614 6.28768V3.80762C17.614 3.3934 17.9497 3.05762 18.364 3.05762Z';
 const TEAR_IDS: readonly OpeningTearId[] = ['first', 'second'];
+const SCROLL_HINT_DELAY_MS = OPENING_TEMPO.finalTitles.bottomDelayMs + OPENING_TEMPO.scrollHint.delayAfterTitleMs;
 
 function decodeUrl(url: string) {
   const image = new Image();
@@ -86,6 +89,7 @@ function playColumns(root: HTMLElement) {
 }
 
 export function OpeningScene({ content }: OpeningSceneProps) {
+  const sectionRef = useRef<HTMLElement>(null);
   const frameRef = useRef<HTMLDivElement>(null);
   const staticLayerRef = useRef<HTMLDivElement>(null);
   const webglLayerRef = useRef<HTMLDivElement>(null);
@@ -95,15 +99,55 @@ export function OpeningScene({ content }: OpeningSceneProps) {
   const [pieceImageUrls, setPieceImageUrls] = useState<PieceImageUrls | null>(null);
   const [finalTitlesReady, setFinalTitlesReady] = useState(false);
   const [hasReachedFinal, setHasReachedFinal] = useState(false);
+  const [isScrollHintDue, setIsScrollHintDue] = useState(false);
+  const [hasScrolled, setHasScrolled] = useState(false);
 
   const handleReplay = () => {
     if (phase !== 'done') {
       return;
     }
 
+    setIsScrollHintDue(false);
     setPieceImageUrls(null);
     setPhase('static');
   };
+
+  useEffect(() => {
+    const handleScroll = () => setHasScrolled(true);
+
+    window.addEventListener('scroll', handleScroll, { once: true, passive: true });
+
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    if (phase !== 'done' || !finalTitlesReady) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => setIsScrollHintDue(true), SCROLL_HINT_DELAY_MS);
+
+    return () => window.clearTimeout(timer);
+  }, [phase, finalTitlesReady]);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+
+    if (!section || (phase !== 'webgl' && phase !== 'columns')) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry && !entry.isIntersecting) {
+        setHasReachedFinal(true);
+        setPhase('done');
+      }
+    });
+
+    observer.observe(section);
+
+    return () => observer.disconnect();
+  }, [phase]);
 
   useEffect(() => {
     const frame = frameRef.current;
@@ -322,11 +366,11 @@ export function OpeningScene({ content }: OpeningSceneProps) {
 
   return (
     <section
-      aria-labelledby="opening-name"
+      aria-label={content.heading}
       className="relative flex h-svh w-full items-center justify-center"
+      ref={sectionRef}
       style={{ height: '100svh', overflow: 'clip' }}
     >
-      <h1 className="sr-only" id="opening-name">{content.heading}</h1>
       <div
         className="relative"
         style={{
@@ -414,7 +458,8 @@ export function OpeningScene({ content }: OpeningSceneProps) {
           </button>
         )}
       </div>
-    <p className="sr-only">{content.artworkCredit}</p>
-  </section>
+      <ScrollHint isVisible={isScrollHintDue && !hasScrolled} />
+      <p className="sr-only">{content.artworkCredit}</p>
+    </section>
   );
 }
