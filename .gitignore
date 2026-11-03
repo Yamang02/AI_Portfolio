@@ -359,3 +359,6 @@ docs/agent/codesight-context.txt
 
 # Local master assets (originals, upscales, video masters) — never commit
 /asset/
+
+# Generated profile visual QA captures (not runtime assets)
+/profile/artifacts/
