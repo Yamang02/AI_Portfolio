@@ -2,20 +2,40 @@
   "name": "ai-portfolio-profile",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
+  "packageManager": "pnpm@12.17.0",
+  "engines": {
+    "node": ">=22.13.0"
+  },
   "scripts": {
     "dev": "vite --port 3002 --host 0.0.0.0",
-    "build": "vite build",
-    "preview": "vite preview"
+    "build": "vite build && vite build --ssr src/entry-server.tsx --outDir dist-ssr && node scripts/prerender.mjs",
+    "preview": "vite preview --port 3002 --host 0.0.0.0",
+    "assets:history": "node scripts/build-history-assets.mjs",
+    "assets:connect": "node scripts/build-connect-assets.mjs",
+    "assets:intro": "node scripts/build-intro-assets.mjs",
+    "assets:opening": "node scripts/generate-tear-paths.mjs && node scripts/build-opening-assets.mjs",
+    "assets:tears": "node scripts/generate-tear-paths.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "node --experimental-strip-types --test tests/*.test.mjs"
   },
   "dependencies": {
-    "react": "^19.1.2",
-    "react-dom": "^19.1.2"
+    "@emailjs/browser": "^4.4.1",
+    "motion": "^14.9.0",
+    "ogl": "^1.0.11",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
   },
   "devDependencies": {
-    "@types/react": "^19.1.2",
-    "@types/react-dom": "^19.1.2",
-    "@vitejs/plugin-react": "^4.3.4",
-    "typescript": "~5.7.2",
-    "vite": "^6.2.0"
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "jsdom": "29.0.1",
+    "sharp": "0.35.5",
+    "subset-font": "2.9.0",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.5"
   }
 }

@@ -1,0 +1,307 @@
+{
+  "opening": {
+    "heading": "이정준",
+    "heroAlt": "이정준 프로필 사진",
+    "artworkCredit": "Alexandre Cabanel, 〈타락천사〉(1847), 몽펠리에 파브르 미술관"
+  },
+  "intro": {
+    "greeting": "Hello, I'm",
+    "name": "이정준",
+    "nameSuffix": "",
+    "taglineSubject": "I",
+    "tabListLabel": "소개 역할",
+    "pauseLabel": "자동 전환 정지",
+    "playLabel": "자동 전환 재생",
+    "roles": [
+      {
+        "id": "artist",
+        "label": "Artist",
+        "verb": "design",
+        "fact": "성균관대 순수미술 동아리 성미회",
+        "imageAlt": "예술가 이정준",
+        "sceneFocus": "76% 66%",
+        "portraitFocus": "76% 48%",
+        "portraitZoom": 1.4
+      },
+      {
+        "id": "educator",
+        "label": "Educator",
+        "verb": "explain",
+        "fact": "고등학교 국어교사, 코딩교육",
+        "imageAlt": "교육자 이정준",
+        "sceneFocus": "66% 52%",
+        "portraitFocus": "66% 37%",
+        "portraitZoom": 1.4
+      },
+      {
+        "id": "developer",
+        "label": "Developer",
+        "verb": "code",
+        "fact": "ERP · WEB 개발 및 운영",
+        "imageAlt": "개발자 이정준",
+        "sceneFocus": "37% 42%",
+        "portraitFocus": "34% 27%",
+        "portraitZoom": 1.4
+      },
+      {
+        "id": "entrepreneur",
+        "label": "Entrepreneur",
+        "verb": "deliver",
+        "fact": "야망솔루션 대표",
+        "imageAlt": "사업가 이정준",
+        "sceneFocus": "43% 30%",
+        "portraitFocus": "43% 28%",
+        "portraitZoom": 1.1
+      }
+    ]
+  },
+  "site": {
+    "logoTexts": [
+      "이정준",
+      "Lee Jeongjun",
+      "Yamang02"
+    ],
+    "navigation": [
+      {
+        "href": "#opening",
+        "label": "도입"
+      },
+      {
+        "href": "#identity",
+        "label": "소개"
+      },
+      {
+        "href": "#history",
+        "label": "이력"
+      },
+      {
+        "href": "#connect",
+        "label": "연결"
+      }
+    ],
+    "connect": {
+      "title": "연결",
+      "portfolioHref": "https://portfolio.yamang02.com",
+      "portfolioLabel": "Portfolio",
+      "companyHref": "https://www.yamangsolution.com",
+      "companyLabel": "야망솔루션",
+      "contactLabel": "이메일",
+      "threadsHref": "https://www.threads.com/@yamang_dev",
+      "threadsLabel": "Threads",
+      "threadsHandle": "@yamang_dev"
+    },
+    "footer": {
+      "text": "© 2026 야망솔루션 · 대표 이정준 · 사업자등록번호 882-30-01752 · 정보통신업 · 컴퓨터 프로그래밍 서비스업"
+    },
+    "contact": {
+      "eyebrow": "Get in touch",
+      "title": "연락하기",
+      "nameLabel": "이름",
+      "namePlaceholder": "이름을 입력하세요",
+      "emailLabel": "이메일",
+      "emailPlaceholder": "이메일을 입력하세요",
+      "subjectLabel": "제목",
+      "subjectPlaceholder": "제목을 입력하세요",
+      "messageLabel": "메시지",
+      "messagePlaceholder": "메시지를 입력하세요 (최소 10자)",
+      "cancelLabel": "취소",
+      "submitLabel": "전송",
+      "sendingLabel": "전송 중...",
+      "loadFailedMessage": "연락 폼을 불러오지 못했습니다. 페이지를 새로고침한 뒤 다시 시도해 주세요.",
+      "emailValidationMessage": "올바른 이메일 주소를 입력해주세요.",
+      "messageValidationMessage": "메시지는 최소 10자 이상 입력해주세요.",
+      "successMessage": "메시지가 성공적으로 전송되었습니다!",
+      "sendFailedMessage": "메시지 전송에 실패했습니다. 다시 시도해주세요.",
+      "toEmail": "contact@yamangsolution.com"
+    },
+    "closeLabel": "닫기"
+  },
+  "history": {
+    "label": "History",
+    "presentLabel": "현재",
+    "linkSuffix": "사이트 (새 창)",
+    "steps": [
+      {
+        "id": "y2026",
+        "label": "2026",
+        "entries": [
+          {
+            "id": "gbsa-ai-instructor-2026",
+            "kind": "career",
+            "start": "2026.06",
+            "end": "2026.09",
+            "title": "GBSA 임직원 AI 교육",
+            "subtitle": "야망솔루션 강사 활동",
+            "media": {
+              "type": "image",
+              "asset": "gbsa",
+              "focus": "50% 15%"
+            }
+          },
+          {
+            "id": "designlab",
+            "kind": "work",
+            "start": "2026.03",
+            "title": "야망디자인 페이지",
+            "subtitle": "디자인 레퍼런스 아카이브",
+            "href": "https://design.yamang02.com",
+            "media": {
+              "type": "video",
+              "asset": "design"
+            }
+          },
+          {
+            "id": "yamangsolution-homepage-2026",
+            "kind": "work",
+            "start": "2026.02",
+            "title": "야망솔루션 홈페이지",
+            "subtitle": "서비스·교육 자료 모음",
+            "href": "https://yamangsolution.com",
+            "media": {
+              "type": "image",
+              "asset": "yamangsolution",
+              "focus": "0% 0%"
+            }
+          }
+        ]
+      },
+      {
+        "id": "y2025",
+        "label": "2025",
+        "entries": [
+        {
+          "id": "reconlabs",
+          "kind": "career",
+          "start": "2025.09",
+            "end": "2025.12",
+            "title": "(주)리콘랩스",
+            "subtitle": "Software Engineer",
+            "media": {
+              "type": "image",
+              "asset": "reconlabs"
+            }
+          },
+          {
+            "id": "portfolio-chatbot",
+            "kind": "work",
+            "start": "2025.07",
+            "title": "개인 포트폴리오 사이트 (AI 챗봇)",
+            "subtitle": "개인 작업물 및 이력 관리",
+            "href": "https://portfolio.yamang02.com",
+            "media": {
+              "type": "image",
+              "asset": "chatbot"
+            }
+          },
+          {
+            "id": "sesac",
+            "kind": "course",
+            "start": "2025.06",
+            "end": "2025.09",
+            "title": "Sesac 강동지점",
+            "subtitle": "Cloud 기반 Multi Modal AI 개발자 과정",
+            "media": {
+              "type": "image",
+              "asset": "sesac"
+            }
+          },
+          {
+            "id": "artclub",
+            "kind": "work",
+            "start": "2025.02",
+            "title": "성미회 아카이브",
+            "subtitle": "성균관대 순수미술 동아리 작품 아카이브",
+            "href": "https://www.skkuartclub.kr/",
+            "media": {
+              "type": "image",
+              "asset": "artclub"
+            }
+          }
+        ]
+      },
+      {
+        "id": "y2023",
+        "label": "2023",
+        "entries": [
+        {
+          "id": "noroo-erp-transition",
+          "kind": "career",
+          "start": "2023.11",
+          "end": "2024.12",
+          "title": "노루페인트 ERP 전환 프로젝트",
+          "subtitle": "SAP LE 모듈 담당 및 유관 웹사이트 관리",
+          "media": {
+            "type": "keyword",
+            "icon": "erp",
+            "text": "ERP 전환"
+          }
+        },
+        {
+          "id": "dit",
+          "kind": "career",
+            "start": "2023.07",
+            "end": "2025.01",
+            "title": "(주)디아이티",
+            "subtitle": "ERP·WEB 개발·유지보수",
+            "media": {
+              "type": "keyword",
+              "icon": "database",
+              "text": "ERP · WEB"
+            }
+          }
+        ]
+      },
+      {
+        "id": "y2022",
+        "label": "2022",
+        "entries": [
+          {
+            "id": "kh",
+            "kind": "course",
+            "start": "2022.11",
+            "end": "2023.04",
+            "title": "KH정보교육원",
+            "subtitle": "Java 기반 클라우드 융합 개발자 과정",
+            "media": {
+              "type": "keyword",
+              "icon": "code",
+              "text": "JAVA"
+            }
+          }
+        ]
+      },
+      {
+        "id": "y2019",
+        "label": "2019",
+        "entries": [
+          {
+            "id": "baejae-teacher",
+            "kind": "career",
+            "start": "2021.03",
+            "end": "2022.03",
+            "title": "배재고등학교",
+            "subtitle": "국어 교사",
+            "media": {
+              "type": "keyword",
+              "icon": "book",
+              "text": "국어 수업"
+            }
+          },
+          {
+            "id": "sangmyung-teacher",
+            "kind": "career",
+            "start": "2019.03",
+            "end": "2021.03",
+            "title": "상명고등학교",
+            "subtitle": "국어 교사",
+            "media": {
+              "type": "keyword",
+              "icon": "briefcase",
+              "text": "첫 직장"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

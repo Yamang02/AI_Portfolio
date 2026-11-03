@@ -1,28 +1,62 @@
-# Epic 작성 규칙
+﻿# 에픽 (Epic)
 
-단계적 설계·구현·통합 검증이 필요한 **활성 Epic 폴더**만 이 디렉터리에 둔다.
+에픽·Phase 마크다운은 **의도한 현재 상태**를 담는다. 변경 이력은 Git에만 둔다 (`epic-lifecycle`, DC-05).
 
-## 구조
+## 문서 레이아웃
 
-```text
+`epic-lifecycle` 스킬과 동일한 구조를 따른다. 본 저장소에서는 완료 에픽을 **`docs/epic/archive/`** 아래에 둔다 (스킬 예시의 `docs/archive/`와 역할이 같다).
+
+```
 docs/epic/
-  README.md
-  E##.YYYY-MM-DD_<epic-name>/
-    Readme.md
-    P##.<phase-name>.md    # 독립 단계가 필요할 때만
-  archive/                 # 과거 작업, 평소 탐색 제외
+  E##.YYYY-MM-DD_{epic-name}/
+    Readme.md          # 필수 (또는 이 폴더 관례에 맞는 README.md)
+    P##.{phase-name}.md
+
+docs/epic/archive/
+  E##.YYYY-MM-DD_{epic-name}/   # 아카이브 시 폴더명(E## 포함) 유지
+  legacy-epics/                 # 과거 E## 규칙 이전 문서
 ```
 
-- **활성 Epic 목록은 `docs/epic/` 바로 아래의 `E##.*` 폴더 자체다.** README에 에픽 목록·완료 내역·진행률을 복제하지 않는다.
-- 새 Epic의 번호는 현재 활성 폴더의 번호를 기준으로 제안하되 기존 번호와 중복되지 않게 확인한다. 특별한 과거 조사 요구 없이 archive 문서 내용을 읽지 않는다.
-- 각 Epic의 `Readme.md`는 목표, 범위, 책임·계약, 승인된 설계, 완료 조건, Phase 간 의존성을 소유한다.
-- Phase가 필요한 경우 독립적으로 검증 가능한 작업 단위로 분리하며 각 Phase 파일에 Tasks·Acceptance·검증 증거를 기록한다. 모든 Epic에 Phase를 기계적으로 요구하지 않는다.
-- 생성할 때는 [Epic 템플릿](../templates/epic-readme.md)과 [Phase 템플릿](../templates/epic-phase.md)을 필요에 따라 사용한다.
+## E## 번호 부여
 
-## 경계
+1. `docs/epic/`와 `docs/epic/archive/`의 **디렉터리명**에서 `E##` 정수를 모은다.
+2. 새 에픽 id = **전체 최댓값 + 1** (2026-04-03 기준 다음 신규 에픽은 **E07**).
 
-- 좁은 단일 작업은 [Brief](../workflow/briefs/README.md)로 분류한다.
-- 작업으로 확정된 제품·개발 규칙을 이곳에만 남기지 말고 Product/Dev SSOT로 넘긴다.
-- 구현·완료 체크박스는 실제 증거를 확인한 후에만 갱신한다.
-- 아카이빙은 사용자 명시적 요청에서만 수행한다. 폴더 전체를 `archive/`로 이동하고 미완료·미검증 상태를 보존한다.
-- **명시적 과거 조회·아카이브 작업이 아닌 한 `archive/` 내부 문서는 탐색하지 않는다.**
+**번호 충돌:** 활성 `E02.2026-04-02_infrastructure-as-code`와 아카이브 `E02.2026-03-30_backend-sonarqube-resolution`처럼 **같은 `E##` 접두가 날짜·주제별로 공존**할 수 있다. 식별은 항상 **`E##.YYYY-MM-DD_{이름}` 전체 경로**로 한다.
+
+## 활성·아카이브 문서 분류
+
+- 활성 Epic은 이 디렉터리 바로 아래의 E##.* 디렉터리다.
+- 아카이브 Epic은 docs/epic/archive/ 아래의 E##.* 디렉터리다.
+- 별도 수동 목록은 관리하지 않는다. 상태와 아카이브 날짜는 Epic 자체 README에 기록한다.
+- 아카이브 내용은 과거 조사·복구·대조 또는 명시적 아카이빙 요청이 있을 때만 연다.
+## 운영 절차 (요약)
+
+세부 절차는 [Epic lifecycle 스킬](../../.agents/skills/epic-lifecycle/SKILL.md)을 따른다.
+
+### 새 에픽 (CREATE_EPIC)
+
+1. 다음 `E##` 계산 (위 번호 규칙).
+2. `docs/epic/E##.YYYY-MM-DD_{epic-name}/` 생성, `Readme.md`에 목표·배경·특이점·Phase 목록·상태 체크리스트.
+3. 팀 규칙에 맞게 브랜치: 예 `epic/E##-{scope}`.
+
+### 새 Phase (CREATE_PHASE)
+
+1. 동일 에픽 폴더에서 `P##.{phase-name}.md` 추가 (목표·구현 상세·체크리스트).
+2. 에픽 `Readme.md`에 링크·체크박스 갱신.
+
+### 아카이브 (ARCHIVE_EPIC)
+
+1. 실제 결과를 수용 기준과 대조하고 completed, partially completed, unverified를 구분한다. 남은 조건과 위험은 보존한다.
+2. Epic README에 종결 상태와 아카이브일을 기록한다. 미완료 상태도 사용자 명시 요청에 따라 아카이브할 수 있다.
+3. Epic 디렉터리 전체를 docs/epic/archive/ 아래로 이동하고 모든 Phase 파일을 보존한다.
+4. 활성 경로가 남지 않았는지 확인하고, 현재 문서에서 필요한 개별 링크만 고친다. 수동 활성·아카이브 목록은 만들거나 갱신하지 않는다.
+### Git 브랜치 (에픽과의 추적)
+
+- 에픽 브랜치: `epic/E##-{scope}` (프로젝트 컨벤션에 따름).
+- Phase 작업: `feat/E##/P01-{scope}` 등으로 `E##`·`P##` 추적 가능하게 유지.
+
+## 관련 문서
+
+- [백로그 관리](../backlog/README.md)
+- [아카이브된 이슈](../backlog/archive/)

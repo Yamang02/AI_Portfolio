@@ -73,7 +73,7 @@
 
 **Why:** 빈 리포트는 오해를 부른다.
 
-**DO:** 프론트 `npm run test:coverage`, 백엔드 `mvn verify`(또는 프로젝트 표준) 후 분석.
+**DO:** 프론트 `pnpm run test:coverage`, 백엔드 `mvn verify`(또는 프로젝트 표준) 후 분석.
 
 **Exception:** 문서화된 실험 모듈만 예외.
 

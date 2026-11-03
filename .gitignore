@@ -85,6 +85,8 @@ profile/public/*
 !profile/public/img/**
 !profile/public/video/
 !profile/public/video/**
+!profile/public/fonts/
+!profile/public/fonts/**
 !profile/public/favicons/
 !profile/public/favicons/**
 !profile/public/*.ttf
@@ -294,6 +296,7 @@ ai-service/run_dev.py
 
 
 .env.*
+!backend/.env.example
 
 # IDE and Editor files
 .cursor/
@@ -353,3 +356,9 @@ staging_dump_all.csv
 # CodeSight — vendored CLI (npm run codesight:ensure) + generated LLM dump
 tools/codesight/
 docs/agent/codesight-context.txt
+
+# Local master assets (originals, upscales, video masters) — never commit
+/asset/
+
+# Generated profile visual QA captures (not runtime assets)
+/profile/artifacts/

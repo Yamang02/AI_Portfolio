@@ -4,11 +4,12 @@ FROM node:20-alpine
 # Set working directory
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Enable the pinned package manager and copy lockfile
+RUN corepack enable && corepack prepare pnpm@10.13.1 --activate
+COPY package.json pnpm-lock.yaml ./
 
 # Install dependencies
-RUN npm install
+RUN pnpm install --frozen-lockfile
 
 # Copy source code
 COPY . .
@@ -16,5 +17,5 @@ COPY . .
 # Expose port
 EXPOSE 3000
 
-# Development command with dependency check and hot reload
-CMD sh -c "npm install && npm run dev"
+# Development command with hot reload
+CMD ["pnpm", "run", "dev"]

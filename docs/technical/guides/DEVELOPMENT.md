@@ -60,17 +60,17 @@ backend/src/main/java/com/aiportfolio/backend/
 - Java 17+
 - Node.js 18+
 - Docker
-- Maven 3.6+
+- Docker Compose
 
 ### 로컬 개발 환경
 
 #### Docker Compose (권장)
 ```bash
-# Windows 환경: Docker Desktop 전체 경로 사용
-alias docker='"/c/Program Files/Docker/Docker/resources/bin/docker.exe"'
+# backend/.env.example을 backend/.env로 복사하고 필요한 값을 설정
+cd backend
 
-# 컨테이너 시작
-docker compose up -d
+# 백엔드·PostgreSQL·Redis 시작
+docker compose up -d postgres redis backend
 
 # 로그 확인
 docker compose logs backend -f
@@ -82,23 +82,18 @@ docker compose down
 docker compose down -v
 ```
 
-#### 개별 실행
+#### 프론트엔드 개별 실행
 ```bash
-# 백엔드 실행
-cd backend
-mvn spring-boot:run
-
 # 프론트엔드 실행
 cd frontend
-npm install
-npm run dev
+pnpm install
+pnpm run dev
 ```
 
 ### 환경 변수 설정
 ```bash
-# .env 파일 생성
-GEMINI_API_KEY=your_gemini_api_key
-GITHUB_TOKEN=your_github_token
+# backend/.env.example을 backend/.env로 복사
+# backend/.env에서 DB·Redis 및 필요한 외부 API 값을 설정
 ```
 
 ## 🚀 배포
@@ -135,10 +130,10 @@ mvn verify
 ### 프론트엔드 테스트
 ```bash
 # 단위 테스트
-npm test
+pnpm test
 
 # E2E 테스트
-npm run test:e2e
+pnpm run test:e2e
 ```
 
 ## 📚 추가 문서
