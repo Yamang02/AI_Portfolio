@@ -77,23 +77,15 @@ export interface ProfileSiteContent {
   readonly homeLink: ProfileNavigationItem;
   readonly closeLabel: string;
   readonly connect: {
-    readonly eyebrow: string;
     readonly title: string;
-    readonly body: string;
     readonly portfolioHref: string;
     readonly portfolioLabel: string;
     readonly companyHref: string;
     readonly companyLabel: string;
     readonly contactLabel: string;
-  };
-  readonly footer: {
-    readonly title: string;
-    readonly copyright: string;
-    readonly businessInformation: readonly {
-      readonly label: string;
-      readonly value: string;
-      readonly minWidth: string;
-    }[];
+    readonly threadsHref: string;
+    readonly threadsLabel: string;
+    readonly threadsHandle: string;
   };
   readonly contact: {
     readonly eyebrow: string;

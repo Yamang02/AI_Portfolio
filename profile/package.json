@@ -12,6 +12,7 @@
     "build": "vite build && vite build --ssr src/entry-server.tsx --outDir dist-ssr && node scripts/prerender.mjs",
     "preview": "vite preview --port 3002 --host 0.0.0.0",
     "assets:history": "node scripts/build-history-assets.mjs",
+    "assets:connect": "node scripts/build-connect-assets.mjs",
     "assets:intro": "node scripts/build-intro-assets.mjs",
     "assets:opening": "node scripts/generate-tear-paths.mjs && node scripts/build-opening-assets.mjs",
     "assets:tears": "node scripts/generate-tear-paths.mjs",

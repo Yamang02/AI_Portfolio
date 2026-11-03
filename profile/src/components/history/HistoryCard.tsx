@@ -204,8 +204,7 @@ export function HistoryCard({ title, subtitle, start, end, href, media, side, is
   const body = (
     <>
       <HistoryMedia hasLink={Boolean(href)} isActive={isActive} media={media} />
-      <div aria-hidden="true" className="absolute inset-0 z-[1] bg-gradient-to-t from-black/95 via-black/85 to-transparent xl:hidden" />
-      <div className={'absolute inset-x-3 bottom-3 z-10 flex min-w-0 flex-row items-baseline gap-2 lg:inset-x-4 lg:bottom-3 lg:flex-col lg:items-start lg:gap-0.5 xl:relative xl:inset-auto xl:z-auto xl:flex-1 xl:py-1 '
+      <div className={'absolute inset-x-0 bottom-0 z-10 flex min-w-0 flex-row items-baseline gap-2 lg:flex-col lg:items-start lg:gap-0.5 bg-black/90 px-3 py-2 lg:px-4 lg:py-3 xl:bg-transparent xl:relative xl:inset-auto xl:z-auto xl:flex-1 xl:px-0 xl:py-1 '
         + (isLeft ? 'xl:items-end xl:text-right' : 'xl:items-start xl:text-left')}>
         <h4 className="min-w-0 flex-1 truncate font-headline text-base font-semibold leading-tight text-white lg:w-full lg:flex-none lg:line-clamp-2 lg:overflow-hidden lg:text-clip lg:whitespace-normal lg:break-keep lg:text-sm lg:leading-snug xl:text-2xl xl:leading-tight xl:text-on-surface">
           {title}

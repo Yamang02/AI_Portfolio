@@ -76,7 +76,7 @@
       },
       {
         "href": "#connect",
-        "label": "야망솔루션"
+        "label": "More About Me"
       }
     ],
     "homeLink": {
@@ -84,40 +84,15 @@
       "label": "포트폴리오 방문하기"
     },
     "connect": {
-      "eyebrow": "Yamang02",
-      "title": "야망솔루션",
-      "body": "야망솔루션은 개발자 아이디 Yamang02에서 따온 이름입니다.<br/>만들고 싶은 것이 많아 전직을 결심했던 그 야망과,<br/>AI 시대 빌더들의 꿈을 기술로 풀어내겠다는 의지를 담았습니다.<br/>작업·글은 포트폴리오, 협업·문의는 아래 링크에서.",
+      "title": "More About Me",
       "portfolioHref": "https://portfolio.yamang02.com",
-      "portfolioLabel": "포트폴리오 보기",
+      "portfolioLabel": "Portfolio",
       "companyHref": "https://www.yamangsolution.com",
-      "companyLabel": "야망솔루션 방문하기",
-      "contactLabel": "연락하기"
-    },
-    "footer": {
-      "title": "야망솔루션",
-      "copyright": "2026 Copyright by 이정준",
-      "businessInformation": [
-        {
-          "label": "대표자",
-          "value": "이정준",
-          "minWidth": "7rem"
-        },
-        {
-          "label": "사업자등록번호",
-          "value": "882-30-01752",
-          "minWidth": "7rem"
-        },
-        {
-          "label": "업태",
-          "value": "정보통신업",
-          "minWidth": "7rem"
-        },
-        {
-          "label": "종목",
-          "value": "컴퓨터 프로그래밍 서비스업",
-          "minWidth": "7.5rem"
-        }
-      ]
+      "companyLabel": "야망솔루션",
+      "contactLabel": "이메일",
+      "threadsHref": "https://www.threads.com/@yamang_dev",
+      "threadsLabel": "Threads",
+      "threadsHandle": "@yamang_dev"
     },
     "contact": {
       "eyebrow": "Get in touch",

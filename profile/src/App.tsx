@@ -3,7 +3,6 @@ import { MotionConfig } from 'motion/react';
 import { profileContent } from './content';
 import { ConnectSection } from './components/ConnectSection';
 import { ContactModal } from './components/ContactModal';
-import { Footer } from './components/Footer';
 import { HistorySection } from './components/history/HistorySection';
 import { IntroSection } from './components/intro/IntroSection';
 import { Nav } from './components/Nav';
@@ -25,7 +24,6 @@ export function App() {
           <HistorySection content={profileContent.history} />
           <ConnectSection content={profileContent.site.connect} onOpenContact={openContact} />
         </main>
-        <Footer content={profileContent.site.footer} />
         <ContactModal
           closeLabel={profileContent.site.closeLabel}
           content={profileContent.site.contact}
