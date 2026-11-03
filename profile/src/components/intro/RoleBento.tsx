@@ -25,7 +25,7 @@ const BENTO_COLUMNS: Record<'left' | 'right', readonly ProfileIntroRoleId[]> = {
   left: ['educator', 'developer'],
   right: ['entrepreneur', 'artist'],
 };
-const INTRO_IMAGE_SIZES = '(min-width: 768px) min(38vw, 32rem), calc((100vw - 3rem) * 0.78)';
+const INTRO_IMAGE_SIZES = '(min-width: 768px) min(30.4vw, 25.6rem), calc((100vw - 3rem) * 0.78)';
 
 function createSrcSet(assets: readonly { readonly width: number; readonly avif: string; readonly webp: string }[], format: 'avif' | 'webp') {
   return assets.map(image => image[format] + ' ' + image.width + 'w').join(', ');

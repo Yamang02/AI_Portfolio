@@ -64,7 +64,7 @@
     "navigation": [
       {
         "href": "#opening",
-        "label": "오프닝"
+        "label": "도입"
       },
       {
         "href": "#identity",
@@ -76,15 +76,11 @@
       },
       {
         "href": "#connect",
-        "label": "More About Me"
+        "label": "연결"
       }
     ],
-    "homeLink": {
-      "href": "https://portfolio.yamang02.com",
-      "label": "포트폴리오 방문하기"
-    },
     "connect": {
-      "title": "More About Me",
+      "title": "연결",
       "portfolioHref": "https://portfolio.yamang02.com",
       "portfolioLabel": "Portfolio",
       "companyHref": "https://www.yamangsolution.com",
@@ -93,6 +89,9 @@
       "threadsHref": "https://www.threads.com/@yamang_dev",
       "threadsLabel": "Threads",
       "threadsHandle": "@yamang_dev"
+    },
+    "footer": {
+      "text": "© 2026 야망솔루션 · 대표 이정준 · 사업자등록번호 882-30-01752 · 정보통신업 · 컴퓨터 프로그래밍 서비스업"
     },
     "contact": {
       "eyebrow": "Get in touch",

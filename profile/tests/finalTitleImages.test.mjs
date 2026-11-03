@@ -6,7 +6,7 @@ let server;
 let decodeFinalTitleImages;
 
 before(async () => {
-  server = await createServer({ server: { middlewareMode: true }, appType: 'custom' });
+  server = await createServer({ server: { middlewareMode: true, hmr: false, ws: false, watch: null }, appType: 'custom' });
   ({ decodeFinalTitleImages } = await server.ssrLoadModule('/src/components/opening/FinalTitleBands.tsx'));
 });
 

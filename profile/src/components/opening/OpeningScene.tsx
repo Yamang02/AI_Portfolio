@@ -8,7 +8,7 @@ import { OpeningPicture } from './OpeningPicture';
 import { decodeFinalTitleImages, FinalTitleBands } from './FinalTitleBands';
 import type { FinalTitleBandId } from './FinalTitleBands';
 import { decodeOpeningImages, loadOpeningImages } from './openingImages';
-import { ScrollHint } from './ScrollHint';
+import { ScrollHint } from '../ScrollHint';
 import { TearFibers, TornPiece, getAllFiberUrls, getPieceBackUrl } from './TornPiece';
 import {
   FIBER_HIDDEN_CLIP,
@@ -95,7 +95,7 @@ export function OpeningScene({ content }: OpeningSceneProps) {
   const [readyTitleIds, setReadyTitleIds] = useState<readonly FinalTitleBandId[]>([]);
   const [hasReachedFinal, setHasReachedFinal] = useState(false);
   const [isScrollHintDue, setIsScrollHintDue] = useState(false);
-  const [hasScrolled, setHasScrolled] = useState(false);
+  const [isAtOpeningStart, setIsAtOpeningStart] = useState(true);
 
   const handleReplay = () => {
     if (phase !== 'done') {
@@ -108,11 +108,12 @@ export function OpeningScene({ content }: OpeningSceneProps) {
   };
 
   useEffect(() => {
-    const handleScroll = () => setHasScrolled(true);
+    const updateOpeningPosition = () => setIsAtOpeningStart(window.scrollY <= 1);
 
-    window.addEventListener('scroll', handleScroll, { once: true, passive: true });
+    updateOpeningPosition();
+    window.addEventListener('scroll', updateOpeningPosition, { passive: true });
 
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', updateOpeningPosition);
   }, []);
 
   useEffect(() => {
@@ -448,7 +449,7 @@ export function OpeningScene({ content }: OpeningSceneProps) {
           <button
             aria-disabled={phase !== 'done'}
             aria-label={REPLAY_BUTTON_LABEL}
-            className="absolute right-0 top-[calc(100%+12px)] inline-flex size-10 items-center justify-center rounded-full text-on-surface/70 transition-colors hover:bg-surface-container-high hover:text-on-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary aria-disabled:cursor-not-allowed aria-disabled:opacity-40 landscape:bottom-0 landscape:left-[calc(100%+12px)] landscape:right-auto landscape:top-auto"
+            className="ghost-icon-button absolute right-0 top-[calc(100%+12px)] text-on-surface/70 transition-colors hover:bg-surface-container-high hover:text-on-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary aria-disabled:cursor-not-allowed aria-disabled:opacity-40 landscape:bottom-0 landscape:left-[calc(100%+12px)] landscape:right-auto landscape:top-auto"
             onClick={handleReplay}
             type="button"
           >
@@ -466,7 +467,7 @@ export function OpeningScene({ content }: OpeningSceneProps) {
           </button>
         )}
       </div>
-      <ScrollHint isVisible={isScrollHintDue && !hasScrolled} />
+      <ScrollHint isVisible={isScrollHintDue && isAtOpeningStart} />
       <p className="sr-only">{content.artworkCredit}</p>
     </section>
   );

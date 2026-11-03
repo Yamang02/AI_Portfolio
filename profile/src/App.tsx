@@ -3,6 +3,7 @@ import { MotionConfig } from 'motion/react';
 import { profileContent } from './content';
 import { ConnectSection } from './components/ConnectSection';
 import { ContactModal } from './components/ContactModal';
+import { Footer } from './components/Footer';
 import { HistorySection } from './components/history/HistorySection';
 import { IntroSection } from './components/intro/IntroSection';
 import { Nav } from './components/Nav';
@@ -17,13 +18,14 @@ export function App() {
   return (
     <MotionConfig reducedMotion="user">
       <div className="bg-surface font-body text-on-surface selection:bg-primary-container selection:text-on-primary-container">
-        <Nav content={profileContent.site} />
+        <Nav content={profileContent.site} onOpenContact={openContact} />
         <main>
           <OpeningScene content={profileContent.opening} />
           <IntroSection content={profileContent.intro} />
           <HistorySection content={profileContent.history} />
           <ConnectSection content={profileContent.site.connect} onOpenContact={openContact} />
         </main>
+        <Footer content={profileContent.site.footer} />
         <ContactModal
           closeLabel={profileContent.site.closeLabel}
           content={profileContent.site.contact}

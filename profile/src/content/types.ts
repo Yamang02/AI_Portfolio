@@ -74,7 +74,6 @@ export interface ProfileNavigationItem {
 export interface ProfileSiteContent {
   readonly logoTexts: readonly string[];
   readonly navigation: readonly ProfileNavigationItem[];
-  readonly homeLink: ProfileNavigationItem;
   readonly closeLabel: string;
   readonly connect: {
     readonly title: string;
@@ -86,6 +85,9 @@ export interface ProfileSiteContent {
     readonly threadsHref: string;
     readonly threadsLabel: string;
     readonly threadsHandle: string;
+  };
+  readonly footer: {
+    readonly text: string;
   };
   readonly contact: {
     readonly eyebrow: string;

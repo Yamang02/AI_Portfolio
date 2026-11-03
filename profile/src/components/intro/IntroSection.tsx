@@ -102,7 +102,7 @@ export function IntroSection({ content }: IntroSectionProps) {
   return (
     <section
       aria-labelledby="intro-name"
-      className="px-6 pb-24 md:px-12 lg:px-20"
+      className="px-6 pb-24 pt-[10svh] md:px-12 lg:px-20"
       id="identity"
     >
       <div className="mx-auto max-w-screen-2xl">
@@ -116,40 +116,10 @@ export function IntroSection({ content }: IntroSectionProps) {
             className="w-full pl-12 font-headline text-[clamp(2.25rem,4.4vw,3.75rem)] font-medium leading-[1.15] tracking-tight md:w-auto md:shrink-0"
             initial={false}
           >
-            <RoleTabs
-              activeIndex={cycle.activeIndex}
-              onFocusChange={setIsTabListFocused}
-              onSelect={cycle.selectRole}
-              progress={cycle.progress}
-              roles={content.roles}
-              tabListLabel={content.tabListLabel}
-            />
-            <RoleFact
-              activeIndex={cycle.activeIndex}
-              className="mt-8 max-w-full text-left font-body text-sm font-normal leading-relaxed tracking-normal md:mt-10 md:text-base"
-              isAnnounced={!cycle.isRunning}
-              roles={content.roles}
-            />
-          </motion.div>
-          <motion.div
-            animate={revealState(0.1)}
-            className="w-full min-w-0 md:max-w-[44.5rem] md:flex-1"
-            initial={false}
-            onAnimationComplete={() => setIsEntryAnimationComplete(true)}
-          >
-            <div
-              aria-labelledby={'intro-tab-' + activeRole.id}
-              className="mx-auto grid w-full max-w-[44.5rem] grid-cols-[minmax(0,1fr)_auto] gap-x-2 gap-y-2"
-              id="intro-tabpanel"
-              role="tabpanel"
-              tabIndex={0}
-            >
-              <div className="col-span-2 min-w-0 md:col-span-1">
-                <RoleBento activeIndex={cycle.activeIndex} roles={content.roles} />
-              </div>
+            <div className="relative">
               <button
                 aria-label={cycle.playState === 'playing' ? content.pauseLabel : content.playLabel}
-                className="col-start-2 row-start-2 inline-flex size-10 items-center justify-center self-end rounded-full text-on-surface/70 transition-colors hover:bg-surface-container-high hover:text-on-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary md:row-start-1"
+                className="ghost-icon-button absolute -left-10 -top-12 text-on-surface/70 transition-colors hover:bg-surface-container-high hover:text-on-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                 onClick={cycle.togglePlayback}
                 type="button"
               >
@@ -165,6 +135,38 @@ export function IntroSection({ content }: IntroSectionProps) {
                     </svg>
                   )}
               </button>
+              <RoleTabs
+                activeIndex={cycle.activeIndex}
+                onFocusChange={setIsTabListFocused}
+                onSelect={cycle.selectRole}
+                progress={cycle.progress}
+                roles={content.roles}
+                tabListLabel={content.tabListLabel}
+              />
+            </div>
+            <RoleFact
+              activeIndex={cycle.activeIndex}
+              className="mt-8 max-w-full text-left font-body text-sm font-normal leading-relaxed tracking-normal md:mt-10 md:text-base"
+              isAnnounced={!cycle.isRunning}
+              roles={content.roles}
+            />
+          </motion.div>
+          <motion.div
+            animate={revealState(0.1)}
+            className="w-full min-w-0 md:max-w-[44.5rem] md:flex-1"
+            initial={false}
+            onAnimationComplete={() => setIsEntryAnimationComplete(true)}
+          >
+            <div
+              aria-labelledby={'intro-tab-' + activeRole.id}
+              className="mx-auto w-full max-w-[44.5rem]"
+              id="intro-tabpanel"
+              role="tabpanel"
+              tabIndex={0}
+            >
+              <div className="mx-auto w-full md:w-3/4">
+                <RoleBento activeIndex={cycle.activeIndex} roles={content.roles} />
+              </div>
             </div>
           </motion.div>
         </div>

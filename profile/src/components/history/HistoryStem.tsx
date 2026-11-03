@@ -1,5 +1,16 @@
-export function HistoryStem() {
+interface HistoryStemProps {
+  readonly isEnd?: boolean;
+  readonly isStart?: boolean;
+}
+
+export function HistoryStem({ isEnd = true, isStart = true }: HistoryStemProps) {
   return (
-    <div aria-hidden="true" className="pointer-events-none absolute bottom-0 left-[0.875rem] top-0 w-2 -translate-x-1/2 bg-primary lg:left-1/2" />
+    <div
+      aria-hidden="true"
+      className={'history-stem pointer-events-none '
+        + (isStart ? 'rounded-t-full ' : '')
+        + (isEnd ? 'rounded-b-full ' : '')
+        + 'bg-primary'}
+    />
   );
 }

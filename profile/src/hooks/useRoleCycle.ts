@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useMotionValue } from 'motion/react';
 import type { MotionValue } from 'motion/react';
 
-const ROLE_DURATION_MS = 4000;
+const ROLE_DURATION_MS = 3000;
 
 export type RolePlayState = 'playing' | 'paused';
 

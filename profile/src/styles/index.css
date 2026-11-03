@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+@layer components {
+  .ghost-icon-button {
+    @apply inline-flex size-10 shrink-0 items-center justify-center;
+    border-radius: 50%;
+  }
+}
+
 :root {
   --profile-nav-height: 54px;
   --profile-intro-scroll-gap: 16px;

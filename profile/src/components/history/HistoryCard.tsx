@@ -3,6 +3,7 @@ import { useReducedMotion } from 'motion/react';
 import type { ProfileHistoryIcon, ProfileHistoryMedia } from '../../content/types';
 import { useInView } from '../../hooks/useInView';
 import { historyAssets } from './historyAssets';
+import { ExternalLinkIcon } from '../Icon';
 
 export type HistoryCardSide = 'left' | 'right';
 
@@ -17,6 +18,7 @@ interface HistoryCardProps {
   readonly isActive: boolean;
   readonly presentLabel: string;
   readonly linkSuffix: string;
+  readonly imageSizes: string;
 }
 
 interface ResponsivePosterProps {
@@ -32,6 +34,7 @@ interface HistoryMediaProps {
   readonly media: ProfileHistoryMedia;
   readonly isActive: boolean;
   readonly hasLink: boolean;
+  readonly imageSizes: string;
 }
 
 interface HistoryPeriodProps {
@@ -40,7 +43,6 @@ interface HistoryPeriodProps {
   readonly presentLabel: string;
 }
 
-const MEDIA_SIZES = '(min-width: 1024px) clamp(240px, 22vw, 340px), min(560px, calc(100vw - 5rem))';
 const HOVER_SCALE = 'transition-transform duration-500 ease-out group-hover:scale-[1.03] group-focus-visible:scale-[1.03]';
 
 interface KeywordIconPath {
@@ -93,7 +95,7 @@ function KeywordMedia({ icon, text }: { readonly icon: ProfileHistoryIcon; reado
           <path d={d} key={d} {...attributes} />
         ))}
       </svg>
-      <span className="absolute left-[7cqw] top-[7cqw] whitespace-nowrap xl:bottom-[7cqw] xl:top-auto font-headline text-[11cqw] font-semibold leading-none tracking-tight text-on-surface">
+      <span className="history-keyword-text absolute left-[7cqw] top-[7cqw] whitespace-nowrap font-headline text-[11cqw] font-semibold leading-none tracking-tight text-on-surface">
         {text}
       </span>
     </div>
@@ -117,7 +119,7 @@ function ResponsivePoster({ avif400, webp400, avif800, webp800, sizes, focus }: 
   );
 }
 
-function HistoryMedia({ media, isActive, hasLink }: HistoryMediaProps) {
+function HistoryMedia({ media, isActive, hasLink, imageSizes }: HistoryMediaProps) {
   const mediaRef = useRef<HTMLDivElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const isMediaInView = useInView(mediaRef, { threshold: 0.1 });
@@ -141,7 +143,7 @@ function HistoryMedia({ media, isActive, hasLink }: HistoryMediaProps) {
   return (
     <div
       aria-hidden="true"
-      className="@container absolute inset-0 aspect-[21/9] w-full overflow-hidden bg-surface-container-high lg:relative lg:inset-auto lg:aspect-[16/10] lg:w-[var(--history-thumb-w)] lg:shrink-0"
+      className="history-media bg-surface-container-high"
       ref={mediaRef}
     >
       {media.type === 'wordmark' && (
@@ -150,14 +152,14 @@ function HistoryMedia({ media, isActive, hasLink }: HistoryMediaProps) {
         </div>
       )}
       {media.type === 'keyword' && <KeywordMedia icon={media.icon} text={media.text} />}
-      {media.type === 'image' && <ResponsivePoster {...historyAssets[media.asset]} focus={media.focus} sizes={MEDIA_SIZES} />}
+      {media.type === 'image' && <ResponsivePoster {...historyAssets[media.asset]} focus={media.focus} sizes={imageSizes} />}
       {media.type === 'video' && (
         <>
           <ResponsivePoster
             avif400={historyAssets.design.posterAvif400}
             avif800={historyAssets.design.posterAvif800}
             focus={media.focus}
-            sizes={MEDIA_SIZES}
+            sizes={imageSizes}
             webp400={historyAssets.design.posterWebp400}
             webp800={historyAssets.design.posterWebp800}
           />
@@ -175,12 +177,8 @@ function HistoryMedia({ media, isActive, hasLink }: HistoryMediaProps) {
         </>
       )}
       {hasLink && (
-        <span className="absolute right-3 top-3 z-20 flex size-9 items-center justify-center bg-black/60 text-white backdrop-blur-sm transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5">
-          <svg aria-hidden="true" className="size-5" fill="none" focusable="false" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
-            <path d="M13 11L21.2 2.80005" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
-            <path d="M22 6.8V2H17.2" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
-            <path d="M11 2H9C4 2 2 4 2 9V15C2 20 4 22 9 22H15C20 22 22 20 22 15V13" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
-          </svg>
+        <span className="absolute right-2 top-2 z-20 flex size-7 items-center justify-center bg-black/60 text-white backdrop-blur-sm transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5">
+          <ExternalLinkIcon className="size-4" />
         </span>
       )}
     </div>
@@ -189,7 +187,7 @@ function HistoryMedia({ media, isActive, hasLink }: HistoryMediaProps) {
 
 function HistoryPeriod({ start, end, presentLabel }: HistoryPeriodProps) {
   return (
-    <span className="whitespace-nowrap font-label text-[10px] tabular-nums text-white sm:text-xs lg:text-xs xl:text-sm xl:text-on-surface-variant">
+    <span className="history-card-period font-label tabular-nums">
       <time dateTime={start.replace('.', '-')}>{start}</time>
       {' — '}
       {end ? <time dateTime={end.replace('.', '-')}>{end}</time> : presentLabel}
@@ -197,32 +195,30 @@ function HistoryPeriod({ start, end, presentLabel }: HistoryPeriodProps) {
   );
 }
 
-export function HistoryCard({ title, subtitle, start, end, href, media, side, isActive, presentLabel, linkSuffix }: HistoryCardProps) {
-  const isLeft = side === 'left';
-  const className = 'group relative block aspect-[21/9] min-w-0 w-full max-w-[560px] overflow-hidden rounded-sm lg:aspect-[16/10] lg:w-[var(--history-thumb-w)] xl:flex xl:aspect-auto xl:w-full xl:max-w-none xl:items-start xl:gap-5 xl:overflow-visible '
-    + (isLeft ? 'xl:flex-row-reverse' : '');
+export function HistoryCard({ title, subtitle, start, end, href, media, side, isActive, presentLabel, linkSuffix, imageSizes }: HistoryCardProps) {
+  const className = 'history-card group rounded-sm';
   const body = (
     <>
-      <HistoryMedia hasLink={Boolean(href)} isActive={isActive} media={media} />
-      <div className={'absolute inset-x-0 bottom-0 z-10 flex min-w-0 flex-row items-baseline gap-2 lg:flex-col lg:items-start lg:gap-0.5 bg-black/90 px-3 py-2 lg:px-4 lg:py-3 xl:bg-transparent xl:relative xl:inset-auto xl:z-auto xl:flex-1 xl:px-0 xl:py-1 '
-        + (isLeft ? 'xl:items-end xl:text-right' : 'xl:items-start xl:text-left')}>
-        <h4 className="min-w-0 flex-1 truncate font-headline text-base font-semibold leading-tight text-white lg:w-full lg:flex-none lg:line-clamp-2 lg:overflow-hidden lg:text-clip lg:whitespace-normal lg:break-keep lg:text-sm lg:leading-snug xl:text-2xl xl:leading-tight xl:text-on-surface">
+      <HistoryMedia hasLink={Boolean(href)} imageSizes={imageSizes} isActive={isActive} media={media} />
+      <div className="history-card-body">
+        <h4 className="history-card-title font-headline font-semibold">
           {title}
         </h4>
-        <p className="hidden w-full overflow-hidden font-body text-xs leading-snug text-white/90 lg:line-clamp-2 lg:block lg:break-keep xl:text-sm xl:leading-relaxed xl:text-on-surface-variant">{subtitle}</p>
+        <p className="history-card-subtitle font-body">{subtitle}</p>
         <HistoryPeriod end={end} presentLabel={presentLabel} start={start} />
       </div>
     </>
   );
 
   if (!href) {
-    return <div className={className}>{body}</div>;
+    return <div className={className} data-side={side}>{body}</div>;
   }
 
   return (
     <a
       aria-label={title + ' ' + linkSuffix}
       className={className + ' focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary'}
+      data-side={side}
       href={href}
       rel="noopener noreferrer"
       target="_blank"

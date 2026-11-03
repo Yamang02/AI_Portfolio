@@ -1,13 +1,18 @@
 import { useId } from 'react';
+import type { CSSProperties } from 'react';
 import { motion } from 'motion/react';
 import type { ProfileHistoryEntry } from '../../content/types';
 import type { HistoryCardSide } from './HistoryCard';
+import { getHistoryConnectorGeometry } from './historyLayout';
+import type { HistoryMetrics } from './historyLayout';
 
 interface HistoryConnectorProps {
   readonly kind: ProfileHistoryEntry['kind'];
   readonly side: HistoryCardSide;
   readonly isActive: boolean;
   readonly prefersReducedMotion: boolean;
+  readonly isWide: boolean;
+  readonly metrics: HistoryMetrics;
 }
 
 interface BranchSvgProps extends HistoryConnectorProps {
@@ -15,18 +20,7 @@ interface BranchSvgProps extends HistoryConnectorProps {
   readonly rise: number;
   readonly side: HistoryCardSide;
   readonly maskId: string;
-  readonly className: string;
-}
-
-const MEDIA_LINE_TOP_PX = 19;
-const BRANCH_RISE_PX = { mobile: 14, desktop: 28 } as const;
-
-function strokeWidthForKind(kind: ProfileHistoryEntry['kind']) {
-  if (kind === 'career') {
-    return 4;
-  }
-
-  return kind === 'course' ? 3 : 2;
+  readonly style: CSSProperties;
 }
 
 function pathForSide(side: HistoryCardSide, width: number, rise: number, strokeWidth: number) {
@@ -37,8 +31,8 @@ function pathForSide(side: HistoryCardSide, width: number, rise: number, strokeW
     : 'M' + width + ' ' + (rise + halfStroke) + ' L' + (width - rise) + ' ' + halfStroke + ' L0 ' + halfStroke;
 }
 
-function BranchSvg({ kind, side, isActive, prefersReducedMotion, width, rise, maskId, className }: BranchSvgProps) {
-  const strokeWidth = strokeWidthForKind(kind);
+function BranchSvg({ kind, side, isActive, prefersReducedMotion, width, rise, maskId, style, isWide, metrics }: BranchSvgProps) {
+  const { strokeWidth, svgTop } = getHistoryConnectorGeometry(kind, isWide, metrics);
   const height = rise + strokeWidth;
   const path = pathForSide(side, width, rise, strokeWidth);
   const shouldReveal = isActive || prefersReducedMotion;
@@ -46,10 +40,10 @@ function BranchSvg({ kind, side, isActive, prefersReducedMotion, width, rise, ma
   return (
     <svg
       aria-hidden="true"
-      className={'pointer-events-none absolute overflow-visible ' + className}
+      className="pointer-events-none absolute overflow-visible"
       fill="none"
       height={height}
-      style={{ top: MEDIA_LINE_TOP_PX - strokeWidth / 2 }}
+      style={{ ...style, top: svgTop }}
       viewBox={'0 0 ' + width + ' ' + height}
       width={width}
     >
@@ -83,7 +77,7 @@ function BranchSvg({ kind, side, isActive, prefersReducedMotion, width, rise, ma
         d={path}
         mask={'url(#' + maskId + ')'}
         stroke="var(--color-primary)"
-        strokeDasharray={kind === 'course' ? '6 5' : undefined}
+        strokeDasharray={kind === 'course' ? `${4.5 * metrics.unit} ${3.75 * metrics.unit}` : undefined}
         strokeLinejoin="round"
         strokeWidth={strokeWidth}
       />
@@ -91,55 +85,49 @@ function BranchSvg({ kind, side, isActive, prefersReducedMotion, width, rise, ma
   );
 }
 
-export function HistoryConnector({ kind, side, isActive, prefersReducedMotion }: HistoryConnectorProps) {
+export function HistoryConnector({ kind, side, isActive, prefersReducedMotion, isWide, metrics }: HistoryConnectorProps) {
   const id = 'history-connector-' + useId().replace(/[^a-zA-Z0-9_-]/g, '');
   const isCareer = kind === 'career';
   const hasNode = kind !== 'work';
-  const nodeSize = isCareer ? 24 : 20;
-  const nodeClass = isCareer
-    ? 'size-6 border-4 ' + (isActive ? 'bg-primary' : 'bg-surface')
-    : 'size-5 border-[3px] bg-surface';
-  const mobileNodeTop = MEDIA_LINE_TOP_PX + BRANCH_RISE_PX.mobile - nodeSize / 2;
-  const desktopNodeTop = MEDIA_LINE_TOP_PX + BRANCH_RISE_PX.desktop - nodeSize / 2;
-  const desktopNodeSide = side === 'right'
-    ? '-left-6 -translate-x-1/2'
-    : '-right-6 translate-x-1/2';
+  const { width, rise, nodeSize, nodeTop, strokeWidth } = getHistoryConnectorGeometry(kind, isWide, metrics);
+  const isLeft = isWide && side === 'left';
+  const edgeInset = metrics.centerGap / 2 - metrics.stemWidth / 2;
+  const branchStyle: CSSProperties = isWide
+    ? isLeft ? { right: -edgeInset } : { left: -edgeInset }
+    : { left: -width };
+  const nodePosition: CSSProperties = isWide
+    ? isLeft ? { right: -metrics.centerGap / 2 } : { left: -metrics.centerGap / 2 }
+    : { left: metrics.railX - metrics.compactInset };
 
   return (
     <>
       <BranchSvg
-        className="-left-[26px] lg:hidden"
         isActive={isActive}
+        isWide={isWide}
         kind={kind}
-        maskId={id + '-mobile'}
+        maskId={id}
+        metrics={metrics}
         prefersReducedMotion={prefersReducedMotion}
-        rise={BRANCH_RISE_PX.mobile}
-        side="right"
-        width={26}
-      />
-      <BranchSvg
-        className={'hidden lg:block ' + (side === 'right' ? '-left-5' : '-right-5')}
-        isActive={isActive}
-        kind={kind}
-        maskId={id + '-desktop'}
-        prefersReducedMotion={prefersReducedMotion}
-        rise={BRANCH_RISE_PX.desktop}
-        side={side}
-        width={60}
+        rise={rise}
+        side={isLeft ? 'left' : 'right'}
+        style={branchStyle}
+        width={width}
       />
       {hasNode && (
-        <>
-          <span
-            aria-hidden="true"
-            className={'absolute -left-[1.875rem] z-10 -translate-x-1/2 rounded-full border-primary lg:hidden ' + nodeClass}
-            style={{ top: mobileNodeTop, transition: prefersReducedMotion ? 'none' : 'background-color 500ms ease-out' }}
-          />
-          <span
-            aria-hidden="true"
-            className={'absolute z-10 hidden rounded-full border-primary lg:block ' + desktopNodeSide + ' ' + nodeClass}
-            style={{ top: desktopNodeTop, transition: prefersReducedMotion ? 'none' : 'background-color 500ms ease-out' }}
-          />
-        </>
+        <span
+          aria-hidden="true"
+          className={'absolute z-10 rounded-full border-primary '
+            + (isLeft ? 'translate-x-1/2 ' : '-translate-x-1/2 ')
+            + (isCareer && isActive ? 'bg-primary' : 'bg-surface')}
+          style={{
+            ...nodePosition,
+            top: nodeTop,
+            width: nodeSize,
+            height: nodeSize,
+            borderWidth: strokeWidth,
+            transition: prefersReducedMotion ? 'none' : 'background-color 500ms ease-out',
+          }}
+        />
       )}
     </>
   );
