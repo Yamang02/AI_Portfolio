@@ -18,6 +18,7 @@ interface HistoryStepPanelProps {
   readonly prefersReducedMotion: boolean;
   readonly presentLabel: string;
   readonly linkSuffix: string;
+  readonly centerDesktopCards: boolean;
 }
 
 interface HistoryYearHeaderProps {
@@ -30,16 +31,17 @@ const STEP_SVH = 45;
 const ENTRY_SNAP_VIEWPORT_RATIO = 0.55;
 const SCROLL_IDLE_MS = 140;
 
-function HistoryStepPanel({ step, isActive, prefersReducedMotion, presentLabel, linkSuffix }: HistoryStepPanelProps) {
+function HistoryStepPanel({ step, isActive, prefersReducedMotion, presentLabel, linkSuffix, centerDesktopCards }: HistoryStepPanelProps) {
   const entries = step.entries
     .map((entry, contentIndex) => ({ entry, contentIndex }))
     .sort((left, right) => right.entry.start.localeCompare(left.entry.start) || left.contentIndex - right.contentIndex);
 
   return (
-    <ul className="grid grid-cols-1 gap-y-4 pl-11 md:auto-rows-[88px] md:grid-cols-[minmax(0,1fr)_3rem_minmax(0,1fr)] md:gap-y-0 md:pl-0">
+    <ul className={'grid grid-cols-1 gap-y-3 pl-11 lg:[--history-thumb-w:clamp(240px,22vw,340px)] lg:[--history-gap:calc(var(--history-thumb-w)*0.3125_+_24px)] lg:auto-rows-[var(--history-gap)] lg:grid-cols-[minmax(0,1fr)_3rem_minmax(0,1fr)] lg:gap-y-0 lg:pl-0 '
+      + (centerDesktopCards ? 'lg:h-full lg:[align-content:safe_center] lg:pb-[calc(var(--history-thumb-w)*0.3125_-_24px)]' : '')}>
       {entries.map(({ entry }, index) => {
         const side = index % 2 === 0 ? 'right' : 'left';
-        const desktopSideClass = side === 'right' ? 'md:col-start-3 md:pl-10' : 'md:col-start-1 md:pr-10';
+        const desktopSideClass = side === 'right' ? 'lg:col-start-3 lg:pl-10' : 'lg:col-start-1 lg:pr-10';
 
         return (
           <li className={'relative ' + desktopSideClass} key={entry.id} style={{ gridRow: index + 1 }}>
@@ -50,7 +52,7 @@ function HistoryStepPanel({ step, isActive, prefersReducedMotion, presentLabel, 
               side={side}
             />
             <HistoryCard
-              desc={entry.desc}
+              subtitle={entry.subtitle}
               end={entry.end}
               href={entry.href}
               isActive={isActive}
@@ -70,8 +72,8 @@ function HistoryStepPanel({ step, isActive, prefersReducedMotion, presentLabel, 
 
 function HistoryYearHeader({ steps, activeIndex, onSelect }: HistoryYearHeaderProps) {
   return (
-    <div className="absolute left-11 top-0 z-10 md:left-0">
-      <div aria-hidden="true" className="h-[1.1em] overflow-hidden font-headline text-5xl leading-[1.1] text-secondary/80 md:text-8xl">
+    <div className="absolute left-11 top-0 z-10 lg:left-0">
+      <div aria-hidden="true" className="h-[1.1em] overflow-hidden font-headline text-5xl leading-[1.1] text-secondary/80 lg:text-8xl">
         <motion.div
           animate={{ y: -activeIndex * 1.1 + 'em' }}
           initial={false}
@@ -80,7 +82,7 @@ function HistoryYearHeader({ steps, activeIndex, onSelect }: HistoryYearHeaderPr
           {steps.map(step => <div className="h-[1.1em] tabular-nums" key={step.id}>{step.label}</div>)}
         </motion.div>
       </div>
-      <ol className="mt-3 flex gap-3 font-label text-xs tabular-nums md:mt-4 md:gap-4 md:text-sm">
+      <ol className="mt-3 flex gap-3 font-label text-xs tabular-nums lg:mt-4 lg:gap-4 lg:text-sm">
         {steps.map((step, index) => (
           <li key={step.id}>
             <button
@@ -217,7 +219,7 @@ function PinnedHistory({ content }: HistorySectionProps) {
         <div className="relative mx-auto w-full max-w-6xl flex-1">
           <HistoryStem />
           <HistoryYearHeader activeIndex={activeIndex} onSelect={scrollToStep} steps={content.steps} />
-          <ol className="absolute inset-x-0 bottom-0 top-36 md:top-[max(15rem,34svh)]">
+          <ol className="absolute inset-x-0 bottom-0 top-36 lg:top-20">
             {content.steps.map((step, index) => {
               const isActive = index === activeIndex;
               const offset = index < activeIndex ? -48 : index > activeIndex ? 48 : 0;
@@ -233,6 +235,7 @@ function PinnedHistory({ content }: HistorySectionProps) {
                 >
                   <h3 className="sr-only">{step.label}</h3>
                   <HistoryStepPanel
+                    centerDesktopCards
                     isActive={isActive}
                     linkSuffix={content.linkSuffix}
                     prefersReducedMotion={false}
@@ -256,10 +259,10 @@ function StaticHistory({ content }: HistorySectionProps) {
       <ol className="relative space-y-16">
         {content.steps.map(step => (
           <li key={step.id}>
-            <h3 className="relative mb-8 ml-11 font-headline text-4xl leading-none text-secondary/80 md:ml-0 md:text-6xl">
+            <h3 className="relative mb-8 ml-11 font-headline text-4xl leading-none text-secondary/80 lg:ml-0 lg:text-6xl">
               {step.label}
             </h3>
-            <HistoryStepPanel isActive linkSuffix={content.linkSuffix} prefersReducedMotion presentLabel={content.presentLabel} step={step} />
+            <HistoryStepPanel centerDesktopCards={false} isActive linkSuffix={content.linkSuffix} prefersReducedMotion presentLabel={content.presentLabel} step={step} />
           </li>
         ))}
       </ol>
@@ -273,7 +276,7 @@ export function HistorySection({ content }: HistorySectionProps) {
   return (
     <section
       aria-labelledby="history-heading"
-      className="px-6 md:px-12 lg:px-20"
+      className="px-6 lg:px-20"
       id="history"
     >
       <div className="mx-auto max-w-screen-2xl">

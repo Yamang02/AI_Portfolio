@@ -108,7 +108,7 @@ export function HistoryConnector({ kind, side, isActive, prefersReducedMotion }:
   return (
     <>
       <BranchSvg
-        className="-left-[26px] md:hidden"
+        className="-left-[26px] lg:hidden"
         isActive={isActive}
         kind={kind}
         maskId={id + '-mobile'}
@@ -118,7 +118,7 @@ export function HistoryConnector({ kind, side, isActive, prefersReducedMotion }:
         width={26}
       />
       <BranchSvg
-        className={'hidden md:block ' + (side === 'right' ? '-left-5' : '-right-5')}
+        className={'hidden lg:block ' + (side === 'right' ? '-left-5' : '-right-5')}
         isActive={isActive}
         kind={kind}
         maskId={id + '-desktop'}
@@ -131,12 +131,12 @@ export function HistoryConnector({ kind, side, isActive, prefersReducedMotion }:
         <>
           <span
             aria-hidden="true"
-            className={'absolute -left-[1.875rem] z-10 -translate-x-1/2 rounded-full border-primary md:hidden ' + nodeClass}
+            className={'absolute -left-[1.875rem] z-10 -translate-x-1/2 rounded-full border-primary lg:hidden ' + nodeClass}
             style={{ top: mobileNodeTop, transition: prefersReducedMotion ? 'none' : 'background-color 500ms ease-out' }}
           />
           <span
             aria-hidden="true"
-            className={'absolute z-10 hidden rounded-full border-primary md:block ' + desktopNodeSide + ' ' + nodeClass}
+            className={'absolute z-10 hidden rounded-full border-primary lg:block ' + desktopNodeSide + ' ' + nodeClass}
             style={{ top: desktopNodeTop, transition: prefersReducedMotion ? 'none' : 'background-color 500ms ease-out' }}
           />
         </>

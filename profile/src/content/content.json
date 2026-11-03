@@ -27,7 +27,7 @@
         "id": "educator",
         "label": "Educator",
         "verb": "explain",
-        "fact": "고등학교 국어교사 · 교육",
+        "fact": "고등학교 국어교사, 코딩교육",
         "imageAlt": "교육자 이정준",
         "sceneFocus": "66% 52%",
         "portraitFocus": "66% 37%",
@@ -151,11 +151,24 @@
         "label": "2026",
         "entries": [
           {
+            "id": "gbsa-ai-instructor-2026",
+            "kind": "career",
+            "start": "2026.06",
+            "end": "2026.09",
+            "title": "GBSA 임직원 AI 교육",
+            "subtitle": "야망솔루션 강사 활동",
+            "media": {
+              "type": "image",
+              "asset": "gbsa",
+              "focus": "50% 15%"
+            }
+          },
+          {
             "id": "designlab",
             "kind": "work",
             "start": "2026.03",
-            "title": "디자인랩",
-            "desc": "직접 기획·개발한 디자인 레퍼런스 아카이브",
+            "title": "야망디자인 페이지",
+            "subtitle": "디자인 레퍼런스 아카이브",
             "href": "https://design.yamang02.com",
             "media": {
               "type": "video",
@@ -163,16 +176,28 @@
             }
           },
           {
+            "id": "yamangsolution-homepage-2026",
+            "kind": "work",
+            "start": "2026.02",
+            "title": "야망솔루션 홈페이지",
+            "subtitle": "서비스·교육 자료 모음",
+            "href": "https://yamangsolution.com",
+            "media": {
+              "type": "image",
+              "asset": "yamangsolution",
+              "focus": "0% 0%"
+            }
+          },
+          {
             "id": "yamangsolution-career",
             "kind": "career",
             "start": "2026.01",
-            "title": "야망솔루션 대표",
-            "desc": "강의·개발 사업",
+            "title": "야망솔루션",
+            "subtitle": "대표 · 강의·개발 사업",
             "media": {
               "type": "wordmark",
               "text": "야망솔루션"
-            },
-            "href": "https://yamangsolution.com"
+            }
           }
         ]
       },
@@ -180,15 +205,28 @@
         "id": "y2025",
         "label": "2025",
         "entries": [
-          {
-            "id": "reconlabs",
-            "kind": "career",
-            "start": "2025.09",
+        {
+          "id": "reconlabs",
+          "kind": "career",
+          "start": "2025.09",
             "end": "2025.12",
             "title": "(주)리콘랩스",
-            "desc": "Software Engineer",
+            "subtitle": "Software Engineer",
             "media": {
-              "type": "placeholder"
+              "type": "image",
+              "asset": "reconlabs"
+            }
+          },
+          {
+            "id": "portfolio-chatbot",
+            "kind": "work",
+            "start": "2025.07",
+            "title": "개인 포트폴리오 사이트 (AI 챗봇)",
+            "subtitle": "개인 작업물 및 이력 관리",
+            "href": "https://portfolio.yamang02.com",
+            "media": {
+              "type": "image",
+              "asset": "chatbot"
             }
           },
           {
@@ -197,9 +235,10 @@
             "start": "2025.06",
             "end": "2025.09",
             "title": "Sesac 강동지점",
-            "desc": "Cloud 기반 Multi Modal AI 개발자 과정",
+            "subtitle": "Cloud 기반 Multi Modal AI 개발자 과정",
             "media": {
-              "type": "placeholder"
+              "type": "image",
+              "asset": "sesac"
             }
           },
           {
@@ -207,7 +246,7 @@
             "kind": "work",
             "start": "2025.02",
             "title": "성미회 아카이브",
-            "desc": "성균관대 순수미술 동아리 작품 아카이브",
+            "subtitle": "성균관대 순수미술 동아리 작품 아카이브",
             "href": "https://www.skkuartclub.kr/",
             "media": {
               "type": "image",
@@ -220,15 +259,30 @@
         "id": "y2023",
         "label": "2023",
         "entries": [
-          {
-            "id": "dit",
-            "kind": "career",
+        {
+          "id": "noroo-erp-transition",
+          "kind": "career",
+          "start": "2023.11",
+          "end": "2024.12",
+          "title": "노루페인트 ERP 전환 프로젝트",
+          "subtitle": "SAP LE 모듈 담당 및 유관 웹사이트 관리",
+          "media": {
+            "type": "keyword",
+            "icon": "erp",
+            "text": "ERP 전환"
+          }
+        },
+        {
+          "id": "dit",
+          "kind": "career",
             "start": "2023.07",
             "end": "2025.01",
             "title": "(주)디아이티",
-            "desc": "ERP·WEB 개발/유지보수",
+            "subtitle": "ERP·WEB 개발·유지보수",
             "media": {
-              "type": "placeholder"
+              "type": "keyword",
+              "icon": "database",
+              "text": "ERP · WEB"
             }
           }
         ]
@@ -243,9 +297,11 @@
             "start": "2022.11",
             "end": "2023.04",
             "title": "KH정보교육원",
-            "desc": "Java 기반 클라우드 융합 개발자 과정",
+            "subtitle": "Java 기반 클라우드 융합 개발자 과정",
             "media": {
-              "type": "placeholder"
+              "type": "keyword",
+              "icon": "code",
+              "text": "JAVA"
             }
           }
         ]
@@ -260,9 +316,11 @@
             "start": "2021.03",
             "end": "2022.03",
             "title": "배재고등학교",
-            "desc": "국어 교사",
+            "subtitle": "국어 교사",
             "media": {
-              "type": "placeholder"
+              "type": "keyword",
+              "icon": "book",
+              "text": "국어 수업"
             }
           },
           {
@@ -271,9 +329,11 @@
             "start": "2019.03",
             "end": "2021.03",
             "title": "상명고등학교",
-            "desc": "국어 교사",
+            "subtitle": "국어 교사",
             "media": {
-              "type": "placeholder"
+              "type": "keyword",
+              "icon": "briefcase",
+              "text": "첫 직장"
             }
           }
         ]

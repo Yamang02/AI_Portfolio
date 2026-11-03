@@ -28,10 +28,15 @@ export interface ProfileIntroContent {
   readonly roles: readonly ProfileIntroRole[];
 }
 
+export type ProfileHistoryImageAsset = 'artclub' | 'chatbot' | 'gbsa' | 'reconlabs' | 'sesac' | 'yamangsolution';
+
+export type ProfileHistoryIcon = 'database' | 'code' | 'briefcase' | 'book' | 'erp';
+
 export type ProfileHistoryMedia =
-  | { readonly type: 'image'; readonly asset: 'artclub' }
-  | { readonly type: 'video'; readonly asset: 'design' }
+  | { readonly type: 'image'; readonly asset: ProfileHistoryImageAsset; readonly focus?: string }
+  | { readonly type: 'video'; readonly asset: 'design'; readonly focus?: string }
   | { readonly type: 'wordmark'; readonly text: string }
+  | { readonly type: 'keyword'; readonly icon: ProfileHistoryIcon; readonly text: string }
   | { readonly type: 'placeholder' };
 
 interface ProfileHistoryEntryBase {
@@ -39,7 +44,7 @@ interface ProfileHistoryEntryBase {
   readonly start: string;
   readonly end?: string;
   readonly title: string;
-  readonly desc: string;
+  readonly subtitle: string;
   readonly media: ProfileHistoryMedia;
   readonly href?: string;
 }

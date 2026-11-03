@@ -10,12 +10,36 @@ const imageWidths = [400, 800];
 const videoWidth = 960;
 const videoDurationSeconds = 10;
 
-async function buildResponsiveImages(sourcePath, name) {
-  const source = sharp(sourcePath);
-  const sourceMetadata = await source.metadata();
+const photoSources = [
+  { file: 'artclub.png', name: 'artclub' },
+  { file: 'chatbot.png', name: 'chatbot' },
+  { file: 'gbsa.jpg', name: 'gbsa', crop: { left: 0.06, top: 0.19, width: 0.68 } },
+  { file: 'reconlabs.jpg', name: 'reconlabs', crop: { left: 0.264, top: 0.385, width: 0.44 } },
+  { file: 'sesac.jpg', name: 'sesac', crop: { left: 0.313, top: 0.442, width: 0.44 } },
+  { file: 'yamangsolution.png', name: 'yamangsolution', focus: { x: 0, y: 0 } },
+];
 
-  if (!sourceMetadata.width || !sourceMetadata.height) {
+async function buildResponsiveImages(sourcePath, name, { focus = { x: 0.5, y: 0.5 }, crop } = {}) {
+  const { data: source, info } = await sharp(sourcePath).rotate().toBuffer({ resolveWithObject: true });
+
+  if (!info.width || !info.height) {
     throw new Error('Could not read image dimensions: ' + sourcePath);
+  }
+
+  const frameWidth = crop ? Math.round(info.width * crop.width) : info.width;
+  const cropHeight = Math.min(info.height, Math.round(frameWidth * 10 / 16));
+  const cropWidth = Math.min(frameWidth, Math.round(cropHeight * 16 / 10));
+  const region = crop
+    ? { left: Math.round(info.width * crop.left), top: Math.round(info.height * crop.top), width: cropWidth, height: cropHeight }
+    : {
+      left: Math.round((info.width - cropWidth) * focus.x),
+      top: Math.round((info.height - cropHeight) * focus.y),
+      width: cropWidth,
+      height: cropHeight,
+    };
+
+  if (region.left + region.width > info.width || region.top + region.height > info.height) {
+    throw new Error('Crop region exceeds the source image: ' + sourcePath);
   }
 
   const outputs = [];
@@ -24,10 +48,7 @@ async function buildResponsiveImages(sourcePath, name) {
     for (const format of ['avif', 'webp']) {
       const filename = name + '-' + width + '.' + format;
       const destination = path.join(outputDirectory, filename);
-      const resized = sharp(sourcePath).resize(width, Math.round(width * 10 / 16), {
-        fit: 'cover',
-        position: 'centre',
-      });
+      const resized = sharp(source).extract(region).resize(width, Math.round(width * 10 / 16), { fit: 'cover' });
 
       if (format === 'avif') {
         await resized.avif({ quality: 45, effort: 6 }).toFile(destination);
@@ -113,7 +134,12 @@ async function buildVideoAssets() {
 }
 
 await mkdir(outputDirectory, { recursive: true });
-const images = await buildResponsiveImages(path.join(sourceDirectory, 'artclub.png'), 'artclub');
+const images = [];
+
+for (const photo of photoSources) {
+  images.push(...await buildResponsiveImages(path.join(sourceDirectory, photo.file), photo.name, photo));
+}
+
 const video = await buildVideoAssets();
 
 console.log(JSON.stringify({ outputDirectory, assets: [...images, ...video] }, null, 2));

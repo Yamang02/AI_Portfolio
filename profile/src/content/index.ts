@@ -4,6 +4,8 @@ import type {
   ProfileIntroRoleId,
   ProfileContent,
   ProfileHistoryEntry,
+  ProfileHistoryIcon,
+  ProfileHistoryImageAsset,
   ProfileHistoryMedia,
   ProfileHistoryStep,
 } from './types';
@@ -24,21 +26,46 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
+const HISTORY_IMAGE_ASSETS = ['artclub', 'chatbot', 'gbsa', 'reconlabs', 'sesac', 'yamangsolution'] as const satisfies readonly ProfileHistoryImageAsset[];
+const HISTORY_ICONS = ['database', 'code', 'briefcase', 'book', 'erp'] as const satisfies readonly ProfileHistoryIcon[];
+
+function isOneOf<T extends string>(value: unknown, options: readonly T[]): value is T {
+  return typeof value === 'string' && (options as readonly string[]).includes(value);
+}
+
+function narrowHistoryFocus(value: Record<string, unknown>): string | undefined {
+  if (typeof value.focus === 'undefined') {
+    return undefined;
+  }
+
+  if (typeof value.focus !== 'string' || value.focus.trim().length === 0) {
+    throw new Error('Profile history media focus must be a non-empty object-position value.');
+  }
+
+  return value.focus;
+}
+
 function narrowHistoryMedia(value: unknown): ProfileHistoryMedia {
   if (!isRecord(value)) {
     throw new Error('Profile history media must be an object.');
   }
 
-  if (value.type === 'image' && value.asset === 'artclub') {
-    return { type: 'image', asset: 'artclub' };
+  if (value.type === 'image' && isOneOf(value.asset, HISTORY_IMAGE_ASSETS)) {
+    const focus = narrowHistoryFocus(value);
+    return { type: 'image', asset: value.asset, ...(focus ? { focus } : {}) };
   }
 
   if (value.type === 'video' && value.asset === 'design') {
-    return { type: 'video', asset: 'design' };
+    const focus = narrowHistoryFocus(value);
+    return { type: 'video', asset: 'design', ...(focus ? { focus } : {}) };
   }
 
   if (value.type === 'wordmark' && typeof value.text === 'string') {
     return { type: 'wordmark', text: value.text };
+  }
+
+  if (value.type === 'keyword' && isOneOf(value.icon, HISTORY_ICONS) && typeof value.text === 'string' && value.text.trim().length > 0) {
+    return { type: 'keyword', icon: value.icon, text: value.text };
   }
 
   if (value.type === 'placeholder') {
@@ -56,7 +83,7 @@ function narrowHistoryEntry(value: unknown): ProfileHistoryEntry {
     || (typeof value.end !== 'undefined' && (typeof value.end !== 'string' || !/^\d{4}\.\d{2}$/.test(value.end)))
     || (value.kind !== 'career' && value.kind !== 'course' && value.kind !== 'work')
     || typeof value.title !== 'string'
-    || typeof value.desc !== 'string'
+    || typeof value.subtitle !== 'string'
     || (typeof value.href !== 'undefined' && typeof value.href !== 'string')) {
     throw new Error('Profile history entry has invalid dates or identifiers.');
   }
@@ -66,7 +93,7 @@ function narrowHistoryEntry(value: unknown): ProfileHistoryEntry {
     start: value.start,
     ...(typeof value.end === 'string' ? { end: value.end } : {}),
     title: value.title,
-    desc: value.desc,
+    subtitle: value.subtitle,
     media: narrowHistoryMedia(value.media),
   };
 
