@@ -38,34 +38,15 @@ interface ProfileHistoryEntryBase {
   readonly id: string;
   readonly start: string;
   readonly end?: string;
-}
-
-export interface ProfileCareerHistoryEntry extends ProfileHistoryEntryBase {
-  readonly kind: 'career';
-  readonly org: string;
+  readonly title: string;
   readonly desc: string;
   readonly media: ProfileHistoryMedia;
   readonly href?: string;
 }
 
-export interface ProfileCourseHistoryEntry extends ProfileHistoryEntryBase {
-  readonly kind: 'course';
-  readonly org: string;
-  readonly desc: string;
-}
-
-export interface ProfileWorkHistoryEntry extends ProfileHistoryEntryBase {
-  readonly kind: 'work';
-  readonly title: string;
-  readonly desc: string;
-  readonly href: string;
-  readonly media: ProfileHistoryMedia;
-}
-
 export type ProfileHistoryEntry =
-  | ProfileCareerHistoryEntry
-  | ProfileCourseHistoryEntry
-  | ProfileWorkHistoryEntry;
+  | (ProfileHistoryEntryBase & { readonly kind: 'career' | 'course' })
+  | (ProfileHistoryEntryBase & { readonly kind: 'work'; readonly href: string });
 
 export interface ProfileHistoryStep {
   readonly id: string;

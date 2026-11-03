@@ -104,7 +104,6 @@ export function IntroSection({ content }: IntroSectionProps) {
       aria-labelledby="intro-name"
       className="px-6 pb-24 md:px-12 lg:px-20"
       id="identity"
-      style={{ paddingTop: '12svh' }}
     >
       <div className="mx-auto max-w-screen-2xl">
         <IntroGreeting activeIndex={cycle.activeIndex} content={content} />

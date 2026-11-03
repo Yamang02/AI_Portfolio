@@ -53,7 +53,11 @@ function narrowHistoryEntry(value: unknown): ProfileHistoryEntry {
     || typeof value.id !== 'string'
     || typeof value.start !== 'string'
     || !/^\d{4}\.\d{2}$/.test(value.start)
-    || (typeof value.end !== 'undefined' && (typeof value.end !== 'string' || !/^\d{4}\.\d{2}$/.test(value.end)))) {
+    || (typeof value.end !== 'undefined' && (typeof value.end !== 'string' || !/^\d{4}\.\d{2}$/.test(value.end)))
+    || (value.kind !== 'career' && value.kind !== 'course' && value.kind !== 'work')
+    || typeof value.title !== 'string'
+    || typeof value.desc !== 'string'
+    || (typeof value.href !== 'undefined' && typeof value.href !== 'string')) {
     throw new Error('Profile history entry has invalid dates or identifiers.');
   }
 
@@ -61,56 +65,32 @@ function narrowHistoryEntry(value: unknown): ProfileHistoryEntry {
     id: value.id,
     start: value.start,
     ...(typeof value.end === 'string' ? { end: value.end } : {}),
+    title: value.title,
+    desc: value.desc,
+    media: narrowHistoryMedia(value.media),
   };
 
-  if (value.kind === 'career'
-    && typeof value.org === 'string'
-    && typeof value.desc === 'string'
-    && (typeof value.href === 'undefined' || typeof value.href === 'string')) {
-    return {
-      ...common,
-      kind: 'career',
-      org: value.org,
-      desc: value.desc,
-      media: narrowHistoryMedia(value.media),
-      ...(typeof value.href === 'string' ? { href: value.href } : {}),
-    };
+  if (value.kind === 'work') {
+    if (typeof value.href !== 'string' || value.href.length === 0) {
+      throw new Error('Profile history work entry ' + value.id + ' requires an href.');
+    }
+
+    return { ...common, kind: value.kind, href: value.href };
   }
 
-  if (value.kind === 'course'
-    && typeof value.org === 'string'
-    && typeof value.desc === 'string') {
-    return { ...common, kind: 'course', org: value.org, desc: value.desc };
-  }
-
-  if (value.kind === 'work'
-    && typeof value.title === 'string'
-    && typeof value.desc === 'string'
-    && typeof value.href === 'string') {
-    return {
-      ...common,
-      kind: 'work',
-      title: value.title,
-      desc: value.desc,
-      href: value.href,
-      media: narrowHistoryMedia(value.media),
-    };
-  }
-
-  throw new Error('Profile history entry does not match a supported kind.');
+  return {
+    ...common,
+    kind: value.kind,
+    ...(typeof value.href === 'string' ? { href: value.href } : {}),
+  };
 }
 
-const HISTORY_SLOTS_PER_SIDE = 2;
-
 function narrowHistoryStep(step: typeof contentData.history.steps[number]): ProfileHistoryStep {
-  const entries = step.entries.map(narrowHistoryEntry);
-  const workCount = entries.filter(entry => entry.kind === 'work').length;
-
-  if (workCount > HISTORY_SLOTS_PER_SIDE || entries.length - workCount > HISTORY_SLOTS_PER_SIDE) {
-    throw new Error('Profile history step ' + step.label + ' exceeds ' + HISTORY_SLOTS_PER_SIDE + ' entries per side.');
+  if (step.entries.length > 4) {
+    throw new Error('Profile history step ' + step.label + ' exceeds 4 entries.');
   }
 
-  return { ...step, entries };
+  return { ...step, entries: step.entries.map(narrowHistoryEntry) };
 }
 
 const intro = {

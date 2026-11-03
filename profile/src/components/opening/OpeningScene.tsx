@@ -376,6 +376,7 @@ export function OpeningScene({ content }: OpeningSceneProps) {
     <section
       aria-label={content.heading}
       className="relative flex h-svh w-full items-center justify-center"
+      id="opening"
       ref={sectionRef}
       style={{ height: '100svh', overflow: 'clip' }}
     >

@@ -1,28 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, useMotionValueEvent, useReducedMotion, useScroll } from 'motion/react';
 import type {
-  ProfileCareerHistoryEntry,
-  ProfileCourseHistoryEntry,
   ProfileHistoryContent,
   ProfileHistoryStep,
-  ProfileWorkHistoryEntry,
 } from '../../content/types';
-import { BRANCH_RISE_PX, BRANCH_TOP_PX, HistoryBranchLine } from './HistoryBranchLine';
 import { HistoryCard } from './HistoryCard';
-import { HistoryNode } from './HistoryNode';
+import { HistoryConnector } from './HistoryConnector';
 import { HistoryStem } from './HistoryStem';
 
 interface HistorySectionProps {
   readonly content: ProfileHistoryContent;
-}
-
-interface HistoryRowProps<Entry> {
-  readonly entry: Entry;
-  readonly slot: number;
-  readonly isActive: boolean;
-  readonly prefersReducedMotion: boolean;
-  readonly presentLabel: string;
-  readonly linkSuffix: string;
 }
 
 interface HistoryStepPanelProps {
@@ -42,86 +29,41 @@ interface HistoryYearHeaderProps {
 const STEP_SVH = 45;
 const ENTRY_SNAP_VIEWPORT_RATIO = 0.55;
 const SCROLL_IDLE_MS = 140;
-const CAREER_STROKE_PX = 4;
-const WORK_STROKE_PX = 2;
-const CAREER_DOT_PX = 24;
-const SLOT_ROW_CLASSES = ['md:row-start-1', 'md:row-start-2'] as const;
-
-function careerDotTop(rise: number) {
-  return BRANCH_TOP_PX + rise + CAREER_STROKE_PX / 2 - CAREER_DOT_PX / 2;
-}
-
-function HistoryCareerRow({ entry, slot, isActive, prefersReducedMotion, presentLabel, linkSuffix }: HistoryRowProps<ProfileCareerHistoryEntry | ProfileCourseHistoryEntry>) {
-  const rowClass = 'relative md:col-start-1 md:pr-10 ' + SLOT_ROW_CLASSES[slot];
-  const dotTransition = prefersReducedMotion ? 'none' : 'background-color 500ms ease-out';
-
-  if (entry.kind === 'course') {
-    return (
-      <li className={rowClass}>
-        <span aria-hidden="true" className="absolute -left-[1.875rem] top-1 size-4 -translate-x-1/2 rounded-full border-[3px] border-primary bg-surface md:-right-6 md:left-auto md:translate-x-1/2" />
-        <HistoryNode entry={entry} presentLabel={presentLabel} />
-      </li>
-    );
-  }
-
-  return (
-    <li className={rowClass}>
-      <span
-        aria-hidden="true"
-        className={'absolute -left-[1.875rem] z-10 size-6 -translate-x-1/2 rounded-full border-4 border-primary md:hidden ' + (isActive ? 'bg-primary' : 'bg-surface')}
-        style={{ top: careerDotTop(BRANCH_RISE_PX.mobile), transition: dotTransition }}
-      />
-      <span
-        aria-hidden="true"
-        className={'absolute -right-6 z-10 hidden size-6 translate-x-1/2 rounded-full border-4 border-primary md:block ' + (isActive ? 'bg-primary' : 'bg-surface')}
-        style={{ top: careerDotTop(BRANCH_RISE_PX.desktop), transition: dotTransition }}
-      />
-      <HistoryBranchLine isVisible={isActive} prefersReducedMotion={prefersReducedMotion} side="left" strokeWidth={CAREER_STROKE_PX} />
-      <HistoryCard
-        desc={entry.desc}
-        end={entry.end}
-        href={entry.href}
-        isActive={isActive}
-        linkSuffix={linkSuffix}
-        media={entry.media}
-        presentLabel={presentLabel}
-        side="left"
-        start={entry.start}
-        title={entry.org}
-      />
-    </li>
-  );
-}
-
-function HistoryWorkRow({ entry, slot, isActive, prefersReducedMotion, presentLabel, linkSuffix }: HistoryRowProps<ProfileWorkHistoryEntry>) {
-  return (
-    <li className={'relative md:col-start-3 md:pl-10 ' + SLOT_ROW_CLASSES[slot]}>
-      <HistoryBranchLine isVisible={isActive} prefersReducedMotion={prefersReducedMotion} side="right" strokeWidth={WORK_STROKE_PX} />
-      <HistoryCard
-        desc={entry.desc}
-        end={entry.end}
-        href={entry.href}
-        isActive={isActive}
-        linkSuffix={linkSuffix}
-        media={entry.media}
-        presentLabel={presentLabel}
-        side="right"
-        start={entry.start}
-        title={entry.title}
-      />
-    </li>
-  );
-}
 
 function HistoryStepPanel({ step, isActive, prefersReducedMotion, presentLabel, linkSuffix }: HistoryStepPanelProps) {
-  const careers = step.entries.filter((entry): entry is ProfileCareerHistoryEntry | ProfileCourseHistoryEntry => entry.kind !== 'work');
-  const works = step.entries.filter((entry): entry is ProfileWorkHistoryEntry => entry.kind === 'work');
-  const rowProps = { isActive, prefersReducedMotion, presentLabel, linkSuffix };
+  const entries = step.entries
+    .map((entry, contentIndex) => ({ entry, contentIndex }))
+    .sort((left, right) => right.entry.start.localeCompare(left.entry.start) || left.contentIndex - right.contentIndex);
 
   return (
-    <ul className="grid grid-cols-1 gap-y-6 pl-11 md:grid-cols-[minmax(0,1fr)_3rem_minmax(0,1fr)] md:gap-y-8 md:pl-0">
-      {careers.map((entry, slot) => <HistoryCareerRow entry={entry} key={entry.id} slot={slot} {...rowProps} />)}
-      {works.map((entry, slot) => <HistoryWorkRow entry={entry} key={entry.id} slot={slot} {...rowProps} />)}
+    <ul className="grid grid-cols-1 gap-y-4 pl-11 md:auto-rows-[88px] md:grid-cols-[minmax(0,1fr)_3rem_minmax(0,1fr)] md:gap-y-0 md:pl-0">
+      {entries.map(({ entry }, index) => {
+        const side = index % 2 === 0 ? 'right' : 'left';
+        const desktopSideClass = side === 'right' ? 'md:col-start-3 md:pl-10' : 'md:col-start-1 md:pr-10';
+
+        return (
+          <li className={'relative ' + desktopSideClass} key={entry.id} style={{ gridRow: index + 1 }}>
+            <HistoryConnector
+              isActive={isActive}
+              kind={entry.kind}
+              prefersReducedMotion={prefersReducedMotion}
+              side={side}
+            />
+            <HistoryCard
+              desc={entry.desc}
+              end={entry.end}
+              href={entry.href}
+              isActive={isActive}
+              linkSuffix={linkSuffix}
+              media={entry.media}
+              presentLabel={presentLabel}
+              side={side}
+              start={entry.start}
+              title={entry.title}
+            />
+          </li>
+        );
+      })}
     </ul>
   );
 }

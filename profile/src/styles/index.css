@@ -1,5 +1,24 @@
 @import "tailwindcss";
 
+:root {
+  --profile-nav-height: 54px;
+  --profile-intro-scroll-gap: 16px;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+#identity {
+  scroll-margin-top: calc(var(--profile-nav-height) + var(--profile-intro-scroll-gap));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
 body {
   background-color: var(--color-surface);
 }

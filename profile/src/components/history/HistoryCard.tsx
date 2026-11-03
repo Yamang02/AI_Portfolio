@@ -110,7 +110,7 @@ function HistoryMedia({ media, isActive }: HistoryMediaProps) {
   );
 }
 
-export function HistoryPeriod({ start, end, presentLabel }: HistoryPeriodProps) {
+function HistoryPeriod({ start, end, presentLabel }: HistoryPeriodProps) {
   return (
     <span className="whitespace-nowrap font-label text-xs tabular-nums text-on-surface-variant md:text-sm">
       <time dateTime={start.replace('.', '-')}>{start}</time>
@@ -128,10 +128,7 @@ export function HistoryCard({ title, desc, start, end, href, media, side, isActi
       <HistoryMedia isActive={isActive} media={media} />
       <div className={'flex min-w-0 flex-1 flex-col gap-1 md:gap-1.5 md:py-1 ' + (isLeft ? 'md:items-end md:text-right' : '')}>
         <div className={'flex w-full items-start gap-3 ' + (isLeft ? 'justify-between md:flex-row-reverse md:justify-start' : 'justify-between')}>
-          <h4 className={isLeft
-            ? 'font-body text-base font-semibold leading-tight text-on-surface md:text-xl'
-            : 'font-headline text-lg font-semibold leading-tight text-on-surface md:text-2xl'}
-          >
+          <h4 className="font-headline text-lg font-semibold leading-tight text-on-surface md:text-2xl">
             {title}
           </h4>
           {href && (

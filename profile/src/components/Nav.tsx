@@ -34,11 +34,11 @@ export function Nav({ content }: NavProps) {
 
   return (
     <nav className="fixed top-0 z-50 w-full bg-surface/80 transition-all duration-300 dark:bg-inverse-surface/80 backdrop-blur-xl">
-      <div className="mx-auto flex w-full max-w-screen-2xl items-center border-b border-outline-variant/20 px-8 py-6">
+      <div className="mx-auto flex w-full max-w-screen-2xl items-center border-b border-outline-variant/20 px-8 py-3 min-h-[54px]">
         <div className="flex-1">
           <a
             className="text-on-surface tracking-tighter transition-colors duration-300 hover:text-primary dark:text-surface-bright font-headline text-xl font-bold"
-            href="#"
+            href="#opening"
           >
             <span id="logo-text" style={{ opacity: isLogoVisible ? 1 : 0, transition: 'opacity 0.4s ease' }}>
               {logoText}
@@ -65,7 +65,7 @@ export function Nav({ content }: NavProps) {
           <div className="group relative">
             <a
               aria-label={content.homeLink.label}
-              className="inline-flex size-9 items-center justify-center rounded-full bg-primary text-on-primary transition-all duration-300 hover:bg-primary-dim"
+              className="inline-flex size-6 items-center justify-center rounded-full text-on-surface-variant transition-colors duration-300 hover:bg-surface-container-high hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary dark:text-surface-bright dark:hover:bg-inverse-surface"
               href={content.homeLink.href}
               rel="noreferrer"
               target="_blank"

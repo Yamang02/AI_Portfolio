@@ -16,7 +16,7 @@ function verbSeparator(index: number, count: number) {
 
 export function IntroGreeting({ content, activeIndex }: IntroGreetingProps) {
   return (
-    <div className="pb-16 pt-16 text-center font-headline text-[clamp(1.25rem,2vw,1.75rem)] leading-[1.6] md:pb-24 md:pt-24">
+    <div className="pb-16 pt-2 text-center font-headline text-[clamp(1.25rem,2vw,1.75rem)] leading-[1.6] md:pb-24 md:pt-4">
       <div className="text-on-surface">
         {content.greeting}{' '}
         <h1 className="inline font-semibold" id="intro-name">{content.name}</h1>

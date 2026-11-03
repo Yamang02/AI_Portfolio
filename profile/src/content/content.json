@@ -27,7 +27,7 @@
         "id": "educator",
         "label": "Educator",
         "verb": "explain",
-        "fact": "고등학교 국어교사 · 바이브코딩 과외",
+        "fact": "고등학교 국어교사 · 교육",
         "imageAlt": "교육자 이정준",
         "sceneFocus": "66% 52%",
         "portraitFocus": "66% 37%",
@@ -62,6 +62,10 @@
       "Yamang02"
     ],
     "navigation": [
+      {
+        "href": "#opening",
+        "label": "오프닝"
+      },
       {
         "href": "#identity",
         "label": "소개"
@@ -162,7 +166,7 @@
             "id": "yamangsolution-career",
             "kind": "career",
             "start": "2026.01",
-            "org": "야망솔루션 대표",
+            "title": "야망솔루션 대표",
             "desc": "강의·개발 사업",
             "media": {
               "type": "wordmark",
@@ -181,7 +185,7 @@
             "kind": "career",
             "start": "2025.09",
             "end": "2025.12",
-            "org": "(주)리콘랩스",
+            "title": "(주)리콘랩스",
             "desc": "Software Engineer",
             "media": {
               "type": "placeholder"
@@ -192,8 +196,11 @@
             "kind": "course",
             "start": "2025.06",
             "end": "2025.09",
-            "org": "Sesac 강동지점",
-            "desc": "Cloud 기반 Multi Modal AI 개발자 과정"
+            "title": "Sesac 강동지점",
+            "desc": "Cloud 기반 Multi Modal AI 개발자 과정",
+            "media": {
+              "type": "placeholder"
+            }
           },
           {
             "id": "artclub",
@@ -218,7 +225,7 @@
             "kind": "career",
             "start": "2023.07",
             "end": "2025.01",
-            "org": "(주)디아이티",
+            "title": "(주)디아이티",
             "desc": "ERP·WEB 개발/유지보수",
             "media": {
               "type": "placeholder"
@@ -235,8 +242,11 @@
             "kind": "course",
             "start": "2022.11",
             "end": "2023.04",
-            "org": "KH정보교육원",
-            "desc": "Java 기반 클라우드 융합 개발자 과정"
+            "title": "KH정보교육원",
+            "desc": "Java 기반 클라우드 융합 개발자 과정",
+            "media": {
+              "type": "placeholder"
+            }
           }
         ]
       },
@@ -249,7 +259,7 @@
             "kind": "career",
             "start": "2021.03",
             "end": "2022.03",
-            "org": "배재고등학교",
+            "title": "배재고등학교",
             "desc": "국어 교사",
             "media": {
               "type": "placeholder"
@@ -260,7 +270,7 @@
             "kind": "career",
             "start": "2019.03",
             "end": "2021.03",
-            "org": "상명고등학교",
+            "title": "상명고등학교",
             "desc": "국어 교사",
             "media": {
               "type": "placeholder"
