@@ -1,12 +1,11 @@
 import { useCallback, useState } from 'react';
 import { MotionConfig } from 'motion/react';
 import { profileContent } from './content';
-import { ActivitiesSection } from './components/ActivitiesSection';
 import { ConnectSection } from './components/ConnectSection';
 import { ContactModal } from './components/ContactModal';
 import { Footer } from './components/Footer';
+import { HistorySection } from './components/history/HistorySection';
 import { IntroSection } from './components/intro/IntroSection';
-import { InterestsSection } from './components/InterestsSection';
 import { Nav } from './components/Nav';
 import { OpeningScene } from './components/opening/OpeningScene';
 import './styles/index.css';
@@ -23,8 +22,7 @@ export function App() {
         <main>
           <OpeningScene content={profileContent.opening} />
           <IntroSection content={profileContent.intro} />
-          <ActivitiesSection activities={profileContent.activities} siteContent={profileContent.site} />
-          <InterestsSection interests={profileContent.interests} siteContent={profileContent.site} />
+          <HistorySection content={profileContent.history} />
           <ConnectSection content={profileContent.site.connect} onOpenContact={openContact} />
         </main>
         <Footer content={profileContent.site.footer} />

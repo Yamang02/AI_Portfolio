@@ -57,7 +57,6 @@
   transition:
     object-position 500ms ease-in-out,
     transform 500ms ease-in-out,
-    filter 500ms ease-in-out,
     opacity 500ms ease-in-out;
 }
 

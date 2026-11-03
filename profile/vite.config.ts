@@ -10,5 +10,6 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
+    assetsInlineLimit: filePath => filePath.replaceAll('\\', '/').includes('/src/assets/opening/') ? false : undefined,
   },
 });

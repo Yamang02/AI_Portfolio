@@ -3,6 +3,7 @@ import type { FormEvent } from 'react';
 import type { ProfileSiteContent } from '../content/types';
 import { useModalBehavior } from '../hooks/useModalBehavior';
 import { sendContactEmail } from '../lib/emailjs';
+import { Icon } from './Icon';
 
 interface ContactModalProps {
   readonly content: ProfileSiteContent['contact'];
@@ -87,7 +88,7 @@ export function ContactModal({ content, closeLabel, isOpen, onClose }: ContactMo
             onClick={closeModal}
             type="button"
           >
-            <span className="material-symbols-outlined text-xl leading-none text-on-surface-variant">close</span>
+            <Icon className="text-xl text-on-surface-variant" name="close" />
           </button>
         </div>
         <form className="space-y-5 px-8 py-6" onSubmit={handleSubmit} ref={formRef}>

@@ -81,10 +81,6 @@ body {
   font-display: swap;
 }
 
-.material-symbols-outlined {
-  font-variation-settings: "FILL" 0, "wght" 200, "GRAD" 0, "opsz" 24;
-}
-
 .text-reveal {
   clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%);
 }

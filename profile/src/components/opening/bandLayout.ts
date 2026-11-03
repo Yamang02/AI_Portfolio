@@ -5,6 +5,7 @@ export type OpeningTearId = 'first' | 'second';
 export type OpeningSweepDirection = 'left-to-right' | 'right-to-left';
 
 export const OPENING_COLUMN_COUNT = 64;
+export const OPENING_FRAME_SIZE = 'min(calc(100vw - 32px), calc(100svh - 176px))';
 export const OPENING_SWEEP_DIRECTIONS: Record<OpeningBandId, OpeningSweepDirection> = {
   top: 'left-to-right',
   middle: 'left-to-right',

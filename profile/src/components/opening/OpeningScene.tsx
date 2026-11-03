@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { animate, useReducedMotion } from 'motion/react';
 import type { ProfileOpening } from '../../content/types';
-import { OPENING_BAND_LAYOUT, OPENING_FRAME_LAYOUT } from './bandLayout';
+import { OPENING_BAND_LAYOUT, OPENING_FRAME_LAYOUT, OPENING_FRAME_SIZE } from './bandLayout';
 import type { OpeningBandId, OpeningTearId } from './bandLayout';
 import { BandPicture } from './BandPicture';
 import { OpeningPicture } from './OpeningPicture';
 import { decodeFinalTitleImages, FinalTitleBands } from './FinalTitleBands';
+import type { FinalTitleBandId } from './FinalTitleBands';
+import { decodeOpeningImages, loadOpeningImages } from './openingImages';
 import { ScrollHint } from './ScrollHint';
 import { TearFibers, TornPiece, getAllFiberUrls, getPieceBackUrl } from './TornPiece';
 import {
@@ -26,17 +28,10 @@ type PieceImageUrls = Record<OpeningBandId, string>;
 
 const START_DELAY_MS = 600;
 const FALLBACK_FADE_DURATION = 0.6;
-const OPENING_FRAME_SIZE = 'min(calc(100vw - 32px), calc(100svh - 176px))';
 const REPLAY_BUTTON_LABEL = '오프닝 애니메이션 다시 재생';
 const REPLAY_ICON_PATH = 'M18.364 3.05762C18.7782 3.05762 19.114 3.3934 19.114 3.80762V8.05026C19.114 8.46447 18.7782 8.80026 18.364 8.80026H14.1213C13.7071 8.80026 13.3713 8.46447 13.3713 8.05026C13.3713 7.63604 13.7071 7.30026 14.1213 7.30026H16.4817C13.6363 5.05718 9.4987 5.24825 6.87348 7.87348C4.04217 10.7048 4.04217 15.2952 6.87348 18.1265C9.70478 20.9578 14.2952 20.9578 17.1265 18.1265C19.0234 16.2297 19.6504 13.5428 19.0039 11.1219C18.897 10.7217 19.1348 10.3106 19.535 10.2038C19.9352 10.0969 20.3462 10.3347 20.4531 10.7349C21.2321 13.6518 20.478 16.8964 18.1872 19.1872C14.7701 22.6043 9.2299 22.6043 5.81282 19.1872C2.39573 15.7701 2.39573 10.2299 5.81282 6.81282C9.04483 3.5808 14.1762 3.40576 17.614 6.28768V3.80762C17.614 3.3934 17.9497 3.05762 18.364 3.05762Z';
 const TEAR_IDS: readonly OpeningTearId[] = ['first', 'second'];
 const SCROLL_HINT_DELAY_MS = OPENING_TEMPO.finalTitles.bottomDelayMs + OPENING_TEMPO.scrollHint.delayAfterTitleMs;
-
-function decodeUrl(url: string) {
-  const image = new Image();
-  image.src = url;
-  return image.decode();
-}
 
 function waitForPaint() {
   return new Promise<void>(resolve => {
@@ -97,7 +92,7 @@ export function OpeningScene({ content }: OpeningSceneProps) {
   const prefersReducedMotion = useReducedMotion();
   const [phase, setPhase] = useState<OpeningPhase>('static');
   const [pieceImageUrls, setPieceImageUrls] = useState<PieceImageUrls | null>(null);
-  const [finalTitlesReady, setFinalTitlesReady] = useState(false);
+  const [readyTitleIds, setReadyTitleIds] = useState<readonly FinalTitleBandId[]>([]);
   const [hasReachedFinal, setHasReachedFinal] = useState(false);
   const [isScrollHintDue, setIsScrollHintDue] = useState(false);
   const [hasScrolled, setHasScrolled] = useState(false);
@@ -121,14 +116,24 @@ export function OpeningScene({ content }: OpeningSceneProps) {
   }, []);
 
   useEffect(() => {
-    if (phase !== 'done' || !finalTitlesReady) {
+    const controller = new AbortController();
+    void decodeFinalTitleImages(controller.signal).then(ids => {
+      if (!controller.signal.aborted) {
+        setReadyTitleIds(ids);
+      }
+    });
+    return () => controller.abort();
+  }, []);
+
+  useEffect(() => {
+    if (phase !== 'done') {
       return;
     }
 
     const timer = window.setTimeout(() => setIsScrollHintDue(true), SCROLL_HINT_DELAY_MS);
 
     return () => window.clearTimeout(timer);
-  }, [phase, finalTitlesReady]);
+  }, [phase]);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -162,6 +167,7 @@ export function OpeningScene({ content }: OpeningSceneProps) {
     let hasStarted = false;
     let startTimer: number | undefined;
     let fadeControls: ReturnType<typeof animate> | undefined;
+    const controller = new AbortController();
 
     const start = () => {
       hasStarted = true;
@@ -211,18 +217,8 @@ export function OpeningScene({ content }: OpeningSceneProps) {
     };
 
     const sceneImages = Array.from(frame.querySelectorAll<HTMLImageElement>('[data-opening-image]'));
-    const animationOnlyUrls = prefersReducedMotion
-      ? []
-      : [...OPENING_PIECE_IDS.map(getPieceBackUrl), ...getAllFiberUrls()];
-    const finalTitleImages = decodeFinalTitleImages();
-
     document.addEventListener('visibilitychange', handleVisibilityChange);
-    void Promise.all([
-      ...sceneImages.map(image => image.decode()),
-      ...animationOnlyUrls.map(decodeUrl),
-      finalTitleImages,
-    ]).then(() => {
-      setFinalTitlesReady(true);
+    void decodeOpeningImages(sceneImages, controller.signal).then(() => {
       isReady = true;
       startWhenReady();
     }).catch(() => {
@@ -234,6 +230,7 @@ export function OpeningScene({ content }: OpeningSceneProps) {
 
     return () => {
       isDisposed = true;
+      controller.abort();
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       fadeControls?.stop();
 
@@ -338,8 +335,13 @@ export function OpeningScene({ content }: OpeningSceneProps) {
 
     let isDisposed = false;
     let controls: ReturnType<typeof animate> | undefined;
+    const controller = new AbortController();
 
     const run = async () => {
+      await loadOpeningImages([
+        ...OPENING_PIECE_IDS.map(getPieceBackUrl),
+        ...getAllFiberUrls(),
+      ], controller.signal);
       await waitForPaint();
 
       if (isDisposed) {
@@ -356,10 +358,16 @@ export function OpeningScene({ content }: OpeningSceneProps) {
       }
     };
 
-    void run();
+    void run().catch(() => {
+      if (!isDisposed) {
+        setHasReachedFinal(true);
+        setPhase('done');
+      }
+    });
 
     return () => {
       isDisposed = true;
+      controller.abort();
       controls?.stop();
     };
   }, [phase]);
@@ -430,12 +438,12 @@ export function OpeningScene({ content }: OpeningSceneProps) {
             </div>
           )}
 
-          {phase === 'done' && finalTitlesReady && (
-            <FinalTitleBands />
+          {phase === 'done' && (
+            <FinalTitleBands readyTitleIds={readyTitleIds} />
           )}
         </div>
 
-        {hasReachedFinal && finalTitlesReady && (
+        {hasReachedFinal && (
           <button
             aria-disabled={phase !== 'done'}
             aria-label={REPLAY_BUTTON_LABEL}

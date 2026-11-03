@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { ProfileSiteContent } from '../content/types';
 import { useScrollSpy } from '../hooks/useScrollSpy';
+import { Icon } from './Icon';
 
 interface NavProps {
   readonly content: ProfileSiteContent;
@@ -69,7 +70,7 @@ export function Nav({ content }: NavProps) {
               rel="noreferrer"
               target="_blank"
             >
-              <span className="material-symbols-outlined text-xl">home</span>
+              <Icon className="text-xl" name="home" />
             </a>
             <span className="pointer-events-none absolute right-0 top-full mt-2 whitespace-nowrap bg-inverse-surface px-3 py-1.5 font-label text-xs text-inverse-on-surface opacity-0 transition-opacity duration-200 group-hover:opacity-100">
               {content.homeLink.label}

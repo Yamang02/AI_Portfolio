@@ -1,4 +1,5 @@
 import type { OpeningBandId } from './bandLayout';
+import { OPENING_FRAME_SIZE } from './bandLayout';
 import { getOpeningAssetUrl } from './openingAssets';
 
 type OpeningPictureProps = {
@@ -7,7 +8,7 @@ type OpeningPictureProps = {
 };
 
 const IMAGE_WIDTHS = [640, 1280, 2048] as const;
-const sizes = '(max-width: 720px) min(calc(100vw - 32px), calc(100svh - 176px)), calc(100svh - 176px)';
+const sizes = OPENING_FRAME_SIZE;
 
 export function getOpeningPieceImageUrl(
   pieceId: OpeningBandId,

@@ -28,60 +28,56 @@ export interface ProfileIntroContent {
   readonly roles: readonly ProfileIntroRole[];
 }
 
-interface ActivityBase {
+export type ProfileHistoryMedia =
+  | { readonly type: 'image'; readonly asset: 'artclub' }
+  | { readonly type: 'video'; readonly asset: 'design' }
+  | { readonly type: 'wordmark'; readonly text: string }
+  | { readonly type: 'placeholder' };
+
+interface ProfileHistoryEntryBase {
   readonly id: string;
-  readonly badge: string;
-  readonly cardTitle: string;
-  readonly cardTitleClass?: string;
-  readonly colSpan: number;
-  readonly minHeight: number;
+  readonly start: string;
+  readonly end?: string;
 }
 
-export interface ColumnsActivityItem {
+export interface ProfileCareerHistoryEntry extends ProfileHistoryEntryBase {
+  readonly kind: 'career';
   readonly org: string;
-  readonly subOrg?: string;
-  readonly period: string;
-  readonly desc?: string;
-  readonly duties?: readonly string[];
+  readonly desc: string;
+  readonly media: ProfileHistoryMedia;
+  readonly href?: string;
 }
 
-export interface ColumnsActivityColumn {
-  readonly label: string;
-  readonly items: readonly ColumnsActivityItem[];
+export interface ProfileCourseHistoryEntry extends ProfileHistoryEntryBase {
+  readonly kind: 'course';
+  readonly org: string;
+  readonly desc: string;
 }
 
-export interface ColumnsActivity extends ActivityBase {
-  readonly modalLayout: 'columns';
-  readonly mediaType: 'img';
-  readonly mediaSrc: string;
-  readonly itemStyle?: 'career';
-  readonly columns: readonly ColumnsActivityColumn[];
-}
-
-export interface SiteActivity extends ActivityBase {
-  readonly modalLayout: 'site';
-  readonly mediaType: 'img' | 'video';
-  readonly mediaSrc: string;
-  readonly period: string;
-  readonly body: string;
-  readonly link: string;
-  readonly linkLabel: string;
-}
-
-export interface HighlightActivity extends ActivityBase {
-  readonly modalLayout: 'none';
-  readonly mediaType: 'none';
-  readonly highlight: true;
-  readonly period: string;
-  readonly body: string;
-}
-
-export type ProfileActivity = ColumnsActivity | SiteActivity | HighlightActivity;
-
-export interface ProfileInterest {
-  readonly icon: string;
+export interface ProfileWorkHistoryEntry extends ProfileHistoryEntryBase {
+  readonly kind: 'work';
   readonly title: string;
-  readonly body: string;
+  readonly desc: string;
+  readonly href: string;
+  readonly media: ProfileHistoryMedia;
+}
+
+export type ProfileHistoryEntry =
+  | ProfileCareerHistoryEntry
+  | ProfileCourseHistoryEntry
+  | ProfileWorkHistoryEntry;
+
+export interface ProfileHistoryStep {
+  readonly id: string;
+  readonly label: string;
+  readonly entries: readonly ProfileHistoryEntry[];
+}
+
+export interface ProfileHistoryContent {
+  readonly label: string;
+  readonly presentLabel: string;
+  readonly linkSuffix: string;
+  readonly steps: readonly ProfileHistoryStep[];
 }
 
 export interface ProfileNavigationItem {
@@ -94,12 +90,6 @@ export interface ProfileSiteContent {
   readonly navigation: readonly ProfileNavigationItem[];
   readonly homeLink: ProfileNavigationItem;
   readonly closeLabel: string;
-  readonly sections: {
-    readonly activities: string;
-    readonly activitiesPeriod: string;
-    readonly interests: string;
-  };
-  readonly nowLabel: string;
   readonly connect: {
     readonly eyebrow: string;
     readonly title: string;
@@ -144,7 +134,6 @@ export interface ProfileSiteContent {
 export interface ProfileContent {
   readonly opening: ProfileOpening;
   readonly intro: ProfileIntroContent;
-  readonly activities: readonly ProfileActivity[];
-  readonly interests: readonly ProfileInterest[];
+  readonly history: ProfileHistoryContent;
   readonly site: ProfileSiteContent;
 }

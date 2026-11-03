@@ -25,6 +25,7 @@ const BENTO_COLUMNS: Record<'left' | 'right', readonly ProfileIntroRoleId[]> = {
   left: ['educator', 'developer'],
   right: ['entrepreneur', 'artist'],
 };
+const INTRO_IMAGE_SIZES = '(min-width: 768px) min(38vw, 32rem), calc((100vw - 3rem) * 0.78)';
 
 function createSrcSet(assets: readonly { readonly width: number; readonly avif: string; readonly webp: string }[], format: 'avif' | 'webp') {
   return assets.map(image => image[format] + ' ' + image.width + 'w').join(', ');
@@ -73,12 +74,12 @@ export function RoleBento({ roles, activeIndex }: RoleBentoProps) {
                 <div className={cellClass} data-active={isActive ? 'true' : 'false'} key={role.id}>
                   <picture className="block size-full">
                     <source
-                      sizes="(min-width: 768px) 38vw, 71vw"
+                      sizes={INTRO_IMAGE_SIZES}
                       srcSet={createSrcSet(assets, 'avif')}
                       type="image/avif"
                     />
                     <source
-                      sizes="(min-width: 768px) 38vw, 71vw"
+                      sizes={INTRO_IMAGE_SIZES}
                       srcSet={createSrcSet(assets, 'webp')}
                       type="image/webp"
                     />
@@ -86,10 +87,12 @@ export function RoleBento({ roles, activeIndex }: RoleBentoProps) {
                       alt={role.imageAlt}
                       className="size-full object-cover"
                       decoding="async"
-                      loading={role.id === roles[0].id ? 'eager' : 'lazy'}
-                      sizes="(min-width: 768px) 38vw, 71vw"
+                      height={Math.round(assets[0].width / introImageAssets[role.id].aspectRatio)}
+                      loading="lazy"
+                      sizes={INTRO_IMAGE_SIZES}
                       src={assets[0].webp}
                       style={imageStyle}
+                      width={assets[0].width}
                     />
                   </picture>
                   <span

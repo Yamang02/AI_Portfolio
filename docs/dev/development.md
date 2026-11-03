@@ -36,6 +36,8 @@ pnpm run dev
 
 These are declared scripts, not evidence that they passed. Root backend scripts invoke `mvnd`; the existing `AGENTS.md` previously mandated Maven within Docker. Confirm runtime availability and Docker compose behavior before execution. Do not silently drop that restriction based solely on npm scripts.
 
+`profile/package.json` also declares `npm --prefix profile run typecheck` and `npm --prefix profile test`. The latter uses Node's built-in test runner and TypeScript stripping for image preparation, cancellation, deadlines, and independent title loading regressions. It does not verify browser rendering or animation performance.
+
 ## Verification policy
 - Prefer targeted checks for changed files, then affected module build/test, then broader integration checks as appropriate.
 - A task may claim only the checks actually executed. Never treat tests as equivalent to actual browser and deployed behavior.
