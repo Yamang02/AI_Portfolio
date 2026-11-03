@@ -187,17 +187,6 @@
               "asset": "yamangsolution",
               "focus": "0% 0%"
             }
-          },
-          {
-            "id": "yamangsolution-career",
-            "kind": "career",
-            "start": "2026.01",
-            "title": "야망솔루션",
-            "subtitle": "대표 · 강의·개발 사업",
-            "media": {
-              "type": "wordmark",
-              "text": "야망솔루션"
-            }
           }
         ]
       },
