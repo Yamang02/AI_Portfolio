@@ -36,7 +36,7 @@ pnpm run dev
 
 These are declared scripts, not evidence that they passed. Root backend scripts invoke `mvnd`; the existing `AGENTS.md` previously mandated Maven within Docker. Confirm runtime availability and Docker compose behavior before execution. Do not silently drop that restriction based solely on npm scripts.
 
-`profile/package.json` also declares `npm --prefix profile run typecheck` and `npm --prefix profile test`. The latter uses Node's built-in test runner and TypeScript stripping for image preparation, cancellation, deadlines, independent title loading, and history layout calculations. Vite SSR checks cover prerendered history content and anchors. These checks do not verify browser rendering or animation performance.
+`profile/package.json` also declares `npm --prefix profile run typecheck` and `npm --prefix profile test`. The latter uses Node's built-in test runner and TypeScript stripping for image preparation, cancellation, deadlines, independent title loading, and history layout calculations. Vite SSR checks cover prerendered history content and anchors; jsdom checks cover reduced-motion hydration, history position restoration, intersection thresholds, and opening/reopening the deferred contact form. Profile development and tests require Node 22.13 or later. Both profile deployment workflows run typecheck and tests before building and uploading. These checks do not verify browser rendering or animation performance.
 
 ## Verification policy
 - Prefer targeted checks for changed files, then affected module build/test, then broader integration checks as appropriate.

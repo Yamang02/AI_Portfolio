@@ -26,7 +26,7 @@ export function useInView(ref: RefObject<Element | null>, options: UseInViewOpti
         ? undefined
         : Math.round(window.innerHeight * bottomRootMarginViewportRatio);
       observer = new IntersectionObserver(([entry]) => {
-        const isIntersecting = Boolean(entry?.isIntersecting);
+        const isIntersecting = Boolean(entry?.isIntersecting && entry.intersectionRatio >= threshold);
 
         if (isIntersecting && once) {
           setIsInView(true);

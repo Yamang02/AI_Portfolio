@@ -1,12 +1,13 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
-import { motion, useMotionValueEvent, useReducedMotion, useScroll } from 'motion/react';
+import { motion, useMotionValueEvent, useScroll } from 'motion/react';
 import type {
   ProfileHistoryContent,
   ProfileHistoryStep,
 } from '../../content/types';
 import { ScrollHint } from '../ScrollHint';
 import { useScrollSpy } from '../../hooks/useScrollSpy';
+import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion';
 import { HistoryCard } from './HistoryCard';
 import { HistoryConnector } from './HistoryConnector';
 import { HistoryStem } from './HistoryStem';
@@ -352,11 +353,12 @@ function getLayoutStyle(layout: HistoryLayout): CSSProperties & { readonly [key:
 }
 
 export function HistorySection({ content }: HistorySectionProps) {
-  const prefersReducedMotion = useReducedMotion() ?? false;
+  const prefersReducedMotion = usePrefersReducedMotion();
   const sectionRef = useRef<HTMLElement | null>(null);
   const contentRef = useRef<HTMLDivElement | null>(null);
   const viewportRef = useRef<HTMLDivElement | null>(null);
   const pendingYearRef = useRef<string | null>(null);
+  const hasMeasuredRef = useRef(false);
   const cardCount = Math.max(1, ...content.steps.map(step => step.entries.length));
   const [layout, setLayout] = useState(() => getHistoryLayout({
     viewportWidth: 0, viewportHeight: 0, contentWidth: 420, cardCount,
@@ -389,12 +391,18 @@ export function HistorySection({ content }: HistorySectionProps) {
       const calculated = getHistoryLayout(input);
       const next = prefersReducedMotion ? { ...calculated, mode: 'flow' as const } : calculated;
       const previous = previousLayoutRef.current;
+      const isInitialMeasurement = !hasMeasuredRef.current;
+      hasMeasuredRef.current = true;
       const sectionBounds = section.getBoundingClientRect();
       const isVisible = sectionBounds.top < input.viewportHeight && sectionBounds.bottom > input.navHeight;
+      const steps = Array.from(contentElement.querySelectorAll<HTMLElement>('[data-history-step]'));
+      const initialAnchor = isInitialMeasurement
+        ? steps.find(step => step.id === window.location.hash.slice(1))
+        : undefined;
 
-      if (isVisible && (previous.mode !== next.mode || previous.isWide !== next.isWide || next.mode === 'pinned')) {
-        const steps = Array.from(contentElement.querySelectorAll<HTMLElement>('[data-history-step]'));
-        const reading = steps.find(step => step.dataset.active === 'true')
+      if (initialAnchor || (isVisible && (previous.mode !== next.mode || previous.isWide !== next.isWide || next.mode === 'pinned'))) {
+        const reading = initialAnchor
+          ?? (previous.mode === 'pinned' ? steps.find(step => step.dataset.active === 'true') : undefined)
           ?? steps.find(step => step.getBoundingClientRect().bottom > input.navHeight);
         pendingYearRef.current = reading?.dataset.historyStep ?? null;
       }

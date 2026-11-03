@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
-import { useReducedMotion } from 'motion/react';
 import type { ProfileHistoryIcon, ProfileHistoryMedia } from '../../content/types';
 import { useInView } from '../../hooks/useInView';
+import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion';
 import { historyAssets } from './historyAssets';
 import { ExternalLinkIcon } from '../Icon';
 
@@ -123,7 +123,7 @@ function HistoryMedia({ media, isActive, hasLink, imageSizes }: HistoryMediaProp
   const mediaRef = useRef<HTMLDivElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const isMediaInView = useInView(mediaRef, { threshold: 0.1 });
-  const prefersReducedMotion = useReducedMotion() ?? false;
+  const prefersReducedMotion = usePrefersReducedMotion();
   const isVideo = media.type === 'video';
   const shouldPlay = isVideo && isActive && isMediaInView && !prefersReducedMotion;
 

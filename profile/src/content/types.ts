@@ -103,6 +103,7 @@ export interface ProfileSiteContent {
     readonly cancelLabel: string;
     readonly submitLabel: string;
     readonly sendingLabel: string;
+    readonly loadFailedMessage: string;
     readonly emailValidationMessage: string;
     readonly messageValidationMessage: string;
     readonly successMessage: string;

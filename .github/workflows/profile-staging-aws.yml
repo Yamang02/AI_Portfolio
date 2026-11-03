@@ -35,6 +35,14 @@ jobs:
       run: pnpm install --frozen-lockfile
       working-directory: profile
 
+    - name: Typecheck profile
+      run: pnpm typecheck
+      working-directory: profile
+
+    - name: Test profile
+      run: pnpm test
+      working-directory: profile
+
     - name: Build profile
       run: pnpm build
       working-directory: profile

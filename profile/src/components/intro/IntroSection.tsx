@@ -108,12 +108,12 @@ export function IntroSection({ content }: IntroSectionProps) {
       <div className="mx-auto max-w-screen-2xl">
         <IntroGreeting activeIndex={cycle.activeIndex} content={content} />
         <div
-          className="flex flex-col gap-10 md:flex-row md:items-start md:justify-center md:gap-8 lg:gap-12"
+          className="mx-auto grid w-full grid-cols-1 gap-6 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] md:items-start lg:w-fit lg:grid-cols-[21rem_30rem]"
           ref={stageRef}
         >
           <motion.div
             animate={revealState(0)}
-            className="w-full pl-12 font-headline text-[clamp(2.25rem,4.4vw,3.75rem)] font-medium leading-[1.15] tracking-tight md:w-auto md:shrink-0"
+            className="w-full pl-12 font-headline text-[clamp(2.25rem,4.4vw,3.75rem)] font-medium leading-[1.15] tracking-tight md:max-w-[21rem] md:justify-self-end md:text-[clamp(2rem,3.5vw,3rem)]"
             initial={false}
           >
             <div className="relative">
@@ -153,7 +153,7 @@ export function IntroSection({ content }: IntroSectionProps) {
           </motion.div>
           <motion.div
             animate={revealState(0.1)}
-            className="w-full min-w-0 md:max-w-[44.5rem] md:flex-1"
+            className="w-full min-w-0 md:max-w-[44.5rem] md:justify-self-start lg:w-[30rem]"
             initial={false}
             onAnimationComplete={() => setIsEntryAnimationComplete(true)}
           >
@@ -164,7 +164,7 @@ export function IntroSection({ content }: IntroSectionProps) {
               role="tabpanel"
               tabIndex={0}
             >
-              <div className="mx-auto w-full md:w-3/4">
+              <div className="w-full">
                 <RoleBento activeIndex={cycle.activeIndex} roles={content.roles} />
               </div>
             </div>

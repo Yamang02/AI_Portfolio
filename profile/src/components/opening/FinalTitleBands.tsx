@@ -68,7 +68,7 @@ export function FinalTitleBands({ readyTitleIds }: FinalTitleBandsProps) {
                 width={1280}
               />
             ) : (
-              <span className="flex size-full items-center justify-center font-headline text-[clamp(0.75rem,3vw,2rem)] font-semibold tracking-[0.15em] text-on-surface">
+              <span className="flex size-full items-center justify-center font-headline text-[clamp(0.75rem,3vw,2rem)] font-semibold tracking-[0.15em] text-white">
                 {FINAL_TITLES[band.id]}
               </span>
             )}

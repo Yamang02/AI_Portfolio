@@ -23,7 +23,7 @@ for (const [width, height] of [[390, 844], [768, 1024], [1024, 600], [1280, 720]
   });
 }
 
-for (const [width, height] of [[390, 667], [667, 390], [1024, 400]]) {
+for (const [width, height] of [[390, 667], [390, 760], [667, 390], [1024, 400]]) {
   test(`${width}x${height}: a short viewport uses document flow instead of hiding cards`, () => {
     const layout = layoutFor(width, height);
     assert.equal(layout.mode, 'flow');
@@ -33,13 +33,13 @@ for (const [width, height] of [[390, 667], [667, 390], [1024, 400]]) {
 
 test('available height constrains thumbnails before falling back to document flow', () => {
   const tall = layoutFor(390, 844);
-  const shorter = layoutFor(390, 760);
+  const shorter = layoutFor(390, 820);
   assert.equal(shorter.mode, 'pinned');
   assert.ok(shorter.thumbnailWidth < tall.thumbnailWidth);
   assert.ok(shorter.thumbnailWidth >= 288);
   assert.ok(Math.abs(shorter.bundleHeight - shorter.panelHeight) < 0.001);
   const tallerNavigation = getHistoryLayout({
-    viewportWidth: 390, viewportHeight: 760, contentWidth: 354, cardCount: 4, navHeight: 100,
+    viewportWidth: 390, viewportHeight: 820, contentWidth: 354, cardCount: 4, navHeight: 100,
   });
   assert.equal(tallerNavigation.mode, 'flow');
 });

@@ -107,6 +107,7 @@
       "cancelLabel": "취소",
       "submitLabel": "전송",
       "sendingLabel": "전송 중...",
+      "loadFailedMessage": "연락 폼을 불러오지 못했습니다. 페이지를 새로고침한 뒤 다시 시도해 주세요.",
       "emailValidationMessage": "올바른 이메일 주소를 입력해주세요.",
       "messageValidationMessage": "메시지는 최소 10자 이상 입력해주세요.",
       "successMessage": "메시지가 성공적으로 전송되었습니다!",

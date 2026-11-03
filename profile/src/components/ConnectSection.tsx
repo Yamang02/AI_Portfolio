@@ -1,11 +1,11 @@
 import { useEffect, useRef } from 'react';
-import { useReducedMotion } from 'motion/react';
 import connectPosterAvif from '../assets/connect/monet-connect-poster.avif';
 import connectPosterWebp from '../assets/connect/monet-connect-poster.webp';
 import connectVideo from '../assets/connect/monet-connect-loop.mp4';
 import { AnimatedMailIcon, ExternalLinkIcon } from './Icon';
 import type { ProfileSiteContent } from '../content/types';
 import { useInView } from '../hooks/useInView';
+import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
 
 const connectRowClassName = 'group flex min-h-12 w-full items-center gap-2 text-left text-[#253b30] transition-colors duration-200 hover:bg-white/15 hover:text-[#253b30] focus-visible:bg-white/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#253b30] motion-reduce:transition-none';
 const connectExternalRowClassName = `${connectRowClassName} pr-5`;
@@ -88,7 +88,7 @@ export function ConnectSection({ content, onOpenContact }: ConnectSectionProps) 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const isInView = useInView(sectionRef, { threshold: 0.05 });
   const hasPassedRevealPoint = useInView(sectionRef, { threshold: 0.5 });
-  const prefersReducedMotion = useReducedMotion() ?? false;
+  const prefersReducedMotion = usePrefersReducedMotion();
   const shouldPlay = isInView && !prefersReducedMotion;
   const isBackgroundVisible = prefersReducedMotion || hasPassedRevealPoint;
 
