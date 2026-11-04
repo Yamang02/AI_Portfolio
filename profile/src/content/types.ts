@@ -82,6 +82,8 @@ export interface ProfileSiteContent {
     readonly companyHref: string;
     readonly companyLabel: string;
     readonly contactLabel: string;
+    readonly githubHref: string;
+    readonly githubHandle: string;
     readonly threadsHref: string;
     readonly threadsLabel: string;
     readonly threadsHandle: string;
