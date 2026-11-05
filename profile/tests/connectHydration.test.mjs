@@ -18,7 +18,8 @@ before(async () => {
   environment = createDom({ reducedMotion: true });
   server = await createServer({ logLevel: 'silent', server: { middlewareMode: true, hmr: false, ws: false, watch: null }, appType: 'custom' });
   ({ ConnectSection } = await server.ssrLoadModule('/src/components/ConnectSection.tsx'));
-  ({ profileContent: content } = await server.ssrLoadModule('/src/content/index.ts'));
+  const { getProfileContent } = await server.ssrLoadModule('/src/content/index.ts');
+  content = getProfileContent('ko');
 });
 
 after(async () => { await server?.close(); environment?.close(); });

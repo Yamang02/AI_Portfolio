@@ -6,12 +6,12 @@ interface IntroGreetingProps {
   readonly activeIndex: number;
 }
 
-function verbSeparator(index: number, count: number) {
+function verbSeparator(index: number, count: number, regularSeparator: string, finalSeparator: string) {
   if (index === 0) {
     return ' ';
   }
 
-  return index === count - 1 ? ', and ' : ', ';
+  return index === count - 1 ? finalSeparator : regularSeparator;
 }
 
 export function IntroGreeting({ content, activeIndex }: IntroGreetingProps) {
@@ -26,7 +26,7 @@ export function IntroGreeting({ content, activeIndex }: IntroGreetingProps) {
         {content.taglineSubject}
         {content.roles.map((role, index) => (
           <Fragment key={role.id}>
-            {verbSeparator(index, content.roles.length)}
+            {verbSeparator(index, content.roles.length, content.verbSeparator, content.finalVerbSeparator)}
             <span
               className="transition-colors duration-300 data-[active=true]:text-primary"
               data-active={index === activeIndex ? 'true' : 'false'}

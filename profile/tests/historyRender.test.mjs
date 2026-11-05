@@ -11,13 +11,14 @@ let content;
 before(async () => {
   server = await createServer({ server: { middlewareMode: true, hmr: false, ws: false, watch: null }, appType: 'custom' });
   ({ HistorySection } = await server.ssrLoadModule('/src/components/history/HistorySection.tsx'));
-  ({ profileContent: content } = await server.ssrLoadModule('/src/content/index.ts'));
+  const { getProfileContent } = await server.ssrLoadModule('/src/content/index.ts');
+  content = getProfileContent('ko');
 });
 
 after(async () => { await server?.close(); });
 
 test('prerender exposes every history card in normal document flow with year anchors', () => {
-  const html = renderToStaticMarkup(createElement(HistorySection, { content: content.history }));
+  const html = renderToStaticMarkup(createElement(HistorySection, { content: content.history, locale: 'ko' }));
   assert.match(html, /data-layout="flow"/);
   assert.doesNotMatch(html, /history-pinned-frame|pointer-events-none absolute inset-x-0 h-px/);
   assert.equal((html.match(/<h4\b/g) ?? []).length, content.history.steps.reduce((sum, step) => sum + step.entries.length, 0));

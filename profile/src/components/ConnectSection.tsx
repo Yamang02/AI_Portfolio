@@ -1,17 +1,24 @@
 import { useEffect, useRef } from 'react';
-import connectPosterAvif from '../assets/connect/monet-connect-poster.avif';
-import connectPosterWebp from '../assets/connect/monet-connect-poster.webp';
-import connectVideo from '../assets/connect/monet-connect-loop.mp4';
+import connectWidePosterAvif from '../assets/connect/monet-connect-wide-poster.avif';
+import connectWidePosterWebp from '../assets/connect/monet-connect-wide-poster.webp';
+import connectWideVideo from '../assets/connect/monet-connect-wide-loop.mp4';
+import connectNarrowPosterAvif from '../assets/connect/monet-connect-narrow-poster.avif';
+import connectNarrowPosterWebp from '../assets/connect/monet-connect-narrow-poster.webp';
+import connectNarrowVideo from '../assets/connect/monet-connect-narrow-loop.mp4';
 import { AnimatedMailIcon, ExternalLinkIcon } from './Icon';
 import type { ProfileSiteContent } from '../content/types';
 import { useInView } from '../hooks/useInView';
+import { useIsPortrait } from '../hooks/useIsPortrait';
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
+
+const wideTopFade = 'linear-gradient(180deg, #f8f9fa 0%, rgba(248,249,250,0.92) 5%, rgba(248,249,250,0.76) 12%, rgba(248,249,250,0.32) 22%, transparent 34%, transparent 100%)';
+const narrowTopFade = 'linear-gradient(180deg, #f8f9fa 0%, rgba(248,249,250,0.97) 4%, rgba(248,249,250,0.9) 8%, rgba(248,249,250,0.78) 12%, rgba(248,249,250,0.62) 16%, rgba(248,249,250,0.45) 20%, rgba(248,249,250,0.28) 24%, rgba(248,249,250,0.14) 28%, rgba(248,249,250,0.05) 32%, transparent 36%, transparent 100%)';
 
 const connectRowClassName = 'group flex min-h-12 w-full items-center gap-2 text-left text-[#253b30] transition-colors duration-200 hover:bg-white/15 hover:text-[#253b30] focus-visible:bg-white/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#253b30] motion-reduce:transition-none';
 const connectExternalRowClassName = `${connectRowClassName} pr-5`;
 const connectMarkSlotClassName = 'flex w-16 shrink-0 items-center justify-center transition-transform duration-300 group-hover:scale-105 group-focus-visible:scale-105 motion-reduce:transition-none';
 
-type ConnectMarkName = 'company' | 'email' | 'portfolio' | 'threads';
+type ConnectMarkName = 'company' | 'email' | 'github' | 'portfolio' | 'threads';
 
 interface ConnectMarkProps {
   readonly name: ConnectMarkName;
@@ -37,6 +44,14 @@ function ConnectMark({ name }: ConnectMarkProps) {
       <svg aria-hidden="true" className="size-6" fill="currentColor" focusable="false" viewBox="0 0 24 24">
         <path clipRule="evenodd" d="M8.25 18C8.25 17.5858 8.58579 17.25 9 17.25H15C15.4142 17.25 15.75 17.5858 15.75 18C15.75 18.4142 15.4142 18.75 15 18.75H9C8.58579 18.75 8.25 18.4142 8.25 18Z" fillRule="evenodd" />
         <path clipRule="evenodd" d="M8.69935 1.25001H15.3004C15.5203 1.24995 15.6888 1.2499 15.8362 1.26571C17.1903 1.41104 18.2268 2.52307 18.2897 3.87013C19.4805 4.22571 20.3289 5.3275 20.3443 6.59118C20.9453 6.77151 21.4637 7.05595 21.888 7.51432C22.54 8.21857 22.7421 9.08649 22.7498 10.1003C22.7572 11.075 22.5835 12.3067 22.3678 13.8363L21.9288 16.9499C21.7602 18.146 21.6232 19.1176 21.4101 19.879C21.1871 20.6756 20.8585 21.331 20.25 21.8349C19.6463 22.3347 18.9301 22.5502 18.0835 22.6518C17.265 22.75 16.2353 22.75 14.9532 22.75H9.04687C7.76478 22.75 6.73501 22.75 5.91647 22.6518C5.06993 22.5502 4.35372 22.3347 3.75003 21.8349C3.14152 21.331 2.81286 20.6756 2.58989 19.879C2.37676 19.1176 2.23979 18.146 2.07118 16.9499L1.63219 13.8363C1.41651 12.3067 1.24283 11.075 1.25023 10.1003C1.25792 9.08649 1.45997 8.21857 2.11196 7.51432C2.53621 7.05606 3.05445 6.77164 3.65528 6.5913C3.67058 5.3275 4.51917 4.22559 5.71005 3.87007C5.77295 2.52304 6.80943 1.41102 8.16359 1.26571C8.31094 1.2499 8.4795 1.24995 8.69935 1.25001ZM5.18902 6.32785C6.11481 6.24999 7.24973 6.25 8.61594 6.25001H15.384C16.75 6.25 17.8848 6.24999 18.8105 6.32781C18.6734 5.72018 18.1306 5.25001 17.4617 5.25001H6.53787C5.86896 5.25001 5.32618 5.72019 5.18902 6.32785ZM15.6761 2.75715C16.2263 2.8162 16.6611 3.22633 16.7677 3.75001H7.2321C7.33862 3.22633 7.77344 2.8162 8.32365 2.75715C8.37993 2.75111 8.46013 2.75001 8.74099 2.75001H15.2588C15.5396 2.75001 15.6198 2.75111 15.6761 2.75715ZM3.21267 8.53336C3.51557 8.20618 3.97106 7.98917 4.85612 7.87145C5.75726 7.75159 6.96357 7.75001 8.67239 7.75001H15.3276C17.0364 7.75001 18.2427 7.75159 19.1439 7.87145C20.0289 7.98917 20.4844 8.20618 20.7873 8.53336C21.0832 8.85293 21.2436 9.28782 21.2498 10.1117C21.2563 10.9618 21.1002 12.0828 20.8738 13.6883L20.4509 16.6883C20.2731 17.9491 20.1486 18.821 19.9656 19.4747C19.7894 20.1042 19.582 20.4405 19.2934 20.6795C18.9999 20.9225 18.6058 21.0784 17.9048 21.1625C17.1861 21.2488 16.2465 21.25 14.9046 21.25H9.09536C7.75347 21.25 6.81372 21.2488 6.09519 21.1625C5.39417 20.1042 5.00014 20.9225 4.70664 20.6795C4.41795 20.4405 4.21058 20.1042 4.03437 19.4747C3.8514 18.821 3.7269 17.9491 3.54913 16.6883L3.12616 13.6883C2.89981 12.0828 2.74373 10.9618 2.75018 10.1117C2.75644 9.28782 2.91681 8.85293 3.21267 8.53336Z" fillRule="evenodd" />
+      </svg>
+    );
+  }
+
+  if (name === 'github') {
+    return (
+      <svg aria-hidden="true" className="size-6" fill="currentColor" focusable="false" viewBox="0 0 16 16">
+        <path clipRule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" fillRule="evenodd" />
       </svg>
     );
   }
@@ -89,6 +104,8 @@ export function ConnectSection({ content, onOpenContact }: ConnectSectionProps) 
   const isInView = useInView(sectionRef, { threshold: 0.05 });
   const hasPassedRevealPoint = useInView(sectionRef, { threshold: 0.5 });
   const prefersReducedMotion = usePrefersReducedMotion();
+  const isPortrait = useIsPortrait();
+  const videoSrc = isPortrait ? connectNarrowVideo : connectWideVideo;
   const shouldPlay = isInView && !prefersReducedMotion;
   const isBackgroundVisible = prefersReducedMotion || hasPassedRevealPoint;
 
@@ -107,7 +124,7 @@ export function ConnectSection({ content, onOpenContact }: ConnectSectionProps) 
 
   return (
     <section
-      className="relative isolate min-h-[100svh] overflow-hidden bg-surface"
+      className="relative isolate min-h-[100svh] portrait:aspect-[9/16] overflow-hidden bg-surface"
       id="connect"
       ref={sectionRef}
     >
@@ -116,25 +133,27 @@ export function ConnectSection({ content, onOpenContact }: ConnectSectionProps) 
         className={`pointer-events-none absolute inset-0 overflow-hidden transition-opacity duration-1000 ease-out motion-reduce:transition-none ${isBackgroundVisible ? (prefersReducedMotion ? 'opacity-100 delay-0' : 'opacity-100 delay-500') : 'opacity-0 delay-0'}`}
       >
         <picture className="absolute inset-0 block size-full">
-          <source srcSet={connectPosterAvif} type="image/avif" />
+          <source media="(orientation: portrait)" srcSet={connectNarrowPosterAvif} type="image/avif" />
+          <source media="(orientation: portrait)" srcSet={connectNarrowPosterWebp} type="image/webp" />
+          <source srcSet={connectWidePosterAvif} type="image/avif" />
           <img
             alt=""
-            className="size-full object-cover object-[30%_50%] md:object-center"
+            className="size-full object-cover object-center landscape:object-[30%_50%] landscape:md:object-center"
             decoding="async"
             loading="lazy"
-            src={connectPosterWebp}
+            src={connectWidePosterWebp}
           />
         </picture>
         {!prefersReducedMotion && (
           <video
             aria-hidden="true"
-            className="absolute inset-0 size-full object-cover object-[30%_50%] md:object-center"
+            className="absolute inset-0 size-full object-cover object-center landscape:object-[30%_50%] landscape:md:object-center"
             loop
             muted
             playsInline
             preload="none"
             ref={videoRef}
-            src={shouldPlay ? connectVideo : undefined}
+            src={shouldPlay ? videoSrc : undefined}
             tabIndex={-1}
           />
         )}
@@ -146,18 +165,16 @@ export function ConnectSection({ content, onOpenContact }: ConnectSectionProps) 
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 z-[2]"
-        style={{
-          background: 'linear-gradient(180deg, #f8f9fa 0%, rgba(248,249,250,0.92) 5%, rgba(248,249,250,0.76) 12%, rgba(248,249,250,0.32) 22%, transparent 34%, transparent 100%)',
-        }}
+        style={{ background: isPortrait ? narrowTopFade : wideTopFade }}
       />
-      <div className="relative z-10 mx-auto flex min-h-[100svh] w-full max-w-7xl items-start justify-center px-5 pb-8 pt-[clamp(5rem,10vh,7rem)] md:items-start md:justify-end md:px-16 md:pb-8 md:pt-16">
-        <div className="w-full text-center md:mr-[3%] md:max-w-[31rem] lg:max-w-[34rem]">
+      <div className="relative z-10 mx-auto flex min-h-[100svh] w-full max-w-7xl items-start justify-center px-5 pb-8 pt-[clamp(5rem,10vh,7rem)] landscape:md:justify-end landscape:md:px-16 landscape:md:pb-8 landscape:md:pt-16">
+        <div className="w-full text-center landscape:md:mr-[3%] landscape:md:max-w-[31rem] landscape:lg:max-w-[34rem]">
           <h2 className="mb-5 font-brand text-[2rem] leading-tight tracking-tight text-[#253b30] opacity-0 sm:mb-7 sm:text-[2.5rem] md:text-[3.5rem]">
             {content.title}
           </h2>
           <ul
             aria-hidden={!isBackgroundVisible}
-            aria-label="연결 링크"
+            aria-label={content.linksLabel}
             className={`mx-auto grid w-full max-w-[23rem] grid-cols-1 divide-y divide-[#253b30]/25 border-y border-[#253b30]/25 bg-[#edf3e8]/15 backdrop-blur-[2px] ${isBackgroundVisible ? 'visible' : 'invisible'}`}
           >
             <li
@@ -165,12 +182,12 @@ export function ConnectSection({ content, onOpenContact }: ConnectSectionProps) 
               style={{ transitionDelay: isBackgroundVisible && !prefersReducedMotion ? '500ms' : '0ms' }}
             >
               <button
-                aria-label={`${content.contactLabel} 연락하기`}
+                aria-label={content.contactActionLabel}
                 className={connectRowClassName}
                 onClick={onOpenContact}
                 type="button"
               >
-                <ConnectControlContents label="연락하기" mark="email" />
+                <ConnectControlContents label={content.contactControlLabel} mark="email" />
               </button>
             </li>
             <li
@@ -178,13 +195,13 @@ export function ConnectSection({ content, onOpenContact }: ConnectSectionProps) 
               style={{ transitionDelay: isBackgroundVisible && !prefersReducedMotion ? '610ms' : '0ms' }}
             >
               <a
-                aria-label={`${content.companyLabel} 홈페이지 열기`}
+                aria-label={content.companyActionLabel}
                 className={connectExternalRowClassName}
                 href={content.companyHref}
                 rel="noreferrer"
                 target="_blank"
               >
-                <ConnectControlContents external label={`${content.companyLabel} 홈페이지`} mark="company" />
+                <ConnectControlContents external label={content.companyControlLabel} mark="company" />
               </a>
             </li>
             <li
@@ -192,13 +209,13 @@ export function ConnectSection({ content, onOpenContact }: ConnectSectionProps) 
               style={{ transitionDelay: isBackgroundVisible && !prefersReducedMotion ? '720ms' : '0ms' }}
             >
               <a
-                aria-label="포트폴리오 사이트 열기"
+                aria-label={content.portfolioActionLabel}
                 className={connectExternalRowClassName}
                 href={content.portfolioHref}
                 rel="noreferrer"
                 target="_blank"
               >
-                <ConnectControlContents external label="포트폴리오 사이트" mark="portfolio" />
+                <ConnectControlContents external label={content.portfolioControlLabel} mark="portfolio" />
               </a>
             </li>
             <li
@@ -206,13 +223,27 @@ export function ConnectSection({ content, onOpenContact }: ConnectSectionProps) 
               style={{ transitionDelay: isBackgroundVisible && !prefersReducedMotion ? '830ms' : '0ms' }}
             >
               <a
-                aria-label={`Threads 프로필 ${content.threadsHandle} 열기`}
+                aria-label={content.githubActionLabel}
+                className={connectExternalRowClassName}
+                href={content.githubHref}
+                rel="noreferrer"
+                target="_blank"
+              >
+                <ConnectControlContents external label={content.githubControlLabel} mark="github" />
+              </a>
+            </li>
+            <li
+              className={`transition-[opacity,translate] duration-700 ease-out motion-reduce:transition-none ${isBackgroundVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
+              style={{ transitionDelay: isBackgroundVisible && !prefersReducedMotion ? '940ms' : '0ms' }}
+            >
+              <a
+                aria-label={content.threadsActionLabel}
                 className={connectExternalRowClassName}
                 href={content.threadsHref}
                 rel="noreferrer"
                 target="_blank"
               >
-                <ConnectControlContents external label={`threads(${content.threadsHandle})`} mark="threads" />
+                <ConnectControlContents external label={content.threadsControlLabel} mark="threads" />
               </a>
             </li>
           </ul>

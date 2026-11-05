@@ -19,7 +19,9 @@ export function RoleFact({ roles, activeIndex, isAnnounced, className = '' }: Ro
         return (
           <p
             aria-hidden={!isActive}
-            className="transition-opacity duration-300 ease-in-out [grid-area:1/1]"
+            className={role.fact.includes('\n')
+              ? 'transition-opacity duration-300 ease-in-out [grid-area:1/1] whitespace-pre-line'
+              : 'transition-opacity duration-300 ease-in-out [grid-area:1/1]'}
             key={role.id}
             style={{ opacity: isActive ? 1 : 0 }}
           >

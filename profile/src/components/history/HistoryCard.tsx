@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import type { ProfileHistoryIcon, ProfileHistoryMedia } from '../../content/types';
+import type { ProfileHistoryIcon, ProfileHistoryMedia, ProfileLocale } from '../../content/types';
 import { useInView } from '../../hooks/useInView';
 import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion';
 import { historyAssets } from './historyAssets';
@@ -19,6 +19,7 @@ interface HistoryCardProps {
   readonly presentLabel: string;
   readonly linkSuffix: string;
   readonly imageSizes: string;
+  readonly locale: ProfileLocale;
 }
 
 interface ResponsivePosterProps {
@@ -41,6 +42,7 @@ interface HistoryPeriodProps {
   readonly start: string;
   readonly end?: string;
   readonly presentLabel: string;
+  readonly locale: ProfileLocale;
 }
 
 const HOVER_SCALE = 'transition-transform duration-500 ease-out group-hover:scale-[1.03] group-focus-visible:scale-[1.03]';
@@ -185,17 +187,30 @@ function HistoryMedia({ media, isActive, hasLink, imageSizes }: HistoryMediaProp
   );
 }
 
-function HistoryPeriod({ start, end, presentLabel }: HistoryPeriodProps) {
+function formatDate(value: string, locale: ProfileLocale) {
+  const [yearValue, monthValue] = value.split('.');
+  const year = Number(yearValue);
+  const month = Number(monthValue);
+
+  if (locale === 'ko') {
+    return yearValue + '.' + monthValue;
+  }
+
+  return new Intl.DateTimeFormat('en-US', { month: 'short', timeZone: 'UTC', year: 'numeric' })
+    .format(new Date(Date.UTC(year, month - 1, 1)));
+}
+
+function HistoryPeriod({ start, end, presentLabel, locale }: HistoryPeriodProps) {
   return (
     <span className="history-card-period font-label tabular-nums">
-      <time dateTime={start.replace('.', '-')}>{start}</time>
+      <time dateTime={start.replace('.', '-')}>{formatDate(start, locale)}</time>
       {' — '}
-      {end ? <time dateTime={end.replace('.', '-')}>{end}</time> : presentLabel}
+      {end ? <time dateTime={end.replace('.', '-')}>{formatDate(end, locale)}</time> : presentLabel}
     </span>
   );
 }
 
-export function HistoryCard({ title, subtitle, start, end, href, media, side, isActive, presentLabel, linkSuffix, imageSizes }: HistoryCardProps) {
+export function HistoryCard({ title, subtitle, start, end, href, media, side, isActive, presentLabel, linkSuffix, imageSizes, locale }: HistoryCardProps) {
   const className = 'history-card group rounded-sm';
   const body = (
     <>
@@ -205,7 +220,7 @@ export function HistoryCard({ title, subtitle, start, end, href, media, side, is
           {title}
         </h4>
         <p className="history-card-subtitle font-body">{subtitle}</p>
-        <HistoryPeriod end={end} presentLabel={presentLabel} start={start} />
+        <HistoryPeriod end={end} locale={locale} presentLabel={presentLabel} start={start} />
       </div>
     </>
   );

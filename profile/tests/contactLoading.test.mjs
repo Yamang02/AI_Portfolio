@@ -27,7 +27,7 @@ test('the deferred contact form opens, closes and reopens after a prerendered pa
   let root;
   try {
     await act(async () => {
-      root = hydrateRoot(container, createElement(App), { onRecoverableError: error => errors.push(error) });
+      root = hydrateRoot(container, createElement(App, { locale: 'ko' }), { onRecoverableError: error => errors.push(error) });
     });
     assert.deepEqual(errors, []);
     assert.equal(container.querySelector('[role="dialog"]'), null);
@@ -77,7 +77,7 @@ test('a rejected contact chunk keeps the page usable and explains how to retry',
   let root;
   try {
     const { App: FailureApp } = await failureServer.ssrLoadModule('/src/App.tsx');
-    await act(async () => { root = hydrateRoot(container, createElement(FailureApp)); });
+    await act(async () => { root = hydrateRoot(container, createElement(FailureApp, { locale: 'ko' })); });
     const openButton = container.querySelector('nav button');
     for (const attempt of [1, 2]) {
       await act(async () => openButton.click());

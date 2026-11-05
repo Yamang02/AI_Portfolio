@@ -5,7 +5,22 @@ function handler(event) {
   }
   var hostHeader = request.headers.host;
   var host = hostHeader && hostHeader.value ? hostHeader.value : '';
-  request.headers['x-cf-site-key'] = { value: host ? host.toLowerCase() : '' };
+  var normalizedHost = host ? host.toLowerCase() : '';
+  request.headers['x-cf-site-key'] = { value: normalizedHost };
+
+  var directoryIndexRoutes = ${directory_index_routes_json};
+  var directoryPaths = directoryIndexRoutes[normalizedHost] || [];
+  var requestUri = request.uri;
+  if (requestUri !== undefined && requestUri !== null) {
+    for (var routeIndex = 0; routeIndex < directoryPaths.length; routeIndex++) {
+      var directoryPath = directoryPaths[routeIndex];
+      var directoryPathWithSlash = directoryPath.charAt(directoryPath.length - 1) === '/' ? directoryPath : directoryPath + '/';
+      if (requestUri === directoryPath || requestUri === directoryPathWithSlash) {
+        request.uri = directoryPathWithSlash + 'index.html';
+        return request;
+      }
+    }
+  }
 
   var hosts = ${hosts_json};
   var match = false;

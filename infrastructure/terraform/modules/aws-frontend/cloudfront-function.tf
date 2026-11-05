@@ -8,9 +8,10 @@ resource "aws_cloudfront_function" "admin_html_rewrite" {
     : "${var.distribution_name_tag}-admin-html"
   )
   runtime = "cloudfront-js-1.0"
-  comment = "Admin-only hostnames: non-asset paths -> /admin.html"
+  comment = "Exact directory index rewrites and admin-only HTML routing"
   publish = true
   code = templatefile("${path.module}/functions/admin-html-rewrite.js.tftpl", {
-    hosts_json = jsonencode(var.admin_html_rewrite_hostnames)
+    hosts_json                  = jsonencode(var.admin_html_rewrite_hostnames)
+    directory_index_routes_json = jsonencode(var.directory_index_routes)
   })
 }

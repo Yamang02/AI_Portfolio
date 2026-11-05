@@ -84,9 +84,9 @@ module "frontend_profile" {
     "www.${var.domain_name}",
   ]
 
-  origin_id            = var.profile_cloudfront_origin_id
-  price_class          = var.cloudfront_price_class
-  distribution_comment = "Profile production - www.${var.domain_name}"
+  origin_id             = var.profile_cloudfront_origin_id
+  price_class           = var.cloudfront_price_class
+  distribution_comment  = "Profile production - www.${var.domain_name}"
   distribution_name_tag = "ai-portfolio-profile-prod"
 
   create_origin_access_control      = false
@@ -94,6 +94,10 @@ module "frontend_profile" {
 
   default_root_object              = "index.html"
   enable_index_html_cache_behavior = false
+  directory_index_routes = {
+    (var.domain_name)          = ["/en"]
+    ("www.${var.domain_name}") = ["/en"]
+  }
 }
 
 module "iam" {

@@ -22,9 +22,10 @@ export async function decodeFinalTitleImages(signal: AbortSignal): Promise<reado
 
 interface FinalTitleBandsProps {
   readonly readyTitleIds: readonly FinalTitleBandId[];
+  readonly accessibleLabel: string;
 }
 
-export function FinalTitleBands({ readyTitleIds }: FinalTitleBandsProps) {
+export function FinalTitleBands({ readyTitleIds, accessibleLabel }: FinalTitleBandsProps) {
   const [isTopVisible, setIsTopVisible] = useState(false);
   const [isBottomVisible, setIsBottomVisible] = useState(false);
   const bands = OPENING_BAND_LAYOUT.filter(band => (
@@ -75,7 +76,7 @@ export function FinalTitleBands({ readyTitleIds }: FinalTitleBandsProps) {
           </div>
         ))}
       </div>
-      <p className="sr-only">YAMANG. LEE JEONGJUN.</p>
+      <p className="sr-only">{accessibleLabel}</p>
     </>
   );
 }

@@ -1,0 +1,347 @@
+{
+  "opening": {
+    "heading": "Lee Jeongjun",
+    "heroAlt": "Portrait of Lee Jeongjun",
+    "artworkCredit": "Alexandre Cabanel, The Fallen Angel (1847), Musée Fabre, Montpellier",
+    "replayLabel": "Replay opening animation",
+    "finalTitleLabel": "YAMANG. LEE JEONGJUN.",
+    "scrollLabel": "SCROLL"
+  },
+  "intro": {
+    "greeting": "Hello, I'm",
+    "name": "Lee Jeongjun",
+    "nameSuffix": "",
+    "taglineSubject": "I",
+    "tabListLabel": "Roles",
+    "pauseLabel": "Pause role rotation",
+    "playLabel": "Play role rotation",
+    "roles": [
+      {
+        "id": "artist",
+        "label": "Artist",
+        "verb": "design",
+        "fact": "SKKU Fine Arts Club (Seongmihwe)",
+        "imageAlt": "Lee Jeongjun as an artist",
+        "sceneFocus": "76% 66%",
+        "portraitFocus": "76% 48%",
+        "portraitZoom": 1.4
+      },
+      {
+        "id": "educator",
+        "label": "Educator",
+        "verb": "explain",
+        "fact": "High school Korean teacher\nCoding educator",
+        "imageAlt": "Lee Jeongjun as an educator",
+        "sceneFocus": "66% 52%",
+        "portraitFocus": "66% 37%",
+        "portraitZoom": 1.4
+      },
+      {
+        "id": "developer",
+        "label": "Developer",
+        "verb": "code",
+        "fact": "ERP & Web\nDevelopment & Operations",
+        "imageAlt": "Lee Jeongjun as a developer",
+        "sceneFocus": "37% 42%",
+        "portraitFocus": "34% 27%",
+        "portraitZoom": 1.4
+      },
+      {
+        "id": "entrepreneur",
+        "label": "Entrepreneur",
+        "verb": "deliver",
+        "fact": "Founder of Yamang Solution",
+        "imageAlt": "Lee Jeongjun as an entrepreneur",
+        "sceneFocus": "43% 30%",
+        "portraitFocus": "43% 28%",
+        "portraitZoom": 1.1
+      }
+    ],
+    "imageGroupLabel": "Profile photos for four roles",
+    "verbSeparator": ", ",
+    "finalVerbSeparator": ", and "
+  },
+  "site": {
+    "logoTexts": [
+      {
+        "text": "Lee JJ",
+        "compactText": ""
+      },
+      {
+        "text": "Jeongjun",
+        "compactText": ""
+      },
+      {
+        "text": "Yamang02",
+        "compactText": "Yamang"
+      }
+    ],
+    "navigation": [
+      {
+        "href": "#opening",
+        "label": "Home"
+      },
+      {
+        "href": "#identity",
+        "label": "About"
+      },
+      {
+        "href": "#history",
+        "label": "Story"
+      },
+      {
+        "href": "#connect",
+        "label": "Links"
+      }
+    ],
+    "connect": {
+      "title": "Connect",
+      "portfolioHref": "https://portfolio.yamang02.com",
+      "portfolioLabel": "Portfolio",
+      "companyHref": "https://www.yamangsolution.com",
+      "companyLabel": "Yamang Solution",
+      "contactLabel": "Email",
+      "githubHref": "https://github.com/Yamang02",
+      "githubHandle": "Yamang02",
+      "threadsHref": "https://www.threads.com/@yamang_dev",
+      "threadsLabel": "Threads",
+      "threadsHandle": "@yamang_dev",
+      "linksLabel": "Contact and social links",
+      "portfolioActionLabel": "Open portfolio website",
+      "portfolioControlLabel": "Portfolio",
+      "companyActionLabel": "Open Yamang Solution website",
+      "companyControlLabel": "Yamang Solution",
+      "contactActionLabel": "Contact by email",
+      "contactControlLabel": "Contact",
+      "githubActionLabel": "Open Yamang02's GitHub profile",
+      "githubControlLabel": "GitHub (Yamang02)",
+      "threadsActionLabel": "Open @yamang_dev's Threads profile",
+      "threadsControlLabel": "Threads (@yamang_dev)"
+    },
+    "footer": {
+      "text": "© 2026 Yamang Solution · CEO Lee Jeongjun · Business Registration No. 882-30-01752"
+    },
+    "contact": {
+      "eyebrow": "GET IN TOUCH",
+      "title": "Contact",
+      "nameLabel": "Name",
+      "namePlaceholder": "Your name",
+      "emailLabel": "Email",
+      "emailPlaceholder": "Your email address",
+      "subjectLabel": "Subject",
+      "subjectPlaceholder": "What is this about?",
+      "messageLabel": "Message",
+      "messagePlaceholder": "Write your message (at least 10 characters)",
+      "cancelLabel": "Cancel",
+      "submitLabel": "Send message",
+      "sendingLabel": "Sending...",
+      "loadFailedMessage": "The contact form could not be loaded. Refresh the page and try again.",
+      "emailValidationMessage": "Enter a valid email address.",
+      "messageValidationMessage": "Your message must be at least 10 characters long.",
+      "successMessage": "Your message has been sent.",
+      "sendFailedMessage": "Your message could not be sent. Please try again.",
+      "toEmail": "contact@yamangsolution.com"
+    },
+    "closeLabel": "Close",
+    "languageNames": {
+      "ko": "한국어",
+      "en": "English"
+    }
+  },
+  "history": {
+    "label": "History",
+    "presentLabel": "Present",
+    "linkSuffix": "website (opens in a new tab)",
+    "steps": [
+      {
+        "id": "y2026",
+        "label": "2026",
+        "entries": [
+          {
+            "id": "gbsa-ai-instructor-2026",
+            "kind": "career",
+            "start": "2026.06",
+            "end": "2026.09",
+            "title": "AI training for GBSA employees",
+            "subtitle": "Instructor with Yamang Solution",
+            "media": {
+              "type": "image",
+              "asset": "gbsa",
+              "focus": "50% 15%"
+            }
+          },
+          {
+            "id": "designlab",
+            "kind": "work",
+            "start": "2026.03",
+            "title": "Yamang Design website",
+            "subtitle": "Design reference archive",
+            "href": "https://design.yamang02.com",
+            "media": {
+              "type": "video",
+              "asset": "design"
+            }
+          },
+          {
+            "id": "yamangsolution-homepage-2026",
+            "kind": "work",
+            "start": "2026.02",
+            "title": "Yamang Solution website",
+            "subtitle": "Services and learning resources",
+            "href": "https://yamangsolution.com",
+            "media": {
+              "type": "image",
+              "asset": "yamangsolution",
+              "focus": "0% 0%"
+            }
+          }
+        ]
+      },
+      {
+        "id": "y2025",
+        "label": "2025",
+        "entries": [
+          {
+            "id": "reconlabs",
+            "kind": "career",
+            "start": "2025.09",
+            "end": "2025.12",
+            "title": "Recon Labs",
+            "subtitle": "Software Engineer",
+            "media": {
+              "type": "image",
+              "asset": "reconlabs"
+            }
+          },
+          {
+            "id": "portfolio-chatbot",
+            "kind": "work",
+            "start": "2025.07",
+            "title": "Personal portfolio and AI chatbot",
+            "subtitle": "A home for projects and career history",
+            "href": "https://portfolio.yamang02.com",
+            "media": {
+              "type": "image",
+              "asset": "chatbot"
+            }
+          },
+          {
+            "id": "sesac",
+            "kind": "course",
+            "start": "2025.06",
+            "end": "2025.09",
+            "title": "SeSAC Gangdong",
+            "subtitle": "Cloud-based multimodal AI developer program",
+            "media": {
+              "type": "image",
+              "asset": "sesac"
+            }
+          },
+          {
+            "id": "artclub",
+            "kind": "work",
+            "start": "2025.02",
+            "title": "SKKU Fine Arts Club (Seongmihwe) archive",
+            "subtitle": "A collection of work by SKKU's fine arts club",
+            "href": "https://www.skkuartclub.kr/",
+            "media": {
+              "type": "image",
+              "asset": "artclub"
+            }
+          }
+        ]
+      },
+      {
+        "id": "y2023",
+        "label": "2023",
+        "entries": [
+          {
+            "id": "noroo-erp-transition",
+            "kind": "career",
+            "start": "2023.11",
+            "end": "2024.12",
+            "title": "Noroo Paint ERP migration project",
+            "subtitle": "SAP LE module and related website management",
+            "media": {
+              "type": "keyword",
+              "icon": "erp",
+              "text": "ERP migration"
+            }
+          },
+          {
+            "id": "dit",
+            "kind": "career",
+            "start": "2023.07",
+            "end": "2025.01",
+            "title": "DIT Co., Ltd.",
+            "subtitle": "ERP and web development and maintenance",
+            "media": {
+              "type": "keyword",
+              "icon": "database",
+              "text": "ERP & WEB"
+            }
+          }
+        ]
+      },
+      {
+        "id": "y2022",
+        "label": "2022",
+        "entries": [
+          {
+            "id": "kh",
+            "kind": "course",
+            "start": "2022.11",
+            "end": "2023.04",
+            "title": "KH Information & Education Institute",
+            "subtitle": "Java-based cloud developer program",
+            "media": {
+              "type": "keyword",
+              "icon": "code",
+              "text": "JAVA"
+            }
+          }
+        ]
+      },
+      {
+        "id": "y2019",
+        "label": "2019",
+        "entries": [
+          {
+            "id": "baejae-teacher",
+            "kind": "career",
+            "start": "2021.03",
+            "end": "2022.03",
+            "title": "Baejae High School",
+            "subtitle": "Korean language teacher",
+            "media": {
+              "type": "keyword",
+              "icon": "book",
+              "text": "Korean class"
+            }
+          },
+          {
+            "id": "sangmyung-teacher",
+            "kind": "career",
+            "start": "2019.03",
+            "end": "2021.03",
+            "title": "Sangmyung High School",
+            "subtitle": "Korean language teacher",
+            "media": {
+              "type": "keyword",
+              "icon": "briefcase",
+              "text": "First position"
+            }
+          }
+        ]
+      }
+    ],
+    "scrollLabel": "SCROLL"
+  },
+  "metadata": {
+    "title": "Lee Jeongjun | Yamang",
+    "description": "Meet Lee Jeongjun, founder of Yamang Solution: an educator, developer, artist, and entrepreneur.",
+    "author": "Lee Jeongjun (Yamang02)",
+    "ogTitle": "Lee Jeongjun | Founder of Yamang Solution",
+    "ogLocale": "en_US"
+  }
+}
