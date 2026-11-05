@@ -174,7 +174,7 @@ export function ConnectSection({ content, onOpenContact }: ConnectSectionProps) 
           </h2>
           <ul
             aria-hidden={!isBackgroundVisible}
-            aria-label="연결 링크"
+            aria-label={content.linksLabel}
             className={`mx-auto grid w-full max-w-[23rem] grid-cols-1 divide-y divide-[#253b30]/25 border-y border-[#253b30]/25 bg-[#edf3e8]/15 backdrop-blur-[2px] ${isBackgroundVisible ? 'visible' : 'invisible'}`}
           >
             <li
@@ -182,12 +182,12 @@ export function ConnectSection({ content, onOpenContact }: ConnectSectionProps) 
               style={{ transitionDelay: isBackgroundVisible && !prefersReducedMotion ? '500ms' : '0ms' }}
             >
               <button
-                aria-label={`${content.contactLabel} 연락하기`}
+                aria-label={content.contactActionLabel}
                 className={connectRowClassName}
                 onClick={onOpenContact}
                 type="button"
               >
-                <ConnectControlContents label="연락하기" mark="email" />
+                <ConnectControlContents label={content.contactControlLabel} mark="email" />
               </button>
             </li>
             <li
@@ -195,13 +195,13 @@ export function ConnectSection({ content, onOpenContact }: ConnectSectionProps) 
               style={{ transitionDelay: isBackgroundVisible && !prefersReducedMotion ? '610ms' : '0ms' }}
             >
               <a
-                aria-label={`${content.companyLabel} 홈페이지 열기`}
+                aria-label={content.companyActionLabel}
                 className={connectExternalRowClassName}
                 href={content.companyHref}
                 rel="noreferrer"
                 target="_blank"
               >
-                <ConnectControlContents external label={`${content.companyLabel} 홈페이지`} mark="company" />
+                <ConnectControlContents external label={content.companyControlLabel} mark="company" />
               </a>
             </li>
             <li
@@ -209,13 +209,13 @@ export function ConnectSection({ content, onOpenContact }: ConnectSectionProps) 
               style={{ transitionDelay: isBackgroundVisible && !prefersReducedMotion ? '720ms' : '0ms' }}
             >
               <a
-                aria-label="포트폴리오 사이트 열기"
+                aria-label={content.portfolioActionLabel}
                 className={connectExternalRowClassName}
                 href={content.portfolioHref}
                 rel="noreferrer"
                 target="_blank"
               >
-                <ConnectControlContents external label="포트폴리오 사이트" mark="portfolio" />
+                <ConnectControlContents external label={content.portfolioControlLabel} mark="portfolio" />
               </a>
             </li>
             <li
@@ -223,13 +223,13 @@ export function ConnectSection({ content, onOpenContact }: ConnectSectionProps) 
               style={{ transitionDelay: isBackgroundVisible && !prefersReducedMotion ? '830ms' : '0ms' }}
             >
               <a
-                aria-label={`GitHub 프로필 ${content.githubHandle} 열기`}
+                aria-label={content.githubActionLabel}
                 className={connectExternalRowClassName}
                 href={content.githubHref}
                 rel="noreferrer"
                 target="_blank"
               >
-                <ConnectControlContents external label={`github(${content.githubHandle})`} mark="github" />
+                <ConnectControlContents external label={content.githubControlLabel} mark="github" />
               </a>
             </li>
             <li
@@ -237,13 +237,13 @@ export function ConnectSection({ content, onOpenContact }: ConnectSectionProps) 
               style={{ transitionDelay: isBackgroundVisible && !prefersReducedMotion ? '940ms' : '0ms' }}
             >
               <a
-                aria-label={`Threads 프로필 ${content.threadsHandle} 열기`}
+                aria-label={content.threadsActionLabel}
                 className={connectExternalRowClassName}
                 href={content.threadsHref}
                 rel="noreferrer"
                 target="_blank"
               >
-                <ConnectControlContents external label={`threads(${content.threadsHandle})`} mark="threads" />
+                <ConnectControlContents external label={content.threadsControlLabel} mark="threads" />
               </a>
             </li>
           </ul>

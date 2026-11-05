@@ -125,3 +125,9 @@ variable "cloudfront_admin_function_name" {
   type        = string
   default     = ""
 }
+
+variable "directory_index_routes" {
+  description = "Exact hostname-to-directory routes that should serve their index.html object, e.g. www.example.com = ['/en']."
+  type        = map(list(string))
+  default     = {}
+}

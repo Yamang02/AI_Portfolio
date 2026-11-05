@@ -7,6 +7,37 @@
   }
 }
 
+.profile-logo-compact {
+  display: none;
+}
+
+/* Compact logo spellings are the approved narrow-screen exception to the KO baseline. */
+@media (max-width: 336px) {
+  nav[data-locale="ko"] #logo-text[data-has-compact="true"] .profile-logo-full {
+    display: none;
+  }
+
+  nav[data-locale="ko"] #logo-text[data-has-compact="true"] .profile-logo-compact {
+    display: inline;
+  }
+}
+
+@media (max-width: 345px) {
+  nav[data-locale="en"] #logo-text[data-has-compact="true"] .profile-logo-full {
+    display: none;
+  }
+
+  nav[data-locale="en"] #logo-text[data-has-compact="true"] .profile-logo-compact {
+    display: inline;
+  }
+}
+
+@media (max-width: 320px) {
+  nav[data-locale="en"] .profile-nav-links > :not(:last-child) {
+    margin-inline-end: 11px;
+  }
+}
+
 :root {
   --profile-nav-height: 54px;
   --profile-intro-scroll-gap: 16px;

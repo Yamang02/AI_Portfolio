@@ -46,7 +46,8 @@ before(async () => {
   };
   server = await createServer({ logLevel: 'silent', server: { middlewareMode: true, hmr: false, ws: false, watch: null }, appType: 'custom' });
   ({ HistorySection } = await server.ssrLoadModule('/src/components/history/HistorySection.tsx'));
-  ({ profileContent: content } = await server.ssrLoadModule('/src/content/index.ts'));
+  const { getProfileContent } = await server.ssrLoadModule('/src/content/index.ts');
+  content = getProfileContent('ko');
   assert.deepEqual(content.history.steps.map(step => step.id), ids);
 });
 after(async () => { await server?.close(); environment?.close(); });
@@ -63,7 +64,7 @@ for (const { hash, initialScrollY, expectedTop } of [
     scrollCalls.length = 0;
     const root = createRoot(document.getElementById('root'));
     try {
-      await act(async () => root.render(createElement(HistorySection, { content: content.history })));
+      await act(async () => root.render(createElement(HistorySection, { content: content.history, locale: 'ko' })));
       assert.equal(document.querySelector('#history').dataset.layout, 'pinned');
       assert.equal(scrollCalls[0]?.top, expectedTop);
       if (expectedTop === undefined) assert.equal(scrollCalls.length, 0);
@@ -85,7 +86,7 @@ test('hydration preserves a history anchor when reduced motion selects document 
   let root;
   try {
     await act(async () => {
-      root = hydrateRoot(container, createElement(HistorySection, { content: content.history }), {
+      root = hydrateRoot(container, createElement(HistorySection, { content: content.history, locale: 'ko' }), {
         onRecoverableError: error => errors.push(error),
       });
     });

@@ -4,6 +4,7 @@ import { motion, useMotionValueEvent, useScroll } from 'motion/react';
 import type {
   ProfileHistoryContent,
   ProfileHistoryStep,
+  ProfileLocale,
 } from '../../content/types';
 import { ScrollHint } from '../ScrollHint';
 import { useScrollSpy } from '../../hooks/useScrollSpy';
@@ -17,6 +18,7 @@ import './HistorySection.css';
 
 interface HistorySectionProps {
   readonly content: ProfileHistoryContent;
+  readonly locale: ProfileLocale;
 }
 
 interface HistoryStepPanelProps {
@@ -26,6 +28,7 @@ interface HistoryStepPanelProps {
   readonly presentLabel: string;
   readonly linkSuffix: string;
   readonly layout: HistoryLayout;
+  readonly locale: ProfileLocale;
 }
 
 interface HistoryViewProps extends HistorySectionProps {
@@ -43,7 +46,7 @@ const ENTRY_SNAP_VIEWPORT_RATIO = 0.3;
 const SCROLL_IDLE_MS = 140;
 const useIsomorphicLayoutEffect = typeof window === 'undefined' ? useEffect : useLayoutEffect;
 
-function HistoryStepPanel({ step, isActive, prefersReducedMotion, presentLabel, linkSuffix, layout }: HistoryStepPanelProps) {
+function HistoryStepPanel({ step, isActive, prefersReducedMotion, presentLabel, linkSuffix, layout, locale }: HistoryStepPanelProps) {
   const entries = step.entries
     .map((entry, contentIndex) => ({ entry, contentIndex }))
     .sort((left, right) => right.entry.start.localeCompare(left.entry.start) || left.contentIndex - right.contentIndex);
@@ -69,6 +72,7 @@ function HistoryStepPanel({ step, isActive, prefersReducedMotion, presentLabel, 
               isActive={isActive}
               imageSizes={layout.thumbnailWidth + 'px'}
               linkSuffix={linkSuffix}
+              locale={locale}
               media={entry.media}
               presentLabel={presentLabel}
               side={side}
@@ -113,7 +117,7 @@ function HistoryYearHeader({ steps, activeIndex, onSelect }: HistoryYearHeaderPr
   );
 }
 
-function PinnedHistory({ content, layout }: HistoryViewProps) {
+function PinnedHistory({ content, layout, locale }: HistoryViewProps) {
   const trackRef = useRef<HTMLDivElement | null>(null);
   const markerRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -253,6 +257,7 @@ function PinnedHistory({ content, layout }: HistoryViewProps) {
                     isActive={isActive}
                     linkSuffix={content.linkSuffix}
                     layout={layout}
+                    locale={locale}
                     prefersReducedMotion={false}
                     presentLabel={content.presentLabel}
                     step={step}
@@ -265,13 +270,14 @@ function PinnedHistory({ content, layout }: HistoryViewProps) {
         <ScrollHint
           className="history-pinned-hint"
           isVisible={activeIndex === stepCount - 1}
+          label={content.scrollLabel}
         />
       </div>
     </div>
   );
 }
 
-function FlowHistory({ content, layout, prefersReducedMotion }: HistoryViewProps & { readonly prefersReducedMotion: boolean }) {
+function FlowHistory({ content, layout, prefersReducedMotion, locale }: HistoryViewProps & { readonly prefersReducedMotion: boolean }) {
   const navigationRef = useRef<HTMLElement | null>(null);
   const [navigationHeight, setNavigationHeight] = useState(0);
   const navigation = useMemo(() => content.steps.map(step => ({
@@ -321,12 +327,12 @@ function FlowHistory({ content, layout, prefersReducedMotion }: HistoryViewProps
               <h3 className="history-flow-year font-headline text-secondary/80">
                 {step.label}
               </h3>
-              <HistoryStepPanel isActive layout={layout} linkSuffix={content.linkSuffix} prefersReducedMotion={prefersReducedMotion} presentLabel={content.presentLabel} step={step} />
+              <HistoryStepPanel isActive layout={layout} linkSuffix={content.linkSuffix} locale={locale} prefersReducedMotion={prefersReducedMotion} presentLabel={content.presentLabel} step={step} />
             </li>
           ))}
         </ol>
       </div>
-      <ScrollHint className="relative mx-auto mt-10 flex justify-center" isAnimated={false} isVisible />
+      <ScrollHint className="relative mx-auto mt-10 flex justify-center" isAnimated={false} isVisible label={content.scrollLabel} />
     </div>
   );
 }
@@ -352,7 +358,7 @@ function getLayoutStyle(layout: HistoryLayout): CSSProperties & { readonly [key:
   };
 }
 
-export function HistorySection({ content }: HistorySectionProps) {
+export function HistorySection({ content, locale }: HistorySectionProps) {
   const prefersReducedMotion = usePrefersReducedMotion();
   const sectionRef = useRef<HTMLElement | null>(null);
   const contentRef = useRef<HTMLDivElement | null>(null);
@@ -451,8 +457,8 @@ export function HistorySection({ content }: HistorySectionProps) {
       <div className="history-content" ref={contentRef}>
         <h2 className="sr-only" id="history-heading">{content.label}</h2>
         {prefersReducedMotion || layout.mode === 'flow'
-          ? <FlowHistory content={content} layout={layout} prefersReducedMotion={prefersReducedMotion} />
-          : <PinnedHistory content={content} layout={layout} />}
+          ? <FlowHistory content={content} layout={layout} locale={locale} prefersReducedMotion={prefersReducedMotion} />
+          : <PinnedHistory content={content} layout={layout} locale={locale} />}
       </div>
     </section>
   );

@@ -1,4 +1,5 @@
-import contentData from './content.json';
+import englishContentData from './content.en.json';
+import koreanContentData from './content.ko.json';
 import type {
   ProfileIntroRole,
   ProfileIntroRoleId,
@@ -8,13 +9,14 @@ import type {
   ProfileHistoryImageAsset,
   ProfileHistoryMedia,
   ProfileHistoryStep,
+  ProfileLocale,
 } from './types';
 
 function isProfileIntroRoleId(id: string): id is ProfileIntroRoleId {
   return id === 'educator' || id === 'developer' || id === 'artist' || id === 'entrepreneur';
 }
 
-function narrowIntroRole(role: typeof contentData.intro.roles[number]): ProfileIntroRole {
+function narrowIntroRole(role: typeof koreanContentData.intro.roles[number]): ProfileIntroRole {
   if (!isProfileIntroRoleId(role.id)) {
     throw new Error('Profile intro content contains an unsupported role id: ' + role.id);
   }
@@ -112,7 +114,7 @@ function narrowHistoryEntry(value: unknown): ProfileHistoryEntry {
   };
 }
 
-function narrowHistoryStep(step: typeof contentData.history.steps[number]): ProfileHistoryStep {
+function narrowHistoryStep(step: typeof koreanContentData.history.steps[number]): ProfileHistoryStep {
   if (step.entries.length > 4) {
     throw new Error('Profile history step ' + step.label + ' exceeds 4 entries.');
   }
@@ -120,17 +122,32 @@ function narrowHistoryStep(step: typeof contentData.history.steps[number]): Prof
   return { ...step, entries: step.entries.map(narrowHistoryEntry) };
 }
 
-const intro = {
-  ...contentData.intro,
-  roles: contentData.intro.roles.map(narrowIntroRole),
-};
-const history = {
-  ...contentData.history,
-  steps: contentData.history.steps.map(narrowHistoryStep),
+function normalizeProfileContent(contentData: typeof koreanContentData): ProfileContent {
+  const intro = {
+    ...contentData.intro,
+    roles: contentData.intro.roles.map(narrowIntroRole),
+  };
+  const history = {
+    ...contentData.history,
+    steps: contentData.history.steps.map(narrowHistoryStep),
+  };
+
+  return {
+    ...contentData,
+    intro,
+    history,
+  } satisfies ProfileContent;
+}
+
+const profileContentByLocale: Readonly<Record<ProfileLocale, ProfileContent>> = {
+  ko: normalizeProfileContent(koreanContentData),
+  en: normalizeProfileContent(englishContentData),
 };
 
-export const profileContent = {
-  ...contentData,
-  intro,
-  history,
-} satisfies ProfileContent;
+export function getProfileContent(locale: ProfileLocale): ProfileContent {
+  return profileContentByLocale[locale];
+}
+
+export function getProfileLocale(pathname: string): ProfileLocale {
+  return pathname === '/en' || pathname.startsWith('/en/') ? 'en' : 'ko';
+}

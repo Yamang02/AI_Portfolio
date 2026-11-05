@@ -2,7 +2,20 @@ export interface ProfileOpening {
   readonly heading: string;
   readonly heroAlt: string;
   readonly artworkCredit: string;
+  readonly replayLabel: string;
+  readonly finalTitleLabel: string;
+  readonly scrollLabel: string;
 }
+
+export interface ProfileMetadata {
+  readonly title: string;
+  readonly description: string;
+  readonly author: string;
+  readonly ogTitle: string;
+  readonly ogLocale: string;
+}
+
+export type ProfileLocale = 'ko' | 'en';
 
 export type ProfileIntroRoleId = 'educator' | 'developer' | 'artist' | 'entrepreneur';
 
@@ -22,7 +35,10 @@ export interface ProfileIntroContent {
   readonly name: string;
   readonly nameSuffix: string;
   readonly taglineSubject: string;
+  readonly verbSeparator: string;
+  readonly finalVerbSeparator: string;
   readonly tabListLabel: string;
+  readonly imageGroupLabel: string;
   readonly pauseLabel: string;
   readonly playLabel: string;
   readonly roles: readonly ProfileIntroRole[];
@@ -63,6 +79,7 @@ export interface ProfileHistoryContent {
   readonly label: string;
   readonly presentLabel: string;
   readonly linkSuffix: string;
+  readonly scrollLabel: string;
   readonly steps: readonly ProfileHistoryStep[];
 }
 
@@ -72,21 +89,33 @@ export interface ProfileNavigationItem {
 }
 
 export interface ProfileSiteContent {
-  readonly logoTexts: readonly string[];
+  readonly logoTexts: readonly { readonly text: string; readonly compactText: string }[];
   readonly navigation: readonly ProfileNavigationItem[];
+  readonly languageNames: { readonly ko: string; readonly en: string };
   readonly closeLabel: string;
   readonly connect: {
     readonly title: string;
+    readonly linksLabel: string;
     readonly portfolioHref: string;
     readonly portfolioLabel: string;
+    readonly portfolioActionLabel: string;
+    readonly portfolioControlLabel: string;
     readonly companyHref: string;
     readonly companyLabel: string;
+    readonly companyActionLabel: string;
+    readonly companyControlLabel: string;
     readonly contactLabel: string;
+    readonly contactActionLabel: string;
+    readonly contactControlLabel: string;
     readonly githubHref: string;
     readonly githubHandle: string;
+    readonly githubActionLabel: string;
+    readonly githubControlLabel: string;
     readonly threadsHref: string;
     readonly threadsLabel: string;
     readonly threadsHandle: string;
+    readonly threadsActionLabel: string;
+    readonly threadsControlLabel: string;
   };
   readonly footer: {
     readonly text: string;
@@ -115,6 +144,7 @@ export interface ProfileSiteContent {
 }
 
 export interface ProfileContent {
+  readonly metadata: ProfileMetadata;
   readonly opening: ProfileOpening;
   readonly intro: ProfileIntroContent;
   readonly history: ProfileHistoryContent;

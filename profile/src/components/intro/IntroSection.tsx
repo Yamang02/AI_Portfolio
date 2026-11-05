@@ -165,7 +165,7 @@ export function IntroSection({ content }: IntroSectionProps) {
               tabIndex={0}
             >
               <div className="w-full">
-                <RoleBento activeIndex={cycle.activeIndex} roles={content.roles} />
+                <RoleBento activeIndex={cycle.activeIndex} imageGroupLabel={content.imageGroupLabel} roles={content.roles} />
               </div>
             </div>
           </motion.div>

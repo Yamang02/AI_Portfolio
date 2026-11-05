@@ -12,9 +12,12 @@ const server = await createServer({
 try {
   const [modulePath, exportName, contentPath] = process.argv.slice(2);
   const module = await server.ssrLoadModule(modulePath);
-  const { profileContent } = await server.ssrLoadModule('/src/content/index.ts');
+  const { getProfileContent } = await server.ssrLoadModule('/src/content/index.ts');
+  const profileContent = getProfileContent('ko');
   const content = contentPath?.split('.').reduce((value, key) => value[key], profileContent);
-  process.stdout.write(renderToString(createElement(module[exportName], content ? { content, onOpenContact() {} } : {})));
+  const props = { locale: 'ko', onOpenContact() {} };
+  if (content) Object.assign(props, { content });
+  process.stdout.write(renderToString(createElement(module[exportName], props)));
 } finally {
   await server.close();
 }

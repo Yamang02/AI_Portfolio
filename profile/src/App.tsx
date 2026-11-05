@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
 import { MotionConfig } from 'motion/react';
-import { profileContent } from './content';
+import { getProfileContent } from './content';
+import type { ProfileLocale } from './content/types';
 import { ConnectSection } from './components/ConnectSection';
 import { Footer } from './components/Footer';
 import { HistorySection } from './components/history/HistorySection';
@@ -9,12 +10,17 @@ import { Nav } from './components/Nav';
 import { OpeningScene } from './components/opening/OpeningScene';
 import './styles/index.css';
 
+interface AppProps {
+  readonly locale: ProfileLocale;
+}
+
 interface ContactModalState {
   readonly Component: typeof import('./components/ContactModal').ContactModal;
   readonly isOpen: boolean;
 }
 
-export function App() {
+export function App({ locale }: AppProps) {
+  const profileContent = getProfileContent(locale);
   const [contactModal, setContactModal] = useState<ContactModalState | null>(null);
   const openContact = useCallback(async () => {
     try {
@@ -32,11 +38,11 @@ export function App() {
   return (
     <MotionConfig reducedMotion="user">
       <div className="bg-surface font-body text-on-surface selection:bg-primary-container selection:text-on-primary-container">
-        <Nav content={profileContent.site} onOpenContact={openContact} />
+        <Nav content={profileContent.site} locale={locale} onOpenContact={openContact} />
         <main>
           <OpeningScene content={profileContent.opening} />
           <IntroSection content={profileContent.intro} />
-          <HistorySection content={profileContent.history} />
+          <HistorySection content={profileContent.history} locale={locale} />
           <ConnectSection content={profileContent.site.connect} onOpenContact={openContact} />
         </main>
         <Footer content={profileContent.site.footer} />

@@ -7,6 +7,7 @@ import './RoleBento.css';
 interface RoleBentoProps {
   readonly roles: readonly ProfileIntroRole[];
   readonly activeIndex: number;
+  readonly imageGroupLabel: string;
 }
 
 interface BentoStyle extends CSSProperties {
@@ -31,7 +32,7 @@ function createSrcSet(assets: readonly { readonly width: number; readonly avif: 
   return assets.map(image => image[format] + ' ' + image.width + 'w').join(', ');
 }
 
-export function RoleBento({ roles, activeIndex }: RoleBentoProps) {
+export function RoleBento({ roles, activeIndex, imageGroupLabel }: RoleBentoProps) {
   const activeRole = roles[activeIndex];
   const layout = getBentoLayout(activeRole.id);
   const style: BentoStyle = {
@@ -42,7 +43,7 @@ export function RoleBento({ roles, activeIndex }: RoleBentoProps) {
 
   return (
     <div
-      aria-label="네 역할의 프로필 사진"
+      aria-label={imageGroupLabel}
       className="intro-bento-layout relative aspect-square w-full min-w-0 overflow-hidden"
       role="group"
       style={style}
